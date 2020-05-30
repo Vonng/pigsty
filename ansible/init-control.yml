@@ -1,0 +1,129 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   init-control.yml
+# Mtime     :   2020-05-30
+# Desc      :   init control node
+# Path      :   ansible/init-control.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note: This play assumes all pkgs already accessible via yum
+#==============================================================#
+
+
+- name: Init Yum
+  hosts: control
+  become: yes
+  gather_facts: no
+  vars:
+  tasks:
+
+    ################################################################
+    # PHASE 1: [install] control node packages
+    ################################################################
+    - name: Install yum packages
+      tags: [install]
+      yum:
+        name:
+          - grafana,prometheus2,alertmanager,consul,etcd,nginx,haproxy,keepalived,dnsmasq
+          - node_exporter,pg_exporter,nginx_exporter,consul_exporter
+          - ansible,python,python-pip,python-ipython,python-psycopg2
+          - ntp,uuid,readline,lz4,nc,pv,jq,vim,bash,libxml2,libxslt,lsof,wget,unzip,git,bind-utils,net-tools,sysstat,tcpdump
+          - gcc,gcc-c++,clang,make,coreutils,diffutils,patch,rpm-build,rpm-devel,rpmlint,rpmdevtools
+          - postgresql12*
+          - postgis30_12*
+          - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
+          - pgbouncer,pgadmin4,pg_top,pgbadger
+          - perl-ExtUtils-Embed,zlib,zlib-devel,openssl,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+          - docker-ce,docker-ce-cli
+
+
+    ################################################################
+    # PHASE 2: [prometheus]
+    ################################################################
+    - name: Setup Prometheus and grafana
+      tags: [prometheus]
+      block:
+        - name: Wipe out prometheus config
+          file: path=/etc/prometheus state=absent
+        - name: Wipe out prometheus data
+          file: path=/var/lib/prometheus/data state=absent
+        - name: Recreate prometheus data dir
+          file: path=/var/lib/prometheus/data mode=0700 state=directory owner=prometheus group=prometheus
+        - name: Copy prometheus configs
+          copy: src=files/prometheus/ dest=/etc/prometheus mode=0755
+        - name: Launch prometheus service
+          systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
+        - name: Launch alertmanager service
+          systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+
+    ################################################################
+    # PHASE 3: [grafana]
+    ################################################################
+    - name: Setup Grafana
+      tags: [grafana]
+      block:
+        - name: Copy grafana configs
+          copy: src=files/grafana/grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+        - name: Provision grafana datasource
+          copy: src=files/grafana/datasources/ dest=/etc/grafana/provisioning/datasources/ owner=root group=grafana mode=0640
+        - name: Provision grafana dashboards
+          copy: src=files/grafana/dashboards/ dest=/etc/grafana/provisioning/dashboards/ owner=root group=grafana mode=0640
+        - name: Launch grafana service
+          systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
+    ################################################################
+    # PHASE 4: [consul]
+    ################################################################
+    - name: Setup Consul
+      tags: [consul]
+      block:
+        - name: Copy consul service unit
+          copy: src=files/consul/consul.service dest=/usr/lib/systemd/system/consul.service
+        - name: Copy consul main config
+          copy: src=files/consul/consul.json dest=/etc/consul.d/consul.json mode=0700 owner=consul group=postgres
+        - name: Copy consul services definition
+          copy: src=files/consul/srv-{{ item }}.json dest=/etc/consul.d/srv-{{ item }}.json mode=0770 owner=consul group=postgres
+          with_items: [grafana, prometheus, alertmanager, consul, nginx, dnsmasq, consul-dns]
+        - name: Launch consul service
+          systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+
+    ################################################################
+    # PHASE 5: [dnsmasq]
+    ################################################################
+    - name: Setup dnsmasq
+      tags: [dnsmasq]
+      block:
+        - name: Copy dnsmasq config
+          copy:
+            content: |
+              port=53
+              listen-address=10.10.10.10
+              server=/consul/127.0.0.1#8600
+            dest: /etc/dnsmasq.d/config
+        - name: Launch dnsmasq service
+          systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
+
+
+#    ################################################################
+#    # PHASE 6: [keepalived]
+#    ################################################################
+#    - name: Setup keepalived
+#      tags: [keepalived]
+#      block:
+#        - name: Copy keepalived config
+#          copy: src=files/keepalived/keepalived.conf dest=/etc/keepalived/keepalived.conf mode=0750
+#        - name: Launch keepalived service
+#          systemd: name=keepalived state=restarted enabled=yes daemon_reload=yes
+#
+#
+#    ################################################################
+#    # PHASE 7: [haproxy]
+#    ################################################################
+#    - name: Setup haproxy
+#      tags: [haproxy]
+#      block:
+#        - name: Copy haproxy config
+#          copy: src=files/haproxy/haproxy.cfg dest=/etc/haproxy/haproxy.cfg mode=0750
+#        - name: Launch haproxy service
+#          systemd: name=haproxy state=restarted enabled=yes daemon_reload=yes

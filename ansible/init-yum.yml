@@ -1,0 +1,179 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   init-yum.yml
+# Mtime     :   2020-05-30
+# Desc      :   init local yum repo on pigsty control node
+# Path      :   ansible/init-yum.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note: This playbook may takes long time to download yum pkgs
+#       Once downloaded, run `make cache` under pigsty home dir
+#       to cache downloaded rpms on your host. And next control
+#       node creation will be accelerated via cache
+#       rpms in pigsty/pkg will be used, considering  download
+#       manually via proxy if blocked by the wall
+#==============================================================#
+
+- name: Init Yum
+  hosts: control
+  become: yes
+  gather_facts: no
+  vars:
+  tasks:
+
+    ################################################################
+    # PHASE 1: [bootstrap] with minimal required packages
+    ################################################################
+    # check cache existence
+    - name: Touch bootstrap dir
+      tags: [bootstrap]
+      file: path=/www/pigsty/boot state=directory mode=0755
+
+    # check local cache exists (when ok file exists)
+    - name: Check bootstrap packges cache exists
+      tags: [bootstrap]
+      stat: path=/www/pigsty/boot/boot_complete
+      register: boot_cache
+
+    # if cache not found, download packages to cache dir and set ok flag
+    - name: Download bootstrap packages if not exists
+      tags: [bootstrap]
+      when: not boot_cache.stat.exists
+      block:
+        - name: Install centos yum repos
+          yum: name=epel-release,centos-release-scl,centos-release-scl-rh
+
+        - name: Install 3rd-party yum repos
+          copy:
+            src: "files/yum.repos.d/{{ item }}.repo"
+            dest: "/etc/yum.repos.d/{{ item }}.repo"
+            mode: 0644
+          with_items:
+            - nginx
+            - docker
+            - grafana
+            - postgres
+            - prometheus
+
+        - name: Download bootstrap packages
+          yum:
+            download_only: yes
+            download_dir: /www/pigsty/boot
+            name: epel-release,createrepo,wget,yum-utils,nginx
+
+        - name: Download bootstrap packages complete
+          copy: content=ok dest=/www/pigsty/boot/boot_complete
+
+    # install downloaded packages
+    - name: Install bootstrap packages
+      tags: [bootstrap]
+      shell: cd /www/pigsty/boot && yum localinstall -q -y *.rpm
+
+
+    ################################################################
+    # PHASE 2: [nginx] config and launch
+    ################################################################
+    - name: Create nginx files
+      tags: [nginx]
+      block:
+        - name: Copy nginx conf
+          copy: src=files/nginx/nginx.conf dest=/etc/nginx/conf.d/nginx.conf
+        - name: Copy nginx web files
+          copy: src=files/nginx/{{ item }} dest=/www/{{ item }}
+          with_items:
+            - index.html
+            - pigsty.repo
+
+    - name: Launch nginx service
+      tags: [nginx]
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Waits nginx online
+      tags: [nginx]
+      wait_for:
+        host: localhost
+        port: 80
+        state: started
+
+
+    ################################################################
+    # PHASE 3: [yum] repo init
+    ################################################################
+    # check local yum cache exists (when ok file exists)
+    - name: Check nginx packges cache exists
+      tags: [yum]
+      stat: path=/www/pigsty/repo_complete
+      register: repo_cache
+
+    # download 3rd party rpms
+    - name: Download local yum packages
+      when: not repo_cache.stat.exists
+      tags: [yum]
+      block:
+        - name: Download local yum packages
+          yum:
+            download_only: yes
+            download_dir: /www/pigsty
+            name:
+              - postgresql13*
+              - postgresql12*
+              - postgis30_12*
+              - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
+              - pgbouncer,pgadmin4,pg_top,pgbadger,pgdg-redhat-repo
+              - ansible,python,python-pip,python-ipython,python-psycopg2
+              - ntp,uuid,readline,lz4,nc,pv,jq,vim,bash,libxml2,libxslt,lsof,wget,unzip,git,bind-utils,net-tools,sysstat,tcpdump
+              - gcc,gcc-c++,clang,make,coreutils,diffutils,patch,rpm-build,rpm-devel,rpmlint,rpmdevtools
+              - perl-ExtUtils-Embed,zlib,zlib-devel,openssl,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+              - nginx,haproxy,keepalived,dnsmasq
+              - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,consul_exporter,etcd
+              - docker-ce,docker-ce-cli
+
+        # download some rpm packages directly from github
+        - name: Download pg_exporter RPM
+          get_url:
+            url: https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
+            dest: /www/pigsty/pg_exporter-0.2.0-1.el7.x86_64.rpm
+        - name: Download patroni RPM
+          get_url:
+            url: https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
+            dest: /www/pigsty/patroni-1.6.5-1.rhel7.x86_64.rpm
+        - name: Download consul RPM
+          get_url:
+            url: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-7-x86_64/01368466-consul/consul-1.7.3-1.el7.harbottle.x86_64.rpm
+            dest: /www/pigsty/consul-1.7.3-1.el7.harbottle.x86_64.rpm
+        - name: Download kubectl RPM
+          get_url:
+            url: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-7-x86_64/01399312-kubectl1.17/kubectl1.17-1.17.6-1.el7.harbottle.src.rpm
+            dest: /www/pigsty/kubectl1.17-1.17.6-1.el7.harbottle.src.rpm
+        - name: Download kubeadm RPM
+          get_url:
+            url: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-7-x86_64/01399314-kubeadm1.17/kubeadm1.17-1.17.6-1.el7.harbottle.src.rpm
+            dest: /www/pigsty/kubeadm1.17-1.17.6-1.el7.harbottle.src.rpm
+        - name: Download helm RPM
+          get_url:
+            url: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-7-x86_64/01372476-helm/helm-3.2.1-1.el7.harbottle.src.rpm
+            dest: /www/pigsty/helm-3.2.1-1.el7.harbottle.src.rpm
+        # create repo
+        - name: Create repo index
+          shell: createrepo /www/pigsty
+        # set complete flag
+        - name: Local yum repo online (Don't forget `make cache`)
+          copy: content=ok dest=/www/pigsty/repo_complete
+
+    - name: Install pigsty yum repo
+      tags: [yum]
+      get_url:
+        url: http://yum.pigsty/pigsty.repo
+        dest: /etc/yum.repos.d/pigsty.repo
+        force: yes
+
+    - name: Disable all default repos
+      tags: [yum]
+      shell: |
+        yum-config-manager --disable *
+        yum-config-manager --enable pigsty
+
