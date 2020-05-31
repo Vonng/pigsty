@@ -1,12 +1,12 @@
 # Ansible Playbooks
 
-**Infrastructure Initialization**
+## **Infrastructure Initialization**
 
 * [init-repo.yml](init-repo.yml): provision playbook to setup a local yum repo
 * [init-node.yml](init-node.yml): init infrastructure for all nodes, packages, dcs,...
 * [init-meta.yml](init-meta.yml): init meta/master/control node
 
-**Database Initialization**
+## **Database Initialization**
 
 * [init-postgres.yml](init-postgres.yml): init postgresql environment (install,setup,config)
 * [init-primary.yml](init-primary.yml): init postgresql primary instance
@@ -15,7 +15,13 @@
 * [init-monitor.yml](init-monitor.yml): init monitor components
 * [init-patroni.yml](init-patroni.yml): init patroni HA supervisor (optional)
 
-**Database Administration**
+
+## **Infrastructure Administration**
+
+* reload-prometheus.yml
+
+
+## **Database Administration**
 
 * admin-report.yml
 * admin-backup.yml
@@ -31,9 +37,9 @@
 * admin-dump-schema.yml
 * admin-dump-table.yml
 * admin-copy-data.yml
+* admin-pg-exporter-reload.yml
 
-
-**Database HA**
+## **Database HA**
 
 * ha-switchover.yml
 * ha-failover.yml
