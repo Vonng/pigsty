@@ -1,21 +1,21 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   init-yum.yml
+# File      :   init-repo.yml
 # Mtime     :   2020-05-30
-# Desc      :   init local yum repo on pigsty control node
-# Path      :   ansible/init-yum.yml
+# Desc      :   init local yum repo on pigsty meta node
+# Path      :   ansible/init-repo.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 # Note: This playbook may takes long time to download yum pkgs
 #       Once downloaded, run `make cache` under pigsty home dir
-#       to cache downloaded rpms on your host. And next control
+#       to cache downloaded rpms on your host. And next meta
 #       node creation will be accelerated via cache
 #       rpms in pigsty/pkg will be used, considering  download
 #       manually via proxy if blocked by the wall
 #==============================================================#
 
 - name: Init Yum
-  hosts: control
+  hosts: all        # use -l to specify meta node
   become: yes
   gather_facts: no
   vars:
@@ -30,13 +30,13 @@
       file: path=/www/pigsty/boot state=directory mode=0755
 
     # check local cache exists (when ok file exists)
-    - name: Check bootstrap packges cache exists
+    - name: Check cache exists
       tags: [bootstrap]
       stat: path=/www/pigsty/boot/boot_complete
       register: boot_cache
 
     # if cache not found, download packages to cache dir and set ok flag
-    - name: Download bootstrap packages if not exists
+    - name: Download bootstrap packages
       tags: [bootstrap]
       when: not boot_cache.stat.exists
       block:
@@ -61,7 +61,7 @@
             download_dir: /www/pigsty/boot
             name: epel-release,createrepo,wget,yum-utils,nginx
 
-        - name: Download bootstrap packages complete
+        - name: Download packages complete
           copy: content=ok dest=/www/pigsty/boot/boot_complete
 
     # install downloaded packages
@@ -73,44 +73,41 @@
     ################################################################
     # PHASE 2: [nginx] config and launch
     ################################################################
-    - name: Create nginx files
+    - name: Setup nginx
       tags: [nginx]
       block:
         - name: Copy nginx conf
-          copy: src=files/nginx/nginx.conf dest=/etc/nginx/conf.d/nginx.conf
+          copy: src=files/nginx/conf.d/{{ item }}.conf dest=/etc/nginx/conf.d/{{ item }}.conf
+          with_items:
+            - default
+            - consul.pigsty
+            - grafana.pigsty
+            - prometheus.pigsty
+            - alertmanager.pigsty
+            - haproxy.pigsty
+            - pgadmin.pigsty
         - name: Copy nginx web files
           copy: src=files/nginx/{{ item }} dest=/www/{{ item }}
           with_items:
             - index.html
             - pigsty.repo
-
-    - name: Launch nginx service
-      tags: [nginx]
-      systemd:
-        name: nginx
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
-
-    - name: Waits nginx online
-      tags: [nginx]
-      wait_for:
-        host: localhost
-        port: 80
-        state: started
+        - name: Launch nginx service
+          systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+        - name: Waits nginx online
+          wait_for: host=localhost port=80 state=started
 
 
     ################################################################
     # PHASE 3: [yum] repo init
     ################################################################
     # check local yum cache exists (when ok file exists)
-    - name: Check nginx packges cache exists
+    - name: Check nginx cache exists
       tags: [yum]
       stat: path=/www/pigsty/repo_complete
       register: repo_cache
 
     # download 3rd party rpms
-    - name: Download local yum packages
+    - name: Download yum packages
       when: not repo_cache.stat.exists
       tags: [yum]
       block:
@@ -159,21 +156,28 @@
             dest: /www/pigsty/helm-3.2.1-1.el7.harbottle.src.rpm
         # create repo
         - name: Create repo index
-          shell: createrepo /www/pigsty
+          command: createrepo /www/pigsty
         # set complete flag
         - name: Local yum repo online (Don't forget `make cache`)
           copy: content=ok dest=/www/pigsty/repo_complete
 
-    - name: Install pigsty yum repo
-      tags: [yum]
-      get_url:
-        url: http://yum.pigsty/pigsty.repo
-        dest: /etc/yum.repos.d/pigsty.repo
-        force: yes
 
-    - name: Disable all default repos
-      tags: [yum]
-      shell: |
-        yum-config-manager --disable *
-        yum-config-manager --enable pigsty
 
+    ################################################################
+    # PHASE 4: [yum] install basic utils
+    ################################################################
+    - name: Install basic utils
+      tags: [yum]
+      block:
+        - name: Install pigsty yum repo
+          copy: src=/www/pigsty.repo dest=/etc/yum.repos.d/pigsty.repo remote_src=yes
+        - name: Enalbed local yum
+          ignore_errors: true
+          shell: |
+            if [[ -f /etc/yum.repos.d/pigsty.repo ]]; then
+                yum-config-manager --disable '*'
+                yum-config-manager --enable pigsty
+            fi
+
+        - name: Install ansible
+          yum: name=ansible

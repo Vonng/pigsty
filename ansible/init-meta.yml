@@ -1,40 +1,60 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   init-control.yml
+# File      :   init-meta.yml
 # Mtime     :   2020-05-30
-# Desc      :   init control node
-# Path      :   ansible/init-control.yml
+# Desc      :   init meta node
+# Path      :   ansible/init-meta.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 # Note: This play assumes all pkgs already accessible via yum
 #==============================================================#
 
 
 - name: Init Yum
-  hosts: control
+  hosts: meta
   become: yes
   gather_facts: no
   vars:
   tasks:
 
     ################################################################
-    # PHASE 1: [install] control node packages
+    # PHASE 1-1: [repo] pigsty repo
+    ################################################################
+    - name: Install pigsty yum repo
+      tags: [repo]
+      block:
+        - name: Download pigsty yum repo
+          get_url:
+            url=http://yum.pigsty/pigsty.repo
+            dest=/etc/yum.repos.d/pigsty.repo
+
+        - name: Configure using local yum if exists
+          ignore_errors: true
+          shell: |
+            if [[ -f /etc/yum.repos.d/pigsty.repo ]]; then
+                yum-config-manager --disable '*'
+                yum-config-manager --enable pigsty
+            fi
+
+    ################################################################
+    # PHASE 1-2: [install] meta node packages
     ################################################################
     - name: Install yum packages
       tags: [install]
       yum:
         name:
-          - grafana,prometheus2,alertmanager,consul,etcd,nginx,haproxy,keepalived,dnsmasq
+          - grafana,prometheus2,alertmanager,consul,etcd,nginx,haproxy,keepalived,dnsmasq,ansible
+          - ntp,lz4,nc,pv,jq,vim,bash,git,bind-utils,net-tools,postgresql12
           - node_exporter,pg_exporter,nginx_exporter,consul_exporter
-          - ansible,python,python-pip,python-ipython,python-psycopg2
-          - ntp,uuid,readline,lz4,nc,pv,jq,vim,bash,libxml2,libxslt,lsof,wget,unzip,git,bind-utils,net-tools,sysstat,tcpdump
-          - gcc,gcc-c++,clang,make,coreutils,diffutils,patch,rpm-build,rpm-devel,rpmlint,rpmdevtools
-          - postgresql12*
-          - postgis30_12*
-          - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
-          - pgbouncer,pgadmin4,pg_top,pgbadger
-          - perl-ExtUtils-Embed,zlib,zlib-devel,openssl,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-          - docker-ce,docker-ce-cli
+          #- python,python-pip,python-ipython,python-psycopg2
+          #- uuid,readline,libxml2,libxslt,lsof,wget,unzip,,sysstat,tcpdump
+          #- gcc,gcc-c++,clang,make,coreutils,diffutils,patch,rpm-build,rpm-devel,rpmlint,rpmdevtools
+          #- postgresql12*
+          #- postgis30_12*
+          #- wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
+          #- pgbouncer,pgadmin4,pg_top,pgbadger
+          #- perl-ExtUtils-Embed,zlib,zlib-devel,openssl,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+          #- docker-ce,docker-ce-cli
 
 
     ################################################################
@@ -56,6 +76,7 @@
         - name: Launch alertmanager service
           systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
 
+
     ################################################################
     # PHASE 3: [grafana]
     ################################################################
@@ -68,39 +89,54 @@
           copy: src=files/grafana/datasources/ dest=/etc/grafana/provisioning/datasources/ owner=root group=grafana mode=0640
         - name: Provision grafana dashboards
           copy: src=files/grafana/dashboards/ dest=/etc/grafana/provisioning/dashboards/ owner=root group=grafana mode=0640
+        - name: Install grafana plugins
+          shell: |
+            if [[ -f /www/pigsty/grafana/grafana.tar.gz ]]; then
+                mkdir -p /var/lib/grafana && rm -rf /var/lib/grafana/*
+                tar -xf /www/pigsty/grafana/grafana.tar.gz -C /var/lib/grafana --strip-components=3
+                chown -R grafana:grafana /var/lib/grafana
+            else
+                grafana-cli plugins install simpod-json-datasource
+                grafana-cli plugins install ryantxu-ajax-panel
+                grafana-cli plugins install grafana-piechart-panel
+                grafana-cli plugins install jdbranham-diagram-panel
+                grafana-cli plugins install camptocamp-prometheus-alertmanager-datasource
+                grafana-cli plugins install vonage-status-panel
+                grafana-cli plugins install snuids-radar-panel
+                grafana-cli plugins install snuids-trafficlights-panel
+                grafana-cli plugins install digrich-bubblechart-panel
+                grafana-cli plugins install neocat-cal-heatmap-panel
+                grafana-cli plugins install alexandra-trackmap-panel
+                grafana-cli plugins install aidanmountford-html-panel
+                grafana-cli plugins install fzakaria-simple-annotations-datasource
+            fi
         - name: Launch grafana service
           systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
 
     ################################################################
     # PHASE 4: [consul]
     ################################################################
+    # assuming consul is already pulled up by init-node
     - name: Setup Consul
       tags: [consul]
       block:
-        - name: Copy consul service unit
-          copy: src=files/consul/consul.service dest=/usr/lib/systemd/system/consul.service
-        - name: Copy consul main config
-          copy: src=files/consul/consul.json dest=/etc/consul.d/consul.json mode=0700 owner=consul group=postgres
         - name: Copy consul services definition
-          copy: src=files/consul/srv-{{ item }}.json dest=/etc/consul.d/srv-{{ item }}.json mode=0770 owner=consul group=postgres
+          copy: src=files/consul/srv-{{ item }}.json dest=/etc/consul.d/srv-{{ item }}.json mode=0770 owner=consul
           with_items: [grafana, prometheus, alertmanager, consul, nginx, dnsmasq, consul-dns]
-        - name: Launch consul service
-          systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+        - name: Reload consul service
+          systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 
     ################################################################
     # PHASE 5: [dnsmasq]
     ################################################################
     - name: Setup dnsmasq
-      tags: [dnsmasq]
+      tags: [dns]
       block:
         - name: Copy dnsmasq config
-          copy:
-            content: |
-              port=53
-              listen-address=10.10.10.10
-              server=/consul/127.0.0.1#8600
-            dest: /etc/dnsmasq.d/config
+          copy: src=files/dnsmasq/dnsmasq.conf dest=/etc/dnsmasq.d/config
+        - name: Copy dnsmasq hosts
+          copy: src=files/dnsmasq/hosts dest=/etc/hosts mode=0644
         - name: Launch dnsmasq service
           systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
 

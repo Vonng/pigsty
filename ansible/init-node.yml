@@ -1,0 +1,121 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   init-node.yml
+# Mtime     :   2020-03-24
+# Desc      :   init control node
+# Path      :   ansible/init-node.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note: This play assumes yum repo is configured
+#==============================================================#
+
+- name: Init Node
+  hosts: all
+  become: yes
+  tasks:
+    ################################################################
+    # PHASE 1-1: create os users
+    ################################################################
+    - name: Create users
+      tags: [user]
+      block:
+        - name: Create os group postgres
+          group: name=postgres gid=256
+        - name: Create os user postgres
+          user: name=postgres group=postgres home=/home/postgres generate_ssh_key=yes
+        - name: Create os user consul
+          user: name=consul group=postgres create_home=no
+        - name: Create os user prometheus
+          user: name=prometheus group=postgres create_home=no
+
+    ################################################################
+    # PHASE 1-2: Set etc profile
+    ################################################################
+    - name: Copy etc profile
+      tags: [profile]
+      copy: src=files/bash/profile.sh dest=/etc/profile.d/profile.sh mode=644
+
+
+    ################################################################
+    # PHASE 2-1: Use local yum cache if available
+    ################################################################
+    - name: Install pigsty yum repo
+      tags: [repo]
+      block:
+        - name: Download pigsty yum repo
+          get_url:
+            url=http://yum.pigsty/pigsty.repo
+            dest=/etc/yum.repos.d/pigsty.repo
+
+        - name: Configure using local yum if exists
+          ignore_errors: true
+          shell: |
+            if [[ -f /etc/yum.repos.d/pigsty.repo ]]; then
+                yum-config-manager --disable '*'
+                yum-config-manager --enable pigsty
+            fi
+
+    ################################################################
+    # PHASE 2-2: install packages
+    ################################################################
+    - name: Install packages
+      tags: [install]
+      yum: name=ntp,consul,node_exporter,wget,unzip,lz4,git,nc,pv,jq,lsof,sysstat,bind-utils,net-tools,keepalived
+
+
+
+    ################################################################
+    # PHASE 3: configure ntp
+    ################################################################
+    - name: Setup NTP
+      tags: [ntp]
+      block:
+        # [ntp] client local access
+        - name: Change /etc/chrony.conf to enable ntp client access
+          lineinfile: path=/etc/chrony.conf line="allow 127/8"
+        - name: Launch ntpd service
+          systemd: name=ntpd state=restarted enabled=yes daemon_reload=yes
+        - name: Sync time
+          command: ntpdate -u pool.ntp.org
+
+
+    ################################################################
+    # PHASE 4: [consul]
+    ################################################################
+    - name: Setup Consul
+      tags: [consul]
+      block:
+        - name: Stop running consul
+          systemd: name=consul state=stopped enabled=no daemon_reload=yes
+        - name: Copy consul service unit
+          copy: src=files/consul/consul.service dest=/usr/lib/systemd/system/consul.service
+          when: dcs is not defined or dcs != 'server'
+        - name: Copy consul server service unit
+          copy: src=files/consul/consul-server.service dest=/usr/lib/systemd/system/consul.service
+          when: dcs is defined and dcs == 'server'
+        - name: Remove existing consul directory
+          file: path={{ item }} state=absent
+          with_items: [/etc/consul.d /var/lib/consul]
+        - name: Recreate consul conf dir
+          file: path=/etc/consul.d state=directory owner=consul group=postgres mode=0770
+        - name: Recreate consul data dir
+          file: path=/var/lib/consul state=directory owner=consul group=consul mode=0770
+        - name: Copy consul main config
+          template: src=templates/consul/consul.json dest=/etc/consul.d/consul.json mode=0700 owner=consul group=postgres
+        - name: Launch consul service
+          systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+        - name: Waits consul online
+          wait_for: host=localhost port=8500 state=started timeout=10
+
+    ################################################################
+    # PHASE 5: node_exporter
+    ################################################################
+    - name: Setup node_exporter
+      tags: [node_exporter]
+      block:
+        - name: Config node_exporter
+          tags: [node_exporter]
+          copy: dest=/etc/default/node_exporter mode=0644
+            content=NODE_EXPORTER_OPTS="--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes"
+        - name: Launch node_exporter service
+          systemd: name=node_exporter state=restarted enabled=yes daemon_reload=yes
