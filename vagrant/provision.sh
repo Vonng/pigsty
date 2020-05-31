@@ -4,89 +4,114 @@ set -uo pipefail
 # File      :   provision.sh
 # Mtime     :   2020-05-30
 # Desc      :   provision vagrant node with basic ssh/dns
-# Path      :   vagrant/bin/provision.sh
+# Path      :   vagrant/provision.sh
 # Author    :   Vonng(fengruohang@outlook.com)
-# Note      :   Run this as root (local or remote)
+# Note      :   Run this as root
 #==============================================================#
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
+# vagrant ssh access to each other
 function setup_ssh() {
 	local ssh_dir="/home/vagrant/.ssh"
 	mkdir -p ${ssh_dir}
-
 	# setup ssh access among all vagrant nodes
 	[ -f /vagrant/ssh/id_rsa ] && cp /vagrant/ssh/id_rsa ${ssh_dir}/id_rsa
 	[ -f /vagrant/ssh/id_rsa.pub ] && cp /vagrant/ssh/id_rsa.pub ${ssh_dir}/id_rsa.pub
 	[ -f ${ssh_dir}/id_rsa.pub ] && cat ${ssh_dir}/id_rsa.pub >>${ssh_dir}/authorized_keys
-
 	# add ssh config entry
 	[ ! -f ${ssh_dir}/config ] && [ -f /vagrant/ssh/config ] && cp /vagrant/ssh/config ${ssh_dir}/config
 	touch ${ssh_dir}/config
 	if ! grep -q "StrictHostKeyChecking" ${ssh_dir}/config; then
 		echo "StrictHostKeyChecking=no" >>${ssh_dir}/config
 	fi
-
 	# change owner and permission
-	chown -R vagrant ${ssh_dir}
-	chmod 700 ${ssh_dir} && chmod 600 ${ssh_dir}/*
+	chown -R vagrant ${ssh_dir} && chmod 700 ${ssh_dir} && chmod 600 ${ssh_dir}/*
 	printf "\033[0;32m[INFO] write ssh config to ${ssh_dir} \033[0m\n" >&2
 }
 
+# pigsty statistic dns records
 function setup_dns() {
 	# /etc/hosts
-	if $(grep 'pigsty dns records' /etc/hosts >/dev/null 2>&1); then
+	if grep -q 'pigsty public domain name' /etc/hosts; then
 		printf "\033[0;33m[WARN] dns records already set, skip  \033[0m\n" >&2
 	else
 		cat >>/etc/hosts <<-EOF
-			# pigsty dns records
+			# pigsty public domain name
 			10.10.10.10	pigsty consul.pigsty grafana.pigsty prometheus.pigsty admin.pigsty haproxy.pigsty yum.pigsty
 			10.10.10.10	c.pigsty g.pigsty p.pigsty pg.pigsty am.pigsty ha.pigsty yum.pigsty k8s.pigsty k.pigsty
 			
-			# physical nodes
-			10.10.10.10   node0 n0 node-0 pg-meta-1 control meta master
-			10.10.10.11   node1 n1 node-1 pg-test-1 pg-test-primary primary
-			10.10.10.12   node2 n2 node-2 pg-test-2 pg-test-standby standby
-			10.10.10.13   node3 n3 node-3 pg-test-3 pg-test-delayed delayed
-			
-			# virtual ip
-			10.10.10.2   pg-test-primary
-			10.10.10.3   pg-test-standby
-			10.10.10.4	 pg-test-delayed
+			# pigsty nodes domain name
+			10.10.10.10   node0 n0
+			10.10.10.11   node1 n1
+			10.10.10.12   node2 n2
+			10.10.10.13   node3 n3
 		EOF
-
 		printf "\033[0;32m[INFO] write dns records into /etc/hosts \033[0m\n" >&2
 	fi
-
 	return 0
 }
 
+# pigsty dynamic dns resolver
 function setup_resolv() {
 	# /etc/resolv.conf
-	if $(grep 'nameserver 10.10.10.10' /etc/resolv.conf >/dev/null 2>&1); then
+	if grep -q 'nameserver 10.10.10.10' /etc/resolv.conf; then
 		printf "\033[0;33m[INFO] dns resolver records already set, skip  \033[0m\n" >&2
 	else
 		echo "nameserver 10.10.10.10" | cat - /etc/resolv.conf >/tmp/resolv.conf
 		chmod 644 /tmp/resolv.conf
 		mv -f /tmp/resolv.conf /etc/resolv.conf
-
 		printf "\033[0;32m[INFO] write resolver records into /etc/resolv.conf \033[0m\n" >&2
 	fi
 }
 
-function setup_firewall() {
-	# disable selinux
+# disable selinux
+function setup_selinux() {
 	sudo sed -ie 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 	sudo setenforce 0
+	printf "\033[0;32m[INFO] disable selinux \033[0m\n" >&2
+}
+
+# write local yum cache
+function setup_local_yum() {
+	cat >/etc/yum.repos.d/pigsty.repo <<-EOF
+		[pigsty]
+		name=Pigsty Yum Repo
+		baseurl=http://yum.pigsty/pigsty/
+		enabled = 1
+		priority = 1
+		gpgcheck = 0
+		skip_if_unavailable = 1
+	EOF
+}
+
+# expand vagrant cache from /vagrant
+function setup_vagrant_cache() {
+	mkdir -p /www
+	if [[ -d /vagrant/pkg ]]; then
+		rm -rf /www/pigsty
+		mv /vagrant/pkg /www/pigsty
+	fi
+
+	if [[ -d /vagrant/ansible ]]; then
+		rm -rf /home/vagrant/ansible
+		ln -s /vagrant/ansible /home/vagrant/ansible
+		chown -R vagrant /home/vagrant
+	fi
 }
 
 # main
-if [[ $(whoami) != "root" ]]; then
-	printf "\033[0;31m[INFO] setup-dns.sh require root privilege \033[0m\n" >&2
-	return 1
-fi
+function main() {
+	if [[ $(whoami) != "root" ]]; then
+		printf "\033[0;31m[INFO] setup-dns.sh require root privilege \033[0m\n" >&2
+		return 1
+	fi
+	setup_ssh
+	setup_dns
+	setup_resolv
+	setup_selinux
+	# setup_local_yum
+	setup_vagrant_cache
+}
 
-setup_ssh
-setup_dns
-setup_resolv
-setup_firewall
+main

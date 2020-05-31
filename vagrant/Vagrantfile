@@ -15,10 +15,12 @@ Vagrant.configure("2") do |config|
                     "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                 ]
         end
-        s.vm.provision "shell", inline: "/vagrant/provision.sh"
         s.vm.provision "file", source: "../pkg", destination: "/vagrant/pkg"
         s.vm.provision "file", source: "../ansible", destination: "/vagrant/ansible"
-        s.vm.provision "shell", inline: "sudo bash -c 'rm -rf /www/pigsty; mkdir -p /www /vagrant/pkg; mv -f /vagrant/pkg /www/pigsty'; mv /vagrant/ansible /home/vagrant/ansible"
+        s.vm.provision "shell", inline: "/vagrant/provision.sh"
+        s.vm.provision "ansible" do |ansible|
+            ansible.playbook = "../ansible/init-repo.yml"
+        end
     end
 
     config.vm.define "node1" do |s|
@@ -64,5 +66,5 @@ Vagrant.configure("2") do |config|
                 ]
             end
         s.vm.provision "shell", inline: "/vagrant/provision.sh"
-        end
+    end
 end
