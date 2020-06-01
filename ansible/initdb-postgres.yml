@@ -15,13 +15,19 @@
   become: yes
   gather_facts: yes
   vars:
-    version: 12
-    postgis_version: 30
-    extensions: true
-    postgis: true
     pgdg: false
 
   tasks:
+    ################################################################
+    # PHASE 0: set default variable
+    ################################################################
+    - set_fact:
+        version={{ version | default(12) }}
+        postgis_version={{ postgis_version | default(30) }}
+        extensions={{ extensions | default(true) }}
+        postgis={{ postgis | default(true) }}
+        pgdg={{ pgdg | default(false) }}
+
 
     ################################################################
     # PHASE 1: create os user postgres (may already exists)
@@ -83,24 +89,22 @@
     ################################################################
     # PHASE 4: setup ulimit
     ################################################################
-    - name: Setup ulimit
+    - name: Allow postgres systemctl nopass sudo
       tags: [ulimit]
-      block:
-        - name: Allow postgres systemctl nopass sudo
-          copy:
-            dest: /etc/security/limits.d/postgres.conf
-            mode: 0640
-            content: |
-              postgres    soft    nproc       65536
-              postgres    hard    nproc       65536
-              postgres    hard    nofile      65536
-              postgres    soft    nofile      65536
-              postgres    soft    stack       unlimited
-              postgres    hard    stack       unlimited
-              postgres    soft    core        unlimited
-              postgres    hard    core        unlimited
-              postgres    soft    memlock     2500000
-              postgres    hard    memlock     2500000
+      copy:
+        dest: /etc/security/limits.d/postgres.conf
+        mode: 0640
+        content: |
+          postgres    soft    nproc       65536
+          postgres    hard    nproc       65536
+          postgres    hard    nofile      65536
+          postgres    soft    nofile      65536
+          postgres    soft    stack       unlimited
+          postgres    hard    stack       unlimited
+          postgres    soft    core        unlimited
+          postgres    hard    core        unlimited
+          postgres    soft    memlock     2500000
+          postgres    hard    memlock     2500000
 
 
 
@@ -125,6 +129,7 @@
             package_list:
               - 'postgresql{{ version }}*'
               - pgbouncer
+              - patroni
               - pg_exporter
             postgis_package_list:
               - postgis{{ postgis_version }}_{{ version }}
@@ -149,7 +154,7 @@
           set_fact: package_list="{{ package_list + extensions_package_list }}"
         - name: Print postgres packages
           debug: {var: package_list}
-        - name: Install postgres package list
+        - name: Install postgres {{ version }} package list
           yum: name={{ package_list }}
         - name: Make /usr/pgsql link
           file: src="/usr/pgsql-{{ version }}" dest=/usr/pgsql state=link

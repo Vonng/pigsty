@@ -1,0 +1,17 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- import_playbook: initdb-precheck.yml
+  tags: [always, check]
+- import_playbook: initdb-postgres.yml
+  tags: [install]
+- import_playbook: initdb-primary.yml
+  tags: [primary]
+  vars: {force: true}
+- import_playbook: initdb-replica.yml
+  tags: [replica]
+  vars: {force: true}
+
+#- import_playbook: init-pgbouncer.yml
+#- import_playbook: init-patroni.yml
+#- import_playbook: init-monitor.yml

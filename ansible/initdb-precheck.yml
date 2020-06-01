@@ -1,0 +1,73 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   initdb-precheck.yml
+# Mtime     :   2020-06-01
+# Desc      :   check inventory, set variable build groups
+# Path      :   playbooks/initdb-precheck.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+- name: Check Inventory
+  gather_facts: false
+  any_errors_fatal: true
+  hosts: all
+  tags: [always]
+  vars:
+  tasks:
+    ################################################################
+    # PHASE 1: check inventory and set facts
+    ################################################################
+    - name: Check inventory and set fact
+      block:
+        - assert:
+            that:
+              - cluster is defined
+              - seq is defined
+              - role is defined
+            fail_msg: "host variable <cluster> and <seq> are required for init cluster"
+
+        - set_fact:
+            instance_name={{ cluster }}-{{ seq }}
+            play_host_vars={{ play_hosts | map('extract', hostvars) | list }}
+
+        - set_fact: version={{ version | trim | default(12)  }}
+            cluster_count={{ play_host_vars | json_query('[].cluster')  | unique | length  }}
+            seq_list={{ play_host_vars | json_query('[].seq')  | list  }}
+            cluster_size={{ play_host_vars | json_query('[].seq')  | unique | length }}
+            seq_count={{ play_host_vars | json_query('length([].seq)') | int }}
+            seq_min={{ play_host_vars | json_query('min([].seq)') | int }}
+            seq_max={{ play_host_vars | json_query('max([].seq)') | int }}
+            seq_next={{ play_host_vars | json_query('max([].seq)') | int + 1}}
+            primary_count={{ play_host_vars | json_query("length([?role=='primary'].inventory_hostname)") | int }}
+            replica_ips={{ play_host_vars | json_query("[?role!='primary'].inventory_hostname") }}
+            primary_ip={{ play_host_vars | json_query("[?role=='primary'].inventory_hostname | [0]")}}
+            play_host_vars=""
+
+        - assert:
+            that: cluster_count|int == 1
+            fail_msg: "init cluster only works on one and only one cluster"
+        - assert:
+            that: primary_count|int == 1
+            fail_msg: "init cluster require one and only one primary in cluster"
+
+
+
+    ################################################################
+    # PHASE 2: build group based on role
+    ################################################################
+    # primary instance must be explicitly specified via role=primary
+    - name: Group by
+      group_by:
+        key: "{{ role }}"
+
+
+    ################################################################
+    # Print Cluster Summary
+    ################################################################
+    - debug:
+        msg: "{{ cluster }}-{{ seq }} [{{ role }}] {{ primary_ip }} / {{ replica_ips }}"
+
+    - debug:
+        msg: "{{ groups }}"

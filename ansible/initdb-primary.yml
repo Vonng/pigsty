@@ -1,0 +1,165 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   initdb-primary.yml
+# Mtime     :   2020-06-01
+# Desc      :   init cluster primary instance
+# Path      :   playbooks/initdb-primary.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+- name: Init Cluster Primary
+  gather_facts: false
+  any_errors_fatal: true
+  become: yes
+  become_method: sudo
+  vars:
+    force: false
+    initdb_opts: '--encoding=UTF8 --locale=C --data-checksum'
+
+  # works on dynamic built group 'primary'
+  hosts: primary
+  tasks:
+    ################################################################
+    # PHASE 1: [check] primary instance precondition
+    ################################################################
+    - name: Check primary
+      tags: [always, check_primary]
+      block:
+        # override these variable with -e
+        - set_fact:
+            repl_user={{ repl_user | default('replicator') }}
+            repl_pass={{ repl_pass | default('replicator') }}
+            mon_user={{ mon_user | default('dbuser_monitor') }}
+            mon_pass={{ mon_pass | default('dbuser_monitor') }}
+            biz_user={{ biz_user | default(cluster) }}
+            biz_pass={{ biz_pass | default(cluster) }}
+            biz_db={{ biz_db | default(cluster) }}
+            pgconf_path={{ pgconf | default('files/postgres/postgresql-{{ version }}.conf') }}
+            hbaconf_path={{ hbaconf | default('files/postgres/pg_hba-{{ role }}.conf') }}
+
+        - name: Check primary node connectivity
+          action: ping
+        - name: Check primary postgres is installed with version {{ version }}
+          shell: "[[ $(/usr/pgsql/bin/pg_ctl --version) == 'pg_ctl (PostgreSQL) {{ version }}'* ]]"
+
+
+
+    ################################################################
+    # PHASE 2: [clean] existing stuff
+    ################################################################
+    # this checking task is skipped if force id defined (via -e force=on)
+    # otherwise, abort execution if postgres is running
+    - name: Check primary not running (set force=on to skip)
+      tags: [check_primary]
+      shell: "ps aux | grep -v grep | grep -- '-D /pg/data' | grep pgsql || exit 0 && exit 1"
+      when: not force
+
+    - name: Cleanup postgresql
+      tags: [clean_primary]
+      block:
+        - name: Stop running postgresql service
+          ignore_errors: true
+          systemd: name=postgres state=stopped enabled=no daemon_reload=yes
+        - name: Stop running postgres manully if still exist
+          become_user: postgres
+          shell: |
+            pg_exist=$(ps aux | grep -v grep | grep -- '-D /pg/data' | grep pgsql | wc -l)
+            if (( $pg_exist==1 )); then
+                /usr/pgsql/bin/pg_ctl -D /pg/data stop
+            fi
+
+        - name: Remove existing /pg/data directory
+          file: path=/pg/data state=absent
+        - name: Recreate /pg/data directory
+          file: path=/pg/data state=directory owner=postgres group=postgres mode=0700
+
+
+    ################################################################
+    # PHASE 3: [initdb] create database cluster
+    ################################################################
+    # [init] database cluster
+    - name: Init database cluster {{ cluster }} with version={{ version }}
+      tags: [initdb_primary]
+      become: yes
+      become_method: sudo
+      become_user: postgres
+      shell: |
+        /usr/pgsql/bin/initdb -D /pg/data {{ initdb_opts }}
+        mv -f /pg/data/postgresql.conf /pg/data/postgresql.base.conf
+
+
+
+    ################################################################
+    # PHASE 4: [config] postgres
+    ################################################################
+    # use custome postgresql.conf via ( override with -e pgconf=/path/to/postgresql.conf )
+    - name: Config postgresql
+      tags: [config_primary]
+      block:
+        - name: Copy postgresql.conf
+          template: src="{{ pgconf_path }}" dest=/pg/data/postgresql.conf owner=postgres group=postgres mode=0600
+        - name: Copy pg_hba.conf
+          template: src="{{ hbaconf_path }}" dest=/pg/data/pg_hba.conf owner=postgres group=postgres mode=0600
+        # create pgpass for repl_user, mon_user, biz_user
+        - name: Create pgpass
+          copy:
+            content: |
+              *:*:*:{{ repl_user }}:{{ repl_pass }}
+              *:*:*:{{ mon_user }}:{{ mon_pass }}
+              *:*:{{ biz_db }}:{{ biz_user }}:{{ biz_pass }}
+              # postgres://{{ repl_user }}:{{ repl_pass }}@:/postgres
+              # postgres://{{ mon_user }}:{{ mon_pass }}@:/postgres
+              # postgres://{{ biz_user }}:{{ biz_pass }}@:/{{ biz_db }}
+            dest: /home/postgres/.pgpass
+            owner: postgres
+            group: postgres
+            mode: 0600
+
+
+
+    ################################################################
+    # PHASE 5: [launch] postgresql service
+    ################################################################
+    - name: Launch PostgreSQL service
+      tags: [launch_primary]
+      block:
+        - name: Start postgres service
+          systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
+        - name: Waits postgres listen on port
+          wait_for: host=localhost port=5432 state=started timeout=10
+        - name: Check postgres is ready
+          become_user: postgres
+          command: /usr/pgsql/bin/pg_isready
+
+
+
+    ################################################################
+    # PHASE 6: [bootstrap] postgres database
+    ################################################################
+    # [bootstrap] with default roles, users, business databases
+    - name: Bootstrap postgres instance
+      tags: [bootstrap_primary]
+      block:
+        - name: Render initdb scripts
+          template: src=templates/postgres/initdb.sh dest=/pg/bin/initdb.sh owner=postgres group=postgres mode=0700
+        - name: Execute initdb scripts
+          become_user: postgres
+          command: /pg/bin/initdb.sh
+
+
+    ################################################################
+    # PHASE 7: validate connectivity
+    ################################################################
+    - name: Validate primary connectivity
+      tags: [validate_primary]
+      block:
+        - name: Check replicator connectivity
+          become_user: postgres
+          command: psql -U {{ repl_user }} -d postgres -Atc 'SELECT 1;'
+
+        - name: Check business user / db connectivity
+          become_user: postgres
+          shell: psql -U {{ biz_user }} -d {{ biz_db }} -Atc 'SELECT 1;'
+

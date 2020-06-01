@@ -29,7 +29,7 @@ st: status
 node:
 	cd ansible && ./init-node.yml
 meta:
-	cd ansible && ./init-meta.yml
+	cd ansible && ./init-meta.yml -l meta
 infra: node meta
 
 ###############################################################
