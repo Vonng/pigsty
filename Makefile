@@ -4,6 +4,9 @@ default: start
 ###############################################################
 # Public objective
 ###############################################################
+# create a new cluster
+new: clean start init
+
 # write dns record to your own host, sudo required
 dns:
 	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat ansible/files/dnsmasq/hosts >> /etc/hosts; fi
@@ -15,7 +18,7 @@ cache:
 	rm -rf pkg/* && mkdir -p pkg && scp -r node0:/www/pigsty/* pkg/
 
 # init will pull up entire cluster
-init: infra
+init: infra initdb
 
 # down will halt all vm (not destroy)
 down: halt
@@ -35,8 +38,9 @@ infra: node meta
 ###############################################################
 # postgres init
 ###############################################################
-pgsql:
-	cd ansible && ./init-pgsql.yml
+initdb:
+	cd ansible && ./initdb.yml -l meta
+	cd ansible && ./initdb.yml -l test
 
 ###############################################################
 # vm management
@@ -66,7 +70,7 @@ ssh:
 
 start: up ssh sync
 stop: halt
-new: clean start init
+
 
 
 .PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new

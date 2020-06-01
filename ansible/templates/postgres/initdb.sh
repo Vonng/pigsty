@@ -52,13 +52,13 @@ psql postgres <<- EOF
 	GRANT pg_monitor TO "{{ mon_user }}";
 	GRANT dbrole_readonly TO "{{ mon_user }}";
 	ALTER USER "{{ mon_user }}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION BYPASSRLS;
-	ALTER USER "{{ mon_user }}" PASSWORD '{{ mon_pass | default('dbuser_monitor') }}' CONNECTION LIMIT 5;
+	ALTER USER "{{ mon_user }}" PASSWORD '{{ mon_pass }}' CONNECTION LIMIT 5;
 
 	-- business database & users
 	CREATE USER "{{ biz_user }}";
 	GRANT dbrole_admin TO "{{ biz_user }}";
 	ALTER USER "{{ biz_user }}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION BYPASSRLS;
-	ALTER USER "{{ biz_user }}" PASSWORD '{{ biz_user }}';
+	ALTER USER "{{ biz_user }}" PASSWORD '{{ biz_pass }}';
 
 	CREATE DATABASE "{{ biz_db }}";
 	ALTER DATABASE "{{ biz_db  }}" OWNER TO "{{ biz_user  }}";

@@ -8,18 +8,19 @@
 
 ## **Database Initialization**
 
-* [init-postgres.yml](init-postgres.yml): init postgresql environment (install,setup,config)
-* [init-primary.yml](init-primary.yml): init postgresql primary instance
-* [init-standby.yml](init-primary.yml): init postgresql standby instances
-* [init-pgbouncer.yml](init-pgbouncer.yml): init pgbouncer (pooling middleware)
-* [init-monitor.yml](init-monitor.yml): init monitor components
-* [init-patroni.yml](init-patroni.yml): init patroni HA supervisor (optional)
+* [`**initdb.yml**`](initdb.yml): **init database cluster** according to inventory
+* [initdb-precheck.yml](initdb-postgres.yml): init postgresql environment (install,setup,config)
+* [initdb-postgres.yml](initdb-postgres.yml): install postgresql and setup basic environment
+* [initdb-primary.yml](initdb-primary.yml): init postgres primary instance
+* [initdb-standby.yml](initdb-primary.yml): init postgres standby instances
+* [initdb-pgbouncer.yml](initdb-pgbouncer.yml): init pgbouncer
+* [initdb-monitor.yml](initdb-monitor.yml): init monitor components (reset consul node meta)
+* [initdb-patroni.yml](initdb-patroni.yml): init patroni HA supervisor (optional)
 
 
 ## **Infrastructure Administration**
 
 * reload-prometheus.yml
-
 
 ## **Database Administration**
 

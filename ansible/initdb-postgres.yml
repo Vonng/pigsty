@@ -1,22 +1,21 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   init-postgres.yml
+# File      :   initdb-postgres.yml
 # Mtime     :   2020-05-31
 # Desc      :   install postgres and init environment
-# Path      :   ansible/init-postgres.yml
+# Path      :   ansible/initdb-postgres.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 # Note: This play assumes infra is already inited
 #==============================================================#
 
 
 - name: Init Postgres
-  hosts: all
   become: yes
   gather_facts: yes
+  hosts: all
   vars:
     pgdg: false
-
   tasks:
     ################################################################
     # PHASE 0: set default variable
@@ -33,7 +32,7 @@
     # PHASE 1: create os user postgres (may already exists)
     ################################################################
     - name: Create postgres users
-      tags: [user]
+      tags: [create_postgres_user]
       block:
         - name: Create os group postgres
           group: name=postgres gid=256
@@ -45,7 +44,7 @@
     # PHASE 2: create postgres directories
     ################################################################
     - name: Create postgres directory
-      tags: [dir]
+      tags: [create_postgres_dir]
       block:
         # this assumes /pg is mounted with ssd for database and /var/backups is mounted with hdd for backups
         - name: Create postgres directories
@@ -77,7 +76,7 @@
     # PHASE 3: setup sudo privilege
     ################################################################
     - name: Setup sudo
-      tags: [sudo]
+      tags: [setup_postgres_sudo]
       block:
         - name: Allow postgres systemctl nopass sudo
           copy:
@@ -90,7 +89,7 @@
     # PHASE 4: setup ulimit
     ################################################################
     - name: Allow postgres systemctl nopass sudo
-      tags: [ulimit]
+      tags: [setup_postgres_ulimit]
       copy:
         dest: /etc/security/limits.d/postgres.conf
         mode: 0640
@@ -114,7 +113,7 @@
     # -e pgdg=true will install pgdg explicitly
     - name: Install pgdg
       when: pgdg
-      tags: [pgdg]
+      tags: [setup_pgdg]
       yum: name="https://yum.postgresql.org/{{ version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
 
 
@@ -122,7 +121,7 @@
     # PHASE 6: install packages
     ################################################################
     - name: Install postgres packages
-      tags: [install]
+      tags: [install_postgres]
       block:
         - name: Enlisting postgres packages
           set_fact:
@@ -168,7 +167,7 @@
     # PHASE 7: install service unit
     ################################################################
     - name: Install systemd unit
-      tags: [systemd]
+      tags: [install_postgres_systemd]
       block:
         - name: Copy systemd service file
           copy:
@@ -206,7 +205,7 @@
     # PHASE 8: check installation
     ################################################################
     - name: Check postgres installation
-      tags: [check]
+      tags: [check_postgres_installation]
       shell: |
         function check_installation() {
             local version=$1
