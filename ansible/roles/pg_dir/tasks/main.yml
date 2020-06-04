@@ -1,0 +1,29 @@
+---
+- name: Create postgres directory
+  tags: pg_dir_create
+  block:
+    # this assumes /pg is mounted with ssd for database and /var/backups is mounted with hdd for backups
+    - name: Create postgres directories
+      file: path={{ item }} state=directory owner=postgres group=postgres mode=0700
+      with_items:
+        - /pg           # PGROOT
+        - /var/backups  # PGBKUP
+        - /pg/bin
+        - /pg/log
+        - /pg/conf
+        - /pg/data
+        - /pg/tmp
+        - /var/backups/arcwal
+        - /var/backups/backup
+        - /var/backups/remote
+
+    - name: Create links between pgroot and pgbkup
+      file:
+        src: '/var/backups/{{ item }}'
+        dest: '/pg/{{ item }}'
+        state: link
+      loop:
+        - arcwal
+        - backup
+        - remote
+...

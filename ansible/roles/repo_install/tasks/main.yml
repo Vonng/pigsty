@@ -1,0 +1,15 @@
+---
+- name: Install pigsty yum repo
+  tags: pigsty_repo_install
+  block:
+    - name: Download pigsty yum repo
+      copy: src=pigsty.repo dest=/etc/yum.repos.d/pigsty.repo mode=0666
+
+    - name: Configure using local yum if exists
+      ignore_errors: true
+      shell: |
+        if [[ -f /etc/yum.repos.d/pigsty.repo ]]; then
+            yum-config-manager --disable '*'
+            yum-config-manager --enable pigsty
+        fi
+...

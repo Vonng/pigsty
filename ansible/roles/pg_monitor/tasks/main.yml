@@ -1,0 +1,75 @@
+---
+################################################################
+# PHASE 1: Setup PgExporter
+################################################################
+- name: Setup pg_exporter
+  tags: pg_exporter_setup
+  block:
+    - name: Create /etc/pg_exporter conf dir
+      file: path=/etc/pg_exporter state=directory owner=prometheus group=postgres mode=0775
+
+    - name: Config pg_exporter with /etc/pg_exporter/pg_exporter.yaml
+      copy: src=pg_exporter.yaml dest=/etc/pg_exporter/pg_exporter.yaml owner=postgres group=postgres mode=0644
+
+    - name: Config pg_exporter opts
+      template: src=pg_exporter.default dest=/etc/default/pg_exporter owner=postgres group=postgres mode=0600
+
+    - name: Config pg_exporter service unit
+      copy: src=pg_exporter.service dest=/usr/lib/systemd/system/pg_exporter.service owner=postgres group=postgres mode=0644
+
+    - name: Launch pg_exporter service
+      systemd: name=pg_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait pg_exporter online
+      wait_for: host=localhost port={{ pg_exporter_port }} state=started
+
+
+################################################################
+# PHASE 2: Setup PgbouncerExporter
+################################################################
+- name: Setup pgbouncer_exporter
+  tags: pgbouncer_exporter_setup
+  block:
+    - name: Config pgbouncer_exporter opts
+      template: src=pgbouncer_exporter.default dest=/etc/default/pgbouncer_exporter owner=postgres group=postgres mode=0600
+
+    - name: Config pgbouncer_exporter service unit
+      copy: src=pgbouncer_exporter.service dest=/usr/lib/systemd/system/pgbouncer_exporter.service owner=postgres group=postgres mode=0644
+
+    - name: Launch pgbouncer_exporter service
+      systemd: name=pgbouncer_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait pgbouncer_exporter online
+      wait_for: host=localhost port={{ pgbouncer_exporter_port }} state=started
+
+
+
+################################################################
+# PHASE 3: [register] monitoring services
+################################################################
+- name: Register monitoring service
+  tags: pg_monitor_service_register
+  template:
+    src: "{{ item }}.json"
+    dest: /etc/consul.d/{{ item }}.json
+    owner: consul
+    group: postgres
+    mode: 0660
+  with_items:
+    - node-meta
+    - srv-postgres
+    - srv-pgbouncer
+    - srv-patroni
+    - srv-cluster
+    - srv-node-exporter
+    - srv-pg-exporter
+    - srv-pgbouncer-exporter
+
+################################################################
+# PHASE 4: [restart] consul to make node-meta work
+################################################################
+- name: Restart consul
+  tags: [restart_consul]
+  systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+...

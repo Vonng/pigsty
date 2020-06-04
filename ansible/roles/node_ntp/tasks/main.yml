@@ -1,0 +1,44 @@
+---
+- name: Set ntp (CentOS chronyd)
+  tags: ntp_centos
+  when: ansible_os_family == "RedHat"
+  block:
+    # redhat/centos: install chronyd
+    - name: Install chrony package
+      environment: "{{ proxy_env | default({}) }}"
+      package: name=chrony state=present
+
+    # redhat/centos: config chronyd
+    - name: Copy the chrony.conf template file
+      copy: src=chrony.conf dest=/etc/chrony.conf
+
+    - name: Restart chronyd service
+      systemd: name=chronyd enabled=true state=restarted
+
+    - name: Set timezone and synctime
+      shell: |
+        timedatectl set-timezone Asia/Shanghai
+        chronyc -a makestep
+        exit 0
+
+
+- name: Set ntp (Debian ntpd)
+  tags: ntp_debian
+  when: ansible_os_family == "Debian"
+  block:
+    # debian/ubuntu: install ntp
+    - name: Install ntp package
+      package: name=ntp state=present
+      environment: "{{ proxy_env | default({}) }}"
+      tags: ntp_install
+
+    # debian/ubuntu: config ntp
+    - name: Copy the ntp.conf file
+      copy: src=ntp.conf dest=/etc/ntp.conf
+      tags: ntp_config
+
+    - name: Restart ntp service
+      systemd: name=ntp enabled=true state=restarted
+
+
+...

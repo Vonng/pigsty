@@ -1,0 +1,25 @@
+---
+- name: Create node users
+  tags: node_user_create
+  block:
+    - name: Create os group postgres
+      group: name=postgres gid=256
+
+    - name: Create os user postgres
+      user: name=postgres group=postgres home=/home/postgres generate_ssh_key=yes
+
+    - name: Create os user prometheus
+      user: name=prometheus group=postgres create_home=no
+
+    - name: Create os user consul
+      user: name=consul group=postgres create_home=no
+
+    - name: Create os user etcd
+      user: name=etcd group=postgres create_home=no
+
+
+- name: Copy os user profile
+  tags: node_user_create
+  copy: src=profile.sh dest=/etc/profile.d/profile.sh mode=644
+
+...

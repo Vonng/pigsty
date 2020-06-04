@@ -13,12 +13,11 @@ dns:
 
 # copy yum packages to your own host, pigsty/pkg
 cache:
-	ssh node0 "sudo mkdir -p /www/pigsty/grafana"
-	ssh node0  "sudo tar -zcf /www/pigsty/grafana/grafana.tar.gz /var/lib/grafana"
 	rm -rf pkg/* && mkdir -p pkg && scp -r node0:/www/pigsty/* pkg/
 
 # init will pull up entire cluster
-init: infra initdb
+init:
+	cd ansible && ./init.yml
 
 # down will halt all vm (not destroy)
 down: halt
@@ -26,21 +25,6 @@ down: halt
 # show vagrant cluster status
 st: status
 
-###############################################################
-# node init
-###############################################################
-node:
-	cd ansible && ./init-node.yml
-meta:
-	cd ansible && ./init-meta.yml -l meta
-infra: node meta
-
-###############################################################
-# postgres init
-###############################################################
-initdb:
-	cd ansible && ./initdb.yml -l meta
-	cd ansible && ./initdb.yml -l test
 
 ###############################################################
 # vm management
@@ -61,7 +45,7 @@ provision:
 	cd vagrant && vagrant provision
 # sync ntp time (only works after ntp been installed during init-node)
 sync:
-	echo node0 node1 node2 node3 | xargs -n1 -P4 -I{} ssh {} 'sudo bash -c "if command -v ntpdate > /dev/null ;then ntpdate -u time.pool.aliyun.com; fi"'; true
+	echo node0 node1 node2 node3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
 # append pigsty ssh config to ~/.ssh
 ssh:
 	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true

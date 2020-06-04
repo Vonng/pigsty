@@ -1,0 +1,279 @@
+---
+################################################################
+# PHASE 1: [check] primary instance precondition
+################################################################
+- name: Check primary environment
+  tags: pg_primary_check
+  block:
+    - name: Check primary pg version {{ version }}
+      shell: "[[ $(/usr/pgsql/bin/pg_ctl --version) == 'pg_ctl (PostgreSQL) {{ version }}'* ]]"
+
+    # if postgres exists, if will abort, unless specify force to skip this check
+    - name: Check primary not running (set force=on to skip)
+      when: not force
+      shell: "ps aux | grep -v grep | grep -- '-D /pg/data' | grep pgsql || exit 0 && exit 1"
+
+    - name: Set default postgres conf path
+      set_fact:
+        default_postgres_conf: "postgresql-{{ version }}.conf"
+        default_pg_hba_conf: "pg_hba-primary.conf"
+
+
+################################################################
+# PHASE 2: [clean] existing stuff
+################################################################
+# DANGEROUS! remove all postgres data of target machine
+- name: Cleanup postgresql
+  tags: pg_primary_clean
+  block:
+    - name: Stop running postgres service
+      ignore_errors: true
+      systemd: name=postgres state=stopped enabled=no daemon_reload=yes
+
+    # in case that postgres is start manually via pg_ctl
+    - name: Stop running postgres manully if still exist
+      become_user: postgres
+      shell: |
+        pg_exist=$(ps aux | grep -v grep | grep -- '-D /pg/data' | grep pgsql | wc -l)
+        if (( $pg_exist==1 )); then
+            /usr/pgsql/bin/pg_ctl -D /pg/data stop
+        fi
+        exit 0
+
+    - name: Remove existing /pg/data directory
+      file: path=/pg/data state=absent
+
+    - name: Recreate /pg/data directory
+      file: path=/pg/data state=directory owner=postgres group=postgres mode=0700
+
+
+
+################################################################
+# PHASE 3: [initdb] create database cluster
+################################################################
+# [init] database cluster, default config will be rename as postgresql.base.conf
+# you could include that to import pre-set settings
+- name: Init database cluster {{ cluster }} with version={{ version }}
+  tags: pg_primary_init
+  become_user: postgres
+  shell: |
+    /usr/pgsql/bin/initdb -D /pg/data {{ initdb_opts }}
+    mv -f /pg/data/postgresql.conf /pg/data/postgresql.base.conf
+
+
+
+################################################################
+# PHASE 4: [config] postgres
+################################################################
+# use custome postgresql.conf via ( override with -e pgconf=/path/to/postgresql.conf )
+- name: Config postgresql
+  tags: pg_primary_config
+  block:
+    - name: Copy primary postgresql.conf of version {{ version }}
+      template:
+        src: "{{ postgresql_conf_path | default(default_postgres_conf) }}"
+        dest: /pg/data/postgresql.conf
+        owner: postgres
+        group: postgres
+        mode: 0600
+
+    - name: Copy primary pg_hba.conf
+      template:
+        src: "{{ primary_pg_hba_path | default(default_pg_hba_conf) }}"
+        dest: /pg/data/pg_hba.conf
+        owner: postgres
+        group: postgres
+        mode: 0600
+
+
+
+################################################################
+# PHASE 5: [launch] postgresql service
+################################################################
+# launch postgres @ default 5432 port
+- name: Launch PostgreSQL service
+  tags: pg_primary_launch
+  block:
+    - name: Start postgres service
+      systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
+
+    - name: Waits postgres listen on port
+      wait_for: host=localhost port=5432 state=started timeout=10
+
+    - name: Check postgres is ready
+      become_user: postgres
+      command: /usr/pgsql/bin/pg_isready
+
+
+
+################################################################
+# PHASE 6: [bootstrap] postgres database
+################################################################
+# [bootstrap] with default roles, users, business databases
+- name: Bootstrap primary postgres instance
+  tags: primary_bootstrap
+  become_user: postgres
+  block:
+    #==============================================================#
+    # replication user
+    #==============================================================#
+    - name: Create replicator user
+      postgresql_user:
+        db: postgres
+        name: "{{ replication_username }}"
+        password: "{{ replication_password }}"
+        role_attr_flags: REPLICATION,LOGIN,NOINHERIT
+
+    - name: Grant function usage to replicator
+      postgresql_privs:
+        db: postgres
+        state: present
+        type: function
+        privs: EXECUTE
+        obj: "{{ item }}"
+        roles: "{{ replication_username }}"
+        schema: pg_catalog
+      with_items:
+        - "pg_ls_dir(text:boolean:boolean)"
+        - "pg_stat_file(text:boolean)"
+        - "pg_read_binary_file(text)"
+        - "pg_read_binary_file(text:bigint:bigint:boolean)"
+
+    #==============================================================#
+    # monitor user
+    #==============================================================#
+    - name: Create monitor user
+      postgresql_user:
+        db: postgres
+        name: "{{ monitor_username }}"
+        password: "{{ monitor_password }}"
+        role_attr_flags: LOGIN,INHERIT
+
+    - name: Grant pg_monitor to dbuser_monitor
+      postgresql_membership: group=pg_monitor target_roles=dbuser_monitor
+
+
+    #==============================================================#
+    # write replicator and monitor user password
+    #==============================================================#
+    - name: Create pgpass contains replicator info
+      copy:
+        content: |
+          *:*:*:{{ replication_username }}:{{ replication_password }}
+          *:*:*:{{ monitor_username }}:{{ monitor_password }}
+        dest: /home/postgres/.pgpass
+        owner: postgres
+        group: postgres
+        mode: 0600
+
+    - name: Check replicator connectivity
+      become_user: postgres
+      command: psql -U {{ replication_username }} -d postgres -Atc 'SELECT 1;'
+
+
+    #==============================================================#
+    # default roles: readonly / readwrite / admin
+    #==============================================================#
+    - name: Create default role readonly/readwrite
+      postgresql_user:
+        db: postgres
+        name: "{{ item }}"
+        role_attr_flags: NOLOGIN,INHERIT
+      with_items:
+        - dbrole_readonly
+        - dbrole_readwrite
+
+    - name: Create admin role
+      postgresql_user:
+        db: postgres
+        name: "dbrole_admin"
+        role_attr_flags: NOLOGIN,INHERIT,CREATEROLE,CREATEDB,BYPASSRLS
+
+    - name: Grant readonly to readwrite and monitor
+      postgresql_membership: group=dbrole_readonly target_roles=dbrole_readwrite,dbuser_monitor
+    - name: Grant readwrite to admin
+      postgresql_membership: group=dbrole_readwrite target_roles=dbrole_admin
+    - name: Grant admin to postgres
+      postgresql_membership: group=dbrole_admin target_roles=postgres
+
+
+    #==============================================================#
+    # default privileges
+    #==============================================================#
+    # object create by postgres and dbrole_admin will have their privileges properly set
+    - name: Alter default privileges
+      postgresql_query:
+        db: template1
+        query: |
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT USAGE ON SCHEMAS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT SELECT ON TABLES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT SELECT ON SEQUENCES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT EXECUTE ON FUNCTIONS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT INSERT, UPDATE, DELETE ON TABLES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT USAGE, UPDATE ON SEQUENCES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT CREATE ON SCHEMAS TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT USAGE ON TYPES TO dbrole_admin;
+
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT USAGE ON SCHEMAS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT SELECT ON TABLES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT SELECT ON SEQUENCES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT INSERT, UPDATE, DELETE ON TABLES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT USAGE, UPDATE ON SEQUENCES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT CREATE ON SCHEMAS TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT USAGE ON TYPES TO dbrole_admin;
+
+          CREATE SCHEMA IF NOT EXISTS monitor;
+          CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA monitor;
+
+
+
+################################################################
+# PHASE 7: create default database
+################################################################
+- name: Create default database and user
+  tags: primary_default_creation
+  when: default_creation
+  become_user: postgres
+  block:
+    #==============================================================#
+    # default user
+    #==============================================================#
+    - name: Create default user
+      postgresql_user:
+        db: postgres
+        name: "{{ default_username }}"
+        password: "{{ default_password }}"
+        role_attr_flags: LOGIN,INHERIT
+    - name: Grant admin role to default user
+      postgresql_membership: group=dbrole_admin target_roles={{ default_username }}
+
+    #==============================================================#
+    # default database
+    #==============================================================#
+    - name: Create default database
+      postgresql_db:
+        db: "{{ default_database }}"
+        owner: "{{ default_username }}"
+        encoding: UTF-8
+        lc_collate: C
+        lc_ctype: C
+
+    #==============================================================#
+    # check default access
+    #==============================================================#
+    # add default user/pass to pgpass
+    - name: Create pgpass contains replicator info
+      lineinfile:
+        path: /home/postgres/.pgpass
+        line: "*:*:*:{{ default_username }}:{{ default_password }}"
+        create: yes
+
+    - name: Check business user / db connectivity
+      become_user: postgres
+      shell: psql -U {{ default_username }} -d {{ default_database }} -Atc 'SELECT 1;'
+      when: default_creation
+
+...

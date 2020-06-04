@@ -1,0 +1,73 @@
+---
+- name: Install postgres
+  tags: pg_install
+  block:
+
+    - name: Install pgdg
+      when: use_pgdg
+      tags: [setup_pgdg]
+      yum: name="https://yum.postgresql.org/{{ version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+
+
+    - name: Enlisting postgres packages
+      set_fact:
+        pg_package_list:
+          - 'postgresql{{ version }}*'
+          - pgbouncer
+          - patroni
+          - pg_exporter
+
+        postgis_package_list:
+          - postgis{{ postgis_version }}_{{ version }}
+          - postgis{{ postgis_version }}_{{ version }}-client
+          - postgis{{ postgis_version }}_{{ version }}-devel
+          - postgis{{ postgis_version }}_{{ version }}-utils
+          - pgrouting_{{ version }}
+
+        extensions_package_list:
+          - pg_repack{{ version }}
+          - wal2json{{ version }}
+          - pg_repack{{ version }}
+          - pg_qualstats{{ version }}
+          - pg_stat_kcache{{ version }}
+          - pg_cron_{{ version }}
+          - timescaledb_{{ version }}
+          - pglogical_{{ version }}
+
+
+    - name: Enlisting postgis packages
+      when: postgis and version|int <= 12
+      set_fact: pg_package_list="{{ pg_package_list + postgis_package_list }}"
+
+    - name: Enlisting extension packages
+      when: extensions and version|int <= 12
+      set_fact: pg_package_list="{{ pg_package_list + extensions_package_list }}"
+
+    - name: Print postgres packages
+      debug:
+        var: pg_package_list
+
+    - name: Install postgres {{ version }} package list
+      yum: name={{ pg_package_list }}
+
+    - name: Make /usr/pgsql link
+      file: src="/usr/pgsql-{{ version }}" dest=/usr/pgsql state=link
+
+    - name: Add /usr/ppgsql to path
+      copy:
+        content: "export PATH=/usr/pgsql/bin:/pg/bin:$PATH"
+        dest: /etc/profile.d/pgsql.sh
+
+    - name: Check pgsql version
+      shell: |
+        [[ $(/usr/pgsql/bin/pg_ctl --version) == "pg_ctl (PostgreSQL) ${version}"* ]] || errmsg="version not match"
+
+    - name: Copy postgres systemd service file
+      template:
+        src: postgres.service
+        dest: /usr/lib/systemd/system/postgres.service
+
+    - name: Prepare postgres service
+      systemd: name=postgres state=stopped enabled=no daemon_reload=yes
+
+...

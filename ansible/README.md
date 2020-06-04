@@ -1,5 +1,10 @@
 # Ansible Playbooks
 
+## Merged playbook
+
+* [**init.yml**](init.yml)
+
+
 ## **Infrastructure Initialization**
 
 * [init-repo.yml](init-repo.yml): provision playbook to setup a local yum repo

@@ -1,0 +1,89 @@
+---
+################################################################
+# PHASE 0: [check] precondition
+################################################################
+- name: Check pgbouncer installed
+  tags: pgbouncer_check
+  shell: "[[ -f /bin/pgbouncer ]]"
+
+
+################################################################
+# PHASE 1: [clean] existing pgbouncer
+################################################################
+- name: Cleanup pgbouncer
+  tags: pgbouncer_cleanup
+  block:
+    - name: Stop running pgbouncer service
+      ignore_errors: true
+      systemd: name=pgbouncer state=stopped enabled=no daemon_reload=yes
+
+    - name: Remove existing pgbouncer directories
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/pgbouncer
+        - /var/log/pgbouncer
+        - /var/run/pgbouncer
+
+    - name: Recreate pgbouncer directories with user postgres
+      file: path={{ item }} state=directory owner=postgres group=postgres mode=0700
+      with_items:
+        - /etc/pgbouncer
+        - /var/log/pgbouncer
+        - /var/run/pgbouncer
+
+
+################################################################
+# PHASE 2: [config] pgbouncer
+################################################################
+- name: Config pgbouncer
+  tags: [config_pgbouncer]
+  block:
+    - name: Copy pgbouncer.ini
+      template: src=pgbouncer.ini dest=/etc/pgbouncer/pgbouncer.ini owner=postgres group=postgres mode=0600
+
+    - name: Copy pgb_hba.conf
+      template: src=pgb_hba.conf dest=/etc/pgbouncer/pgb_hba.conf owner=postgres group=postgres mode=0600
+
+    # equiv: psql -Atq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE NOT (NOT usesuper AND userepl)" > /etc/pgbouncer/userlist.txt
+    - name: Generate userlist.txt
+      become_user: postgres
+      shell: |
+        md5_mon_pass="md5$(echo -n '{{ monitor_password }}{{ monitor_username }}' | md5sum | awk '{print $1}')"
+        md5_biz_pass="md5$(echo -n '{{ default_password }}{{ default_username }}' | md5sum | awk '{print $1}')"
+        echo '"postgres" ""' > /etc/pgbouncer/userlist.txt
+        echo \"{{ monitor_username }}\" \"${md5_mon_pass}\" >> /etc/pgbouncer/userlist.txt
+        echo \"{{ default_username }}\" \"${md5_biz_pass}\" >> /etc/pgbouncer/userlist.txt
+        chmod 0600 /etc/pgbouncer/userlist.txt
+        chown -R postgres:postgres /var/run/pgbouncer /var/log/pgbouncer /etc/pgbouncer
+
+    # systemd services
+    - name: Generate pgbouncer systemd definition
+      copy:
+        src: pgbouncer.service
+        dest: /etc/systemd/system/pgbouncer.service
+        owner: root
+        group: root
+        mode: 0644
+
+################################################################
+# PHASE 3: [launch] pgbouncer service
+################################################################
+- name: Launch pgbouncer
+  tags: [launch_pgbouncer]
+  block:
+    - name: Launch pgbouncer service
+      systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
+
+    - name: Waits pgbouncer listen on port
+      wait_for: host=localhost port=6432 state=started timeout=10
+
+    - name: Check pgbouncer is ready
+      become_user: postgres
+      command: /usr/pgsql/bin/pg_isready -p6432
+
+    - name: Check pgbouncer bizdb accessibility
+      become_user: postgres
+      command: psql -p6432 -U {{ default_username }} -d {{ default_database }} -Atc 'SELECT 1;'
+
+
+...

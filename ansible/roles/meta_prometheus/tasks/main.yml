@@ -1,0 +1,42 @@
+---
+- name: Setup Prometheus and grafana
+  tags: prometheus_setup
+  block:
+    - name: Wipe out prometheus config
+      file: path=/etc/prometheus state=absent
+
+    - name: Wipe out prometheus data
+      file: path=/var/lib/prometheus/data state=absent
+
+    - name: Recreate prometheus data dir
+      file: path=/var/lib/prometheus/data mode=0700 state=directory owner=prometheus group=prometheus
+
+    - name: Copy prometheus configs
+      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus group=prometheus mode=0755
+
+    - name: Launch prometheus service
+      systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
+
+    - name: Launch alertmanager service
+      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait prometheus online
+      wait_for: host=localhost port=9090 state=started
+
+    - name: Wait alertmanager online
+      wait_for: host=localhost port=9093 state=started
+
+    - name: Copy prometheus consul services definition
+      copy:
+        src: srv-{{ item }}.json
+        dest: /etc/consul.d/srv-{{ item }}.json
+        mode: 0660
+        owner: consul
+        group: consul
+      with_items:
+        - prometheus
+        - alertmanager
+
+    - name: Reload consul service
+      systemd: name=consul state=reloaded enabled=yes
+...

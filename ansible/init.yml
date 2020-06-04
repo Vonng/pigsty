@@ -1,0 +1,98 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Init Local Yum Repo
+  become: yes
+  hosts: meta
+  tags: repo
+  vars:
+    # build_essential:  false       # download gcc, g++, rpmbuild, etc...
+    # cloud_native:     false       # download kubectl kubeadm helm docker, etc..
+    # force_download:   false       # force download even cache exists
+    # proxy_env: {}                 # add http/https/all proxy settings here
+  roles:
+    - role: repo_bootstrap
+    - role: repo_download
+
+
+- name: Init Infrastructure
+  become: yes
+  hosts: all
+  tags: node
+  vars:
+    consul_server: [10.10.10.10]          # list your consul server address here
+    # cloud_native: false                 # install k8s tools on all nodes ?
+    # build_essential: false              # install build tools on all nodes ?
+    # disable_thp: true                   # disable transparent hugepage ?
+    # disk_prefetch: true                 # setup disk prefetch ?
+    # disable_numa: false                 # disable numa  (vm does not needed)
+    # setup_raid: false                   # set raid ?    (vm does not needed)
+    # node_exporter_port: 9100            # node exporter port & metrics url path
+    # node_exporter_metric_path: /metrics
+
+  roles:
+    - role: repo_install                  # install local yum repo
+    - role: node_user                     # create node users
+    - role: node_pkgs                     # install node packages
+    - role: node_dns                      # setup dns records and resolver
+    - role: node_ntp                      # setup ntp service chronyd|ntp
+    - role: node_tune                     # tune os settings
+    - role: node_sysctl                   # optimize sysctl parameters
+    - role: node_consul                   # setup consul service
+    - role: node_exporter                 # setup prometheus node exporter
+
+
+- name: Init Meta Node
+  become: yes
+  hosts: meta
+  tags: meta
+  vars:
+    build_essential: false                # install build tool chain on meta node
+    grafana_provision_datasources: true   # use provisioned data sources
+    grafana_provision_dashboards: true    # use provisioned dashboards
+    grafana_provision_plugins: false      # provision additional grafana plugins
+    grafana_force_download_plugins: false # force re-download grafana plugins
+
+  roles:
+    - role: meta_pkgs                     # install meta node packages
+    - role: meta_nginx                    # setup nginx service and content
+    - role: meta_dnsmasq                  # setup pigsty dnsmasq
+    - role: meta_prometheus               # setup pigsty prometheus
+    - role: meta_grafana                  # setup pigsty grafana
+
+
+
+- name: Init PostgreSQL Cluster
+  become: yes
+  hosts: test
+  tags: pg-test
+  vars:
+    cluster: pg-test                      # [REQUIRED] parameter `cluster`
+    version: 12                           # [REQUIRED] parameter `version`
+    # postgresql_conf_path:               # user-provided postgresql.conf
+    # primary_pg_hba_conf:                # user-provided pg_hba.conf for primary
+    replication_username: 'replicator'    # replication username, default is replicator
+    replication_password: 'replicator'    # replication user password
+    monitor_username: 'dbuser_monitor'    # monitoring username
+    monitor_password: 'monitor'           # monitoring password
+    superuser_creation: false             # additional superuser (default is postgres)
+    default_creation:   true              # create business database and user? (optional)
+    default_database: 'testdb'            # business username (optional)
+    default_username: 'dbuser_test'       # business passowrd (optional)
+    default_password: 'test'              # business passowrd (optional), may provide via secret files
+    lb_enabled: true
+
+  roles:
+    - role: pg_dbsu                       # create dbsu postgres and exchange ssh key
+    - role: pg_dir                        # create database file structures
+    - role: pg_install                    # install postgres packages
+    - role: pg_precheck                   # check cluster topo and build primary & replica group
+    - role: pg_primary                    # init primary instance
+      when: role == 'primary'
+    - role: pg_standby                    # init standby instance
+      when: role != 'primary'
+    - role: pg_pgbouncer                  # init connection pool
+    - role: pg_monitor                    # init monitoring system
+    #- role: pg_proxy                      # haproxy and keepalived
+
+...
+

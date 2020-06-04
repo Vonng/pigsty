@@ -1,0 +1,38 @@
+---
+- name: Setup dnsmasq
+  tags: dnsmasq_setup
+  block:
+
+    #==============================================================#
+    # Stage 1: Setup dnsmasq
+    #==============================================================#
+    - name: Copy dnsmasq config
+      copy: src=dnsmasq.conf dest=/etc/dnsmasq.d/config
+
+    - name: Copy dnsmasq hosts
+      copy: src=hosts dest=/etc/hosts mode=0644
+
+    - name: Launch dnsmasq service
+      systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait dnsmasq online
+      wait_for: host=localhost port=53 state=started
+
+    #==============================================================#
+    # Stage 2: Register dnsmasq service
+    #==============================================================#
+    - name: Copy consul services definition
+      tags: meta_register_nginx_service
+      copy:
+        src: srv-dnsmasq.json
+        dest: /etc/consul.d/srv-dnsmasq.json
+        mode: 0660
+        owner: consul
+        group: consul
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes
+
+...
+
+
