@@ -30,9 +30,6 @@
       shell: cat /home/postgres/.ssh/id_rsa.pub
       register: ssh_keys
 
-    - name: Check all public key
-      debug: msg="{{ ssh_keys.stdout }}"
-
     # for all hosts, copy their postgres ssh public key to each other
     - name: Copy ssh key to authorized hosts
       authorized_key: user=postgres key="{{ item[0] }}"
@@ -40,11 +37,6 @@
       with_nested:
         - "{{ ssh_keys.stdout }}"
         - "{{ play_hosts }}"
-
-    - name: Fetch all public key
-      shell: cat /home/postgres/.ssh/id_rsa.pub
-      register: ssh_keys
-
 
 
 #==============================================================#

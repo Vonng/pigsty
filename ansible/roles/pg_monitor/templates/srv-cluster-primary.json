@@ -1,14 +1,14 @@
 {
   "service": {
-    "name": "{{ cluster }}",
-    "port": 6432,
+    "name": "{{ cluster }}-primary",
+    "port": {{ lb_primary_port }},
     "tags": [
-      "{{ role }}",
-      "{{ seq }}"
+      "{{ cluster }}",
+      "primary"
     ],
     "meta": {
       "type": "postgres",
-      "role": "{{ role }}",
+      "role": "{{ lb }}",
       "seq": "{{ seq }}",
       "instance": "{{ cluster }}-{{seq}}",
       "service": "{{ cluster }}-{{ role }}",
@@ -16,7 +16,7 @@
       "version": "{{ version }}"
     },
     "check": {
-      "http": "{{ inventory_hostname }}:8008/{{ role }}",
+      "tcp": "{{ inventory_hostname }}:{{ lb_primary_port }}",
       "interval": "5s",
       "timeout": "1s"
     }

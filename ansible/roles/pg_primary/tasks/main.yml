@@ -26,6 +26,10 @@
 - name: Cleanup postgresql
   tags: pg_primary_clean
   block:
+    - name: Stop running patroni service
+      ignore_errors: true
+      systemd: name=patroni state=stopped enabled=no daemon_reload=yes
+
     - name: Stop running postgres service
       ignore_errors: true
       systemd: name=postgres state=stopped enabled=no daemon_reload=yes

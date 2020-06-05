@@ -1,0 +1,19 @@
+---
+- name: Setup Haproxy
+  tags: haproxy_setup
+  block:
+    - name: Render haproxy config
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+
+    - name: Launch haproxy service
+      systemd:
+        name: haproxy
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Waits haproxy online
+      wait_for: host=localhost port=9101 state=started timeout=10
+...

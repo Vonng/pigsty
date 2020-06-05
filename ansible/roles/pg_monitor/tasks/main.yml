@@ -60,10 +60,24 @@
     - srv-postgres
     - srv-pgbouncer
     - srv-patroni
-    - srv-cluster
     - srv-node-exporter
     - srv-pg-exporter
     - srv-pgbouncer-exporter
+
+- name: Register lb service
+  tags: lb_service_register
+  when: lb is defined
+  template:
+    src: "{{ item }}.json"
+    dest: /etc/consul.d/{{ item }}.json
+    owner: consul
+    group: postgres
+    mode: 0660
+  with_items:
+    - srv-haproxy
+    - srv-cluster-primary
+    - srv-cluster-replica
+
 
 ################################################################
 # PHASE 4: [restart] consul to make node-meta work

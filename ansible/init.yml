@@ -24,6 +24,7 @@
     # build_essential: false              # install build tools on all nodes ?
     # disable_thp: true                   # disable transparent hugepage ?
     # disk_prefetch: true                 # setup disk prefetch ?
+    # enable_watchdog: true               # enable linux watchdog?
     # disable_numa: false                 # disable numa  (vm does not needed)
     # setup_raid: false                   # set raid ?    (vm does not needed)
     # node_exporter_port: 9100            # node exporter port & metrics url path
@@ -60,6 +61,43 @@
     - role: meta_grafana                  # setup pigsty grafana
 
 
+- name: Init Meta PostgreSQL Cluster
+  become: yes
+  hosts: meta
+  tags: pg-meta
+  vars:
+    cluster: pg-meta                      # [REQUIRED] parameter `cluster`
+    version: 12                           # [REQUIRED] parameter `version`
+    force: true                           # force removing existing cluster
+    # postgresql_conf_path:               # user-provided postgresql.conf
+    # primary_pg_hba_conf:                # user-provided pg_hba.conf for primary
+    replication_username: 'replicator'    # replication username, default is replicator
+    replication_password: 'replicator'    # replication user password
+    monitor_username: 'dbuser_monitor'    # monitoring username
+    monitor_password: 'monitor'           # monitoring password
+    default_creation:   true              # create business database and user? (optional)
+    default_database: 'metadb'            # business username (optional)
+    default_username: 'dbuser_meta'       # business passowrd (optional)
+    default_password: 'meta'              # business passowrd (optional), may provide via secret files
+    lb_enabled: true                      # enable load balancer
+    lb_primary_port: 5555                 # default port for primary service
+    lb_replica_port: 5556                 # default port for replica service
+
+  roles:
+    - role: pg_precheck                   # check cluster topo and build primary & replica group
+    - role: pg_dbsu                       # create dbsu postgres and exchange ssh key
+    - role: pg_dir                        # create database file structures
+    - role: pg_install                    # install postgres packages
+    - role: pg_primary                    # init primary instance
+      when: role == 'primary'
+    - role: pg_replica                    # init replica instance
+      when: role != 'primary'
+    - role: pg_pgbouncer                  # init connection pool
+    - role: pg_patroni
+    - role: pg_proxy                      # haproxy and keepalived
+      when: lb_enabled and lb is defined
+    - role: pg_monitor                    # init monitoring system
+
 
 - name: Init PostgreSQL Cluster
   become: yes
@@ -68,31 +106,34 @@
   vars:
     cluster: pg-test                      # [REQUIRED] parameter `cluster`
     version: 12                           # [REQUIRED] parameter `version`
+    force: true                           # force removing existing cluster
     # postgresql_conf_path:               # user-provided postgresql.conf
     # primary_pg_hba_conf:                # user-provided pg_hba.conf for primary
     replication_username: 'replicator'    # replication username, default is replicator
     replication_password: 'replicator'    # replication user password
     monitor_username: 'dbuser_monitor'    # monitoring username
     monitor_password: 'monitor'           # monitoring password
-    superuser_creation: false             # additional superuser (default is postgres)
     default_creation:   true              # create business database and user? (optional)
     default_database: 'testdb'            # business username (optional)
     default_username: 'dbuser_test'       # business passowrd (optional)
     default_password: 'test'              # business passowrd (optional), may provide via secret files
-    lb_enabled: true
+    lb_enabled: true                      # enable load balancer
+    lb_primary_port: 5555                 # default port for primary service
+    lb_replica_port: 5556                 # default port for replica service
 
   roles:
+    - role: pg_precheck                   # check cluster topo and build primary & replica group
     - role: pg_dbsu                       # create dbsu postgres and exchange ssh key
     - role: pg_dir                        # create database file structures
     - role: pg_install                    # install postgres packages
-    - role: pg_precheck                   # check cluster topo and build primary & replica group
     - role: pg_primary                    # init primary instance
       when: role == 'primary'
-    - role: pg_standby                    # init standby instance
+    - role: pg_replica                    # init replica instance
       when: role != 'primary'
     - role: pg_pgbouncer                  # init connection pool
-    - role: pg_monitor                    # init monitoring system
-    #- role: pg_proxy                      # haproxy and keepalived
-
+    - role: pg_patroni
+    - role: pg_proxy                      # haproxy and keepalived
+      when: lb_enabled and lb is defined
+    - role: pg_monitor                    # init monitoring syste
 ...
 

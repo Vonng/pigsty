@@ -1,9 +1,9 @@
 ---
 ################################################################
-# PHASE 1: check inventory and set facts
+# check inventory and set facts
 ################################################################
 - name: Check inventory and set fact
-  tags: pg_inventory_check
+  tags: [always,pg_inventory_check]
   block:
     - name: Check cluster role seq defined in inventory
       assert:
@@ -46,8 +46,11 @@
       set_fact:
         replication_source={{ upstream_ip|default(primary_ip) }}
 
-- name: Group by
-  group_by:
-    key: "{{ role }}"
+    - debug:
+        msg: "{{ cluster }}-{{ seq }} [{{ role }}]"
+
+    - name: Group by
+      group_by:
+        key: "{{ role }}"
 
 ...

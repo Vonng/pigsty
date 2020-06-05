@@ -1,0 +1,24 @@
+{
+  "service": {
+    "name": "{{ cluster }}-replica",
+    "port": {{ lb_replica_port }},
+    "tags": [
+      "{{ cluster }}",
+      "replica"
+    ],
+    "meta": {
+      "type": "postgres",
+      "role": "{{ lb }}",
+      "seq": "{{ seq }}",
+      "instance": "{{ cluster }}-{{seq}}",
+      "service": "{{ cluster }}-{{ role }}",
+      "cluster": "{{ cluster }}",
+      "version": "{{ version }}"
+    },
+    "check": {
+      "tcp": "{{ inventory_hostname }}:{{ lb_replica_port }}",
+      "interval": "5s",
+      "timeout": "1s"
+    }
+  }
+}
