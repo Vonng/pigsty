@@ -56,5 +56,18 @@ start: up ssh sync
 stop: halt
 
 
+###############################################################
+# grafna management
+###############################################################
+dump-monitor:
+	ssh node0 "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
+	scp node0:/tmp/grafana.db ansible/roles/meta_grafana/files/grafana.db
+	ssh node0 "sudo rm -rf /tmp/grafana.db"
+
+restore-monitor:
+	scp ansible/roles/meta_grafana/files/grafana.db node0:/tmp/grafana.db
+	ssh node0 "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
+	ssh node0 "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
+
 
 .PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new

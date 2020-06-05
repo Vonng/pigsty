@@ -19,8 +19,7 @@ global
     ssl-default-server-ciphers PROFILE=SYSTEM
 
 #---------------------------------------------------------------------
-# common defaults that all the 'listen' and 'backend' sections will
-# use if not designated in their block
+# default settings
 #---------------------------------------------------------------------
 defaults
     mode               tcp
@@ -33,6 +32,9 @@ defaults
     timeout check      15s
 
 
+#---------------------------------------------------------------------
+# stats and exporter
+#---------------------------------------------------------------------
 listen stats
     bind *:9101
     mode  http
@@ -42,7 +44,9 @@ listen stats
     http-request use-service prometheus-exporter if { path /metrics }
 
 
-
+#---------------------------------------------------------------------
+# cluster routes: primary
+#---------------------------------------------------------------------
 listen pg-test-primary
     bind 0.0.0.0:5555
     mode tcp
@@ -56,6 +60,10 @@ listen pg-test-primary
     server pg-test-2 10.10.10.12:6432 check port 8008
     server pg-test-3 10.10.10.13:6432 check port 8008
 
+
+#---------------------------------------------------------------------
+# cluster routes: replica
+#---------------------------------------------------------------------
 listen pg-test-replica
     bind 0.0.0.0:5556
     mode tcp
