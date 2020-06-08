@@ -1,19 +1,26 @@
 ---
 - name: Setup Haproxy
-  tags: haproxy_setup
+  when: lb_enabled
+  tags: pg_haproxy
   block:
-    - name: Render haproxy config
+    - name: Render /etc/haproxy/haproxy.cfg
       template:
         src: haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
 
-    - name: Launch haproxy service
+    - name: Increase pam ulimit for user haproxy
+      copy:
+        src: haproxy.conf
+        dest: /etc/security/limits.d/haproxy.conf
+        mode: 0640
+
+    - name: Launch haproxy on all instances
       systemd:
         name: haproxy
         state: restarted
         enabled: yes
         daemon_reload: yes
 
-    - name: Waits haproxy online
+    - name: Wait for haproxy service online
       wait_for: host=localhost port=9101 state=started timeout=10
 ...

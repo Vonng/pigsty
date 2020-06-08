@@ -2,28 +2,28 @@
 - name: Setup node_exporter
   tags: [node_exporter]
   block:
-    - name: Copy node_exporter service unit
+    - name: Copy node_exporter svc
       copy:
         src: node_exporter.service
         dest: /usr/lib/systemd/system/node_exporter.service
         owner: root
         mode: 0644
 
-    - name: Config node_exporter
+    - name: Config node_exporter svc
       template:
         src: node_exporter.default
         dest: /etc/default/node_exporter
         owner: root
         mode: 0644
 
-    - name: Launch node_exporter service
+    - name: Launch node_exporter svc
       systemd:
         name: node_exporter
         state: restarted
         enabled: yes
         daemon_reload: yes
 
-    - name: Waits node_exporter online
+    - name: Waits node_exporter ready
       wait_for: host=localhost port={{ node_exporter_port }} state=started timeout=10
 
 

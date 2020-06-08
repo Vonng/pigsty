@@ -1,0 +1,203 @@
+---
+#==============================================================#
+# Stage 1: Meta packages install
+#==============================================================#
+- name: Install meta packages
+  tags: meta_install
+  block:
+    # enlist additional packages if provided
+    - name: Install build essential packages
+      when: additional_package_list|length > 0
+      set_fact: meta_package_list="{{ meta_package_list + additional_package_list }}"
+
+    - name: Install meta packages from yum
+      environment: "{{ proxy_env }}"
+      yum:
+        disable_gpg_check: yes
+        name: "{{ meta_package_list }}"
+
+
+
+#==============================================================#
+# Stage 2: Meta nginx setup
+#==============================================================#
+- name: Setup meta nginx
+  tags: meta_nginx
+  block:
+    - name: Copy additional nginx proxy conf
+      copy: src=nginx/{{ item }}.conf dest=/etc/nginx/conf.d/{{ item }}.conf
+      with_items:
+        - default
+        - consul
+        - grafana
+        - prometheus
+        - alertmanager
+        - haproxy
+        - pgadmin
+
+    - name: Restart pigsty nginx service
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    # Setup nginx exporter
+    - name: Config nginx_exporter options
+      copy: src=nginx/nginx_exporter.default dest=/etc/default/nginx_exporter
+
+    - name: Restart nginx_exporter service
+      systemd: name=nginx_exporter state=restarted enabled=yes daemon_reload=yes
+
+
+
+
+#==============================================================#
+# Stage 3: Setup dnsmasq service
+#==============================================================#
+- name: Setup dnsmasq service
+  tags: meta_dnsmasq
+  block:
+    - name: Copy dnsmasq /etc/dnsmasq.d/config
+      template: src=dnsmasq.conf dest=/etc/dnsmasq.d/config
+
+    - name: Copy dnsmasq hosts /etc/hosts
+      template: src=hosts dest=/etc/hosts mode=0644
+
+    - name: Launch meta dnsmasq service
+      systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for meta dnsmasq online
+      wait_for: host=localhost port=53 state=started
+
+
+
+
+#==============================================================#
+# Stage 4: Prometheus
+#==============================================================#
+- name: Setup prometheus and alertmanager
+  tags: meta_prometheus
+  block:
+    # cleanup prometheus
+    - name: Wipe out prometheus config dir
+      file: path=/etc/prometheus state=absent
+    - name: Wipe out existing prometheus data
+      file: path=/var/lib/prometheus/data state=absent
+    - name: Recreate prometheus data dir
+      file: path=/var/lib/prometheus/data mode=0700 state=directory owner=prometheus group=prometheus
+    # config
+    - name: Copy /etc/prometheus configs
+      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus group=prometheus mode=0755
+    # launch
+    - name: Launch meta prometheus service
+      systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
+    - name: Launch meta alertmanager service
+      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+    - name: Wait for meta prometheus online
+      wait_for: host=localhost port=9090 state=started
+    - name: Wait for meta alertmanager online
+      wait_for: host=localhost port=9093 state=started
+
+
+
+
+#==============================================================#
+# Stage 5: Setup grafana
+#==============================================================#
+- name: Setup Grafana
+  tags: meta_grafana
+  block:
+    - name: Copy /etc/grafana/grafana.ini
+      copy: src=grafana/grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+
+    # provision via directly copied sqlite database
+    - name: Provision grafana via grafana.db
+      copy:
+        src: grafana/grafana.db
+        dest: /var/lib/grafana/grafana.db
+        owner: grafana
+        group: grafana
+        mode: 0660
+
+    # provision via pre-configured yaml/json files
+    - name: Provision grafana datasources
+      when: grafana_provision_datasources
+      copy: src=grafana/datasources/ dest=/etc/grafana/provisioning/datasources/ owner=grafana group=grafana mode=0640
+
+    - name: Provision grafana dashboards
+      when: grafana_provision_dashboards
+      copy: src=grafana/dashboards/ dest=/etc/grafana/provisioning/dashboards/ owner=root group=grafana mode=0640
+
+    - name: Launch meta grafana service
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for meta grafana online
+      wait_for: host=localhost port=3000 state=started
+
+
+
+#==============================================================#
+# Stage 6: Setup grafana plugins (optional)
+#==============================================================#
+- name: Setup grafana plugins
+  when: grafana_provision_plugins
+  tags: meta_plugins
+  block:
+    - name: Check grafana plugin cache exists
+      stat: path=/www/pigsty/grafana/grafana.tar.gz
+      register: grafana_plugins_cache
+
+    # extract cache pacakge and install
+    - name: Provision grafana plugin via cache
+      when: grafana_plugins_cache.stat.exists
+      shell: |
+        mkdir -p /var/lib/grafana && rm -rf /var/lib/grafana/*
+        tar -xf /www/pigsty/grafana/grafana.tar.gz -C /var/lib/grafana --strip-components=3
+        chown -R grafana:grafana /var/lib/grafana
+
+    - name: Download plugins if not exists
+      when: grafana_force_download_plugins or (not grafana_plugins_cache.stat.exists)
+      shell: |
+        grafana-cli plugins install simpod-json-datasource
+        grafana-cli plugins install camptocamp-prometheus-alertmanager-datasource
+        # grafana-cli plugins install ryantxu-ajax-panel
+        # grafana-cli plugins install grafana-piechart-panel
+        # grafana-cli plugins install jdbranham-diagram-panel
+        # grafana-cli plugins install aidanmountford-html-panel
+        # grafana-cli plugins install alexandra-trackmap-panel
+        # grafana-cli plugins install snuids-radar-panel
+        # grafana-cli plugins install digrich-bubblechart-panel
+
+        # tar plugins to cache dir
+        mkdir -p /www/pigsty/grafana
+        tar -zcf /www/pigsty/grafana/grafana.tar.gz /var/lib/grafana
+
+    - name: Restart meta grafana service
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
+
+
+
+#==============================================================#
+# Stage 7: Register dnsmasq service
+#==============================================================#
+- name: Register meta consul service
+  tags: meta_register
+  block:
+    - name: Copy consul services definition
+      copy:
+        src: consul/srv-{{ item }}.json
+        dest: /etc/consul.d/srv-{{ item }}.json
+        mode: 0660
+        owner: consul
+        group: consul
+      with_items:
+        - nginx
+        - nginx-exporter
+        - dnsmasq
+        - prometheus
+        - alertmanager
+        - grafana
+
+    - name: Reload consul meta services
+      systemd: name=consul state=reloaded enabled=yes
+...
+
+

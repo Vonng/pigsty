@@ -15,11 +15,11 @@
 - name: Cleanup Patroni
   tags: patroni_cleanup
   block:
-    - name: Disable patroni services
+    - name: Disable existing patroni services
       ignore_errors: true
       systemd: name=patroni state=stopped enabled=no
 
-    - name: Remove consul metadata
+    - name: Remove patroni consul metadata
       ignore_errors: true
       command: consul kv delete -recurse /pg/{{ cluster }}
 
@@ -30,13 +30,13 @@
 - name: Setup Patroni
   tags: patroni_setup
   block:
-    - name: Copy shell scripts
+    - name: Copy patroni callback scripts
       template: src={{ item }} dest=/pg/bin/{{ item }} owner=postgres group=postgres mode=0700
       with_items:
         - callback.sh
         - register.sh
 
-    - name: Copy patroni config
+    - name: Copy default /pg/conf/patroni.yml
       template:
         src: "patroni.yml"
         dest: "/pg/conf/{{ instance_name }}.yml"
@@ -44,7 +44,7 @@
         group: postgres
         mode: 0755
 
-    - name: Make patroni config link
+    - name: Link /pg/conf/patroni to /pg/bin/
       file:
         src: /pg/conf/{{ instance_name }}.yml
         dest: /pg/bin/patroni.yml
@@ -52,7 +52,7 @@
         group: postgres
         state: link
 
-    - name: Copy patroni systemd service
+    - name: Copy patroni systemd service unit
       copy:
         src: patroni.service
         dest: /usr/lib/systemd/system/patroni.service
@@ -60,7 +60,7 @@
         group: root
         mode: 0644
 
-    - name: Launch primary patroni first
+    - name: Launch patroni on primary instance
       when: role == 'primary'
       systemd:
         name: patroni
@@ -69,7 +69,7 @@
         daemon_reload: yes
 
 
-    - name: Launch patroni replica service
+    - name: Launch patroni on replica instances
       when: role != 'primary'
       systemd:
         name: patroni
@@ -77,6 +77,6 @@
         enabled: yes
         daemon_reload: yes
 
-    - name: Waits patroni launch
+    - name: Wait for patroni service online
       wait_for: host={{ inventory_hostname }} port=8008 state=started timeout=30
 ...

@@ -8,17 +8,17 @@
       systemd: name=consul state=stopped enabled=no daemon_reload=yes
 
     # consul server
-    - name: Copy consul server service unit
+    - name: Copy consul server service
       copy: src=consul-server.service dest=/usr/lib/systemd/system/consul.service
       when: inventory_hostname in consul_servers
 
     # consul agent
-    - name: Copy consul service unit
+    - name: Copy consul agent service
       copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
       when: inventory_hostname not in consul_servers
 
     # remove existing consul data
-    - name: Remove existing consul directory
+    - name: Remove existing consul data
       file: path={{ item }} state=absent
       with_items: [/etc/consul.d, /var/lib/consul]
 

@@ -13,11 +13,13 @@ dns:
 
 # copy yum packages to your own host, pigsty/pkg
 cache:
-	rm -rf pkg/* && mkdir -p pkg && scp -r node0:/www/pigsty/* pkg/
+	rm -rf pkg/* && mkdir -p pkg && scp -r meta:/www/pigsty/* pkg/
 
 # init will pull up entire cluster
 init:
-	cd ansible && ./init.yml
+	cd ansible && ./infra.yml
+	cd ansible && ./pg-meta.yml
+	cd ansible && ./pg-test.yml
 
 # down will halt all vm (not destroy)
 down: halt

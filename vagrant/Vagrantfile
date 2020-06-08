@@ -1,29 +1,35 @@
+IMAGE_NAME = "centos/7"
+N=3
+
 Vagrant.configure("2") do |config|
-    config.vm.box = "centos/7"
+    config.vm.box = IMAGE_NAME
     config.vm.box_check_update = false
     config.ssh.insert_key = false
 
-    config.vm.define "node0", primary: true do |s|
-        s.vm.hostname = "node0"
-        s.vm.network "private_network", ip: "10.10.10.10"
-        s.vm.provider "virtualbox" do |v|
-            v.linked_clone = true
-            v.customize [
-                    "modifyvm", :id,
-                    "--memory", 4096, "--cpus", "2",
-                    "--nictype1", "virtio", "--nictype2", "virtio",
-                    "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
-                ]
+    # node-1 ... node-N
+    (1..N).each do |i|
+        config.vm.define "node-#{i}" do |node|
+            node.vm.box = IMAGE_NAME
+            node.vm.network "private_network", ip: "10.10.10.#{i + 10}"
+            node.vm.hostname = "node-#{i}"
+            node.vm.provider "virtualbox" do |v|
+                v.linked_clone = true
+                v.customize [
+                        "modifyvm", :id,
+                        "--memory", 2048, "--cpus", "1",
+                        "--nictype1", "virtio", "--nictype2", "virtio",
+                        "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
+                    ]
+            end
+            node.vm.provision "shell", inline: "/vagrant/provision.sh"
         end
-        s.vm.provision "file", source: "../pkg", destination: "/vagrant/pkg"
-        s.vm.provision "file", source: "../ansible", destination: "/vagrant/ansible"
-        s.vm.provision "shell", inline: "/vagrant/provision.sh"
     end
 
-    config.vm.define "node1" do |s|
-        s.vm.hostname = "node1"
-        s.vm.network "private_network", ip: "10.10.10.11"
-        s.vm.provider "virtualbox" do |v|
+    # meta node
+    config.vm.define "meta", primary: true do |meta|
+        meta.vm.hostname = "meta"
+        meta.vm.network "private_network", ip: "10.10.10.10"
+        meta.vm.provider "virtualbox" do |v|
             v.linked_clone = true
             v.customize [
                     "modifyvm", :id,
@@ -32,36 +38,8 @@ Vagrant.configure("2") do |config|
                     "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                 ]
         end
-        s.vm.provision "shell", inline: "/vagrant/provision.sh"
-    end
-
-    config.vm.define "node2" do |s|
-        s.vm.hostname = "node2"
-        s.vm.network "private_network", ip: "10.10.10.12"
-        s.vm.provider "virtualbox" do |v|
-            v.linked_clone = true
-            v.customize [
-                    "modifyvm", :id,
-                    "--memory", 2048, "--cpus", "1",
-                    "--nictype1", "virtio", "--nictype2", "virtio",
-                    "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
-                ]
-        end
-        s.vm.provision "shell", inline: "/vagrant/provision.sh"
-    end
-
-    config.vm.define "node3" do |s|
-        s.vm.hostname = "node3"
-        s.vm.network "private_network", ip: "10.10.10.13"
-        s.vm.provider "virtualbox" do |v|
-            v.linked_clone = true
-            v.customize [
-                "modifyvm", :id,
-                "--memory", 2048, "--cpus", "1",
-                "--nictype1", "virtio", "--nictype2", "virtio",
-                "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
-            ]
-        end
-    s.vm.provision "shell", inline: "/vagrant/provision.sh"
+        meta.vm.provision "file", source: "../pkg", destination: "/vagrant/pkg"
+        meta.vm.provision "file", source: "../ansible", destination: "/vagrant/ansible"
+        meta.vm.provision "shell", inline: "/vagrant/provision.sh"
     end
 end

@@ -23,7 +23,16 @@ function setup_ssh() {
 	[ ! -f ${ssh_dir}/config ] && [ -f /vagrant/ssh/config ] && cp /vagrant/ssh/config ${ssh_dir}/config
 	touch ${ssh_dir}/config
 	if ! grep -q "StrictHostKeyChecking" ${ssh_dir}/config; then
-		echo "StrictHostKeyChecking=no" >>${ssh_dir}/config
+		cat >>${ssh_dir}/config <<-EOF
+		StrictHostKeyChecking=no
+		Host *
+			Compression yes
+			ServerAliveInterval 60
+			ServerAliveCountMax 5
+			ControlMaster auto
+			ControlPath ~/.ssh/%r@%h-%p
+			ControlPersist 4h
+		EOF
 	fi
 	# change owner and permission
 	chown -R vagrant ${ssh_dir} && chmod 700 ${ssh_dir} && chmod 600 ${ssh_dir}/*
@@ -40,7 +49,7 @@ function setup_dns() {
 			# pigsty public domain name
 			10.10.10.10	pigsty consul.pigsty grafana.pigsty prometheus.pigsty admin.pigsty haproxy.pigsty yum.pigsty
 			10.10.10.10	c.pigsty g.pigsty p.pigsty pg.pigsty am.pigsty ha.pigsty yum.pigsty k8s.pigsty k.pigsty
-			
+
 			# pigsty nodes domain name
 			10.10.10.10   node0 n0
 			10.10.10.11   node1 n1

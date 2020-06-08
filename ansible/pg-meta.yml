@@ -1,0 +1,49 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# Init a postgres cluster named pg-meta on meta node
+#==============================================================#
+- name: Init Meta Node
+  become: yes
+  hosts: meta
+  tags: repo
+  vars:
+    # postrgres settings
+    cluster: pg-meta                      # [REQUIRED] parameter `cluster`
+    version: 12                           # [REQUIRED] parameter `version`
+    force: true                           # force removing existing cluster
+
+    # default_creation:   false           # create default business database and user? (optional)
+    default_username: 'dbuser_meta'       # business passowrd (optional)
+    default_password: 'meta'              # business passowrd (optional), may provide via secret files
+    default_database: 'meta'              # business username (optional)
+
+    pg_exporter_port: 9630                # pg exporter port
+    pgbouncer_exporter_port: 9631         # pgbouncer exporter port
+    pg_exporter_metric_path: "/metrics"   # pg & pgbouncer exporter port
+
+    # lb_enabled: true                    # enable/disable haproxy load balancer
+    lb_primary_port: 5555                 # default port for primary service
+    lb_replica_port: 5556                 # default port for replica service
+
+  roles:
+
+    # prepare & install
+    - role: pg_precheck                   # check cluster topo and build primary & replica group
+    - role: pg_install                    # install postgres packages, create users and dir
+
+    # initdb primary
+    - role: pg_primary                    # init primary instance
+      when: role == 'primary'
+
+    # initdb replica
+    - role: pg_replica                    # init replica instance
+      when: role != 'primary'
+
+    # prepheral: pool, ha, proxy, monitor
+    - role: pg_pgbouncer                  # init connection pool
+    - role: pg_patroni                    # init ha agent patroni
+    - role: pg_proxy                      # haproxy and keepalived
+    - role: pg_monitor                    # init monitoring system
+
+...

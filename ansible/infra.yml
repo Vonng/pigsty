@@ -1,0 +1,79 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# Init a local yum repo on meta node
+#==============================================================#
+- name: Init Repo
+  become: yes
+  hosts: meta
+  tags: repo
+  gather_facts: true
+  vars:
+    proxy_env: {}                     # add http/https/all proxy settings here
+    force_download:   false           # force download even cache exists
+    build_essential:  true            # download gcc, g++, rpmbuild, etc...
+    cloud_native:     true            # download kubectl kubeadm helm docker, etc..
+    # additional_package_list: []     # additional packages to be installed  roles:
+
+  roles:
+    - role: repo
+
+
+#==============================================================#
+# Provision all nodes
+#==============================================================#
+- name: Init Node
+  become: yes
+  hosts: all
+  tags: node
+  gather_facts: true
+  vars:
+    proxy_env: {}
+
+    # node setup
+    default_dns_server: 10.10.10.10
+    default_ntp_server: 10.10.10.10
+    default_timezone: 'Asia/Shanghai'
+
+    # node tune
+    node_disable_thp: true
+    node_enable_watchdog: true
+    node_disk_prefetch: false
+    node_disable_numa: false
+
+    # node packages
+    cloud_native:     false               # download kubectl kubeadm helm docker, etc..
+    build_essential:  false               # download gcc, g++, rpmbuild, etc...
+    # additional_package_list: []     # additional packages to be installed  roles:
+
+    # node consul server
+    consul_server: [10.10.10.10]          # list your consul server address here
+    node_exporter_port: 9100              # node exporter port & metrics url path
+    node_exporter_metric_path: /metrics
+
+  roles:
+    - role: node                          # provision nodes
+    - role: node_consul                   # setup consul environment
+    - role: node_exporter                 # setup node_exporter
+
+
+#==============================================================#
+# Install meta node infrastructure
+#==============================================================#
+- name: Init Meta
+  become: yes
+  hosts: meta
+  tags: meta
+  gather_facts: true
+  vars:
+    proxy_env: {}
+    additional_package_list: []
+    grafana_provision_datasources: true
+    grafana_provision_dashboards: true
+    grafana_provision_plugins: true
+    grafana_force_download_plugins: false
+
+  roles:
+    - role: meta
+...
+
