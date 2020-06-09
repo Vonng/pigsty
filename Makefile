@@ -17,9 +17,7 @@ cache:
 
 # init will pull up entire cluster
 init:
-	cd ansible && ./infra.yml
-	cd ansible && ./pg-meta.yml
-	cd ansible && ./pg-test.yml
+	cd ansible && ./init.yml
 
 # down will halt all vm (not destroy)
 down: halt
@@ -47,7 +45,7 @@ provision:
 	cd vagrant && vagrant provision
 # sync ntp time (only works after ntp been installed during init-node)
 sync:
-	echo node0 node1 node2 node3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
+	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
 # append pigsty ssh config to ~/.ssh
 ssh:
 	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true
@@ -62,14 +60,14 @@ stop: halt
 # grafna management
 ###############################################################
 dump-monitor:
-	ssh node0 "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
-	scp node0:/tmp/grafana.db ansible/roles/meta_grafana/files/grafana.db
-	ssh node0 "sudo rm -rf /tmp/grafana.db"
+	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
+	scp meta:/tmp/grafana.db ansible/roles/meta_grafana/files/grafana.db
+	ssh meta "sudo rm -rf /tmp/grafana.db"
 
 restore-monitor:
 	scp ansible/roles/meta_grafana/files/grafana.db node0:/tmp/grafana.db
-	ssh node0 "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
-	ssh node0 "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
+	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
+	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
 
 .PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new

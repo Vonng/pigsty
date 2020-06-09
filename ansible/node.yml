@@ -1,7 +1,10 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# Init a local yum repo on meta node
+# Init a local yum repo (to accelerate further provision)
+# Note that it may take large amount of time to complete first
+# run, after that, run `make cache` to copy all repo pkgs to
+# your own host machine to accelerate next-time repo-construction
 #==============================================================#
 - name: Init Repo
   become: yes
@@ -21,6 +24,7 @@
 
 #==============================================================#
 # Provision all nodes
+# create some user, tune some paremeters, setup dns, ntp, etc...
 #==============================================================#
 - name: Init Node
   become: yes
@@ -42,9 +46,9 @@
     node_disable_numa: false
 
     # node packages
-    cloud_native:     false               # download kubectl kubeadm helm docker, etc..
+    cloud_native:     true                # install docker and kubernetes tools
     build_essential:  false               # download gcc, g++, rpmbuild, etc...
-    # additional_package_list: []     # additional packages to be installed  roles:
+    # additional_package_list: []         # additional packages to be installed  roles:
 
     # node consul server
     consul_server: [10.10.10.10]          # list your consul server address here
@@ -53,27 +57,5 @@
 
   roles:
     - role: node                          # provision nodes
-    - role: node_consul                   # setup consul environment
-    - role: node_exporter                 # setup node_exporter
-
-
-#==============================================================#
-# Install meta node infrastructure
-#==============================================================#
-- name: Init Meta
-  become: yes
-  hosts: meta
-  tags: meta
-  gather_facts: true
-  vars:
-    proxy_env: {}
-    additional_package_list: []
-    grafana_provision_datasources: true
-    grafana_provision_dashboards: true
-    grafana_provision_plugins: true
-    grafana_force_download_plugins: false
-
-  roles:
-    - role: meta
 ...
 

@@ -96,9 +96,13 @@
       ignore_errors: true
       shell: |
         yum-config-manager --disable '*';
-        yum-config-manager --enable pigsty;
+        yum-config-manager --enable pigsty ;
         yum clean all;
         exit 0
+
+    - name: Install cloud repo if enabled
+      when: cloud_native
+      copy: src=cloud_native.repo dest=/etc/yum.repos.d/cloud.repo mode=0666
 
 
 
@@ -119,7 +123,7 @@
       set_fact: node_package_list="{{ node_package_list + build_essential_package_list }}"
 
     # enlist additional packages if provided
-    - name: Install build essential packages
+    - name: Install additional node packages
       when: additional_package_list|length > 0
       set_fact: node_package_list="{{ node_package_list + additional_package_list }}"
 

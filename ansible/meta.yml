@@ -1,14 +1,36 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# Init a postgres cluster named pg-meta on meta node
+# Init dcs on all nodes
 #==============================================================#
-- name: Init Meta Node
+- name: Init consul dcs
+  become: yes
+  hosts: all
+  tags: consul
+  gather_facts: true
+  vars:
+    consul_server: [10.10.10.10]     # list your consul server address here
+  roles:
+    - role: consul                   # setup consul environment
+
+
+#==============================================================#
+# Install meta node infrastructure
+#==============================================================#
+- name: Init Meta
   become: yes
   hosts: meta
-  tags: repo
+  tags: meta
+  gather_facts: true
   vars:
-    # postrgres settings
+    proxy_env: {}
+    additional_package_list: []
+    grafana_provision_datasources: true
+    grafana_provision_dashboards: true
+    grafana_provision_plugins: true
+    grafana_force_download_plugins: false
+
+    # metadb setup
     cluster: pg-meta                      # [REQUIRED] parameter `cluster`
     version: 12                           # [REQUIRED] parameter `version`
     force: true                           # force removing existing cluster
@@ -18,32 +40,22 @@
     default_password: 'meta'              # business passowrd (optional), may provide via secret files
     default_database: 'meta'              # business username (optional)
 
+    node_exporter_port: 9100              # node exporter port
     pg_exporter_port: 9630                # pg exporter port
     pgbouncer_exporter_port: 9631         # pgbouncer exporter port
-    pg_exporter_metric_path: "/metrics"   # pg & pgbouncer exporter port
+    pg_exporter_metric_path: "/metrics"   # node & pg & pgbouncer exporter port
 
     # lb_enabled: true                    # enable/disable haproxy load balancer
     lb_primary_port: 5555                 # default port for primary service
     lb_replica_port: 5556                 # default port for replica service
 
   roles:
+    - role: meta                          # init meta service: nginx, dnsmasq, prometheus, grafana, etc...
 
-    # prepare & install
     - role: pg_precheck                   # check cluster topo and build primary & replica group
     - role: pg_install                    # install postgres packages, create users and dir
-
-    # initdb primary
     - role: pg_primary                    # init primary instance
-      when: role == 'primary'
-
-    # initdb replica
-    - role: pg_replica                    # init replica instance
-      when: role != 'primary'
-
-    # prepheral: pool, ha, proxy, monitor
     - role: pg_pgbouncer                  # init connection pool
     - role: pg_patroni                    # init ha agent patroni
-    - role: pg_proxy                      # haproxy and keepalived
     - role: pg_monitor                    # init monitoring system
 
-...
