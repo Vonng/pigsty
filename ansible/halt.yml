@@ -1,0 +1,21 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# Init a postgres cluster named pg-test on node-[1..3]
+#==============================================================#
+- name: Init pg-test cluster
+  become: yes
+  hosts: all
+  tags: test
+  vars:
+  tasks:
+    - name: Stop all additional services on all nodes
+      systemd: name={{ item }} state=stopped
+      with_items:
+        - patroni
+        - pgbouncer
+        - postgres
+        -
+
+
+...

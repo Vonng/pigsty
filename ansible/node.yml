@@ -32,7 +32,11 @@
   tags: node
   gather_facts: true
   vars:
+    # node packages
     proxy_env: {}
+    cloud_native:     true                # install docker and kubernetes tools
+    build_essential:  false               # download gcc, g++, rpmbuild, etc...
+    # additional_package_list: []         # additional packages to be installed  roles:
 
     # node setup
     default_dns_server: 10.10.10.10
@@ -40,15 +44,12 @@
     default_timezone: 'Asia/Shanghai'
 
     # node tune
+    node_disable_swap: true
     node_disable_thp: true
+    node_disable_firewall: true
     node_enable_watchdog: true
     node_disk_prefetch: false
     node_disable_numa: false
-
-    # node packages
-    cloud_native:     true                # install docker and kubernetes tools
-    build_essential:  false               # download gcc, g++, rpmbuild, etc...
-    # additional_package_list: []         # additional packages to be installed  roles:
 
     # node consul server
     consul_server: [10.10.10.10]          # list your consul server address here
@@ -57,5 +58,8 @@
 
   roles:
     - role: node                          # provision nodes
+    - role: cloud
+      when: cloud_native                  # prepare docker & k8s environment
+
 ...
 

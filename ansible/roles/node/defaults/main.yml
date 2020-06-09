@@ -8,7 +8,9 @@ default_ntp_server: 10.10.10.10
 default_timezone: 'Asia/Shanghai'
 
 # node tune
+node_disable_swap: true
 node_disable_thp: true
+node_disable_firewall: true
 node_enable_watchdog: true
 node_disk_prefetch: false
 node_disable_numa: false
@@ -21,7 +23,7 @@ node_package_list:
   - etcd,consul,haproxy,keepalived,node_exporter                                        # must have
   - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
   - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,python-ipython,python-psycopg2           # net utils
+  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
 
 cloud_native_package_list:
   - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni
@@ -32,6 +34,8 @@ build_essential_package_list:
 
 additional_package_list: []
 
+# kernel modules
+node_kernel_modules: [br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
 # sysctl
 sysctl_params:     # kernel
@@ -79,7 +83,7 @@ sysctl_params:     # kernel
   net.ipv4.ip_forward: 1                    # IP转发
   net.ipv4.ip_nonlocal_bind: 1              # 绑定非本机地址
   net.netfilter.nf_conntrack_max: 1048576   # 最大跟踪连接数
-  net.ipv4.ip_local_port_range: 10000 65535 # 端口范围
+  net.ipv4.ip_local_port_range: 32768 65000 # 端口范围
   net.ipv4.tcp_max_tw_buckets: 262144       # 256k  TIME_WAIT
   net.core.somaxconn: 65535                 # 限制LISTEN队列最大数据包量，触发重传机制。
   net.ipv4.tcp_max_syn_backlog: 8192        # SYN队列大小：1024->8192

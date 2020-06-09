@@ -65,7 +65,7 @@ dump-monitor:
 	ssh meta "sudo rm -rf /tmp/grafana.db"
 
 restore-monitor:
-	scp ansible/roles/meta_grafana/files/grafana.db node0:/tmp/grafana.db
+	scp ansible/roles/meta_grafana/files/grafana.db meta:/tmp/grafana.db
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
