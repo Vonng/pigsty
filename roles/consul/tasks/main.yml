@@ -1,0 +1,57 @@
+---
+- name: Setup Consul
+  tags: consul
+  block:
+    # generate consul node name from (cluster+seq) or default node hostname
+    - name: Set default consul node name
+      set_fact: consul_nodename="{{ cluster }}-{{ seq }}"
+      when: cluster is defined and seq is defined
+    - name: Get hostname as consul node name
+      shell: echo $HOSTNAME
+      register: hostname_result
+      when: consul_nodename is not defined
+    - name: Set consul node name to hostname
+      set_fact: consul_nodename="{{ hostname_result.stdout }}"
+      when: consul_nodename is not defined
+
+    # stop existing consul
+    - name: Stop existing consul service
+      ignore_errors: true
+      systemd: name=consul state=stopped enabled=no daemon_reload=yes
+
+    # consul server
+    - name: Copy consul server service unit
+      copy: src=consul-server.service dest=/usr/lib/systemd/system/consul.service
+      when: inventory_hostname in consul_servers
+
+    # consul agent
+    - name: Copy consul agent service unit
+      copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
+      when: inventory_hostname not in consul_servers
+
+    # remove existing consul data
+    - name: Remove existing consul data
+      file: path={{ item }} state=absent
+      with_items: [/etc/consul.d, /var/lib/consul]
+
+    # create consul config dir
+    - name: Recreate /etc/consul.d dir
+      file: path=/etc/consul.d state=directory owner=consul group=postgres mode=0775
+
+    # create consul data dir
+    - name: Recreate /var/lib/consul dir
+      file: path=/var/lib/consul state=directory owner=consul group=consul mode=0755
+
+    # render consul main config /etc/consul.d/consul.json
+    - name: Copy /etc/consul.d/consul.json
+      template: src=consul.json.j2 dest=/etc/consul.d/consul.json mode=0644 owner=consul group=consul
+
+    # start consul service
+    - name: Launch consul service unit
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    # wait consul online
+    - name: Wait for consul service online
+      wait_for: host=localhost port=8500 state=started timeout=30
+
+...
