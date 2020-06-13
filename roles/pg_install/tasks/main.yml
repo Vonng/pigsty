@@ -1,0 +1,155 @@
+---
+#==============================================================#
+# Stage 1: Create user                                         #
+#==============================================================#
+- name: Create dbsu postgres
+  tags: pg_dbsu
+  block:
+    - name: Create group postgres if not exists
+      group: name=postgres gid=256
+
+    - name: Create user postgres  if not exists
+      user: name=postgres group=postgres home=/home/postgres generate_ssh_key=yes
+
+    - name: Allow dbus postgres nopass sudo
+      copy:
+        content: "postgres ALL=(ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/postgres
+        mode: 0440
+
+    - name: Setup dbsu postgres pam limit
+      copy:
+        src: postgres.conf
+        dest: /etc/security/limits.d/postgres.conf
+        mode: 0640
+
+    # ssh-key exchange
+    - name: Add no host checking to ssh config
+      shell: |
+        if ! grep -q "StrictHostKeyChecking" /home/postgres/.ssh/config; then
+            echo "StrictHostKeyChecking=no" >> /home/postgres/.ssh/config
+        fi
+        exit 0
+
+    - name: Fetch all public key amoung cluster
+      shell: cat /home/postgres/.ssh/id_rsa.pub
+      register: ssh_keys
+
+    # for all hosts, copy their postgres ssh public key to each other
+    - name: Copy ssh key to authorized hosts
+      authorized_key: user=postgres key="{{ item[0] }}"
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ ssh_keys.stdout }}"
+        - "{{ play_hosts }}"
+
+
+
+#==============================================================#
+# Stage 2: Create Directory                                    #
+#==============================================================#
+- name: Create postgres dirs
+  tags: pg_directory
+  block:
+    # this assumes /pg is mounted with ssd for database and /var/backups is mounted with hdd for backups
+    - name: Create postgres directory structure
+      file: path={{ item }} state=directory owner=postgres group=postgres mode=0700
+      with_items:
+        - /pg           # PGROOT
+        - /var/backups  # PGBKUP
+        - /pg/bin
+        - /pg/log
+        - /pg/conf
+        - /pg/data
+        - /pg/tmp
+        - /var/backups/arcwal
+        - /var/backups/backup
+        - /var/backups/remote
+
+    - name: Create links from pgbkup to pgroot
+      file:
+        src: '/var/backups/{{ item }}'
+        dest: '/pg/{{ item }}'
+        state: link
+      loop:
+        - arcwal
+        - backup
+        - remote
+
+
+
+#==============================================================#
+# Stage 3: Install Postgres                                    #
+#==============================================================#
+- name: Install postgres
+  tags: pg_install
+  block:
+
+    - name: Install offical pgdg yum repo
+      when: use_pgdg
+      yum: name="https://yum.postgresql.org/{{ version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+
+    - name: Listing packages to be installed
+      set_fact:
+        pg_package_list:
+          - 'postgresql{{ version }}*'
+          - pgbouncer
+          - patroni
+          - pg_exporter
+
+        postgis_package_list:
+          - postgis{{ postgis_version }}_{{ version }}
+          - postgis{{ postgis_version }}_{{ version }}-client
+          - postgis{{ postgis_version }}_{{ version }}-devel
+          - postgis{{ postgis_version }}_{{ version }}-utils
+          - pgrouting_{{ version }}
+
+        extensions_package_list:
+          - pg_repack{{ version }}
+          - wal2json{{ version }}
+          - pg_repack{{ version }}
+          - pg_qualstats{{ version }}
+          - pg_stat_kcache{{ version }}
+          - pg_cron_{{ version }}
+          - timescaledb_{{ version }}
+          - pglogical_{{ version }}
+
+
+    - name: Add postgis packages to checklist
+      when: postgis and version|int <= 12
+      set_fact: pg_package_list="{{ pg_package_list + postgis_package_list }}"
+
+    - name: Add extension packages to checklist
+      when: extensions and version|int <= 12
+      set_fact: pg_package_list="{{ pg_package_list + extensions_package_list }}"
+
+    - name: Print packages to be installed
+      debug:
+        var: pg_package_list
+
+    - name: Install postgres major version
+      command: yum install -q -y 'postgresql{{ version }}*'
+    - name: Install postgres according to list
+      yum: name={{ pg_package_list }}
+
+    - name: Link /usr/pgsql to current version
+      file: src="/usr/pgsql-{{ version }}" dest=/usr/pgsql state=link
+
+    - name: Add /usr/ppgsql to profile path
+      copy:
+        content: "export PATH=/usr/pgsql/bin:/pg/bin:$PATH"
+        dest: /etc/profile.d/pgsql.sh
+
+    - name: Check installed pgsql version
+      shell: |
+        [[ $(/usr/pgsql/bin/pg_ctl --version) == "pg_ctl (PostgreSQL) ${version}"* ]]
+
+    - name: Copy postgres systemd service file
+      template:
+        src: postgres.service
+        dest: /usr/lib/systemd/system/postgres.service
+
+    - name: Daemon reload postgres service
+      systemd: name=postgres state=stopped enabled=no daemon_reload=yes
+
+...

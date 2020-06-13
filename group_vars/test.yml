@@ -1,0 +1,42 @@
+---
+#==============================================================#
+# Variables for pg-test cluster nodes
+#==============================================================#
+
+#==============================================================#
+# package install options
+#==============================================================#
+additional_package_list: []       # additional rpm packages to be downloaded/installed
+
+#==============================================================#
+# infrastructure
+#==============================================================#
+dcs_role: agent                       # dcs role: server/agent (default infrastructure)
+k8s_role: node                        # k8s role: master/node  (if cloud_native is defined)
+
+#==============================================================#
+# monitoring setup
+#==============================================================#
+node_exporter_port: 9100              # node exporter port
+pg_exporter_port: 9630                # pg exporter port
+pgbouncer_exporter_port: 9631         # pgbouncer exporter port
+pg_exporter_metric_path: "/metrics"   # node & pg & pgbouncer exporter port
+
+#==============================================================#
+# meta database setup
+#==============================================================#
+# basic information
+cluster: pg-test                      # [REQUIRED] parameter `cluster`
+version: 12                           # [REQUIRED] parameter `version`
+force: true                           # force removing if cluster already existing (dangerous for production!)
+
+default_creation: true                # create default business database and user? (optional)
+default_username: 'test'              # business passowrd (optional)
+default_password: 'test'              # business passowrd (optional), may provide via secret files
+default_database: 'test'              # business username (optional)
+
+ha_enabled: true                      # enable/disable patroni ha agent
+lb_enabled: true                      # enable/disable haproxy load balancer
+lb_primary_port: 5555                 # default port for primary service
+lb_replica_port: 5556                 # default port for replica service
+...

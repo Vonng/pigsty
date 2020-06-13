@@ -24,14 +24,14 @@ function setup_ssh() {
 	touch ${ssh_dir}/config
 	if ! grep -q "StrictHostKeyChecking" ${ssh_dir}/config; then
 		cat >>${ssh_dir}/config <<-EOF
-		StrictHostKeyChecking=no
-		Host *
-			Compression yes
-			ServerAliveInterval 60
-			ServerAliveCountMax 5
-			ControlMaster auto
-			ControlPath ~/.ssh/%r@%h-%p
-			ControlPersist 4h
+			StrictHostKeyChecking=no
+			Host *
+				Compression yes
+				ServerAliveInterval 60
+				ServerAliveCountMax 5
+				ControlMaster auto
+				ControlPath ~/.ssh/%r@%h-%p
+				ControlPersist 4h
 		EOF
 	fi
 	# change owner and permission
@@ -49,9 +49,9 @@ function setup_dns() {
 			# pigsty public domain name
 			10.10.10.10	pigsty consul.pigsty grafana.pigsty prometheus.pigsty admin.pigsty haproxy.pigsty yum.pigsty
 			10.10.10.10	c.pigsty g.pigsty p.pigsty pg.pigsty am.pigsty ha.pigsty yum.pigsty k8s.pigsty k.pigsty
-
+			
 			# pigsty nodes domain name
-			10.10.10.10   meta master
+			10.10.10.10   node-0 meta master pg-test
 			10.10.10.11   node-1 n1
 			10.10.10.12   node-2 n2
 			10.10.10.13   node-3 n3
@@ -81,18 +81,6 @@ function setup_selinux() {
 	printf "\033[0;32m[INFO] disable selinux \033[0m\n" >&2
 }
 
-# write local yum cache
-function setup_local_yum() {
-	cat >/etc/yum.repos.d/pigsty.repo <<-EOF
-		[pigsty]
-		name=Pigsty Yum Repo
-		baseurl=http://yum.pigsty/pigsty/
-		enabled = 1
-		priority = 1
-		gpgcheck = 0
-		skip_if_unavailable = 1
-	EOF
-}
 
 # expand vagrant cache from /vagrant
 function setup_vagrant_cache() {
@@ -119,7 +107,6 @@ function main() {
 	setup_dns
 	setup_resolv
 	setup_selinux
-	# setup_local_yum
 	setup_vagrant_cache
 }
 

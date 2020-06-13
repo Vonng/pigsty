@@ -1,0 +1,53 @@
+---
+#==============================================================#
+# Variables for meta node
+#==============================================================#
+
+#==============================================================#
+# package download options
+#==============================================================#
+# local yum repo settigns
+proxy_env: {}                         # http/https/all proxy settings env for downloading
+force_download:   false               # force download even cache exists
+build_essential:  false               # download & install building tools
+additional_package_list: []           # additional rpm packages to be downloaded/installed
+
+#==============================================================#
+# package install options
+#==============================================================#
+# install for meta nodes only
+meta_package_list:
+  - ansible,python,python-pip,python-ipython,python-psycopg2                            # ansible and python environment
+  - nginx,haproxy,keepalived,dnsmasq                                                    # proxy and dns
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter           # monitoring packages
+
+#==============================================================#
+# infrastructure (consul for bare metal, k8s for cloud native)
+#==============================================================#
+dcs_role: server                      # dcs role: server/agent
+k8s_role: master                      # k8s role: master/node
+
+#==============================================================#
+# monitoring setup
+#==============================================================#
+grafana_provision_datasources: true   # use pre-defined prometheus data source
+grafana_provision_dashboards: true    # use pre-defined postgres dashboards
+grafana_provision_plugins: true       # install additional grafana plugins
+grafana_force_download_plugins: false # force redownload grafana plugins
+
+#==============================================================#
+# meta database setup
+#==============================================================#
+# basic information
+cluster: pg-meta                      # [REQUIRED] parameter `cluster`
+version: 12                           # [REQUIRED] parameter `version`
+force: true                           # force removing if cluster already existing (dangerous for production!)
+
+# default_creation:   false           # create default business database and user? (optional)
+default_username: 'meta'              # business passowrd (optional)
+default_password: 'meta'              # business passowrd (optional), may provide via secret files
+default_database: 'meta'              # business username (optional)
+
+ha_enabled: false                     # enable/disable patroni ha agent
+lb_enabled: true                      # enable/disable haproxy load balancer
+...

@@ -1,0 +1,45 @@
+---
+#==============================================================#
+# Variables for all nodes
+#==============================================================#
+
+
+#==============================================================#
+# infrastructure
+#==============================================================#
+default_timezone: 'Asia/Shanghai'     # default node timezone
+default_dns_server: 10.10.10.10       # default DNS server (meta node dnsmasq by default)
+default_ntp_server: 10.10.10.10       # default NTP server (meta node chronyd service)
+consul_servers: [10.10.10.10]         # consul servers
+k8s_servers: [10.10.10.10]            # kubernetes servers
+
+#==============================================================#
+# package download options
+#==============================================================#
+# install for all nodes
+node_package_list:
+  - etcd,consul,haproxy,keepalived,node_exporter                                        # must have
+  - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
+  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
+  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
+
+# download and install these packages if cloud_native is set to true
+cloud_native:     false           # download & install docker & k8s
+cloud_native_package_list:
+  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni
+
+# download and install these packages if build_essential is set to true
+build_essential_package_list:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
+
+#==============================================================#
+# monitoring setup
+#==============================================================#
+node_exporter_port: 9100              # node exporter port
+pg_exporter_port: 9630                # pg exporter port
+pgbouncer_exporter_port: 9631         # pgbouncer exporter port
+pg_exporter_metric_path: "/metrics"   # node & pg & pgbouncer exporter port
+
+...

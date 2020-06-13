@@ -9,7 +9,7 @@ new: clean start init
 
 # write dns record to your own host, sudo required
 dns:
-	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat ansible/files/dnsmasq/hosts >> /etc/hosts; fi
+	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat files/pigsty_dns >> /etc/hosts; fi
 
 # copy yum packages to your own host, pigsty/pkg
 cache:
@@ -17,7 +17,8 @@ cache:
 
 # init will pull up entire cluster
 init:
-	cd ansible && ./init.yml
+	./pg-meta.yml
+	./pg-test.yml
 
 # down will halt all vm (not destroy)
 down: halt
@@ -57,17 +58,36 @@ stop: halt
 
 
 ###############################################################
+# pgbench
+###############################################################
+bench-init:
+	pgbench -is10 postgres://test:test@pg-test:5555/test
+rw:
+	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5555/test; done
+ro:
+	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5556/test; done
+
+
+###############################################################
 # grafna management
 ###############################################################
+view:
+	open -n 'http://grafana.pigsty/d/pg-cluster/pg-cluster?refresh=5s&var-cls=pg-test'
+
+ha:
+	open -n 'http://pg-test:9101/haproxy'
+
 dump-monitor:
 	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
 	scp meta:/tmp/grafana.db ansible/roles/meta_grafana/files/grafana.db
 	ssh meta "sudo rm -rf /tmp/grafana.db"
 
 restore-monitor:
-	scp ansible/roles/meta_grafana/files/grafana.db meta:/tmp/grafana.db
+	scp ansible/roles/meta/files/grafana/grafana.db meta:/tmp/grafana.db
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
+kd:
+	open -n 'http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/'
 
 .PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new

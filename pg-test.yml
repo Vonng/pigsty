@@ -1,0 +1,58 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pg-test.yml
+# Mtime     :   2020-05-30
+# Desc      :   init pg-test cluster
+# Path      :   pg-test.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+#==============================================================#
+# This play will prepare nodes for database installation
+# This play be be execute before node delivering
+#==============================================================#
+- name: Init pg-test nodes
+  become: yes
+  hosts: test
+  gather_facts: true
+  tags: node-test
+  roles:
+    - role: node      # provision node
+    - role: consul    # init infrastructure
+
+
+#==============================================================#
+# This play init a 3 nodes database cluster named 'pg-test'
+#==============================================================#
+- name: Init pg-test database
+  become: yes
+  hosts: test
+  tags: pg-test
+  roles:
+
+    # pre-flight & install
+    - role: pg_preflight                  # check cluster topo and build primary & replica group
+    - role: pg_install                    # install postgres packages, create users and dir
+
+    # init primary
+    - role: pg_primary                    # init primary instance
+      when: role == 'primary'
+
+    # init replica
+    - role: pg_replica                    # init replica instance
+      when: role != 'primary'
+
+    # prepheral: pool, ha, proxy, monitor
+    - role: pg_pgbouncer                  # init connection pool
+    - role: pg_patroni                    # init ha agent patroni
+
+    # install load balancer if enabled
+    - role: pg_proxy                      # haproxy and keepalived
+      when: lb_enabled == true
+
+    # deploy and register monitor service
+    - role: pg_monitor                    # init monitoring system
+
+...
