@@ -17,8 +17,8 @@ cache:
 
 # init will pull up entire cluster
 init:
-	./pg-meta.yml
-	./pg-test.yml
+	./init-meta.yml
+	./init-test.yml
 
 # down will halt all vm (not destroy)
 down: halt
@@ -66,7 +66,8 @@ rw:
 	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5555/test; done
 ro:
 	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5556/test; done
-
+ckpt:
+	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
 
 ###############################################################
 # grafna management
@@ -87,7 +88,23 @@ restore-monitor:
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
+
+###############################################################
+# kubernetes management
+###############################################################
+# open kubernetes dashboard
+k8s:
+	./init-k8s.yml
+
 kd:
 	open -n 'http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/'
+
+k-conf:
+	ssh meta 'sudo cat /etc/kubernetes/admin.conf' > ~/.kube/config
+
+# copy kubernetes admin token to files/admin.token
+k-token:
+	# ssh meta 'kubectl get secret $(kubectl get sa dashboard-admin-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode' | pbcopy
+	ssh meta 'kubectl get secret $(kubectl get sa dashboard-admin-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode' > files/admin.token
 
 .PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new

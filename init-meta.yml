@@ -20,23 +20,23 @@
   become: yes
   hosts: meta
   gather_facts: true
-  tags: node-meta
+  tags: init-meta
   roles:
-    - role: repo                # init local yum repo
-    - role: node                # node provision setup
-    - role: consul              # init consul servers
-    - role: meta                # meta provision setup
+    - repo                # init local yum repo
+    - node                # node provision setup
+    - consul              # init consul servers
+    - meta                # meta provision setup
 
 
 
 - name: Init pg-meta database cluster on meta node(s)
   become: yes
   hosts: meta
-  tags: pg-meta
+  tags: init-meta
   roles:
     # pre-flight & install
-    - role: pg_preflight                  # check cluster topo and build primary & replica group
-    - role: pg_install                    # install postgres packages, create users and dir
+    - pg_preflight                  # check cluster topo and build primary & replica group
+    - pg_install                    # install postgres packages, create users and dir
 
     # init primary
     - role: pg_primary                    # init primary instance
@@ -47,7 +47,7 @@
       when: role != 'primary'
 
     # init pgbouncer
-    - role: pg_pgbouncer                  # init connection pool
+    - pg_pgbouncer                  # init connection pool
 
     # init ha agent (optional)
     - role: pg_patroni                    # init ha agent patroni
@@ -58,7 +58,7 @@
       when: lb_enabled
 
     # deploy and register monitor service
-    - role: pg_monitor                    # init monitoring system
+    - pg_monitor                    # init monitoring system
 
 
 ...

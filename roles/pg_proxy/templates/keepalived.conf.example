@@ -1,0 +1,27 @@
+global_defs {
+  router_id pg-test
+   enable_script_security
+   script_user root
+}
+
+vrrp_instance pg-test {
+  state MASTER
+  interface eth1
+  virtual_router_id 196
+  priority 128
+  advert_int 1
+  unicast_src_ip 10.10.10.11
+  unicast_peer {
+     10.10.10.12
+     10.10.10.13
+  }
+
+  authentication {
+    auth_type PASS
+    auth_pass pg-test
+  }
+
+  virtual_ipaddress {
+    10.10.10.3
+  }
+}

@@ -33,6 +33,9 @@
     - name: Config kubelet default options
       template: src=kubelet.default dest=/etc/default/kubelet
 
+    - name: Enable kubelet service unit
+      systemd: name=kubelet enabled=yes daemon_reload=yes
+
 
 - name: Bootstrap kubernetes master node
   when: k8s_role == 'master'
@@ -72,13 +75,12 @@
     - name: Install kubernetes dashboard
       command: kubectl apply -f /tmp/recommended.yaml  # https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 
-    # create dashboard sa service account (as role cluster-admin)
+    # create dashboard sa service account default:dashboard-admin-sa (as role cluster-admin)
     - name: Create kubernetes-dashboard user
       command: "{{ item }}"
       with_items:
-       - kubectl create serviceaccount dashboard-admin-sa
-       - kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa
-       - chown root:root /root/.kube/config
+       - kubectl create serviceaccount {{ dashboard_admin_user }}
+       - kubectl create clusterrolebinding {{ dashboard_admin_user }} --clusterrole=cluster-admin --serviceaccount=default:{{ dashboard_admin_user }}
 
     # fetch credentials
     - name: Generate kubernetes join scripts
@@ -86,21 +88,22 @@
       register: join_command
     - name: Copy join command to local file
       become: no
-      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="roles/cloud/files/join.sh"
+      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="files/join.sh"
 
     - name: Cat /etc/kubernetes/admin.conf
       command: cat /etc/kubernetes/admin.conf
       register: admin_config
     - name: Copy admin.conf to local file
       become: no
-      local_action: copy content="{{ admin_config.stdout }}" dest="roles/cloud/files/admin.config"
+      local_action: copy content="{{ admin_config.stdout }}" dest="files/admin.config"
 
-    - name: Get kubernetes secrets
-      command: kubectl describe secret
+    - name: Get kubernetes admin token
+      shell: |
+        kubectl get secret $(kubectl get sa dashboard-admin-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
       register: secret_result
     - name: Copy secret result to local file
       become: no
-      local_action: copy content="{{ secret_result.stdout }}" dest="roles/cloud/files/secrets"
+      local_action: copy content="{{ secret_result.stdout }}" dest="files/admin.token"
 
 
 - name: Bootstrap kubernetes master node
@@ -111,4 +114,8 @@
       copy: src=join.sh dest=/tmp/join.sh mode=0777
     - name: Join node to current k8s cluster
       command: bash /tmp/join.sh
+
+
+
+
 ...
