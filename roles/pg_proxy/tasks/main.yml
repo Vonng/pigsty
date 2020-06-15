@@ -28,4 +28,21 @@
 
     - name: Wait for haproxy service online
       wait_for: host=localhost port=9101 state=started timeout=10
+
+
+
+- name: Setup Keepalived
+  when: lb_enabled
+  tags: pg_vip
+  block:
+    - name: Copy keepalived.conf for cluster
+      template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/conf.d/{{ cluster }}.conf
+        mode: 0644
+
+    - name: Reload keepalived to eanble vip
+      systemd: name=keepalived state=restarted enabled=yes
+
+
 ...

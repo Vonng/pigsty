@@ -51,10 +51,15 @@ function setup_dns() {
 			10.10.10.10	c.pigsty g.pigsty p.pigsty pg.pigsty am.pigsty ha.pigsty yum.pigsty k8s.pigsty k.pigsty
 			
 			# pigsty nodes domain name
-			10.10.10.10   node-0 meta master pg-test
+			10.10.10.10   node-0 meta master
 			10.10.10.11   node-1 n1
 			10.10.10.12   node-2 n2
 			10.10.10.13   node-3 n3
+
+			# pre-allocted pigsty virtual ip
+			10.10.10.2		pg-meta
+			10.10.10.3		pg-test
+
 		EOF
 		printf "\033[0;32m[INFO] write dns records into /etc/hosts \033[0m\n" >&2
 	fi

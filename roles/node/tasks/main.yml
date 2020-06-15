@@ -24,7 +24,9 @@
       selinux: policy=targeted state=permissive
     - name: Disable selinux by setenforce 0
       command: setenforce 0
-
+    - name: Disable linux firewalld service
+      ignore_errors: true
+      systemd: name=firewalld state=stopped enabled=no
 
 #==============================================================#
 # Stage 3: Tune node settings
@@ -47,7 +49,7 @@
 
     - name: Node configure disable firewall
       when: node_disable_firewall
-      systemd: name=firewalld state=stopped enabled=on
+      systemd: name=firewalld state=stopped enabled=no
 
     - name: Node configure disk prefetch
       when: node_disk_prefetch
@@ -174,13 +176,8 @@
 #==============================================================#
 - name: Set ntp service chronyd
   tags: node_ntp
-  when: ansible_os_family == "RedHat"
   block:
     # redhat/centos: chronyd already installed
-    - name: Install chronyd package on node
-      environment: "{{ proxy_env }}"
-      package: name=chrony state=present
-
     # redhat/centos: config chronyd
     - name: Copy the chrony.conf template
       template: src=chrony.conf dest=/etc/chrony.conf
@@ -192,4 +189,24 @@
       timezone: name={{ default_timezone }}
 
 
+#==============================================================#
+# Stage 10: Setup keepalived
+#==============================================================#
+- name: Set keepalived
+  tags: node_vip
+  block:
+    # redhat/centos: chronyd already installed
+    - name: Create keepalive conf.d dir
+      file: path=/etc/keepalived/conf.d state=directory mode=0755
+
+    # redhat/centos: config chronyd
+    - name: Copy default keepalived.conf
+      copy:
+        dest: /etc/keepalived/keepalived.conf
+        mode: 0644
+        content: |
+          include conf.d/*.conf
+
+    - name: Launch keepalived service unit
+      systemd: name=chronyd enabled=true state=restarted
 ...
