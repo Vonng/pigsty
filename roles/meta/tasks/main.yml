@@ -119,14 +119,21 @@
         group: grafana
         mode: 0660
 
+    # provision grafana dashboards, otherwise, clean dashboard provision dir
+    - name: Provision grafana dashboards
+      when: grafana_provision_dashboards
+      copy: src=grafana/dashboards/ dest=/etc/grafana/provisioning/dashboards/ owner=root group=grafana mode=0640
+    - name: Unprovision grafana dashboards
+      when: not grafana_provision_dashboards
+      file: path=/etc/grafana/provisioning/dashboards state=absent
+    - name: Recreate grafana dashboards dir
+      when: not grafana_provision_dashboards
+      file: path=/etc/grafana/provisioning/dashboards/ state=directory mode=0755
+
     # provision via pre-configured yaml/json files
     - name: Provision grafana datasources
       when: grafana_provision_datasources
       copy: src=grafana/datasources/ dest=/etc/grafana/provisioning/datasources/ owner=grafana group=grafana mode=0640
-
-    - name: Provision grafana dashboards
-      when: grafana_provision_dashboards
-      copy: src=grafana/dashboards/ dest=/etc/grafana/provisioning/dashboards/ owner=root group=grafana mode=0640
 
     - name: Launch meta grafana service
       systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
@@ -134,6 +141,17 @@
     - name: Wait for meta grafana online
       wait_for: host=localhost port=3000 state=started
 
+
+- name: Load Grafana Dashboard
+  when: not grafana_provision_dashboards
+  tags: grafana_dashboards
+  block:
+    - name: Create grafana dashboards dir
+      file: path=/tmp/dashboards state=directory mode=0755
+    - name: Copy grafana dashboards json
+      copy: src=grafana/dashboards/ dest=/tmp/dashboards owner=root group=grafana
+    - name: Load grafana dashboards json
+      command: python /tmp/dashboards/load-dashboards.py
 
 
 #==============================================================#
