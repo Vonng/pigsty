@@ -6,7 +6,18 @@ This project provisioned a PostgreSQL cluster upon [vagrant](https://vagrantup.c
 
 
 
-# Quick Start
+## Features
+
+* High Availability
+* Monitoring System
+* Service Discovery
+* Fine scripts
+* Bare metal deployment
+* Cloud native deployment (Progressing)
+
+
+
+## Quick Start
 
 1. Install [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) and [ansible](https://www.ansible.com/)
 2. Clone this repo: `git clone https://github.com/vonng/pigsty && cd pigsty`
@@ -52,7 +63,9 @@ Default inventory file are:
 
 ## Playbooks
 
-## **Infrastructure Initialization**
+[`init.yml`](init.yml) will just pull everything up.
+
+### **Infrastructure Initialization** 
 
 * [provision.yml](provision.yml) will setup repo and noes in vagrant environment
 
@@ -65,7 +78,7 @@ Default inventory file are:
 * [stop-psql.yml](stop-psql.yml) will stop existing postgres related service
 
 
-## **Database Administration**
+### **Database Administration**
 
 * admin-report.yml
 * admin-backup.yml
@@ -83,7 +96,7 @@ Default inventory file are:
 * admin-copy-data.yml
 * admin-pg-exporter-reload.yml
 
-## **Database HA**
+### **Database HA**
 
 * ha-switchover.yml
 * ha-failover.yml
@@ -103,7 +116,7 @@ Default inventory file are:
 * ha-pool-resume.yml
 
 Take `init-meta.yml` for example, here are tasks executed by this playbook 
- 
+
 ```bash
 play #1 (meta): Init meta node	TAGS: [init-meta]
 tasks:
@@ -338,13 +351,13 @@ tasks:
 ## Operations
 
 ```
-make			# launch cluster
-make new        # create a new pigsty cluster
+make				# launch cluster
+make new    # create a new pigsty cluster
 make dns		# write pigsty dns record to your /etc/hosts (sudo required)
 make ssh		# write ssh config to your ~/.ssh/config
 make init		# init infrastructure and postgres cluster
-make cache		# copy local yum repo packages to your pigsty/pkg
-make clean		# delete current cluster
+make cache	# copy local yum repo packages to your pigsty/pkg
+make clean	# delete current cluster
 ```
 
 
@@ -357,7 +370,6 @@ TBD
 ## Todo List
 
 * cloud native support 
-* lvs based load balancer
 * haproxy admin scripts
 * consul template or vip-manager 
 
@@ -377,4 +389,5 @@ TBD
 
 Author：Vonng ([fengruohang@outlook.com](mailto:fengruohang@outlook.com))
 
-LICENSE: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
+](https://creativecommons.org/licenses/by-nc/4.0/)
+
