@@ -16,38 +16,33 @@
   timezone: name={{ node_timezone }}
 
 #==============================================================#
-# Stage 3: Profile setup
-#==============================================================#
-- name: Copy default user bash profile
-  tags: node_profile
-  copy: src=profile.sh dest=/etc/profile.d/profile.sh mode=755
-
-#==============================================================#
-# Stage 4: node feature setup
+# Stage 3: node feature setup
 #==============================================================#
 - import_tasks: feature.yml
   tags: node_feature
 
 #==============================================================#
-# Stage 5: node kernel module
+# Stage 4: node kernel module
 #==============================================================#
 - import_tasks: kernel.yml
   tags: node_kernel
 
 #==============================================================#
-# Stage 6: node sysctl
+# Stage 5: node sysctl
 #==============================================================#
 - import_tasks: sysctl.yml
-  tags: node_sysctl
-- import_tasks: sysctl_dynamic.yml
-  tags: node_sysctl_dynamic_tune
-
 
 #==============================================================#
-# Stage 7: node ulimit
+# Stage 6: node users
 #==============================================================#
-- name: Setup node default pam ulimits
-  tags: node_ulimit
-  copy: src=limits.conf dest=/etc/security/limits.d/limits.conf mode=0644
+- import_tasks: users.yml
+
+#==============================================================#
+# Stage 6: node dns (fixed static dns records)
+#==============================================================#
+- name: Add static dns records to node
+  tags: node_dns
+  lineinfile: path=/etc/hosts line="{{ item.host }} {{ item.domain | join(' ') }}"
+  with_items: "{{ node_static_dns }}"
 
 ...

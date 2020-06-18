@@ -1,8 +1,9 @@
 ---
 #==============================================================#
-# Stage 5: node sysctl setup
+# Stage 1: node sysctl setup
 #==============================================================#
 - name: Node pam ulimit setup
+  tags: node_sysctl
   block:
     - name: Overwrite default sysctl params
       copy: src=sysctl.conf dest=/etc/sysctl.d/default.conf mode=0644
@@ -21,4 +22,50 @@
       command: sysctl -p
 
 
+#==============================================================#
+# Stage 2: node sysctl dynamic tuning (optional)
+#==============================================================#
+- name: Node sysctl dynamic tuning
+  tags: node_sysctl_dynamic
+  when: node_sysctl_dynamic_tuning
+  block:
+    - name: Gather fact cpu total cores
+      shell: echo $(grep 'cpu cores' /proc/cpuinfo | wc -l)
+      register: cpu_cores_result      # cpu core count
+    - name: Gather fact memory total size
+      shell: echo $(free | awk '/Mem:/{print $2}')
+      register: memory_total_result   # memory total in KB
+    - name: Gather fact swap total size
+      shell: echo $(free | awk '/Swap:/{print $2}')
+      register: swap_total_result     # swap total in KB
+
+    - name: Calculate sysctl parameters
+      set_fact:
+        # set shmmax to memory / 2 in bytes
+        cpu_cores: "{{ cpu_cores_result.stdout | int }}"
+        # total memory in bytes
+        mem_bytes: "{{ memory_total_result.stdout | int * 1024 }}"
+        # total swap in bytes
+        swap_bytes: "{{ memory_total_result.stdout | int * 1024 }}"
+        # total hugepage in 2MB (mem/5)
+        # nr_hugepages: "{{ memory_total_result.stdout | int / 4096 }}"
+        # set shmmax to memory / 2 in bytes (*1024/2 = *512)
+        param_shmmax: "{{ (memory_total_result.stdout | int * 512) | int}}"
+        # shmallis the total amount of memory, should be at least shmmax/PAGE_SIZE [*1024/2/4096 * factor(+30%) = 1/6]
+        param_shmall: "{{ (memory_total_result.stdout|int /6)|int }}"
+
+    - name: Dynamic tuning sysctl parameters
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict:
+        # kernel
+        # total shmem size： $(expr $(getconf _PHYS_PAGES) / 2 \* $(getconf PAGE_SIZE))
+        kernel.shmmax: "{{ param_shmmax }}"
+        # max shmem pages: $(expr $(getconf _PHYS_PAGES) / 2)
+        kernel.shmall: "{{ param_shmall }}"
 ...
