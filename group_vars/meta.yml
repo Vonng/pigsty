@@ -1,58 +1,116 @@
 ---
-#==============================================================#
-# Variables for meta node
-#==============================================================#
+################################################################
+#              Variables for meta controller node              #
+################################################################
 
 #==============================================================#
-# package download options
+# Meta node provision
 #==============================================================#
-# local yum repo settigns
-proxy_env: {}                         # http/https/all proxy settings env for downloading
-force_download:   false               # force download even cache exists
-build_essential:  false               # download & install building tools
-additional_package_list: []           # additional rpm packages to be downloaded/installed
+node_overwrite_hostname: false
 
 #==============================================================#
-# package install options
+# Meta node special variables
 #==============================================================#
 # install for meta nodes only
 meta_package_list:
-  - ansible,python,python-pip,python-ipython,python-psycopg2                            # ansible and python environment
-  - nginx,haproxy,keepalived,dnsmasq                                                    # proxy and dns
-  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter           # monitoring packages
+  - ansible,python,python-pip,python-ipython,python-psycopg2                    # ansible and python environment
+  - nginx,haproxy,keepalived,dnsmasq                                            # proxy and dns
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter   # monitoring packages
+
+# grafana
+meta_grafana_provision_datasources: true        # use pre-defined prometheus data source
+meta_grafana_provision_dashboards: false        # use pre-defined postgres dashboards
+meta_grafana_provision_plugins: true            # install additional grafana plugins
+meta_grafana_force_download_plugins: false      # force redownload grafana plugins
+
 
 #==============================================================#
-# infrastructure (consul for bare metal, k8s for cloud native)
+# Meta infra variable: how to setup infrastructure
 #==============================================================#
-dcs_role: server                      # dcs role: server/agent
-k8s_role: master                      # k8s role: master/node
+# meta node are used as dcs server and k8s master
+infra_dcs_role: server         # meta dcs role: server
+infra_k8s_role: master         # meta k8s role: master
 
 #==============================================================#
-# monitoring setup
-#==============================================================#
-grafana_provision_datasources: true   # use pre-defined prometheus data source
-grafana_provision_dashboards: false   # use pre-defined postgres dashboards
-grafana_provision_plugins: true       # install additional grafana plugins
-grafana_force_download_plugins: false # force redownload grafana plugins
-
-#==============================================================#
-# meta database setup
+# MetaDB setup
 #==============================================================#
 # basic information
-cluster: pg-meta                      # [REQUIRED] parameter `cluster`
-version: 12                           # [REQUIRED] parameter `version`
-force: true                           # force removing if cluster already existing (dangerous for production!)
+cluster: pg-meta                # [REQUIRED] parameter `cluster`
+version: 12                     # [REQUIRED] parameter `version`
+force: true                     # force removing if cluster already existing (dangerous for production!)
 
-# default_creation:   false           # create default business database and user? (optional)
-default_username: 'meta'              # business passowrd (optional)
-default_password: 'meta'              # business passowrd (optional), may provide via secret files
-default_database: 'meta'              # business username (optional)
+# default database
+default_creation:   true        # create default business database and user? (optional)
+default_username:   meta        # business passowrd (optional)
+default_password:   meta        # business passowrd (optional), may provide via secret files
+default_database:   meta        # business username (optional)
+
+# additional component
+install_pgbouncer:  true        # install pgbouncer connection pooler ?
+install_patroni:    true        # install patroni ha agent ?
+install_haproxy:    true        # install haproxy load balancer ?
+install_keepalived: true        # install keepalived ?
+
+# pg-meta virtual vip
+lb_keepalived_vip: 10.10.10.2   # REQUIRED field virtual vip address
+lb_keepalived_nic: eth1          # REQUIRED field nic interface
+
+
+
+################################################################
+# Meta repo variable: how to build local yum repo
+################################################################
+# how to download
+repo_force_download:   false     # force download even cache exists
+repo_proxy_env: {}               # add proxy environment variable here
+
+repo_package_list:
+  # postgres core packages
+  - postgresql13*
+  - postgresql12*
+  - postgis30_12*
+
+  # postgres extension packages 12
+  - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
+  # postgres common misc
+  - pgbouncer,pgadmin4,pg_top,pgbadger,pgdg-redhat-repo
+  # ansible and python environment
+  - ansible,python,python-pip,python-ipython,python-psycopg2
+  # system utils
+  - ntp,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,grubby,zlib,openssl,perl-ExtUtils-Embed
+  # network utils
+  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm
+  # monitoring packages
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
+  # dcs packages
+  - consul,consul_exporter,consul-template,etcd
+  # proxy and dns
+  - nginx,haproxy,keepalived,dnsmasq
+
+# download necessary url packages
+repo_url_package_list:
+  - name: pg_exporter-0.2.0-1.el7.x86_64.rpm
+    url: https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
+  - name: patroni-1.6.5-1.rhel7.x86_64.rpm
+    url: https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
+  - name: vip-manager_0.6-1_amd64.rpm
+    url: https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
 
 #==============================================================#
-# load balancer setup
+# additional packages
 #==============================================================#
-ha_enabled: false                     # enable/disable patroni ha agent
-lb_enabled: true                      # enable/disable haproxy load balancer
-lb_interface: eth1                    # default nic interface to listen
-cluster_vip: 10.10.10.2               # pg-meta cluster vip
+# additional packages to be downloaded
+repo_additional_package_list: []
+
+# download cloud native packages: kubectl kubeadm helm docker, etc..
+repo_cloud_native: true
+repo_cloud_native_package_list:
+  - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt,helm
+
+# download build essential packages: gcc, g++, rpmbuild, etc...
+repo_build_essential: true
+repo_build_essential_package_list:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
 ...

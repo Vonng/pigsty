@@ -1,107 +1,38 @@
 ---
-# download proxy
-proxy_env: {}
+################################################################
+# node provision
+################################################################
 
-# meta info
-default_dns_server: 10.10.10.10
-default_ntp_server: 10.10.10.10
-default_timezone: 'Asia/Shanghai'
+#==============================================================#
+# node basics
+#==============================================================#
+# node hostname override : use {{ cluseter }}-{{ seq } if defined
+node_overwrite_hostname: true
 
-# node tune
-node_disable_swap: true
-node_disable_thp: true
-node_disable_firewall: true
-node_enable_watchdog: true
-node_disk_prefetch: false
-node_disable_numa: false
+# node timezone override
+node_timezone: 'Asia/Shanghai'     # default node timezone
 
-# node packages
-cloud_native:     false      # download kubectl kubeadm helm docker, etc..
-build_essential:  false      # download gcc, g++, rpmbuild, etc...
+#==============================================================#
+# node features
+#==============================================================#
+# node feature switch
+node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
+node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
+node_disable_thp: true          # [VERY IMPORTANT] disable transparent huge page
+node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
+node_disable_selinux: true      # disable selinux
+node_cpupower_performance: true # set cpupower governor to performance mode if available
+node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
-node_package_list:
-  - etcd,consul,haproxy,keepalived,node_exporter                                        # must have
-  - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
-  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
+# node kernel modeles
+node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
-cloud_native_package_list:
-  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni
 
-build_essential_package_list:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+#==============================================================#
+# node sysctl
+#==============================================================#
+node_sysctl_dynamic_tune: true  # set some param based on node fact
+# additional sysctl parameters (overwrite with your own)
+node_sysctl_params:
 
-additional_package_list: []
-
-# kernel modules
-node_kernel_modules: [br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
-
-# sysctl
-sysctl_params:     # kernel
-  # kernel.shmmax: "{{ param_shmmax }}"     # 共享内存总大小： $(expr $(getconf _PHYS_PAGES) / 2 \* $(getconf PAGE_SIZE))
-  # kernel.shmall: "{{ param_shmall }}"     # 共享内存最大页面数量: $(expr $(getconf _PHYS_PAGES) / 2)
-  kernel.pid_max: 131072                    # 最大打开进程数量13W
-  kernel.shmmni: 16384                      # 系统范围内共享内存段的最大数量 4096 -> 16384
-  kernel.msgmni: 32768                      # 系统的消息队列数目,影响可以启动的代理程序数 设为内存MB数
-  kernel.msgmnb: 65536                      # 影响队列的大小
-  kernel.msgmax: 65536                      # 影响队列中可以发送的消息的大小
-  kernel.numa_balancing: 0                  # 禁用Numa
-  kernel.sem: 2048 134217728 2048 65536     # 每个信号集最大信号量2048，系统总共可用信号量134217728，单次最大操作2048，信号集总数65536
-  # vm
-  vm.dirty_ratio: 80                        # 绝对限制，超过80%阻塞写请求刷盘
-  vm.dirty_background_bytes: 268435456      # 256MB脏数据唤醒刷盘进程
-  vm.dirty_expire_centisecs: 6000           # 1分钟前的数据被认为需要刷盘
-  vm.dirty_writeback_centisecs: 500         # 刷新进程运行间隔5秒
-  vm.mmap_min_addr: 65536                   # 禁止访问0x10000下的内存
-  vm.zone_reclaim_mode: 0                   # Numa禁用
-  vm.swappiness: 0                          # 禁用SWAP，但高水位仍会有
-  # vm.nr_hugepages: "{{ nr_hugepages|int}}"  # huge page
-  vm.overcommit_memory: 2                   # 允许一定程度的Overcommit
-  vm.overcommit_ratio: 95                   # 允许的Overcommit: $((($mem - $swap) * 100 / $mem))
-  # tcp memory
-  net.ipv4.tcp_rmem: 8192 65536 16777216    # tcp读缓冲内存压力: 32M/256M/16G
-  net.ipv4.tcp_wmem: 8192 65536 16777216    # tcp写缓冲内存压力: 32M/256M/16G
-  net.ipv4.tcp_mem: 131072 262144 16777216  # tcp内存使用: 512M/1G/16G
-  net.core.rmem_default: 262144             # 接受缓冲区默认大小: 256K
-  net.core.rmem_max: 4194304                # 接受缓冲区最大大小: 4M
-  net.core.wmem_default: 262144             # 发送缓冲区默认大小: 256K
-  net.core.wmem_max: 4194304                # 发送缓冲区最大大小: 4M
-  # tcp keepalive
-  net.ipv4.tcp_keepalive_intvl: 20          # 探测没有确认时，重新发送探测的频度。默认75s -> 20s
-  net.ipv4.tcp_keepalive_probes: 3          # 3 * 20 : 1分钟超时断开
-  net.ipv4.tcp_keepalive_time: 60           # 探活周期1分钟
-  # tcp port resure
-  net.ipv4.tcp_tw_reuse: 1                  # 允许将TIME_WAIT socket用于新的TCP连接。默认为0
-  net.ipv4.tcp_tw_recycle: 0                # 快速回收，已弃用
-  net.ipv4.tcp_fin_timeout: 5               # 保持在FIN-WAIT-2状态的秒时间
-  net.ipv4.tcp_timestamps: 1
-  # tcp anti-flood
-  net.ipv4.tcp_syncookies: 0                # SYN_RECV队列满后发cookie，防止恶意攻击
-  net.ipv4.tcp_synack_retries: 1            # 收到不完整sync后的重试次数 5->2
-  net.ipv4.tcp_syn_retries: 1               #表示在内核放弃建立连接之前发送SYN包的数量。
-  # tcp load-balancer
-  net.ipv4.ip_forward: 1                    # IP转发
-  net.ipv4.ip_nonlocal_bind: 1              # 绑定非本机地址
-  net.netfilter.nf_conntrack_max: 1048576   # 最大跟踪连接数
-  net.ipv4.ip_local_port_range: 32768 65000 # 端口范围
-  net.ipv4.tcp_max_tw_buckets: 262144       # 256k  TIME_WAIT
-  net.core.somaxconn: 65535                 # 限制LISTEN队列最大数据包量，触发重传机制。
-  net.ipv4.tcp_max_syn_backlog: 8192        # SYN队列大小：1024->8192
-  net.core.netdev_max_backlog: 8192         # 网卡收包快于内核时，允许队列长度
-
-  net.ipv4.neigh.default.gc_thresh1: 80000   # ARP
-  net.ipv4.neigh.default.gc_thresh2: 90000   # ARP
-  net.ipv4.neigh.default.gc_thresh3: 100000  # ARP
-
-  # kubernetes require parameters
-  net.bridge.bridge-nf-call-ip6tables: 1
-  net.bridge.bridge-nf-call-iptables: 1
-  net.bridge.bridge-nf-call-arptables: 1
-  # filesystem
-
-  fs.aio-max-nr: 1048576                    # 限制并发未完成的异步请求数目，，不应小于1M
-  fs.file-max: 167772160                    # 最大打开1.6Y个文件
-  fs.inotify.max_user_watches: 1048576
-  fs.inotify.max_user_instances: 1024
 ...

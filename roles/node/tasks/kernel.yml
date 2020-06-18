@@ -1,0 +1,13 @@
+---
+#==============================================================#
+# Stage 5: node kernel modules
+#==============================================================#
+- name: Install additional kernel modules
+  block:
+    - name: Install additional kernel modules
+      modprobe: name={{ item }} state=present
+      with_items: "{{ node_kernel_modules }}"
+
+    - name: Load kernel module on node start
+      template: src=kernel.modules.j2 dest=/etc/sysconfig/modules/kernel.modules mode=0755
+...

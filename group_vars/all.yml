@@ -1,45 +1,95 @@
 ---
-#==============================================================#
-# Variables for all nodes
-#==============================================================#
+################################################################
+# Variables for all nodes [IMPORTANT]
+################################################################
 
 
 #==============================================================#
-# infrastructure
+# node provision
 #==============================================================#
-default_timezone: 'Asia/Shanghai'     # default node timezone
-default_dns_server: 10.10.10.10       # default DNS server (meta node dnsmasq by default)
-default_ntp_server: 10.10.10.10       # default NTP server (meta node chronyd service)
-consul_servers: [10.10.10.10]         # consul servers
-k8s_servers: [10.10.10.10]            # kubernetes servers
+# node hostname override : use {{ cluseter }}-{{ seq } if defined
+node_overwrite_hostname: true
+
+# node timezone override
+node_timezone: 'Asia/Shanghai'     # default node timezone
+
+# node feature switch
+node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
+node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
+node_disable_thp: true          # [VERY IMPORTANT] disable transparent huge page
+node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
+node_disable_selinux: true      # disable selinux
+node_cpupower_performance: true # set cpupower governor to performance mode if available
+node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+
+# node kernel modeles
+node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
+
+# node sysctl
+node_sysctl_dynamic_tune: true  # set some param based on node fact
+# additional sysctl parameters (overwrite with your own)
+node_sysctl_params:
+  # kubernetes require parameters
+  net.bridge.bridge-nf-call-ip6tables: 1
+  net.bridge.bridge-nf-call-iptables: 1
+  net.bridge.bridge-nf-call-arptables: 1
+
 
 #==============================================================#
-# package download options
+# infra provision
 #==============================================================#
-# install for all nodes
-node_package_list:
+# common infra packages
+infra_package_list:
   - etcd,consul,haproxy,keepalived,node_exporter                                        # must have
   - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
   - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
   - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
 
-# download and install these packages if cloud_native is set to true
-cloud_native:     false           # download & install docker & k8s
-cloud_native_package_list:
-  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni
+# cloud native support
+infra_cloud_native_support: false
+infra_cloud_native_package_list:
+  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
+infra_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"]
+infra_cgroups_driver: systemd                     # use systemd cgroups as default
+infra_pod_network_cidr: "10.11.0.0/16"            # pod network
+infra_service_cidr: "10.12.0.0/16"                # service network
+infra_dashboard_admin_user: dashboard-admin-sa    # admin user for k8s dashboard
 
-# download and install these packages if build_essential is set to true
-build_essential_package_list:
+# build toolchain support
+infra_build_essential_support: false
+infra_build_essential_package_list:
   - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
   - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
 
+# add additional packages here
+infra_additional_package_list: []           # additional rpm packages to be downloaded/installed
+
+# infrastructure metadata
+infra_metadb_url: postgres://meat@10.10.10.10/meta
+infra_dcs_type:    consul                         # default dcs server type: consul
+infra_dcs_servers: [10.10.10.10]                  # default dcs servers
+infra_k8s_servers: [10.10.10.10]                  # default kubernetes masters
+infra_dns_servers: [10.10.10.10]                  # default DNS server (meta node dnsmasq by default)
+infra_ntp_servers: [10.10.10.10]                  # default NTP server (meta node chronyd service)
+
 
 #==============================================================#
-# monitoring setup
+# monitoring
 #==============================================================#
-node_exporter_port: 9100              # node exporter port
-pg_exporter_port: 9630                # pg exporter port
-pgbouncer_exporter_port: 9631         # pgbouncer exporter port
-pg_exporter_metric_path: "/metrics"   # node & pg & pgbouncer exporter port
+monitor_port_node_exporter:   9100         # node exporter port
+monitor_port_pg_exporter:     9630         # postgres exporter port
+monitor_pgbouncer_exporter:   9631         # pgbouncer exporter port
+monitor_haproxy_exporter:     9101         # pgbouncer exporter port
+monitor_exporter_metric_path: "/metrics"   # default exporter port
+
+
+#==============================================================#
+# load balancer provision
+#==============================================================#
+keepalived_nic: eth1          # REQUIRED field nic interface
+
+
+
+
 
 ...
