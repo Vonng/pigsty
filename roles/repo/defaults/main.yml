@@ -1,11 +1,10 @@
 ---
+################################################################
+# Meta repo variable: how to build local yum repo
+################################################################
 # how to download
-force_download:   false     # force download even cache exists
-proxy_env: {}               # add proxy environment variable here
-
-# whehter to download these pacakges?
-cloud_native:     true      # download kubectl kubeadm helm docker, etc..
-build_essential:  true      # download gcc, g++, rpmbuild, etc...
+repo_force_download:   false     # force download even cache exists
+repo_proxy_env: {}               # add proxy environment variable here
 
 repo_package_list:
   # postgres core packages
@@ -24,20 +23,14 @@ repo_package_list:
   # network utils
   - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm
   # monitoring packages
-  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
   # dcs packages
   - consul,consul_exporter,consul-template,etcd
   # proxy and dns
   - nginx,haproxy,keepalived,dnsmasq
 
-cloud_native_package_list:
-  - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt
-
-build_essential_package_list:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-
-additional_url_package_list:
+# download necessary url packages
+repo_url_package_list:
   - name: pg_exporter-0.2.0-1.el7.x86_64.rpm
     url: https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
   - name: patroni-1.6.5-1.rhel7.x86_64.rpm
@@ -45,5 +38,21 @@ additional_url_package_list:
   - name: vip-manager_0.6-1_amd64.rpm
     url: https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
 
-additional_package_list: []
+#==============================================================#
+# additional packages
+#==============================================================#
+# additional packages to be downloaded
+repo_additional_package_list: []
 
+# download cloud native packages: kubectl kubeadm helm docker, etc..
+repo_cloud_native: true
+repo_cloud_native_package_list:
+  - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt,helm
+
+# download build essential packages: gcc, g++, rpmbuild, etc...
+repo_build_essential: true
+repo_build_essential_package_list:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
+...

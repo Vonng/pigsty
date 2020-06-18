@@ -1,5 +1,4 @@
 ---
-
 #==============================================================#
 # Stage 1: Precheck                                            #
 #==============================================================#
@@ -19,129 +18,33 @@
     # Condition Check: whether bootstrap cache already exists
     - name: Check pigsty boot cache exists
       stat: path=/www/pigsty/boot/boot_complete
-      register: boot_cache
-
+      register: repo_boot_cache
 
 
 #==============================================================#
-# Stage 2: Download bootstrap packages if not exists
+# Stage 2: Download bootstrap pacakges if boot cache not exist #
 #==============================================================#
-- name: Pigsty repo boostrap packages download
-  when: not boot_cache.stat.exists
+- import_tasks: bootstrap.yml
   tags: repo_bootstrap
-  block:
-    - name: Enable default centos yum repos
-      ignore_errors: true
-      command: yum-config-manager --enable base extras updates epel-release
-
-    # install official yum repo
-    - name: Install official centos yum repos
-      environment: "{{ proxy_env | default({}) }}"
-      yum: name=epel-release,centos-release-scl,centos-release-scl-rh
-
-    # copy nginx yum repo
-    - name: Install additional nginx yum repo
-      copy: src=repo/nginx.repo dest=/etc/yum.repos.d/nginx.repo mode=0644
-
-    # download minimal package to build a local yum repo
-    - name: Download bootstrap packages
-      environment: "{{ proxy_env | default({}) }}"
-      yum:
-        download_only: yes
-        download_dir: /www/pigsty/boot
-        name: epel-release,createrepo,wget,yum-utils,nginx
-
-    # set bootstrap packages download complete flag
-    - name: Bootstrap packages downloaded
-      copy: content=ok dest=/www/pigsty/boot/boot_complete
-
-
+  when: not repo_boot_cache.stat.exists
 
 #==============================================================#
-# Stage 3: bootstrap local yum repo
+# Stage 3: Boostrap yum repo nginx server                      #
 #==============================================================#
-- name: Bootstrap local yum repo
+- import_tasks: nginx.yml
   tags: repo_nginx
-  block:
-    - name: Install bootstrap packages (nginx)
-      shell: cd /www/pigsty/boot && yum localinstall -q -y *.rpm
-
-    - name: Copy default nginx server config
-      copy: src=default.conf dest=/etc/nginx/conf.d/default.conf
-
-    - name: Copy default nginx index page
-      copy: src=index.html dest=/www/index.html
-
-    - name: Copy nginx pigsty repo files
-      copy: src=repo/pigsty.repo dest=/www/pigsty.repo
-
-    - name: Start nginx service to serve repo
-      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
-
-    - name: Waits yum repo nginx online
-      wait_for: host=localhost port=80 state=started
-
 
 #==============================================================#
-# Stage 4: Download yum packages
+# Stage 3: Boostrap yum repo nginx server                      #
 #==============================================================#
-- name: Download local repo packages
-  when: not repo_cache.stat.exists or force_download
+- import_tasks: download.yml
   tags: repo_download
-  block:
-    # install official and 3rd party yum repo
-    - name: Install default centos yum repos
-      environment: "{{ proxy_env }}"
-      yum: name=epel-release,centos-release-scl,centos-release-scl-rh
+  when: not repo_cache.stat.exists or repo_force_download
 
-    - name: Enable default centos yum repos
-      ignore_errors: true
-      command: yum-config-manager --enable epel-release centos-sclo-rh centos-sclo-sclo
-
-    - name: Install additional yum repos
-      copy: src=repo/{{ item }}.repo dest=/etc/yum.repos.d/{{ item }}.repo mode=0644
-      with_items: [haproxy, postgres, grafana, prometheus, docker, harbottle, k8s ]
-
-    # enlist build essential packages if flag `build_essential` is set
-    - name: Download build essential packages
-      when: build_essential is defined and build_essential|bool
-      set_fact: repo_package_list="{{ repo_package_list + build_essential_package_list }}"
-
-    # enlist additional packages if provided
-    - name: Download build essential packages
-      when: additional_package_list|length > 0
-      set_fact: repo_package_list="{{ repo_package_list + additional_package_list }}"
-
-    - name: Print packages to be downloaded
-      debug: {"msg": "Packages to be downloaded: {{ repo_package_list }}"}
-
-    - name: Download packages to /www/pigsty
-      environment: "{{ proxy_env }}"
-      yum:
-        download_only: yes
-        download_dir: /www/pigsty
-        disable_gpg_check: yes
-        name: "{{ repo_package_list }}"
-
-    # enlist cloud native packages if flag `cloud_native` is set
-    - name: Download cloud native packages
-      when: cloud_native is defined and cloud_native|bool
-      yum:
-        download_only: yes
-        download_dir: /www/pigsty
-        disable_gpg_check: yes
-        name: "{{ cloud_native_package_list }}"
-
-    - name: Download additional url packages
-      environment: "{{ proxy_env }}"
-      get_url: dest=/www/pigsty/{{ item.name }} url={{ item.url }}
-      with_items: "{{ additional_url_package_list }}"
-
-    # create repo
-    - name: Create local yum repo index
-      command: createrepo /www/pigsty
-
-    # set complete flag
-    - name: Mark local yum repo complete
-      copy: content=ok dest=/www/pigsty/repo_complete
+#==============================================================#
+# Stage 5: Install local yum repo on current node
+#==============================================================#
+- name: Install local yum repos on meta
+  tags: repo_install
+  copy: src=repo/pigsty.repo dest=/etc/yum.repos.d/pigsty.repo mode=0666
 ...
