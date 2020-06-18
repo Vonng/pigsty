@@ -1,0 +1,138 @@
+---
+#==============================================================#
+# Stage 1: Create default user/group
+#==============================================================#
+- name: Create node users
+  tags: node_user
+  block:
+    - name: Create os user group postgres
+      group: name=postgres gid=256
+    - name: Create os user postgres:postgres
+      user: name=postgres group=postgres home=/home/postgres generate_ssh_key=yes
+    - name: Create os user prometheus:postgres
+      user: name=prometheus group=postgres create_home=no
+    - name: Create os user consul:postgres
+      user: name=consul group=postgres create_home=no
+    - name: Create os user etcd:postgres
+      user: name=etcd group=postgres create_home=no
+
+
+#==============================================================#
+# Stage 2: SSH Access
+#==============================================================#
+
+
+#==============================================================#
+# Stage 3: DNS & Resovler
+#==============================================================#
+- name: Setup node DNS and resolver
+  tags: node_dns
+  block:
+    - name: Overwrite /etc/hosts config
+      template: src=hosts dest=/etc/hosts
+
+    - name: Add resovler to /etc/resolv.conf
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver {{ infra_dns_server }}"
+
+
+#==============================================================#
+# Stage 4: Yum Repo
+#==============================================================#
+- name: Install local yum repo
+  tags: node_repo
+  block:
+    - name: Install local yum repo for node
+      copy: src=pigsty.repo dest=/etc/yum.repos.d/pigsty.repo mode=0666
+
+    - name: Configure node using local repo
+      ignore_errors: true
+      shell: |
+        yum-config-manager --disable '*';
+        yum-config-manager --enable pigsty ;
+        yum clean all;
+        exit 0
+
+    - name: Install cloud repo if enabled
+      when: cloud_native
+      copy: src=cloud_native.repo dest=/etc/yum.repos.d/cloud.repo mode=0666
+
+
+#==============================================================#
+# Stage 5: Infra packages
+#==============================================================#
+- name: Install node packages
+  tags: node_install
+  block:
+    # enlist cloud native packages if flag `cloud_native` is set
+    - name: Install cloud native packages
+      when: cloud_native is defined and cloud_native|bool
+      set_fact: node_package_list="{{ node_package_list + cloud_native_package_list }}"
+
+    # enlist build essential packages if flag `build_essential` is set
+    - name: Install build essential packages
+      when: build_essential is defined and build_essential|bool
+      set_fact: node_package_list="{{ node_package_list + build_essential_package_list }}"
+
+    # enlist additional packages if provided
+    - name: Install additional node packages
+      when: additional_package_list|length > 0
+      set_fact: node_package_list="{{ node_package_list + additional_package_list }}"
+
+    - name: Install node packages from yum
+      environment: "{{ proxy_env }}"
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_package_list }}"
+
+
+
+#==============================================================#
+# Stage 6: Setup ntp service
+#==============================================================#
+- name: Set ntp service chronyd
+  tags: node_ntp
+  block:
+    # redhat/centos: chronyd already installed
+    # redhat/centos: config chronyd
+    - name: Copy the chrony.conf template
+      template: src=chrony.conf dest=/etc/chrony.conf
+
+    - name: Launch chronyd ntpd service
+      systemd: name=chronyd enabled=true state=restarted
+
+    - name: Set local timezone and synctime
+      timezone: name={{ default_timezone }}
+
+
+
+#==============================================================#
+# Stage 7: Setup keepalived (basic structure)
+#==============================================================#
+- name: Set keepalived
+  tags: node_vip
+  block:
+    # redhat/centos: chronyd already installed
+    - name: Create keepalive config dir
+      file: path=/etc/keepalived/conf.d state=directory mode=0755
+
+    # redhat/centos: config chronyd
+    - name: Copy top level keepalived.conf
+      copy:
+        dest: /etc/keepalived/keepalived.conf
+        mode: 0644
+        content: |
+          include conf.d/*.conf
+
+    # empty config to suppress error
+    - name: Copy default keepalived.conf
+      copy:
+        dest: /etc/keepalived/conf.d/default.conf
+        mode: 0644
+        content: ""
+
+    - name: Launch keepalived service unit
+      systemd: name=keepalived enabled=true state=restarted
+
+...
