@@ -26,7 +26,7 @@ node_disk_prefetch: false       # setup disk prefetch on HDD to increase perform
 node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
 # node sysctl
-node_sysctl_dynamic_tune: true  # set some param based on node fact
+node_sysctl_dynamic_tuning: true  # set some param based on node fact
 # additional sysctl parameters (overwrite with your own)
 node_sysctl_params:
   # kubernetes require parameters
@@ -34,43 +34,80 @@ node_sysctl_params:
   net.bridge.bridge-nf-call-iptables: 1
   net.bridge.bridge-nf-call-arptables: 1
 
+# static dns records in /etc/hosts
+# most entries here are not necessary except pigsty and yum.pigsty
+# local yum repo require these two static dns to work
+node_static_dns:
+  # loopback
+  - host: 127.0.0.1
+    domain: [localhost, local, lc]
+  # meta controller node
+  - host: 10.10.10.10
+    domain: [meta, master, controller, pigsty, yum.pigsty]
+  # common nodes
+  - host: 10.10.10.10
+    domain: [node-0, n0]
+  - host: 10.10.10.11
+    domain: [node-1, n1]
+  - host: 10.10.10.12
+    domain: [node-2, n2]
+  - host: 10.10.10.13
+    domain: [node-3, n3]
+
+
+
+################################################################
+# infra provision
+################################################################
+
 
 #==============================================================#
 # infra provision
 #==============================================================#
+infra_local_repos: [pigsty.repo]      # local yum repo file path
+infra_disable_external_repo: true     # disable all other repos except local
+infra_proxy_env: {}                   # add proxy environment variable here
+
 # common infra packages
-infra_package_list:
-  - etcd,consul,haproxy,keepalived,node_exporter                                        # must have
+infra_packages:
+  - etcd,consul,haproxy,keepalived,node_exporter,chrony,ntp                             # must have
   - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
   - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
   - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
 
 # cloud native support
 infra_cloud_native_support: false
-infra_cloud_native_package_list:
+infra_cloud_native_packages:
   - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
+
+# build toolchain support
+infra_build_essential_support: false
+infra_build_essential_packages:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
+# add additional packages here
+infra_additional_packages: []                     # additional rpm packages to be downloaded/installed
+
+# DNS and NTP
+infra_dns_servers: [10.10.10.10]                  # default DNS server (meta node dnsmasq by default)
+infra_ntp_servers: [10.10.10.10]                  # default NTP server (meta node chronyd service)
+
+infra_dcs_type:    consul                         # default dcs server type: consul
+infra_dcs_servers: [10.10.10.10]                  # default dcs servers
+
+# cloud native metadata
+infra_k8s_servers: [10.10.10.10]                  # default kubernetes masters
 infra_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"]
 infra_cgroups_driver: systemd                     # use systemd cgroups as default
 infra_pod_network_cidr: "10.11.0.0/16"            # pod network
 infra_service_cidr: "10.12.0.0/16"                # service network
 infra_dashboard_admin_user: dashboard-admin-sa    # admin user for k8s dashboard
 
-# build toolchain support
-infra_build_essential_support: false
-infra_build_essential_package_list:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-
-# add additional packages here
-infra_additional_package_list: []           # additional rpm packages to be downloaded/installed
-
 # infrastructure metadata
 infra_metadb_url: postgres://meat@10.10.10.10/meta
-infra_dcs_type:    consul                         # default dcs server type: consul
-infra_dcs_servers: [10.10.10.10]                  # default dcs servers
-infra_k8s_servers: [10.10.10.10]                  # default kubernetes masters
-infra_dns_servers: [10.10.10.10]                  # default DNS server (meta node dnsmasq by default)
-infra_ntp_servers: [10.10.10.10]                  # default NTP server (meta node chronyd service)
+infra_grafana_url: postgres://meat@10.10.10.10/meta
+
 
 
 #==============================================================#
