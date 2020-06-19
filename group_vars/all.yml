@@ -1,12 +1,7 @@
 ---
 ################################################################
-# Variables for all nodes [IMPORTANT]
-################################################################
-
-
-#==============================================================#
 # node provision
-#==============================================================#
+################################################################
 # node hostname override : use {{ cluseter }}-{{ seq } if defined
 node_overwrite_hostname: true
 
@@ -60,9 +55,8 @@ node_static_dns:
 # infra provision
 ################################################################
 
-
 #==============================================================#
-# infra provision
+# infra
 #==============================================================#
 infra_local_repos: [pigsty.repo]      # local yum repo file path
 infra_disable_external_repo: true     # disable all other repos except local
@@ -93,26 +87,44 @@ infra_additional_packages: []                     # additional rpm packages to b
 infra_dns_servers: [10.10.10.10]                  # default DNS server (meta node dnsmasq by default)
 infra_ntp_servers: [10.10.10.10]                  # default NTP server (meta node chronyd service)
 
-infra_dcs_type:    consul                         # default dcs server type: consul
-infra_dcs_servers: [10.10.10.10]                  # default dcs servers
-
-# cloud native metadata
-infra_k8s_servers: [10.10.10.10]                  # default kubernetes masters
-infra_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"]
-infra_cgroups_driver: systemd                     # use systemd cgroups as default
-infra_pod_network_cidr: "10.11.0.0/16"            # pod network
-infra_service_cidr: "10.12.0.0/16"                # service network
-infra_dashboard_admin_user: dashboard-admin-sa    # admin user for k8s dashboard
-
-# infrastructure metadata
-infra_metadb_url: postgres://meat@10.10.10.10/meta
-infra_grafana_url: postgres://meat@10.10.10.10/meta
-
-
+#==============================================================#
+# dcs
+#==============================================================#
+dcs_type:    consul                               # default dcs server type: consul
+dcs_servers: [10.10.10.10]                        # default dcs servers
+dcs_purge: true                                   # force remove existing server
+dcs_check_interval: 5s                            # default service check interval
+dcs_check_timeout:  1s                            # default service check timeout
 
 #==============================================================#
-# monitoring
+# cloud-native
 #==============================================================#
+# docker & k8s
+docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
+docker_image_cache: /www/pigsty/docker-images.tar.lz4             # docker images cache path (.tar.lz4)
+docker_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"] # docker registry mirror
+k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes versionaliyun k8s miiror repository
+
+k8s_servers: [10.10.10.10]                                        # kubernetes servers (masters)
+k8s_version: 1.18.3                                               # kubernetes version
+k8s_pod_cidr: "10.11.0.0/16"                                      # kubernetes pod network cidr
+k8s_service_cidr: "10.12.0.0/16"                                  # kubernetes service network cidr
+k8s_dashboard_admin_user: dashboard-admin-sa                      # kubernetes dashboard admin user name
+# k8s_role: node                                                  # overwrite this for master node
+
+
+################################################################
+# meta
+################################################################
+metadb_url: postgres://meta@pg-meta/meta
+grafana_url: http://grafana.pigsty/api
+prometheus_url: http://prometheus.pigsty/api
+alertmanager_url: http://alertmanager.pigsty/api
+
+
+################################################################
+# monitor
+################################################################
 monitor_port_node_exporter:   9100         # node exporter port
 monitor_port_pg_exporter:     9630         # postgres exporter port
 monitor_pgbouncer_exporter:   9631         # pgbouncer exporter port
@@ -120,9 +132,9 @@ monitor_haproxy_exporter:     9101         # pgbouncer exporter port
 monitor_exporter_metric_path: "/metrics"   # default exporter port
 
 
-#==============================================================#
-# load balancer provision
-#==============================================================#
+################################################################
+# load balancer
+################################################################
 keepalived_nic: eth1          # REQUIRED field nic interface
 
 

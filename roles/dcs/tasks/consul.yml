@@ -5,10 +5,10 @@
 - name: Purge existing consul
   tags: consul_purge
   block:
-    # if infra_dcs_purge is enabled, this checking step will be skipped
+    # if dcs_purge is enabled, this checking step will be skipped
     - name: Check consul service not running
-      when: not infra_dcs_purge
-      shell: "ps aux | grep -v grep | grep consul | grep 'config-dir=/etc/consul.d/' || exit 0 && exit 1"
+      when: not dcs_purge
+      shell: ps aux | grep -v grep | grep consul | grep 'config-dir=/etc/consul.d/' || exit 0 && exit 1
 
     # dangerous: (it will remove consul data!)
     - name: Purge existing consul instance
@@ -49,20 +49,20 @@
     # Stage 4-1: Launch consul server first
     #==============================================================#
     - name: Copy consul server service unit
-      when: inventory_hostname in infra_dcs_servers
+      when: inventory_hostname in dcs_servers
       copy: src=consul-server.service dest=/usr/lib/systemd/system/consul.service
     - name: Launch consul server service first
-      when: inventory_hostname in infra_dcs_servers
+      when: inventory_hostname in dcs_servers
       systemd: name=consul state=restarted enabled=yes daemon_reload=yes
 
     #==============================================================#
     # Stage 4-2: Launch consul agent next
     #==============================================================#
     - name: Copy consul agent service unit
-      when: inventory_hostname not in infra_dcs_servers
+      when: inventory_hostname not in dcs_servers
       copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
     - name: Launch consul agent service first
-      when: inventory_hostname not in infra_dcs_servers
+      when: inventory_hostname not in dcs_servers
       systemd: name=consul state=restarted enabled=yes daemon_reload=yes
 
     #==============================================================#
