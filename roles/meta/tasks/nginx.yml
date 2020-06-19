@@ -1,0 +1,45 @@
+---
+- name: Setup meta nginx
+  tags: meta_nginx
+  block:
+    #==============================================================#
+    # Install nginx (normally already installed during repo setup)
+    #==============================================================#
+    - name: Make sure nginx package installed
+      package: name=nginx state=present
+
+    #==============================================================#
+    # Config nginx
+    #==============================================================#
+    - name: Copy additional nginx proxy conf
+      copy: src={{ item }}.conf dest=/etc/nginx/conf.d/{{ item }}.conf
+      with_items: [default, consul, grafana, prometheus, alertmanager, haproxy, pgadmin]
+
+    - name: Update default nginx index page
+      copy: src=index.html dest=/www/index.html
+
+    #==============================================================#
+    # Launch nginx
+    #==============================================================#
+    - name: Restart pigsty nginx service
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for nginx service online
+      wait_for: host=localhost port=80 state=started timeout=10
+
+#==============================================================#
+# setup nginx exporter
+#==============================================================#
+- name: Setup meta nginx exporter
+  tags: meta_nginx_exporter
+  block:
+    - name: Config nginx_exporter options
+      copy: src=nginx_exporter.default dest=/etc/default/nginx_exporter
+
+    - name: Restart nginx_exporter service
+      systemd: name=nginx_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for nginx exporter online
+      wait_for: host=localhost port=9113 state=started timeout=10
+
+...

@@ -1,29 +1,67 @@
 ---
+#==============================================================#
+# DCS settings
+#==============================================================#
+dcs_type:    consul         # default dcs server type: consul
+dcs_check_interval: 15s     # default service check interval (not used)
+dcs_check_timeout:  3s      # default service check timeout  (not used)
+
+
+#==============================================================#
+# Meta node packages
+#==============================================================#
 # download proxy
-proxy_env: {}
+meta_proxy_env: {}
 
-# node packages
-cloud_native:     false      # download kubectl kubeadm helm docker, etc..
-build_essential:  false      # download gcc, g++, rpmbuild, etc...
-
-node_package_list:
-  - etcd,consul,haproxy,keepalived,node_exporter                                        # must have
-  - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
-  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
-
-# install for meta nodes
+# install for meta nodes only
 meta_package_list:
   - ansible,python,python-pip,python-ipython,python-psycopg2                    # ansible and python environment
   - nginx,haproxy,keepalived,dnsmasq                                            # proxy and dns
   - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter   # monitoring packages
 
+#==============================================================#
+# Meta Prometheus
+#==============================================================#
+#meta_prometheus_retention: 30d
+#meta_prometheus_scrape_interval: 2s
+#meta_prometheus_evaluation_interval: 2s
+#meta_prometheus_scrape_timeout: 1s
 
-additional_package_list: []
+#==============================================================#
+# Meta Grafana
+#==============================================================#
+meta_grafana_server: http://grafana.pigsty      # use pre-defined prometheus data source
+meta_grafana_force_download_plugins: false      # force redownload grafana plugins
+meta_grafana_time_interval: 2s                  # force redownload grafana plugins
 
-grafana_url: "http://localhost:3000"
-grafana_provision_datasources: true
-grafana_provision_dashboards: true
-grafana_provision_plugins: true
-grafana_force_download_plugins: false
+meta_grafana_plugins:                           # default grafana plugins
+  - simpod-json-datasource
+  - camptocamp-prometheus-alertmanager-datasource
+  - ryantxu-ajax-panel
+  - grafana-piechart-panel
+  - jdbranham-diagram-panel
+  - aidanmountford-html-panel
+  - alexandra-trackmap-panel
+  - snuids-radar-panel
+  - digrich-bubblechart-panel
+
+meta_grafana_dashboards: []                       # default dashboards
+
+
+
+#==============================================================#
+# Meta DNS
+#==============================================================#
+# DNS record that resolved by DNS server on meta node
+meta_dynamic_dns:
+  - host: 10.10.10.10       # meta service domain name
+    domain: [pigsty, consul.pigsty, grafana.pigsty, prometheus.pigsty, alertmanager.pigsty, admin.pigsty, yum.pigsty]
+  - host: 10.10.10.10       # short alias
+    domain: [c.pigsty, g.pigsty, p.pigsty, pg.pigsty, am.pigsty, ha.pigsty, k8s.pigsty, k.pigsty]
+  - host: 10.10.10.2        # pg-meta default vip
+    domain: [pg-meta, haproxy.pg-meta]
+  - host: 10.10.10.3        # pg-test default vip
+    domain: [pg-test, haproxy.pg-meta]
+
+
 ...

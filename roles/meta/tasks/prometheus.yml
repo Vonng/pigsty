@@ -1,0 +1,44 @@
+---
+#==============================================================#
+# Prometheus
+#==============================================================#
+- name: Setup prometheus and alertmanager
+  tags: meta_prometheus
+  block:
+
+    #==============================================================#
+    # cleanup prometheus
+    #==============================================================#
+    - name: Wipe out prometheus config dir
+      file: path=/etc/prometheus state=absent
+
+    - name: Wipe out existing prometheus data
+      file: path=/var/lib/prometheus/data state=absent
+
+    - name: Recreate prometheus data dir
+      file: path=/var/lib/prometheus/data mode=0700 state=directory owner=prometheus group=prometheus
+
+    #==============================================================#
+    # config prometheus
+    #==============================================================#
+    - name: Copy /etc/prometheus configs
+      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus group=prometheus mode=0755
+
+
+    #==============================================================#
+    # launch prometheus & alertmaanger
+    #==============================================================#
+    - name: Launch meta prometheus service
+      systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
+
+    - name: Launch meta alertmanager service
+      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for meta prometheus online
+      wait_for: host=localhost port=9090 state=started
+
+    - name: Wait for meta alertmanager online
+      wait_for: host=localhost port=9093 state=started
+...
+
+

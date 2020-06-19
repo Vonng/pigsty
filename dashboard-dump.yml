@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   dashboard-dump.yml
+# Mtime     :   2020-06-19
+# Desc      :   dump dashboards to current dir from meta grafana
+# Path      :   dashboard-dump.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+- name: Dump grafana dashboard from meta node
+  connection: local
+  become: no
+  hosts: meta
+  tags: repo
+  tasks:
+    - name: Export dashboards to local files
+      grafana_dashboard:
+        grafana_url: http://grafana.pigsty
+        grafana_user: admin
+        grafana_password: admin
+        state: export
+        uid: "{{ item }}"
+        path: files/grafana/dashboards/{{ item }}.json
+      with_items: "{{ meta_grafana_dashboards }}"
+
+    - name: Post-process dashboards
+      shell: files/grafana/dashboards/reform.py
+...

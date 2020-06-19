@@ -58,9 +58,9 @@ stop: halt
 
 
 ###############################################################
-# pgbench
+# pgbench (init/read-write/read-only)
 ###############################################################
-bench-init:
+ri:
 	pgbench -is10 postgres://test:test@pg-test:5555/test
 rw:
 	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5555/test; done
@@ -80,11 +80,11 @@ ha:
 
 dump-monitor:
 	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
-	scp meta:/tmp/grafana.db ansible/roles/meta_grafana/files/grafana.db
+	scp meta:/tmp/grafana.db files/grafana.db
 	ssh meta "sudo rm -rf /tmp/grafana.db"
 
 restore-monitor:
-	scp ansible/roles/meta/files/grafana/grafana.db meta:/tmp/grafana.db
+	scp files/grafana/grafana.db meta:/tmp/grafana.db
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
