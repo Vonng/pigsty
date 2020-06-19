@@ -1,0 +1,98 @@
+---
+#==============================================================#
+# Setup grafana
+#==============================================================#
+- name: Setup Grafana
+  tags: grafana_install
+  block:
+    #==============================================================#
+    # Install grafana
+    #==============================================================#
+    - name: Make sure grafana is installed
+      package: name=grafana state=present
+
+    #==============================================================#
+    # Install grafana plugins: check cache exists
+    #==============================================================#
+    - name: Check grafana plugin cache exists
+      stat: path=/www/pigsty/grafana/plugins.tar.gz
+      register: grafana_plugins_cache
+
+    #==============================================================#
+    # Install grafana plugins and make cache
+    #==============================================================#
+    - name: Download grafana plugins from web
+      when: not grafana_plugins_cache.stat.exists or meta_grafana_force_download_plugins
+      grafana_plugin: name={{ item }}
+      with_items: "{{ meta_grafana_plugins  }}"
+    - name: Create grafana plugins cache
+      when: not grafana_plugins_cache.stat.exists or meta_grafana_force_download_plugins
+      command: tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
+
+    #==============================================================#
+    # Install grafana plugins from cache when applicable
+    #==============================================================#
+    # extract cache pacakge and install
+    - name: Provision grafana plugin via cache
+      when: grafana_plugins_cache.stat.exists
+      shell: |
+        rm -rf /var/lib/grafana/plugins
+        tar -xf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana
+        chown -R grafana /var/lib/grafana
+
+    #==============================================================#
+    # Config grafana
+    #==============================================================#
+    - name: Copy /etc/grafana/grafana.ini
+      copy: src=grafana/grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+
+    #==============================================================#
+    # Launch grafana
+    #==============================================================#
+    - name: Launch meta grafana service
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+    - name: Wait for meta grafana online
+      wait_for: host=localhost port=3000 state=started
+
+
+- name: Provision Grafana
+  tags: grafana_provision
+  block:
+    #==============================================================#
+    # Copy grafana dashboards
+    #==============================================================#
+    - name: Remove grafana dashboard dir
+      file: path=/var/lib/grafana/dashboards state=directory owner=grafana mode=0755
+    - name: Copy grafana dashboards json
+      copy: src=grafana/dashboards/ dest=/var/lib/grafana/dashboards/ owner=grafana group=admin
+    - name: Preprocess grafana dashboards
+      command: python /var/lib/grafana/dashboards/reform.py
+
+    #==============================================================#
+    # Provision grafana datasource
+    #==============================================================#
+    - name: Provision prometheus datasource
+      grafana_datasource:
+        name: "Prometheus"
+        grafana_url: "{{ meta_grafana_server }}"
+        grafana_user: "admin"
+        grafana_password: "admin"
+        ds_type: "prometheus"
+        ds_url: "http://localhost:9090"
+        is_default: yes
+        time_interval:
+
+    #==============================================================#
+    # Provision grafana dashboards
+    #==============================================================#
+    - name: Provision grafana dashboards
+      grafana_dashboard:
+        grafana_url: "{{ meta_grafana_server }}"
+        grafana_user: "admin"
+        grafana_password: "admin"
+        state: present
+        overwrite: yes
+        path: /var/lib/grafana/dashboards/{{ item }}.json
+      with_items: "{{ meta_grafana_dashboards }}"
+
+...
