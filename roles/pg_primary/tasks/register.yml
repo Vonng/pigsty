@@ -1,0 +1,32 @@
+---
+################################################################
+# Register postgres service and datasource(optional)
+################################################################
+- name: Register postgres service to dcs
+  tags: pg_primary_register
+  block:
+    - name: Copy postgres service definition
+      template:
+        src: svc-postgres.json.j2
+        dest: /etc/consul.d/svc-postgres.json
+        owner: consul
+        group: admin
+        mode: 0660
+
+    - name: Reload consul to take effect
+      systemd: name=consul state=reloaded
+
+    - name: Create postgres datasource
+      grafana_datasource:
+        name: "{{ cluster }}-{{ seq }}"
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "admin"
+        grafana_password: "admin"
+        ds_type: "postgres"
+        ds_url: "{{ inventory_hostname }}:5432"
+        database: "{{ default_database }}"
+        user: "{{ default_username }}"
+        password: "{{ default_password }}"
+        sslmode: "disable"
+
+...

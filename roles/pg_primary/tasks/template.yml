@@ -1,0 +1,23 @@
+---
+- name: Templating default database
+  tags: pg_primary_template
+  become_user: postgres
+  block:
+    #==============================================================#
+    # copy and render template sql
+    #==============================================================#
+    - name: Touch default postgres csvlog file
+      file: path=/pg/data/log/postgresql-{{ item }}.csv state=touch
+      with_items: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+
+
+    - name: Render template scripts to remote
+      template: src={{ item }} dest=/tmp/{{ item }}
+      with_items: "{{ template_scripts }}"
+
+    - name: Execute templating scripts on remote
+      postgresql_query:
+        db: template1
+        path_to_script: /tmp/{{ item }}
+      with_items: "{{ template_scripts }}"
+...

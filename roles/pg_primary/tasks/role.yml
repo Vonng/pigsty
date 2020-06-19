@@ -1,0 +1,63 @@
+---
+- name: Create default roles
+  tags: pg_primary_role
+  become_user: postgres
+  block:
+    #==============================================================#
+    # default roles: readonly / readwrite / admin
+    #==============================================================#
+    - name: Create default read/write role
+      postgresql_user:
+        db: postgres
+        name: "{{ item }}"
+        role_attr_flags: NOLOGIN,INHERIT
+      with_items:
+        - dbrole_readonly
+        - dbrole_readwrite
+        - dbrole_monitor
+
+    - name: Create cluster default admin role
+      postgresql_user:
+        db: postgres
+        name: "dbrole_admin"
+        role_attr_flags: NOLOGIN,INHERIT,CREATEROLE,CREATEDB,BYPASSRLS
+
+    - name: Grant readonly role to rw & monitor
+      postgresql_membership: group=dbrole_readonly target_roles=dbrole_readwrite,pg_monitor
+    - name: Grant readwrite role to admin
+      postgresql_membership: group=dbrole_readwrite target_roles=dbrole_admin
+    - name: Grant admin role to sa postgres
+      postgresql_membership: group=dbrole_admin target_roles=postgres
+
+
+    #==============================================================#
+    # change default privileges on postgres & template1
+    #==============================================================#
+    # object create by postgres and dbrole_admin will have their privileges properly set
+    - name: Alter default privileges for admin
+      postgresql_query:
+        db: "{{ item }}"
+        query: |
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT USAGE ON SCHEMAS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT SELECT ON TABLES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT SELECT ON SEQUENCES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT EXECUTE ON FUNCTIONS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT INSERT, UPDATE, DELETE ON TABLES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT USAGE, UPDATE ON SEQUENCES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT CREATE ON SCHEMAS TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE dbrole_admin GRANT USAGE ON TYPES TO dbrole_admin;
+
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT USAGE ON SCHEMAS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT SELECT ON TABLES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT SELECT ON SEQUENCES TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO dbrole_readonly;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT INSERT, UPDATE, DELETE ON TABLES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT USAGE, UPDATE ON SEQUENCES TO dbrole_readwrite;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT CREATE ON SCHEMAS TO dbrole_admin;
+          ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT USAGE ON TYPES TO dbrole_admin;
+      with_items:
+        - postgres
+        - template1
+...

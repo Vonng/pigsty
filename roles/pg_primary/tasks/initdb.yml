@@ -1,0 +1,38 @@
+---
+
+################################################################
+# initdb and config primary cluster
+################################################################
+# [init] database cluster, default config will be rename as postgresql.base.conf
+# you could include that to import pre-set settings
+- name: Init primary database cluster
+  tags: pg_primary_initdb
+  block:
+    - name: Init primary database cluster
+      become_user: postgres
+      shell: |
+        /usr/pgsql/bin/initdb -D /pg/data {{ initdb_opts }}
+        mv -f /pg/data/postgresql.conf /pg/data/postgresql.base.conf
+
+    - name: Set default postgres conf path
+      set_fact:
+        default_postgres_conf: "postgresql-{{ version }}.conf"
+        default_pg_hba_conf: "pg_hba-primary.conf"
+
+    # include postgresql.base.conf is a good idea
+    - name: Copy primary default postgresql.conf
+      template:
+        src: "{{ postgresql_conf_path | default(default_postgres_conf) }}"
+        dest: /pg/data/postgresql.conf
+        owner: postgres
+        group: admin
+        mode: 0600
+
+    - name: Copy primary default pg_hba.conf
+      template:
+        src: "{{ primary_pg_hba_path | default(default_pg_hba_conf) }}"
+        dest: /pg/data/pg_hba.conf
+        owner: postgres
+        group: admin
+        mode: 0600
+...
