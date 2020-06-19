@@ -72,35 +72,34 @@ tasks:
 
 ```yaml
 #==============================================================#
-# node basics
+# infra provision
 #==============================================================#
-# node hostname override : use {{ cluseter }}-{{ seq } if defined
-node_overwrite_hostname: true
+infra_local_repos: []                 # local yum repo file path
+infra_disable_external_repo: false    # disable all other repos except local
+infra_proxy_env: {}                   # add proxy environment variable here
 
-# node timezone override
-node_timezone: 'Asia/Shanghai'     # default node timezone
+# common infra packages
+infra_packages:
+  - etcd,consul,haproxy,keepalived,node_exporter,chrony,ntp                             # must have
+  - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
+  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
+  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
 
-#==============================================================#
-# node features
-#==============================================================#
-# node feature switch
-node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
-node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
-node_disable_thp: true          # [VERY IMPORTANT] disable transparent huge page
-node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
-node_disable_selinux: true      # disable selinux
-node_cpupower_performance: true # set cpupower governor to performance mode if available
-node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+# cloud native support
+infra_cloud_native_support: false
+infra_cloud_native_packages:
+  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
 
-# node kernel modeles
-node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
+# build toolchain support
+infra_build_essential_support: false
+infra_build_essential_packages:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
 
+# add additional packages here
+infra_additional_packages: []   # additional rpm packages to be downloaded/installed
 
-#==============================================================#
-# node sysctl
-#==============================================================#
-node_sysctl_dynamic_tune: true  # set some param based on node fact
-# additional sysctl parameters (overwrite with your own)
-node_sysctl_params:
-
+# infrastructure metadata
+infra_dns_servers: []           # default DNS server
+infra_ntp_servers: []           # default NTP server
 ```
