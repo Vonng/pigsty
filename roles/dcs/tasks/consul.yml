@@ -1,0 +1,74 @@
+---
+#==============================================================#
+# Stage 1: Cleaning existing consul
+#==============================================================#
+- name: Purge existing consul
+  tags: consul_purge
+  block:
+    # if infra_dcs_purge is enabled, this checking step will be skipped
+    - name: Check consul service not running
+      when: not infra_dcs_purge
+      shell: "ps aux | grep -v grep | grep consul | grep 'config-dir=/etc/consul.d/' || exit 0 && exit 1"
+
+    # dangerous: (it will remove consul data!)
+    - name: Purge existing consul instance
+      script: purge_consul.sh
+
+
+#==============================================================#
+# Setup new consul
+#==============================================================#
+- name: Setup conul node name
+  tags: consul_setup
+  block:
+    #==============================================================#
+    # Stage 2: Decide a node name for consul
+    #==============================================================#
+    # generate consul node name from (cluster+seq) or default node hostname
+    - name: Set default consul node name
+      when: cluster is defined and seq is defined
+      set_fact: consul_nodename="{{ cluster }}-{{ seq }}"
+
+    # fill consul nodename with node hostname
+    - name: Get hostname as consul node name
+      when: consul_nodename is not defined
+      shell: echo $HOSTNAME
+      register: hostname_result
+    - name: Set consul node name to hostname
+      when: consul_nodename is not defined
+      set_fact: consul_nodename="{{ hostname_result.stdout }}"
+
+    #==============================================================#
+    # Stage 3: Config Consul
+    #==============================================================#
+    - name: Copy /etc/consul.d/consul.json
+      template: src=consul.json.j2 dest=/etc/consul.d/consul.json mode=0644 owner=consul group=consul
+
+
+    #==============================================================#
+    # Stage 4-1: Launch consul server first
+    #==============================================================#
+    - name: Copy consul server service unit
+      when: inventory_hostname in infra_dcs_servers
+      copy: src=consul-server.service dest=/usr/lib/systemd/system/consul.service
+    - name: Launch consul server service first
+      when: inventory_hostname in infra_dcs_servers
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    #==============================================================#
+    # Stage 4-2: Launch consul agent next
+    #==============================================================#
+    - name: Copy consul agent service unit
+      when: inventory_hostname not in infra_dcs_servers
+      copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
+    - name: Launch consul agent service first
+      when: inventory_hostname not in infra_dcs_servers
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    #==============================================================#
+    # Stage 4-3: Wait consul online
+    #==============================================================#
+    - name: Wait for consul service online
+      wait_for: host=localhost port=8500 state=started timeout=30
+
+...
