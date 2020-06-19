@@ -1,0 +1,15 @@
+---
+#==============================================================#
+# check primary instance precondition
+#==============================================================#
+- name: Check primary environment
+  tags: pg_primary_check
+  block:
+    - name: Check primary postgres version
+      shell: "[[ $(/usr/pgsql/bin/pg_ctl --version) == 'pg_ctl (PostgreSQL) {{ version }}'* ]]"
+
+    # if postgres exists, if will abort, unless specify force to skip this check
+    - name: Check primary instance not running
+      when: not force
+      shell: "ps aux | grep -v grep | grep -- '-D /pg/data' | grep pgsql || exit 0 && exit 1"
+...
