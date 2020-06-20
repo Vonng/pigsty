@@ -1,0 +1,25 @@
+global_defs {
+   router_id pg-meta                # use cluster name as router_id
+   enable_script_security
+   script_user root
+}
+
+vrrp_instance pg-meta {
+  state BACKUP                      # host variable keepalived_role, default=BACKUP
+  interface eth1                    # REQUIRED variable keepalived_nic
+  virtual_router_id 189             # first byte as int from md5(cluster)
+  priority 100                      # MASTER have priority 101, others is 100
+  advert_int 1                      # interval between advertisements
+  unicast_src_ip 10.10.10.10        # who am i
+  unicast_peer {                    # who's my peers
+  }
+
+  authentication {                  # use cluster name as password
+    auth_type PASS
+    auth_pass pg-meta
+  }
+
+  virtual_ipaddress {               # REQUIRED variable keepalived_vip
+    10.10.10.2
+  }
+}

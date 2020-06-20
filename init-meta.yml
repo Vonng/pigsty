@@ -1,0 +1,66 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   init-meta.yml
+# Mtime     :   2020-06-20
+# Desc      :   init meta node
+# Path      :   init-meta.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note:
+#
+# Init a local yum repo powered by a local nginx web server
+# all necessary rpm packages are downloaded to accelerate
+# cluster initialization, or in case that target machine does
+# not have internet access.
+#
+# RPM packages are downloaded to /www/pigsty. And it will skip
+# download if all packages are already downloaded in there.
+#==============================================================#
+- name: Init meta node
+  become: yes
+  hosts: meta
+  gather_facts: true
+  tags: meta
+  roles:
+    # meta node infra provision
+    - role: repo                            # init local yum repo
+      tags: repo
+
+    - role: node                            # node provision setup
+      tags: node
+
+    - role: infra                           # repo, pkg, dns, ntp, etc.
+      tags: infra
+
+    - role: dcs                             # dcs: consul/etcd
+      tags: dcs
+
+    - role: meta                            # meta provision setup
+      tags: ctrl
+
+    # optional kubernetes support
+    - role: cloud                           # docker & kubernetes (optinal)
+      tags: cloud
+      when: infra_cloud_native_support
+
+    # meta db setup (skip replica & haproxy)
+    - role: pg_preflight                    # pre-flight & install
+      tags: preflight
+
+    - role: pg_install                      # install postgres packages
+      tgas: install
+
+    - role: pg_primary                      # init primary instance
+      tags: primary
+      when: role == 'primary'
+
+    - role: pg_pgbouncer                    # init connection pooler
+      tags: pgbouncer
+
+    - role: pg_monitor                      # init monitor system
+      tags: monitor
+
+    - role: keepalived
+      tags: vip
+
+...

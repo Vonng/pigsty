@@ -1,12 +1,12 @@
 global_defs {
-  router_id {{ cluster }}
+   router_id {{ cluster }}
    enable_script_security
    script_user root
 }
 
 vrrp_instance {{ cluster }} {
   state {{ lb_role | upper }}
-  interface {{ lb_interface }}
+  interface {{ keepalived_nic }}
   virtual_router_id {{ (cluster | hash('md5'))[0:2] | int(base=16) }}
   priority {% if lb_role == 'master' %}128{% else %}100{% endif %}
 
@@ -25,6 +25,6 @@ vrrp_instance {{ cluster }} {
   }
 
   virtual_ipaddress {
-    {{ cluster_vip }}
+    {{ keepalived_vip }}
   }
 }

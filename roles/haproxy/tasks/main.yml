@@ -3,7 +3,7 @@
   when: lb_enabled
   tags: pg_haproxy
   block:
-    - name: Render /etc/haproxy/haproxy.cfg
+    - name: Templating /etc/haproxyhaproxy.cfg
       template:
         src: haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
@@ -19,7 +19,7 @@
         dest: /etc/security/limits.d/haproxy.conf
         mode: 0640
 
-    - name: Launch haproxy on all instances
+    - name: Launch haproxy services unit
       systemd:
         name: haproxy
         state: restarted
@@ -28,21 +28,4 @@
 
     - name: Wait for haproxy service online
       wait_for: host=localhost port=9101 state=started timeout=10
-
-
-
-- name: Setup Keepalived
-  when: lb_enabled
-  tags: pg_vip
-  block:
-    - name: Copy keepalived.conf for cluster
-      template:
-        src: keepalived.conf.j2
-        dest: /etc/keepalived/conf.d/{{ cluster }}.conf
-        mode: 0644
-
-    - name: Reload keepalived to eanble vip
-      systemd: name=keepalived state=restarted enabled=yes
-
-
 ...
