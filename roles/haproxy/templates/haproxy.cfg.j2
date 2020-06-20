@@ -1,0 +1,96 @@
+#---------------------------------------------------------------------
+# Global settings
+# Document1: https://www.haproxy.org/download/2.0/doc/configuration.txt
+# Document2: https://cbonte.github.io/haproxy-dconv/2.0/configuration.html#timeout%20connect
+#---------------------------------------------------------------------
+global
+    daemon
+    user        haproxy
+    group       haproxy
+    node        {{ cluster }}-haproxy-{{ seq }}
+    pidfile     /var/run/haproxy.pid
+    # chroot      /var/lib/haproxy          # if chrooted, change stats socket above
+    stats socket /var/run/haproxy.socket user haproxy group haproxy mode 600 level admin
+
+    # spread-checks 3                       # add randomness in check interval
+    # quiet                                 # Do not display any message during startup
+    maxconn     65535                       # maximum per-process number of concurrent connections
+
+
+#---------------------------------------------------------------------
+# default settings
+#---------------------------------------------------------------------
+defaults
+    # log                global
+
+    mode               tcp
+    retries            3            # max retry connect to upstream
+    timeout queue      3s           # maximum time to wait in the queue for a connection slot to be free
+    timeout connect    3s           # maximum time to wait for a connection attempt to a server to succeed
+    timeout client     180m         # client connection timeout: 3h
+    timeout server     180m         # server connection timeout: 3h
+    timeout check      3s           # health check timeout
+
+
+#---------------------------------------------------------------------
+# default admin users
+#---------------------------------------------------------------------
+userlist STATS_USERS
+        group admin users admin
+        user admin insecure-password admin
+        user stats insecure-password admin
+
+#---------------------------------------------------------------------
+# stats and exporter
+#---------------------------------------------------------------------
+listen stats                                # both frontend and a backend for statistics
+    # option httplog                        # log http activity
+    stats realm {{ cluster }}-haproxy-{{ seq }}-{{ inventory_hostname }}
+
+    bind *:9101                             # default haproxy exporter port
+    mode  http                              # server in http mode
+    stats enable                            # enable stats page on http://localhost:9101/haproxy
+    stats uri /                             # stats endpoint
+    stats refresh 1m                        # refresh stats page every minute
+    stats admin if TRUE                     # admin UI to enable/disable backends
+
+    # stats auth admin:admin                # authentication to stats page
+    # acl AuthOkay_ReadOnly http_auth(STATS_USERS)
+    # acl AuthOkay_Admin http_auth_group(STATS_USERS) admin
+    # stats http-request auth realm admin_page unless AuthOkay_ReadOnly
+
+    # embed prometheus exporter on http://localhost:9101/metrics
+    http-request use-service prometheus-exporter if { path /metrics }
+
+
+#---------------------------------------------------------------------
+# cluster routes: primary
+# inter fastinter downinter (check interval when up/transition/down)
+#---------------------------------------------------------------------
+listen {{ cluster }}-primary
+    bind *:{{ lb_primary_port }}
+    mode tcp
+    maxconn 500
+    option httpchk OPTIONS /primary
+    http-check expect status 200
+    balance {{ lb_policy }}
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 60s maxconn 600 maxqueue 128 weight 100
+{% for host in play_hosts %}
+    server {{ hostvars[host].instance_name }} {{ hostvars[host].inventory_hostname }}:6432 check port 8008
+{% endfor %}
+
+
+#---------------------------------------------------------------------
+# cluster routes: replica
+#---------------------------------------------------------------------
+listen {{ cluster }}-replica
+    bind *:{{ lb_replica_port }}                       # replica port 5555
+    mode tcp                                # run on tcp mode
+    maxconn 500                             # max concurrent connection to replica server
+    option httpchk OPTIONS /replica         # check instance alive and is replica
+    http-check expect status 200            # http://<ip>:8008/replica -> 200
+    balance {{ lb_policy }}
+    default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 60s maxconn 600 maxqueue 128 weight 100
+{% for host in play_hosts %}
+    server {{ hostvars[host].instance_name }} {{ hostvars[host].inventory_hostname }}:6432 check port 8008
+{% endfor %}

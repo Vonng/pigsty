@@ -17,8 +17,8 @@ cache:
 
 # init will pull up entire cluster
 init:
-	./init-meta.yml
-	./init-test.yml
+	./init-meta.yml -i meta
+	./init-cluster.yml -i pg-test
 
 # down will halt all vm (not destroy)
 down: halt
@@ -61,11 +61,11 @@ stop: halt
 # pgbench (init/read-write/read-only)
 ###############################################################
 ri:
-	pgbench -is10 postgres://test:test@pg-test:5555/test
+	pgbench -is10 postgres://test:test@pg-test:5433/test
 rw:
-	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5555/test; done
+	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5433/test; done
 ro:
-	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5556/test; done
+	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5434/test; done
 ckpt:
 	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
 

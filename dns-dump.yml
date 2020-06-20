@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   dashboard-load.yml
+# Mtime     :   2020-06-19
+# Desc      :   load dashboards to meta grafana
+# Path      :   dashboard-load.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+- name: Load grafana dashboard from meta node
+  connection: local
+  become: no
+  hosts: meta
+  tags: dashboard_load
+  tasks:
+    - name: Pre process dashboards
+      shell: files/grafana/dashboards/reform.py
+
+    - name: Import Grafana dashboards from json
+      grafana_dashboard:
+        grafana_url: "{{ meta_grafana_server }}"
+        grafana_user: "admin"
+        grafana_password: "admin"
+        state: present
+        overwrite: yes
+        path: files/grafana/dashboards/{{ item }}.json
+      with_items: "{{ meta_grafana_dashboards }}"
+...
