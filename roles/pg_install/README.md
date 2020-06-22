@@ -11,20 +11,20 @@ This role will install postgres with given version
 
 ```yaml
 tasks:
-  pg_install : Create postgres directory structure	TAGS: [meta, pg_directory]
-  pg_install : Create links from pgbkup to pgroot	TAGS: [meta, pg_directory]
-  pg_install : Install offical pgdg yum repo		TAGS: [meta, pg_install]
-  pg_install : Listing packages to be installed		TAGS: [meta, pg_install]
-  pg_install : Add postgis packages to checklist	TAGS: [meta, pg_install]
-  pg_install : Add extension packages to checklist	TAGS: [meta, pg_install]
-  pg_install : Print packages to be installed		TAGS: [meta, pg_install]
-  pg_install : Install postgres major version		TAGS: [meta, pg_install]
-  pg_install : Install postgres according to list	TAGS: [meta, pg_install]
-  pg_install : Link /usr/pgsql to current version	TAGS: [meta, pg_install]
-  pg_install : Add /usr/ppgsql to profile path		TAGS: [meta, pg_install]
-  pg_install : Check installed pgsql version		TAGS: [meta, pg_install]
-  pg_install : Copy postgres systemd service file	TAGS: [meta, pg_install]
-  pg_install : Daemon reload postgres service		TAGS: [meta, pg_install]
+  pg_install : Create postgres directory structure	TAGS: [pg_directory]
+  pg_install : Create links from pgbkup to pgroot	TAGS: [pg_directory]
+  pg_install : Install offical pgdg yum repo		TAGS: [pg_install]
+  pg_install : Listing packages to be installed		TAGS: [pg_install]
+  pg_install : Add postgis packages to checklist	TAGS: [pg_install]
+  pg_install : Add extension packages to checklist	TAGS: [pg_install]
+  pg_install : Print packages to be installed		TAGS: [pg_install]
+  pg_install : Install postgres major version		TAGS: [pg_install]
+  pg_install : Install postgres according to list	TAGS: [pg_install]
+  pg_install : Link /usr/pgsql to current version	TAGS: [pg_install]
+  pg_install : Add /usr/ppgsql to profile path		TAGS: [pg_install]
+  pg_install : Check installed pgsql version		TAGS: [pg_install]
+  pg_install : Copy postgres systemd service file	TAGS: [pg_install]
+  pg_install : Daemon reload postgres service		TAGS: [pg_install]
 ```
 
 ### Default variables

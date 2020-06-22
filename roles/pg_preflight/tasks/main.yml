@@ -4,50 +4,65 @@
 ################################################################
 - name: Postgres initialization preflight
   tags: pg_preflight
+  connection: local
+  become: no
   block:
-    - name: Check cluster role seq exists
+
+    # make sure three important variable exists (pg_cluster, pg_role, pg_seq)
+    #  * pg_cluster is the unique cluster identifer such as 'pg-test', 'pg-meta'
+    #  * pg_role is part of the service identifer, such as 'primary', 'replica', 'archive'
+    #  * pg_seq is unique integer identifer (start from 0 or 1) among the cluster
+    # note these three fields are essential to identify a postgres instance
+    # it CAN be generate automatically according some set of rules somewhere else
+    # but here we REQUIRE an explictly appointment
+    - name: Check necessary variables exists
       assert:
         that:
-          - cluster is defined
-          - seq is defined
-          - role is defined
-        fail_msg: "host variable <cluster> and <seq> are required for init cluster"
+          - pg_cluster is defined
+          - pg_role is defined
+          - pg_seq is defined
+        fail_msg: variable `pg_cluster|pg_role|pg_seq` are required for this playbook
 
-    - name: Set instance name and host facts
+    # fetchc cluster inventroy variable from hostvars of curresponding cluster
+    - name: Fetch variables via pg_cluster
       set_fact:
-        instance_name={{ cluster }}-{{ seq }}
-        play_host_vars={{ play_hosts | map('extract', hostvars) | list }}
+        pg_meta={{ hostvars| json_query(cluster_query) }}
+        pg_instance={{ pg_cluster }}-{{ pg_seq }}
+        pg_service={{ pg_cluster }}-{{ pg_role }}
+      vars:
+        cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
 
-    - name: Set addional facts from inventory
-      set_fact: version={{ version | trim | default(12)  }}
-        cluster_count={{ play_host_vars | json_query('[].cluster')  | unique | length  }}
-        seq_list={{ play_host_vars | json_query('[].seq')  | list  }}
-        cluster_size={{ play_host_vars | json_query('[].seq')  | unique | length }}
-        seq_count={{ play_host_vars | json_query('length([].seq)') | int }}
-        seq_min={{ play_host_vars | json_query('min([].seq)') | int }}
-        seq_max={{ play_host_vars | json_query('max([].seq)') | int }}
-        seq_next={{ play_host_vars | json_query('max([].seq)') | int + 1}}
-        primary_count={{ play_host_vars | json_query("length([?role=='primary'].inventory_hostname)") | int }}
-        replica_ips={{ play_host_vars | json_query("[?role!='primary'].inventory_hostname") }}
-        primary_ip={{ play_host_vars | json_query("[?role=='primary'].inventory_hostname | [0]")}}
-        play_host_vars=""
+    # calculate basic cluster facts from pg_meta
+    - name: Set cluster basic facts for hosts
+      set_fact: pg_is_primary={{ pg_role == 'primary' }}
+        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
+        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
+        pg_cluster_primary={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
+        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
+        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1}}
 
-    - name: Check all hosts in same cluster
+    # there will be one and only one primary in each cluster
+    - name: Assert cluster primary singleton
       assert:
-        that: cluster_count|int == 1
-        fail_msg: "init cluster only works on one and only one cluster"
+        that:
+          - pg_cluster_primary|length == 1
+        fail_msg: "cluster {{ pg_cluster }} primary is not singleton, primary list: {{ pg_cluster_primary }}"
 
-    - name: Check cluster primary singleton
-      assert:
-        that: primary_count|int == 1
-        fail_msg: "init cluster require one and only one primary in cluster"
+    # set cluster primary for every host, if pg_upstream is not specified, use primary as replication source
+    - name: Setup cluster primary ip address
+      set_fact: pg_cluster_primary={{ pg_cluster_primary[0] }}
 
-    - name: Set replica replication source
-      set_fact:
-        replication_source={{ upstream_ip|default(primary_ip) }}
+    # set replication upstream
+    - name: Setup repl upstream for primary
+      when: pg_role == 'primary' and pg_upstream is defined and pg_upstream != ''
+      set_fact: pg_upstream={{ pg_upstream }}
+        pg_standby_cluster=true                 # THIS MARKS THAT IT IS A STANDBY CLUSTER!
+    - name: Setup repl upstream for replicas
+      when: pg_role != 'primary'
+      set_fact: pg_upstream={{ pg_upstream | default(pg_cluster_primary) }}
 
-    - name: Build group based on role fact
-      group_by:
-        key: "{{ role }}"
-
+    # debug print
+    - name: Debug print instance summary
+      debug:
+        msg: "cluster={{ pg_cluster }} service={{ pg_service }} instance={{ pg_instance }} replication={{ pg_upstream | default('[primary:itself]') }}->{{ inventory_hostname }}"
 ...

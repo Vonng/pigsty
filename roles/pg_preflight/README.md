@@ -1,3 +1,30 @@
+# PG Pre-Flight (ansible role)
+
+This role will perform a pre-flight check before initializing clusters
+It basically check inventory locally and set & modify some variables
+
+
+### Tasks
+
+[tasks/main.yml](tasks/main.yml)
+
+```yaml
+tasks:
+  pg_preflight : Check necessary variables exists	TAGS: [pg_preflight]
+  pg_preflight : Fetch variables via pg_cluster		TAGS: [pg_preflight]
+  pg_preflight : Set cluster basic facts for hosts	TAGS: [pg_preflight]
+  pg_preflight : Assert cluster primary singleton	TAGS: [pg_preflight]
+  pg_preflight : Setup cluster primary ip address	TAGS: [pg_preflight]
+  pg_preflight : Setup repl upstream for primary	TAGS: [pg_preflight]
+  pg_preflight : Setup repl upstream for replicas	TAGS: [pg_preflight]
+  pg_preflight : Debug print instance summary		TAGS: [pg_preflight]
+```
+
+### Default variables
+
+[defaults/main.yml](defaults/main.yml)
+
+```yaml
 ---
 ################################################################
 # Default PostgreSQL Settings
@@ -126,3 +153,4 @@ pg_lb_nic: eth1                      # default network interface for vip
 # pg_lb_vip: 10.10.10.1              # [REQUIRED] field virtual vip address
 
 ...
+```
