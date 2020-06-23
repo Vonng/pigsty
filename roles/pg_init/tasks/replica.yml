@@ -1,0 +1,66 @@
+---
+#==============================================================#
+# Init replicas
+#==============================================================#
+- name: Init database replica from primary
+  when: pg_role != 'primary'
+  tags: pg_replica
+  block:
+
+    # fetchc cluster inventroy variable from hostvars of curresponding cluster
+    - name: Fetch variables via pg_cluster
+      set_fact:
+        pg_cluster_primary={{ hostvars| json_query(pg_cluster_primary_query) }}
+      vars:
+        pg_cluster_primary_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}' && pg_role=='primary'].inventory_hostname|[0]"
+
+
+    #==============================================================#
+    # Make base backup from primary
+    #==============================================================#
+    # check primary is available (pg_upstream is set during pre-flight)
+    - name: Check replica connectivity to primary
+      become_user: postgres
+      command: psql -h {{ pg_cluster_primary }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+
+    # create basebackup from primary
+    - name: Create basebackup replica from primary
+      become_user: postgres
+      async: 0
+      command: /usr/pgsql/bin/pg_basebackup \
+        -h {{ pg_cluster_primary }} \
+        -U {{ pg_replication_username }} \
+        -D {{ pg_data }} -Fp -Xs -Pv -R -c fast
+
+
+    #==============================================================#
+    # Config replica replication source to upstream
+    #==============================================================#
+    - name: Config replica replication source
+      lineinfile:
+        path: /pg/data/postgresql.auto.conf
+        regexp: "^primary_conninfo"
+        line: "primary_conninfo = 'host={{ pg_upstream }} port={{ pg_port }}  application_name=''{{ pg_instance }}'' user=''{{ pg_replication_username }}'' passfile=''/home/postgres/.pgpass'''"
+        owner: postgres
+        group: admin
+        mode: 0600
+
+
+    #==============================================================#
+    # Launch replica
+    #==============================================================#
+    - name: Copy postgres replica service file
+      template:
+        src: postgres.service.j2
+        dest: /usr/lib/systemd/system/postgres.service
+
+    - name: Launch postgres service on primary
+      systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
+
+    - name: Waits for replica postgres online
+      wait_for: host=localhost port=5432 state=started timeout=10
+
+    - name: Check replica postgres service ready
+      become_user: postgres
+      command: /usr/pgsql/bin/pg_isready
+...

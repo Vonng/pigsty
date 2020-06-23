@@ -1,10 +1,13 @@
 ---
-################################################################
-# Register postgres service and datasource(optional)
-################################################################
+#==============================================================#
+# Register postgres service
+#==============================================================#
 - name: Register postgres service to dcs
-  tags: pg_primary_register
+  tags: pg_register
   block:
+    #==============================================================#
+    # Register postgres to dcs
+    #==============================================================#
     - name: Copy postgres service definition
       template:
         src: svc-postgres.json.j2
@@ -21,11 +24,14 @@
         group: admin
         mode: 0644
 
-    - name: Restart consul to take effect
+    - name: Restart consul to load new node-meta
       systemd: name=consul state=restarted
 
 
-    # if grafana_url is provided, load it to data source
+    #==============================================================#
+    # Register postgres datasource if grafana_url is provided
+    #==============================================================#
+    # load it to data source
     - name: Create grafana datasource postgres
       when: grafana_url is defined
       ignore_errors: true
