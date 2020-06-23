@@ -17,7 +17,7 @@ cache:
 
 # init will pull up entire cluster
 init:
-	./init-meta.yml -i meta
+	./init-meta.yml
 	./init-cluster.yml -i pg-test
 
 # down will halt all vm (not destroy)

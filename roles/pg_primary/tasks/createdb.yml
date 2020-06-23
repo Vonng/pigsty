@@ -4,7 +4,6 @@
 ################################################################
 - name: Create default database and user
   tags: pg_primary_createdb
-  when: default_creation
   become_user: postgres
   block:
     #==============================================================#
@@ -13,20 +12,21 @@
     - name: Create default business dbuser
       postgresql_user:
         db: postgres
-        name: "{{ default_username }}"
-        password: "{{ default_password }}"
+        name: "{{ pg_default_username }}"
+        password: "{{ pg_default_password }}"
         role_attr_flags: LOGIN,INHERIT
 
     - name: Grant admin role to default user
-      postgresql_membership: group=dbrole_admin target_roles={{ default_username }}
+      postgresql_membership: group=dbrole_admin target_roles={{ pg_default_username }}
 
     #==============================================================#
     # default database
     #==============================================================#
     - name: Create default business database
+      when: pg_default_database != 'postgres'
       postgresql_db:
-        db: "{{ default_database }}"
-        owner: "{{ default_username }}"
+        db: "{{ pg_default_database }}"
+        owner: "{{ pg_default_username }}"
         encoding: UTF-8
         lc_collate: C
         lc_ctype: C
@@ -38,12 +38,24 @@
     - name: Create pgpass with business userinfo
       lineinfile:
         path: /home/postgres/.pgpass
-        line: "*:*:*:{{ default_username }}:{{ default_password }}"
+        line: "*:*:*:{{ pg_default_username }}:{{ pg_default_password }}"
         create: yes
 
     - name: Check business database connectivity
       become_user: postgres
-      shell: psql -U {{ default_username }} -d {{ default_database }} -Atc 'SELECT 1;'
-      when: default_creation
+      shell: psql -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
+
+
+    #==============================================================#
+    # default database initialize
+    #==============================================================#
+    - name: Render template scripts to remote
+      copy: src={{ item }} dest=/pg/tmp/{{ item }}
+      with_items: "{{ pg_template_scripts }}"
+
+    - name: Provision default database scripts
+      command: psql {{ pg_default_database }} -f /pg/tmp/{{ item }}
+      with_items: "{{ pg_default_scripts }}"
+
 
 ...

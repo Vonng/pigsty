@@ -1,0 +1,62 @@
+---
+#==============================================================#
+# Create Directory                                             #
+#==============================================================#
+# this assumes that
+#   /pg is shortcut for postgres home
+#   {{ pg_fs_main }} contains the main data             (MUST ALREADY MOUNTED)
+#   {{ pg_fs_bkup }} contains archive and backup data   (MUST ALREADY MOUNTED)
+#   cluster-version is the default parent folder for pgdata (e.g pg-test-12)
+#==============================================================#
+# default variable:
+#     pg_fs_main = /export           fast ssd
+#     pg_fs_bkup = /var/backups      cheap hdd
+#
+#     /pg      -> /export/postgres/pg-test-12
+#     /pg/data -> /export/postgres/pg-test-12/data
+#==============================================================#
+
+- name: Create postgresql directories
+  tags: pg_directory
+  become: yes
+  become_user: root
+  block:
+    - name: Make sure main and backup dir exists
+      file: path={{ item }} state=directory owner=root mode=0777
+      with_items:
+        - "{{ pg_fs_main }}"
+        - "{{ pg_fs_bkup }}"
+
+    # pg_cluster_dir:    "{{ pg_fs_main }}/postgres/{{ pg_cluster }}-{{ pg_version }}"
+    - name: Create postgres directory structure
+      file: path={{ item }} state=directory owner=postgres group=admin mode=0700
+      with_items:
+        - "{{ pg_fs_main }}/postgres"
+        - "{{ pg_cluster_dir }}"
+        - "{{ pg_cluster_dir }}/bin"
+        - "{{ pg_cluster_dir }}/log"
+        - "{{ pg_cluster_dir }}/tmp"
+        - "{{ pg_cluster_dir }}/conf"
+        - "{{ pg_cluster_dir }}/data"
+        - "{{ pg_backup_dir }}/postgres"
+        - "{{ pg_backup_dir }}/arcwal"
+        - "{{ pg_backup_dir }}/backup"
+        - "{{ pg_backup_dir }}/remote"
+
+    - name: Create links from pgbkup to pgroot
+      file:
+        src: "{{ pg_backup_dir }}/{{ item }}"
+        dest: "{{ pg_cluster_dir }}/{{ item }}"
+        state: link
+      with_items:
+        - arcwal
+        - backup
+        - remote
+
+    - name: Create links from current cluster
+      file:
+        src: "{{ pg_cluster_dir }}"
+        dest: /pg
+        state: link
+
+...

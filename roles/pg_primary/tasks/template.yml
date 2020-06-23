@@ -7,12 +7,10 @@
     # copy and render template sql
     #==============================================================#
     - name: Render template scripts to remote
-      template: src={{ item }} dest=/tmp/{{ item }}
-      with_items: "{{ template_scripts }}"
+      copy: src={{ item }} dest=/tmp/{{ item }}
+      with_items: "{{ pg_template_scripts }}"
 
     - name: Execute templating scripts on remote
-      postgresql_query:
-        db: template1
-        path_to_script: /tmp/{{ item }}
-      with_items: "{{ template_scripts }}"
+      command: psql template1 -f /tmp/{{ item }}
+      with_items: "{{ pg_template_scripts }}"
 ...

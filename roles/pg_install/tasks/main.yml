@@ -1,25 +1,70 @@
 ---
-#==============================================================#
-# Stage 1: Create dbsu                                         #
-#==============================================================#
-# - import_tasks: dbsu.yml    # already initialized during infra provision
+- name: Install postgres
+  become: yes
+  tags: pg_install
+  block:
+    #==============================================================#
+    # Stage 1: Install Postgres Official Repo                      #
+    #==============================================================#
+    - name: Install offical pgdg yum repo
+      when: pg_pgdg_repo
+      yum: name="https://yum.postgresql.org/{{ pg_version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
 
-#==============================================================#
-# Stage 2: Hostname override
-#==============================================================#
-- name: Setup hostname to pg instance name
-  tags: node_hostname
-  hostname: name={{ instance_name }}
+    #==============================================================#
+    # Stage 2: Calculate packages to be installed                  #
+    #==============================================================#
+    - name: Add postgis packages to checklist
+      when: pg_postgis_install and pg_version|int <= 12
+      set_fact: pg_packages="{{ pg_packages + pg_postgis_packages }}"
+
+    - name: Add extension packages to checklist
+      when: pg_extension_install and pg_version|int <= 12
+      set_fact: pg_packages="{{ pg_packages + pg_extension_packages }}"
+
+    - name: Print packages to be installed
+      debug:
+        msg: Install postgres {{ pg_version }} with additional pacakges, {{ pg_packages }}
 
 
-#==============================================================#
-# Stage 2: Create Directory                                    #
-#==============================================================#
-- import_tasks: directory.yml
+    #==============================================================#
+    # Stage 3: Make sure user exists                               #
+    #==============================================================#
+    - name: Create os admin user group admin
+      group: name=admin
+    - name: Create os user postgres:admin
+      user: name=postgres group=admin home=/home/postgres generate_ssh_key=yes
 
-#==============================================================#
-# Stage 3: Install Postgres                                    #
-#==============================================================#
-- import_tasks: install.yml
+    #==============================================================#
+    # Stage 4: Install postgres packages                           #
+    #==============================================================#
+#    - name: Install postgres major version pkgs
+#      command: yum install -q -y 'postgresql{{ pg_version }}*'
 
+    - name: Install postgres additional packages
+      yum: name={{ pg_packages }}
+
+    #==============================================================#
+    # Stage 5: Enable current version                              #
+    #==============================================================#
+    # centos default directory
+    - name: Link /usr/pgsql to current version
+      file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_home }} state=link
+
+    - name: Add /usr/ppgsql to profile path
+      copy:
+        content: "export PATH={{ pg_home }}l/bin:/pg/bin:$PATH"
+        dest: /etc/profile.d/pgsql.sh
+
+    - name: Check pgsql version installed
+      command: /usr/pgsql/bin/pg_ctl --version
+      register: check_pg_version_result
+      failed_when: pg_version|string not in check_pg_version_result.stdout
+
+    #==============================================================#
+    # Stage 6: Remove default service unit                         #
+    #==============================================================#
+    - name: Remove default postgres service
+      shell:
+        rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service
+        systemctl daemon-reload
 ...
