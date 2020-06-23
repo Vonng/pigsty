@@ -25,7 +25,7 @@
         - /var/run/pgbouncer
 
     - name: Recreate dirs with owner postgres
-      file: path={{ item }} state=directory owner=postgres group=postgres mode=0700
+      file: path={{ item }} state=directory owner=postgres group=admin mode=0700
       with_items:
         - /etc/pgbouncer
         - /var/log/pgbouncer
@@ -39,20 +39,20 @@
   tags: pgbouncer_config
   block:
     - name: Copy /etc/pgbouncer/pgbouncer.ini
-      template: src=pgbouncer.ini dest=/etc/pgbouncer/pgbouncer.ini owner=postgres group=postgres mode=0600
+      template: src=pgbouncer.ini.j2 dest=/etc/pgbouncer/pgbouncer.ini owner=postgres group=postgres mode=0600
 
     - name: Copy /etc/pgbouncer/pgb_hba.conf
-      template: src=pgb_hba.conf dest=/etc/pgbouncer/pgb_hba.conf owner=postgres group=postgres mode=0600
+      template: src=pgb_hba.conf.j2 dest=/etc/pgbouncer/pgb_hba.conf owner=postgres group=postgres mode=0600
 
     # equiv: psql -Atq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE NOT (NOT usesuper AND userepl)" > /etc/pgbouncer/userlist.txt
     - name: Generate pgbouncer userlist.txt
       become_user: postgres
       shell: |
-        md5_mon_pass="md5$(echo -n '{{ monitor_password }}{{ monitor_username }}' | md5sum | awk '{print $1}')"
-        md5_biz_pass="md5$(echo -n '{{ default_password }}{{ default_username }}' | md5sum | awk '{print $1}')"
+        md5_mon_pass="md5$(echo -n '{{ pg_monitor_password }}{{ pg_monitor_username }}' | md5sum | awk '{print $1}')"
+        md5_biz_pass="md5$(echo -n '{{ pg_default_password }}{{ pg_default_username }}' | md5sum | awk '{print $1}')"
         echo '"postgres" ""' > /etc/pgbouncer/userlist.txt
-        echo \"{{ monitor_username }}\" \"${md5_mon_pass}\" >> /etc/pgbouncer/userlist.txt
-        echo \"{{ default_username }}\" \"${md5_biz_pass}\" >> /etc/pgbouncer/userlist.txt
+        echo \"{{ pg_monitor_username }}\" \"${md5_mon_pass}\" >> /etc/pgbouncer/userlist.txt
+        echo \"{{ pg_default_username }}\" \"${md5_biz_pass}\" >> /etc/pgbouncer/userlist.txt
         chmod 0600 /etc/pgbouncer/userlist.txt
         chown -R postgres:admin /var/run/pgbouncer /var/log/pgbouncer /etc/pgbouncer
 
@@ -76,15 +76,14 @@
       systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for pgbouncer service online
-      wait_for: host=localhost port=6432 state=started timeout=10
+      wait_for: host=localhost port={{ pg_pgbouncer_port }} state=started timeout=10
 
     - name: Check pgbouncer service is ready
       become_user: postgres
-      command: /usr/pgsql/bin/pg_isready -p6432
+      command: /usr/pgsql/bin/pg_isready --p{{ pg_pgbouncer_port }}
 
     - name: Check pgbouncer connectivity
       become_user: postgres
-      command: psql -p6432 -U {{ default_username }} -d {{ default_database }} -Atc 'SELECT 1;'
-
+      command: psql -p{{ pg_pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
 
 ...

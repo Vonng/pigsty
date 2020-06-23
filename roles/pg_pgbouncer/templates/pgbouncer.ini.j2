@@ -5,9 +5,9 @@
 {{ default_database }}= host=/var/run/postgresql
 
 [pgbouncer]
-pool_mode = transaction
+pool_mode = {{ pg_pgbouncer_poolmode }}
 listen_addr = *
-listen_port = 6432
+listen_port = {{ pg_pgbouncer_port }}
 auth_type=hba
 auth_file       =   /etc/pgbouncer/userlist.txt
 auth_hba_file   =   /etc/pgbouncer/pgb_hba.conf
@@ -16,14 +16,14 @@ logfile         =   /var/log/pgbouncer/pgbouncer.log
 unix_socket_dir =   /var/run/postgresql
 
 admin_users = postgres
-stats_users = postgres, dbuser_monitor
+stats_users = postgres, {{ pg_monitor_username }}
 server_reset_query =
 application_name_add_host = 1
 max_client_conn = 20000
-default_pool_size = 32
+default_pool_size = 64
 reserve_pool_size = 32
 reserve_pool_timeout = 5
-max_db_connections = 64
+max_db_connections = {{ pg_pgbouncer_max_db_conn }}
 log_connections = 0
 log_disconnections = 0
 ignore_startup_parameters = extra_float_digits
