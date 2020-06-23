@@ -1,28 +1,44 @@
 ---
 ################################################################
-# clean existing postgres
+# purge existing postgres
 ################################################################
 # DANGEROUS! remove all postgres data of target machine
+# BUT, this is your choice
 - name: Cleanup postgresql
-  tags: pg_primary_clean
+  tags: pg_clean
+  become: yes
+  become_user: root
   block:
-    - name: Stop patroni and postgres service
-      ignore_errors: true
-      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
-      with_items: [patroni, postgres]
-
-    # in case that postgres is start manually via pg_ctl
-    - name: Stop running postgres double check
-      become_user: postgres
+    - name: Stop existing postgres service
       shell: |
-        pg_exist=$(ps aux | grep -v grep | grep -- '-D /pg/data' | grep pgsql | wc -l)
-        if (( $pg_exist==1 )); then
-            /usr/pgsql/bin/pg_ctl -D /pg/data stop
+        # first, gracefully stop service
+        systemctl stop patroni
+        systemctl stop postgres
+        systemctl stop pgbouncer
+        systemctl stop pg_exporter
+        systemctl stop pgbouncer_exporter
+
+        # then, manually stop service if still exists
+        if ps aux | grep postgres | grep -v grep | grep -q -- '-D'; then
+            pg_ctl -D {{ pg_data }} stop --mode=immediate
+            ps aux | grep postgres | grep -v grep | grep -- '-D' | awk '{print $2}' | xargs -n1 -I{} kill -9 {}
+        fi
+
+        if ps aux | grep postgres | grep -v grep | grep -q -- '-D'; then
+            ps aux | grep postgres | grep -v grep | grep -- '-D' | awk '{print $2}' | xargs -n1 -I{} kill -9 {}
+            sleep 5 # if still alive, leave 5s grace peroid and force a kill -9
+        fi
+
+        if ps aux | grep postgres | grep -v grep | grep -q -- '-D'; then
+            exit 1  # report failure if still alive
         fi
         exit 0
 
-    - name: Remove existing /pg/data directory
-      file: path=/pg/data state=absent
-    - name: Recreate default /pg/data directory
-      file: path=/pg/data state=directory owner=postgres group=postgres mode=0700
+    - name: Remove existing postgres directories
+      file: path={{ item }} state=absent
+      with_items:
+        - /pg
+        - "{{ pg_fs_main }}/postgres"
+        - "{{ pg_fs_bkup }}/postgres"
+
 ...

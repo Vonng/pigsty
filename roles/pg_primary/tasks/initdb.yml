@@ -6,33 +6,62 @@
 # [init] database cluster, default config will be rename as postgresql.base.conf
 # you could include that to import pre-set settings
 - name: Init primary database cluster
-  tags: pg_primary_initdb
+  any_errors_fatal: true
+  tags: pg_initdb
   block:
+    # create a new database cluster with initdb
     - name: Init primary database cluster
       become_user: postgres
-      shell: |
-        /usr/pgsql/bin/initdb -D /pg/data {{ initdb_opts }}
-        mv -f /pg/data/postgresql.conf /pg/data/postgresql.base.conf
+      command: "{{ pg_bin_dir }}/initdb -D {{ pg_data }} {{ pg_initdb_opts }}"
 
-    - name: Set default postgres conf path
-      set_fact:
-        default_postgres_conf: "postgresql-{{ version }}.conf"
-        default_pg_hba_conf: "pg_hba-primary.conf"
+    - name: Rename default postgresql.conf
+      become: yes
+      copy:
+        remote_src: yes
+        src: "{{ pg_data }}/postgresql.conf"
+        dest: "{{ pg_data }}/postgresql.base.conf"
 
-    # include postgresql.base.conf is a good idea
+
+- name: Config primary database cluster
+  any_errors_fatal: true
+  tags: pg_config
+  block:
+    # include postgresql.base.conf is a good idea if using your own conf
     - name: Copy primary default postgresql.conf
       template:
-        src: "{{ postgresql_conf_path | default(default_postgres_conf) }}"
-        dest: /pg/data/postgresql.conf
+        src: "{{ pg_conf_path | default(pg_default_conf) }}"
+        dest: "{{ pg_data }}/postgresql.conf"
         owner: postgres
         group: admin
         mode: 0600
 
+    # default hba are classified according to service role
     - name: Copy primary default pg_hba.conf
       template:
-        src: "{{ primary_pg_hba_path | default(default_pg_hba_conf) }}"
-        dest: /pg/data/pg_hba.conf
+        src: "{{ pg_hba_path | default(pg_default_hba) }}"
+        dest: "{{ pg_data }}/pg_hba.conf"
         owner: postgres
         group: admin
         mode: 0600
+
+    - name: Remove certain lines of config
+      lineinfile:
+        path: "{{ pg_data }}/postgresql.conf"
+        state: absent
+        regexp: '^{{ item }}.*$'
+      with_items:
+        - port
+        - listen_addresses
+        - cluster_name
+
+    - name: Force some param to default config
+      lineinfile:
+        path: "{{ pg_data }}/postgresql.conf"
+        line: "{{ item }}"
+      with_items:
+        - "port = {{ pg_port }}"
+        - "listen_addresses = '*'"
+        - "cluster_name = '{{ pg_cluster }}'"
+        - "include_if_exists 'postgresql.base.conf'"
+
 ...

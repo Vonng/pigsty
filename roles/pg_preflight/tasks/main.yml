@@ -53,15 +53,17 @@
       set_fact: pg_cluster_primary={{ pg_cluster_primary[0] }}
 
     # set replication upstream
+    # if a pg_upstream is set for 'primary' instance, it will be used during initdb phase
     - name: Setup repl upstream for primary
       when: pg_role == 'primary' and pg_upstream is defined and pg_upstream != ''
       set_fact: pg_upstream={{ pg_upstream }}
-        pg_standby_cluster=true                 # THIS MARKS THAT IT IS A STANDBY CLUSTER!
+
+    # pg_upstream is used to change replication source that id different from primary
     - name: Setup repl upstream for replicas
       when: pg_role != 'primary'
       set_fact: pg_upstream={{ pg_upstream | default(pg_cluster_primary) }}
 
-    # debug print
+    # print instance pre-flight check summary
     - name: Debug print instance summary
       debug:
         msg: "cluster={{ pg_cluster }} service={{ pg_service }} instance={{ pg_instance }} replication={{ pg_upstream | default('[primary:itself]') }}->{{ inventory_hostname }}"

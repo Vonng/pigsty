@@ -13,21 +13,31 @@
         group: admin
         mode: 0660
 
-    - name: Reload consul to take effect
-      systemd: name=consul state=reloaded
+    - name: Copy consul node-meta definition
+      template:
+        src: node-meta.json.j2
+        dest: /etc/consul.d/node-meta.json.j2
+        owner: consul
+        group: admin
+        mode: 0644
+
+    - name: Restart consul to take effect
+      systemd: name=consul state=restarted
 
 
-    - name: Create postgres datasource
+    # if grafana_url is provided, load it to data source
+    - name: Create grafana datasource postgres
+      when: grafana_url is defined
       ignore_errors: true
       grafana_datasource:
-        name: "{{ cluster }}-{{ seq }}"
+        name: "{{ pg_instance }}"
         grafana_url: "{{ grafana_url }}"
         grafana_user: "admin"
         grafana_password: "admin"
         ds_type: "postgres"
         ds_url: "{{ inventory_hostname }}:5432"
-        database: "{{ default_database }}"
-        user: "{{ default_username }}"
-        password: "{{ default_password }}"
+        database: "{{ pg_default_database }}"
+        user: "{{ pg_monitor_username }}"
+        password: "{{ pg_monitor_password }}"
         sslmode: "disable"
 ...

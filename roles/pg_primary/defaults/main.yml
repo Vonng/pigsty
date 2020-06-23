@@ -1,32 +1,97 @@
 ---
-# must set parameter (no default value)
-cluster: test
-version: 12
+#==============================================================#
+# Postgres Install Options
+#==============================================================#
+pg_version: 12                  # default postgresql version
+pg_dbsu:  postgres              # postgresql dbsu (currently setup during node provision)
+pg_home:  /usr/pgsql            # postgresql binary installed path
 
-# force remove existing cluster
-force: false
 
-# init option
-initdb_opts: '--encoding=UTF8 --locale=C --data-checksum'
+#==============================================================#
+# Postgres Initdb Options
+#==============================================================#
+# important host variables
+# pg_cluster:                   # [REQUIRED] cluster name (already validate during pg_preflight)
+# pg_seq: 0                     # [REQUIRED] instance seq (already validate during pg_preflight)
+pg_role: replica                # [REQUIRED] service role (already validate during pg_preflight)
 
-# config path: if provided
-# postgresql_conf_path: "postgresql-{{ version }}.conf"
-# primary_pg_hba_path: "pg_hba-primary.conf"
+pg_exists: false
+pg_exists_action: skip          # if cluster already eixsts, what to do:
+                                #     - abort: abort entire play's execution (default)
+                                #     - clean: remove existing cluster
+                                #     - skip: only
 
-# system user
-replication_username: 'replicator'
-replication_password: 'replicator'
+pg_data: /pg/data               # postgres data directory
+pg_port: 5432                   # postgres port
 
-# monitor user
-monitor_username: 'dbuser_monitor'
-monitor_password: 'monitor'
+# directory structure
+pg_fs_main: /export             # main disk monutpoint (or /data is another common mountpoint)
+pg_fs_bkup: /var/backups        # backup mountpoint
 
-# template sql
-template_scripts: [monitor.sql]
+pg_overwrite_hostname: true     # overwrite node hostname with pg instance name
+pg_standby_cluster: false       # if set to true, init this cluster as a standby cluster
+pg_initdb_method: initdb        # option: initdb  | backup | upstream
+                                #   - initdb:  create a new database cluster with initdb
+                                #   - backup:  extract a baebackup from file
+                                #   - pg_baesbackup: make online backup from upstream
+                                #   - standby_cluster: mark this cluster as standby cluster
 
-# business user (optional)
-default_creation:   true
-default_database: 'testdb'
-default_username: 'dbuser_test'
-default_password: 'test'
+
+# used when method=initdb : locale=C.UTF8 and enable datachecksum
+pg_initdb_opts: '--encoding=UTF8 --locale=C --data-checksum'
+pg_initdb_backup_path:          # used when method=backup : standard backup file path:
+pg_initdb_upstream_url:         # used when method=pg_basebackup|standby_cluster
+
+pg_listen_address: '*'          # postgres listen address, '*' by default
+# pg_conf_path:                 # user-providede postgresql.conf
+# pg_hba_path:                  # user-providede pg_hba.conf
+
+
+# system user: replication and monitor (important!)
+pg_replication_username: 'replicator'   # replication user
+pg_replication_password: 'replicator'
+pg_monitor_username: 'dbuser_monitor'   # monitor user
+pg_monitor_password: 'dbuser_monitor'
+
+# pg scripts that modify template1 database
+pg_template_scripts:
+  - monitor-schema.sql
+
+# default database and users
+pg_default_database: 'postgres'
+pg_default_username: 'postgres'
+pg_default_password: 'postgres'
+pg_default_scripts: []                 # sql scripts to init default database
+
+
+## must set parameter (no default value)
+#cluster: test
+#version: 12
+#
+## force remove existing cluster
+#force: false
+#
+## init option
+#initdb_opts: '--encoding=UTF8 --locale=C --data-checksum'
+#
+## config path: if provided
+## postgresql_conf_path: "postgresql-{{ version }}.conf"
+## primary_pg_hba_path: "pg_hba-primary.conf"
+#
+## system user
+#replication_username: 'replicator'
+#replication_password: 'replicator'
+#
+## monitor user
+#monitor_username: 'dbuser_monitor'
+#monitor_password: 'monitor'
+#
+## template sql
+#template_scripts: [monitor.sql]
+#
+## business user (optional)
+#default_creation:   true
+#default_database: 'testdb'
+#default_username: 'dbuser_test'
+#default_password: 'test'
 ...

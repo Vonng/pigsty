@@ -1,6 +1,6 @@
 [Unit]
-Description=PostgreSQL {{ version }} database server
-Documentation=https://www.postgresql.org/docs/{{ version }}/static/
+Description=PostgreSQL {{ pg_version }} database server
+Documentation=https://www.postgresql.org/docs/{{ pg_version }}/static/
 After=syslog.target
 After=network.target
 
@@ -11,13 +11,13 @@ LimitCORE=infinity
 Type=notify
 User=postgres
 Group=postgres
-Environment=PGDATA=/pg/data
+Environment=PGDATA={{ pg_data | default('/pg/data') }}
 OOMScoreAdjust=-1000
 Environment=PG_OOM_ADJUST_FILE=/proc/self/oom_score_adj
 Environment=PG_OOM_ADJUST_VALUE=0
 
-ExecStartPre=/usr/pgsql-{{ version }}/bin/postgresql-{{ version }}-check-db-dir ${PGDATA}
-ExecStart=/usr/pgsql-{{ version }}/bin/postmaster -D ${PGDATA}
+ExecStartPre=/usr/pgsql-{{ pg_version }}/bin/postgresql-{{ pg_version }}-check-db-dir ${PGDATA}
+ExecStart=/usr/pgsql-{{ pg_version }}/bin/postmaster -D ${PGDATA}
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=mixed
 KillSignal=SIGINT
