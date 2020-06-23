@@ -1,0 +1,31 @@
+---
+#==============================================================#
+# Launch pgbouncer
+#==============================================================#
+- name: Launch pgbouncer
+  tags: pgbouncer_launch
+  block:
+    # pgbouncer systemd services
+    - name: Copy pgbouncer systemd service
+      copy:
+        src: pgbouncer.service
+        dest: /etc/systemd/system/pgbouncer.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Launch pgbouncer pool service
+      systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pgbouncer service online
+      wait_for: host=localhost port={{ pg_pgbouncer_port }} state=started timeout=10
+
+    - name: Check pgbouncer service is ready
+      become_user: postgres
+      command: /usr/pgsql/bin/pg_isready -p {{ pg_pgbouncer_port }}
+
+    - name: Check pgbouncer connectivity
+      become_user: postgres
+      command: psql -p{{ pg_pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
+
+...
