@@ -1,0 +1,68 @@
+---
+#==============================================================#
+# Config newly initialized database cluster
+#==============================================================#
+- name: Config primary database cluster
+  tags: pg_config
+  when: pg_role == 'primary'
+  any_errors_fatal: true
+  block:
+    # include postgresql.base.conf is a good idea if using your own conf
+    - name: Copy primary default postgresql.conf
+      copy:
+        src: "{{ pg_conf_path | default(pg_default_conf) }}"
+        dest: "{{ pg_data }}/postgresql.conf"
+        owner: postgres
+        group: admin
+        mode: 0600
+
+    # default hba are classified according to service role
+    - name: Copy primary default pg_hba.conf
+      copy:
+        src: "{{ pg_hba_path | default(pg_default_hba) }}"
+        dest: "{{ pg_data }}/pg_hba.conf"
+        owner: postgres
+        group: admin
+        mode: 0600
+
+    #==============================================================#
+    # Change some core parameters
+    #==============================================================#
+    # calculate memory parameters
+    - name: Gather fact memory total size
+      shell: echo $(free | awk '/Mem:/{print $2}')
+      register: pg_memory_total_result              # memory total in KB
+    - name: Calcuate shared buffer from mem
+      set_fact:
+        # 1/4 mem for shared buffer and 1/8 for maintainance,  round to multiple of 128MB, unit=MB
+        pg_shared_buffers_size: "{{ ((pg_memory_total_result.stdout | int * 1024 / 4 / 134217728 ) | round(0,'ceil') * 128 )  }}"
+        pg_maintainance_mem_size: "{{ ((pg_memory_total_result.stdout | int * 1024 / 8 / 67108864 ) | round(0,'ceil') * 64 )  }}"
+
+    # force chaning some parameters
+    - name: Remove some important parameters
+      lineinfile:
+        path: "{{ pg_data }}/postgresql.conf"
+        state: absent
+        regexp: '^{{ item }}.*$'
+      with_items:
+        - cluster_name
+        - port
+        - listen_addresses
+        - hot_standby
+        - shared_buffers
+        - maintenance_work_mem
+
+    # override with new values
+    - name: Override some important parameters
+      lineinfile:
+        path: "{{ pg_data }}/postgresql.conf"
+        line: "{{ item }}"
+      with_items:
+        - "include_if_exists 'postgresql.base.conf'"
+        - "listen_addresses = '*'"
+        - "hot_standby = on"
+        - "cluster_name = '{{ pg_cluster }}'"
+        - "port = {{ pg_port }}"
+        - "shared_buffers = {{ pg_shared_buffers_size | int | round(0) }}MB"
+        - "maintenance_work_mem = {{ pg_maintainance_mem_size | int | round(0) }}MB"
+...

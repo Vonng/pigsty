@@ -1,38 +1,16 @@
 ---
-################################################################
-# bootstrap postgresql service
-################################################################
-- name: Launch PostgreSQL service
-  tags: pg_launch
-  block:
-    #==============================================================#
-    # start postgresql server @ 5432
-    #==============================================================#
-    # copy systemd service definition
-    - name: Copy postgres systemd service file
-      template:
-        src: postgres.service.j2
-        dest: /usr/lib/systemd/system/postgres.service
-
-    - name: Start primary postgres service
-      systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
-
-    - name: Waits for primary postgres online
-      wait_for: host=localhost port=5432 state=started timeout=10
-
-    - name: Check primary postgres is ready
-      become_user: postgres
-      command: /usr/pgsql/bin/pg_isready
-
-
+#==============================================================#
+# Bootstrap primary instance (create system users)
+#==============================================================#
 - name: Create replication and monitor users
-  become_user: postgres
   tags: pg_bootstrap
+  become_user: postgres
+  when: pg_role == 'primary'
   block:
     #==============================================================#
     # Create default replication user
     #==============================================================#
-    - name: Create cluster replication user
+    - name: Create postgres replication user
       become_user: postgres
       postgresql_user:
         db: postgres
@@ -55,6 +33,7 @@
         - "pg_read_binary_file(text)"
         - "pg_read_binary_file(text:bigint:bigint:boolean)"
 
+
     #==============================================================#
     # Create default monitor user
     #==============================================================#
@@ -64,23 +43,23 @@
         name: "{{ pg_monitor_username }}"
         password: "{{ pg_monitor_password }}"
         role_attr_flags: LOGIN,INHERIT
-
-    - name: Grant pg_monitor to dbuser_monitor
-      postgresql_membership: group=pg_monitor target_roles=dbuser_monitor
+        groups: pg_monitor
 
 
     #==============================================================#
-    # write replicator and monitor user password
+    # Test replication user connectivity
     #==============================================================#
+    # write replicator password to local pgpass
     - name: Create pgpass with replication user
       copy:
         content: |
           *:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}
-          *:*:*:{{ pg_monitor_username }}:{{ pg_monitor_password }}
         dest: /home/postgres/.pgpass
         mode: 0600
 
+    # check replicator is able to connect
     - name: Check replication user connectivity
-      command: psql -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+      command: psql -U {{ pg_replication_username }} -d postgres \
+        -h {{ pg_cluster_primary }} -p {{ pg_port }} -Atc 'SELECT 1;'
 
 ...

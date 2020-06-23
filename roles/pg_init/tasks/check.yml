@@ -1,6 +1,6 @@
 ---
 #==============================================================#
-# check primary instance precondition
+# check postgres instance precondition
 #  --- empty  ---> clean ---> init
 #  --- exist  ^--> [action=skip]  ---> skip current instance (but new replicas still can be initialized)
 #             ^--> [action=abort] ---> skip entire playbook (for the sake of data safety)
@@ -9,18 +9,18 @@
 #==============================================================#
 
 #==============================================================#
-# check primary instance precondition
+# check postgres instance precondition
 #==============================================================#
-- name: Check primary environment
+- name: Check postgres environment
   tags: pg_precheck
   block:
     # check postgres of given version is installed
-    - name: Check primary postgres version
-      command: "{{ pg_bin_dir }}/pg_ctl --version"
-      register: pg_version_check
-      failed_when: pg_version|string not in pg_version_check.stdout
+#    - name: Check activated postgres version
+#      command: "{{ pg_bin_dir }}/pg_ctl --version"
+#      register: pg_version_check
+#      failed_when: pg_version|string not in pg_version_check.stdout
 
-    - name: Check primary postgres existance
+    - name: Check for existing postgres instance
       command: 'ss -tp state listening sport = :{{ pg_port }}'
       any_errors_fatal: true
       register: check_pg_port_result
@@ -28,7 +28,7 @@
       set_fact:
         pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"
 
-    - name: Abort due to running instance
+    - name: Abort due to existing postgres instance
       when: pg_exists and pg_exists_action == 'abort'
       any_errors_fatal: true
       fail: msg="Abort because pg instance {{ pg_instance }} is already running"

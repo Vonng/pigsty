@@ -10,7 +10,7 @@ Ansible roles:
 * [meta](meta/)
 * [pg_preflight](pg_preflight/)
 * [pg_install](pg_install/)
-* [pg_primary](pg_primary/)
+* [pg_primary](pg_init/)
 * [pg_replica](pg_replica/)
 * [pg_patroni](pg_patroni/)
 * [pg_pgbouncer](pg_pgbouncer/)

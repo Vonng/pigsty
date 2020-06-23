@@ -3,21 +3,20 @@
 # create default database
 ################################################################
 - name: Create default database and user
-  tags: pg_primary_createdb
+  tags: pg_createdb
+  when: pg_role == 'primary'
   become_user: postgres
   block:
     #==============================================================#
     # default user
     #==============================================================#
-    - name: Create default business dbuser
+    - name: Create default business admin user
       postgresql_user:
         db: postgres
         name: "{{ pg_default_username }}"
         password: "{{ pg_default_password }}"
         role_attr_flags: LOGIN,INHERIT
-
-    - name: Grant admin role to default user
-      postgresql_membership: group=dbrole_admin target_roles={{ pg_default_username }}
+        groups: dbrole_admin
 
     #==============================================================#
     # default database

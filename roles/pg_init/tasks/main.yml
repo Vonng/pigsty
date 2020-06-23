@@ -15,13 +15,13 @@
 # Stage 3: Create directory structure
 #==============================================================#
 - import_tasks: directory.yml
-#
+
 
 #==============================================================#
-# Stage 4: Initdb on cluster primary
+# Stage 4: Initdb on cluster primary  (Primary only)
 #==============================================================#
 - import_tasks: initdb.yml
-  when: pg_role == 'primary' and pg_initdb_method == 'initdb'
+  when: pg_initdb_method == 'initdb'
 
 # TODO: implement
 #- import_tasks: initdb-from-backup.yml
@@ -35,35 +35,55 @@
 
 
 #==============================================================#
-# Stage 5: Bootstrap, launch and create core users
+# Stage 5: Config cluster primary  (Primary only)
+#==============================================================#
+- import_tasks: config.yml
+
+
+#==============================================================#
+# Stage 6: Launch primary instance
+#==============================================================#
+- import_tasks: primary.yml
+
+
+#==============================================================#
+# Stage 7: Bootstrap, launch and create core users (Primary only)
 #==============================================================#
 - import_tasks: bootstrap.yml
-  when: pg_role == 'primary'
 
 
 #==============================================================#
-# Stage 6: Default role
+# Stage 8: Default role (Primary only)
 #==============================================================#
 - import_tasks: role.yml
-  when: pg_role == 'primary'
 
 
 #==============================================================#
-# Stage 7: Template database
+# Stage 9: Template database (Primary only)
 #==============================================================#
 - import_tasks: template.yml
-  when: pg_role == 'primary'
 
 
 #==============================================================#
-# Stage 8: Create default database / users
+# Stage 10: Create default database / users  (Primary only)
 #==============================================================#
 - import_tasks: createdb.yml
-  when: pg_role == 'primary'
 
 
 #==============================================================#
-# Stage 9: Override hostname
+# Stage 11: Create Pgpass
+#==============================================================#
+- import_tasks: pgpass.yml
+
+
+#==============================================================#
+# Stage 12: Create replica (Replica only)
+#==============================================================#
+- import_tasks: replica.yml
+
+
+#==============================================================#
+# Stage 13: Override hostname
 #==============================================================#
 - name: Setup hostname to pg instance name
   tags: pg_hostname
@@ -72,9 +92,8 @@
 
 
 #==============================================================#
-# Stage 10: Data Source register
+# Stage 14: Register service and data source
 #==============================================================#
 - import_tasks: register.yml
-
 
 ...

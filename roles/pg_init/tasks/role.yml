@@ -1,12 +1,16 @@
 ---
+#==============================================================#
+# create default role hierarchy: readonly / readwrite / admin
+#==============================================================#
 - name: Create default roles
-  tags: pg_primary_role
+  when: pg_role == 'primary'
+  tags: pg_role
   become_user: postgres
   block:
     #==============================================================#
-    # default roles: readonly / readwrite / admin
+    # default roles: readonly / readwrite
     #==============================================================#
-    - name: Create default read/write role
+    - name: Create default role for read or write
       postgresql_user:
         db: postgres
         name: "{{ item }}"
@@ -15,17 +19,22 @@
         - dbrole_readonly
         - dbrole_readwrite
 
+    - name: Grant dbrole_readonly to readwrite
+      postgresql_membership: group=dbrole_readonly target_roles=dbrole_readwrite,pg_monitor
+
+    #==============================================================#
+    # default roles: admin
+    #==============================================================#
     - name: Create cluster default admin role
       postgresql_user:
         db: postgres
         name: dbrole_admin
         role_attr_flags: NOLOGIN,INHERIT,CREATEROLE,CREATEDB,BYPASSRLS
+        groups:
+          - pg_monitor
+          - dbrole_readwrite
 
-    - name: Grant readonly role to rw & monitor
-      postgresql_membership: group=dbrole_readonly target_roles=dbrole_readwrite,pg_monitor
-    - name: Grant readwrite role to admin
-      postgresql_membership: group=dbrole_readwrite target_roles=dbrole_admin
-    - name: Grant admin role to sa postgres
+    - name: Grant dbrole_admin to dbsu postgres
       postgresql_membership: group=dbrole_admin target_roles=postgres
 
 
@@ -33,7 +42,7 @@
     # change default privileges on postgres & template1
     #==============================================================#
     # object create by postgres and dbrole_admin will have their privileges properly set
-    - name: Alter default privileges for admin
+    - name: Alter default privileges for roles
       postgresql_query:
         db: "{{ item }}"
         query: |
