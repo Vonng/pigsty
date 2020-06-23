@@ -29,10 +29,10 @@
     # Change some core parameters
     #==============================================================#
     # calculate memory parameters
-    - name: Gather fact memory total size
+    - name: Gather fact total memory size in kb
       shell: echo $(free | awk '/Mem:/{print $2}')
       register: pg_memory_total_result              # memory total in KB
-    - name: Calcuate shared buffer from mem
+    - name: Calcuate shared buffer from mem size
       set_fact:
         # 1/4 mem for shared buffer and 1/8 for maintainance,  round to multiple of 128MB, unit=MB
         pg_shared_buffers_size: "{{ ((pg_memory_total_result.stdout | int * 1024 / 4 / 134217728 ) | round(0,'ceil') * 128 )  }}"
