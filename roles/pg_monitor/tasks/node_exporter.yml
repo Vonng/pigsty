@@ -1,0 +1,31 @@
+---
+#==============================================================#
+# Setup node_exporter
+#==============================================================#
+- name: Setup node_exporter
+  tags: node_exporter
+  block:
+    - name: Copy node_exporter systemd service
+      copy: src=node_exporter.service dest=/usr/lib/systemd/system/node_exporter.service
+
+    - name: Config default node_exporter options
+      template: src=node_exporter.j2 dest=/etc/default/node_exporter
+
+    - name: Launch node_exporter service unit
+      systemd: name=node_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for node_exporter online
+      wait_for: host=localhost port={{ node_exporter_port }} state=started timeout=10
+
+    - name: Register node-exporter service
+      template:
+        src: svc-node-exporter.json.j2
+        dest: /etc/consul.d/svc-node-exporter.json
+        owner: consul
+        group: admin
+        mode: 0660
+
+    - name: Reload node-exporter consul service
+      systemd: name=consul state=reloaded
+
+...
