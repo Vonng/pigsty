@@ -1,0 +1,36 @@
+---
+#==============================================================#
+# Setup pg_exporter
+#==============================================================#
+- name: Setup pg_exporter
+  tags: pg_exporter
+  block:
+    - name: Create /etc/pg_exporter conf dir
+      file: path=/etc/pg_exporter state=directory owner=prometheus group=postgres mode=0775
+
+    - name: Copy default pg_exporter.yaml
+      copy: src=pg_exporter.yaml dest=/etc/pg_exporter/pg_exporter.yaml owner=postgres group=postgres mode=0644
+
+    - name: Config /etc/default/pg_exporter
+      template: src=pg_exporter.j2 dest=/etc/default/pg_exporter owner=postgres group=postgres mode=0600
+
+    - name: Config pg_exporter service unit
+      copy: src=pg_exporter.service dest=/usr/lib/systemd/system/pg_exporter.service
+
+    - name: Launch pg_exporter systemd service
+      systemd: name=pg_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pg_exporter service online
+      wait_for: host=localhost port={{ pg_exporter_port }} state=started
+
+    - name: Register pg-exporter consul service
+      template:
+        src: svc-pg-exporter.json.j2
+        dest: /etc/consul.d/svc-pg-exporter.json
+        owner: consul
+        group: admin
+        mode: 0660
+
+    - name: Reload pg-exporter consul service
+      systemd: name=consul state=reloaded
+...
