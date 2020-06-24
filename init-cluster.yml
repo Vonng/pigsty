@@ -15,21 +15,21 @@
 - name: Init new database cluster
   become: yes
   hosts: all
-  gather_facts: true
+  gather_facts: no
   roles:
-#    - role: node                            # node provision setup
-#      tags: node
-#
-#    - role: infra                           # repo, pkg, dns, ntp, etc.
-#      tags: infra
-#
-#    - role: dcs                             # dcs: consul/etcd
-#      tags: dcs
-#
-#    # optional kubernetes support
-#    - role: cloud                           # docker & kubernetes (optinal)
-#      tags: cloud
-#      when: infra_cloud_native_support
+    - role: node                            # node provision setup
+      tags: node
+
+    - role: infra                           # repo, pkg, dns, ntp, etc.
+      tags: infra
+
+    - role: dcs                             # dcs: consul/etcd
+      tags: dcs
+
+    # optional kubernetes support
+    - role: cloud                           # docker & kubernetes (optinal)
+      tags: cloud
+      when: infra_cloud_native_support
 
     # meta db setup (skip replica & haproxy)
     - role: pg_preflight                    # pre-flight & install
@@ -52,8 +52,5 @@
 
     - role: haproxy                         # haproxy load balancer
       tags: haproxy
-
-    - role: keepalived                      # keepalived
-      tags: vip
 
 ...

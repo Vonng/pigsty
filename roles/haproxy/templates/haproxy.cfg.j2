@@ -7,10 +7,10 @@ global
     daemon
     user        haproxy
     group       haproxy
-    node        {{ cluster }}-haproxy-{{ seq }}
+    node        {{ pg_cluster }}-haproxy-{{ pg_seq }}
     pidfile     /var/run/haproxy.pid
     # chroot      /var/lib/haproxy          # if chrooted, change stats socket above
-    stats socket /var/run/haproxy.socket user haproxy group haproxy mode 600 level admin
+    stats socket {{ pg_lb_socket }} user haproxy group haproxy mode 600 level admin
 
     # spread-checks 3                       # add randomness in check interval
     # quiet                                 # Do not display any message during startup
@@ -27,8 +27,8 @@ defaults
     retries            3            # max retry connect to upstream
     timeout queue      3s           # maximum time to wait in the queue for a connection slot to be free
     timeout connect    3s           # maximum time to wait for a connection attempt to a server to succeed
-    timeout client     180m         # client connection timeout: 3h
-    timeout server     180m         # server connection timeout: 3h
+    timeout client     {{ pg_lb_timeout_client }}           # client connection timeout: {{ pg_lb_timeout_client }}
+    timeout server     {{ pg_lb_timeout_server }}           # server connection timeout: {{ pg_lb_timeout_server }}
     timeout check      3s           # health check timeout
 
 
@@ -36,18 +36,18 @@ defaults
 # default admin users
 #---------------------------------------------------------------------
 userlist STATS_USERS
-        group admin users admin
-        user admin insecure-password admin
-        user stats insecure-password admin
+        group admin     users {{ pg_lb_admin }}
+        user stats  insecure-password {{ pg_lb_password }}
+        user {{ pg_lb_admin }}  insecure-password {{ pg_lb_password }}
 
 #---------------------------------------------------------------------
 # stats and exporter
 #---------------------------------------------------------------------
 listen stats                                # both frontend and a backend for statistics
     # option httplog                        # log http activity
-    stats realm {{ cluster }}-haproxy-{{ seq }}-{{ inventory_hostname }}
+    stats realm {{ pg_cluster }}-{{ pg_seq }}-haproxy-{{ inventory_hostname }}
 
-    bind *:9101                             # default haproxy exporter port
+    bind *:{{ pg_lb_admin_port }}  # default haproxy exporter port
     mode  http                              # server in http mode
     stats enable                            # enable stats page on http://localhost:9101/haproxy
     stats uri /                             # stats endpoint
@@ -67,30 +67,30 @@ listen stats                                # both frontend and a backend for st
 # cluster routes: primary
 # inter fastinter downinter (check interval when up/transition/down)
 #---------------------------------------------------------------------
-listen {{ cluster }}-primary
-    bind *:{{ lb_primary_port }}
+listen {{ pg_cluster }}-primary
+    bind *:{{ pg_lb_primary_port }}
     mode tcp
     maxconn 500
     option httpchk OPTIONS /primary
     http-check expect status 200
-    balance {{ lb_policy }}
+    balance {{ pg_lb_policy }}
     default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 60s maxconn 600 maxqueue 128 weight 100
-{% for host in play_hosts %}
-    server {{ hostvars[host].instance_name }} {{ hostvars[host].inventory_hostname }}:6432 check port 8008
+{% for host in pg_memberships %}
+    server {{ host[0] }} {{ host[1] }}:{{ pg_lb_dest_port }} check port {{ pg_lb_check_port }}
 {% endfor %}
 
 
 #---------------------------------------------------------------------
 # cluster routes: replica
 #---------------------------------------------------------------------
-listen {{ cluster }}-replica
-    bind *:{{ lb_replica_port }}                       # replica port 5555
+listen {{ pg_cluster }}-replica
+    bind *:{{ pg_lb_replica_port }}                       # replica port default 5434
     mode tcp                                # run on tcp mode
     maxconn 500                             # max concurrent connection to replica server
     option httpchk OPTIONS /replica         # check instance alive and is replica
-    http-check expect status 200            # http://<ip>:8008/replica -> 200
-    balance {{ lb_policy }}
+    http-check expect status 200            # http://{{ inventory_hostname }}:{{ pg_lb_check_port }}/replica -> 200
+    balance {{ pg_lb_policy }}
     default-server inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 60s maxconn 600 maxqueue 128 weight 100
-{% for host in play_hosts %}
-    server {{ hostvars[host].instance_name }} {{ hostvars[host].inventory_hostname }}:6432 check port 8008
+{% for host in pg_memberships %}
+    server {{ host[0] }} {{ host[1] }}:{{ pg_lb_dest_port }} check port {{ pg_lb_check_port }}
 {% endfor %}

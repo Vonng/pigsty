@@ -1,31 +1,50 @@
 ---
 - name: Setup Haproxy
-  when: lb_enabled
+  when: pg_lb_enabled and pg_lb_type == 'haproxy'
   tags: pg_haproxy
   block:
+    - name: Fetch postgres cluster memberships
+      set_fact:
+        pg_memberships={{ hostvars| json_query(pg_membership_query) }}
+      vars:
+        pg_membership_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}'][@.pg_instance,@.inventory_hostname]"
+
     - name: Templating /etc/haproxyhaproxy.cfg
-      template:
-        src: haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
+      template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+
+
 
     - name: Copy haproxy systemd service file
-      copy:
-        src: haproxy.service
-        dest: /usr/lib/systemd/system/haproxy.service
+      copy: src=haproxy.service dest=/usr/lib/systemd/system/haproxy.service
 
-    - name: Increase pam ulimit for user haproxy
-      copy:
-        src: haproxy.conf
-        dest: /etc/security/limits.d/haproxy.conf
-        mode: 0640
-
-    - name: Launch haproxy services unit
+    - name: Launch haproxy load balancer service
       systemd:
         name: haproxy
         state: restarted
         enabled: yes
         daemon_reload: yes
 
-    - name: Wait for haproxy service online
+    - name: Wait for haproxy load balancer online
       wait_for: host=localhost port=9101 state=started timeout=10
+
+
+- name: Setup Keepalive
+  when: pg_lb_enabled and pg_lb_vip_enabled
+  tags: pg_vip
+  block:
+    - name: Fetch cluster load balanacers for lb
+      set_fact:
+        pg_loadbalancers={{ hostvars| json_query(pg_loadbalancers_query) }}
+      vars:
+        pg_loadbalancers_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}' && pg_lb_enabled==true].inventory_hostname"
+
+    - name: Copy keepalived.conf for cluster
+      template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/conf.d/{{ pg_cluster }}.conf
+        mode: 0644
+
+    - name: Restart keepalived to take effect
+      systemd: name=keepalived state=restarted enabled=yes
+
 ...

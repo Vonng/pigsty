@@ -1,0 +1,30 @@
+global_defs {
+   router_id {{ pg_cluster }}
+   enable_script_security
+   script_user root
+}
+
+vrrp_instance {{ pg_cluster }} {
+  state {{ pg_lb_role | upper }}
+  interface {{ pg_lb_nic }}
+  virtual_router_id {{ ( pg_cluster | hash('md5'))[0:2] | int(base=16) }}
+  priority {% if pg_lb_role == 'master' %}128{% else %}100{% endif %}
+
+  advert_int 1
+  unicast_src_ip {{ inventory_hostname }}
+  unicast_peer {
+{% for host in pg_loadbalancers %}
+{% if host != inventory_hostname %}     {{ hostvars[host].inventory_hostname }}
+{% endif %}
+{% endfor %}
+  }
+
+  authentication {
+    auth_type PASS
+    auth_pass {{ pg_cluster }}
+  }
+
+  virtual_ipaddress {
+    {{ pg_lb_vip }}
+  }
+}
