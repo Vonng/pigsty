@@ -21,7 +21,7 @@
     # check primary is available (pg_upstream is set during pre-flight)
     - name: Check replica connectivity to primary
       become_user: postgres
-      command: psql -h {{ pg_cluster_primary }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+      command: psql -w -h {{ pg_cluster_primary }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
     # create basebackup from primary
     - name: Create basebackup replica from primary
@@ -37,6 +37,7 @@
     # Config replica replication source to upstream
     #==============================================================#
     - name: Config replica replication source
+      when: pg_upstream is defined
       lineinfile:
         path: /pg/data/postgresql.auto.conf
         regexp: "^primary_conninfo"

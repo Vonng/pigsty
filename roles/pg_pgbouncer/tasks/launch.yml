@@ -25,7 +25,7 @@
       command: /usr/pgsql/bin/pg_isready -p {{ pg_pgbouncer_port }}
 
     - name: Check pgbouncer connectivity
+      when: pg_default_username != 'postgres'
       become_user: postgres
-      command: psql -p{{ pg_pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
-
+      command: psql -w -p{{ pg_pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
 ...

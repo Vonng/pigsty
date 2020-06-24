@@ -3,7 +3,7 @@
 # pre-flight check: validate inventory and set facts
 ################################################################
 - name: Postgres initialization preflight
-  tags: pg_preflight
+  tags: always, pg_preflight
   connection: local
   become: no
   block:
@@ -58,12 +58,12 @@
     # if a pg_upstream is set for 'primary' instance, it will be used during initdb phase
     - name: Setup repl upstream for primary
       when: pg_role == 'primary' and pg_upstream is defined and pg_upstream != ''
-      set_fact: pg_upstream={{ pg_upstream }}
+      set_fact: pg_replication_source={{ pg_upstream }}
 
-    # pg_upstream is used to change replication source that id different from primary
+    # pg_replication_source is used to change replication source that id different from primary
     - name: Setup repl upstream for replicas
       when: pg_role != 'primary'
-      set_fact: pg_upstream={{ pg_upstream | default(pg_cluster_primary) }}
+      set_fact: pg_replication_source={{ pg_upstream | default(pg_cluster_primary) }}
 
     # print instance pre-flight check summary
     - name: Debug print instance summary

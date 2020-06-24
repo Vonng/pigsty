@@ -37,9 +37,6 @@
     #==============================================================#
     # Stage 4: Install postgres packages                           #
     #==============================================================#
-#    - name: Install postgres major version pkgs
-#      command: yum install -q -y 'postgresql{{ pg_version }}*'
-
     - name: Install postgres additional packages
       yum: name={{ pg_packages }}
 
@@ -59,6 +56,12 @@
       command: /usr/pgsql/bin/pg_ctl --version
       register: check_pg_version_result
       failed_when: pg_version|string not in check_pg_version_result.stdout
+
+
+    #==============================================================#
+    # Stage 6: Copy utils scripts                                  #
+    #==============================================================#
+
 
     #==============================================================#
     # Stage 6: Remove default service unit                         #
