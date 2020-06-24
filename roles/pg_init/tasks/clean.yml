@@ -19,17 +19,17 @@
         systemctl stop pgbouncer_exporter
 
         # then, manually stop service if still exists
-        if ps aux | grep postgres | grep -v grep | grep -q -- '-D'; then
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
             pg_ctl -D {{ pg_data }} stop --mode=immediate
-            ps aux | grep postgres | grep -v grep | grep -- '-D' | awk '{print $2}' | xargs -n1 -I{} kill -9 {}
+            ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | awk '{print $1}' | xargs kill -9
         fi
 
-        if ps aux | grep postgres | grep -v grep | grep -q -- '-D'; then
-            ps aux | grep postgres | grep -v grep | grep -- '-D' | awk '{print $2}' | xargs -n1 -I{} kill -9 {}
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
+            ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | awk '{print $1}' | xargs kill -9
             sleep 5 # if still alive, leave 5s grace peroid and force a kill -9
         fi
 
-        if ps aux | grep postgres | grep -v grep | grep -q -- '-D'; then
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
             exit 1  # report failure if still alive
         fi
         exit 0

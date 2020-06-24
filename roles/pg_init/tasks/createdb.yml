@@ -42,7 +42,7 @@
 
     - name: Check business database connectivity
       become_user: postgres
-      shell: psql -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
+      shell: psql -w -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
 
 
     #==============================================================#
@@ -53,7 +53,7 @@
       with_items: "{{ pg_template_scripts }}"
 
     - name: Provision default database scripts
-      command: psql {{ pg_default_database }} -f /pg/tmp/{{ item }}
+      command: psql {{ pg_default_database }} -w -f /pg/tmp/{{ item }}
       with_items: "{{ pg_default_scripts }}"
 
 

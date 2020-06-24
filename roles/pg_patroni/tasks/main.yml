@@ -2,12 +2,11 @@
 ---
 
 #==============================================================#
-# Stage 1: Patroni install
+# Stage 1: Patroni install (already installed during pg_install)
 #==============================================================#
-- name: Install patroni from local yum
-  tags: patroni_install
-  yum: name=patroni
-
+#- name: Install patroni from local yum
+#  tags: patroni_install
+#  yum: name=patroni
 
 #==============================================================#
 # Stage 2: Clean up patroni
@@ -19,9 +18,11 @@
       ignore_errors: true
       systemd: name=patroni state=stopped enabled=no
 
+    # only remove dcs meta when clean primary patroni
     - name: Remove patroni consul metadata
+      when: pg_role == 'primary'
       ignore_errors: true
-      command: consul kv delete -recurse /pg/{{ cluster }}
+      command: consul kv delete -recurse /pg/{{ pg_cluster }}
 
 
 #==============================================================#
@@ -30,26 +31,30 @@
 - name: Setup Patroni
   tags: patroni_setup
   block:
-    - name: Copy patroni callback scripts
-      template: src={{ item }} dest=/pg/bin/{{ item }} owner=postgres group=postgres mode=0700
-      with_items:
-        - callback.sh
-        - register.sh
+
+    #==============================================================#
+    # Config patroni
+    #==============================================================#
+#    - name: Copy patroni callback scripts
+#      copy: src={{ item }} dest=/pg/bin/{{ item }} owner=postgres group=admin mode=0700
+#      with_items:
+#        - callback.sh
+#        - anti-entropy.py
 
     - name: Copy default /pg/conf/patroni.yml
       template:
         src: "patroni.yml"
-        dest: "/pg/conf/{{ instance_name }}.yml"
+        dest: "/pg/conf/{{ pg_instance }}.yml"
         owner: postgres
-        group: postgres
+        group: admin
         mode: 0755
 
     - name: Link /pg/conf/patroni to /pg/bin/
       file:
-        src: /pg/conf/{{ instance_name }}.yml
+        src: /pg/conf/{{ pg_instance }}.yml
         dest: /pg/bin/patroni.yml
         owner: postgres
-        group: postgres
+        group: admin
         state: link
 
     - name: Copy patroni systemd service unit
@@ -60,17 +65,37 @@
         group: root
         mode: 0644
 
+    - name: Config patroni watchdog support
+      when: pg_patroni_watchdog
+      file: path={{ pg_patroni_watchdog_path }} owner=postgres group=admin
+
+
+#==============================================================#
+# Launch patroni primary
+#==============================================================#
+- name: Launch primary patroni instance
+  tags: patroni_primary
+  when: pg_role == 'primary'
+  block:
     - name: Launch patroni on primary instance
-      when: role == 'primary'
       systemd:
         name: patroni
         state: restarted
         enabled: yes
         daemon_reload: yes
 
+    - name: Wait for patroni primaryservice online
+      wait_for: host={{ inventory_hostname }} port=8008 state=started timeout=30
 
+
+#==============================================================#
+# Launch patroni primary
+#==============================================================#
+- name: Launch replica patroni instance
+  tags: patroni_replica
+  when: pg_role != 'primary'
+  block:
     - name: Launch patroni on replica instances
-      when: role != 'primary'
       systemd:
         name: patroni
         state: restarted
@@ -78,5 +103,5 @@
         daemon_reload: yes
 
     - name: Wait for patroni service online
-      wait_for: host={{ inventory_hostname }} port=8008 state=started timeout=30
+      wait_for: host={{ inventory_hostname }} port={{ pg_patroni_port }} state=started timeout=30
 ...
