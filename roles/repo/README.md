@@ -20,8 +20,6 @@ tasks:
   repo : Copy nginx pigsty repo files	    TAGS: [init-meta, repo_nginx]
   repo : Start nginx service to serve repo	TAGS: [init-meta, repo_nginx]
   repo : Waits yum repo nginx online	    TAGS: [init-meta, repo_nginx]
-  repo : Install default centos yum repos	TAGS: [init-meta, repo_download]
-  repo : Enable default centos yum repos	TAGS: [init-meta, repo_download]
   repo : Install additional yum repos	    TAGS: [init-meta, repo_download]
   repo : Enlist building packages to repo	TAGS: [init-meta, repo_download]
   repo : Enlist addional packages to repo	TAGS: [init-meta, repo_download]
