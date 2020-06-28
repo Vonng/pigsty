@@ -1,19 +1,9 @@
 ---
-
 #==============================================================#
 # Stage 4: Download yum packages
 #==============================================================#
 - name: Download local repo packages
   block:
-    # install official and 3rd party yum repo
-    - name: Install default centos yum repos
-      environment: "{{ repo_proxy_env }}"
-      yum: name=epel-release,centos-release-scl,centos-release-scl-rh
-
-    - name: Enable default centos yum repos
-      ignore_errors: true
-      command: yum-config-manager --enable epel-release
-
     - name: Install additional yum repos
       copy: src=repo/{{ item }}.repo dest=/etc/yum.repos.d/{{ item }}.repo mode=0644
       with_items: [centos-sclo-rh, centos-sclo-sclo, haproxy, postgres, grafana, prometheus, docker, harbottle, k8s]
