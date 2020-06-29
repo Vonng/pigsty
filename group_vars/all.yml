@@ -2,37 +2,30 @@
 ################################################################
 # node provision
 ################################################################
-#==============================================================#
-# node basics
-#==============================================================#
-# node hostname override : use {{ pg_cluseter }}-{{ pg_seq } if available
-# node_overwrite_hostname: false
-
-# node timezone override
-# node_timezone: 'Asia/Shanghai'     # default node timezone
-
-# node feature switch
+# 1. node features
 # node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
 # node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
 # node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
 # node_disable_selinux: true      # disable selinux
 # node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
-# node kernel modeles
+# 2. node kernel
 # node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
-# node_tune: true                 # tune node parameters
-# node_sysctl_params:             # additional sysctl parameters
+# 3. node tuned
+# node_tuned: true                # tune node parameters
+# node_sysctl_params: {}          # additional sysctl parameters
+
+# 4. node user
 # node_root_setup: false          # setup root user(ssh exchange) ?
 
+# 5. node dns
+node_dns_setup: true              # setup dns
 node_static_dns:
-  # loopback
-  - host: 127.0.0.1
+  - host: 127.0.0.1               # loopback
     domain: [localhost, local, lc]
-  # meta controller node
-  - host: 10.10.10.10
+  - host: 10.10.10.10             # meta controller
     domain: [meta, pigsty, yum.pigsty]
-
 #  # common nodes
 #  - host: 10.10.10.10
 #    domain: [node-0, n0]
@@ -43,72 +36,53 @@ node_static_dns:
 #  - host: 10.10.10.13
 #    domain: [node-3, n3]
 
+node_dns_servers: [10.10.10.10] # default DNS server (meta node dnsmasq by default)
 
+# 6. node repo
+# node_local_repo_enabled: true     # whether use local yum repo
+# node_local_repo_only: true        # whether disable other repos
+# repo_name: pigsty                 # local repo name
+# repo_host: yum.pigsty             # local repo host
 
-################################################################
-# infra provision
-################################################################
+# 7. node packages
+# node_meta_install: false
+# node_cloud_install: false
+# node_build_install: false
+# node_additional_packages: []   # additional rpm packages to be downloaded/installed
 
-#==============================================================#
-# infra
-#==============================================================#
-# local yum repo
-repo_name: pigsty                   # repo file
-repo_host: yum.pigsty               # base url
+# 8. node ntp
+node_setup_ntp: true            # setup ntp
+node_timezone: 'Asia/Shanghai'  # default node timezone
+node_ntp_servers: [10.10.10.10] # default NTP servers
 
-infra_local_repos: [pigsty.repo]      # local yum repo file path
-infra_disable_external_repo: true     # disable all other repos except local
-infra_proxy_env: {}                   # add proxy environment variable here
-
-# common infra packages
-infra_packages:
-  - etcd,consul,haproxy,keepalived,node_exporter,chrony,ntp                             # must have
-  - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
-  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
-
-# cloud native support
-infra_cloud_native_support: false
-infra_cloud_native_packages:
-  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
-
-# build toolchain support
-infra_build_essential_support: false
-infra_build_essential_packages:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-
-# add additional packages here
-infra_additional_packages: []                     # additional rpm packages to be downloaded/installed
-
-# DNS and NTP
-infra_dns_servers: [10.10.10.10]                  # default DNS server (meta node dnsmasq by default)
-infra_ntp_servers: [10.10.10.10]                  # default NTP server (meta node chronyd service)
+# 9. node vip
+node_setup_vip: true            # setup default vip structure
 
 #==============================================================#
 # dcs
 #==============================================================#
-dcs_type:    consul                               # default dcs server type: consul
-dcs_servers: [10.10.10.10]                        # default dcs servers
-dcs_purge: true                                   # force remove existing server
-dcs_check_interval: 5s                            # default service check interval
-dcs_check_timeout:  1s                            # default service check timeout
+dcs_type:    consul                  # default dcs server type: consul
+dcs_servers: [10.10.10.10]           # default dcs servers
+dcs_purge: true                      # force remove existing server
+dcs_check_interval: 5s               # default service check interval
+dcs_check_timeout:  1s               # default service check timeout
 
-#==============================================================#
-# cloud-native
-#==============================================================#
-# docker & k8s
-docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
-docker_image_cache: /www/pigsty/docker-images.tar.lz4             # docker images cache path (.tar.lz4)
-docker_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"] # docker registry mirror
-k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes versionaliyun k8s miiror repository
 
-k8s_servers: [10.10.10.10]                                        # kubernetes servers (masters)
-k8s_version: 1.18.3                                               # kubernetes version
-k8s_pod_cidr: "10.11.0.0/16"                                      # kubernetes pod network cidr
-k8s_service_cidr: "10.12.0.0/16"                                  # kubernetes service network cidr
-k8s_dashboard_admin_user: dashboard-admin-sa                      # kubernetes dashboard admin user name
-# k8s_role: node                                                  # overwrite this for master node
+##==============================================================#
+## cloud-native
+##==============================================================#
+## docker & k8s
+#docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
+#docker_image_cache: /www/pigsty/docker-images.tar.lz4             # docker images cache path (.tar.lz4)
+#docker_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"] # docker registry mirror
+#k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes versionaliyun k8s miiror repository
+#
+#k8s_servers: [10.10.10.10]                                        # kubernetes servers (masters)
+#k8s_version: 1.18.3                                               # kubernetes version
+#k8s_pod_cidr: "10.11.0.0/16"                                      # kubernetes pod network cidr
+#k8s_service_cidr: "10.12.0.0/16"                                  # kubernetes service network cidr
+#k8s_dashboard_admin_user: dashboard-admin-sa                      # kubernetes dashboard admin user name
+#k8s_role: node                                                  # overwrite this for master node
 
 
 ################################################################

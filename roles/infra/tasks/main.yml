@@ -1,22 +1,19 @@
 ---
 #==============================================================#
-# Stage 1: Install Infrastructure Packages
-#==============================================================#
-- import_tasks: pkg.yml
-
-#==============================================================#
-# Stage 2: DNS & Resovler
+# Stage 1: DNS & Resovler
 #==============================================================#
 - name: Add resovler to /etc/resolv.conf
   tags: infra_dns
+  when: infra_setup_dns
   lineinfile: path=/etc/resolv.conf line="nameserver {{ item }}"
   with_items: infra_dns_servers
 
 #==============================================================#
-# Stage 3: NTP service
+# Stage 2: NTP service
 #==============================================================#
 - name: Set ntp service chronyd
   tags: infra_ntp
+  when: infra_setup_ntp
   block:
     - name: Copy the chrony.conf template
       template: src=chrony.conf dest=/etc/chrony.conf

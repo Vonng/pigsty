@@ -1,0 +1,19 @@
+---
+- name: Install pigsty yum repo
+  tags: node_repo
+  when: node_local_repo_enabled
+  block:
+    - name: Install local yum repo from url
+      get_url:
+        url: http://{{ repo_host }}/{{ repo_name }}.repo
+        dest: /etc/yum.repos.d/{{ repo_name }}.repo
+
+    - name: Use and only use default yum repos
+      when: node_local_repo_only
+      shell: |
+        if [[ -f /etc/yum.repos.d/{{ repo_name }}.repo ]]; then
+            yum-config-manager --disable '*'
+            yum-config-manager --enable {{ repo_name }} # base extras updates
+        fi
+
+...

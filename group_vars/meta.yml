@@ -2,43 +2,13 @@
 ################################################################
 #               Variables override by meta node                #
 ################################################################
+node_meta_install: true           # install meta packages
+# node_build_install: true          # install build packages
+# node_cloud_install: false          # install cloud packages
+# node_additional_packages: []    # additional packages for meta node
 
-#==============================================================#
-# Meta node
-#==============================================================#
-node_overwrite_hostname: false    # rather keep meta node's name
-
-#==============================================================#
-# Meta infra
-#==============================================================#
-# set to true to install build packages on meta node only
-infra_build_essential_support: false
-
-#==============================================================#
-# Meta dcs
-#==============================================================#
-# meta node are used as dcs server
-dcs_role: server         # meta dcs role: server
-
-#==============================================================#
-# Meta k8s
-#==============================================================#
-# meta node are used as k8s master
-k8s_role: master         # meta k8s role: master
-
-
-################################################################
-#                    Meta ad-hoc variables                     #
-################################################################
-
-#==============================================================#
-# Meta packages
-#==============================================================#
-# install for meta nodes only
-meta_package_list:
-  - ansible,python,python-pip,python-ipython,python-psycopg2                    # ansible and python environment
-  - nginx,haproxy,keepalived,dnsmasq                                            # proxy and dns
-  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter   # monitoring packages
+dcs_role: server                  # meta is dcs server
+k8s_role: master                  # meta is k8s master
 
 #==============================================================#
 # Meta grafana
@@ -46,25 +16,10 @@ meta_package_list:
 meta_grafana_server: http://grafana.pigsty      # use pre-defined prometheus data source
 meta_grafana_force_download_plugins: false      # force redownload grafana plugins
 meta_grafana_time_interval: 2s                  # force redownload grafana plugins
+meta_grafana_provision_sqlite: true             # provision grafana via grafana.db
 
-meta_grafana_plugins:
-  - simpod-json-datasource
-  - camptocamp-prometheus-alertmanager-datasource
-  - ryantxu-ajax-panel
-  - grafana-piechart-panel
-  - jdbranham-diagram-panel
-  - aidanmountford-html-panel
-  - alexandra-trackmap-panel
-  - snuids-radar-panel
-  - digrich-bubblechart-panel
-
-meta_grafana_dashboards:
-  - node
-  - haproxy
-  - pg-instance
-  - pg-cluster
-  - pg-query
-
+# meta_grafana_plugins:
+# meta_grafana_dashboards: []
 
 #==============================================================#
 # Meta dns server
@@ -79,7 +34,6 @@ meta_dynamic_dns:
     domain: [pg-meta, haproxy.pg-meta]
   - host: 10.10.10.3        # pg-test default vip
     domain: [pg-test, haproxy.pg-meta]
-
 
 
 #==============================================================#
@@ -101,72 +55,67 @@ pg_lb_vip: 10.10.10.2
 pg_lb_nic: eth1
 
 
-
 ################################################################
-# Local repo variable: how to build local yum repo
+#                  Local Yum Repo Provision                    #
 ################################################################
-# local yum repo are created according to the following two variables:
-# default repo dir:       /www/{{ repo_name }}
-# default repo file url:  http://{{ repo_host }}/{{ repo_name }}.repo
-# default repo base url:  http://{{ repo_host }}/{{ repo_name }}/
-# repo_name could be: pigsty or pgsql/el7_x86_64
-# repo_host could either be an ip address or hostname
-repo_name: pigsty                 # repo file
-repo_host: yum.pigsty             # base url
+#repo_name: pigsty                 # repo file
+#repo_host: yum.pigsty             # base url
+#
+## how to download
+#repo_force_download:   false     # force download even cache exists
+#repo_proxy_env: {}               # add proxy environment variable here
+#
+## what to download
+#repo_package_list:
+#  # postgres core packages
+#  - postgresql13*
+#  - postgresql12*
+#  - postgis30_12*
+#
+#  # postgres extension packages 12
+#  - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
+#  # postgres common misc
+#  - pgbouncer,pgadmin4,pg_top,pgbadger,pgdg-redhat-repo
+#  # ansible and python environment
+#  - ansible,python,python-pip,python-ipython,python-psycopg2
+#  # system utils
+#  - ntp,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,grubby,zlib,openssl,perl-ExtUtils-Embed
+#  # network utils
+#  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm
+#  # monitoring packages
+#  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
+#  # dcs packages
+#  - consul,consul_exporter,consul-template,etcd
+#  # proxy and dns
+#  - nginx,haproxy,keepalived,dnsmasq
+#
+#
+## download necessary url packages
+#repo_url_package_list:
+#  - name: pg_exporter-0.2.0-1.el7.x86_64.rpm
+#    url: https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
+#  - name: patroni-1.6.5-1.rhel7.x86_64.rpm
+#    url: https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
+#  - name: vip-manager_0.6-1_amd64.rpm
+#    url: https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
+#
+#
+##==============================================================#
+## additional packages
+##==============================================================#
+## additional packages to be downloaded
+#repo_additional_package_list: []
+#
+## download cloud native packages: kubectl kubeadm helm docker, etc..
+#repo_cloud_native: true
+#repo_cloud_native_mirror_repo: true   # use mirror repo for cloud native packages
+#repo_cloud_native_package_list:
+#  - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt,helm
+#
+## download build essential packages: gcc, g++, rpmbuild, etc...
+#repo_build_essential: true
+#repo_build_essential_package_list:
+#  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+#  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
 
-# how to download
-repo_force_download:   false     # force download even cache exists
-repo_proxy_env: {}               # add proxy environment variable here
-
-# what to download
-repo_package_list:
-  # postgres core packages
-  - postgresql13*
-  - postgresql12*
-  - postgis30_12*
-
-  # postgres extension packages 12
-  - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
-  # postgres common misc
-  - pgbouncer,pgadmin4,pg_top,pgbadger,pgdg-redhat-repo
-  # ansible and python environment
-  - ansible,python,python-pip,python-ipython,python-psycopg2
-  # system utils
-  - ntp,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,grubby,zlib,openssl,perl-ExtUtils-Embed
-  # network utils
-  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm
-  # monitoring packages
-  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
-  # dcs packages
-  - consul,consul_exporter,consul-template,etcd
-  # proxy and dns
-  - nginx,haproxy,keepalived,dnsmasq
-
-
-# download necessary url packages
-repo_url_package_list:
-  - name: pg_exporter-0.2.0-1.el7.x86_64.rpm
-    url: https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
-  - name: patroni-1.6.5-1.rhel7.x86_64.rpm
-    url: https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
-  - name: vip-manager_0.6-1_amd64.rpm
-    url: https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-
-#==============================================================#
-# additional packages
-#==============================================================#
-# additional packages to be downloaded
-repo_additional_package_list: []
-
-# download cloud native packages: kubectl kubeadm helm docker, etc..
-repo_cloud_native: true
-repo_cloud_native_mirror_repo: true   # use mirror repo for cloud native packages
-repo_cloud_native_package_list:
-  - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt,helm
-
-# download build essential packages: gcc, g++, rpmbuild, etc...
-repo_build_essential: true
-repo_build_essential_package_list:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
 ...
