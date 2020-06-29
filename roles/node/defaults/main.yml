@@ -6,8 +6,8 @@
 #==============================================================#
 # node basics
 #==============================================================#
-# node hostname override : use {{ cluseter }}-{{ seq } if defined
-node_overwrite_hostname: true
+# node hostname override : use {{ pg_cluseter }}-{{ pg_seq } if available
+node_overwrite_hostname: false
 
 # node timezone override
 node_timezone: 'Asia/Shanghai'     # default node timezone
@@ -18,10 +18,8 @@ node_timezone: 'Asia/Shanghai'     # default node timezone
 # node feature switch
 node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
 node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
-node_disable_thp: true          # [VERY IMPORTANT] disable transparent huge page
 node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
 node_disable_selinux: true      # disable selinux
-node_cpupower_performance: true # set cpupower governor to performance mode if available
 node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
 # node kernel modeles
@@ -31,15 +29,19 @@ node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wr
 #==============================================================#
 # node sysctl
 #==============================================================#
-node_sysctl_dynamic_tune: true  # set some param based on node fact
-# additional sysctl parameters (overwrite with your own)
-node_sysctl_params:
+node_tune: true                 # tune node parameters
+node_sysctl_params: {}          # additional sysctl parameters
 
+#==============================================================#
+# node users
+#==============================================================#
+node_root_setup: false          # setup root user(ssh exchange) ?
 
 #==============================================================#
 # node static dns
 #==============================================================#
-node_static_dns:
+node_static_dns:                # write localhost to static dns
   - host: 127.0.0.1
     domain: [localhost]
+
 ...

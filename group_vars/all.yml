@@ -2,36 +2,29 @@
 ################################################################
 # node provision
 ################################################################
-# node hostname override : use {{ cluseter }}-{{ seq } if defined
-node_overwrite_hostname: false
+#==============================================================#
+# node basics
+#==============================================================#
+# node hostname override : use {{ pg_cluseter }}-{{ pg_seq } if available
+# node_overwrite_hostname: false
 
 # node timezone override
-node_timezone: 'Asia/Shanghai'     # default node timezone
+# node_timezone: 'Asia/Shanghai'     # default node timezone
 
 # node feature switch
-node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
-node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
-node_disable_thp: true          # [VERY IMPORTANT] disable transparent huge page
-node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
-node_disable_selinux: true      # disable selinux
-node_cpupower_performance: true # set cpupower governor to performance mode if available
-node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+# node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
+# node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
+# node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
+# node_disable_selinux: true      # disable selinux
+# node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
 # node kernel modeles
-node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
+# node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
-# node sysctl
-node_sysctl_dynamic_tuning: true  # set some param based on node fact
-# additional sysctl parameters (overwrite with your own)
-node_sysctl_params:
-  # kubernetes require parameters
-  net.bridge.bridge-nf-call-ip6tables: 1
-  net.bridge.bridge-nf-call-iptables: 1
-  net.bridge.bridge-nf-call-arptables: 1
+# node_tune: true                 # tune node parameters
+# node_sysctl_params:             # additional sysctl parameters
+# node_root_setup: false          # setup root user(ssh exchange) ?
 
-# static dns records in /etc/hosts
-# most entries here are not necessary except pigsty and yum.pigsty
-# local yum repo require these two static dns to work
 node_static_dns:
   # loopback
   - host: 127.0.0.1
@@ -59,6 +52,10 @@ node_static_dns:
 #==============================================================#
 # infra
 #==============================================================#
+# local yum repo
+repo_name: pigsty                   # repo file
+repo_host: yum.pigsty               # base url
+
 infra_local_repos: [pigsty.repo]      # local yum repo file path
 infra_disable_external_repo: true     # disable all other repos except local
 infra_proxy_env: {}                   # add proxy environment variable here

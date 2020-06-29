@@ -1,0 +1,36 @@
+---
+- name: Node tuned
+  tags: node_tuned
+  block:
+    - name: Get config parameter page count
+      command: getconf _PHYS_PAGES
+      register: node_page_count  # half mem in pages
+
+    - name: Get config parameter page size
+      shell: getconf PAGE_SIZE
+      register: node_page_size  # half mem in bytes
+
+    - name: Calulate shmmax and shmall from mem
+      set_fact:
+        param_shmall: "{{ ((node_page_count.stdout|int) / 2)|int }}"
+        param_shmmax: "{{ ((node_page_count.stdout|int) * (node_page_size.stdout|int) / 2)|int }}"
+
+    - name: Create tuned profile postgres
+      file: path=/etc/tuned/postgres state=directory mode=0755
+
+    - name: Render tuned profile postgres
+      template: src=tuned.conf.j2 dest=/etc/tuned/postgres/tuned.conf mode=0644
+
+    - name: Active tuned profile postgres
+      command: tuned-adm profile postgres
+
+    - name: Change additional sysctl params
+      ignore_errors: true
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+      with_dict: "{{ node_sysctl_params }}"
+...

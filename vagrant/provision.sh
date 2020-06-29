@@ -25,13 +25,12 @@ function setup_ssh() {
 	if ! grep -q "StrictHostKeyChecking" ${ssh_dir}/config; then
 		cat >>${ssh_dir}/config <<-EOF
 			StrictHostKeyChecking=no
-			Host *
-				Compression yes
-				ServerAliveInterval 60
-				ServerAliveCountMax 5
-				ControlMaster auto
-				ControlPath ~/.ssh/%r@%h-%p
-				ControlPersist 4h
+			# Host *
+				# ServerAliveInterval 60
+				# ServerAliveCountMax 5
+				# ControlMaster auto
+				# ControlPath ~/.ssh/%r@%h-%p
+				# ControlPersist 4h
 		EOF
 	fi
 	# change owner and permission
