@@ -80,7 +80,7 @@ ha:
 
 dump-monitor:
 	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
-	scp meta:/tmp/grafana.db files/grafana.db
+	scp meta:/tmp/grafana.db files/grafana/grafana.db
 	ssh meta "sudo rm -rf /tmp/grafana.db"
 
 restore-monitor:

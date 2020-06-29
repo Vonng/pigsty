@@ -17,12 +17,6 @@
       mount: name={{ item }} fstype=swap state=absent
       with_items: [swap, none]
 
-    # disable transparent huge page (important for database)
-    - name: Disable transparent hugepage
-      tags: disable_thp
-      when: node_disable_thp
-      script: disable_thp.sh
-
     # disable firewalld
     - name: Node configure disable firewall
       tags: disable_firewall
@@ -39,15 +33,24 @@
       when: node_disable_selinux
       command: setenforce 0
 
-    # cpu performce tuning
-    - name: Node configure cpupower perf
-      tags: cpupower_performance
-      when: node_cpupower_performance
-      script: cpupower_performance.sh
-
     # setup disk prefetch
     - name: Node configure disk prefetch
       tags: disk_prefetch
       when: node_disk_prefetch
       script: disk_prefetch.sh
+
+    # these feature are managed by tuned now
+
+    # disable transparent huge page (important for database)
+    # - name: Disable transparent hugepage
+    #   tags: disable_thp
+    #   when: node_disable_thp
+    #   script: disable_thp.sh
+
+    # cpu performce tuning
+    # - name: Node configure cpupower perf
+    #   tags: cpupower_performance
+    #   when: node_cpupower_performance
+    #   script: cpupower_performance.sh
+
 ...

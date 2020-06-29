@@ -1,0 +1,39 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   repo-install.yml
+# Mtime     :   2020-06-20
+# Desc      :   init repo node
+# Path      :   repo-install.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note:
+#
+# Init a local yum repo powered by a local nginx web server
+# all necessary rpm packages are downloaded to accelerate
+# cluster initialization, or in case that target machine does
+# not have internet access.
+#
+# RPM packages are downloaded to /www/{{ repo_name }}. And it will skip
+# download if all packages are already downloaded in there.
+#
+# Local yum repo url:  http://{{ repo_host }}/{{ repo_name }}/
+#==============================================================#
+- name: Init local yum repo on node
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: repo
+
+  vars:
+    # local yum host and name
+    # repo_name: pigsty                   # repo file
+    # repo_host: yum.pigsty               # base url
+
+  tasks:
+    - name: Install local yum repos on host
+      tags: repo_install
+      get_url:
+        url: http://{{ repo_host }}/{{ repo_name }}.repo
+        dest: /etc/yum.repos.d/{{ repo_name }}.repo
+
+...

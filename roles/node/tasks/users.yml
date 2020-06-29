@@ -1,9 +1,10 @@
 ---
 
 #==============================================================#
-# Stage 1: Root ssh access
+# Stage 1: Root ssh access (optional)
 #==============================================================#
 - name: Node root ssh key exchange
+  when: node_root_setup
   tags: node_root
   block:
     # root ssh-key gen
@@ -14,13 +15,14 @@
     - name: Add no host checking to ssh config
       copy: src=ssh.config dest=/root/.ssh/config mode=0600 owner=root
 
-    # postgres ssh-key exchange
+    # root ssh-key exchange
     - name: Fetch root user's public keys
       shell: cat /root/.ssh/id_rsa.pub
       register: root_ssh_keys
 
-    # for all hosts, copy their postgres ssh public key to each other
+    # exchange root ssh-key (may be dangerous)
     - name: Exchange root ssh keys in cluster
+      ignore_errors: true
       authorized_key: user=root key="{{ item[0] }}"w
       delegate_to: "{{ item[1] }}"
       with_nested:
@@ -64,6 +66,7 @@
     # for all hosts, copy their postgres ssh public key to each other
     - name: Exchange postgres user's ssh keys
       authorized_key: user=postgres key="{{ item[0] }}"
+      ignore_errors: true
       delegate_to: "{{ item[1] }}"
       with_nested:
         - "{{ postgres_ssh_keys.stdout }}"
