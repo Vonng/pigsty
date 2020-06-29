@@ -6,42 +6,48 @@ Tasks:
 
 ```yaml
 tasks:
-  repo : Create local repo directory	    TAGS: [init-meta, repo_precheck]
-  repo : Check pigsty repo cache exists	    TAGS: [init-meta, repo_precheck]
-  repo : Check pigsty boot cache exists	    TAGS: [init-meta, repo_precheck]
-  repo : Enable default centos yum repos	TAGS: [init-meta, repo_bootstrap]
-  repo : Install official centos yum repos	TAGS: [init-meta, repo_bootstrap]
-  repo : Install additional nginx yum repo	TAGS: [init-meta, repo_bootstrap]
-  repo : Download bootstrap packages	    TAGS: [init-meta, repo_bootstrap]
-  repo : Bootstrap packages downloaded	    TAGS: [init-meta, repo_bootstrap]
-  repo : Install bootstrap packages (nginx)	TAGS: [init-meta, repo_nginx]
-  repo : Copy default nginx server config	TAGS: [init-meta, repo_nginx]
-  repo : Copy default nginx index page	    TAGS: [init-meta, repo_nginx]
-  repo : Copy nginx pigsty repo files	    TAGS: [init-meta, repo_nginx]
-  repo : Start nginx service to serve repo	TAGS: [init-meta, repo_nginx]
-  repo : Waits yum repo nginx online	    TAGS: [init-meta, repo_nginx]
-  repo : Install additional yum repos	    TAGS: [init-meta, repo_download]
-  repo : Enlist building packages to repo	TAGS: [init-meta, repo_download]
-  repo : Enlist addional packages to repo	TAGS: [init-meta, repo_download]
-  repo : Print packages to be downloaded	TAGS: [init-meta, repo_download]
-  repo : Download packages to /www/pigsty	TAGS: [init-meta, repo_download]
-  repo : Download additional url packages	TAGS: [init-meta, repo_download]
-  repo : Download cloud native packages	    TAGS: [init-meta, repo_download]
-  repo : Create local yum repo index	    TAGS: [init-meta, repo_download]
-  repo : Mark local yum repo complete	    TAGS: [init-meta, repo_download]
-  repo : Install local yum repos on meta	TAGS: [init-meta, repo_install]
+  repo : Create local repo directory		TAGS: [repo, repo_dir]
+  repo : Check repo boostrap cache exists	TAGS: [repo, repo_boot]
+  repo : Enable default centos yum repos	TAGS: [repo, repo_boot]
+  repo : Install official centos yum repos	TAGS: [repo, repo_boot]
+  repo : Install additional nginx yum repo	TAGS: [repo, repo_boot]
+  repo : Download bootstrap packages		TAGS: [repo, repo_boot]
+  repo : Bootstrap packages downloaded		TAGS: [repo, repo_boot]
+  repo : Install bootstrap packages (nginx)	TAGS: [repo, repo_nginx]
+  repo : Copy default nginx templates		TAGS: [repo, repo_nginx]
+  repo : Start nginx service to serve repo	TAGS: [repo, repo_nginx]
+  repo : Waits yum repo nginx online		TAGS: [repo, repo_nginx]
+  repo : Check repo package cache exists	TAGS: [repo, repo_download]
+  repo : Install additional yum repos		TAGS: [repo, repo_download]
+  repo : Install kubernetes yum repos		TAGS: [repo, repo_download]
+  repo : Install kubernetes mirror repo		TAGS: [repo, repo_download]
+  repo : Enlist building packages to repo	TAGS: [repo, repo_download]
+  repo : Enlist addional packages to repo	TAGS: [repo, repo_download]
+  repo : Download packages to repo dir		TAGS: [repo, repo_download]
+  repo : Download cloud native packages		TAGS: [repo, repo_download]
+  repo : Download additional url packages	TAGS: [repo, repo_download]
+  repo : Create local yum repo index		TAGS: [repo, repo_download]
+  repo : Mark local yum repo complete		TAGS: [repo, repo_download]
+  repo : Install local yum repos on host	TAGS: [repo, repo_install]
 ```
 
 Related variables:
 
 ```yaml
-################################################################
-# Meta repo variable: how to build local yum repo
-################################################################
+# local yum repo are created according to the following two variables:
+# default repo dir:       /www/{{ repo_name }}
+# default repo file url:  http://{{ repo_host }}/{{ repo_name }}.repo
+# default repo base url:  http://{{ repo_host }}/{{ repo_name }}/
+# repo_name could be: pigsty or pgsql/el7_x86_64
+# repo_host could either be an ip address or hostname
+repo_name: pigsty                 # repo file
+repo_host: yum.pigsty             # base url
+
 # how to download
 repo_force_download:   false     # force download even cache exists
 repo_proxy_env: {}               # add proxy environment variable here
 
+# what to download
 repo_package_list:
   # postgres core packages
   - postgresql13*
@@ -57,13 +63,14 @@ repo_package_list:
   # system utils
   - ntp,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,grubby,zlib,openssl,perl-ExtUtils-Embed
   # network utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm
+  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm
   # monitoring packages
   - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
   # dcs packages
   - consul,consul_exporter,consul-template,etcd
   # proxy and dns
   - nginx,haproxy,keepalived,dnsmasq
+
 
 # download necessary url packages
 repo_url_package_list:
@@ -74,6 +81,7 @@ repo_url_package_list:
   - name: vip-manager_0.6-1_amd64.rpm
     url: https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
 
+
 #==============================================================#
 # additional packages
 #==============================================================#
@@ -82,6 +90,7 @@ repo_additional_package_list: []
 
 # download cloud native packages: kubectl kubeadm helm docker, etc..
 repo_cloud_native: true
+repo_cloud_native_mirror_repo: true   # use mirror repo for cloud native packages
 repo_cloud_native_package_list:
   - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt,helm
 

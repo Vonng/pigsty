@@ -1,50 +1,191 @@
 ---
 #==============================================================#
-# Stage 1: Precheck                                            #
+# Init a local yum repo powered by a local nginx web server
+# all necessary rpm packages are downloaded to accelerate
+# cluster initialization, or in case that target machine does
+# not have internet access.
+#
+# RPM packages are downloaded to /www/{{ repo_name }}. And it will skip
+# download if all packages are already downloaded in there.
+#
+# Local yum repo url:  http://{{ repo_host }}/{{ repo_name }}/
 #==============================================================#
-- name: Local repo boostrap precheck
-  tags: repo_precheck
-  block:
-    # Pre Condition: make sure cache dir /www/pigsty/boot exists
-    - name: Create local repo directory
-      file: path=/www/pigsty/boot state=directory mode=0755
 
-    # Condition Check: whether normal rpm cache already exists
-    # flag file: /www/pigsty/repo_complete exist indicate a valid cache
-    - name: Check pigsty repo cache exists
-      stat: path=/www/pigsty/repo_complete
-      register: repo_cache
-
-    # Condition Check: whether bootstrap cache already exists
-    - name: Check pigsty boot cache exists
-      stat: path=/www/pigsty/boot/boot_complete
-      register: repo_boot_cache
+#==============================================================#
+# 1. Create local directory
+#==============================================================#
+- name: Create local repo directory
+  tags: repo_dir
+  file: path=/www/{{ repo_name }}/boot state=directory mode=0755
 
 
 #==============================================================#
-# Stage 2: Download bootstrap pacakges if boot cache not exist #
+# 2. Check bootstrap packages cache if not exists
 #==============================================================#
-- import_tasks: bootstrap.yml
-  tags: repo_bootstrap
+- name: Check repo boostrap cache exists
+  tags: repo_boot
+  stat: path=/www/{{ repo_name }}/boot/boot_complete
+  register: repo_boot_cache
+
+
+#==============================================================#
+# 2.1 Download bootstrap packages if boot cache not exists
+#==============================================================#
+- name: Repo boostrap packages download
+  tags: repo_boot
   when: not repo_boot_cache.stat.exists
+  block:
+    - name: Enable default centos yum repos
+      ignore_errors: true
+      command: yum-config-manager --enable base extras updates epel-release
+
+    # install official yum repo
+    - name: Install official centos yum repos
+      environment: "{{ repo_proxy_env | default({}) }}"
+      yum: name=epel-release
+
+    # copy nginx yum repo
+    - name: Install additional nginx yum repo
+      copy: src=nginx.repo dest=/etc/yum.repos.d/nginx.repo mode=0644
+
+    # download minimal package to build a local yum repo
+    - name: Download bootstrap packages
+      environment: "{{ repo_proxy_env | default({}) }}"
+      yum:
+        download_only: yes
+        download_dir: /www/{{ repo_name }}/boot
+        name: epel-release,createrepo,wget,yum-utils,nginx
+
+    # set bootstrap packages download complete flag
+    - name: Bootstrap packages downloaded
+      copy: content=ok dest=/www/{{ repo_name }}/boot/boot_complete
+
+
 
 #==============================================================#
-# Stage 3: Boostrap yum repo nginx server                      #
+# 3. bootstrap local yum repo nginx server
 #==============================================================#
-- import_tasks: nginx.yml
+- name: Bootstrap local yum repo
   tags: repo_nginx
+  block:
+    - name: Install bootstrap packages (nginx)
+      shell: cd /www/{{ repo_name }}/boot && yum localinstall -q -y *.rpm
+
+    - name: Copy default nginx templates
+      template: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - {src: index.html.j2,    dest: /www/index.html}
+        - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
+        - {src: local.repo.j2,    dest: "/www/{{ repo_name }}.repo"}
+
+    - name: Start nginx service to serve repo
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: Waits yum repo nginx online
+      wait_for: host=localhost port=80 state=started
+
+
 
 #==============================================================#
-# Stage 3: Boostrap yum repo nginx server                      #
+# 4. Download Packages
 #==============================================================#
-- import_tasks: download.yml
+# Condition Check: whether normal rpm cache already exists
+# flag file: /www/{{ repo_name }}/repo_complete exist indicate a valid cache
+- name: Check repo package cache exists
+  tags: repo_download
+  stat: path=/www/{{ repo_name }}/repo_complete
+  register: repo_cache
+
+#==============================================================#
+# 4.1 If cache not exists or force download
+#==============================================================#
+- name: Download local repo packages
   tags: repo_download
   when: not repo_cache.stat.exists or repo_force_download
+  block:
+    #==============================================================#
+    # 4.2 Install yum repo
+    #==============================================================#
+    - name: Install additional yum repos
+      copy: src={{ item }}.repo dest=/etc/yum.repos.d/{{ item }}.repo mode=0644
+      with_items: [centos-sclo-rh, centos-sclo-sclo, haproxy, postgres, grafana, prometheus, harbottle]
+
+    # install original kubernetes and docker repo
+    - name: Install kubernetes yum repos
+      when: repo_cloud_native and not repo_cloud_native_mirror_repo
+      copy: src={{ item }}.repo dest=/etc/yum.repos.d/{{ item }}.repo mode=0644
+      with_items: [docker, k8s]
+
+    # install k8s aliyun mirror repo
+    - name: Install kubernetes mirror repo
+      when: repo_cloud_native and repo_cloud_native_mirror_repo
+      copy: src=cloud_native.repo dest=/etc/yum.repos.d/cloud_native.repo mode=0644
+
+
+    #==============================================================#
+    # 4.3 Download packages
+    #==============================================================#
+    # enlist build essential packages if flag `build_essential` is set
+    - name: Enlist building packages to repo
+      when: repo_build_essential
+      set_fact: repo_package_list="{{ repo_package_list + repo_build_essential_package_list }}"
+
+    # enlist additional packages if provided
+    - name: Enlist addional packages to repo
+      when: repo_additional_package_list|length > 0
+      set_fact: repo_package_list="{{ repo_package_list + repo_additional_package_list }}"
+
+    # print normal packages
+    # - name: Print packages to be downloaded
+    #   debug: {"msg": "Packages to be downloaded: {{ repo_package_list }}"}
+
+    # download rpms, may take 30m or more
+    - name: Download packages to repo dir
+      ignore_errors: true
+      environment: "{{ repo_proxy_env }}"
+      yum:
+        download_only: yes
+        download_dir: /www/{{ repo_name }}
+        disable_gpg_check: yes
+        name: "{{ repo_package_list }}"
+
+    # dowload cloud native packages alone
+    - name: Download cloud native packages
+      when: repo_cloud_native
+      ignore_errors: true
+      yum:
+        download_only: yes
+        download_dir: /www/{{ repo_name }}
+        disable_gpg_check: yes
+        name: "{{ repo_cloud_native_package_list }}"
+
+    # download rpm from url
+    - name: Download additional url packages
+      ignore_errors: true
+      environment: "{{ repo_proxy_env }}"
+      get_url: dest=/www/{{ repo_name }}/{{ item.name }} url={{ item.url }}
+      with_items: "{{ repo_url_package_list }}"
+
+
+    #==============================================================#
+    # 4.4 Complete repo creation
+    #==============================================================#
+    # create repo
+    - name: Create local yum repo index
+      command: createrepo /www/{{ repo_name }}
+
+    # set complete flag
+    - name: Mark local yum repo complete
+      copy: content=ok dest=/www/{{ repo_name }}/repo_complete
+
 
 #==============================================================#
 # Stage 5: Install local yum repo on current node
 #==============================================================#
-- name: Install local yum repos on meta
+- name: Install local yum repos on host
   tags: repo_install
-  copy: src=repo/pigsty.repo dest=/etc/yum.repos.d/pigsty.repo mode=0666
+  get_url:
+    url: http://{{ repo_host }}/{{ repo_name }}.repo
+    dest: /etc/yum.repos.d/{{ repo_name }}.repo
+
 ...

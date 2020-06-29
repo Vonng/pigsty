@@ -103,12 +103,22 @@ pg_lb_nic: eth1
 
 
 ################################################################
-# Meta repo variable: how to build local yum repo
+# Local repo variable: how to build local yum repo
 ################################################################
+# local yum repo are created according to the following two variables:
+# default repo dir:       /www/{{ repo_name }}
+# default repo file url:  http://{{ repo_host }}/{{ repo_name }}.repo
+# default repo base url:  http://{{ repo_host }}/{{ repo_name }}/
+# repo_name could be: pigsty or pgsql/el7_x86_64
+# repo_host could either be an ip address or hostname
+repo_name: pigsty                 # repo file
+repo_host: yum.pigsty             # base url
+
 # how to download
 repo_force_download:   false     # force download even cache exists
 repo_proxy_env: {}               # add proxy environment variable here
 
+# what to download
 repo_package_list:
   # postgres core packages
   - postgresql13*
@@ -122,15 +132,16 @@ repo_package_list:
   # ansible and python environment
   - ansible,python,python-pip,python-ipython,python-psycopg2
   # system utils
-  - ntp,chrony,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,grubby,zlib,openssl,perl-ExtUtils-Embed
+  - ntp,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,grubby,zlib,openssl,perl-ExtUtils-Embed
   # network utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm
+  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm
   # monitoring packages
   - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
   # dcs packages
   - consul,consul_exporter,consul-template,etcd
   # proxy and dns
   - nginx,haproxy,keepalived,dnsmasq
+
 
 # download necessary url packages
 repo_url_package_list:
@@ -149,6 +160,7 @@ repo_additional_package_list: []
 
 # download cloud native packages: kubectl kubeadm helm docker, etc..
 repo_cloud_native: true
+repo_cloud_native_mirror_repo: true   # use mirror repo for cloud native packages
 repo_cloud_native_package_list:
   - docker-ce,docker-ce-cli,docker-ce-selinux,cri-tools,kubeadm,kubectl,kubelet,kubernetes-cni,rkt,helm
 
