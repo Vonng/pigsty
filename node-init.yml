@@ -22,36 +22,27 @@
   become: yes
   hosts: all
   gather_facts: no
-  tags: repo
+  tags: node
 
   vars:
-    # local yum repo are created according to the following two variables:
-    # default repo dir:       /www/{{ repo_name }}
-    # default repo file url:  http://{{ repo_host }}/{{ repo_name }}.repo
-    # default repo base url:  http://{{ repo_host }}/{{ repo_name }}/
-    # repo_name could be: pigsty or pgsql/el7_x86_64
-    # repo_host could either be an ip address or hostname
-
-    # repo_name: pigsty                   # repo file
-    # repo_host: yum.pigsty               # base url
-
-    # force download even cache exists:  -e repo_force_download=true
-    # repo_force_download:   false
-    # add proxy environment variable: e.g: all_proxy: http://myproxy.com
-    # repo_proxy_env: {}
-
-    # additional packages to be downloaded
-    # repo_additional_package_list: []
-
-    # download build essential packages: gcc, g++, rpmbuild, etc...
-    # repo_build_essential: true
-
-    # download cloud native packages: kubectl kubeadm helm docker, etc..
-    # repo_cloud_native: true
-    # repo_cloud_native_mirror_repo: true   # use mirror repo for cloud native packages
+    # node_overwrite_hostname: false
+    # node_timezone: 'Asia/Shanghai'     # default node timezone
+    # node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
+    # node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
+    # node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
+    # node_disable_selinux: true      # disable selinux
+    # node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+    # node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
+    # node_tune: true                 # tune node parameters
+    # node_sysctl_params: {}          # additional sysctl parameters
+    # node_root_setup: false          # setup root user(ssh exchange) ?
+    node_static_dns:                # write localhost to static dns
+      - host: 127.0.0.1
+        domain: [localhost]
 
   roles:
-    - role: node
-
+    - role: node          # tune node settings
+#    - role: repo_install  # install local yum repo
+#    - role: node_pkgs     # install rpm packages
 
 ...

@@ -3,54 +3,32 @@
   block:
     # disable numa
     - name: Node configure disable numa
-      tags: disable_numa
       when: node_disable_numa
       script: disable_numa.sh
 
     # disable swap is important for database and k8s
     - name: Node configure disable swap
-      tags: disable_swap
       when: node_disable_swap
       command: swapoff -a
     - name: Node configure unmount swap
-      tags: disable_swap
       mount: name={{ item }} fstype=swap state=absent
       with_items: [swap, none]
 
     # disable firewalld
     - name: Node configure disable firewall
-      tags: disable_firewall
       when: node_disable_firewall
       systemd: name=firewalld state=stopped enabled=no
 
     # disable selinux
     - name: Node configure disable selinux
-      tags: disable_selinux
       when: node_disable_selinux
       selinux: state=disabled
     - name: Node configure disable selinux now
-      tags: disable_selinux
       when: node_disable_selinux
       command: setenforce 0
 
     # setup disk prefetch
     - name: Node configure disk prefetch
-      tags: disk_prefetch
       when: node_disk_prefetch
       script: disk_prefetch.sh
-
-    # these feature are managed by tuned now
-
-    # disable transparent huge page (important for database)
-    # - name: Disable transparent hugepage
-    #   tags: disable_thp
-    #   when: node_disable_thp
-    #   script: disable_thp.sh
-
-    # cpu performce tuning
-    # - name: Node configure cpupower perf
-    #   tags: cpupower_performance
-    #   when: node_cpupower_performance
-    #   script: cpupower_performance.sh
-
 ...

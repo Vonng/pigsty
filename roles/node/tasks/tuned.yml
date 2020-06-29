@@ -1,6 +1,7 @@
 ---
 - name: Node tuned
   tags: node_tuned
+  when: node_tuned
   block:
     - name: Get config parameter page count
       command: getconf _PHYS_PAGES
@@ -10,7 +11,7 @@
       shell: getconf PAGE_SIZE
       register: node_page_size  # half mem in bytes
 
-    - name: Calulate shmmax and shmall from mem
+    - name: Tune shmmax and shmall via mem
       set_fact:
         param_shmall: "{{ ((node_page_count.stdout|int) / 2)|int }}"
         param_shmmax: "{{ ((node_page_count.stdout|int) * (node_page_size.stdout|int) / 2)|int }}"

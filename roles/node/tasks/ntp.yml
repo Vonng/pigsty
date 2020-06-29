@@ -1,0 +1,15 @@
+---
+- name: Set ntp service chronyd
+  tags: node_ntp
+  when: node_setup_ntp
+  block:
+    - name: Setup default node timezone
+      when: node_timezone is defined and node_timezone != ""
+      timezone: name={{ node_timezone }}
+
+    - name: Copy the chrony.conf template
+      template: src=chrony.conf.j2 dest=/etc/chrony.conf
+
+    - name: Launch chronyd ntpd service
+      systemd: name=chronyd enabled=true state=restarted
+...

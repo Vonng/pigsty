@@ -3,45 +3,90 @@
 # node provision
 ################################################################
 
-#==============================================================#
-# node basics
-#==============================================================#
-# node hostname override : use {{ pg_cluseter }}-{{ pg_seq } if available
-node_overwrite_hostname: false
-
-# node timezone override
-node_timezone: 'Asia/Shanghai'     # default node timezone
-
-#==============================================================#
-# node features
-#==============================================================#
-# node feature switch
+#--------------------------------------------------------------#
+# 1. node features
+#--------------------------------------------------------------#
 node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
 node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
 node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
 node_disable_selinux: true      # disable selinux
 node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
-# node kernel modeles
+#--------------------------------------------------------------#
+# 2. node kernel
+#--------------------------------------------------------------#
 node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
-
-#==============================================================#
-# node sysctl
-#==============================================================#
-node_tune: true                 # tune node parameters
+#--------------------------------------------------------------#
+# 3. node tuned
+#--------------------------------------------------------------#
+node_tuned: true                # tune node parameters
 node_sysctl_params: {}          # additional sysctl parameters
 
-#==============================================================#
-# node users
-#==============================================================#
+#--------------------------------------------------------------#
+# 4. node user
+#--------------------------------------------------------------#
 node_root_setup: false          # setup root user(ssh exchange) ?
 
-#==============================================================#
-# node static dns
-#==============================================================#
-node_static_dns:                # write localhost to static dns
-  - host: 127.0.0.1
-    domain: [localhost]
+#--------------------------------------------------------------#
+# 5. node dns
+#--------------------------------------------------------------#
+node_dns_setup: false           # setup dns
+node_static_dns: {}             # write localhost to static dns
+node_dns_servers: []            # default DNS server (meta node dnsmasq by default)
+
+#--------------------------------------------------------------#
+# 6. node repo
+#--------------------------------------------------------------#
+node_local_repo_enabled: true     # whether use local yum repo
+node_local_repo_only: true        # whether disable other repos
+repo_name: pigsty                 # local repo name
+repo_host: yum.pigsty             # local repo host
+
+#--------------------------------------------------------------#
+# 7. node packages
+#--------------------------------------------------------------#
+# packages for all nodes
+node_common_packages:
+  - chrony,ntp,uuid,readline,zlib,openssl,libxml2,libxslt                                           # pg util
+  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed             # basic tools
+  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # utils
+
+# packages for infrastructure layer
+node_infra_packages:
+  - etcd,consul,haproxy,keepalived,node_exporter
+
+# only needed in meta node
+node_meta_install: false
+node_meta_packages:
+  - ansible,python,python-pip,python-ipython,python-psycopg2                    # ansible and python environment
+  - nginx,haproxy,keepalived,dnsmasq                                            # proxy and dns
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter   # monitoring packages
+
+# packages for cloud-native
+node_cloud_install: false
+node_cloud_packages:
+  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
+
+# packages for building tool chain
+node_build_install: false
+node_build_packages:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
+# add additional packages here
+node_additional_packages: []   # additional rpm packages to be downloaded/installed
+
+#--------------------------------------------------------------#
+# 8. node ntp
+#--------------------------------------------------------------#
+node_setup_ntp: false           # setup ntp
+node_timezone: 'Asia/Shanghai'  # default node timezone
+node_ntp_servers: []            # default NTP servers
+
+#--------------------------------------------------------------#
+# 9. node vip
+#--------------------------------------------------------------#
+node_setup_vip: false           # setup default vip structure
 
 ...

@@ -1,0 +1,46 @@
+---
+#==============================================================#
+# Install packages
+#==============================================================#
+- name: Install infrastructure packages
+  tags: node_pkgs
+  block:
+    # always install common packages
+    - name: Install node common packages
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_common_packages }}"
+
+    # always install infrastructure packages
+    - name: Install infra common packages
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_infra_packages }}"
+
+    # install meta packages if specified
+    - name: Install meta common packages
+      when: node_meta_install
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_meta_packages }}"
+
+    # install cloud native packages if specified
+    - name: Install cloud native packages
+      when: node_cloud_install
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_cloud_packages }}"
+
+    - name: Install build utils packages
+      when: node_build_install
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_build_packages }}"
+
+    # enlist additional packages if provided
+    - name: Install additional packages
+      when: node_additional_packages|length > 0
+      yum:
+        disable_gpg_check: yes
+        name: "{{ node_additional_packages }}"
+...

@@ -1,58 +1,49 @@
 ---
 #==============================================================#
-# Stage 1: Hostname setup
-#==============================================================#
-- name: Setup node default hostname
-  tags: node_hostname
-  when: node_overwrite_hostname and pg_cluster is defined and pg_seq is defined
-  hostname: name={{ pg_cluster }}-{{ pg_seq }}
-
-
-#==============================================================#
-# Stage 2: Timezone setup
-#==============================================================#
-- name: Setup node default timezone
-  tags: node_timezone
-  when: node_timezone is defined and node_timezone != ""
-  timezone: name={{ node_timezone }}
-
-
-#==============================================================#
-# Stage 3: node feature setup
+# Stage 1: node features
 #==============================================================#
 - import_tasks: feature.yml
   tags: node_feature
 
-
 #==============================================================#
-# Stage 4: node kernel module
+# Stage 2: node kernel module
 #==============================================================#
 - import_tasks: kernel.yml
   tags: node_kernel
 
-
 #==============================================================#
-# Stage 5: node sysctl
+# Stage 3: node tuned
 #==============================================================#
 - import_tasks: tuned.yml
 
 #==============================================================#
-# Stage 6: node users
+# Stage 4: node users
 #==============================================================#
 - import_tasks: users.yml
 
+#==============================================================#
+# Stage 5: node dns
+#==============================================================#
+- import_tasks: dns.yml
 
 #==============================================================#
-# Stage 6: node static dns
+# Stage 6: node repo
 #==============================================================#
-- name: Add static dns records to node
-  tags: node_dns
-  block:
-#    - name: Write static dns record to node
-#      lineinfile: path=/etc/hosts line="{{ inventory_hostname }} {{ ansible_nodename }}"
+- import_tasks: repo.yml
 
-    - name: Write static dns record to node
-      lineinfile: path=/etc/hosts line="{{ item.host }} {{ item.domain | join(' ') }}"
-      with_items: "{{ node_static_dns }}"
+#==============================================================#
+# Stage 7: node pkgs
+#==============================================================#
+- import_tasks: pkgs.yml
+
+#==============================================================#
+# Stage 8: node ntp
+#==============================================================#
+- import_tasks: ntp.yml
+
+#==============================================================#
+# Stage 9: node vip
+#==============================================================#
+- import_tasks: vip.yml
 
 ...
