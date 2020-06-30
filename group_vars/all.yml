@@ -10,6 +10,7 @@
 # node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
 # 2. node kernel
+# note that br_netfilter is required for k8s, but may not be installed in centos7.2-
 # node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
 # 3. node tuned
@@ -185,6 +186,7 @@ pg_monitor_password: 'dbuser_monitor'
 # Load Balancer Settings
 #==============================================================#
 #pg_lb_enabled:       true           # default load balancer type
+#
 #pg_lb_type:          haproxy        # haproxy | vip
 #pg_lb_policy:        leastconn       # roundrobin, leastconn
 #pg_lb_admin:         admin           # default admin user
@@ -194,17 +196,12 @@ pg_monitor_password: 'dbuser_monitor'
 #pg_lb_replica_port:  5434            # default replica port 5434
 #pg_lb_dest_port:     6432            # default target port is pgbouncer 6432
 #pg_lb_check_port:    8008            # default health check port
-#
 #pg_lb_timeout_client: 3h
 #pg_lb_timeout_server: 3h
 #pg_lb_socket: /var/run/haproxy.socket
-
-
-#################################################################
-## vip
-#################################################################
 #
-#keepalived_enabled: true      # enable keepalived for cluster
-#keepalived_nic: eth1          # REQUIRED field nic interface
-
+#pg_lb_vip_enabled: true               # create vip for load balancer
+#pg_lb_vip:                          # [REQUIRED] default vip from load balancer
+#pg_lb_role: backup                    # default load balancer role is backup
+#pg_lb_nic: eth1                       # default nic for keepalived
 ...

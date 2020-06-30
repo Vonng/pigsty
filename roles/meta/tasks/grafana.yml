@@ -55,7 +55,28 @@
       wait_for: host=localhost port=3000 state=started
 
 
-- name: Provision Grafana
+#==============================================================#
+# Provision grafana by copy sqlite db
+#==============================================================#
+- name: Provision Grafana via db
+  when: meta_grafana_provision_via_db
+  tags: grafana_provision
+  block:
+    #==============================================================#
+    # Copy grafana.db
+    #==============================================================#
+    - name: Launch meta grafana service
+      systemd: name=grafana-server state=stopped enabled=yes daemon_reload=yes
+    - name: Copy grafana.db to data dir
+      copy: src=grafana/grafana.db dest=/var/lib/grafana/grafana.db owner=grafana mode=0600
+    - name: Restart meta grafana service
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+    - name: Wait for meta grafana online
+      wait_for: host=localhost port=3000 state=started
+
+
+- name: Provision Grafana via API
+  when: not meta_grafana_provision_via_db
   tags: grafana_provision
   block:
     #==============================================================#

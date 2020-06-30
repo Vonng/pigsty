@@ -1,37 +1,27 @@
 ---
 #==============================================================#
-# Stage 1: Meta packages install
-#==============================================================#
-- name: Install meta packages from yum
-  tags: meta_install
-  environment: "{{ meta_proxy_env }}"
-  yum: name={{ meta_package_list }} disable_gpg_check=yes
-
-#==============================================================#
-# Stage 2: Meta nginx setup
+# Stage 1: Meta nginx setup
 #==============================================================#
 - import_tasks: nginx.yml
 
 #==============================================================#
-# Stage 3: Meta dnsmasq service
+# Stage 2: Meta dns server setup
 #==============================================================#
 - import_tasks: dns.yml
 
-
 ##==============================================================#
-## Stage 4: Meta Prometheus setup
+## Stage 3: Meta Prometheus setup
 ##==============================================================#
 - import_tasks: prometheus.yml
 
-
 ##==============================================================#
-## Stage 5: Meta grafana setup
+## Stage 4: Meta grafana setup
 ##==============================================================#
 - import_tasks: grafana.yml
 
 
 ##==============================================================#
-## Stage 6: Meta service register
+## Stage 5: Meta service register
 ##==============================================================#
 - name: Register meta service to consul
   tags: meta_register
