@@ -25,9 +25,12 @@
       when: not grafana_plugins_cache.stat.exists or meta_grafana_force_download_plugins
       grafana_plugin: name={{ item }}
       with_items: "{{ meta_grafana_plugins  }}"
+
     - name: Create grafana plugins cache
+      ignore_errors: true
       when: not grafana_plugins_cache.stat.exists or meta_grafana_force_download_plugins
       command: tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
+
 
     #==============================================================#
     # Install grafana plugins from cache when applicable
@@ -53,6 +56,7 @@
       systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
     - name: Wait for meta grafana online
       wait_for: host=localhost port=3000 state=started
+
 
 
 #==============================================================#
