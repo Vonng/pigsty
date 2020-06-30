@@ -26,17 +26,38 @@
         mode: 0600
 
     #==============================================================#
-    # Change some core parameters
+    # Calculate mem parameters
     #==============================================================#
-    # calculate memory parameters
-    - name: Gather fact total memory size in kb
-      shell: echo $(free | awk '/Mem:/{print $2}')
-      register: pg_memory_total_result              # memory total in KB
-    - name: Calcuate shared buffer from mem size
+    - name: Get config parameter page count
+      command: getconf _PHYS_PAGES
+      register: node_page_count  # half mem in pages
+
+    - name: Get config parameter page size
+      shell: getconf PAGE_SIZE
+      register: node_page_size  # half mem in bytes
+
+    - name: Tune shared buffer and work mem
+      set_fact:   # max shared-buffer 32GB | max maintainance work mem 8GB
+        pg_shared_buffers_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 34359738368] | min)|int }}"
+        pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | max)|int }}"
+
+    - name: Hanlde small size mem occasion
+      when: pg_shared_buffers_bytes|int < 1073741824  # < 1GB
       set_fact:
-        # 1/4 mem for shared buffer and 1/8 for maintainance,  round to multiple of 128MB, unit=MB
-        pg_shared_buffers_size: "{{ ((pg_memory_total_result.stdout | int * 1024 / 4 / 134217728 ) | round(0,'ceil') * 128 )  }}"
-        pg_maintainance_mem_size: "{{ ((pg_memory_total_result.stdout | int * 1024 / 8 / 67108864 ) | round(0,'ceil') * 64 )  }}"
+        pg_shared_buffers: "256MB"
+        pg_maintenance_work_mem: "64MB"
+
+    - name: Calculate postgres mem params
+      when: pg_shared_buffers_bytes|int >= 1073741824  # >= 1GB
+      set_fact:
+        pg_shared_buffers: "{{ (pg_shared_buffers_bytes|int / 1073741824)|round(0)|int }}GB"
+        pg_maintenance_work_mem: "{{ (pg_maintenance_work_mem_bytes|int / 1048576)|round(0)|int }}MB"
+
+    - name: Tune shared buffer and work mem
+      set_fact:
+        param_shared_buffers: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 12884901888] | min)|int / 1073741824   }}"
+        param_maintenance_work_mem: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 12884901888] | min)|int / 1073741824 }}"
+
 
     # force chaning some parameters
     - name: Remove some important parameters
@@ -63,6 +84,6 @@
         - "hot_standby = on"
         - "cluster_name = '{{ pg_cluster }}'"
         - "port = {{ pg_port }}"
-        - "shared_buffers = {{ pg_shared_buffers_size | int | round(0) }}MB"
-        - "maintenance_work_mem = {{ pg_maintainance_mem_size | int | round(0) }}MB"
+        - "shared_buffers = {{ pg_shared_buffers }}"
+        - "maintenance_work_mem = {{ pg_maintenance_work_mem }}"
 ...
