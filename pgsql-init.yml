@@ -1,10 +1,10 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   init-cluster.yml
+# File      :   initdb.yml
 # Mtime     :   2020-06-21
-# Desc      :   init database cluster
-# Path      :   init-cluster.yml
+# Desc      :   init database based on provisioned cluster
+# Path      :   initdb.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 #==============================================================#
 
@@ -15,19 +15,8 @@
 - name: Init new database cluster
   become: yes
   hosts: all
-  gather_facts: no
+  gather_facts: true
   roles:
-    - role: node                            # node provision setup
-      tags: node
-
-    - role: dcs                             # dcs: consul/etcd
-      tags: dcs
-
-    # optional kubernetes support
-    - role: cloud                           # docker & kubernetes (optinal)
-      tags: cloud
-      when: infra_cloud_native_support
-
     # meta db setup (skip replica & haproxy)
     - role: pg_preflight                    # pre-flight & install
       tags: preflight
@@ -35,7 +24,7 @@
     - role: pg_install                      # install postgres packages
       tgas: install
 
-    - role: pg_init                         # init postgres cluster
+    - role: pg_init                         # init primary instance
       tags: postgres
 
     - role: pg_pgbouncer                    # init connection pooler
@@ -49,5 +38,4 @@
 
     - role: haproxy                         # haproxy load balancer
       tags: haproxy
-
 ...

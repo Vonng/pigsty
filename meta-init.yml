@@ -1,0 +1,47 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   repo-init.yml
+# Mtime     :   2020-06-20
+# Desc      :   init repo node
+# Path      :   repo-init.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note:
+#
+# Init a local yum repo powered by a local nginx web server
+# all necessary rpm packages are downloaded to accelerate
+# cluster initialization, or in case that target machine does
+# not have internet access.
+#
+# RPM packages are downloaded to /www/{{ repo_name }}. And it will skip
+# download if all packages are already downloaded in there.
+#
+# Local yum repo url:  http://{{ repo_host }}/{{ repo_name }}/
+#==============================================================#
+- name: Init local yum repo on node
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: repo
+
+  vars:
+  # dcs_type:    consul         # default dcs server type: consul
+  # dcs_check_interval: 15s     # default service check interval (not used)
+  # dcs_check_timeout:  3s      # default service check timeout  (not used)
+
+  # meta_grafana_server: http://grafana.pigsty      # use pre-defined prometheus data source
+  # meta_grafana_force_download_plugins: false      # force redownload grafana plugins
+  # meta_grafana_time_interval: 2s                  # force redownload grafana plugins
+  # meta_grafana_provision_via_db: true             # provision via copy sqlite db by default
+
+  # meta_grafana_plugins: []                          # default grafana plugins
+  # meta_grafana_dashboards: []                       # default dashboards
+
+  # meta_dynamic_dns: {}
+
+
+  roles:
+    - role: meta
+
+
+...
