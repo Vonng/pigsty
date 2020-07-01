@@ -54,6 +54,12 @@
         pg_shared_buffers: "256MB"
         pg_maintenance_work_mem: "64MB"
 
+    - name: Calculate postgres mem params
+      when: pg_shared_buffers_bytes|int >= 1073741824  # >= 1GB
+      set_fact:
+        pg_shared_buffers: "{{ (pg_shared_buffers_bytes|int / 1073741824)|round(0)|int }}GB"
+        pg_maintenance_work_mem: "{{ (pg_maintenance_work_mem_bytes|int / 1048576)|round(0)|int }}MB"
+
 
     #==============================================================#
     # Config patroni
