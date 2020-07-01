@@ -35,6 +35,11 @@
   tags: repo_boot
   when: not repo_boot_cache.stat.exists
   block:
+    - name: Overwrite default centos yum repo
+      when: repo_use_mirror
+      ignore_errors: true
+      copy: src=centos7-mirror.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+
     - name: Enable default centos yum repos
       ignore_errors: true
       command: yum-config-manager --enable base extras updates epel-release
@@ -134,10 +139,6 @@
     - name: Enlist addional packages to repo
       when: repo_additional_package_list|length > 0
       set_fact: repo_package_list="{{ repo_package_list + repo_additional_package_list }}"
-
-    # print normal packages
-    # - name: Print packages to be downloaded
-    #   debug: {"msg": "Packages to be downloaded: {{ repo_package_list }}"}
 
     # download rpms, may take 30m or more
     - name: Download packages to repo dir

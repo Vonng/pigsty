@@ -18,6 +18,14 @@
         password: "{{ pg_replication_password }}"
         role_attr_flags: REPLICATION,LOGIN,NOINHERIT
 
+    - name: Alter dbsu default password
+      become_user: postgres
+      postgresql_user:
+        db: postgres
+        name: "{{ pg_dbsu }}"
+        password: "{{ pg_dbsu_password }}"
+        role_attr_flags:  SUPERUSER,CREATEROLE,CREATEDB,REPLICATION,BYPASSRLS
+
     - name: Grant function usage to replicator
       postgresql_privs:
         db: postgres

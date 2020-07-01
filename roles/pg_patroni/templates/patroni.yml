@@ -1,6 +1,6 @@
 #!/usr/bin/env patroni
 
-#==============================================================#
+######################################################################
 # File      :   patroni.yml
 # Mtime     :   2020-04-08
 # Desc      :   patroni cluster definition for {{ pg_cluster }}
@@ -9,7 +9,7 @@
 # Author    :   Vonng(fengruohang@outlook.com)
 # Note      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
 # Doc       : https://patroni.readthedocs.io/en/latest/SETTINGS.html
-#==============================================================#
+######################################################################
 
 ---
 namespace: /pg/
@@ -35,7 +35,7 @@ log:
 postgresql:
   bin_dir: {{ pg_bin_dir }}
   data_dir: {{ pg_data }}
-  pgpass: /home/postgres/.pgpass
+  # pgpass: /home/postgres/.pgpass
 
   listen:  0.0.0.0:{{ pg_port }}
   connect_address: {{ inventory_hostname }}:{{ pg_port }}
@@ -45,8 +45,8 @@ postgresql:
 
   authentication:
     superuser:
-      username: postgres
-      password: postgres
+      username: {{ pg_dbsu }}
+      password: {{ pg_dbsu_password }}
     replication:
       username: {{ pg_replication_username }}
       password: {{ pg_replication_password }}
@@ -71,40 +71,47 @@ postgresql:
 
 
 
-
 bootstrap:
   # this section will be written into Etcd:/<namespace>/<scope>/config after initializing new cluster
   # and all other cluster members will use it as a `global configuration`
 
   initdb:
     - data-checksums
-    - encoding=UTF8
-    - locale=C
+    - encoding: UTF8
+    - locale: C
 
   pg_hba:
     - local   all             postgres                                ident
     - local   replication     postgres                                ident
+    # allow intranet replication access
     - local   replication     replicator                              md5
-    - host    replication     replicator        127.0.0.1/32          md5
-    - host    replication     replicator        ::1/128               md5
-    - host    replication     replicator        10.0.0.0/8            md5
-    - local   all             +pg_monitor                             md5
-    - host    all             +pg_monitor       127.0.0.1/32          md5
-    - host    all             +pg_monitor       ::1/128               md5
-    - local   all             all                                     md5
-    - host    all             all               10.0.0.0/8            md5
-    - host    all             all               192.168.0.0/16        md5
-    - host    all             all               ::0/0                 md5
+    - host    replication     replicator          127.0.0.1/32        md5
+    - host    replication     replicator          ::1/128             md5
+    - host    replication     replicator          10.0.0.0/8          md5
+    - host    replication     replicator          192.168.0.0/16      md5
+    # allow local password access (including pgbouncer)
+    - local   all     all                                             md5
+    - host    all     all                         127.0.0.1/32        md5
+    - host    all     all                         ::1/128             md5
+    # allow intranet admin password access
+    - host    all     +dbrole_admin               10.0.0.0/8          md5
+    - host    all     +dbrole_admin               192.168.0.0/16      md5
+    - # [reject|allow] intranet common user password access
+    # ps: you can force using pgbouncer by rejecting direct access to db (comment 2 lines below)
+    - host    all             all                 10.0.0.0/8          md5
+    - host    all             all                 192.168.0.0/16      md5
+
+
 
   dcs:
     # IMPORTANT PARAMETERS
-    # constraint: ttl >= loop_wait + retry_timeout * 2
+    # constraint: ttl >: loop_wait + retry_timeout * 2
 
     # the TTL to acquire the leader lock (in seconds). Think of it as the length of time before initiation of the automatic failover process. Default value: 30
     ttl: 30
 
     # the number of seconds the loop will sleep. Default value: 10
-    loop_wait: 5
+    loop_wait: 10
 
     # timeout for DCS and PostgreSQL operation retries (in seconds). DCS or network issues shorter than this will not cause Patroni to demote the leader. Default value: 10
     retry_timeout: 10
@@ -130,10 +137,12 @@ bootstrap:
       use_slots: true
 
       parameters:
-        # MUST SET PARAMETERS
+        #------------------------------------------------------------------------------
+        # IMPORTANT PARAMETERS
+        #------------------------------------------------------------------------------
         max_connections: 200
         superuser_reserved_connections: 10
-        max_locks_per_transaction: 64
+        max_locks_per_transaction: 128
         max_prepared_transactions: 0
         track_commit_timestamp: on
         max_worker_processes: 8
@@ -142,58 +151,107 @@ bootstrap:
         max_wal_senders: 16
         max_replication_slots: 16
         wal_keep_segments: 1000
+        password_encryption: md5
 
-        # additional configuration
-        shared_buffers: 256MB
-        maintenance_work_mem: 128MB
+        #------------------------------------------------------------------------------
+        # RESOURCE USAGE (except WAL)
+        #------------------------------------------------------------------------------
+        # memory: shared_buffers and maintenance_work_mem will be dynamically set
+        shared_buffers: {{ pg_shared_buffers }}
+        maintenance_work_mem: {{ pg_maintenance_work_mem }}
+        work_mem: 32MB
+        huge_pages: try
+        temp_file_limit: 100GB
+        vacuum_cost_delay: 5ms
+        vacuum_cost_limit: 10000
+        bgwriter_delay: 10ms
+        bgwriter_lru_maxpages: 800
+        bgwriter_lru_multiplier: 5.0
+
+        #------------------------------------------------------------------------------
+        # WAL
+        #------------------------------------------------------------------------------
         wal_buffers: 16MB
-        max_wal_size: 10GB
-        min_wal_size: 500MB
-        wal_receiver_status_interval: 1s
-        hot_standby_feedback: on
-        wal_receiver_timeout: 30s
+        wal_writer_delay: 20ms
+        wal_writer_flush_after: 1MB
+        min_wal_size: 100GB
+        max_wal_size: 500GB
+        commit_delay: 20
+        commit_siblings: 8
+        checkpoint_timeout: 50min
+        checkpoint_completion_target: 0.9
+        recovery_target_timeline: 'latest'
 
-        # query planner
+        #------------------------------------------------------------------------------
+        # REPLICATION
+        #------------------------------------------------------------------------------
+        # synchronous_standby_names: ''
+        vacuum_defer_cleanup_age: 50000
+        promote_trigger_file: 'promote.signal'
+        max_standby_archive_delay: 10min        # max delay before canceling queries when reading WAL from archive;
+        max_standby_streaming_delay: 3min       # max delay before canceling queries when reading streaming WAL;
+        wal_receiver_status_interval: 1s        # send replies at least this often
+        hot_standby_feedback: on                # send info from standby to prevent query conflicts
+        wal_receiver_timeout: 60s               # time that receiver waits for
+        max_logical_replication_workers: 10
+        max_sync_workers_per_subscription: 10
+
+        #------------------------------------------------------------------------------
+        # QUERY TUNING
+        #------------------------------------------------------------------------------
+        # planner
         enable_partitionwise_join: on
         enable_partitionwise_aggregate: on
-        random_page_cost: 1.0
+        random_page_cost: 1.1
         constraint_exclusion: partition
-        effective_cache_size: 1GB
+        effective_cache_size: 320GB
+        default_statistics_target: 1000        # 100 -> 1000
 
-        # log settings
+        #------------------------------------------------------------------------------
+        # REPORTING AND LOGGING
+        #------------------------------------------------------------------------------
         log_destination: 'csvlog'
         logging_collector: on
         log_directory: 'log'
         log_filename: 'postgresql-%a.log'
-        log_min_duration_statement: 1000
         log_checkpoints: on
         log_lock_waits: on
-        log_statement: 'ddl'
         log_replication_commands: on
+        log_statement: 'ddl'
+        log_min_duration_statement: 100
 
-        # track
+        #------------------------------------------------------------------------------
+        # STATISTICS
+        #------------------------------------------------------------------------------
         track_io_timing: on
-        track_functions: all
-        track_activity_query_size: 2048
+        track_functions: all                # none, pl, all
+        track_activity_query_size: 4096    # (change requires restart)
 
-        # vacuum and autovacuum
-        vacuum_cost_delay: 0
-        vacuum_cost_limit: 10000
-        vacuum_defer_cleanup_age: 500000
+        #------------------------------------------------------------------------------
+        # AUTOVACUUM
+        #------------------------------------------------------------------------------
         autovacuum: on
-        log_autovacuum_min_duration: 0
+        log_autovacuum_min_duration: 1s
         autovacuum_max_workers: 3
-        autovacuum_vacuum_scale_factor: 0.05
-        autovacuum_analyze_scale_factor: 0.05
-        autovacuum_vacuum_cost_delay: -1
-        autovacuum_vacuum_cost_limit: -1
+        autovacuum_naptime: 30s
+        autovacuum_vacuum_scale_factor: 0.05    # fraction of table size before vacuum
+        autovacuum_analyze_scale_factor: 0.03    # fraction of table size before analyze
+        autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay for
+        autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit for
 
-        # bgwriter and checkpoint
-        checkpoint_timeout: 30min
-        checkpoint_completion_target: 0.9
+        #------------------------------------------------------------------------------
+        # CLIENT
+        #------------------------------------------------------------------------------
+        search_path: 'yay, public'
+        deadlock_timeout: 50ms
+        idle_in_transaction_session_timeout: 600000        # 10min
 
-        # extension
+        #------------------------------------------------------------------------------
+        # CUSTOMIZED OPTIONS
+        #------------------------------------------------------------------------------
         shared_preload_libraries: 'pg_stat_statements, auto_explain'
+
+        # extension settings
         auto_explain.log_min_duration: 1min
         auto_explain.log_analyze: true
         auto_explain.log_verbose: true

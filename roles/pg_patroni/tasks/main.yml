@@ -33,14 +33,31 @@
   block:
 
     #==============================================================#
+    # Calculate patroni mem settings
+    #==============================================================#
+    - name: Get config parameter page count
+      command: getconf _PHYS_PAGES
+      register: node_page_count  # half mem in pages
+
+    - name: Get config parameter page size
+      shell: getconf PAGE_SIZE
+      register: node_page_size  # half mem in bytes
+
+    - name: Tune shared buffer and work mem
+      set_fact:   # max shared-buffer 32GB | max maintainance work mem 8GB
+        pg_shared_buffers_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 34359738368] | min)|int }}"
+        pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | max)|int }}"
+
+    - name: Hanlde small size mem occasion
+      when: pg_shared_buffers_bytes|int < 1073741824  # < 1GB
+      set_fact:
+        pg_shared_buffers: "256MB"
+        pg_maintenance_work_mem: "64MB"
+
+
+    #==============================================================#
     # Config patroni
     #==============================================================#
-#    - name: Copy patroni callback scripts
-#      copy: src={{ item }} dest=/pg/bin/{{ item }} owner=postgres group=admin mode=0700
-#      with_items:
-#        - callback.sh
-#        - anti-entropy.py
-
     - name: Copy default /pg/conf/patroni.yml
       template:
         src: "patroni.yml"
