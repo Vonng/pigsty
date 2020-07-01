@@ -19,6 +19,17 @@
       register: grafana_plugins_cache
 
     #==============================================================#
+    # Install grafana plugins from cache when applicable
+    #==============================================================#
+    # extract cache pacakge and install
+    - name: Provision grafana plugin via cache
+      when: grafana_plugins_cache.stat.exists
+      shell: |
+        rm -rf /var/lib/grafana/plugins
+        tar -xf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana
+        chown -R grafana /var/lib/grafana
+
+    #==============================================================#
     # Install grafana plugins and make cache
     #==============================================================#
     - name: Download grafana plugins from web
@@ -34,16 +45,7 @@
         tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
 
 
-    #==============================================================#
-    # Install grafana plugins from cache when applicable
-    #==============================================================#
-    # extract cache pacakge and install
-    - name: Provision grafana plugin via cache
-      when: grafana_plugins_cache.stat.exists
-      shell: |
-        rm -rf /var/lib/grafana/plugins
-        tar -xf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana
-        chown -R grafana /var/lib/grafana
+
 
     #==============================================================#
     # Config grafana

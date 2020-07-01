@@ -4,10 +4,10 @@
   tags: node_dns
   block:
     - name: Write static dns record to node
-      lineinfile: path=/etc/hosts line="{{ item.host }} {{ item.domain | join(' ') }}"
-      with_items: "{{ node_static_dns }}"
+      lineinfile: path=/etc/hosts line="{{ item }}"
+      with_items: "{{ node_dns_hosts }}"
 
     - name: Add resovler to /etc/resolv.conf
       lineinfile: path=/etc/resolv.conf line="nameserver {{ item }}"
-      with_items: node_dns_servers
+      with_items: node_dns_hosts
 ...
