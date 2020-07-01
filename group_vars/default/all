@@ -10,7 +10,8 @@
 # node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
 
 # 2. node kernel
-node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+# note that br_netfilter is required for k8s, but may not be installed in centos7.2-
+# node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
 # 3. node tuned
 # node_tuned: true                # tune node parameters
@@ -24,17 +25,25 @@ node_dns_setup: true              # setup dns
 node_static_dns:
   - host: 127.0.0.1               # loopback
     domain: [localhost, local, lc]
-  - host: 10.9.20.166             # meta controller
+  - host: 10.10.10.10             # meta controller
     domain: [meta, pigsty, yum.pigsty]
+#  # common nodes
+#  - host: 10.10.10.10
+#    domain: [node-0, n0]
+#  - host: 10.10.10.11
+#    domain: [node-1, n1]
+#  - host: 10.10.10.12
+#    domain: [node-2, n2]
+#  - host: 10.10.10.13
+#    domain: [node-3, n3]
 
-
-node_dns_servers: [10.9.20.166] # default DNS server (meta node dnsmasq by default)
+node_dns_servers: [10.10.10.10] # default DNS server (meta node dnsmasq by default)
 
 # 6. node repo
-node_local_repo_enabled: true     # whether use local yum repo
-node_local_repo_only: true        # whether disable other repos
-repo_name: pigsty                 # local repo name
-repo_host: 10.9.20.166             # local repo host
+# node_local_repo_enabled: true     # whether use local yum repo
+# node_local_repo_only: true        # whether disable other repos
+# repo_name: pigsty                 # local repo name
+# repo_host: yum.pigsty             # local repo host
 
 # 7. node packages
 # node_meta_install: false
@@ -45,7 +54,7 @@ repo_host: 10.9.20.166             # local repo host
 # 8. node ntp
 node_setup_ntp: true            # setup ntp
 node_timezone: 'Asia/Shanghai'  # default node timezone
-node_ntp_servers: [10.9.20.166] # default NTP servers
+node_ntp_servers: [10.10.10.10] # default NTP servers
 
 # 9. node vip
 node_setup_vip: true            # setup default vip structure
@@ -54,10 +63,10 @@ node_setup_vip: true            # setup default vip structure
 # dcs
 #==============================================================#
 dcs_type:    consul                  # default dcs server type: consul
-dcs_servers: [10.9.20.166]           # default dcs servers
+dcs_servers: [10.10.10.10]           # default dcs servers
 dcs_purge: true                      # force remove existing server
 consul_dc: pigsty                    # force remove existing server
-dcs_check_interval: 15s               # default service check interval
+dcs_check_interval: 5s               # default service check interval
 dcs_check_timeout:  1s               # default service check timeout
 
 
@@ -71,7 +80,7 @@ cloud_native_support: false
 #docker_registry_mirrors: ["https://zbwt4y5v.mirror.aliyuncs.com"] # docker registry mirror
 #k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes versionaliyun k8s miiror repository
 #
-#k8s_servers: [10.9.20.166]                                        # kubernetes servers (masters)
+#k8s_servers: [10.10.10.10]                                        # kubernetes servers (masters)
 #k8s_version: 1.18.5                                               # kubernetes version
 #k8s_pod_cidr: "10.11.0.0/16"                                      # kubernetes pod network cidr
 #k8s_service_cidr: "10.12.0.0/16"                                  # kubernetes service network cidr
@@ -82,8 +91,8 @@ cloud_native_support: false
 ################################################################
 # meta
 ################################################################
-metadb_url: postgres://meta@10.9.20.166:5432/meta
-grafana_url: http://10.9.20.166:3000
+metadb_url: postgres://meta@pg-meta/meta
+grafana_url: http://grafana.pigsty
 prometheus_url: http://prometheus.pigsty/api
 alertmanager_url: http://alertmanager.pigsty/api
 
@@ -170,16 +179,16 @@ pg_monitor_password: 'dbuser_monitor'
 # Monitor Settings
 #==============================================================#
 # default exporter settings
-exporter_metric_path: "/debug/metrics"
-node_exporter_port: 9100
-pg_exporter_port: 9185
-pgbouncer_exporter_port: 9127
+#exporter_metric_path: "/metrics"
+#node_exporter_port: 9100
+#pg_exporter_port: 9630
+#pgbouncer_exporter_port: 9631
 
 #==============================================================#
 # Load Balancer Settings
 #==============================================================#
 #pg_lb_enabled:       true           # default load balancer type
-
+#
 #pg_lb_type:          haproxy        # haproxy | vip
 #pg_lb_policy:        leastconn       # roundrobin, leastconn
 #pg_lb_admin:         admin           # default admin user
@@ -193,8 +202,8 @@ pgbouncer_exporter_port: 9127
 #pg_lb_timeout_server: 3h
 #pg_lb_socket: /var/run/haproxy.socket
 #
-pg_lb_vip_enabled: false               # create vip for load balancer
-#pg_lb_vip:                            # [REQUIRED] default vip from load balancer
+#pg_lb_vip_enabled: true               # create vip for load balancer
+#pg_lb_vip:                          # [REQUIRED] default vip from load balancer
 #pg_lb_role: backup                    # default load balancer role is backup
 #pg_lb_nic: eth1                       # default nic for keepalived
 ...
