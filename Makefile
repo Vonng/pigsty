@@ -47,6 +47,8 @@ provision:
 # sync ntp time (only works after ntp been installed during init-node)
 sync:
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
+sync2:
+	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate pool.ntp.org'; true
 # append pigsty ssh config to ~/.ssh
 ssh:
 	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true

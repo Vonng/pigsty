@@ -2,14 +2,29 @@
 # FILE PATH: /etc/pgbouncer/pgb_hba.conf
 
 # local admin access
-local  pgbouncer postgres                                   peer
+local  pgbouncer postgres                                       peer
 
-# local/host monitor access
-local  pgbouncer    {{ pg_monitor_username }}               md5
-host   pgbouncer    {{ pg_monitor_username }}   0.0.0.0/0   md5
-host   pgbouncer    {{ pg_monitor_username }}   ::0/0       md5
+# local all password access
+host    all     all                         127.0.0.1/32        md5
+host    all     all                         ::1/128             md5
 
-# biz_user anywhere password access
-local  all          {{ pg_default_username }}               md5
-host   all          {{ pg_default_username }}   0.0.0.0/0   md5
-host   all          {{ pg_default_username }}   ::0/0       md5
+# intranet monitor access
+local  pgbouncer    {{ pg_monitor_username }}                   md5
+host   pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      md5
+host   pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  md5
+
+# reject springboard access
+host   all          all     10.179.3.56/32      reject
+host   all          all     10.191.240.11/32    reject
+host   all          all     10.189.14.25/32     reject
+host   all          all     10.189.14.24/32     reject
+host   all          all     10.191.160.220/32   reject
+host   all          all     10.189.14.23/32     reject
+host   all          all     10.189.14.22/32     reject
+host   all          all     10.189.153.21/32    reject
+
+# biz_user intranet password access
+local  all          {{ pg_default_username }}                   md5
+host   all          {{ pg_default_username }}   127.0.0.1/32    md5
+host   all          {{ pg_default_username }}   ::1/128         md5
+host   all          {{ pg_default_username }}   10.0.0.0/8      md5

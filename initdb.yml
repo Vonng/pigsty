@@ -16,6 +16,7 @@
   become: yes
   hosts: all
   gather_facts: true
+
   roles:
     # meta db setup (skip replica & haproxy)
     - role: pg_preflight                    # pre-flight & install
@@ -27,11 +28,11 @@
     - role: pg_init                         # init primary instance
       tags: postgres
 
-    - role: pg_pgbouncer                    # init connection pooler
-      tags: pgbouncer
-
     - role: pg_patroni                      # init connection pooler
       tags: patroni
+
+    - role: pg_pgbouncer                    # init connection pooler
+      tags: pgbouncer
 
     - role: pg_monitor                      # init monitor system
       tags: monitor

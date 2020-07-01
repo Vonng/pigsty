@@ -16,11 +16,12 @@
         name: "{{ item }}"
         role_attr_flags: NOLOGIN,INHERIT
       with_items:
-        - dbrole_readonly
-        - dbrole_readwrite
+        - dbrole_readonly   # for read-only access
+        - dbrole_readwrite  # for read-write access
+        - dbrole_offline    # for long-run query
 
     - name: Grant dbrole_readonly to readwrite
-      postgresql_membership: group=dbrole_readonly target_roles=dbrole_readwrite,pg_monitor
+      postgresql_membership: group=dbrole_readonly target_roles=dbrole_readwrite,dbrole_offline,pg_monitor
 
     #==============================================================#
     # default roles: admin
