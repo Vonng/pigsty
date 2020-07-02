@@ -91,6 +91,27 @@ restore-monitor:
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
 
+
+###############################################################
+# environment management
+###############################################################
+env-clean:
+	rm -rf cls/pg-* ; cp cls/dev/* cls/
+
+env: env-clean
+	rm -rf group_vars/all* ; cp group_vars/dev/all.yml group_vars/all
+
+env-dev: env-clean
+	rm -rf group_vars/all* ; cp group_vars/dev/all.yml group_vars/all
+
+env-test: env-clean
+	rm -rf group_vars/all* ; cp group_vars/test/all.yml group_vars/all
+
+env-prod: env-clean
+	rm -rf group_vars/all* ; cp group_vars/prod/all.yml group_vars/all
+
+
+
 ###############################################################
 # kubernetes management
 ###############################################################

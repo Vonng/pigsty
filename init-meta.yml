@@ -18,11 +18,11 @@
 #==============================================================#
 - name: Init meta node
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: true
-  tags: meta
   roles:
-    # meta node infra provision
+
+    # meta infra
     - role: repo                            # init local yum repo
       tags: repo
 
@@ -33,9 +33,10 @@
       tags: dcs
 
     - role: meta                            # meta provision setup
-      tags: ctrl
+      tags: meta
 
-    # meta db setup (skip replica & haproxy)
+
+    # meta database
     - role: pg_install                      # install postgres packages
       tgas: pg_install
 

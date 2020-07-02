@@ -1,54 +1,53 @@
 ---
 #==============================================================#
-# DCS settings
+#                      Meta Provision                          #
 #==============================================================#
-dcs_type:    consul         # default dcs server type: consul
-dcs_check_interval: 15s     # default service check interval (not used)
-dcs_check_timeout:  3s      # default service check timeout  (not used)
 
-#==============================================================#
-# Meta Prometheus
-#==============================================================#
-#meta_prometheus_retention: 30d
-#meta_prometheus_scrape_interval: 2s
-#meta_prometheus_evaluation_interval: 2s
-#meta_prometheus_scrape_timeout: 1s
+#--------------------------------------------------------------#
+# 0. DCS  (Setup via separated role dcs)                       #
+#--------------------------------------------------------------#
+dcs_type:    consul                           # default dcs server type: consul
+dcs_check_interval: 15s                       # default service check interval (not used)
+dcs_check_timeout:  3s                        # default service check timeout  (not used)
 
-#==============================================================#
-# Meta Grafana
-#==============================================================#
-meta_grafana_server: http://grafana.pigsty      # use pre-defined prometheus data source
-meta_grafana_force_download_plugins: false      # force redownload grafana plugins
-meta_grafana_time_interval: 2s                  # force redownload grafana plugins
-meta_grafana_provision_via_db: true             # provision via copy sqlite db by default
+#--------------------------------------------------------------#
+# 1. Nginx                                                     #
+#--------------------------------------------------------------#
+# prometheus, alertmanager, dnsmasq, consul domain name
+repo_host:                yum.pigsty          # yum repo domain name
+consul_domain_name:       c.pigsty            # consul ui domain name
+grafana_domain_name:      g.pigsty            # grafana ui domain name
+prometheus_domain_name:   p.pigsty            # prometheus ui domain name
+alertmanager_domain_name:  am.pigsty           # alertmanager ui domain name
 
-meta_grafana_plugins:                           # default grafana plugins
-  - simpod-json-datasource
-  - camptocamp-prometheus-alertmanager-datasource
-  - ryantxu-ajax-panel
-  - grafana-piechart-panel
-  - jdbranham-diagram-panel
-  - alexandra-trackmap-panel
-  - snuids-radar-panel
-  - digrich-bubblechart-panel
-
-meta_grafana_dashboards: []                       # default dashboards
-
-
-
-#==============================================================#
-# Meta DNS
-#==============================================================#
+#--------------------------------------------------------------#
+# 2. Dnsmasq
+#--------------------------------------------------------------#
 # DNS record that resolved by DNS server on meta node
-meta_dynamic_dns:
-  - host: 10.10.10.10       # meta service domain name
-    domain: [pigsty, consul.pigsty, grafana.pigsty, prometheus.pigsty, alertmanager.pigsty, admin.pigsty, yum.pigsty]
-  - host: 10.10.10.10       # short alias
-    domain: [c.pigsty, g.pigsty, p.pigsty, pg.pigsty, am.pigsty, ha.pigsty, k8s.pigsty, k.pigsty]
-  - host: 10.10.10.2        # pg-meta default vip
-    domain: [pg-meta, haproxy.pg-meta]
-  - host: 10.10.10.3        # pg-test default vip
-    domain: [pg-test, haproxy.pg-meta]
+dnsmasq_dns: []
 
+#--------------------------------------------------------------#
+# 3. Prometheus                                                #
+#--------------------------------------------------------------#
+prometheus_scrape_interval: 10s               # global scrape & evaluation interval
+prometheus_scrape_timeout: 5s                 # scrape timeout
+prometheus_metrics_path: /metrics             # default metrics path (only for job 'pg')
+prometheus_data_dir: /export/prometheus/data  # prometheus data dir
+prometheus_retention: 180d                    # how long to keep
+
+#--------------------------------------------------------------#
+# 4. Grafana                                                   #
+#--------------------------------------------------------------#
+grafana_force_download_plugins: false         # force redownload grafana plugins
+grafana_time_interval: 2s                     # force redownload grafana plugins
+grafana_provision_via_db: true                # provision via copy sqlite db by default
+grafana_dashboards: []                        # default dashboards
+grafana_plugins_install:                      # install grafana plugins ?
+grafana_plugins_force_download:               # force re-download grafana plugins ?
+grafana_plugins:                              # default grafana plugins list
+  - camptocamp-prometheus-alertmanager-datasource
+  - simpod-json-datasource
+  - ryantxu-ajax-panel
+  - jdbranham-diagram-panel
 
 ...

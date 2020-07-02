@@ -33,18 +33,15 @@
     # Install grafana plugins and make cache
     #==============================================================#
     - name: Download grafana plugins from web
-      when: not grafana_plugins_cache.stat.exists or meta_grafana_force_download_plugins
+      when: not grafana_plugins_cache.stat.exists or grafana_plugins_force_download
       grafana_plugin: name={{ item }}
-      with_items: "{{ meta_grafana_plugins  }}"
+      with_items: "{{ grafana_plugins  }}"
 
     - name: Create grafana plugins cache
       ignore_errors: true
-      when: not grafana_plugins_cache.stat.exists or meta_grafana_force_download_plugins
+      when: not grafana_plugins_cache.stat.exists or grafana_plugins_force_download
       shell: |
-        mkdir -p /www/pigsty/grafana
-        tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
-
-
+        mkdir -p /www/pigsty/grafana; tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
 
 
     #==============================================================#
@@ -58,16 +55,28 @@
     #==============================================================#
     - name: Launch meta grafana service
       systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
     - name: Wait for meta grafana online
       wait_for: host=localhost port=3000 state=started
 
+    #==============================================================#
+    # Register grafana consul service
+    #==============================================================#
+    - name: Copy grafana service definition
+      template: src=consul-service/svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
+
+    - name: Reload consul to register grafana
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
+
 
 
 #==============================================================#
-# Provision grafana by copy sqlite db
+# 1. Provision grafana by copy sqlite db
 #==============================================================#
 - name: Provision Grafana via db
-  when: meta_grafana_provision_via_db
+  when: grafana_provision_via_db
   tags: grafana_provision
   block:
     #==============================================================#
@@ -75,16 +84,23 @@
     #==============================================================#
     - name: Launch meta grafana service
       systemd: name=grafana-server state=stopped enabled=yes daemon_reload=yes
+
     - name: Copy grafana.db to data dir
       copy: src=grafana/grafana.db dest=/var/lib/grafana/grafana.db owner=grafana mode=0600
+
     - name: Restart meta grafana service
       systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
     - name: Wait for meta grafana online
       wait_for: host=localhost port=3000 state=started
 
 
+
+#==============================================================#
+# 2. Provision grafana by calling API
+#==============================================================#
 - name: Provision Grafana via API
-  when: not meta_grafana_provision_via_db
+  when: not grafana_provision_via_db
   tags: grafana_provision
   block:
     #==============================================================#
@@ -103,7 +119,7 @@
     - name: Provision prometheus datasource
       grafana_datasource:
         name: "Prometheus"
-        grafana_url: "{{ meta_grafana_server }}"
+        grafana_url: "http://{{ grafana_domain_name }}"
         grafana_user: "admin"
         grafana_password: "admin"
         ds_type: "prometheus"
@@ -116,12 +132,12 @@
     #==============================================================#
     - name: Provision grafana dashboards
       grafana_dashboard:
-        grafana_url: "{{ meta_grafana_server }}"
+        grafana_url: "http://{{ grafana_domain_name }}"
         grafana_user: "admin"
         grafana_password: "admin"
         state: present
         overwrite: yes
         path: /var/lib/grafana/dashboards/{{ item }}.json
-      with_items: "{{ meta_grafana_dashboards }}"
+      with_items: "{{ grafana_dashboards }}"
 
 ...
