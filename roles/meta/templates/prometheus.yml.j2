@@ -1,0 +1,73 @@
+global:
+  scrape_interval: {{ prometheus_scrape_interval | default('10s') }}
+  evaluation_interval: {{ prometheus_scrape_interval | default('10s') }}
+  scrape_timeout: {{ prometheus_scrape_timeout | default('5s') }}
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - localhost:9093
+      scheme: http
+      timeout: 10s
+      api_version: v1
+
+rule_files:
+  - rules/*.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  - job_name: alertmanager
+    static_configs:
+      - targets:
+          - localhost:9093
+
+  - job_name: grafana
+    static_configs:
+      - targets:
+          - localhost:3000
+
+  - job_name: pg
+    # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#consul_sd_config
+    metrics_path:  {{ prometheus_metrics_path | default('/metrics') }}
+    consul_sd_configs:
+      - server: localhost:8500
+        refresh_interval: 5s
+        tags:
+          - pg
+          - exporter
+
+    # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+    relabel_configs:
+      # cluster label: pg-test, pg-meta, ...
+      - source_labels: [__meta_consul_service_metadata_cluster]
+        action: replace
+        target_label: cls
+
+      - source_labels: [__meta_consul_service_metadata_service]
+        action: replace
+        target_label: svc
+
+      # instance label: pg-meta-0, pg-test-1, ...
+      - source_labels: [__meta_consul_service_metadata_instance]
+        action: replace
+        target_label: ins
+
+      # role label      `primary|replica`
+      - source_labels: [__meta_consul_service_metadata_role]
+        action: replace
+        target_label: role
+
+      # node/ip address label
+      - source_labels: [__meta_consul_node]
+        action: replace
+        target_label: node
+
+      # node/ip address label
+      - source_labels: [__meta_consul_address]
+        action: replace
+        target_label: ip

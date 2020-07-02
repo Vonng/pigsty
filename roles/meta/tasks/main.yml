@@ -5,42 +5,18 @@
 - import_tasks: nginx.yml
 
 #==============================================================#
-# Stage 2: Meta dns server setup
+# Stage 2: Meta dnsmasq server setup
 #==============================================================#
-- import_tasks: dns.yml
+- import_tasks: dnsmasq.yml
 
-##==============================================================#
-## Stage 3: Meta Prometheus setup
-##==============================================================#
+#==============================================================#
+# Stage 3: Meta Prometheus setup
+#==============================================================#
 - import_tasks: prometheus.yml
 
-##==============================================================#
-## Stage 4: Meta grafana setup
-##==============================================================#
+#==============================================================#
+# Stage 4: Meta grafana setup
+#==============================================================#
 - import_tasks: grafana.yml
 
-
-##==============================================================#
-## Stage 5: Meta service register
-##==============================================================#
-- name: Register meta service to consul
-  tags: meta_register
-  block:
-    - name: Copy meta service definition
-      template:
-        src: "{{ item }}.json.j2"
-        dest: /etc/consul.d/{{ item }}.json
-        owner: consul
-        group: admin
-        mode: 0660
-      with_items:
-        - svc-nginx
-        - svc-nginx-exporter
-        - svc-dnsmasq
-        - svc-prometheus
-        - svc-alertmanager
-        - svc-grafana
-
-    - name: Reload consul to register service
-      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 ...

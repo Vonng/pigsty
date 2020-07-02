@@ -1,0 +1,57 @@
+---
+#==============================================================#
+# DNSMASQ
+#==============================================================#
+- name: Setup dnsmasq service
+  tags: dnsmasq
+  block:
+
+    #==============================================================#
+    # Config dnsmasq
+    #==============================================================#
+    # copy dnsmasq config
+    - name: Copy dnsmasq /etc/dnsmasq.d/config
+      template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.d/config
+
+    # add dynamic resolved DSN records to /etc/hosts
+    - name: Add meta dns records to meta
+      lineinfile: path=/etc/hosts line="{{ item.host }} {{ item.domain | join(' ') }}"
+      with_items:
+        - host: "{{ inventory_hostname }}"
+          domain:
+            - "{{ repo_host }}"
+            - "{{ consul_domain_name }}"
+            - "{{ grafana_domain_name }}"
+            - "{{ prometheus_domain_name }}"
+            - "{{ alertmanger_domain_name }}"
+
+    # add dynamic resolved DSN records to /etc/hosts
+    - name: Add dynamic dns records to meta
+      lineinfile: path=/etc/hosts line="{{ item }}"
+      with_items: "{{ dnsmasq_dns }}"
+
+
+    #==============================================================#
+    # Launch dnsmasq
+    #==============================================================#
+    # launch dnsmasq
+    - name: Launch meta dnsmasq service
+      systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
+
+    # wait for dnsmasq
+    - name: Wait for meta dnsmasq online
+      wait_for: host=localhost port=53 state=started
+
+    #==============================================================#
+    # Register dnsmasq consul service
+    #==============================================================#
+    - name: Copy dnsmasq service definition
+      template: src=consul-service/svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul group=admin mode=0660
+
+    - name: Reload consul to register dnsmasq
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
+...
+
+

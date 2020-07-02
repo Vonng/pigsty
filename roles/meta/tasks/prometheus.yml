@@ -1,28 +1,38 @@
 ---
 #==============================================================#
-# Prometheus
+# Prometheus & AlertManager
 #==============================================================#
 - name: Setup prometheus and alertmanager
   tags: meta_prometheus
   block:
 
     #==============================================================#
-    # cleanup prometheus
+    # Clean prometheus
     #==============================================================#
     - name: Wipe out prometheus config dir
       file: path=/etc/prometheus state=absent
 
     - name: Wipe out existing prometheus data
-      file: path=/var/lib/prometheus/data state=absent
+      file: path={{ prometheus_data_dir }} state=absent
 
     - name: Recreate prometheus data dir
-      file: path=/var/lib/prometheus/data mode=0700 state=directory owner=prometheus group=prometheus
+      file: path={{ prometheus_data_dir }} mode=0700 state=directory owner=prometheus group=prometheus
+
 
     #==============================================================#
     # config prometheus
     #==============================================================#
+    # copy entire config dir
     - name: Copy /etc/prometheus configs
-      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus group=prometheus mode=0755
+      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus group=admin mode=0755
+
+    # overwrite prometheus.yml
+    - name: Copy /etc/prometheus configs
+      template: src=prometheus.yml.j2 dest=/etc/prometheus/prometheus.yml owner=prometheus group=admin mode=0755
+
+    # overwrite /etc/default/prometheus
+    - name: Copy /etc/prometheus configs
+      template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus group=admin mode=0755
 
 
     #==============================================================#
@@ -39,6 +49,21 @@
 
     - name: Wait for meta alertmanager online
       wait_for: host=localhost port=9093 state=started
+
+
+    #==============================================================#
+    # Register prometheus alertmanager consul service
+    #==============================================================#
+    - name: Copy prometheus service definition
+      template: src=consul-service/svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul group=admin mode=0660
+
+    - name: Copy alertmanager service definition
+      template: src=consul-service/svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul group=admin mode=0660
+
+    - name: Reload consul to register prometheus
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
 ...
 
 

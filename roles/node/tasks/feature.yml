@@ -6,23 +6,34 @@
       when: node_disable_numa
       script: disable_numa.sh
 
+
     # disable swap is important for database and k8s
     - name: Node configure disable swap
       when: node_disable_swap
       command: swapoff -a
+
     - name: Node configure unmount swap
       mount: name={{ item }} fstype=swap state=absent
       with_items: [swap, none]
+
 
     # disable firewalld
     - name: Node configure disable firewall
       when: node_disable_firewall
       systemd: name=firewalld state=stopped enabled=no
 
+
     # disable selinux
     - name: Node configure disable selinux
+      ignore_errors: true
+      when: node_disable_selinux
+      command: setenforce 0
+
+    - name: Node disable selinux by default
       when: node_disable_selinux
       selinux: state=disabled
+
+
 
     # setup disk prefetch
     - name: Node configure disk prefetch
