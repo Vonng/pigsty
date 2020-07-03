@@ -95,21 +95,23 @@ restore-monitor:
 ###############################################################
 # environment management
 ###############################################################
-env-clean:
-	rm -rf cls/pg-* ; cp cls/dev/* cls/
+env: env-dev
 
-env: env-clean
-	rm -rf group_vars/all* ; cp group_vars/dev/all.yml group_vars/all
+env-clean:
+	rm -rf cls/pg-*;
+	rm -rf group_vars/all* ;
 
 env-dev: env-clean
-	rm -rf group_vars/all* ; cp group_vars/dev/all.yml group_vars/all
+	cp cls/dev/* cls/
+	cp group_vars/dev/all.yml group_vars/all
 
 env-test: env-clean
-	rm -rf group_vars/all* ; cp group_vars/test/all.yml group_vars/all
+	cp cls/test/* cls/
+	cp group_vars/test/all.yml group_vars/all
 
 env-prod: env-clean
-	rm -rf group_vars/all* ; cp group_vars/prod/all.yml group_vars/all
-
+	cp cls/prod/* cls/
+	cp group_vars/prod/all.yml group_vars/all
 
 
 ###############################################################
