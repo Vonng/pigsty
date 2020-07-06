@@ -1,0 +1,142 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# Init a local yum repo powered by a local nginx web server
+# all necessary rpm packages are downloaded to accelerate
+# cluster initialization, or in case that target machine does
+# not have internet access.
+#
+# RPM packages are downloaded to /{{ repo_home }}/{{ repo_name }}.
+# And it will skip download if all packages already exists
+#
+# Local yum repo url:  http://{{ repo_address }}/{{ repo_name }}/
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# 1. Pre Flight
+#--------------------------------------------------------------#
+# create repo directory and check cache existence
+- name: Create local repo directory
+  tags: repo_dir
+  file: path={{ repo_home }}/{{ repo_name }}/boot state=directory mode=0755
+
+# if boot cache flag file missing, download boot packages
+- name: Check repo boot cache exists
+  tags: repo_boot
+  stat: path={{ repo_home }}/{{ repo_name }}/boot/boot_complete
+  register: repo_boot_cache
+
+# download require packages to repo content directory
+- name: Check repo cache exists
+  tags: repo_download
+  stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
+  register: repo_cache
+
+
+
+#--------------------------------------------------------------#
+# 2. Upstream repo
+#--------------------------------------------------------------#
+# install upstream repo to download packages
+# upstream repo are only installed when download is necessary
+- name: Install upstream repos
+  tags: repo_upstream
+  when: not repo_boot_cache.stat.exists or not repo_cache.stat.exists or repo_rebuild
+  block:
+    # if repo_remove = true, existing repos will be moved to backup dir
+    - name: Remove existing repos
+      when: repo_remove
+      shell:
+        warn: no
+        cmd: mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+
+    # add all upstream repos
+    - name: Add upstream repos
+      yum_repository: "{{ item }}"
+      with_items: "{{ repo_upstreams }}"
+
+    # this usually takes 1~2 minutes according to your network condition
+    - name: Remake yum cache
+      environment: "{{ proxy_env }}"
+      shell: yum clean all; yum makecache;
+
+
+
+#--------------------------------------------------------------#
+# 3. Bootstrap
+#--------------------------------------------------------------#
+# in poor network conditional, you will have to bootstrap from local cache
+
+# download, install, launch yum repo
+- name: Bootstrap repo server
+  tags: repo_boot
+  block:
+    # download nginx and other basic utils
+    - name: Download repo boot packages
+      when: not repo_boot_cache.stat.exists or repo_rebuild
+      environment: "{{ proxy_env }}"
+      command:
+        cmd: yumdownloader --resolve --downloaddir={{ repo_home }}/{{ repo_name }}/boot wget yum-utils createrepo nginx
+        chdir: /{{ repo_home }}/{{ repo_name }}/boot
+
+    - name: Install bootstrap packages
+      shell:
+        cmd: yum localinstall -q -y *.rpm
+        chdir: /{{ repo_home }}/{{ repo_name }}/boot
+        warn: no
+
+    - name: Render repo nginx files
+      template: src={{ item.src }} dest={{ item.dest }} mode=0644
+      with_items:
+        - {src: index.html.j2,    dest: /www/index.html}
+        - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
+        - {src: local.repo.j2,    dest: "/www/{{ repo_name }}.repo"}
+        - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
+
+    - name: Disable selinux
+      selinux: state=disabled
+
+    - name: Start repo nginx server
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: Waits repo server online
+      wait_for: host=localhost port=80 state=started
+
+    # mark boot cache as valid
+    - name: Mark bootstrap cache valid
+      copy: content=ok dest=/{{ repo_home }}/{{ repo_name }}/boot/boot_complete
+
+#--------------------------------------------------------------#
+# 4. Download
+#--------------------------------------------------------------#
+
+# if repo cache flag file missing, or force rebuild repo, then download repo packages
+- name: Download local repo packages
+  tags: repo_download
+  when: not repo_cache.stat.exists or repo_rebuild
+  block:
+    # download from upstream repo
+    - name: Download repo packages
+      environment: "{{ proxy_env }}"
+      command:
+        cmd: yumdownloader --resolve --downloaddir={{ repo_home }}/{{ repo_name }} {{ item }}
+        chdir: "{{ repo_home }}/{{ repo_name }}"
+      with_items: "{{ repo_packages }}"
+
+    # download rpm from url
+    - name: Download additional url packages
+      environment: "{{ proxy_env }}"
+      get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
+      with_items: "{{ repo_url_packages }}"
+
+    # create repo
+    - name: Create local yum repo index
+      command: createrepo {{ repo_home }}/{{ repo_name }}
+
+    # set repo complete flag
+    - name: Mark repo cache valid
+      copy: content=ok dest=/www/{{ repo_name }}/repo_complete
+
+
+...
