@@ -1,19 +1,30 @@
 ---
 - name: Install pigsty yum repo
   tags: node_repo
-  when: node_local_repo_enabled
   block:
-    - name: Install local yum repo from url
+    # remove existing repos to backup dir
+    - name: Remove existing repos
+      when: node_repo_remove
+      shell:
+        warn: no
+        cmd: mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+
+    # install repo via url (usually a local yum repo)
+    - name: Install local yum repo
       get_url:
-        url: http://{{ repo_host }}/{{ repo_name }}.repo
-        dest: /etc/yum.repos.d/{{ repo_name }}.repo
+        url: "{{ item }}"
+        dest: /etc/yum.repos.d/{{ item | basename }}
+      with_items: "{{ node_repo_url }}"
 
-    - name: Use and only use default yum repos
-      when: node_local_repo_only
-      shell: |
-        if [[ -f /etc/yum.repos.d/{{ repo_name }}.repo ]]; then
-            yum-config-manager --disable '*'
-            yum-config-manager --enable {{ repo_name }} # base extras updates
-        fi
+    # install upstream repo (in absence of local yum repo)
+    - name: Install upstream repo
+      when: node_repo_add_upstream and repo_upstreams is defined
+      yum_repository: "{{ item }}"
+      with_items: "{{ repo_upstreams }}"
 
+    # enable and disable node repo
+    - name: Config yum repo
+      ignore_errors: true           # in case that yum-util is not installed
+      command: yum-config-manager --{{ item }}
+      with_items: "{{ node_repo_config }}"
 ...
