@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   repo-init.yml
 # Mtime     :   2020-06-20
-# Desc      :   init repo node
+# Desc      :   init repo on given hosts
 # Path      :   repo-init.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 # Note:
@@ -13,7 +13,7 @@
 # cluster initialization, or in case that target machine does
 # not have internet access.
 #
-# RPM packages are downloaded to /www/{{ repo_name }}. And it will skip
+# RPM packages are downloaded to /{{ repo_home }}/{{ repo_name }}. And it will skip
 # download if all packages are already downloaded in there.
 #
 # Local yum repo url:  http://{{ repo_host }}/{{ repo_name }}/
@@ -23,35 +23,6 @@
   hosts: all
   gather_facts: no
   tags: repo
-
-  vars:
-    # local yum repo are created according to the following two variables:
-    # default repo dir:       /www/{{ repo_name }}
-    # default repo file url:  http://{{ repo_host }}/{{ repo_name }}.repo
-    # default repo base url:  http://{{ repo_host }}/{{ repo_name }}/
-    # repo_name could be: pigsty or pgsql/el7_x86_64
-    # repo_host could either be an ip address or hostname
-
-    # repo_name: pigsty                   # repo file
-    # repo_host: yum.pigsty               # base url
-
-    # force download even cache exists:  -e repo_force_download=true
-    # repo_force_download:   false
-    # add proxy environment variable: e.g: all_proxy: http://myproxy.com
-    # repo_proxy_env: {}
-
-    # additional packages to be downloaded
-    # repo_additional_package_list: []
-
-    # download build essential packages: gcc, g++, rpmbuild, etc...
-    # repo_build_essential: true
-
-    # download cloud native packages: kubectl kubeadm helm docker, etc..
-    # repo_cloud_native: true
-    # repo_cloud_native_mirror_repo: true   # use mirror repo for cloud native packages
-
   roles:
     - role: repo
-
-
 ...
