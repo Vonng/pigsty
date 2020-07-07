@@ -1,92 +1,178 @@
 ---
-#==============================================================#
-# node provision
-#==============================================================#
+#------------------------------------------------------------------------------
+# NODE PROVISION
+#------------------------------------------------------------------------------
+# this section are usually managed by operators, do not enabled these unless
+# you are fully aware what you are doing.
 
-#--------------------------------------------------------------#
-# 1. node features
-#--------------------------------------------------------------#
-node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
-node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
-node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
-node_disable_selinux: true      # disable selinux
-node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+# - node type -#
+meta_node: false                              # if set, meta packages will be installed
 
-#--------------------------------------------------------------#
-# 2. node kernel
-#--------------------------------------------------------------#
+
+# - node dns - #
+node_dns_setup: false                         # setup static dns record and dns resolver
+node_dns_hosts:                               # static dns records in /etc/hosts
+  - 10.10.10.10 yum.pigsty pigsty
+node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
+  - 10.10.10.10
+
+
+# - node repo - #
+node_repo_url: []                             # additional repo to be installed via url
+node_repo_remove: true                        # whether remove existing repo
+node_repo_add_upstream: true                  # whether add upstream repo to node
+node_repo_config: []                          # commands to config yum repos
+#  - disable *                                # disable all default repos
+#  - enable pigsty                            # enable default local yum repo
+
+
+# - node packages - #
+node_packages:                                # common packages for all nodes
+  - wget yum-utils ntp uuid lz4 nc vim make patch bash lsof wget unzip git readline zlib openssl
+  - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm
+  - python-pip python-ipython python-psycopg2 python3-psycopg2
+
+node_extra_packages:                          # extra packages for nodes
+  - node_exporter pg_exporter postgres_exporter blackbox_exporter     # exporter
+  - consul consul_exporter consul-template etcd haproxy keepalived    # dcs & proxy
+  - pv jq postgresql12                                                # misc
+  # - docker-ce docker-ce-cli rkt                                     # container  (optional)
+  # - kubelet kubectl kubeadm kubernetes-cni helm                     # kubernetes (optional)
+
+node_meta_packages:                           # packages for meta nodes only
+  - nginx dnsmasq ansible grafana prometheus2 pushgateway alertmanager nginx_exporter blackbox_exporter
+
+
+# - node features - #
+node_disable_numa: false                      # disable numa, important for production database, reboot required
+node_disable_swap: true                       # disable swap, important for production database
+node_disable_firewall: true                   # disable firewall (required if using kubernetes)
+node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
+node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
+
+# - node kernel modules - #
 node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
-#--------------------------------------------------------------#
-# 3. node tuned
-#--------------------------------------------------------------#
-node_tuned: true                # tune node parameters
-node_sysctl_params: {}          # additional sysctl parameters
 
-#--------------------------------------------------------------#
-# 4. node user
-#--------------------------------------------------------------#
-node_root_setup: false          # setup root user(ssh exchange) ?
+# - node tuned - #
+node_tuned: true                              # install and activate tuned profile: postgres
+node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
 
-#--------------------------------------------------------------#
-# 5. node dns
-#--------------------------------------------------------------#
-node_dns_setup: false           # setup dns
-node_dns_servers: []            # nameserver in /etc/resolv.conf
-node_dns_hosts: []              # static dns records in /etc/hosts
 
-#--------------------------------------------------------------#
-# 6. node repo
-#--------------------------------------------------------------#
-node_local_repo_enabled: false   # whether use local yum repo
-node_local_repo_only: false      # whether disable other repos
-repo_name: pigsty                # local repo name
-repo_host: yum.pigsty            # local repo host
+# - node user - #
+node_admin_setup: true                        # setup an default admin user ?
+node_admin_uid: 88                            # uid and gid for admin user
+node_admin_username: admin                    # default admin user
+node_admin_ssh_exchange: true                 # exchange ssh key amoung cluster ?
 
-#--------------------------------------------------------------#
-# 7. node packages
-#--------------------------------------------------------------#
-# packages for all nodes
-node_common_packages:
-  - chrony,ntp,uuid,readline,zlib,openssl,libxml2,libxslt                                           # pg util
-  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed             # basic tools
-  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # utils
 
-# packages for infrastructure layer
-node_infra_packages:
-  - etcd,consul,haproxy,keepalived,node_exporter
+# - node ntp - #
+node_ntp_setup: true                          # setup ntp
+node_timezone: Asia/Shanghai                  # default node timezone
+node_ntp_servers:                             # default NTP servers
+  - 10.10.10.10
 
-# only needed in meta node
-node_meta_install: false
-node_meta_packages:
-  - python,python-pip,python-ipython,python-psycopg2                    # ansible and python environment
-  - nginx,haproxy,keepalived,dnsmasq                                            # proxy and dns
-  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter   # monitoring packages
 
-# packages for cloud-native
-node_cloud_install: false
-node_cloud_packages:
-  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
 
-# packages for building tool chain
-node_build_install: false
-node_build_packages:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+# - foreign reference - #
+# this will be override by user provided repo list
+repo_upstreams:                               # additional repos to be installed before downloading
+  - name: base
+    description: CentOS-$releasever - Base - Aliyun Mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
+    gpgcheck: no
+    failovermethod: priority
 
-# add additional packages here
-node_additional_packages: []   # additional rpm packages to be downloaded/installed
+  - name: updates
+    description: CentOS-$releasever - Updates - Aliyun Mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/
+    gpgcheck: no
+    failovermethod: priority
 
-#--------------------------------------------------------------#
-# 8. node ntp
-#--------------------------------------------------------------#
-node_setup_ntp: false           # setup ntp
-node_timezone: 'Asia/Shanghai'  # default node timezone
-node_ntp_servers: []            # default NTP servers
+  - name: extras
+    description: CentOS-$releasever - Extras - Aliyun Mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/
+    gpgcheck: no
+    failovermethod: priority
 
-#--------------------------------------------------------------#
-# 9. node vip
-#--------------------------------------------------------------#
-node_setup_vip: false           # setup default vip structure
+  - name: epel
+    description: CentOS $releasever - EPEL - Aliyun Mirror
+    baseurl: http://mirrors.aliyun.com/epel/$releasever/$basearch
+    gpgcheck: no
+    failovermethod: priority
+
+  - name: docker
+    description: Docker - Aliyun Mirror
+    gpgcheck: no
+    baseurl: https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable
+
+  - name: kubernetes
+    description: Kubernetes - Aliyun Mirror
+    gpgcheck: no
+    baseurl: https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+
+  - name: grafana
+    description: Grafana - TsingHua Mirror
+    gpgcheck: no
+    baseurl: https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
+
+  - name: prometheus
+    description: Prometheus and exporters
+    gpgcheck: no
+    baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
+
+  - name: pgdg-common
+    description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
+    gpgcheck: no
+    baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+
+  - name: pgdg12
+    description: PostgreSQL 12 for RHEL/CentOS $releasever - $basearch
+    gpgcheck: no
+    baseurl: https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch
+
+  - name: pgdg13-updates-testing
+    description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch - Updates testing
+    gpgcheck: no
+    baseurl: https://download.postgresql.org/pub/repos/yum/testing/13/redhat/rhel-$releasever-$basearch
+
+  - name: centos-sclo
+    description: CentOS-$releasever - SCLo
+    gpgcheck: no
+    # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/sclo/
+    mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-sclo
+
+  - name: centos-sclo-rh
+    description: CentOS-$releasever - SCLo rh
+    gpgcheck: no
+    # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/rh/
+    mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
+
+  - name: nginx
+    description: Nginx Official Yum Repo
+    skip_if_unavailable: true
+    gpgcheck: no
+    baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
+
+  - name: haproxy
+    description: Copr repo for haproxy
+    skip_if_unavailable: true
+    gpgcheck: no
+    baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
+
+  - name: harbottle
+    description: Copr repo for harbottle
+    skip_if_unavailable: true
+    gpgcheck: no
+    baseurl: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
 
 ...

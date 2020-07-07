@@ -1,85 +1,6 @@
 ---
-
 #==============================================================#
-# Stage 1: Root ssh access (optional)
-#==============================================================#
-- name: Node root ssh key exchange
-  when: node_root_setup
-  tags: node_root
-  block:
-    # root ssh-key gen
-    - name: Generate os root user ssh key
-      user: name=root generate_ssh_key=yes
-
-    # ssh config for root
-    - name: Add no host checking to ssh config
-      copy: src=ssh.config dest=/root/.ssh/config mode=0600 owner=root
-
-    # root ssh-key exchange
-    - name: Fetch root user's public keys
-      shell: cat /root/.ssh/id_rsa.pub
-      register: root_ssh_keys
-
-    # exchange root ssh-key (may be dangerous)
-    - name: Exchange root ssh keys in cluster
-      ignore_errors: true
-      authorized_key: user=root key="{{ item[0] }}"w
-      delegate_to: "{{ item[1] }}"
-      with_nested:
-        - "{{ root_ssh_keys.stdout }}"
-        - "{{ play_hosts }}"
-
-
-#==============================================================#
-# Stage 2: Create default users/groups
-#==============================================================#
-- name: Create node users and groups
-  tags: node_user
-  block:
-    - name: Create os admin user group admin
-      group: name=admin
-    - name: Create os dbsu user group postgres
-      group: name=postgres
-    - name: Create os user postgres:admin
-      user: name=postgres group=admin home=/home/postgres generate_ssh_key=yes
-    - name: Create os user prometheus:admin
-      user: name=prometheus group=admin create_home=no
-    - name: Create os dcs user consul:admin
-      user: name=consul group=admin create_home=no
-    - name: Create os dcs user etcd:admin
-      user: name=etcd group=admin create_home=no
-
-    - name: Allow dbsu postgres nopass sudo
-      copy:
-        content: "postgres ALL=(ALL) NOPASSWD: ALL"
-        dest: /etc/sudoers.d/postgres
-        mode: 0440
-
-    # ssh config for postgres
-    - name: Add no host checking to ssh config
-      copy: src=ssh.config dest=/home/postgres/.ssh/config mode=0600 owner=postgres
-
-    # postgres ssh-key exchange
-    - name: Fetch all postgres public keys
-      shell: cat /home/postgres/.ssh/id_rsa.pub
-      register: postgres_ssh_keys
-
-    # for all hosts, copy their postgres ssh public key to each other
-    - name: Exchange postgres user's ssh keys
-      authorized_key: user=postgres key="{{ item[0] }}"
-      ignore_errors: true
-      delegate_to: "{{ item[1] }}"
-      with_nested:
-        - "{{ postgres_ssh_keys.stdout }}"
-        - "{{ play_hosts }}"
-
-    - name: Let postgres own /dev/watchdog
-      shell: |
-        [ -a /dev/watchdog ] && chown postgres:admin /dev/watchdog
-
-
-#==============================================================#
-# Stage 3: Create default user profile
+# Stage 1: Add /etc/profile
 #==============================================================#
 - name: Copy default user bash profile
   tags: node_profile
@@ -87,9 +8,66 @@
 
 
 #==============================================================#
-# Stage 4: Setup pam ulimit for node users
+# Stage 2: Setup pam ulimit for node users
 #==============================================================#
 - name: Setup node default pam ulimits
   tags: node_ulimit
   copy: src=limits.conf dest=/etc/security/limits.d/limits.conf mode=0644
+
+
+#==============================================================#
+# Stage 3: Create default users/groups
+#==============================================================#
+- name: Create node users and groups
+  tags: node_admin
+  when: node_admin_setup
+  block:
+    # create user and group
+    - name: Create os group admin
+      group: name=admin gid={{ node_admin_uid }}
+    - name: Create os user admin
+      user: name={{ node_admin_username }} uid={{ node_admin_uid }} home=/home/{{ node_admin_username }} group=admin generate_ssh_key=yes
+
+    - name: Grant admin group nopass sudo
+      copy:
+        content: "%admin ALL=(ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/{{ node_admin_username }}
+        mode: 0440
+
+    # ssh config for admin user
+    - name: Add no host checking to ssh config
+      copy: src=ssh.config dest=/home/{{ node_admin_username }}/.ssh/config mode=0600 owner={{ node_admin_username }} group=admin
+
+    - name: Add ssh no host checking
+      lineinfile:
+        path: /home/{{ node_admin_username }}/.ssh/config
+        regexp: '^StrictHostKeyChecking='
+        line: StrictHostKeyChecking=no
+
+    # postgres ssh-key exchange
+    - name: Fetch admin public keys
+      shell: cat /home/{{ node_admin_username }}/.ssh/id_rsa.pub
+      register: admin_ssh_keys
+
+    # for all hosts, copy their postgres ssh public key to each other
+    - name: Exchange admin ssh keys
+      when: node_admin_ssh_exchange
+      authorized_key: user={{ node_admin_username }} key="{{ item[0] }}"
+      ignore_errors: true
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ admin_ssh_keys.stdout }}"
+        - "{{ play_hosts }}"
+
 ...
+
+
+#    - name: Create os user postgres:admin
+#      user: name=postgres group=admin home=/home/postgres generate_ssh_key=yes
+#    - name: Create os user prometheus:admin
+#      user: name=prometheus group=admin create_home=no
+#    - name: Create os dcs user consul:admin
+#      user: name=consul group=admin create_home=no
+#    - name: Create os dcs user etcd:admin
+#      user: name=etcd group=admin create_home=no
+

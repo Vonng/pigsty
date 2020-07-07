@@ -1,42 +1,42 @@
 ---
-- name: Node feature setup
+- name: Node features setup
+  tags: node_feature
   block:
-    # disable numa
+    # - disable numa - #
     - name: Node configure disable numa
       when: node_disable_numa
       script: disable_numa.sh
 
 
-    # disable swap is important for database and k8s
+    # - disable swap - #
     - name: Node configure disable swap
       when: node_disable_swap
       command: swapoff -a
 
     - name: Node configure unmount swap
+      when: node_disable_swap
       mount: name={{ item }} fstype=swap state=absent
       with_items: [swap, none]
 
 
-    # disable firewalld
+
+    # - disable firewall - #
     - name: Node configure disable firewall
       when: node_disable_firewall
       systemd: name=firewalld state=stopped enabled=no
 
 
-    # disable selinux
-    - name: Node configure disable selinux
-      ignore_errors: true
-      when: node_disable_selinux
-      command: setenforce 0
 
+    # - disable selinux - #
     - name: Node disable selinux by default
       when: node_disable_selinux
       selinux: state=disabled
 
 
 
-    # setup disk prefetch
+    # - eanble disk prefetch - #
     - name: Node configure disk prefetch
       when: node_disk_prefetch
       script: disk_prefetch.sh
+
 ...
