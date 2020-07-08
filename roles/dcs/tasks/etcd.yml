@@ -1,6 +1,128 @@
 ---
-#==============================================================#
-# Stage 1: Setup etcd
-#==============================================================#
-# TODO: NOT IMPLEMENT YET
+#------------------------------------------------------------------------------
+# Check etcd
+#------------------------------------------------------------------------------
+- name: Check existing etcd
+  tags: etcd_check
+  block:
+
+    - name: Check for existing etcd instance
+      command: 'ss -tp state listening sport = :2379'
+      register: check_etcd_port_result
+
+    - name: Set etcd_exists flag if exists
+      set_fact:
+        etcd_exists: "{{ 'etcd' in check_etcd_port_result.stdout }}"
+
+    - name: Abort due to existing etcd instance
+      when: etcd_exists and dcs_exists_action == 'abort'
+      any_errors_fatal: true
+      fail: msg="Abort because etcd instance already exists and dcs_exists_action=abort"
+
+    - name: Skip due to existing etcd instance
+      when: etcd_exists and dcs_exists_action == 'skip'
+      meta: end_host
+
+    - name: Clean existing etcd instance
+      when: etcd_exists and dcs_exists_action == 'clean' # DANGEROUS!
+      debug:
+        msg: "[DANGEROUS] running instance {{ inventory_hostname }} will be purged!"
+
+    # dangerous: (it will remove etcd data!)
+    - name: Purge existing etcd instance
+      script: purge_etcd.sh
+
+
+
+#------------------------------------------------------------------------------
+# Config etcd
+#------------------------------------------------------------------------------
+# dcs_servers key > pg_cluster-pg_seq > hostname
+- name: Determine dcs node name
+  tags: etcd_config
+  when: inventory_hostname in dcs_servers.values()
+  block:
+    - name: Get dcs node name from dcs_servers dict
+      connection: local
+      when: inventory_hostname in dcs_servers.values()
+      set_fact:
+        dcs_nodename={{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}
+        dcs_role=server
+
+    - name: Build dcs name from cluster and sequence
+      when: dcs_nodename is not defined or dcs_nodename == '' and pg_cluster is defined and pg_seq is defined
+      connection: local
+      set_fact: dcs_nodename={{ pg_cluster }}-{{ pg_seq }}
+
+    # fill dcs nodename with node hostname
+    - name: Get hostname as etcd node name
+      shell: echo $HOSTNAME
+      register: hostname_result
+
+    - name: Build dcs name from cluster and sequence
+      when: dcs_nodename is not defined or dcs_nodename == ''
+      connection: local
+      set_fact: dcs_nodename={{ hostname_result.stdout }}
+
+    # get all etcd servers
+    - name: Build etcd cluster url
+      connection: local
+      set_fact:
+        etcd_cluster: "{% for k,v in dcs_servers.items() %}{{ k }}=http://{{ v }}:2380, {% endfor %}"
+
+    - name: Trim etcd cluster url
+      connection: local
+      set_fact:
+        etcd_cluster: "{{ etcd_cluster  |  regex_replace('[,\\s]+$', '')  }}"
+
+    # only server need config
+    - name: Copy /etc/etcd.d/etcd.conf
+      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf mode=0644 owner=etcd
+
+#------------------------------------------------------------------------------
+# Launch etcd server
+#------------------------------------------------------------------------------
+- name: Setup conul server
+  tags: etcd_server
+  when: inventory_hostname in dcs_servers.values()
+  throttle: 1                                 # setup server one by one
+  block:
+    # config etcd
+    - name: Copy etcd server service unit
+      template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
+
+    # launch etcd
+    - name: Launch etcd server service
+      systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
+
+    # wait etcd online
+    - name: Wait for etcd server online
+      wait_for: host=localhost port=2379 state=started timeout=30
+
+
+#------------------------------------------------------------------------------
+# Write etcd endpoints env to all nodes
+#------------------------------------------------------------------------------
+- name: Setup conul server
+  tags: etcd_endpoints
+  block:
+    # get all etcd servers
+    - name: Build etcd endpoint url
+      connection: local
+      set_fact:
+        etcd_endpoints: "{% for k,v in dcs_servers.items() %}http://{{ v }}:2379, {% endfor %}"
+
+    - name: Trim etcd endpoint url
+      connection: local
+      set_fact:
+        etcd_endpoints: "{{ etcd_endpoints  |  regex_replace('[,\\s]+$', '')  }}"
+
+    # write etcd endpoint to all nodes
+    - name: Write etcd endpoint env profile
+      copy:
+        dest: /etc/profile.d/etcd.sh
+        mode: 0755
+        content: export ETCDCTL_ENDPOINTS="{{ etcd_endpoints }}"
+
+
 ...
