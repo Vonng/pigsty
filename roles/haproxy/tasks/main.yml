@@ -1,4 +1,7 @@
 ---
+#--------------------------------------------------------------#
+# 1. Setup Haproxy
+#--------------------------------------------------------------#
 - name: Setup Haproxy
   when: pg_lb_enabled and pg_lb_type == 'haproxy'
   tags: pg_haproxy
@@ -26,10 +29,43 @@
       wait_for: host=localhost port=9101 state=started timeout=10
 
 
+#--------------------------------------------------------------#
+# 2. Register Haproxy Service (optional)
+#--------------------------------------------------------------#
+- name: Register haproxy consul service
+  tags: haproxy_register
+  ignore_errors: true
+  block:
+    - name: Copy haproxy service definition
+      template:
+        src: svc-haproxy.json.j2
+        dest: /etc/consul.d/svc-haproxy.json
+        owner: consul
+        group: postgres
+        mode: 0660
+
+    - name: Reload haproxy consul service
+      systemd: name=consul state=reloaded
+
+
+
+#--------------------------------------------------------------#
+# 3. Setup keepalived
+#--------------------------------------------------------------#
 - name: Setup Keepalive
   when: pg_lb_enabled and pg_lb_vip_enabled
   tags: pg_vip
   block:
+
+    # redhat/centos: chronyd already installed
+    - name: Create keepalive config dir
+      file: path=/etc/keepalived/conf.d state=directory mode=0755
+
+    # redhat/centos: config chronyd
+    - name: Copy top level keepalived.conf
+      copy: dest=/etc/keepalived/keepalived.conf mode=0644
+        content="include conf.d/*.conf"
+
     - name: Fetch cluster load balanacers for lb
       set_fact:
         pg_loadbalancers={{ hostvars| json_query(pg_loadbalancers_query) }}
@@ -44,5 +80,7 @@
 
     - name: Restart keepalived to take effect
       systemd: name=keepalived state=restarted enabled=yes
+
+
 
 ...
