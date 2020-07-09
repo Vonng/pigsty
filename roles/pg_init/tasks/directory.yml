@@ -18,7 +18,6 @@
 - name: Create postgresql directories
   tags: pg_directory
   become: yes
-  become_user: root
   block:
     - name: Make sure main and backup dir exists
       file: path={{ item }} state=directory owner=root mode=0777
@@ -60,4 +59,7 @@
 
     - name: Copy postgres scripts to /pg/bin/
       copy: src=pg/ dest=/pg/bin/ owner=postgres group=admin mode=0755
+
+    - name: Copy alias profile to /etc/profile.d
+      copy: src=profile.sh dest=/etc/profile.d/pg-alias.sh mode=0755
 ...

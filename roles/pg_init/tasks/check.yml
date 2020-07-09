@@ -7,23 +7,15 @@
 #             ^--> [action=clean] ---> clean ---> init
 
 #==============================================================#
-
-#==============================================================#
-# check postgres instance precondition
-#==============================================================#
 - name: Check postgres environment
   tags: pg_precheck
   block:
-    # check postgres of given version is installed
-#    - name: Check activated postgres version
-#      command: "{{ pg_bin_dir }}/pg_ctl --version"
-#      register: pg_version_check
-#      failed_when: pg_version|string not in pg_version_check.stdout
 
     - name: Check for existing postgres instance
       command: 'ss -tp state listening sport = :{{ pg_port }}'
       any_errors_fatal: true
       register: check_pg_port_result
+
     - name: Set fact whether pg port is open
       set_fact:
         pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"

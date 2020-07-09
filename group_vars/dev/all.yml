@@ -1,85 +1,218 @@
 ---
-#==============================================================#
-# node provision
-#==============================================================#
-# 1. node features
-# node_disable_numa: false        # [VERY IMPORTANT] disable numa, skip for vm or single CPU setup
-# node_disable_swap: true         # [VERY IMPORTANT] disable swap for pg and kubernetes
-# node_disable_firewall: true     # disable firewall to allow haproxy and kubernetes
-# node_disable_selinux: true      # disable selinux
-# node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+#------------------------------------------------------------------------------
+# Pigsty configuration file
+#------------------------------------------------------------------------------
+#
+# This file using yaml format
+#
+# This file is used as default settings for all cluster. it will override role's
+# default variable, and will be override by host inventory variables
+#
+#------------------------------------------------------------------------------
 
-# 2. node kernel
+
+#------------------------------------------------------------------------------
+# CONNECTION PARAMETERS
+#------------------------------------------------------------------------------
+# ansible_user: admin             # admin user with ssh access and sudo privilege
+
+proxy_env:                        # global proxy env when downloading packages
+  all_proxy: "http://employee2:qrHyfzSgGp@proxy.p1staff.com:1337"
+  http_proxy: "http://employee2:qrHyfzSgGp@proxy.p1staff.com:1337"
+  https_proxy: "http://employee2:qrHyfzSgGp@proxy.p1staff.com:1337"
+
+node_proxy_env: {}                # proxy for common nodes
+
+
+#------------------------------------------------------------------------------
+# REPO PROVISION
+#------------------------------------------------------------------------------
+# this section defines how to build a local yum repo including all packages needed
+# by this system. it's highly recommended to have a local yum repo on your meta node
+
+# - local yum repo - #
+repo_enabled: true                            # build local yum repo on meta nodes?
+repo_name: pigsty                             # local repo name
+repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
+repo_port: 80                                 # repo server listen address, must same as repo_address!
+repo_home: /www                               # default repo dir location
+repo_rebuild: false                           # force re-download packages
+
+# - upstream repo - #
+repo_remove: true                             # remove existing repos
+repo_always_add_upsteam: false                # add upstream repo even cache already exists (takes more time to make yum cache)
+# repo_upstreams: []                          # repos to be installed before downloading (specify will overwrite default repos)
+
+# - repo packages- #
+repo_packages:
+  - epel-release nginx wget yum-utils                                               # bootstrap packages
+  - ntp uuid lz4 nc pv jq vim make patch bash lsof wget unzip git                   # basic system util
+  - readline zlib openssl libxml2 libxslt perl-ExtUtils-Embed                       # basic pg dependency
+  - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm   # system utils
+  - grafana prometheus2 pushgateway alertmanager                                    # monitor and ui
+  - node_exporter postgres_exporter nginx_exporter blackbox_exporter                # exporter
+  - consul consul_exporter consul-template etcd                                     # dcs
+  - ansible python python-pip python-ipython python-psycopg2                        # ansible & python
+  - haproxy keepalived dnsmasq                                                      # proxy and dns
+  - docker-ce docker-ce-cli rkt                                                     # container
+  - kubelet kubectl kubeadm kubernetes-cni helm                                     # kubernetes
+  - postgresql12* postgis30_12* timescaledb_12 citus_12 pglogical_12                # postgres 12 basic
+  - pg_qualstats12 pg_cron_12 pg_top12 pg_repack12 pg_squeeze12 pg_stat_kcache12 wal2json12 pgpool-II-12 pgpool-II-12-extensions python3-psycopg2 python2-psycopg2
+  - ddlx_12 bgw_replstatus12 count_distinct12 extra_window_functions_12 geoip12 hll_12 hypopg_12 ip4r12 jsquery_12 multicorn12 osm_fdw12 mysql_fdw_12 ogr_fdw12 mongo_fdw12 hdfs_fdw_12 cstore_fdw_12 wal2mongo12 orafce12 osm2pgrouting_12 pagila12 pam-pgsql12 passwordcheck_cracklib12 periods_12 pg_auto_failover_12 pg_bulkload12 pg_catcheck12 pg_comparator12 pg_filedump12 pg_fkpart12 pg_jobmon12 pg_partman12 pg_pathman12 pg_track_settings12 pg_wait_sampling_12 pgagent_12 pgaudit14_12 pgauditlogtofile-12 pgbconsole12 pgcryptokey12 pgexportdoc12 pgfincore12 pgimportdoc12 pgmemcache-12 pgmp12 pgq-12 pgrouting_12 pgtap12 plpgsql_check_12 plr12 plsh12 postgresql_anonymizer12 postgresql-unit12 powa_12 prefix12 repmgr12 safeupdate_12 semver12 slony1-12 sqlite_fdw12 sslutils_12 system_stats_12 table_version12 topn_12
+  - pgbouncer pg_cli pg_top pgbadger pgdg-redhat-repo                               # postgres common utils
+  # - postgresql13*
+
+repo_url_packages:
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
+  - https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
+  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
+
+
+#------------------------------------------------------------------------------
+# NODE PROVISION
+#------------------------------------------------------------------------------
+# this section are usually managed by operators, do not enabled these unless
+# you are fully aware what you are doing.
+
+# - node type -#
+# meta_node: false                            # if set, meta packages will be installed
+
+# - node dns - #
+node_dns_setup: true                          # setup static dns record and dns resolver
+node_dns_hosts:                               # static dns records in /etc/hosts
+  - 10.10.10.10 yum.pigsty pigsty
+node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
+  - 10.10.10.10
+
+
+# - node repo - #
+node_repo_url:                                # additional repo to be installed via url
+  - http://yum.pigsty/pigsty.repo
+node_repo_remove: true                        # whether remove existing repo
+node_repo_add_upstream: true                  # whether add upstream repo to node (you could add and then disable them)
+node_repo_config:                             # commands to config yum repos
+  - disable *                                 # disable all default repos
+  - enable pigsty                             # enable default local yum repo
+
+
+# - node packages - #
+node_packages_proxy: false                    # install packages with proxy_env ?
+node_packages:                                # common packages for all nodes
+  - wget,yum-utils,ntp,uuid,lz4,nc,vim,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
+  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm
+  - python-pip,python-psycopg2
+  - postgresql12*
+
+node_extra_packages:                          # extra packages for nodes
+  - node_exporter,pg_exporter,postgres_exporter,blackbox_exporter     # exporter
+  - consul,consul_exporter,consul-template,etcd,haproxy,keepalived    # dcs & proxy
+  - pv,jq,postgresql12*                                               # misc
+  # - docker-ce,docker-ce-cli,rkt                                     # container  (optional)
+  # - kubelet,kubectl,kubeadm,kubernetes-cni,helm                     # kubernetes (optional)
+
+node_meta_packages:                           # packages for meta nodes only
+  - grafana,prometheus2,pushgateway,alertmanager,dnsmasq,nginx,nginx_exporter,blackbox_exporter,ansible,python-ipython
+
+
+# - node features - #
+node_disable_numa: false                      # disable numa, important for production database, reboot required
+node_disable_swap: true                       # disable swap, important for production database
+node_disable_firewall: true                   # disable firewall (required if using kubernetes)
+node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
+node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
+
+
+# - node kernel modules - #
 node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
 
-# 3. node tuned
-# node_tuned: true                # tune node parameters
-# node_sysctl_params: {}          # additional sysctl parameters
 
-# 4. node user
-# node_root_setup: false          # setup root user (exchange ssh keys) ?
-
-# 5. node dns
-node_dns_setup: true              # setup dns
-node_dns_servers: [10.10.10.10]   # nameserver in /etc/resolv.conf
-node_dns_hosts:                   # static dns records in /etc/hosts
-  - "10.10.10.10 yum.pigsty pigsty"
-
-# 6. node repo
-node_local_repo_enabled: true     # whether use local yum repo
-node_local_repo_only: true        # whether disable other repos
-repo_name: pigsty                 # local repo name
-repo_host: yum.pigsty             # local repo host
-
-# 7. node packages
-# node_meta_install: false
-# node_cloud_install: false
-# node_build_install: false
-# node_additional_packages: []    # additional rpm packages to be downloaded/installed
-
-# 8. node ntp
-node_setup_ntp: true              # setup ntp
-node_timezone: 'Asia/Shanghai'    # default node timezone
-node_ntp_servers: [10.10.10.10]   # default NTP servers
-
-# 9. node vip
-node_setup_vip: true              # setup default vip structure
+# - node tuned - #
+node_tuned: true                              # install and activate tuned profile: postgres
+node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
 
 
-#==============================================================#
-#                     Infra Provision                          #
-#==============================================================#
-dcs_servers: [10.10.10.10]        # default dcs servers
-dcs_type:    consul               # default dcs server type: consul
-dcs_purge:   true                 # force remove existing server
-consul_dc:   pigsty               # force remove existing server
+# - node user - #
+node_admin_setup: true                        # setup an default admin user ?
+node_admin_uid: 88                            # uid and gid for admin user
+node_admin_username: admin                    # default admin user
+node_admin_ssh_exchange: true                 # exchange ssh key amoung cluster ?
+
+
+# - node ntp - #
+node_ntp_setup: true                          # setup ntp
+node_timezone: Asia/Shanghai                  # default node timezone
+node_ntp_servers:                             # default NTP servers
+  - 10.10.10.10
+
+
+
+#------------------------------------------------------------------------------
+# DCS PROVISION
+#------------------------------------------------------------------------------
+# - dcs identity -
+dcs_role: node                    # available: node|server, node by default
+dcs_type: consul                  # default dcs server type: consul
+dcs_exists_action: clean          # abort|skip|clean
+dcs_servers:                      # dcs name:ip dict
+  pg-meta-1: 10.10.10.10
+
+# - dcs: consul -
+consul_dc: pigsty                 # force remove existing server
 consul_bootstrap_expect: 1        # expect consul server
-dcs_check_interval: 15s           # default service check interval
-dcs_check_timeout:  1s            # default service check timeout
+consul_check_interval: 15s        # default service check interval
+consul_check_timeout:  1s         # default service check timeout
 
-cloud_native_support: false       # install k8s ?
+# - dcs: etcd -
+etcd_initial_cluster_token: ''
 
 
-#==============================================================#
-#                      Meta Provision                          #
-#==============================================================#
-# dns & nginx
+#------------------------------------------------------------------------------
+# DOCKER PROVISION
+#------------------------------------------------------------------------------
+docker_enabled: false                                             # install and enable docker?
+docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
+docker_registry_mirrors:                                          # docker registry mirror
+  - https://zbwt4y5v.mirror.aliyuncs.com
+docker_image_cache:                                               # docker image tarballs to be loaded (if exists)
+  - /www/pigsty/docker-images.tar.lz4
+
+
+#------------------------------------------------------------------------------
+# KUBERNETES PROVISION
+#------------------------------------------------------------------------------
+k8s_servers: []                                                   # kubernetes servers
+k8s_role: node                                                    # default kubernetes role (override this on k8s server)
+k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes images mirror
+k8s_version: 1.18.5                                               # kubernetes version
+k8s_pod_cidr: 10.11.0.0/16                                        # kubernetes pod network cidr
+k8s_service_cidr: 10.12.0.0/16                                    # kubernetes service network cidr
+k8s_dashboard_admin_user: dashboard-admin-sa                      # kubernetes dashboard admin user name
+
+
+
+#------------------------------------------------------------------------------
+# META PROVISION
+#------------------------------------------------------------------------------
+# - domain names -
+repo_domain_name:         yum.pigsty          # local yum repo domain name
 consul_domain_name:       c.pigsty            # consul ui domain name
-grafana_domain_name:      g.pigsty            # grafana ui domain name
-prometheus_domain_name:   p.pigsty            # prometheus ui domain name
-alertmanger_domain_name:  am.pigsty           # alertmanager ui domain name
-dnsmasq_dns:
-  - "10.10.10.2 pg-meta"
-  - "10.10.10.3 pg-test"
+grafana_domain_name:      g.pigsty            # grafana domain name
+prometheus_domain_name:   p.pigsty            # prometheus domain name
+alertmanger_domain_name:  am.pigsty           # alertmanager domain name
 
-# prometheus
+# - dns - #
+dnsmasq_dns:                                  # dynamic dns record resolvd by
+  - 10.10.10.2 pg-meta
+  - 10.10.10.3 pg-test
+
+# - prometheus - #
 prometheus_scrape_interval: 2s                # global scrape & evaluation interval
-prometheus_scrape_timeout: 1s                 # scrape timeout
+prometheus_scrape_timeout: 1s                 # global scrape timeout
 prometheus_metrics_path: /metrics             # default metrics path (only for job 'pg')
 prometheus_data_dir: /export/prometheus/data  # prometheus data dir
 prometheus_retention: 30d                     # how long to keep
 
-# grafana
+# - grafana -
 grafana_url: http://g.pigsty
 grafana_force_download_plugins: false         # force redownload grafana plugins
 grafana_time_interval: 2s                     # force redownload grafana plugins
@@ -98,20 +231,30 @@ grafana_plugins:                              # default grafana plugins list
   - digrich-bubblechart-panel
 
 
-# meta repostority
-repo_use_mirror: true             # use aliyun centos mirror
-repo_cloud_native: true           # download cloud native packages ?
-repo_build_essential: true        # download build essential packages
-repo_force_download: false        # force download even cache exists
-repo_proxy_env: {}                # add proxy environment variable here
 
+#------------------------------------------------------------------------------
+# POSTGRES PROVISION
+#------------------------------------------------------------------------------
+# - dbsu - #
+pg_dbsu: postgres               # os user for database, postgres by default (change it is not recommended!)
+pg_dbsu_uid: 26                 # os dbsu uid and gid, 26 for default postgres users and groups
+pg_dbsu_sudo: limit             # none|limit|all|nopass (Privilege for dbsu, limit is recommended)
+pg_dbsu_home: /var/lib/pgsql    # postgresql binary
+pg_dbsu_ssh_exchange: true      # exchange ssh key among same cluster
 
-#==============================================================#
-#                   PostgreSQL Provision                       #
-#==============================================================#
-# default users
-pg_dbsu: postgres
-pg_dbsu_password: postgres
+# - dbsu - #
+pg_version: 12                  # default postgresql version
+pgdg_repo: false                # use official pgdg yum repo (disable if you have local mirror)
+pg_bin_dir: /usr/pgsql/bin      # postgres binary directory
+
+pg_packages:
+  - postgresql${pg_version}* postgis30_${pg_version}* timescaledb_${pg_version} citus_${pg_version} pglogical_${pg_version}   # postgres ${pg_version} basic
+  - pg_qualstats${pg_version} pg_cron_${pg_version} pg_top${pg_version} pg_repack${pg_version} pg_squeeze${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version} pgpool-II-${pg_version} pgpool-II-${pg_version}-extensions
+  - pgbouncer patroni pg_exporter pg_top pgbadger # postgres common utils
+
+pg_extensions: []
+# - ddlx_${pg_version} bgw_replstatus${pg_version} count_distinct${pg_version} extra_window_functions_${pg_version} geoip${pg_version} hll_${pg_version} hypopg_${pg_version} ip4r${pg_version} jsquery_${pg_version} multicorn${pg_version} osm_fdw${pg_version} mysql_fdw_${pg_version} ogr_fdw${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version} cstore_fdw_${pg_version} wal2mongo${pg_version} orafce${pg_version} osm2pgrouting_${pg_version} pagila${pg_version} pam-pgsql${pg_version} passwordcheck_cracklib${pg_version} periods_${pg_version} pg_auto_failover_${pg_version} pg_bulkload${pg_version} pg_catcheck${pg_version} pg_comparator${pg_version} pg_filedump${pg_version} pg_fkpart${pg_version} pg_jobmon${pg_version} pg_partman${pg_version} pg_pathman${pg_version} pg_track_settings${pg_version} pg_wait_sampling_${pg_version} pgagent_${pg_version} pgaudit14_${pg_version} pgauditlogtofile-${pg_version} pgbconsole${pg_version} pgcryptokey${pg_version} pgexportdoc${pg_version} pgfincore${pg_version} pgimportdoc${pg_version} pgmemcache-${pg_version} pgmp${pg_version} pgq-${pg_version} pgrouting_${pg_version} pgtap${pg_version} plpgsql_check_${pg_version} plr${pg_version} plsh${pg_version} postgresql_anonymizer${pg_version} postgresql-unit${pg_version} powa_${pg_version} prefix${pg_version} repmgr${pg_version} safeupdate_${pg_version} semver${pg_version} slony1-${pg_version} sqlite_fdw${pg_version} sslutils_${pg_version} system_stats_${pg_version} table_version${pg_version} topn_${pg_version}
+
 
 # unified replication user
 pg_replication_username: replicator
@@ -121,14 +264,21 @@ pg_replication_password: replicator
 pg_monitor_username: dbuser_monitor
 pg_monitor_password: dbuser_monitor
 
-# monitor options
-node_exporter_port: 9100
-pg_exporter_port: 9630
-pgbouncer_exporter_port: 9631
-exporter_metric_path: /metrics
 
 # patroni haproxy vip
-patroni_pause: true                     # use maintenance mode by default
-pg_lb_enabled: true                     # default load balancer type
-pg_lb_vip_enabled: true                 # create vip for load balancer
+# patroni_pause: true                     # use maintenance mode by default
+# pg_lb_enabled: true                     # default load balancer type
+# pg_lb_vip_enabled: true                 # create vip for load balancer
+
+
+#------------------------------------------------------------------------------
+# MONITOR PROVISION
+#------------------------------------------------------------------------------
+# - monitor options -
+node_exporter_port: 9100                # default port for node exporter
+pg_exporter_port: 9630                  # default port for pg exporter
+pgbouncer_exporter_port: 9631           # default port for pgbouncer exporter
+exporter_metrics_path: /metrics         # default metric path for pg related exporter
+
+
 ...

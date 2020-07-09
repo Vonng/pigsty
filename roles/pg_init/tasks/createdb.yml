@@ -5,7 +5,7 @@
 - name: Create default database and user
   tags: pg_createdb
   when: pg_role == 'primary'
-  become_user: postgres
+  become_user: "{{ pg_dbsu }}"
   block:
     #==============================================================#
     # default user
@@ -36,13 +36,12 @@
     # add default user/pass to pgpass
     - name: Create pgpass with business userinfo
       lineinfile:
-        path: /home/postgres/.pgpass
+        path: "{{ pg_dbsu_home }}/.pgpass"
         line: "*:*:*:{{ pg_default_username }}:{{ pg_default_password }}"
         create: yes
 
     - name: Check business database connectivity
-      become_user: postgres
-      shell: psql -w -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
+      shell: psql -w -U {{ pg_default_username }} -d {{ pg_default_database }} -p {{ pg_port }} -Atc 'SELECT 1;'
 
 
     #==============================================================#
@@ -50,10 +49,10 @@
     #==============================================================#
     - name: Render template scripts to remote
       copy: src={{ item }} dest=/pg/tmp/{{ item }}
-      with_items: "{{ pg_template_scripts }}"
+      with_items: "{{ pg_default_scripts }}"
 
     - name: Provision default database scripts
-      command: psql {{ pg_default_database }} -w -f /pg/tmp/{{ item }}
+      command: psql -w  {{ pg_default_database }} -p {{ pg_port }} -f /pg/tmp/{{ item }}
       with_items: "{{ pg_default_scripts }}"
 
 

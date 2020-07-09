@@ -1,0 +1,303 @@
+---
+#------------------------------------------------------------------------------
+# Pigsty configuration file
+#------------------------------------------------------------------------------
+#
+# This file using yaml format
+#
+# This file is used as default settings for all cluster. it will override role's
+# default variable, and will be override by host inventory variables
+#
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+# CONNECTION PARAMETERS
+#------------------------------------------------------------------------------
+# ansible_user: admin             # admin user with ssh access and sudo privilege
+
+# proxy_env:                      # global proxy env when downloading packages
+#   all_proxy: "http://xxx"
+#   http_proxy: "http://xxx"
+#   https_proxy: "http://xxx"
+
+
+#------------------------------------------------------------------------------
+# REPO BUILD
+#------------------------------------------------------------------------------
+# this section defines how to build a local yum repo including all packages needed
+# by this system. it's highly recommended to have a local yum repo on your meta node
+
+# - local yum repo -
+repo_enabled: true                            # build local yum repo on meta nodes?
+repo_name: pigsty                             # local repo name
+repo_host: yum.pigsty                         # local repo host (ip or hostname, must be accessible to repo user)
+repo_home: /www                               # default repo dir location
+repo_cache: /tmp/pkg.tar.gz                   # load packages from cache and make cache after download packages
+repo_rebuild: false                           # force re-download packages
+repo_cleanup: true                            # remove existing repos
+
+repo_upstream_repos:                          # repos to be installed before downloading
+  - name: base                                # centos base mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
+    failovermethod: priority
+  - name: updates                             # centos updates mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/
+    failovermethod: priority
+  - name: updates                             # centos extras mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/
+    failovermethod: priority
+  - name: epel                                # epel-release
+    baseurl: http://mirrors.aliyun.com/epel/7/$basearch
+    failovermethod: priority
+  - name: kubernetes    # kubernetes mirror
+    baseurl: https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+
+
+
+repo_packages:                                # these packages are downloaded via yum downloader
+  # ansible and python environment
+  - ansible,python,python-pip,python-ipython,python-psycopg2
+  # system utils
+  - ntp,uuid,readline,lz4,nc,pv,jq,vim,make,patch,bash,libxml2,libxslt,lsof,wget,unzip,git,numactl,yum-utils,grubby,zlib,openssl,perl-ExtUtils-Embed
+  # network utils
+  - bind-utils,net-tools,sysstat,dstat,iotop,tcpdump,socat,ipvsadm
+  # monitoring packages
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,postgres_exporter,nginx_exporter,blackbox_exporter
+  # dcs packages
+  - consul,consul_exporter,consul-template,etcd
+  # proxy and dns
+  - nginx,haproxy,keepalived,dnsmasq
+  # cloud native
+  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
+  # postgres core packages
+  - postgresql13*
+  - postgresql12*
+  - postgis30_12*
+  # postgres extension packages 12
+  - wal2json12,pg_repack12,pg_qualstats12,pg_stat_kcache12,pgrouting_12,pg_cron_12,timescaledb_12,pglogical_12,pgpool-II-12
+  # postgres common misc
+  - pgbouncer,pg_top,pgbadger,pgdg-redhat-repo # ,pgadmin4
+
+
+repo_url_packages:                              # these packages are downloaded to repo_home via wget
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
+  - https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
+  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
+
+
+
+
+#------------------------------------------------------------------------------
+# META PROVISION
+#------------------------------------------------------------------------------
+# - domain names -
+repo_domain_name:         yum.pigsty          # local yum repo domain name
+consul_domain_name:       c.pigsty            # consul ui domain name
+grafana_domain_name:      g.pigsty            # grafana domain name
+prometheus_domain_name:   p.pigsty            # prometheus domain name
+alertmanger_domain_name:  am.pigsty           # alertmanager domain name
+
+# - dns -
+dnsmasq_dns:
+  - 10.10.10.2 pg-meta
+  - 10.10.10.3 pg-test
+
+# - prometheus -
+prometheus_scrape_interval: 10s               # global scrape & evaluation interval
+prometheus_scrape_timeout: 5s                 # global scrape timeout
+prometheus_metrics_path: /metrics             # default metrics path (only for job 'pg')
+prometheus_data_dir: /export/prometheus/data  # prometheus data dir
+prometheus_retention: 30d                     # how long to keep
+
+# - grafana -
+grafana_url: http://g.pigsty
+grafana_force_download_plugins: false         # force redownload grafana plugins
+grafana_time_interval: 2s                     # force redownload grafana plugins
+grafana_provision_via_db: true                # provision via copy sqlite db by default
+grafana_dashboards: []                        # default dashboards
+grafana_plugins_install:                      # install grafana plugins ?
+grafana_plugins_force_download:               # force re-download grafana plugins ?
+grafana_plugins:                              # default grafana plugins list
+  - camptocamp-prometheus-alertmanager-datasource
+  - simpod-json-datasource
+  - ryantxu-ajax-panel
+  - jdbranham-diagram-panel
+  - grafana-piechart-panel
+  - alexandra-trackmap-panel
+  - snuids-radar-panel
+  - digrich-bubblechart-panel
+
+
+
+#------------------------------------------------------------------------------
+# NODE INSTALL
+#------------------------------------------------------------------------------
+# this section controls software repo and packages to be installed
+
+# - node repo -
+node_repos:                                   # whether use local yum repo
+  - http://yum.pigsty/pigsty.repo             # your local yum repo
+  - centos7                                   # predefined mirror repo
+
+node_repo_manage:                             # commands to manage yum repos
+  - disable *                                 # disable all default repos
+  - enable pigsty                             # enable default local yum repo
+  - enable base extras udpates                # enable centos default repos
+
+
+
+
+# packages for infrastructure layer
+node_infra_packages:
+  - etcd,consul,haproxy,keepalived,node_exporter
+
+# only needed in meta node
+node_meta_install: false
+node_meta_packages:
+  - python,python-pip,python-ipython,python-psycopg2                    # ansible and python environment
+  - nginx,haproxy,keepalived,dnsmasq                                            # proxy and dns
+  - grafana,prometheus2,pushgateway,alertmanager,node_exporter,nginx_exporter   # monitoring packages
+
+# packages for cloud-native
+node_cloud_install: false
+node_cloud_packages:
+  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
+
+# packages for building tool chain
+node_build_install: false
+node_build_packages:
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
+
+# - node packages -
+# node_meta_install: false                    # install meta controller packages (only needed for meta nodes)
+# node_cloud_install: false                   # install cloud native packages?
+# node_build_install: false                   # install building packages?
+# node_additional_packages: []                # specify additional rpm packages to be downloaded/installed
+
+
+#------------------------------------------------------------------------------
+# NODE PROVISION
+#------------------------------------------------------------------------------
+# this section are usually managed by operators, do not enabled these unless
+# you are fully aware what you are doing.
+
+# - node features -
+# node_disable_numa: false                    # disable numa, important for production database, reboot required
+# node_disable_swap: true                     # disable swap, important for production database
+# node_disable_firewall: true                 # disable firewall (required if using kubernetes)
+# node_disable_selinux: true                  # disable selinux  (required if using kubernetes)
+# node_disk_prefetch: false                   # setup disk prefetch on HDD to increase performance
+
+
+# - node kernel modules -
+node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
+
+
+# - node tuned profile -
+# node_tuned: true                            # install and activate tuned profile: postgres
+# node_sysctl_params: {}                      # set additional sysctl parameters, k:v format
+
+
+# - node user -
+# node_root_setup: false                      # create root ssh-key and exchange amoung cluster? (testing env only)
+
+
+# - node dns -
+node_dns_setup: true                          # setup static dns record and dns resolver?
+node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
+  - 10.10.10.10
+node_dns_hosts:                               # static dns records in /etc/hosts
+  - 10.10.10.10 yum.pigsty pigsty
+
+
+# - node ntp -
+node_ntp_setup: true                          # setup ntp
+node_timezone: Asia/Shanghai                  # default node timezone
+node_ntp_servers:                             # default NTP servers
+  - 10.10.10.10
+
+
+
+#------------------------------------------------------------------------------
+# DCS PROVISION
+#------------------------------------------------------------------------------
+# - data consensus storage -
+dcs_servers: [10.10.10.10]        # dcs servers ip address list
+dcs_type:    consul               # dcs server type: consul
+dcs_purge:   false                # force remove existing dcs server ?
+
+# - dcs: consul -
+consul_dc:   pigsty               # force remove existing server
+consul_bootstrap_expect: 1        # expect consul server
+consul_check_interval: 15s        # default service check interval
+consul_check_timeout:  1s         # default service check timeout
+
+# - dcs: etcd -
+
+
+#------------------------------------------------------------------------------
+# DOCKER PROVISION
+#------------------------------------------------------------------------------
+docker_enabled: false                                             # install and enable docker?
+docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
+docker_registry_mirrors:                                          # docker registry mirror
+  - https://zbwt4y5v.mirror.aliyuncs.com
+docker_image_cache:                                               # docker image tarballs to be loaded (if exists)
+  - /www/pigsty/docker-images.tar.lz4
+
+
+#------------------------------------------------------------------------------
+# KUBERNETES PROVISION
+#------------------------------------------------------------------------------
+k8s_servers: []                                                   # kubernetes servers
+k8s_role: node                                                    # default kubernetes role (override this on k8s server)
+k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes images mirror
+k8s_version: 1.18.5                                               # kubernetes version
+k8s_pod_cidr: 10.11.0.0/16                                        # kubernetes pod network cidr
+k8s_service_cidr: 10.12.0.0/16                                    # kubernetes service network cidr
+k8s_dashboard_admin_user: dashboard-admin-sa                      # kubernetes dashboard admin user name
+
+
+#------------------------------------------------------------------------------
+# MONITOR PROVISION
+#------------------------------------------------------------------------------
+# - monitor options -
+node_exporter_port: 9100                # default port for node exporter
+pg_exporter_port: 9630                  # default port for pg exporter
+pgbouncer_exporter_port: 9631           # default port for pgbouncer exporter
+exporter_metrics_path: /metrics         # default metric path for pg related exporter
+
+
+#------------------------------------------------------------------------------
+# POSTGRES PROVISION
+#------------------------------------------------------------------------------
+# default users
+pg_dbsu: postgres
+pg_dbsu_password: postgres
+
+# unified replication user
+pg_replication_username: replicator
+pg_replication_password: replicator
+
+# unified monitor user
+pg_monitor_username: dbuser_monitor
+pg_monitor_password: dbuser_monitor
+
+
+# patroni haproxy vip
+patroni_pause: true                     # use maintenance mode by default
+pg_lb_enabled: true                     # default load balancer type
+pg_lb_vip_enabled: true                 # create vip for load balancer
+...

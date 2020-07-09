@@ -9,6 +9,7 @@
 
     # If pg-preflight is passed, this will guaranteed to success
     - name: Fetch cluster primary ip from hostvas
+      connection: local
       set_fact:
         pg_cluster_primary={{ hostvars| json_query(pg_cluster_primary_query) }}
       vars:
@@ -20,15 +21,15 @@
     #==============================================================#
     # check primary is available (pg_upstream is set during pre-flight)
     - name: Check replica connectivity to primary
-      become_user: postgres
-      command: psql -w -h {{ pg_cluster_primary }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+      become_user: "{{ pg_dbsu }}"
+      command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
     # create basebackup from primary
     - name: Create basebackup replica from primary
-      become_user: postgres
+      become_user: "{{ pg_dbsu }}"
       async: 0
       command: /usr/pgsql/bin/pg_basebackup \
-        -h {{ pg_cluster_primary }} \
+        -h {{ pg_cluster_primary }} -p {{ pg_port }} \
         -U {{ pg_replication_username }} \
         -D {{ pg_data }} -Fp -Xs -Pv -R -c fast
 
@@ -42,8 +43,8 @@
         path: /pg/data/postgresql.auto.conf
         regexp: "^primary_conninfo"
         line: "primary_conninfo = 'host={{ pg_upstream }} port={{ pg_port }}  application_name=''{{ pg_instance }}'' user=''{{ pg_replication_username }}'' passfile=''/home/postgres/.pgpass'''"
-        owner: postgres
-        group: admin
+        owner: "{{ pg_dbsu }}"
+        group: postgres
         mode: 0600
 
     # default hba for replica
@@ -51,7 +52,7 @@
       copy:
         src: "{{ pg_hba_path | default(pg_default_hba) }}"
         dest: "{{ pg_data }}/pg_hba.conf"
-        owner: postgres
+        owner: "{{ pg_dbsu }}"
         group: admin
         mode: 0600
 
@@ -68,9 +69,9 @@
       systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 
     - name: Waits for replica postgres online
-      wait_for: host=localhost port=5432 state=started timeout=10
+      wait_for: host=localhost port={{ pg_port }} state=started timeout=10
 
     - name: Check replica postgres service ready
       become_user: postgres
-      command: /usr/pgsql/bin/pg_isready
+      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 ...

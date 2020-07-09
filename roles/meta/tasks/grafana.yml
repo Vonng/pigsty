@@ -34,6 +34,7 @@
     #==============================================================#
     - name: Download grafana plugins from web
       when: not grafana_plugins_cache.stat.exists or grafana_plugins_force_download
+      environment: "{{ proxy_env | default({}) }}"
       grafana_plugin: name={{ item }}
       with_items: "{{ grafana_plugins  }}"
 

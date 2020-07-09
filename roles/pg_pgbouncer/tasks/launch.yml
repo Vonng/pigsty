@@ -18,14 +18,14 @@
       systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for pgbouncer service online
-      wait_for: host=localhost port={{ pg_pgbouncer_port }} state=started timeout=10
+      wait_for: host=localhost port={{ pgbouncer_port }} state=started timeout=10
 
     - name: Check pgbouncer service is ready
       become_user: postgres
-      command: /usr/pgsql/bin/pg_isready -p {{ pg_pgbouncer_port }}
+      command: /usr/pgsql/bin/pg_isready -p {{ pgbouncer_port }}
 
     - name: Check pgbouncer connectivity
       when: pg_default_username != 'postgres'
       become_user: postgres
-      command: psql -w -p{{ pg_pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
+      command: psql -w -p{{ pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
 ...

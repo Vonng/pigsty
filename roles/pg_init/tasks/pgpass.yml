@@ -11,7 +11,7 @@
         content: |
           *:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}
           *:*:*:{{ pg_monitor_username }}:{{ pg_monitor_password }}
-        dest: /home/postgres/.pgpass
+        dest: "{{ pg_dbsu_home }}/.pgpass"
         owner: postgres
         group: admin
         mode: 0600
@@ -20,7 +20,7 @@
     - name: Add default database user to pgpass
       when: pg_default_username != 'postgres'
       lineinfile:
-        path: /home/postgres/.pgpass
+        path: "{{ pg_dbsu_home }}/.pgpass"
         line: "*:*:*:{{ pg_default_username }}:{{ pg_default_password }}"
 
 ...

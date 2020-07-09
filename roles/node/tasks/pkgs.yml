@@ -2,6 +2,7 @@
 - name: Install node packages
   tags: node_pkgs
   block:
+
     # install common node packages
     - name: Install node basic packages
       environment: "{{ node_proxy_env | default({}) }}"
@@ -14,9 +15,9 @@
       with_items: "{{ node_extra_packages }}"
 
     - name: Install node meta packages
-      when: meta_node
+      when: meta_node|bool
       environment: "{{ node_proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
-      with_items: "{{ node_packages }}"
+      with_items: "{{ node_meta_packages }}"
 
 ...
