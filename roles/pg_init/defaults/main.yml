@@ -1,22 +1,13 @@
 ---
 #==============================================================#
-# Postgres Install Options
-#==============================================================#
-pg_version: 12                  # default postgresql version
-pg_dbsu:  postgres              # postgresql dbsu (currently setup during node provision)
-pg_dbsu_password:  ""           # postgresql dbsu password
-pg_home:  /usr/pgsql            # postgresql binary installed path
-
-
-#==============================================================#
 # Postgres Initdb Options
 #==============================================================#
 # important host variables
 # pg_cluster:                   # [REQUIRED] cluster name (already validate during pg_preflight)
 # pg_seq: 0                     # [REQUIRED] instance seq (already validate during pg_preflight)
 pg_role: replica                # [REQUIRED] service role (already validate during pg_preflight)
-
 pg_exists: false
+
 pg_exists_action: skip          # if cluster already eixsts, what to do:
                                 #     - abort: abort entire play's execution (default)
                                 #     - clean: remove existing cluster
@@ -39,7 +30,11 @@ pg_initdb_method: initdb        # option: initdb  | backup | upstream
 
 
 # used when method=initdb : locale=C.UTF8 and enable datachecksum
-pg_initdb_opts: '--encoding=UTF8 --locale=C --data-checksum'
+pg_initdb_opts:
+  - '--encoding=UTF8'
+  - '--locale=C'
+  - '--data-checksum'
+
 pg_initdb_backup_path:          # used when method=backup : standard backup file path:
 pg_initdb_upstream_url:         # used when method=pg_basebackup|standby_cluster
 
@@ -65,5 +60,20 @@ pg_default_password: 'postgres'
 pg_default_dbrole: 'dbrole_readwrite'     # default role of  pg_default_username
 pg_default_scripts: []                    # sql scripts to init default database
 
+
+
+# - pg install variable reference - #
+pg_version: 12                  # default postgresql version
+pg_bin_dir:  /usr/pgsql/bin     # postgresql binary installed path
+pg_dbsu: postgres               # postgresql dbsu (currently setup during node provision)
+pg_dbsu_home: /var/lib/pgsql    # postgresql dbsu (currently setup during node provision)
+pg_dbsu_password:  ""           # postgresql dbsu password (database password)
+
+
+
+# - dcs variable reference - #
+dcs_type: consul
+consul_check_interval: 15s        # default service check interval
+consul_check_timeout:  1s         # default service check timeout
 
 ...

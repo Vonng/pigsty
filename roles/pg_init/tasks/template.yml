@@ -5,11 +5,8 @@
 - name: Templating default database
   tags: pg_template
   when: pg_role == 'primary'
-  become_user: postgres
+  become_user: "{{ pg_dbsu }}"
   block:
-    #==============================================================#
-    # copy and render template sql
-    #==============================================================#
     - name: Render template scripts to remote
       copy: src={{ item }} dest=/tmp/{{ item }}
       with_items: "{{ pg_template_scripts }}"

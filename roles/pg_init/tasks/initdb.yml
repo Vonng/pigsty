@@ -8,12 +8,12 @@
   tags: pg_initdb
   when: pg_role == 'primary'
   any_errors_fatal: true
+  become: yes
+  become_user: "{{ pg_dbsu }}"
   block:
     # create a new database cluster with initdb
     - name: Initialize primary database cluster
-      become: yes
-      become_user: postgres
-      command: "{{ pg_bin_dir }}/initdb -D {{ pg_data }} {{ pg_initdb_opts }}"
+      command: "{{ pg_bin_dir }}/initdb -D {{ pg_data }} {{ pg_initdb_opts | join(' ')  }}"
 
     # default config will be rename as postgresql.base.conf
     - name: Rename conf to postgresql.base.conf
@@ -21,4 +21,5 @@
         remote_src: yes
         src: "{{ pg_data }}/postgresql.conf"
         dest: "{{ pg_data }}/postgresql.base.conf"
+
 ...

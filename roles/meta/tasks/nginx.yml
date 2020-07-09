@@ -53,7 +53,11 @@
 #==============================================================#
 - name: Setup meta nginx exporter
   tags: meta_nginx_exporter
+  ignore_errors: true
   block:
+    - name: Make sure nginx package installed
+      package: name=nginx_exporter state=present
+
     - name: Config nginx_exporter options
       template: src=nginx_exporter.default.j2 dest=/etc/default/nginx_exporter
 

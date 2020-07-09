@@ -1,69 +1,112 @@
 ---
+#==============================================================#
+# Create dbsu                                                  #
+#==============================================================#
+- name: Create postgres dbsu
+  become: yes
+  tags: pg_dbsu
+  block:
+    # - dbsu users and groups - #
+    - name: Create os group postgres
+      group: name=postgres gid={{ pg_dbsu_uid }}
+
+    - name: Make sure dcs group exists
+      group: name={{ item }}
+      with_items: [consul, etcd]
+
+    - name: Create dbsu {{ pg_dbsu }}
+      user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=consul,etcd generate_ssh_key=yes
+
+    # - dbsu privilege - #
+    - name: Grant dbsu nopass sudo
+      when: pg_dbsu_sudo == 'nopass'
+      copy:
+        content: "postgres ALL=(ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/postgres
+        mode: 0440
+
+    - name: Grant dbsu all sudo
+      when: pg_dbsu_sudo == 'all'
+      copy:
+        content: "postgres ALL=(ALL) ALL"
+        dest: /etc/sudoers.d/postgres
+        mode: 0440
+
+    - name: Grant dbsu limited sudo
+      when: pg_dbsu_sudo == 'limit'
+      copy:
+        src: postgres.sudoer
+        dest: /etc/sudoers.d/postgres
+        mode: 0440
+
+    # - dbsu ssh - #
+    - name: Add ssh no host checking
+      lineinfile:
+        path: "{{ pg_dbsu_home }}/.ssh/config"
+        regexp: '^StrictHostKeyChecking='
+        line: StrictHostKeyChecking=no
+        create: yes
+
+    # postgres ssh-key exchange
+    - name: Fetch admin public keys
+      shell: cat {{ pg_dbsu_home }}/.ssh/id_rsa.pub
+      register: dbsu_ssh_keys
+
+    # for all hosts, copy their postgres ssh public key to each other
+    - name: Exchange admin ssh keys
+      when: pg_dbsu_ssh_exchange
+      authorized_key: user={{ pg_dbsu }} key="{{ item[0] }}"
+      ignore_errors: true
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ dbsu_ssh_keys.stdout }}"
+        - "{{ play_hosts }}"
+
+
+
+
+#==============================================================#
+# Install packages                                             #
+#==============================================================#
 - name: Install postgres
   become: yes
   tags: pg_install
   block:
-    #==============================================================#
-    # Stage 1: Install Postgres Official Repo                      #
-    #==============================================================#
+    # - official repo - #
     - name: Install offical pgdg yum repo
-      when: pg_pgdg_repo
+      when: pgdg_repo
       yum: name="https://yum.postgresql.org/{{ pg_version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+      with_items: "{{ pg_packages }}"
 
-    #==============================================================#
-    # Stage 2: Calculate packages to be installed                  #
-    #==============================================================#
-    - name: Add postgis packages to checklist
-      when: pg_postgis_install and pg_version|int <= 12
-      set_fact: pg_packages="{{ pg_packages + pg_postgis_packages }}"
+    # install postgres basic packages
+    - name: Install pg packages
+      # environment: "{{ node_proxy_env | default({}) }}"
+      yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
+      with_items: "{{ pg_packages }}"
 
-    - name: Add extension packages to checklist
-      when: pg_extension_install and pg_version|int <= 12
-      set_fact: pg_packages="{{ pg_packages + pg_extension_packages }}"
+    # install postgres extensions
+    - name: Install pg extensions
+      # environment: "{{ node_proxy_env | default({}) }}"
+      yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
+      with_items: "{{ pg_extensions }}"
 
-    - name: Print packages to be installed
-      debug:
-        msg: Install postgres {{ pg_version }} with additional pacakges, {{ pg_packages }}
-
-
-    #==============================================================#
-    # Stage 3: Make sure user exists                               #
-    #==============================================================#
-    - name: Create os admin user group admin
-      group: name=admin
-    - name: Create os user postgres:admin
-      user: name=postgres group=admin home=/home/postgres generate_ssh_key=yes
-
-    #==============================================================#
-    # Stage 4: Install postgres packages                           #
-    #==============================================================#
-    - name: Install postgresql basicial packages
-      yum: yum install -y 'postgresql{{ pg_version }}*'
-
-    - name: Install postgres additional packages
-      yum: name={{ pg_packages }}
 
     #==============================================================#
     # Stage 5: Enable current version                              #
     #==============================================================#
     # centos default directory
     - name: Link /usr/pgsql to current version
-      file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_home }} state=link
+      file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_bin_dir | dirname }} state=link
 
-    - name: Add /usr/ppgsql to profile path
+    - name: Add pg bin dir to profile path
       copy:
-        content: "export PATH={{ pg_home }}l/bin:/pg/bin:$PATH"
+        content: "export PATH={{ pg_bin_dir }}:/pg/bin:$PATH"
         dest: /etc/profile.d/pgsql.sh
 
-    - name: Check pgsql version installed
-      command: /usr/pgsql/bin/pg_ctl --version
-      register: check_pg_version_result
-      failed_when: pg_version|string not in check_pg_version_result.stdout
-
-
-    #==============================================================#
-    # Stage 6: Copy utils scripts                                  #
-    #==============================================================#
+#    - name: Check pgsql version installed
+#      command: "{{ pg_bin_dir | dirname }}/pg_ctl --version"
+#      register: check_pg_version_result
+#      failed_when: pg_version|string not in check_pg_version_result.stdout
 
 
     #==============================================================#
@@ -73,4 +116,6 @@
       shell:
         rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service
         systemctl daemon-reload
+
+
 ...

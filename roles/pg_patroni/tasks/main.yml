@@ -4,9 +4,9 @@
 #==============================================================#
 # Stage 1: Patroni install (already installed during pg_install)
 #==============================================================#
-#- name: Install patroni from local yum
-#  tags: patroni_install
-#  yum: name=patroni
+- name: Install patroni
+  tags: patroni_install
+  yum: name=patroni
 
 #==============================================================#
 # Stage 2: Clean up patroni
@@ -20,7 +20,7 @@
 
     # only remove dcs meta when clean primary patroni
     - name: Remove patroni consul metadata
-      when: pg_role == 'primary'
+      when: pg_role == 'primary' and dcs_type == 'consul'
       ignore_errors: true
       command: consul kv delete -recurse /pg/{{ pg_cluster }}
 
@@ -31,7 +31,6 @@
 - name: Setup Patroni
   tags: patroni_setup
   block:
-
     #==============================================================#
     # Calculate patroni mem settings
     #==============================================================#
@@ -44,17 +43,20 @@
       register: node_page_size  # half mem in bytes
 
     - name: Tune shared buffer and work mem
+      connection: local
       set_fact:   # max shared-buffer 32GB | max maintainance work mem 8GB
         pg_shared_buffers_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 34359738368] | min)|int }}"
         pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | max)|int }}"
 
     - name: Hanlde small size mem occasion
+      connection: local
       when: pg_shared_buffers_bytes|int < 1073741824  # < 1GB
       set_fact:
         pg_shared_buffers: "256MB"
         pg_maintenance_work_mem: "64MB"
 
     - name: Calculate postgres mem params
+      connection: local
       when: pg_shared_buffers_bytes|int >= 1073741824  # >= 1GB
       set_fact:
         pg_shared_buffers: "{{ (pg_shared_buffers_bytes|int / 1073741824)|round(0)|int }}GB"
@@ -68,16 +70,16 @@
       template:
         src: "patroni.yml"
         dest: "/pg/conf/{{ pg_instance }}.yml"
-        owner: postgres
-        group: admin
+        owner: "{{ pg_dbsu }}"
+        group: postgres
         mode: 0755
 
     - name: Link /pg/conf/patroni to /pg/bin/
       file:
         src: /pg/conf/{{ pg_instance }}.yml
         dest: /pg/bin/patroni.yml
-        owner: postgres
-        group: admin
+        owner: "{{ pg_dbsu }}"
+        group: postgres
         state: link
 
     - name: Copy patroni systemd service unit
@@ -89,8 +91,8 @@
         mode: 0644
 
     - name: Config patroni watchdog support
-      when: pg_patroni_watchdog
-      file: path={{ pg_patroni_watchdog_path }} owner=postgres group=admin
+      when: patroni_watchdog_path is defined and patroni_watchdog_path != ''
+      file: path={{ patroni_watchdog_path }} owner={{ pg_dbsu }} group=postgres
 
 
 #==============================================================#
@@ -108,11 +110,11 @@
         daemon_reload: yes
 
     - name: Wait for patroni primary online
-      wait_for: host={{ inventory_hostname }} port=8008 state=started timeout=30
+      wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=30
 
 
 #==============================================================#
-# Launch patroni primary
+# Launch patroni replica
 #==============================================================#
 - name: Launch replica patroni instance
   tags: patroni_replica
@@ -126,5 +128,24 @@
         daemon_reload: yes
 
     - name: Wait for patroni replica online
-      wait_for: host={{ inventory_hostname }} port={{ pg_patroni_port }} state=started timeout=30
+      wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=30
+
+
+#==============================================================#
+# Register pgbouncer service (optional)
+#==============================================================#
+- name: Register pgbouncer consul service
+  tags: patroni_register
+  ignore_errors: true
+  block:
+    - name: Copy patroni service definition
+      template:
+        src: svc-patroni.json.j2
+        dest: /etc/consul.d/svc-patroni.json
+        owner: consul
+        group: postgres
+        mode: 0660
+
+    - name: Reload patroni consul service
+      systemd: name=consul state=reloaded
 ...

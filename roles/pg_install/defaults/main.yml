@@ -2,11 +2,22 @@
 #==============================================================#
 # Postgres Installation Options
 #==============================================================#
+pg_dbsu: postgres               # os user for database, postgres by default (change it is not recommended!)
+pg_dbsu_uid: 26                 # os dbsu uid and gid, 26 for default postgres users and groups
+pg_dbsu_sudo: limit             # none|limit|all|nopass (Privilege for dbsu, limit is recommended)
+pg_dbsu_home: /var/lib/pgsql    # postgresql binary
+pg_dbsu_ssh_exchange: false     # exchange ssh key among same cluster
+
 pg_version: 12                  # default postgresql version
-pg_postgis_version: 30          # install postgis extension?
-pg_pgdg_repo: false               # use official pgdg yum repo (disable if you have local mirror)
-pg_dbsu:  postgres               # postgresql dbsu (currently setup during node provision)
-pg_home:  /usr/pgsql             # postgresql binary
-pg_postgis_install: true        # install postgis extension?
-pg_extension_install: true      # install postgis extension?
+pgdg_repo: false                # use official pgdg yum repo (disable if you have local mirror)
+pg_bin_dir: /usr/pgsql/bin      # postgres binary directory
+
+pg_packages:
+  - postgresql${pg_version}* postgis30_${pg_version}* timescaledb_${pg_version} citus_${pg_version} pglogical_${pg_version}   # postgres ${pg_version} basic
+  - pg_qualstats${pg_version} pg_cron_${pg_version} pg_top${pg_version} pg_repack${pg_version} pg_squeeze${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version} pgpool-II-${pg_version} pgpool-II-${pg_version}-extensions
+  - pgbouncer patroni pg_exporter pg_top pgbadger # postgres common utils
+
+pg_extensions: []
+  # - ddlx_${pg_version} bgw_replstatus${pg_version} count_distinct${pg_version} extra_window_functions_${pg_version} geoip${pg_version} hll_${pg_version} hypopg_${pg_version} ip4r${pg_version} jsquery_${pg_version} multicorn${pg_version} osm_fdw${pg_version} mysql_fdw_${pg_version} ogr_fdw${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version} cstore_fdw_${pg_version} wal2mongo${pg_version} orafce${pg_version} osm2pgrouting_${pg_version} pagila${pg_version} pam-pgsql${pg_version} passwordcheck_cracklib${pg_version} periods_${pg_version} pg_auto_failover_${pg_version} pg_bulkload${pg_version} pg_catcheck${pg_version} pg_comparator${pg_version} pg_filedump${pg_version} pg_fkpart${pg_version} pg_jobmon${pg_version} pg_partman${pg_version} pg_pathman${pg_version} pg_track_settings${pg_version} pg_wait_sampling_${pg_version} pgagent_${pg_version} pgaudit14_${pg_version} pgauditlogtofile-${pg_version} pgbconsole${pg_version} pgcryptokey${pg_version} pgexportdoc${pg_version} pgfincore${pg_version} pgimportdoc${pg_version} pgmemcache-${pg_version} pgmp${pg_version} pgq-${pg_version} pgrouting_${pg_version} pgtap${pg_version} plpgsql_check_${pg_version} plr${pg_version} plsh${pg_version} postgresql_anonymizer${pg_version} postgresql-unit${pg_version} powa_${pg_version} prefix${pg_version} repmgr${pg_version} safeupdate_${pg_version} semver${pg_version} slony1-${pg_version} sqlite_fdw${pg_version} sslutils_${pg_version} system_stats_${pg_version} table_version${pg_version} topn_${pg_version}
+
 ...

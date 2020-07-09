@@ -4,14 +4,13 @@
 #==============================================================#
 - name: Create replication and monitor users
   tags: pg_bootstrap
-  become_user: postgres
+  become_user: "{{ pg_dbsu }}"
   when: pg_role == 'primary'
   block:
     #==============================================================#
     # Create default replication user
     #==============================================================#
     - name: Create postgres replication user
-      become_user: postgres
       postgresql_user:
         db: postgres
         name: "{{ pg_replication_username }}"
@@ -19,7 +18,6 @@
         role_attr_flags: REPLICATION,LOGIN,NOINHERIT
 
     - name: Alter dbsu default password
-      become_user: postgres
       postgresql_user:
         db: postgres
         name: "{{ pg_dbsu }}"
@@ -62,7 +60,7 @@
       copy:
         content: |
           *:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}
-        dest: /home/postgres/.pgpass
+        dest: "{{ pg_dbsu_home }}/.pgpass"
         mode: 0600
 
     # check replicator is able to connect

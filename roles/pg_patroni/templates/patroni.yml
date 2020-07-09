@@ -16,20 +16,23 @@ namespace: /pg/
 scope:  {{ pg_cluster }}
 name:   {{ pg_instance }}
 
+log:
+  level: INFO
+  dir: /pg/log/
+
 restapi:
-  listen: {{ inventory_hostname }}:{{ pg_patroni_port }}
-  connect_address: {{ inventory_hostname }}:{{ pg_patroni_port }}
+  listen: {{ inventory_hostname }}:{{ patroni_port }}
+  connect_address: {{ inventory_hostname }}:{{ patroni_port }}
   authentication:
     username: {{ pg_monitor_username }}
     password: {{ pg_monitor_password }}
 
+
+{% if dcs_type == 'consul' %}
 consul:
   host: 127.0.0.1:8500
   register_service: true
-
-log:
-  level: INFO
-  dir: /pg/log/
+{% endif %}
 
 
 postgresql:
@@ -264,7 +267,7 @@ bootstrap:
 
 watchdog:
   mode: automatic
-  device: {{ pg_patroni_watchdog_path }}
+  device: {{ patroni_watchdog_path }}
 
 
 tags:

@@ -1,0 +1,22 @@
+---
+- name: Set node keepalived
+  tags: node_vip
+  when: node_setup_vip
+  block:
+    # redhat/centos: chronyd already installed
+    - name: Create keepalive config dir
+      file: path=/etc/keepalived/conf.d state=directory mode=0755
+
+    # redhat/centos: config chronyd
+    - name: Copy top level keepalived.conf
+      copy: dest=/etc/keepalived/keepalived.conf mode=0644
+        content="include conf.d/*.conf"
+
+    # touch empty config to suppress error
+    - name: Copy default keepalived.conf
+      file: path=/etc/keepalived/conf.d/default.conf mode=0644 state=touch
+
+    # launch keepalived
+    - name: Launch keepalived service unit
+      systemd: name=keepalived enabled=true state=restarted
+...
