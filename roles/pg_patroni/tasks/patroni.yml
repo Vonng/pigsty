@@ -21,7 +21,7 @@
     - name: Remove patroni consul metadata
       when: pg_role == 'primary' and dcs_type == 'consul'
       ignore_errors: true
-      command: consul kv delete -recurse /pg/{{ pg_cluster }}
+      command: consul kv delete -recurse {{ patroni_namespace }}/{{ pg_cluster }}
 
 
 #==============================================================#
@@ -155,7 +155,7 @@
 - name: Pause patroni
   tags: patroni_pause
   ignore_errors: true
-  shell: echo TBD
-
+  when: patroni_pause and pg_role == 'primary'
+  command: patronictl -c /pg/bin/patroni.yml pause
 
 ...
