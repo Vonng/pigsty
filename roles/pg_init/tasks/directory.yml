@@ -27,7 +27,7 @@
 
     # pg_cluster_dir:    "{{ pg_fs_main }}/postgres/{{ pg_cluster }}-{{ pg_version }}"
     - name: Create postgres directory structure
-      file: path={{ item }} state=directory owner=postgres group=admin mode=0700
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
       with_items:
         - "{{ pg_fs_main }}/postgres"
         - "{{ pg_cluster_dir }}"
@@ -58,7 +58,7 @@
         state: link
 
     - name: Copy postgres scripts to /pg/bin/
-      copy: src=pg/ dest=/pg/bin/ owner=postgres group=admin mode=0755
+      copy: src=pg/ dest=/pg/bin/ owner={{ pg_dbsu }} group=postgres mode=0755
 
     - name: Copy alias profile to /etc/profile.d
       copy: src=profile.sh dest=/etc/profile.d/pg-alias.sh mode=0755

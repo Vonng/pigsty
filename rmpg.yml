@@ -1,0 +1,45 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# Init a postgres cluster named pg-test on node-[1..3]
+#==============================================================#
+- name: Stop postgres and patroni service
+  become: yes
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Stop patroni and postgres services on replica
+      when: pg_role != 'primary'
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped
+      with_items:
+        - patroni
+        - postgres
+
+    - name: Stop patroni and postgres services on primary
+      when: pg_role == 'primary'
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped
+      with_items:
+        - patroni
+        - postgres
+
+    - name: Stop all additional services on all nodes
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped
+      with_items:
+        - patroni
+        - postgres
+        - pgbouncer
+        - pg_exporter
+        - pgbouncer_exporter
+        - node_exporter
+        - haproxy
+
+    - name: Stop all processes owned by postgres
+      ignore_errors: true
+      shell: ps -u postgres -o pid | grep -v PID | xargs -n1 kill -9
+
+
+...

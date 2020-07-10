@@ -103,6 +103,10 @@
         content: "export PATH={{ pg_bin_dir }}:/pg/bin:$PATH"
         dest: /etc/profile.d/pgsql.sh
 
+    - name: Fix directory ownership
+      file: path=/var/run/postgresql state=directory owner={{ pg_dbsu }} group=postgres
+
+
 #    - name: Check pgsql version installed
 #      command: "{{ pg_bin_dir | dirname }}/pg_ctl --version"
 #      register: check_pg_version_result

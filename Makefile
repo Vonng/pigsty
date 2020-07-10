@@ -98,21 +98,20 @@ restore-monitor:
 env: env-dev
 
 env-clean:
-	rm -rf cls/pg-*;
-	rm -rf group_vars/all* ;
+	rm -rf cls/inventory.ini
+	rm -rf group_vars/all.yml
 
 env-dev: env-clean
-	cp cls/dev/* cls/
-	cp group_vars/dev/all.yml group_vars/all
+	ln -s dev.ini cls/inventory.ini
+	ln -s dev.yml group_vars/all.yml
 
 env-test: env-clean
-	cp cls/test/* cls/
-	cp group_vars/test/all.yml group_vars/all
+	ln -s test.ini cls/inventory.ini
+	ln -s test.yml group_vars/all.yml
 
 env-prod: env-clean
-	cp cls/prod/* cls/
-	cp group_vars/prod/all.yml group_vars/all
-
+	ln -s prod.ini cls/inventory.ini
+	ln -s prod.yml group_vars/all.yml
 
 ###############################################################
 # kubernetes management
