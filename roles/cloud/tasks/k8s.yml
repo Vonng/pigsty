@@ -2,9 +2,9 @@
 #==============================================================#
 # Setup kubernetes
 #==============================================================#
-- name: Bootstrap kubernetes master node
-  when: k8s_role == 'master'
-  tags: k8s_master
+- name: Bootstrap kubernetes server node
+  when: inventory_hostname in k8s_servers
+  tags: k8s_server
   block:
     # kubelet default options
     - name: Config kubelet default options
@@ -20,7 +20,7 @@
                 --image-repository={{ k8s_registry_mirrors }} \
                 --kubernetes-version={{ k8s_version }}
 
-    - name: Kubeadm init kubeternetes master
+    - name: Kubeadm init kubeternetes server
       command: kubeadm init \
                 --image-repository={{ k8s_registry_mirrors }} \
                 --kubernetes-version={{ k8s_version }}
@@ -90,7 +90,7 @@
     #==============================================================#
     # copy credential to current controller (KEEP IT SECRET)
     #==============================================================#
-    # join master scripts (used by k8s nodes)h
+    # join server scripts (used by k8s nodes)h
     - name: Generate kubernetes join scripts
       command: kubeadm token create --print-join-command
       register: k8s_join_command
@@ -117,10 +117,10 @@
 
 
 #==============================================================#
-# join other nodes to kube master
+# join other nodes to kube server
 #==============================================================#
-- name: Bootstrap kubernetes master node
-  when: k8s_role != 'master'
+- name: Bootstrap kubernetes server node
+  when: inventory_hostname not in k8s_servers
   tags: k8s_nodes
   block:
     - name: Execute join.sh command on nodes
