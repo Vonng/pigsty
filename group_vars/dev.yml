@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 # CONNECTION PARAMETERS
 #------------------------------------------------------------------------------
-# ansible_user: admin             # admin user with ssh access and sudo privilege
+# ansible_user: vagrant             # admin user with ssh access and sudo privilege
 
 proxy_env:                        # global proxy env when downloading packages
   all_proxy: "http://employee2:qrHyfzSgGp@proxy.p1staff.com:1337"
@@ -128,7 +128,8 @@ node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wr
 
 # - node tuned - #
 node_tuned: true                              # install and activate tuned profile: postgres
-node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
+node_sysctl_params:                           # set additional sysctl parameters, k:v format
+  net.bridge.bridge-nf-call-iptables: 1     # kubernetes
 
 
 # - node user - #
@@ -169,7 +170,7 @@ etcd_initial_cluster_token: ''
 #------------------------------------------------------------------------------
 # DOCKER PROVISION
 #------------------------------------------------------------------------------
-docker_enabled: false                                             # install and enable docker?
+docker_enabled: true                                              # install and enable docker?
 docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
 docker_registry_mirrors:                                          # docker registry mirror
   - https://zbwt4y5v.mirror.aliyuncs.com
@@ -180,8 +181,7 @@ docker_image_cache:                                               # docker image
 #------------------------------------------------------------------------------
 # KUBERNETES PROVISION
 #------------------------------------------------------------------------------
-k8s_servers: []                                                   # kubernetes servers
-k8s_role: node                                                    # default kubernetes role (override this on k8s server)
+k8s_servers: [10.10.10.10]                                        # kubernetes servers
 k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes images mirror
 k8s_version: 1.18.5                                               # kubernetes version
 k8s_pod_cidr: 10.11.0.0/16                                        # kubernetes pod network cidr
