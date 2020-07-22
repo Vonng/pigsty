@@ -24,6 +24,13 @@ init:
 	./initdb.yml 				# provision pg-test and pg-meta
 
 
+node:
+	./repo.yml -l pg-meta		# init local repo on meta nodes
+	./node.yml 					# provision all nodes
+	./dcs.yml					# provision consul or etcd
+
+
+
 # down will halt all vm (not destroy)
 down: halt
 
