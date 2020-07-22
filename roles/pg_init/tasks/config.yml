@@ -39,7 +39,7 @@
     - name: Tune shared buffer and work mem
       set_fact:   # max shared-buffer 32GB | max maintainance work mem 8GB
         pg_shared_buffers_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 34359738368] | min)|int }}"
-        pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | max)|int }}"
+        pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | min)|int }}"
 
     - name: Hanlde small size mem occasion
       when: pg_shared_buffers_bytes|int < 1073741824  # < 1GB
