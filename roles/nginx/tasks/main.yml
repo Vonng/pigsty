@@ -1,0 +1,69 @@
+---
+#------------------------------------------------------------------------------
+# Update Nginx
+#------------------------------------------------------------------------------
+- name: Setup nginx server
+  tags: nginx
+  block:
+
+    # - install - #
+    - name: Make sure nginx package installed
+      package: name=nginx state=present
+
+    # - config - #
+    - name: Copy nginx upstream conf
+      template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
+      with_items: "{{ nginx_upstream }}"
+
+    # - index - #
+    - name: Update default nginx index page
+      template: src=index.html dest=/www/index.html
+
+    # - launch - #
+    - name: Restart meta nginx service
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for nginx service online
+      wait_for: host=localhost port=80 state=started timeout=10
+
+
+
+
+#------------------------------------------------------------------------------
+# setup nginx exporter
+#------------------------------------------------------------------------------
+- name: Setup nginx exporter
+  tags: nginx_exporter
+  ignore_errors: true
+  block:
+    - name: Make sure nginx exporter installed
+      package: name=nginx_exporter state=present
+
+    - name: Config nginx_exporter options
+      template: src=nginx_exporter.default.j2 dest=/etc/default/nginx_exporter
+
+    - name: Restart nginx_exporter service
+      systemd: name=nginx_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for nginx exporter online
+      wait_for: host=localhost port=9113 state=started timeout=10
+
+
+
+#------------------------------------------------------------------------------
+# register nginx service
+#------------------------------------------------------------------------------
+- name: Setup nginx exporter
+  tags: nginx_register
+  ignore_errors: true
+  block:
+    - name: Register cosnul nginx service
+      template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul group=admin mode=0660
+
+    - name: Register consul nginx-exporter service
+      template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul group=admin mode=0660
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+...
