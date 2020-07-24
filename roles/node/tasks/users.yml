@@ -44,12 +44,12 @@
         regexp: '^StrictHostKeyChecking='
         line: StrictHostKeyChecking=no
 
-    # postgres ssh-key exchange
+    # admin ssh-key exchange
     - name: Fetch admin public keys
       shell: cat /home/{{ node_admin_username }}/.ssh/id_rsa.pub
       register: admin_ssh_keys
 
-    # for all hosts, copy their postgres ssh public key to each other
+    # for all hosts, copy their admin ssh public key to each other
     - name: Exchange admin ssh keys
       when: node_admin_ssh_exchange
       authorized_key: user={{ node_admin_username }} key="{{ item[0] }}"
@@ -60,14 +60,3 @@
         - "{{ play_hosts }}"
 
 ...
-
-
-#    - name: Create os user postgres:admin
-#      user: name=postgres group=admin home=/home/postgres generate_ssh_key=yes
-#    - name: Create os user prometheus:admin
-#      user: name=prometheus group=admin create_home=no
-#    - name: Create os dcs user consul:admin
-#      user: name=consul group=admin create_home=no
-#    - name: Create os dcs user etcd:admin
-#      user: name=etcd group=admin create_home=no
-
