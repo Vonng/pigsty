@@ -1,0 +1,33 @@
+---
+#------------------------------------------------------------------------------
+# Dnsmasq
+#------------------------------------------------------------------------------
+- name: Setup dnsmasq service
+  tags: dnsmasq
+  block:
+
+    # - config - #
+    - name: Copy dnsmasq /etc/dnsmasq.d/config
+      template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.d/config
+
+    # - record - #
+    - name: Add dynamic dns records to meta
+      lineinfile: path=/etc/hosts line="{{ item }}"
+      with_items: "{{ dns_records }}"
+
+    # - launch - #
+    - name: Launch meta dnsmasq service
+      systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
+
+    # - wait - #
+    - name: Wait for meta dnsmasq online
+      wait_for: host=localhost port=53 state=started
+
+    # - register - #
+    - name: Register consul dnsmasq service
+      template: src=svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul group=admin mode=0660
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+...
