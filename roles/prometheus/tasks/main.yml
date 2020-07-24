@@ -1,0 +1,115 @@
+---
+#------------------------------------------------------------------------------
+# Prometheus & Altermanager
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Install
+#------------------------------------------------------------------------------
+- name: Install prometheus and alertmanager
+  tags: prometheus_install
+  package: name={{ item }} state=present
+  with_items:
+    - prometheus2
+    - alertmanager
+
+
+#------------------------------------------------------------------------------
+# Cleanup
+#------------------------------------------------------------------------------
+- name: Clean existing prometheus and alertmanager
+  tags: prometheus_clean
+  when: prometheus_reload is not defined or not prometheus_reload
+  block:
+    # - clean - #
+    - name: Wipe out prometheus config dir
+      file: path=/etc/prometheus state=absent
+
+    - name: Wipe out existing prometheus data
+      file: path={{ prometheus_data_dir }} state=absent
+
+
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+- name: Setup prometheus and alertmanager
+  tags: prometheus_config
+  block:
+    # - recreate - #
+    - name: Recreate prometheus data dir
+      file: path={{ prometheus_data_dir }} mode=0700 state=directory owner=prometheus group=prometheus
+
+    # copy entire config dir
+    - name: Copy /etc/prometheus configs
+      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus mode=0755
+
+    # - overwrite opts - #
+    - name: Copy /etc/prometheus opts
+      template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
+
+    # - overwrite parameters - #
+    - name: Overwrite prometheus scrape_interval
+      lineinfile:
+        path: /etc/prometheus/prometheus.yml
+        regexp: '^  scrape_interval:'
+        line: '  scrape_interval: {{ prometheus_scrape_interval }}'
+
+    - name: Overwrite prometheus evaluation_interval
+      lineinfile:
+        path: /etc/prometheus/prometheus.yml
+        regexp: '^  evaluation_interval:'
+        line: '  evaluation_interval: {{ prometheus_scrape_interval }}'
+
+    - name: Overwrite prometheus scrape_timeout
+      lineinfile:
+        path: /etc/prometheus/prometheus.yml
+        regexp: '^  scrape_timeout:'
+        line: '  scrape_timeout: {{ prometheus_scrape_timeout }}'
+
+    - name: Overwrite prometheus pg metrics path
+      lineinfile:
+        path: /etc/prometheus/prometheus.yml
+        regexp: '    metrics_path:'
+        line: '    metrics_path: {{ prometheus_metrics_path }}'
+
+
+#------------------------------------------------------------------------------
+# Launch
+#------------------------------------------------------------------------------
+- name: Launch prometheus and alertmanager
+  tags: prometheus_launch
+  block:
+
+    # - launch - #
+    - name: Launch prometheus service
+      systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
+
+    - name: Launch alertmanager service
+      systemd: name=alertmanager state=restarted enabled=yes daemon_reload=yes
+
+    # - wait - #
+    - name: Wait for prometheus online
+      wait_for: host=localhost port=9090 state=started
+
+    - name: Wait for alertmanager online
+      wait_for: host=localhost port=9093 state=started
+
+
+#------------------------------------------------------------------------------
+# Register
+#------------------------------------------------------------------------------
+- name: Register prometheus and alertmanager service
+  tags: prometheus_register
+  block:
+    - name: Copy prometheus service definition
+      template: src=svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul group=admin mode=0660
+
+    - name: Copy alertmanager service definition
+      template: src=svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul group=admin mode=0660
+
+    - name: Reload consul to register prometheus
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+...
+
+

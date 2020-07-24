@@ -1,0 +1,145 @@
+---
+#==============================================================#
+# Setup grafana
+#==============================================================#
+- name: Setup Grafana
+  tags: grafana_install
+  block:
+    #==============================================================#
+    # Install grafana
+    #==============================================================#
+    - name: Make sure grafana is installed
+      package: name=grafana state=present
+
+    #==============================================================#
+    # Install grafana plugins: check cache exists
+    #==============================================================#
+    - name: Check grafana plugin cache exists
+      stat: path=/www/pigsty/grafana/plugins.tar.gz
+      register: grafana_plugins_cache
+
+    #==============================================================#
+    # Install grafana plugins from cache when applicable
+    #==============================================================#
+    # extract cache pacakge and install
+    - name: Provision grafana plugin via cache
+      when: grafana_plugins_cache.stat.exists
+      shell: |
+        rm -rf /var/lib/grafana/plugins
+        tar -xf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana
+        chown -R grafana /var/lib/grafana
+
+    #==============================================================#
+    # Install grafana plugins and make cache
+    #==============================================================#
+    - name: Download grafana plugins from web
+      when: not grafana_plugins_cache.stat.exists or grafana_plugins_force_download
+      ignore_errors: true   # don't let these little shit ruin the entire procedure
+      environment: "{{ proxy_env | default({}) }}"
+      grafana_plugin: name={{ item }}
+      with_items: "{{ grafana_plugins  }}"
+
+    - name: Create grafana plugins cache
+      ignore_errors: true
+      when: not grafana_plugins_cache.stat.exists or grafana_plugins_force_download
+      shell: |
+        mkdir -p /www/pigsty/grafana; tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
+
+
+    #==============================================================#
+    # Config grafana
+    #==============================================================#
+    - name: Copy /etc/grafana/grafana.ini
+      copy: src=grafana/grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+
+    #==============================================================#
+    # Launch grafana
+    #==============================================================#
+    - name: Launch grafana service
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for grafana online
+      wait_for: host=localhost port=3000 state=started
+
+    #==============================================================#
+    # Register grafana consul service
+    #==============================================================#
+    - name: Register consul grafana service
+      template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
+
+
+
+#==============================================================#
+# 1. Provision grafana by copy sqlite db
+#==============================================================#
+- name: Provision Grafana via db
+  when: grafana_provision_via_db
+  tags: grafana_provision
+  block:
+    #==============================================================#
+    # Copy grafana.db
+    #==============================================================#
+    - name: Launch meta grafana service
+      systemd: name=grafana-server state=stopped enabled=yes daemon_reload=yes
+
+    - name: Copy grafana.db to data dir
+      copy: src=grafana/grafana.db dest=/var/lib/grafana/grafana.db owner=grafana mode=0600
+
+    - name: Restart meta grafana service
+      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for meta grafana online
+      wait_for: host=localhost port=3000 state=started
+
+
+
+#==============================================================#
+# 2. Provision grafana by calling API
+#==============================================================#
+- name: Provision Grafana via API
+  when: not grafana_provision_via_db
+  tags: grafana_provision
+  block:
+    #==============================================================#
+    # Copy grafana dashboards
+    #==============================================================#
+    - name: Remove grafana dashboard dir
+      file: path=/var/lib/grafana/dashboards state=directory owner=grafana mode=0755
+    - name: Copy grafana dashboards json
+      copy: src=grafana/dashboards/ dest=/var/lib/grafana/dashboards/ owner=grafana group=admin
+    - name: Preprocess grafana dashboards
+      command: python /var/lib/grafana/dashboards/reform.py
+
+    #==============================================================#
+    # Provision grafana datasource
+    #==============================================================#
+    - name: Provision prometheus datasource
+      grafana_datasource:
+        name: "Prometheus"
+        grafana_url: "http://{{ grafana_domain_name }}"
+        grafana_user: "admin"
+        grafana_password: "admin"
+        ds_type: "prometheus"
+        ds_url: "http://localhost:9090"
+        is_default: yes
+        time_interval:
+
+    #==============================================================#
+    # Provision grafana dashboards
+    #==============================================================#
+    - name: Provision grafana dashboards
+      grafana_dashboard:
+        grafana_url: "http://{{ grafana_domain_name }}"
+        grafana_user: "admin"
+        grafana_password: "admin"
+        state: present
+        overwrite: yes
+        path: /var/lib/grafana/dashboards/{{ item }}.json
+      with_items: "{{ grafana_dashboards }}"
+
+...
