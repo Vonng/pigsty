@@ -42,7 +42,6 @@
 # upstream repo are only installed when download is necessary
 - name: Install upstream repos
   tags: repo_upstream
-  when: not repo_boot_cache.stat.exists or not repo_cache.stat.exists or repo_rebuild  or repo_always_add_upsteam
   block:
     # if repo_remove = true, existing repos will be moved to backup dir
     - name: Remove existing repos
@@ -57,10 +56,18 @@
       with_items: "{{ repo_upstreams }}"
 
     # this usually takes 1~2 minutes according to your network condition
-    - name: Remake yum cache
+    - name: Remake yum cache if cache not exists
+      when: not repo_cache.stat.exists
       environment: "{{ proxy_env }}"
       shell: yum clean all; yum makecache;
 
+    # if cache already exists, just disable all upstream repo
+    - name: Disable upstream yum repo if cache exists
+      when: not repo_cache.stat.exists
+      ignore_errors: true           # in case that yum-util is not installed
+      shell: |
+        yum-config-manager --disable *
+        yum-config-manager --enable {{ repo_name }}
 
 
 #--------------------------------------------------------------#
