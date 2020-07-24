@@ -3,7 +3,7 @@
   tags: node_repo
   block:
     # remove existing repos to backup dir
-    - name: Remove existing repos
+    - name: Backup existing repos
       when: node_repo_remove
       shell:
         warn: no
@@ -18,13 +18,24 @@
 
     # install upstream repo (in absence of local yum repo)
     - name: Install upstream repo
-      when: node_repo_add_upstream and repo_upstreams is defined
+      when: repo_upstreams is defined
       yum_repository: "{{ item }}"
       with_items: "{{ repo_upstreams }}"
 
-    # enable and disable node repo
-    - name: Config yum repo
+    # if node_repo_config given, use it and use it only
+    - name: Config using local repo
+      when: node_local_repo != ""
+      ignore_errors: true           # in case that yum-util is not installed
+      command: yum-config-manager --{{ item }}
+      with_items:
+        - "disable *"
+        - "enable {{ node_local_repo }}"
+
+    # otherwise, execute yum config command
+    - name: Run yum config manager command
+      when: node_local_repo == ""
       ignore_errors: true           # in case that yum-util is not installed
       command: yum-config-manager --{{ item }}
       with_items: "{{ node_repo_config }}"
+
 ...

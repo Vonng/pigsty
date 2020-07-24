@@ -1,13 +1,60 @@
 ---
-- name: Configure node dns
-  # when: node_dns_setup
+# always write static DNS record
+- name: Write static dns record to node
   tags: node_dns
-  block:
-    - name: Write static dns record to node
-      lineinfile: path=/etc/hosts line="{{ item }}"
-      with_items: "{{ node_dns_hosts }}"
+  lineinfile: path=/etc/hosts line="{{ item }}"
+  with_items: "{{ node_dns_hosts }}"
 
-    - name: Add resovler to /etc/resolv.conf
-      lineinfile: path=/etc/resolv.conf line="nameserver {{ item }}"
+
+# add static nameserver to resolv
+- name: Setup dns resolver
+  tags: node_resolv
+  when: node_dns_server is defined and node_dns_server != 'none'
+  block:
+    - name: Get old nameservers
+      when: node_dns_server == 'add'
+      shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
+      register: old_nameservers
+
+    - name: Truncate resolv file
+      shell: echo -n "" > /etc/resolv.conf
+
+    - name: Write resolv options
+      shell: echo {{ item }} >> /etc/resolv.conf
+      with_items: "{{ node_dns_options }}"
+
+    - name: Add nameservers
+      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf
       with_items: "{{ node_dns_servers }}"
-...
+
+    - name: Append old nameservers if needed
+      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf
+      with_items: "{{ old_nameservers.stdout_lines }}"
+      when: node_dns_server == 'add' and item not in node_dns_servers
+
+    # - prevent /etc/resolv.conf overwrite after server reboot - #
+    - name: Stop network manager
+      systemd: name=NetworkManager state=stopped enabled=no
+
+
+# switch to static network to avoid DNS resolver overwrite
+- name: Setup static network
+  tags: node_network
+  when: node_dns_server is defined and node_dns_server != 'none'
+  block:
+    # change ifcfg no overwrite
+    - name: Find all network interface
+      find:
+        paths: /etc/sysconfig/network-scripts
+        recurse: no
+        patterns: "ifcfg-*"
+      register: ifcfg_list
+
+    - name: Add peerdns=no to ifcfg
+      lineinfile:
+        state=present
+        create=no
+        dest={{ item.path }}
+        regexp="^PEERDNS=.*"
+        line="PEERDNS=no"
+      with_items: "{{ ifcfg_list.files }}"
