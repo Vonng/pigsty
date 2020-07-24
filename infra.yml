@@ -1,0 +1,62 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   infra.yml
+# Mtime     :   2020-07-23
+# Desc      :   init database based on provisioned cluster
+# Path      :   infra.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+#------------------------------------------------------------------------------
+# init local yum repo (only run on meta nodes)
+#------------------------------------------------------------------------------
+- name: Init local repo
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: repo
+  roles:
+    - role: repo
+
+
+#------------------------------------------------------------------------------
+# provision nodes
+#------------------------------------------------------------------------------
+- name: Provision Node
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: node
+  roles:
+    - role: node
+
+
+#------------------------------------------------------------------------------
+# init dcs on nodes
+#------------------------------------------------------------------------------
+- name: Init dcs
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: dcs
+  roles:
+    - role: dcs
+
+
+#------------------------------------------------------------------------------
+# init meta service (only run on meta nodes)
+#------------------------------------------------------------------------------
+- name: Init meta service
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: meta
+  roles:
+    - role: nginx
+    - role: nameserver
+    - role: prometheus
+    - role: grafana
+
+...

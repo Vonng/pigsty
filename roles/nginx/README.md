@@ -11,18 +11,18 @@
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-nginx : Make sure nginx package installed	      TAGS: [meta, nginx]
-nginx : Copy nginx upstream conf			      TAGS: [meta, nginx]
-nginx : Update default nginx index page		      TAGS: [meta, nginx]
-nginx : Restart meta nginx service			      TAGS: [meta, nginx]
-nginx : Wait for nginx service online		      TAGS: [meta, nginx]
-nginx : Make sure nginx exporter installed	      TAGS: [meta, nginx_exporter]
-nginx : Config nginx_exporter options		      TAGS: [meta, nginx_exporter]
-nginx : Restart nginx_exporter service		      TAGS: [meta, nginx_exporter]
-nginx : Wait for nginx exporter online		      TAGS: [meta, nginx_exporter]
-nginx : Register cosnul nginx service		      TAGS: [meta, nginx_register]
-nginx : Register consul nginx-exporter service    TAGS: [meta, nginx_register]
-nginx : Reload consul					          TAGS: [meta, nginx_register]
+Make sure nginx package installed	      TAGS: [nginx]
+Copy nginx upstream conf			      TAGS: [nginx]
+Update default nginx index page		      TAGS: [nginx]
+Restart meta nginx service			      TAGS: [nginx]
+Wait for nginx service online		      TAGS: [nginx]
+Make sure nginx exporter installed	      TAGS: [nginx_exporter]
+Config nginx_exporter options		      TAGS: [nginx_exporter]
+Restart nginx_exporter service		      TAGS: [nginx_exporter]
+Wait for nginx exporter online		      TAGS: [nginx_exporter]
+Register cosnul nginx service		      TAGS: [nginx_register]
+Register consul nginx-exporter service    TAGS: [nginx_register]
+Reload consul					          TAGS: [nginx_register]
 ```
 
 ### Default variables
