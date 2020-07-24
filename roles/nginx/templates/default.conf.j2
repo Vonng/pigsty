@@ -1,0 +1,17 @@
+server {
+    listen       {{ repo_port | default('80') }} default_server;
+    server_name  {{ repo_address }} localhost;
+    location / {
+        root        {{ repo_home }};
+        index       index.html;
+        autoindex   on;
+        autoindex_exact_size on;
+        autoindex_localtime on;
+        autoindex_format html;
+    }
+
+    location /nginx {
+        stub_status on;
+        access_log off;
+    }
+}

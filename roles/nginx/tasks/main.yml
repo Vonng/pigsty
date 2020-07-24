@@ -11,13 +11,20 @@
       package: name=nginx state=present
 
     # - config - #
+    - name: Copy nginx default config
+      template: src=default.conf.j2 dest=/etc/nginx/conf.d/default.conf
+
     - name: Copy nginx upstream conf
       template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
       with_items: "{{ nginx_upstream }}"
 
+    # - dir - #
+    - name: Create local html directory
+      file: path={{ repo_home }} state=directory
+
     # - index - #
     - name: Update default nginx index page
-      template: src=index.html dest=/www/index.html
+      template: src=index.html.j2 dest=/{{ repo_home }}/index.html
 
     # - launch - #
     - name: Restart meta nginx service

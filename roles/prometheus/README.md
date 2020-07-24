@@ -13,43 +13,23 @@ This role will provision a meta node with following tasks:
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-tasks:
-  meta : Install meta packages from yum     TAGS: [init-meta]
-  meta : Make sure nginx package installed  TAGS: [init-meta, meta_nginx]
-  meta : Copy additional nginx proxy conf   TAGS: [init-meta, meta_nginx]
-  meta : Update default nginx index page    TAGS: [init-meta, meta_nginx]
-  meta : Restart pigsty nginx service       TAGS: [init-meta, meta_nginx]
-  meta : Wait for nginx service online      TAGS: [init-meta, meta_nginx]
-  meta : Config nginx_exporter options      TAGS: [init-meta, meta_nginx_exporter]
-  meta : Restart nginx_exporter service     TAGS: [init-meta, meta_nginx_exporter]
-  meta : Wait for nginx exporter online     TAGS: [init-meta, meta_nginx_exporter]
-  meta : Copy dnsmasq /etc/dnsmasq.d/config TAGS: [init-meta, meta_dns]
-  meta : Add dynamic dns records to meta    TAGS: [init-meta, meta_dns]
-  meta : Launch meta dnsmasq service        TAGS: [init-meta, meta_dns]
-  meta : Wait for meta dnsmasq online       TAGS: [init-meta, meta_dns]
-  meta : Wipe out prometheus config dir     TAGS: [init-meta, meta_prometheus]
-  meta : Wipe out existing prometheus data  TAGS: [init-meta, meta_prometheus]
-  meta : Recreate prometheus data dir       TAGS: [init-meta, meta_prometheus]
-  meta : Copy /etc/prometheus configs       TAGS: [init-meta, meta_prometheus]
-  meta : Launch meta prometheus service     TAGS: [init-meta, meta_prometheus]
-  meta : Launch meta alertmanager service   TAGS: [init-meta, meta_prometheus]
-  meta : Wait for meta prometheus online    TAGS: [init-meta, meta_prometheus]
-  meta : Wait for meta alertmanager online  TAGS: [init-meta, meta_prometheus]
-  meta : Make sure grafana is installed     TAGS: [grafana_install, init-meta]
-  meta : Check grafana plugin cache exists  TAGS: [grafana_install, init-meta]
-  meta : Download grafana plugins from web  TAGS: [grafana_install, init-meta]
-  meta : Create grafana plugins cache       TAGS: [grafana_install, init-meta]
-  meta : Provision grafana plugin via cache TAGS: [grafana_install, init-meta]
-  meta : Copy /etc/grafana/grafana.ini      TAGS: [grafana_install, init-meta]
-  meta : Launch meta grafana service        TAGS: [grafana_install, init-meta]
-  meta : Wait for meta grafana online       TAGS: [grafana_install, init-meta]
-  meta : Remove grafana dashboard dir       TAGS: [grafana_provision, init-meta]
-  meta : Copy grafana dashboards json       TAGS: [grafana_provision, init-meta]
-  meta : Preprocess grafana dashboards      TAGS: [grafana_provision, init-meta]
-  meta : Provision prometheus datasource    TAGS: [grafana_provision, init-meta]
-  meta : Provision grafana dashboards       TAGS: [grafana_provision, init-meta]
-  meta : Copy meta service definition       TAGS: [init-meta, meta_register]
-  meta : Reload consul to register service  TAGS: [init-meta, meta_register]
+Install prometheus and alertmanager		  TAGS: [prometheus_install]
+Wipe out prometheus config dir			  TAGS: [prometheus_clean]
+Wipe out existing prometheus data		  TAGS: [prometheus_clean]
+Recreate prometheus data dir			  TAGS: [prometheus_config]
+Copy /etc/prometheus configs			  TAGS: [prometheus_config]
+Copy /etc/prometheus opts				  TAGS: [prometheus_config]
+Overwrite prometheus scrape_interval	  TAGS: [prometheus_config]
+Overwrite prometheus evaluation_interval  TAGS: [prometheus_config]
+Overwrite prometheus scrape_timeout		  TAGS: [prometheus_config]
+Overwrite prometheus pg metrics path	  TAGS: [prometheus_config]
+Launch prometheus service				  TAGS: [prometheus_launch]
+Launch alertmanager service				  TAGS: [prometheus_launch]
+Wait for prometheus online				  TAGS: [prometheus_launch]
+Wait for alertmanager online			  TAGS: [prometheus_launch]
+Copy prometheus service definition		  TAGS: [prometheus_register]
+Copy alertmanager service definition	  TAGS: [prometheus_register]
+Reload consul to register prometheus	  TAGS: [prometheus_register]
 ```
 
 ### Default variables
@@ -62,6 +42,7 @@ prometheus_scrape_timeout: 5s                 # scrape timeout
 prometheus_metrics_path: /metrics             # default metrics path (only for job 'pg')
 prometheus_data_dir: /var/lib/prometheus/data # prometheus data dir
 prometheus_retention: 90d                     # how long to keep
+prometheus_reload: false                      # reload prometheus instead of recreate it
 
 # - reference : dcs metadata - #
 dcs_type: consul                  # default dcs server type: consul

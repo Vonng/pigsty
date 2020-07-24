@@ -10,12 +10,13 @@ This role will provision nameserver on given hosts
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-nameserver : Copy dnsmasq /etc/dnsmasq.d/config	TAGS: [dnsmasq, meta]
-nameserver : Add dynamic dns records to meta	TAGS: [dnsmasq, meta]
-nameserver : Launch meta dnsmasq service		TAGS: [dnsmasq, meta]
-nameserver : Wait for meta dnsmasq online		TAGS: [dnsmasq, meta]
-nameserver : Register consul dnsmasq service	TAGS: [dnsmasq, meta]
-nameserver : Reload consul						TAGS: [dnsmasq, meta]
+Make sure dnsmasq package installed		  TAGS: [dnsmasq]
+Copy dnsmasq /etc/dnsmasq.d/config		  TAGS: [dnsmasq]
+Add dynamic dns records to meta			  TAGS: [dnsmasq]
+Launch meta dnsmasq service				  TAGS: [dnsmasq]
+Wait for meta dnsmasq online			  TAGS: [dnsmasq]
+Register consul dnsmasq service			  TAGS: [dnsmasq]
+Reload consul							  TAGS: [dnsmasq]
 ```
 
 ### Default variables
