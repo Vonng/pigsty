@@ -1,0 +1,133 @@
+---
+#------------------------------------------------------------------------------
+# Check consul
+#------------------------------------------------------------------------------
+- name: Check existing consul
+  tags: consul_check
+  block:
+
+    #--------------------------------------------------------------------------
+    # check consul exists
+    #--------------------------------------------------------------------------
+    - name: Check for existing consul
+      command: 'ss -tp state listening sport = :8500'
+      register: check_consul_port_result
+
+    - name: Consul exists flag fact set
+      set_fact:
+        consul_exists: "{{ 'consul' in check_consul_port_result.stdout }}"
+
+    #--------------------------------------------------------------------------
+    # skip or abort if dcs already exists
+    #--------------------------------------------------------------------------
+    - name: Abort due to consul exists
+      when: consul_exists and dcs_exists_action == 'abort'
+      any_errors_fatal: true
+      fail: msg="Abort because consul instance already exists and dcs_exists_action=abort"
+
+    - name: Skip due to consul exists
+      when: consul_exists and dcs_exists_action == 'skip'
+      meta: end_host
+
+
+    #--------------------------------------------------------------------------
+    # purge dcs
+    #--------------------------------------------------------------------------
+    # dangerous: (it will remove consul data!)
+    - name: Clean existing consul instance
+      when: consul_exists and dcs_exists_action == 'clean' # DANGEROUS!
+      debug:
+        msg: "[DANGEROUS] running instance {{ inventory_hostname }} will be purged!"
+
+    - name: Purge existing consul instance
+      script: purge_consul.sh
+
+
+#------------------------------------------------------------------------------
+# Install consul
+#------------------------------------------------------------------------------
+- name: Make sure consul is installed
+  tags: consul_install
+  package: name=consul state=present
+
+
+#------------------------------------------------------------------------------
+# Config consul
+#------------------------------------------------------------------------------
+- name: Determine dcs node name
+  tags: consul_config
+  block:
+    # for dcs servers, always use dcs_servers keys as node name
+    - name: Get dcs server node names
+      connection: local
+      when: inventory_hostname in dcs_servers.values()
+      set_fact:
+        dcs_nodename={{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}
+        dcs_role=server
+
+    # for dcs agents, use nodename if defined first
+    - name: Get dcs node name from var
+      when: (dcs_nodename is not defined or dcs_nodename == '') and nodename is defined
+      connection: local
+      set_fact: dcs_nodename={{ nodename }}
+
+    # if nodename and pg_cluster/pg_seq not defined, fallback to node's origin hostname
+    - name: Fetch hostname as dcs node name
+      when: dcs_nodename is not defined or dcs_nodename == ''
+      shell: echo $HOSTNAME
+      register: hostname_result
+    - name: Get dcs name from hostname
+      when: dcs_nodename is not defined or dcs_nodename == ''
+      connection: local
+      set_fact: dcs_nodename={{ hostname_result.stdout }}
+
+    # render consul configs
+    - name: Copy /etc/consul.d/consul.json
+      template: src=consul.json.j2 dest=/etc/consul.d/consul.json mode=0644 owner=consul group=consul
+
+
+#------------------------------------------------------------------------------
+# Launch consul server first
+#------------------------------------------------------------------------------
+- name: Setup conul server
+  tags: consul_server
+  when: inventory_hostname in dcs_servers.values()
+  throttle: 1                                 # setup server one by one
+  block:
+    # determine quorum
+    - name: Get dcs bootstrap expect quroum
+      set_fact: consul_bootstrap_expect={{ ((dcs_servers.values() | length / 2)|round(0, 'floor') + 1)|int }}
+
+    # config consul
+    - name: Copy consul server service unit
+      template: src=consul-server.service.j2 dest=/usr/lib/systemd/system/consul.service
+
+    # launch consul
+    - name: Launch consul server service
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    # wait consul online
+    - name: Wait for consul server online
+      wait_for: host=localhost port=8500 state=started timeout=30
+
+
+#------------------------------------------------------------------------------
+# Launch consul agent
+#------------------------------------------------------------------------------
+- name: Setup consul agent
+  tags: consul_agent
+  when: inventory_hostname not in dcs_servers.values()
+  block:
+    # config consul
+    - name: Copy consul agent service
+      copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
+
+    # launch consul
+    - name: Launch consul agent service
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    # wait consul online
+    - name: Wait for consul agent online
+      wait_for: host=localhost port=8500 state=started timeout=30
+
+...
