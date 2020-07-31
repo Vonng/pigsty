@@ -28,7 +28,7 @@
   register: repo_boot_cache
 
 # download require packages to repo content directory
-- name: Check repo cache exists
+- name: Check repo pkgs cache exists
   tags: repo_download
   stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
   register: repo_cache
@@ -44,25 +44,25 @@
   tags: repo_upstream
   block:
     # if repo_remove = true, existing repos will be moved to backup dir
-    - name: Remove existing repos
+    - name: Backup & remove existing repos
       when: repo_remove
       shell:
         warn: no
         cmd: mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
 
     # add all upstream repos
-    - name: Add upstream repos
+    - name: Add required upstream repos
       yum_repository: "{{ item }}"
       with_items: "{{ repo_upstreams }}"
 
     # this usually takes 1~2 minutes according to your network condition
-    - name: Remake yum cache if cache not exists
+    - name: Remake yum cache if not exists
       when: not repo_cache.stat.exists
       environment: "{{ proxy_env }}"
       shell: yum clean all; yum makecache;
 
     # if cache already exists, just disable all upstream repo
-    - name: Disable upstream yum repo if cache exists
+    - name: Disable repo if cache exists
       when: repo_cache.stat.exists and not repo_rebuild
       ignore_errors: true           # in case that yum-util is not installed
       shell: |
@@ -87,13 +87,13 @@
         cmd: yumdownloader --resolve --downloaddir={{ repo_home }}/{{ repo_name }}/boot wget yum-utils createrepo nginx
         chdir: /{{ repo_home }}/{{ repo_name }}/boot
 
-    - name: Install bootstrap packages
+    - name: Install boot packages from cache
       shell:
         cmd: yum localinstall -q -y *.rpm
         chdir: /{{ repo_home }}/{{ repo_name }}/boot
         warn: no
 
-    - name: Render repo nginx files
+    - name: Render repo nginx server files
       template: src={{ item.src }} dest={{ item.dest }} mode=0644
       with_items:
         - {src: index.html.j2,    dest: /www/index.html}
@@ -101,10 +101,10 @@
         - {src: local.repo.j2,    dest: "/www/{{ repo_name }}.repo"}
         - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
 
-    - name: Disable selinux
+    - name: Disable selinux for repo server
       selinux: state=disabled
 
-    - name: Start repo nginx server
+    - name: Launch repo nginx server
       systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
 
     - name: Waits repo server online
@@ -134,17 +134,17 @@
       with_items: "{{ repo_packages }}"
 
     # download rpm from url
-    - name: Download additional url packages
+    - name: Download web url packages
       environment: "{{ proxy_env }}"
       get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
       with_items: "{{ repo_url_packages }}"
 
     # create repo
-    - name: Create local yum repo index
+    - name: Create local repo index
       command: createrepo {{ repo_home }}/{{ repo_name }}
 
     # set repo complete flag
-    - name: Mark repo cache valid
+    - name: Mark repo cache as valid
       copy: content=ok dest=/www/{{ repo_name }}/repo_complete
 
 

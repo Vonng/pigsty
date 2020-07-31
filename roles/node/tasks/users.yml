@@ -23,7 +23,7 @@
   when: node_admin_setup
   block:
     # create user and group
-    - name: Create os group admin
+    - name: Create os user group admin
       group: name=admin gid={{ node_admin_uid }}
     - name: Create os user admin
       user: name={{ node_admin_username }} uid={{ node_admin_uid }} home=/home/{{ node_admin_username }} group=admin generate_ssh_key=yes
@@ -38,19 +38,19 @@
     - name: Add no host checking to ssh config
       copy: src=ssh.config dest=/home/{{ node_admin_username }}/.ssh/config mode=0600 owner={{ node_admin_username }} group=admin
 
-    - name: Add ssh no host checking
+    - name: Add admin ssh no host checking
       lineinfile:
         path: /home/{{ node_admin_username }}/.ssh/config
         regexp: '^StrictHostKeyChecking='
         line: StrictHostKeyChecking=no
 
     # admin ssh-key exchange
-    - name: Fetch admin public keys
+    - name: Fetch all admin public keys
       shell: cat /home/{{ node_admin_username }}/.ssh/id_rsa.pub
       register: admin_ssh_keys
 
     # for all hosts, copy their admin ssh public key to each other
-    - name: Exchange admin ssh keys
+    - name: Exchange all admin ssh keys
       when: node_admin_ssh_exchange
       authorized_key: user={{ node_admin_username }} key="{{ item[0] }}"
       ignore_errors: true

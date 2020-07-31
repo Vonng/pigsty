@@ -3,7 +3,7 @@
 # Dnsmasq
 #------------------------------------------------------------------------------
 - name: Setup dnsmasq service
-  tags: dnsmasq
+  tags: nameserver
   block:
 
     # - install - #
@@ -27,12 +27,14 @@
     - name: Wait for meta dnsmasq online
       wait_for: host=localhost port=53 state=started
 
-    # - register - #
-    - name: Register consul dnsmasq service
-      template: src=svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul group=admin mode=0660
 
-    # - reload - #
-    - name: Reload consul
-      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+    # optional (register consul service)
+    # # - register - #
+    # - name: Register consul dnsmasq service
+    #   template: src=svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul group=admin mode=0660
+
+    # # - reload - #
+    # - name: Reload consul
+    #   systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 ...

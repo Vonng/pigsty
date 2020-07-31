@@ -12,18 +12,24 @@ This role will provision dcs (consul or etcd)
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-tasks:
-    dcs : Check consul service not running		TAGS: [consul_purge, infra, infra_consul]
-    dcs : Purge existing consul instance		TAGS: [consul_purge, infra, infra_consul]
-    dcs : Set default consul node name			TAGS: [consul_setup, infra, infra_consul]
-    dcs : Get hostname as consul node name		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Set consul node name to hostname		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Copy /etc/consul.d/consul.json		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Copy consul server service unit		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Launch consul server service first	TAGS: [consul_setup, infra, infra_consul]
-    dcs : Copy consul agent service unit		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Launch consul agent service first		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Wait for consul service online		TAGS: [consul_setup, infra, infra_consul]
+Check for existing consul		  TAGS: [consul_check, dcs]
+Consul exists flag fact set		  TAGS: [consul_check, dcs]
+Abort due to consul exists		  TAGS: [consul_check, dcs]
+Clean existing consul instance	  TAGS: [consul_check, dcs]
+Purge existing consul instance	  TAGS: [consul_check, dcs]
+Make sure consul is installed	  TAGS: [consul_install, dcs]
+Get dcs server node names		  TAGS: [consul_config, dcs]
+Get dcs node name from var		  TAGS: [consul_config, dcs]
+Fetch hostname as dcs node name	  TAGS: [consul_config, dcs]
+Get dcs name from hostname		  TAGS: [consul_config, dcs]
+Copy /etc/consul.d/consul.json	  TAGS: [consul_config, dcs]
+Get dcs bootstrap expect quroum	  TAGS: [consul_server, dcs]
+Copy consul server service unit	  TAGS: [consul_server, dcs]
+Launch consul server service	  TAGS: [consul_server, dcs]
+Wait for consul server online	  TAGS: [consul_server, dcs]
+Copy consul agent service		  TAGS: [consul_agent, dcs]
+Launch consul agent service		  TAGS: [consul_agent, dcs]
+Wait for consul agent online	  TAGS: [consul_agent, dcs]
 ```
 
 ### Default variables

@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   infra.yml
 # Mtime     :   2020-07-23
-# Desc      :   init database based on provisioned cluster
+# Desc      :   init infrastructure
 # Path      :   infra.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 #==============================================================#
@@ -18,7 +18,7 @@
   gather_facts: no
   tags: repo
   roles:
-    - role: repo
+    - repo
 
 
 #------------------------------------------------------------------------------
@@ -30,19 +30,7 @@
   gather_facts: no
   tags: node
   roles:
-    - role: node
-
-
-#------------------------------------------------------------------------------
-# init dcs on nodes
-#------------------------------------------------------------------------------
-- name: Init dcs
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: dcs
-  roles:
-    - role: dcs
+    - node
 
 
 #------------------------------------------------------------------------------
@@ -54,9 +42,60 @@
   gather_facts: no
   tags: meta
   roles:
-    - role: nginx
-    - role: nameserver
-    - role: prometheus
-    - role: grafana
+    - ca
+    - nginx
+    - nameserver
+    - prometheus
+    - grafana
+
+
+#------------------------------------------------------------------------------
+# init dcs on nodes
+#------------------------------------------------------------------------------
+- name: Init dcs
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: dcs
+  roles:
+    - consul
+
+
+#------------------------------------------------------------------------------
+# copy scripts to meta node
+#------------------------------------------------------------------------------
+- name: Copy ansible scripts
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: ansible
+  tasks:
+    - name: Copy ansible scritps
+      when: node_admin_setup is defined and node_admin_setup|bool and node_admin_username != ''
+      block:
+        # create copy of this repo
+        - name: Create ansible tarball
+          become: no
+          connection: local
+          run_once: true
+          command:
+            cmd: tar -cf files/meta.tgz cls roles group_vars ansible.cfg infra.yml initdb.yml remove.yml
+            chdir: "{{ playbook_dir }}"
+
+        - name: Create ansible directory
+          file: path="/home/{{ node_admin_username }}/meta" state=directory owner={{ node_admin_username }}
+
+        - name: Copy ansible tarball
+          copy: src="meta.tgz" dest="/home/{{ node_admin_username }}/meta/meta.tgz" owner={{ node_admin_username }}
+
+        - name: Extract tarball
+          shell: |
+            cd /home/{{ node_admin_username }}/meta/
+            tar -xf meta.tgz
+            chown -R {{ node_admin_username }} /home/{{ node_admin_username }}
+            rm -rf meta.tgz
+            chmod a+x *.yml
+
+
 
 ...

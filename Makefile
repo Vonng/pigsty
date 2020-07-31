@@ -65,8 +65,12 @@ stop: halt
 ri:
 	pgbench -is10 postgres://test:test@pg-test:5433/test
 rw:
-	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5433/test; done
+	while true; do pgbench -nv -P1 -c2 --rate=100 -T10 postgres://test:test@pg-test:5433/test; done
 ro:
+	while true; do pgbench -nv -P1 -c4 --select-only --rate=1000 -T10 postgres://test:test@pg-test:5434/test; done
+rw2:
+	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5433/test; done
+ro2:
 	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5434/test; done
 ckpt:
 	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
