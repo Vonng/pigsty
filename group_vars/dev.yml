@@ -26,55 +26,56 @@ proxy_env:                          # global proxy env when downloading packages
 #------------------------------------------------------------------------------
 # this section defines how to build a local repo
 
-# - local yum repo - #
 repo_enabled: true                            # build local yum repo on meta nodes?
 repo_name: pigsty                             # local repo name
-repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
-repo_port: 80                                 # repo server listen address, must same as repo_address!
+repo_address: yum.pigsty                      # repo external address (ip:port or url)
+repo_port: 80                                 # listen address, must same as repo_address
 repo_home: /www                               # default repo dir location
 repo_rebuild: false                           # force re-download packages
 repo_remove: true                             # remove existing repos
-# repo_upstreams: []                          # repos to be installed before downloading (specify will overwrite default repos)
+# repo_upstreams: []                          # use role default upstream
+# repo_packages: []                           # use role default packages
+# repo_url_packages: []                       # use role default web urls
 
-# - repo packages- #
-repo_packages:
-  - epel-release nginx wget yum-utils                                                       # bootstrap packages
-  - ntp uuid lz4 nc pv jq vim make patch bash lsof wget unzip git                           # basic system util
-  - readline zlib openssl libxml2 libxslt perl-ExtUtils-Embed ca-certificates               # basic pg dependency
-  - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet    # system utils
-  - grafana prometheus2 pushgateway alertmanager                                            # monitor and ui
-  - node_exporter postgres_exporter nginx_exporter blackbox_exporter                        # exporter
-  - consul consul_exporter consul-template etcd                                             # dcs
-  - ansible python python-pip python-ipython python-psycopg2                                # ansible & python
-  - haproxy keepalived dnsmasq                                                              # proxy and dns
-  - docker-ce docker-ce-cli rkt                                                             # container
-  - kubelet kubectl kubeadm kubernetes-cni helm                                             # kubernetes
-  - postgresql12* postgis30_12* timescaledb_12 citus_12 pglogical_12                        # postgres 12 basic
-  - pg_qualstats12 pg_cron_12 pg_top12 pg_repack12 pg_squeeze12 pg_stat_kcache12 wal2json12 pgpool-II-12 pgpool-II-12-extensions python3-psycopg2 python2-psycopg2
-  - ddlx_12 bgw_replstatus12 count_distinct12 extra_window_functions_12 geoip12 hll_12 hypopg_12 ip4r12 jsquery_12 multicorn12 osm_fdw12 mysql_fdw_12 ogr_fdw12 mongo_fdw12 hdfs_fdw_12 cstore_fdw_12 wal2mongo12 orafce12 pagila12 pam-pgsql12 passwordcheck_cracklib12 periods_12 pg_auto_failover_12 pg_bulkload12 pg_catcheck12 pg_comparator12 pg_filedump12 pg_fkpart12 pg_jobmon12 pg_partman12 pg_pathman12 pg_track_settings12 pg_wait_sampling_12 pgagent_12 pgaudit14_12 pgauditlogtofile-12 pgbconsole12 pgcryptokey12 pgexportdoc12 pgfincore12 pgimportdoc12 pgmemcache-12 pgmp12 pgq-12 pgrouting_12 pgtap12 plpgsql_check_12 plr12 plsh12 postgresql_anonymizer12 postgresql-unit12 powa_12 prefix12 repmgr12 safeupdate_12 semver12 slony1-12 sqlite_fdw12 sslutils_12 system_stats_12 table_version12 topn_12
-  - pgbouncer pg_cli pg_top pgbadger pgdg-redhat-repo                               # postgres common utils
-  - postgresql13*
 
-repo_url_packages:
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
-  - https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-
+#------------------------------------------------------------------------------
+# DCS PROVISION
+#------------------------------------------------------------------------------
+dcs_type: consul                              # consul | etcd | both
+dcs_name: pigsty                              # consul dc name | etcd initial cluster token
+dcs_servers:                                  # dcs name:ip dict
+  meta-1: 10.10.10.10                         # dcs server members
+  meta-2: 10.10.10.11                         # 3/5 dcs nodes are recommend for production environment
+  meta-3: 10.10.10.12                         # you can use external dcs clusters
+dcs_exists_action: skip                       # abort|skip|clean if dcs server already exists
+consul_data_dir: /export/consul/data          # consul data dir (/var/lib/consul/data by default)
+etcd_data_dir: /export/etcd/data              # etcd data dir (/var/lib/consul/data by default)
 
 #------------------------------------------------------------------------------
 # META PROVISION
 #------------------------------------------------------------------------------
+# - ca - #
+ca_method: create                             # create|copy|recreate
+ca_subject: "/CN=root-ca"                     # self-signed CA subject
+ca_homedir: /ca                               # ca cert directory
+ca_cert: ca.crt                               # ca public key/cert
+ca_key: ca.key                                # ca private key
+
 # - nginx - #
 nginx_upstream:
-  - {name: consul,        host: c.pigsty, url: http://localhost:8500/}
-  - {name: grafana,       host: g.pigsty, url: http://localhost:3000/}
-  - {name: prometheus,    host: p.pigsty, url: http://localhost:9090/}
-  - {name: alertmanager,  host: a.pigsty, url: http://localhost:9093/}
+  - {name: consul,        host: c.pigsty, url: "http://localhost:8500/"}
+  - {name: grafana,       host: g.pigsty, url: "http://localhost:3000/"}
+  - {name: prometheus,    host: p.pigsty, url: "http://localhost:9090/"}
+  - {name: alertmanager,  host: a.pigsty, url: "http://localhost:9093/"}
 
 # - nameserver - #
 dns_records:                                  # dynamic dns record resolved by dnsmasq
-  - 10.10.10.2 pg-meta
-  - 10.10.10.3 pg-test
+  - 10.10.10.2   pg-meta                      # sandbox vip for pg-meta
+  - 10.10.10.3   pg-test                      # sandbox vip for pg-test
+  - 10.10.10.10  meta-1                       # sandbox node meta-1 (node-0)
+  - 10.10.10.11  node-1                       # sandbox node node-1
+  - 10.10.10.12  node-2                       # sandbox node node-2
+  - 10.10.10.13  node-3                       # sandbox node node-3
   - 10.10.10.10 pigsty y.pigsty yum.pigsty
   - 10.10.10.10 c.pigsty consul.pigsty
   - 10.10.10.10 g.pigsty grafana.pigsty
@@ -83,12 +84,11 @@ dns_records:                                  # dynamic dns record resolved by d
   - 10.10.10.10 n.pigsty ntp.pigsty
 
 # - prometheus - #
-prometheus_scrape_interval: 2s                # global scrape & evaluation interval
-prometheus_scrape_timeout: 1s                 # global scrape timeout
-prometheus_metrics_path: /metrics             # default metrics path (only for job 'pg')
+prometheus_scrape_interval: 2s                # global scrape & evaluation interval (2s for dev, 15s for prod)
+prometheus_scrape_timeout: 1s                 # global scrape timeout (1s for dev, 8s for prod)
+prometheus_metrics_path: /metrics             # default metrics path (only affect job 'pg')
 prometheus_data_dir: /export/prometheus/data  # prometheus data dir
 prometheus_retention: 30d                     # how long to keep
-prometheus_reload: false                      # reload prometheus instead of recreate it
 
 # - grafana - #
 grafana_url: http://10.10.10.10
@@ -96,17 +96,18 @@ grafana_force_download_plugins: false         # force redownload grafana plugins
 grafana_time_interval: 2s                     # force redownload grafana plugins
 grafana_provision_via_db: true                # provision via copy sqlite db by default
 grafana_dashboards: []                        # default dashboards
-grafana_plugins_install:                      # install grafana plugins ?
-grafana_plugins_force_download:               # force re-download grafana plugins ?
-grafana_plugins:                              # default grafana plugins list
-  - camptocamp-prometheus-alertmanager-datasource
-  - simpod-json-datasource
-  - ryantxu-ajax-panel
-  - jdbranham-diagram-panel
-  - grafana-piechart-panel
-  - alexandra-trackmap-panel
-  - snuids-radar-panel
-  - digrich-bubblechart-panel
+grafana_plugins_install: false                # install grafana plugins
+grafana_plugins_force_download: false         # force re-download grafana plugins ?
+grafana_customize: false                      # customize grafana resource and logos ?
+# grafana_plugins: []                         # use role default grafana plugins
+#  - camptocamp-prometheus-alertmanager-datasource
+#  - simpod-json-datasource
+#  - ryantxu-ajax-panel
+#  - jdbranham-diagram-panel
+#  - grafana-piechart-panel
+#  - alexandra-trackmap-panel
+#  - snuids-radar-panel
+#  - digrich-bubblechart-panel
 
 
 
@@ -139,16 +140,12 @@ node_repo_config: []                          # if no local repo provide, these 
 node_packages_proxy: false                    # install packages with proxy_env ?
 node_packages:                                # common packages for all nodes
   - wget,yum-utils,ntp,uuid,lz4,nc,vim,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
-  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet
+  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,pv,jq
   - python-pip,python-psycopg2
-#  - postgresql12*
-
-node_extra_packages:                          # extra packages for nodes
-  - node_exporter,pg_exporter,postgres_exporter,blackbox_exporter     # exporter
-  - consul,consul-template,etcd,haproxy,keepalived                    # dcs & proxy
-  # - docker-ce,docker-ce-cli,rkt                                     # container  (optional)
-  # - kubelet,kubectl,kubeadm,kubernetes-cni,helm                     # kubernetes (optional)
-
+  - node_exporter,pg_exporter
+  - consul,consul-template,etcd,haproxy,keepalived
+  # - postgresql12*
+node_extra_packages: []                       # extra packages for nodes
 node_meta_packages:                           # packages for meta nodes only
   - grafana,prometheus2,pushgateway,alertmanager,dnsmasq,nginx,nginx_exporter,blackbox_exporter,ansible,python-ipython
 
@@ -187,51 +184,6 @@ node_ntp_servers:                             # default NTP servers
 
 
 
-#------------------------------------------------------------------------------
-# DCS PROVISION
-#------------------------------------------------------------------------------
-# - dcs identity -
-dcs_role: node                    # available: node|server, node by default
-dcs_type: consul                  # default dcs server type: consul
-dcs_exists_action: clean          # abort|skip|clean
-dcs_servers:                      # dcs name:ip dict
-  pg-meta-1: 10.10.10.10
-
-# - dcs: consul - #
-consul_dc: pigsty                 # force remove existing server
-consul_bootstrap_expect: 1        # expect consul server
-consul_check_interval: 15s        # default service check interval
-consul_check_timeout:  1s         # default service check timeout
-
-# - dcs: etcd -
-etcd_initial_cluster_token: ''
-
-
-#------------------------------------------------------------------------------
-# DOCKER PROVISION
-#------------------------------------------------------------------------------
-docker_enabled: true                                              # install and enable docker?
-docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
-docker_registry_mirrors:                                          # docker registry mirror
-  - https://zbwt4y5v.mirror.aliyuncs.com
-docker_image_cache:                                               # docker image tarballs to be loaded (if exists)
-  - /www/pigsty/docker-images.tar.lz4
-
-
-#------------------------------------------------------------------------------
-# KUBERNETES PROVISION
-#------------------------------------------------------------------------------
-k8s_servers: [10.10.10.10]                                        # kubernetes servers
-k8s_registry_mirrors: registry.aliyuncs.com/google_containers     # kubernetes images mirror
-k8s_version: 1.18.5                                               # kubernetes version
-k8s_pod_cidr: 10.11.0.0/16                                        # kubernetes pod network cidr
-k8s_service_cidr: 10.12.0.0/16                                    # kubernetes service network cidr
-k8s_dashboard_admin_user: dashboard-admin-sa                      # kubernetes dashboard admin user name
-
-
-
-
-
 
 #------------------------------------------------------------------------------
 # POSTGRES PROVISION
@@ -255,7 +207,6 @@ pg_packages:
 
 pg_extensions: []
 # - ddlx_${pg_version} bgw_replstatus${pg_version} count_distinct${pg_version} extra_window_functions_${pg_version} geoip${pg_version} hll_${pg_version} hypopg_${pg_version} ip4r${pg_version} jsquery_${pg_version} multicorn${pg_version} osm_fdw${pg_version} mysql_fdw_${pg_version} ogr_fdw${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version} cstore_fdw_${pg_version} wal2mongo${pg_version} orafce${pg_version} osm2pgrouting_${pg_version} pagila${pg_version} pam-pgsql${pg_version} passwordcheck_cracklib${pg_version} periods_${pg_version} pg_auto_failover_${pg_version} pg_bulkload${pg_version} pg_catcheck${pg_version} pg_comparator${pg_version} pg_filedump${pg_version} pg_fkpart${pg_version} pg_jobmon${pg_version} pg_partman${pg_version} pg_pathman${pg_version} pg_track_settings${pg_version} pg_wait_sampling_${pg_version} pgagent_${pg_version} pgaudit14_${pg_version} pgauditlogtofile-${pg_version} pgbconsole${pg_version} pgcryptokey${pg_version} pgexportdoc${pg_version} pgfincore${pg_version} pgimportdoc${pg_version} pgmemcache-${pg_version} pgmp${pg_version} pgq-${pg_version} pgrouting_${pg_version} pgtap${pg_version} plpgsql_check_${pg_version} plr${pg_version} plsh${pg_version} postgresql_anonymizer${pg_version} postgresql-unit${pg_version} powa_${pg_version} prefix${pg_version} repmgr${pg_version} safeupdate_${pg_version} semver${pg_version} slony1-${pg_version} sqlite_fdw${pg_version} sslutils_${pg_version} system_stats_${pg_version} table_version${pg_version} topn_${pg_version}
-
 
 # unified replication user
 pg_replication_username: replicator

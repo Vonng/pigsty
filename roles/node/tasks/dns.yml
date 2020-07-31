@@ -1,12 +1,25 @@
 ---
+
+# update node hostname if specified via host variable
+- name: Update node name
+  tags: node_name
+  when: nodename is defined
+  block:
+    - name: Update node hostname
+      hostname: name="{{ nodename }}"
+
+    - name: Add new hostname to /etc/hosts
+      lineinfile: path=/etc/hosts line="{{ inventory_hostname }} {{ nodename }}"
+
+
 # always write static DNS record
-- name: Write static dns record to node
+- name: Write static dns records
   tags: node_dns
   lineinfile: path=/etc/hosts line="{{ item }}"
   with_items: "{{ node_dns_hosts }}"
 
 
-# add static nameserver to resolv
+# add static nameserver to resolv (if node_dns_server != 'none')
 - name: Setup dns resolver
   tags: node_resolv
   when: node_dns_server is defined and node_dns_server != 'none'
@@ -23,11 +36,11 @@
       shell: echo {{ item }} >> /etc/resolv.conf
       with_items: "{{ node_dns_options }}"
 
-    - name: Add nameservers
+    - name: Add new nameservers
       shell: echo "nameserver {{ item }}" >> /etc/resolv.conf
       with_items: "{{ node_dns_servers }}"
 
-    - name: Append old nameservers if needed
+    - name: Append old nameservers
       shell: echo "nameserver {{ item }}" >> /etc/resolv.conf
       with_items: "{{ old_nameservers.stdout_lines }}"
       when: node_dns_server == 'add' and item not in node_dns_servers

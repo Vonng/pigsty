@@ -1,0 +1,41 @@
+---
+#--------------------------------------------------------------------------
+# check ca exists
+#--------------------------------------------------------------------------
+# create repo directory and check cache existence
+- name: Create local ca directory
+  tags: ca_dir
+  file: path="{{ ca_homedir }}" state=directory mode=0700
+
+# if ca_method == copy
+- name: Copy ca cert from local files
+  tags: ca_copy
+  when: ca_method == 'copy'
+  copy: src={{ item }} dest={{ ca_homedir }}/{{ item }} mode=0600
+  with_items:
+    - "{{ ca_key }}"
+    - "{{ ca_cert }}"
+
+
+#--------------------------------------------------------------------------
+# create or reuse ca
+#--------------------------------------------------------------------------
+# if ca_method = create, create a self-signed ca key-cert pair if not exists
+# if ca_method = recreate, force recreate a self-signed ca key-cert pair even key-cert already exists
+- name: Check ca key cert exists
+  tags: ca_create
+  when: ca_method == 'create' or ca_method == 'recreate'
+  stat: path={{ ca_homedir }}/{{ ca_key }}
+  register: ca_key_exists
+
+# if ca key not exists or explicitly require a new CA
+- name: Download local repo packages
+  tags: ca_create
+  when: not ca_key_exists.stat.exists or ca_method == 'recreate'
+  block:
+    # download from upstream repo
+    - name: Create self-signed CA key-cert
+      command:
+        cmd: openssl req -new -x509 -days 3650 -nodes -out "{{ ca_cert }}" -keyout "{{ ca_key }}" -subj "{{ ca_subject }}"
+        chdir: "{{ ca_homedir }}"
+...

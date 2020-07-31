@@ -1,0 +1,119 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   remove.yml
+# Mtime     :   2020-07-31
+# Desc      :   remove running service
+# Path      :   remove.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+#------------------------------------------------------------------------------
+# Remove load balancer
+#------------------------------------------------------------------------------
+- name: Remove load balancer
+  become: yes
+  hosts: all
+  serial: 1
+  gather_facts: no
+  tags: rm-lb
+  tasks:
+    - name: Stop load balancer
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      with_items:
+        - keepalived
+        - haproxy
+
+
+#------------------------------------------------------------------------------
+# Remove pg monitor
+#------------------------------------------------------------------------------
+- name: Remove monitor
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: rm-monitor
+  tasks:
+
+    - name: Stop monitor service
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      with_items:
+        - pg_exporter
+        - pgbouncer_exporter
+
+    - name: Deregister exporter service
+      ignore_errors: true
+      file: path=/etc/consul.d/svc-{{ item }}.json state=absent
+      with_items:
+        - haproxy
+        - pg-exporter
+        - pgbouncer-exporter
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded
+
+
+#------------------------------------------------------------------------------
+# Remove postgres service
+#------------------------------------------------------------------------------
+- name: Remove Postgres service
+  become: yes
+  hosts: all
+  serial: 1
+  gather_facts: no
+  tags: rm-pg
+  tasks:
+    - name: Remove postgres replica services
+      when: pg_role != 'primary'
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      with_items:
+        - patroni
+        - postgres
+        - pgbouncer
+
+    - name: Remove postgres primary services
+      when: pg_role == 'primary'
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      with_items:
+        - patroni
+        - postgres
+        - pgbouncer
+
+    - name: Deregister postgres services
+      ignore_errors: true
+      file: path=/etc/consul.d/svc-{{ item }}.json state=absent
+      with_items:
+        - postgres
+        - pgbouncer
+        - patroni
+
+
+#------------------------------------------------------------------------------
+# Remove postgres service
+#------------------------------------------------------------------------------
+- name: Remove Infrastructure
+  become: yes
+  hosts: all
+  serial: 1
+  gather_facts: no
+  tags: rm-infra
+  tasks:
+
+    - name: Consul leave cluster
+      ignore_errors: true
+      command: /usr/bin/consul leave
+
+    - name: Stop consul and node_exporter
+      ignore_errors: true
+      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      with_items:
+        - node_exporter
+        - consul
+
+
+...
