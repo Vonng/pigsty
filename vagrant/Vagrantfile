@@ -21,6 +21,7 @@ Vagrant.configure("2") do |config|
         end
         meta.vm.provision "file", source: "../pkg", destination: "/vagrant/pkg"
         meta.vm.provision "shell", inline: "mkdir -p /www; rm -rf /www/pigsty; mv /vagrant/pkg /www/pigsty"
+        meta.vm.provision "shell", path: "provision.sh"
     end
 
     # node-1 ... node-N
@@ -38,6 +39,7 @@ Vagrant.configure("2") do |config|
                         "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                     ]
             end
+            node.vm.provision "shell", path: "provision.sh"
         end
     end
 end

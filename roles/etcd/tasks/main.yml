@@ -102,6 +102,9 @@
   throttle: 1                                 # setup server one by one
   any_errors_fatal: true
   block:
+    - name: Make sure consul dir exists
+      file: path={{ etcd_data_dir }} mode=0700 state=directory owner=etcd
+
     # config etcd
     - name: Copy etcd server service unit
       template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service

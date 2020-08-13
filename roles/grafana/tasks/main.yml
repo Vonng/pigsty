@@ -26,7 +26,7 @@
       when: grafana_plugins_cache.stat.exists
       shell: |
         rm -rf /var/lib/grafana/plugins
-        tar -xf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana
+        tar -xf {{ grafana_plugins_cache }} -C /var/lib/grafana
         chown -R grafana /var/lib/grafana
 
     #==============================================================#
@@ -43,7 +43,7 @@
       ignore_errors: true
       when: not grafana_plugins_cache.stat.exists or grafana_plugins_force_download
       shell: |
-        mkdir -p /www/pigsty/grafana; tar -zcf /www/pigsty/grafana/plugins.tar.gz -C /var/lib/grafana/ plugins
+        mkdir -p /www/pigsty/grafana; tar -zcf {{ grafana_plugins_cache }} -C /var/lib/grafana/ plugins
 
 
     #==============================================================#

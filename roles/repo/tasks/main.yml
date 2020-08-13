@@ -84,7 +84,7 @@
       when: not repo_boot_cache.stat.exists or repo_rebuild
       environment: "{{ proxy_env }}"
       command:
-        cmd: yumdownloader --resolve --downloaddir={{ repo_home }}/{{ repo_name }}/boot wget yum-utils createrepo nginx
+        cmd: yum install --downloadonly --downloaddir={{ repo_home }}/{{ repo_name }}/boot wget yum-utils yum-plugin-downloadonly createrepo nginx
         chdir: /{{ repo_home }}/{{ repo_name }}/boot
 
     - name: Install boot packages from cache
@@ -129,7 +129,7 @@
     - name: Download repo packages
       environment: "{{ proxy_env }}"
       command:
-        cmd: yumdownloader --resolve --downloaddir={{ repo_home }}/{{ repo_name }} {{ item }}
+        cmd: yum install --downloadonly --downloaddir={{ repo_home }}/{{ repo_name }} {{ item }}
         chdir: "{{ repo_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
@@ -138,6 +138,14 @@
       environment: "{{ proxy_env }}"
       get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
       with_items: "{{ repo_url_packages }}"
+
+    # download rpm from url
+    - name: Download packages deps
+      environment: "{{ proxy_env }}"
+      command:
+        cmd: repotrack {{ item }}
+        chdir: "{{ repo_home }}/{{ repo_name }}"
+      with_items: "{{ repo_packages }}"
 
     # create repo
     - name: Create local repo index

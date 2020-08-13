@@ -81,6 +81,7 @@
         group: postgres
         state: link
 
+    # patroni service is provided
     - name: Copy patroni systemd service unit
       copy:
         src: patroni.service
@@ -99,6 +100,7 @@
 #==============================================================#
 - name: Launch primary patroni instance
   tags: patroni_primary
+  any_errors_fatal: true
   when: pg_role == 'primary'
   block:
     - name: Launch patroni on primary instance
