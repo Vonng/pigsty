@@ -7,18 +7,22 @@
 
 
 
-## 功能简介
+## 亮点
 
-* High Availability
-* Monitoring/Alerting/Logging System
-* Service Discovery with dcs
-* Performance tuning for bare metal
-* Util scripts
-* Cloud native deployment (TBD)
+* 高可用部署
+* 自包含的监控、报警、日志收集系统，自动服务发现
+* 集成常规备份维护脚本
+* 基础设施参数化定制
 
 
+## 快速开始
 
-## Quick Start
+1. 准备若干台机器，选定其中一台作为中控机，配置SSH免密访问并安装Ansible
+2. 在中控机上克隆本项目：`git clone https://github.com/vonng/pigsty && cd pigsty`
+3. 修改`group_vars/all.yml`，根据需求修改全局参数
+4. 修改`cls/inventory.ini`，填入集群规划信息，包括机器IP，角色，用途等。
+5. 执行`infra.yml`初始化集群基础设施
+6. 执行`initdb.yml`初始化数据
 
 1. Install [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) and [ansible](https://www.ansible.com/)
 2. Clone this repo: `git clone https://github.com/vonng/pigsty && cd pigsty`

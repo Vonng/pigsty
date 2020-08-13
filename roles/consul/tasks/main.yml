@@ -58,6 +58,10 @@
   tags: consul_config
   block:
     # for dcs servers, always use dcs_servers keys as node name
+    - name: Make sure consul dir exists
+      file: path={{ consul_data_dir }} mode=0700 state=directory owner=consul
+
+    # for dcs servers, always use dcs_servers keys as node name
     - name: Get dcs server node names
       connection: local
       when: inventory_hostname in dcs_servers.values()
