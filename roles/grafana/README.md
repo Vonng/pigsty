@@ -11,25 +11,24 @@ This role will provision a grafana server
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Make sure grafana is installed	  	TAGS: [grafana_install]
-Check grafana plugin cache exists	TAGS: [grafana_install]
-Provision grafana plugin via cache  TAGS: [grafana_install]
-Download grafana plugins from web	TAGS: [grafana_install]
-Create grafana plugins cache		TAGS: [grafana_install]
-Copy /etc/grafana/grafana.ini		TAGS: [grafana_install]
-Launch grafana service			  	TAGS: [grafana_install]
-Wait for grafana online			  	TAGS: [grafana_install]
-Register consul grafana service	  	TAGS: [grafana_install]
-Reload consul						TAGS: [grafana_install]
-Launch meta grafana service		  	TAGS: [grafana_provision]
-Copy grafana.db to data dir		  	TAGS: [grafana_provision]
-Restart meta grafana service		TAGS: [grafana_provision]
-Wait for meta grafana online		TAGS: [grafana_provision]
-Remove grafana dashboard dir		TAGS: [grafana_provision]
-Copy grafana dashboards json		TAGS: [grafana_provision]
-Preprocess grafana dashboards		TAGS: [grafana_provision]
-Provision prometheus datasource	  	TAGS: [grafana_provision]
-Provision grafana dashboards		TAGS: [grafana_provision]
+tasks:
+  - Make sure grafana is installed			TAGS: [grafana, grafana_install, meta]
+  - Check grafana plugin cache exists		TAGS: [grafana, grafana_plugin, meta]
+  - Provision grafana plugins via cache		TAGS: [grafana, grafana_plugin, meta]
+  - Download grafana plugins from web		TAGS: [grafana, grafana_plugin, meta]
+  - Download grafana plugins from web		TAGS: [grafana, grafana_plugin, meta]
+  - Create grafana plugins cache			TAGS: [grafana, grafana_plugin, meta]
+  - Copy /etc/grafana/grafana.ini			TAGS: [grafana, grafana_config, meta]
+  - Copy grafana.db to data dir				TAGS: [grafana, grafana_config, meta]
+  - Launch grafana service					TAGS: [grafana, grafana_launch, meta]
+  - Wait for grafana online					TAGS: [grafana, grafana_launch, meta]
+  - Register consul grafana service			TAGS: [grafana, grafana_register, meta]
+  - Reload consul							TAGS: [grafana, grafana_register, meta]
+  - Remove grafana dashboard dir			TAGS: [grafana, grafana_provision, meta]
+  - Copy grafana dashboards json			TAGS: [grafana, grafana_provision, meta]
+  - Preprocess grafana dashboards			TAGS: [grafana, grafana_provision, meta]
+  - Provision prometheus datasource			TAGS: [grafana, grafana_provision, meta]
+  - Provision grafana dashboards			TAGS: [grafana, grafana_provision, meta]
 ```
 
 ### Default variables
@@ -37,20 +36,33 @@ Provision grafana dashboards		TAGS: [grafana_provision]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
-grafana_force_download_plugins: false         # force redownload grafana plugins
-grafana_time_interval: 2s                     # force redownload grafana plugins
-grafana_provision_via_db: true                # provision via copy sqlite db by default
-grafana_dashboards: []                        # default dashboards
-grafana_plugins_install:                      # install grafana plugins ?
-grafana_plugins_force_download:               # force re-download grafana plugins ?
-grafana_plugins:                              # default grafana plugins list
-  - camptocamp-prometheus-alertmanager-datasource
-  - simpod-json-datasource
-  - ryantxu-ajax-panel
-  - jdbranham-diagram-panel
+grafana_url: http://admin:admin@localhost:3000 # grafana url
+grafana_plugin: install                        # none|install|reinstall
+grafana_cache: /tmp/plugins.tar.gz             # path to grafana plugins tarball
+grafana_provision_mode: db                     # none|db|api
 
-# - reference : dcs metadata - #
-dcs_type: consul                  # default dcs server type: consul
-consul_check_interval: 15s        # default service check interval
-consul_check_timeout:  1s         # default service check timeout
+grafana_plugins:                               # default grafana plugins list
+  - redis-datasource
+  - simpod-json-datasource
+  - fifemon-graphql-datasource
+  - sbueringer-consul-datasource
+  - camptocamp-prometheus-alertmanager-datasource
+  - ryantxu-ajax-panel
+  - marcusolsson-hourly-heatmap-panel
+  - michaeldmoore-multistat-panel
+  - marcusolsson-treemap-panel
+  - pr0ps-trackmap-panel
+  - dalvany-image-panel
+  - magnesium-wordcloud-panel
+  - cloudspout-button-panel
+  - speakyourcode-button-panel
+  - jdbranham-diagram-panel
+  - grafana-piechart-panel
+  - snuids-radar-panel
+  - digrich-bubblechart-panel
+
+grafana_git_plugins:
+  - https://github.com/Vonng/grafana-echarts
+
+grafana_dashboards: []                        # default dashboards
 ```
