@@ -19,7 +19,7 @@
 # create repo directory and check cache existence
 - name: Create local repo directory
   tags: repo_dir
-  file: path={{ repo_home }}/{{ repo_name }}/boot state=directory mode=0755
+  file: path={{ repo_home }}/{{ repo_name }} state=directory mode=0755
 
 #--------------------------------------------------------------#
 # 2. Upstream repo
@@ -53,7 +53,8 @@
     - name: Check repo pkgs cache exists
       stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
       register: repo_cache
-    - set_fact:
+    - name: Set fact whether repo_exists
+      set_fact:
         repo_exist: "{{ repo_cache.stat.exists }}"
 
 
@@ -67,7 +68,7 @@
         mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
 
     # add local file repo
-    - name: Add local file repos
+    - name: Add local file system repos
       yum_repository:
         name: "{{ repo_name }}-local"
         description: CentOS-$releasever - Updates - Aliyun Mirror
@@ -89,7 +90,7 @@
 - name: Bootstrap repo server
   tags: repo_boot
   block:
-    - name: Install boot packages
+    - name: Install repo bootstrap packages
       yum:
         name: "{{ item }}"
         state: latest
@@ -136,7 +137,7 @@
     # download rpm from url
     - name: Download web url packages
       environment: "{{ proxy_env }}"
-      get_url: dest={{ repo_home }}/{{ re0po_name }}/{{ item | basename }} url={{ item }}
+      get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
       with_items: "{{ repo_url_packages }}"
 
     # download from upstream repo
@@ -148,7 +149,7 @@
       with_items: "{{ repo_packages }}"
 
     # download rpm from url
-    - name: Download repo pkgs and deps
+    - name: Download repo pkg deps
       environment: "{{ proxy_env }}"
       command:
         cmd: repotrack {{ item }}

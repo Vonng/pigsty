@@ -26,44 +26,52 @@ This role will provision a node with following tasks:
 
 ```yaml
 tasks:
-  node : Setup node default hostname		TAGS: [node, node_hostname]
-  node : Setup node default timezone		TAGS: [node, node_timezone]
-  node : Node configure disable numa		TAGS: [disable_numa, node, node_feature]
-  node : Node configure disable swap		TAGS: [disable_swap, node, node_feature]
-  node : Node configure unmount swap		TAGS: [disable_swap, node, node_feature]
-  node : Disable transparent hugepage		TAGS: [disable_thp, node, node_feature]
-  node : Node configure disable firewall	TAGS: [disable_firewall, node, node_feature]
-  node : Node configure disable selinux		TAGS: [disable_selinux, node, node_feature]
-  node : Node configure disable selinux now	TAGS: [disable_selinux, node, node_feature]
-  node : Node configure cpupower perf		TAGS: [cpupower_performance, node, node_feature]
-  node : Node configure disk prefetch		TAGS: [disk_prefetch, node, node_feature]
-  node : Install additional kernel modules	TAGS: [node, node_kernel]
-  node : Load kernel module on node start	TAGS: [node, node_kernel]
-  node : Overwrite default sysctl params	TAGS: [node, node_sysctl]
-  node : Change additional sysctl params	TAGS: [node, node_sysctl]
-  node : Reload sysctl params from files	TAGS: [node, node_sysctl]
-  node : Gather fact cpu total cores		TAGS: [node, node_sysctl_dynamic]
-  node : Gather fact memory total size		TAGS: [node, node_sysctl_dynamic]
-  node : Gather fact swap total size		TAGS: [node, node_sysctl_dynamic]
-  node : Calculate sysctl parameters		TAGS: [node, node_sysctl_dynamic]
-  node : Dynamic tuning sysctl parameters	TAGS: [node, node_sysctl_dynamic]
-  node : Generate os root user ssh key		TAGS: [node, node_root]
-  node : Add no host checking to ssh config	TAGS: [node, node_root]
-  node : Fetch root user's public keys		TAGS: [node, node_root]
-  node : Exchange root ssh keys in cluster	TAGS: [node, node_root]
-  node : Create os admin user group admin	TAGS: [node, node_user]
-  node : Create os user postgres:admin		TAGS: [node, node_user]
-  node : Create os user prometheus:admin	TAGS: [node, node_user]
-  node : Create os dcs user consul:admin	TAGS: [node, node_user]
-  node : Create os dcs user etcd:admin		TAGS: [node, node_user]
-  node : Allow dbsu postgres nopass sudo	TAGS: [node, node_user]
-  node : Add no host checking to ssh config	TAGS: [node, node_user]
-  node : Fetch all postgres public keys		TAGS: [node, node_user]
-  node : Exchange postgres user's ssh keys	TAGS: [node, node_user]
-  node : Let postgres own /dev/watchdog		TAGS: [node, node_user]
-  node : Copy default user bash profile		TAGS: [node, node_profile]
-  node : Setup node default pam ulimits		TAGS: [node, node_ulimit]
-  node : Add static dns records to node		TAGS: [node, node_dns]
+  - Update node hostname					TAGS: [node, node_name]
+  - Add new hostname to /etc/hosts			TAGS: [node, node_name]
+  - Write static dns records				TAGS: [node, node_dns]
+  - Get old nameservers						TAGS: [node, node_resolv]
+  - Truncate resolv file					TAGS: [node, node_resolv]
+  - Write resolv options					TAGS: [node, node_resolv]
+  - Add new nameservers						TAGS: [node, node_resolv]
+  - Append old nameservers					TAGS: [node, node_resolv]
+  - Stop network manager					TAGS: [node, node_resolv]
+  - Find all network interface				TAGS: [node, node_network]
+  - Add peerdns=no to ifcfg					TAGS: [node, node_network]
+  - Backup existing repos					TAGS: [node, node_repo]
+  - Install local yum repo					TAGS: [node, node_repo]
+  - Install upstream repo					TAGS: [node, node_repo]
+  - Config using local repo					TAGS: [node, node_repo]
+  - Run yum config manager command			TAGS: [node, node_repo]
+  - Install node basic packages				TAGS: [node, node_pkgs]
+  - Install node extra packages				TAGS: [node, node_pkgs]
+  - Install meta specific packages			TAGS: [node, node_pkgs]
+  - Node configure disable numa				TAGS: [node, node_feature]
+  - Node configure disable swap				TAGS: [node, node_feature]
+  - Node configure unmount swap				TAGS: [node, node_feature]
+  - Node configure disable firewall			TAGS: [node, node_feature]
+  - Node disable selinux by default			TAGS: [node, node_feature]
+  - Node configure disk prefetch			TAGS: [node, node_feature]
+  - Enable linux kernel modules				TAGS: [node, node_kernel]
+  - Enable kernel module on reboot			TAGS: [node, node_kernel]
+  - Get config parameter page count			TAGS: [node, node_tuned]
+  - Get config parameter page size			TAGS: [node, node_tuned]
+  - Tune shmmax and shmall via mem			TAGS: [node, node_tuned]
+  - Create tuned profile postgres			TAGS: [node, node_tuned]
+  - Render tuned profile postgres			TAGS: [node, node_tuned]
+  - Active tuned profile postgres			TAGS: [node, node_tuned]
+  - Change additional sysctl params			TAGS: [node, node_tuned]
+  - Copy default user bash profile			TAGS: [node, node_profile]
+  - Setup node default pam ulimits			TAGS: [node, node_ulimit]
+  - Create os user group admin				TAGS: [node, node_admin]
+  - Create os user admin					TAGS: [node, node_admin]
+  - Grant admin group nopass sudo			TAGS: [node, node_admin]
+  - Add no host checking to ssh config		TAGS: [node, node_admin]
+  - Add admin ssh no host checking			TAGS: [node, node_admin]
+  - Fetch all admin public keys				TAGS: [node, node_admin]
+  - Exchange all admin ssh keys				TAGS: [node, node_admin]
+  - Setup default node timezone				TAGS: [node, node_ntp]
+  - Copy the chrony.conf template			TAGS: [node, node_ntp]
+  - Launch chronyd ntpd service				TAGS: [node, node_ntp]
 ```
 
 ### Default variables
@@ -71,35 +79,169 @@ tasks:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
-#==============================================================#
-# infra provision
-#==============================================================#
-infra_local_repos: []                 # local yum repo file path
-infra_disable_external_repo: false    # disable all other repos except local
-infra_proxy_env: {}                   # add proxy environment variable here
+#------------------------------------------------------------------------------
+# NODE PROVISION
+#------------------------------------------------------------------------------
+# this section are usually managed by operators, do not enabled these unless
+# you are fully aware what you are doing.
 
-# common infra packages
-infra_packages:
-  - etcd,consul,haproxy,keepalived,node_exporter,chrony,ntp                             # must have
-  - uuid,readline,zlib,openssl,libxml2,libxslt,pgbouncer                                # pg util
-  - lz4,nc,pv,jq,make,patch,bash,lsof,wget,unzip,git,numactl,grubby,perl-ExtUtils-Embed # basic utils
-  - bind-utils,net-tools,sysstat,tcpdump,socat,ipvsadm,python-ipython,python-psycopg2   # net utils
+# - node type -#
+meta_node: false                              # if set, meta packages will be installed
 
-# cloud native support
-infra_cloud_native_support: false
-infra_cloud_native_packages:
-  - docker-ce,docker-ce-cli,rkt,kubelet,kubectl,kubeadm,kubernetes-cni,helm
+# - node dns - #
+node_dns_hosts: []                            # static dns records in /etc/hosts
+node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
+node_dns_servers: []                          # dynamic nameserver in /etc/resolv.conf
+node_dns_options:                             # dns resolv options
+  - options single-request-reopen timeout:1 rotate
 
-# build toolchain support
-infra_build_essential_support: false
-infra_build_essential_packages:
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+# - node repo - #
+node_repo_remove: true                        # whether remove existing repo
+node_repo_url: []                             # additional repo to be installed via url
+node_local_repo: pigsty                       # if provide, all default repo will be disabled except this
+node_repo_config: []                          # commands to config yum repos
 
-# add additional packages here
-infra_additional_packages: []   # additional rpm packages to be downloaded/installed
+# - node pkgs - #
+node_packages:                                # common packages for all nodes
+  - wget,yum-utils,ntp,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
+  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
+  - python-pip,python-psycopg2
+  - node_exporter,pg_exporter
+  - consul,consul-template,etcd,haproxy,keepalived
 
-# infrastructure metadata
-infra_dns_servers: []           # default DNS server
-infra_ntp_servers: []           # default NTP server
+  # - postgresql12*
+node_extra_packages: []                       # extra packages for nodes
+node_meta_packages:                           # packages for meta nodes only
+  - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
+  - dnsmasq,nginx,ansible,pgbadger
+
+
+# - node features - #
+node_disable_numa: false                      # disable numa, important for production database, reboot required
+node_disable_swap: true                       # disable swap, important for production database
+node_disable_firewall: true                   # disable firewall (required if using kubernetes)
+node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
+node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
+
+# - node kernel modules - #
+node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+
+# - node tuned - #
+node_tuned: true                              # install and activate tuned profile: postgres
+node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
+
+# - node user - #
+node_admin_setup: true                        # setup an default admin user ?
+node_admin_uid: 88                            # uid and gid for admin user
+node_admin_username: admin                    # default admin user
+node_admin_ssh_exchange: true                 # exchange ssh key amoung cluster ?
+node_admin_servers: []                        # ssh pub key of these host will to be installed on targets
+
+# - node ntp - #
+node_ntp_setup: false                         # setup ntp
+node_timezone: Asia/Shanghai                  # default node timezone
+node_ntp_servers: []                          # default NTP servers
+
+
+# - foreign reference - #
+# this will be override by user provided repo list
+repo_upstreams:                               # additional repos to be installed before downloading
+  - name: base
+    description: CentOS-$releasever - Base - Aliyun Mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
+    gpgcheck: no
+    failovermethod: priority
+
+  - name: updates
+    description: CentOS-$releasever - Updates - Aliyun Mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/
+    gpgcheck: no
+    failovermethod: priority
+
+  - name: extras
+    description: CentOS-$releasever - Extras - Aliyun Mirror
+    baseurl:
+      - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/
+    gpgcheck: no
+    failovermethod: priority
+
+  - name: epel
+    description: CentOS $releasever - EPEL - Aliyun Mirror
+    baseurl: http://mirrors.aliyun.com/epel/$releasever/$basearch
+    gpgcheck: no
+    failovermethod: priority
+
+  - name: docker
+    description: Docker - Aliyun Mirror
+    gpgcheck: no
+    baseurl: https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable
+
+  - name: kubernetes
+    description: Kubernetes - Aliyun Mirror
+    gpgcheck: no
+    baseurl: https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+
+  - name: grafana
+    description: Grafana - TsingHua Mirror
+    gpgcheck: no
+    baseurl: https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
+
+  - name: prometheus
+    description: Prometheus and exporters
+    gpgcheck: no
+    baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
+
+  - name: pgdg-common
+    description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
+    gpgcheck: no
+    baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+
+  - name: pgdg12
+    description: PostgreSQL 12 for RHEL/CentOS $releasever - $basearch
+    gpgcheck: no
+    baseurl: https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch
+
+  - name: pgdg13-updates-testing
+    description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch - Updates testing
+    gpgcheck: no
+    baseurl: https://download.postgresql.org/pub/repos/yum/testing/13/redhat/rhel-$releasever-$basearch
+
+  - name: centos-sclo
+    description: CentOS-$releasever - SCLo
+    gpgcheck: no
+    # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/sclo/
+    mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-sclo
+
+  - name: centos-sclo-rh
+    description: CentOS-$releasever - SCLo rh
+    gpgcheck: no
+    # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/rh/
+    mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
+
+  - name: nginx
+    description: Nginx Official Yum Repo
+    skip_if_unavailable: true
+    gpgcheck: no
+    baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
+
+  - name: haproxy
+    description: Copr repo for haproxy
+    skip_if_unavailable: true
+    gpgcheck: no
+    baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
+
+  - name: harbottle
+    description: Copr repo for harbottle
+    skip_if_unavailable: true
+    gpgcheck: no
+    baseurl: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
+
 ```
