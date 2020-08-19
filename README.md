@@ -9,6 +9,7 @@ This project provisioned a PostgreSQL cluster upon [vagrant](https://vagrantup.c
 ## Features
 
 * High Availability
+* Offline installtaion without network
 * Monitoring/Alerting/Logging System
 * Service Discovery with dcs
 * Performance tuning for bare metal
@@ -19,9 +20,34 @@ This project provisioned a PostgreSQL cluster upon [vagrant](https://vagrantup.c
 
 ## Quick Start
 
-1. Install [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) and [ansible](https://www.ansible.com/)
+### Requirement
+
+**Minimal setup**
+
+  * 1 Node only, self-contained
+* Meta node, and a one-node postgres instance `pg-meta`
+* Minimal requirement: 2 CPU Core & 2 GB RAM
+
+**Standard setup**
+
+* 4 Node, including 1 meta node and 3 database node
+* Two postgres cluster `pg-meta` and `pg-test` (1 primary, 2 replica)
+
+* Meta node requirement: 2~4 CPU Core & 4 ~ 8 GB RAM
+* DB node minimal requirement: 1 CPU Core & 1 GB RAM
+
+**VM Provision**
+
+*  [`Vagrantfile`](vagrant/Vagrantfile) will provision 4 nodes (via [virtualbox](https://www.virtualbox.org/)) for this project.
+* Install  [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) and [ansible](https://www.ansible.com/) before next step
+* Make sure you have no-pass ssh access to these nodes from this machine
+
+
+
+### Run
+
 2. Clone this repo: `git clone https://github.com/vonng/pigsty && cd pigsty`
-3. Setup local dns: `sudo make dns` (one-time job)
+
 4. Pull up vm nodes: `make` 
 5. Init cluster via `make init`
 6. Explore pigsty via http://pigsty
@@ -48,6 +74,17 @@ PG_TEST_PRIMARY_URL=""
 
 
 
+1. Setup your local dns: `sudo make dns` (one-time job)
+
+   ```bash
+   # add these lines to /etc/hosts
+   10.10.10.10 pigsty yum.pigsty c.pigsty p.pigsty g.pigsty a.pigsty
+   ```
+
+
+
+
+
 ## Inventory
 
 Default inventory file are split into two files:
@@ -62,7 +99,160 @@ Default inventory file are split into two files:
 
 * [`infra.yml`](infra.yml) will bootstrap entire infrastructure on given inventory
 
-* [`initdb.yml`](initdb.yml) will bootstrap a PostgreSQL cluster according to your inventory (infrastructure should be initialized before initdb)
+* [`initdb.yml`](initdb.yml) will bootstrap PostgreSQL cluster according to inventory (assume infra provisioned)
+
+
+```bash
+playbook: ./infra.yml
+
+  play #1 (meta): Init local repo	TAGS: [repo]
+  tasks:
+    repo : Create local repo directory	TAGS: [repo, repo_dir]
+    repo : Backup & remove existing repos	TAGS: [repo, repo_upstream]
+    repo : Add required upstream repos	TAGS: [repo, repo_upstream]
+    repo : Check repo pkgs cache exists	TAGS: [repo, repo_prepare]
+    repo : Set fact whether repo_exists	TAGS: [repo, repo_prepare]
+    repo : Move upstream repo to backup	TAGS: [repo, repo_prepare]
+    repo : Add local file system repos	TAGS: [repo, repo_prepare]
+    repo : Remake yum cache if not exists	TAGS: [repo, repo_prepare]
+    repo : Install repo bootstrap packages	TAGS: [repo, repo_boot]
+    repo : Render repo nginx server files	TAGS: [repo, repo_nginx]
+    repo : Disable selinux for repo server	TAGS: [repo, repo_nginx]
+    repo : Launch repo nginx server	TAGS: [repo, repo_nginx]
+    repo : Waits repo server online	TAGS: [repo, repo_nginx]
+    repo : Download web url packages	TAGS: [repo, repo_download]
+    repo : Download repo packages	TAGS: [repo, repo_download]
+    repo : Download repo pkg deps	TAGS: [repo, repo_download]
+    repo : Create local repo index	TAGS: [repo, repo_download]
+    repo : Mark repo cache as valid	TAGS: [repo, repo_download]
+
+  play #2 (all): Provision Node	TAGS: [node]
+  tasks:
+    node : Update node hostname	TAGS: [node, node_name]
+    node : Add new hostname to /etc/hosts	TAGS: [node, node_name]
+    node : Write static dns records	TAGS: [node, node_dns]
+    node : Get old nameservers	TAGS: [node, node_resolv]
+    node : Truncate resolv file	TAGS: [node, node_resolv]
+    node : Write resolv options	TAGS: [node, node_resolv]
+    node : Add new nameservers	TAGS: [node, node_resolv]
+    node : Append old nameservers	TAGS: [node, node_resolv]
+    node : Stop network manager	TAGS: [node, node_resolv]
+    node : Find all network interface	TAGS: [node, node_network]
+    node : Add peerdns=no to ifcfg	TAGS: [node, node_network]
+    node : Backup existing repos	TAGS: [node, node_repo]
+    node : Install local yum repo	TAGS: [node, node_repo]
+    node : Install upstream repo	TAGS: [node, node_repo]
+    node : Config using local repo	TAGS: [node, node_repo]
+    node : Run yum config manager command	TAGS: [node, node_repo]
+    node : Install node basic packages	TAGS: [node, node_pkgs]
+    node : Install node extra packages	TAGS: [node, node_pkgs]
+    node : Install meta specific packages	TAGS: [node, node_pkgs]
+    node : Node configure disable numa	TAGS: [node, node_feature]
+    node : Node configure disable swap	TAGS: [node, node_feature]
+    node : Node configure unmount swap	TAGS: [node, node_feature]
+    node : Node configure disable firewall	TAGS: [node, node_feature]
+    node : Node disable selinux by default	TAGS: [node, node_feature]
+    node : Node configure disk prefetch	TAGS: [node, node_feature]
+    node : Enable linux kernel modules	TAGS: [node, node_kernel]
+    node : Enable kernel module on reboot	TAGS: [node, node_kernel]
+    node : Get config parameter page count	TAGS: [node, node_tuned]
+    node : Get config parameter page size	TAGS: [node, node_tuned]
+    node : Tune shmmax and shmall via mem	TAGS: [node, node_tuned]
+    node : Create tuned profile postgres	TAGS: [node, node_tuned]
+    node : Render tuned profile postgres	TAGS: [node, node_tuned]
+    node : Active tuned profile postgres	TAGS: [node, node_tuned]
+    node : Change additional sysctl params	TAGS: [node, node_tuned]
+    node : Copy default user bash profile	TAGS: [node, node_profile]
+    node : Setup node default pam ulimits	TAGS: [node, node_ulimit]
+    node : Create os user group admin	TAGS: [node, node_admin]
+    node : Create os user admin	TAGS: [node, node_admin]
+    node : Grant admin group nopass sudo	TAGS: [node, node_admin]
+    node : Add no host checking to ssh config	TAGS: [node, node_admin]
+    node : Add admin ssh no host checking	TAGS: [node, node_admin]
+    node : Fetch all admin public keys	TAGS: [node, node_admin]
+    node : Exchange all admin ssh keys	TAGS: [node, node_admin]
+    node : Setup default node timezone	TAGS: [node, node_ntp]
+    node : Copy the chrony.conf template	TAGS: [node, node_ntp]
+    node : Launch chronyd ntpd service	TAGS: [node, node_ntp]
+
+  play #3 (meta): Init meta service	TAGS: [meta]
+  tasks:
+    ca : Create local ca directory	TAGS: [ca, ca_dir, meta]
+    ca : Copy ca cert from local files	TAGS: [ca, ca_copy, meta]
+    ca : Check ca key cert exists	TAGS: [ca, ca_create, meta]
+    ca : Create self-signed CA key-cert	TAGS: [ca, ca_create, meta]
+    nginx : Make sure nginx package installed	TAGS: [meta, nginx]
+    nginx : Copy nginx default config	TAGS: [meta, nginx]
+    nginx : Copy nginx upstream conf	TAGS: [meta, nginx]
+    nginx : Create local html directory	TAGS: [meta, nginx]
+    nginx : Update default nginx index page	TAGS: [meta, nginx]
+    nginx : Restart meta nginx service	TAGS: [meta, nginx]
+    nginx : Wait for nginx service online	TAGS: [meta, nginx]
+    nginx : Make sure nginx exporter installed	TAGS: [meta, nginx, nginx_exporter]
+    nginx : Config nginx_exporter options	TAGS: [meta, nginx, nginx_exporter]
+    nginx : Restart nginx_exporter service	TAGS: [meta, nginx, nginx_exporter]
+    nginx : Wait for nginx exporter online	TAGS: [meta, nginx, nginx_exporter]
+    prometheus : Install prometheus and alertmanager	TAGS: [meta, prometheus, prometheus_install]
+    prometheus : Wipe out prometheus config dir	TAGS: [meta, prometheus, prometheus_clean]
+    prometheus : Wipe out existing prometheus data	TAGS: [meta, prometheus, prometheus_clean]
+    prometheus : Recreate prometheus data dir	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Copy /etc/prometheus configs	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Copy /etc/prometheus opts	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Overwrite prometheus scrape_interval	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Overwrite prometheus evaluation_interval	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Overwrite prometheus scrape_timeout	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Overwrite prometheus pg metrics path	TAGS: [meta, prometheus, prometheus_config]
+    prometheus : Launch prometheus service	TAGS: [meta, prometheus, prometheus_launch]
+    prometheus : Launch alertmanager service	TAGS: [meta, prometheus, prometheus_launch]
+    prometheus : Wait for prometheus online	TAGS: [meta, prometheus, prometheus_launch]
+    prometheus : Wait for alertmanager online	TAGS: [meta, prometheus, prometheus_launch]
+    grafana : Make sure grafana is installed	TAGS: [grafana, grafana_install, meta]
+    grafana : Check grafana plugin cache exists	TAGS: [grafana, grafana_plugin, meta]
+    grafana : Provision grafana plugins via cache	TAGS: [grafana, grafana_plugin, meta]
+    grafana : Download grafana plugins from web	TAGS: [grafana, grafana_plugin, meta]
+    grafana : Download grafana plugins from web	TAGS: [grafana, grafana_plugin, meta]
+    grafana : Create grafana plugins cache	TAGS: [grafana, grafana_plugin, meta]
+    grafana : Copy /etc/grafana/grafana.ini	TAGS: [grafana, grafana_config, meta]
+    grafana : Copy grafana.db to data dir	TAGS: [grafana, grafana_config, meta]
+    grafana : Launch grafana service	TAGS: [grafana, grafana_launch, meta]
+    grafana : Wait for grafana online	TAGS: [grafana, grafana_launch, meta]
+    grafana : Register consul grafana service	TAGS: [grafana, grafana_register, meta]
+    grafana : Reload consul	TAGS: [grafana, grafana_register, meta]
+    grafana : Remove grafana dashboard dir	TAGS: [grafana, grafana_provision, meta]
+    grafana : Copy grafana dashboards json	TAGS: [grafana, grafana_provision, meta]
+    grafana : Preprocess grafana dashboards	TAGS: [grafana, grafana_provision, meta]
+    grafana : Provision prometheus datasource	TAGS: [grafana, grafana_provision, meta]
+    grafana : Provision grafana dashboards	TAGS: [grafana, grafana_provision, meta]
+
+  play #4 (all): Init dcs	TAGS: [dcs]
+  tasks:
+    consul : Check for existing consul	TAGS: [consul_check, dcs]
+    consul : Consul exists flag fact set	TAGS: [consul_check, dcs]
+    consul : Abort due to consul exists	TAGS: [consul_check, dcs]
+    consul : Clean existing consul instance	TAGS: [consul_check, dcs]
+    consul : Purge existing consul instance	TAGS: [consul_check, dcs]
+    consul : Make sure consul is installed	TAGS: [consul_install, dcs]
+    consul : Make sure consul dir exists	TAGS: [consul_config, dcs]
+    consul : Get dcs server node names	TAGS: [consul_config, dcs]
+    consul : Get dcs node name from var	TAGS: [consul_config, dcs]
+    consul : Fetch hostname as dcs node name	TAGS: [consul_config, dcs]
+    consul : Get dcs name from hostname	TAGS: [consul_config, dcs]
+    consul : Copy /etc/consul.d/consul.json	TAGS: [consul_config, dcs]
+    consul : Get dcs bootstrap expect quroum	TAGS: [consul_server, dcs]
+    consul : Copy consul server service unit	TAGS: [consul_server, dcs]
+    consul : Launch consul server service	TAGS: [consul_server, dcs]
+    consul : Wait for consul server online	TAGS: [consul_server, dcs]
+    consul : Copy consul agent service	TAGS: [consul_agent, dcs]
+    consul : Launch consul agent service	TAGS: [consul_agent, dcs]
+    consul : Wait for consul agent online	TAGS: [consul_agent, dcs]
+
+  play #5 (meta): Copy ansible scripts	TAGS: [ansible]
+  tasks:
+    Create ansible tarball	TAGS: [ansible]
+    Create ansible directory	TAGS: [ansible]
+    Copy ansible tarball	TAGS: [ansible]
+    Extract tarball	TAGS: [ansible]
+```
 
 
 
@@ -102,145 +292,6 @@ Default inventory file are split into two files:
 * ha-pool-retarget.yml
 * ha-pool-pause.yml
 * ha-pool-resume.yml
-
-Take `init-meta.yml` for example, here are tasks executed by this playbook 
-
-```bash
-playbook: ./infra.yml
-
-  play #1 (meta): Init local repo							TAGS: [repo]
-    tasks:
-      repo : Create local repo directory					TAGS: [repo_dir]
-      repo : Check repo boot cache exists					TAGS: [repo_boot]
-      repo : Check repo cache exists						TAGS: [repo_download]
-      repo : Remove existing repos							TAGS: [repo_upstream]
-      repo : Add upstream repos								TAGS: [repo_upstream]
-      repo : Remake yum cache if cache not exists			TAGS: [repo_upstream]
-      repo : Disable upstream yum repo if cache exists		TAGS: [repo_upstream]
-      repo : Download repo boot packages					TAGS: [repo_boot]
-      repo : Install bootstrap packages						TAGS: [repo_boot]
-      repo : Render repo nginx files						TAGS: [repo_boot]
-      repo : Disable selinux								TAGS: [repo_boot]
-      repo : Start repo nginx server						TAGS: [repo_boot]
-      repo : Waits repo server online						TAGS: [repo_boot]
-      repo : Mark bootstrap cache valid						TAGS: [repo_boot]
-      repo : Download repo packages							TAGS: [repo_download]
-      repo : Download additional url packages				TAGS: [repo_download]
-      repo : Create local yum repo index					TAGS: [repo_download]
-      repo : Mark repo cache valid							TAGS: [repo_download]
-
-  play #2 (all): Provision Node								TAGS: [node]
-    tasks:
-      node : Write static dns record to node				TAGS: [node_dns]
-      node : Get old nameservers							TAGS: [node_resolv]
-      node : Truncate resolv file							TAGS: [node_resolv]
-      node : Write resolv options							TAGS: [node_resolv]
-      node : Add nameservers								TAGS: [node_resolv]
-      node : Append old nameservers if needed				TAGS: [node_resolv]
-      node : Stop network manager							TAGS: [node_resolv]
-      node : Find all network interface						TAGS: [node_network]
-      node : Add peerdns=no to ifcfg						TAGS: [node_network]
-      node : Backup existing repos							TAGS: [node_repo]
-      node : Install local yum repo							TAGS: [node_repo]
-      node : Install upstream repo							TAGS: [node_repo]
-      node : Config using local repo						TAGS: [node_repo]
-      node : Run yum config manager command					TAGS: [node_repo]
-      node : Install node basic packages					TAGS: [node_pkgs]
-      node : Install node extra packages					TAGS: [node_pkgs]
-      node : Install node meta packages						TAGS: [node_pkgs]
-      node : Node configure disable numa					TAGS: [node_feature]
-      node : Node configure disable swap					TAGS: [node_feature]
-      node : Node configure unmount swap					TAGS: [node_feature]
-      node : Node configure disable firewall				TAGS: [node_feature]
-      node : Node disable selinux by default				TAGS: [node_feature]
-      node : Node configure disk prefetch					TAGS: [node_feature]
-      node : Enable kernel modules							TAGS: [node_kernel]
-      node : Enable kernel module on reboot					TAGS: [node_kernel]
-      node : Get config parameter page count				TAGS: [node_tuned]
-      node : Get config parameter page size					TAGS: [node_tuned]
-      node : Tune shmmax and shmall via mem					TAGS: [node_tuned]
-      node : Create tuned profile postgres					TAGS: [node_tuned]
-      node : Render tuned profile postgres					TAGS: [node_tuned]
-      node : Active tuned profile postgres					TAGS: [node_tuned]
-      node : Change additional sysctl params				TAGS: [node_tuned]
-      node : Copy default user bash profile					TAGS: [node_profile]
-      node : Setup node default pam ulimits					TAGS: [node_ulimit]
-      node : Create os group admin							TAGS: [node_admin]
-      node : Create os user admin							TAGS: [node_admin]
-      node : Grant admin group nopass sudo					TAGS: [node_admin]
-      node : Add no host checking to ssh config				TAGS: [node_admin]
-      node : Add ssh no host checking						TAGS: [node_admin]
-      node : Fetch admin public keys						TAGS: [node_admin]
-      node : Exchange admin ssh keys						TAGS: [node_admin]
-      node : Setup default node timezone					TAGS: [node_ntp]
-      node : Copy the chrony.conf template					TAGS: [node_ntp]
-      node : Launch chronyd ntpd service					TAGS: [node_ntp]
-
-  play #3 (all): Init dcs									TAGS: [dcs]
-    tasks:
-      include_tasks											TAGS: [dcs]
-      include_tasks											TAGS: [dcs, dcs_etcd]
-
-  play #4 (meta): Init meta service							TAGS: [meta]
-    tasks:
-      nginx : Make sure nginx package installed				TAGS: [nginx]
-      nginx : Copy nginx default config						TAGS: [nginx]
-      nginx : Copy nginx upstream conf						TAGS: [nginx]
-      nginx : Create local html directory					TAGS: [nginx]
-      nginx : Update default nginx index page				TAGS: [nginx]
-      nginx : Restart meta nginx service					TAGS: [nginx]
-      nginx : Wait for nginx service online					TAGS: [nginx]
-      nginx : Make sure nginx exporter installed			TAGS: [nginx_exporter]
-      nginx : Config nginx_exporter options					TAGS: [nginx_exporter]
-      nginx : Restart nginx_exporter service				TAGS: [nginx_exporter]
-      nginx : Wait for nginx exporter online				TAGS: [nginx_exporter]
-      nginx : Register cosnul nginx service					TAGS: [nginx_register]
-      nginx : Register consul nginx-exporter service		TAGS: [nginx_register]
-      nginx : Reload consul									TAGS: [nginx_register]
-      nameserver : Make sure dnsmasq package installed		TAGS: [dnsmasq]
-      nameserver : Copy dnsmasq /etc/dnsmasq.d/config		TAGS: [dnsmasq]
-      nameserver : Add dynamic dns records to meta			TAGS: [dnsmasq]
-      nameserver : Launch meta dnsmasq service				TAGS: [dnsmasq]
-      nameserver : Wait for meta dnsmasq online				TAGS: [dnsmasq]
-      nameserver : Register consul dnsmasq service			TAGS: [dnsmasq]
-      nameserver : Reload consul							TAGS: [dnsmasq]
-      prometheus : Install prometheus and alertmanager		TAGS: [prometheus_install]
-      prometheus : Wipe out prometheus config dir			TAGS: [prometheus_clean]
-      prometheus : Wipe out existing prometheus data		TAGS: [prometheus_clean]
-      prometheus : Recreate prometheus data dir				TAGS: [prometheus_config]
-      prometheus : Copy /etc/prometheus configs				TAGS: [prometheus_config]
-      prometheus : Copy /etc/prometheus opts				TAGS: [prometheus_config]
-      prometheus : Overwrite prometheus scrape_interval		TAGS: [prometheus_config]
-      prometheus : Overwrite prometheus evaluation_interval	TAGS: [prometheus_config]
-      prometheus : Overwrite prometheus scrape_timeout		TAGS: [prometheus_config]
-      prometheus : Overwrite prometheus pg metrics path		TAGS: [prometheus_config]
-      prometheus : Launch prometheus service				TAGS: [prometheus_launch]
-      prometheus : Launch alertmanager service				TAGS: [prometheus_launch]
-      prometheus : Wait for prometheus online				TAGS: [prometheus_launch]
-      prometheus : Wait for alertmanager online				TAGS: [prometheus_launch]
-      prometheus : Copy prometheus service definition		TAGS: [prometheus_register]
-      prometheus : Copy alertmanager service definition		TAGS: [prometheus_register]
-      prometheus : Reload consul to register prometheus		TAGS: [prometheus_register]
-      grafana : Make sure grafana is installed				TAGS: [grafana_install]
-      grafana : Check grafana plugin cache exists			TAGS: [grafana_install]
-      grafana : Provision grafana plugin via cache			TAGS: [grafana_install]
-      grafana : Download grafana plugins from web			TAGS: [grafana_install]
-      grafana : Create grafana plugins cache				TAGS: [grafana_install]
-      grafana : Copy /etc/grafana/grafana.ini				TAGS: [grafana_install]
-      grafana : Launch grafana service						TAGS: [grafana_install]
-      grafana : Wait for grafana online						TAGS: [grafana_install]
-      grafana : Register consul grafana service				TAGS: [grafana_install]
-      grafana : Reload consul								TAGS: [grafana_install]
-      grafana : Launch meta grafana service					TAGS: [grafana_provision]
-      grafana : Copy grafana.db to data dir					TAGS: [grafana_provision]
-      grafana : Restart meta grafana service				TAGS: [grafana_provision]
-      grafana : Wait for meta grafana online				TAGS: [grafana_provision]
-      grafana : Remove grafana dashboard dir				TAGS: [grafana_provision]
-      grafana : Copy grafana dashboards json				TAGS: [grafana_provision]
-      grafana : Preprocess grafana dashboards				TAGS: [grafana_provision]
-      grafana : Provision prometheus datasource				TAGS: [grafana_provision]
-      grafana : Provision grafana dashboards				TAGS: [grafana_provision]
-```
 
 
 ## Operations
