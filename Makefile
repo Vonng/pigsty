@@ -5,15 +5,24 @@ default: start
 # Public objective
 ###############################################################
 # create a new cluster
-new: clean start init
+new: clean start upload init
 
 # write dns record to your own host, sudo required
 dns:
 	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat files/pigsty_dns >> /etc/hosts; fi
 
-# copy yum packages to your own host, pigsty/pkg
+# cache / upload rpm packages (this is useful for accelerate or perform offline installation)
 cache:
-	rm -rf pkg/* && mkdir -p pkg && scp -r meta:/www/pigsty/* pkg/
+	rm -rf pkg/* && mkdir -p pkg;
+	ssh -t meta "sudo tar -zcf /tmp/pkg.tgz -C /www pigsty; sudo chmod a+r /tmp/pkg.tgz"
+	scp -r meta:/tmp/pkg.tgz pkg.tgz
+	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
+
+# upload rpm cache to meta node
+upload:
+	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
+	scp -r pkg.tgz meta:/tmp/pkg.tgz
+	ssh -t meta "sudo mkdir -p /www/pigsty/; sudo rm -rf /www/pigsty/*; sudo tar -xf /tmp/pkg.tgz --strip-component=1 -C /www/pigsty/"
 
 # init will pull up entire cluster
 init:
@@ -34,6 +43,8 @@ clean:
 	cd vagrant && vagrant destroy -f --parallel; exit 0
 up:
 	cd vagrant && vagrant up
+mt:
+	cd vagrant && vagrant up meta
 halt:
 	cd vagrant && vagrant halt
 status:
@@ -72,12 +83,19 @@ rw2:
 	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5433/test; done
 ro2:
 	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5434/test; done
+rl:
+	ssh -t node-1 "sudo -iu postgres patronictl -c /pg/bin/patroni.yml list -W"
+r1:
+	ssh -t node-1 "sudo reboot"
+r2:
+	ssh -t node-2 "sudo reboot"
+r3:
+	ssh -t node-3 "sudo reboot"
+ckpt:
+	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
 gis:
 	# psql postgres://test:test@pg-test:5433/test -c 'CREATE EXTENSION postgis;'
 	psql postgres://test:test@pg-test:5433/test -f files/adcode.sql
-
-ckpt:
-	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
 
 ###############################################################
 # grafna management

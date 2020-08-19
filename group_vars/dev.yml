@@ -16,11 +16,11 @@
 #------------------------------------------------------------------------------
 # ansible_user: vagrant             # admin user with ssh access and sudo privilege
 
-proxy_env: {}
-#proxy_env:                          # global proxy env when downloading packages
-#  all_proxy: "http://employee1:6TSrkPCA28@proxy.p1staff.com:1337"
-#  http_proxy: "http://employee1:6TSrkPCA28@proxy.p1staff.com:1337"
-#  https_proxy: "http://employee1:6TSrkPCA28@proxy.p1staff.com:1337"
+#proxy_env: {}
+proxy_env:                          # global proxy env when downloading packages
+  all_proxy: "http://employee1:6TSrkPCA28@proxy.p1staff.com:1337"
+  http_proxy: "http://employee1:6TSrkPCA28@proxy.p1staff.com:1337"
+  https_proxy: "http://employee1:6TSrkPCA28@proxy.p1staff.com:1337"
 
 #------------------------------------------------------------------------------
 # REPO PROVISION
@@ -46,8 +46,9 @@ dcs_type: consul                              # consul | etcd | both
 dcs_name: pigsty                              # consul dc name | etcd initial cluster token
 dcs_servers:                                  # dcs name:ip dict
   meta-1: 10.10.10.10                         # dcs server members
-  meta-2: 10.10.10.11                         # 3/5 dcs nodes are recommend for production environment
-  meta-3: 10.10.10.12                         # you can use external dcs clusters
+  # meta-2: 10.10.10.11                         # 3/5 dcs nodes are recommend for production environment
+  # meta-3: 10.10.10.12                         # you can use external dcs clusters
+
 dcs_exists_action: skip                       # abort|skip|clean if dcs server already exists
 consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul/data by default)
 etcd_data_dir: /export/etcd/data              # etcd data dir (/var/lib/consul/data by default)
@@ -92,14 +93,14 @@ prometheus_data_dir: /export/prometheus/data  # prometheus data dir
 prometheus_retention: 30d                     # how long to keep
 
 # - grafana - #
-grafana_url: http://10.10.10.10
-grafana_force_download_plugins: false         # force redownload grafana plugins
-grafana_time_interval: 2s                     # force redownload grafana plugins
-grafana_provision_via_db: true                # provision via copy sqlite db by default
-grafana_dashboards: []                        # default dashboards
-grafana_plugins_force_download: false         # force re-download grafana plugins ?
-grafana_plugins_cache: /tmp/plugins.tar.gz    # path to grafana plugins tarball
-# grafana_plugins: []                         # use role default grafana plugins
+grafana_url: http://admin:admin@localhost:3000 # grafana url
+grafana_plugin: install                        # none|install|reinstall
+grafana_cache: /www/pigsty/grafana/plugins.tar.gz # path to grafana plugins tarball
+grafana_provision_mode: db                     # none|db|api
+# grafana_plugins: []                          # grafana plugins list (use role default)
+# grafana_git_plugins: []                      # grafana plugins from git (use role default)
+# grafana_dashboards: []                       # default dashboards (use role default)
+
 
 
 #------------------------------------------------------------------------------
@@ -129,16 +130,11 @@ node_repo_config: []                          # if no local repo provide, these 
 
 # - node packages - #
 node_packages_proxy: false                    # install packages with proxy_env ?
-node_packages:                                # common packages for all nodes
-  - wget,yum-utils,ntp,uuid,lz4,nc,vim,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
-  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,pv,jq
-  - python-pip,python-psycopg2
-  - node_exporter,pg_exporter
-  - consul,consul-template,etcd,haproxy,keepalived
-  # - postgresql12*
 node_extra_packages: []                       # extra packages for nodes
-node_meta_packages:                           # packages for meta nodes only
-  - grafana,prometheus2,pushgateway,alertmanager,dnsmasq,nginx,nginx_exporter,blackbox_exporter,ansible,python-ipython
+# node_packages: []                           # common packages for all nodes (use role default)
+# node_meta_packages: []                      # packages for meta nodes only (use role default)
+# - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,dnsmasq,nginx,ansible
+
 
 
 # - node features - #
