@@ -21,20 +21,6 @@
   tags: repo_dir
   file: path={{ repo_home }}/{{ repo_name }}/boot state=directory mode=0755
 
-# if boot cache flag file missing, download boot packages
-- name: Check repo boot cache exists
-  tags: repo_boot
-  stat: path={{ repo_home }}/{{ repo_name }}/boot/boot_complete
-  register: repo_boot_cache
-
-# download require packages to repo content directory
-- name: Check repo pkgs cache exists
-  tags: repo_download
-  stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
-  register: repo_cache
-
-
-
 #--------------------------------------------------------------#
 # 2. Upstream repo
 #--------------------------------------------------------------#
@@ -45,54 +31,79 @@
   block:
     # if repo_remove = true, existing repos will be moved to backup dir
     - name: Backup & remove existing repos
-      when: repo_remove
       shell:
         warn: no
-        cmd: mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+        cmd: |
+          mkdir -p /etc/yum.repos.d/backup;
+          mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
 
     # add all upstream repos
     - name: Add required upstream repos
       yum_repository: "{{ item }}"
       with_items: "{{ repo_upstreams }}"
 
+
+#--------------------------------------------------------------#
+# 3. Prepare repo (if cache exists)
+#--------------------------------------------------------------#
+- name: Check local repo exists
+  tags: repo_prepare
+  block:
+    # set repo_exist = true if local repo already exists
+    - name: Check repo pkgs cache exists
+      stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
+      register: repo_cache
+    - set_fact:
+        repo_exist: "{{ repo_cache.stat.exists }}"
+
+
+- name: Prepare repo
+  tags: repo_prepare
+  when: repo_exist
+  block:
+    # if local yum cache exists, use it instead
+    - name: Move upstream repo to backup
+      shell: |
+        mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+
+    # add local file repo
+    - name: Add local file repos
+      yum_repository:
+        name: "{{ repo_name }}-local"
+        description: CentOS-$releasever - Updates - Aliyun Mirror
+        baseurl: "file://{{ repo_home }}/{{ repo_name }}"
+        gpgcheck: no
+
     # this usually takes 1~2 minutes according to your network condition
     - name: Remake yum cache if not exists
-      when: not repo_cache.stat.exists
       environment: "{{ proxy_env }}"
       shell: yum clean all; yum makecache;
 
-    # if cache already exists, just disable all upstream repo
-    - name: Disable repo if cache exists
-      when: repo_cache.stat.exists and not repo_rebuild
-      ignore_errors: true           # in case that yum-util is not installed
-      shell: |
-        yum-config-manager --disable *
-        yum-config-manager --enable {{ repo_name }}
+
+
 
 
 #--------------------------------------------------------------#
-# 3. Bootstrap
+# 4. Bootstrap
 #--------------------------------------------------------------#
-# in poor network conditional, you will have to bootstrap from local cache
-
-# download, install, launch yum repo
 - name: Bootstrap repo server
   tags: repo_boot
   block:
-    # download nginx and other basic utils
-    - name: Download repo boot packages
-      when: not repo_boot_cache.stat.exists or repo_rebuild
-      environment: "{{ proxy_env }}"
-      command:
-        cmd: yum install --downloadonly --downloaddir={{ repo_home }}/{{ repo_name }}/boot wget yum-utils yum-plugin-downloadonly createrepo nginx
-        chdir: /{{ repo_home }}/{{ repo_name }}/boot
+    - name: Install boot packages
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - yum-utils
+        - createrepo
+        - ansible
+        - nginx
+        - wget
 
-    - name: Install boot packages from cache
-      shell:
-        cmd: yum localinstall -q -y *.rpm
-        chdir: /{{ repo_home }}/{{ repo_name }}/boot
-        warn: no
 
+- name: Bootstrap repo server
+  tags: repo_nginx
+  block:
     - name: Render repo nginx server files
       template: src={{ item.src }} dest={{ item.dest }} mode=0644
       with_items:
@@ -110,21 +121,24 @@
     - name: Waits repo server online
       wait_for: host=localhost port=80 state=started
 
-    # mark boot cache as valid
-    - name: Mark bootstrap cache valid
-      copy: content=ok dest=/{{ repo_home }}/{{ repo_name }}/boot/boot_complete
-
 
 
 #--------------------------------------------------------------#
-# 4. Download
+# 5. Download
 #--------------------------------------------------------------#
 
 # if repo cache flag file missing, or force rebuild repo, then download repo packages
 - name: Download local repo packages
   tags: repo_download
-  when: not repo_cache.stat.exists or repo_rebuild
+  when: not repo_exist
   block:
+
+    # download rpm from url
+    - name: Download web url packages
+      environment: "{{ proxy_env }}"
+      get_url: dest={{ repo_home }}/{{ re0po_name }}/{{ item | basename }} url={{ item }}
+      with_items: "{{ repo_url_packages }}"
+
     # download from upstream repo
     - name: Download repo packages
       environment: "{{ proxy_env }}"
@@ -134,13 +148,7 @@
       with_items: "{{ repo_packages }}"
 
     # download rpm from url
-    - name: Download web url packages
-      environment: "{{ proxy_env }}"
-      get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
-      with_items: "{{ repo_url_packages }}"
-
-    # download rpm from url
-    - name: Download packages deps
+    - name: Download repo pkgs and deps
       environment: "{{ proxy_env }}"
       command:
         cmd: repotrack {{ item }}
