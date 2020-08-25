@@ -94,8 +94,7 @@ r3:
 ckpt:
 	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
 gis:
-	# psql postgres://test:test@pg-test:5433/test -c 'CREATE EXTENSION postgis;'
-	psql postgres://test:test@pg-test:5433/test -f files/adcode.sql
+	ssh -t meta "sudo -iu postgres psql meta -AXtwc 'CREATE EXTENSION IF NOT EXISTS postgis;'";
 
 ###############################################################
 # grafna management
