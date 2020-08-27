@@ -1,15 +1,48 @@
 ---
-- name: Set ntp service chronyd
-  tags: node_ntp
-  when: node_ntp_setup
+#--------------------------------------------------------------#
+# 1. Make sure ntp and chrony package installed
+#--------------------------------------------------------------#
+- name: Install ntp
+  tags: ntp_install
+  block:
+    - name: Install ntp package
+      package: name=ntp state=present
+
+    - name: Install chrony package
+      package: name=chrony state=present
+
+
+#--------------------------------------------------------------#
+# 2. Config ntp (when node_ntp_setup is true)
+# if you already have ntp & chronyd settled, use node_ntp_setup = false
+#--------------------------------------------------------------#
+- name: Config ntpd and chronyd service
+  tags: ntp_config
+  when: node_ntp_config|bool
   block:
     - name: Setup default node timezone
       when: node_timezone is defined and node_timezone != ""
       timezone: name={{ node_timezone }}
 
+    - name: Copy the ntp.conf file
+      template: src=ntp.conf.j2 dest=/etc/ntp.conf
+
     - name: Copy the chrony.conf template
       template: src=chrony.conf.j2 dest=/etc/chrony.conf
 
-    - name: Launch chronyd ntpd service
+
+
+#--------------------------------------------------------------#
+# 3. Launch ntp
+#--------------------------------------------------------------#
+- name: Launch ntpd and chrony service
+  tags: ntp_launch
+  block:
+    - name: Launch ntpd service
+      when: node_ntp_service == 'ntp'
+      systemd: name=ntpd enabled=true state=restarted
+
+    - name: Launch chronyd service
+      when: node_ntp_service == 'chrony'
       systemd: name=chronyd enabled=true state=restarted
 ...
