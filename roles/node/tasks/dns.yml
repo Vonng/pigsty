@@ -45,29 +45,4 @@
       with_items: "{{ old_nameservers.stdout_lines }}"
       when: node_dns_server == 'add' and item not in node_dns_servers
 
-    # - prevent /etc/resolv.conf overwrite after server reboot - #
-    - name: Stop network manager
-      systemd: name=NetworkManager state=stopped enabled=no
-
-
-# switch to static network to avoid DNS resolver overwrite
-- name: Setup static network
-  tags: node_network
-  when: node_dns_server is defined and node_dns_server != 'none'
-  block:
-    # change ifcfg no overwrite
-    - name: Find all network interface
-      find:
-        paths: /etc/sysconfig/network-scripts
-        recurse: no
-        patterns: "ifcfg-*"
-      register: ifcfg_list
-
-    - name: Add peerdns=no to ifcfg
-      lineinfile:
-        state=present
-        create=no
-        dest={{ item.path }}
-        regexp="^PEERDNS=.*"
-        line="PEERDNS=no"
-      with_items: "{{ ifcfg_list.files }}"
+...

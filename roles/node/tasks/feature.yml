@@ -2,6 +2,7 @@
 - name: Node features setup
   tags: node_feature
   block:
+
     # - disable numa - #
     - name: Node configure disable numa
       when: node_disable_numa
@@ -19,12 +20,10 @@
       with_items: [swap, none]
 
 
-
     # - disable firewall - #
     - name: Node configure disable firewall
       when: node_disable_firewall
       systemd: name=firewalld state=stopped enabled=no
-
 
 
     # - disable selinux - #
@@ -32,6 +31,14 @@
       when: node_disable_selinux
       selinux: state=disabled
 
+
+    # - static network - #
+    - name: Node setup static network
+      when: node_static_network
+      script: static_network.sh
+
+    - name: Node configure disable firewall
+      systemd: name=NetworkManager state=stopped enabled=no
 
 
     # - eanble disk prefetch - #
