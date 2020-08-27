@@ -22,6 +22,10 @@
   tags: node_admin
   when: node_admin_setup
   block:
+
+    #------------------------------------------------------------------------------
+    # admin user , group, privileges
+    #------------------------------------------------------------------------------
     # create user and group
     - name: Create os user group admin
       group: name=admin gid={{ node_admin_uid }}
@@ -44,6 +48,9 @@
         regexp: '^StrictHostKeyChecking='
         line: StrictHostKeyChecking=no
 
+    #------------------------------------------------------------------------------
+    # admin ssh exchange among cluster
+    #------------------------------------------------------------------------------
     # admin ssh-key exchange
     - name: Fetch all admin public keys
       shell: cat /home/{{ node_admin_username }}/.ssh/id_rsa.pub
@@ -58,5 +65,15 @@
       with_nested:
         - "{{ admin_ssh_keys.stdout }}"
         - "{{ play_hosts }}"
+
+
+    #------------------------------------------------------------------------------
+    # add additional public keys
+    #------------------------------------------------------------------------------
+    - name: Install public keys
+      authorized_key: user={{ node_admin_username }} key="{{ item }}"
+      ignore_errors: true
+      with_items:
+        - "{{ node_admin_pks }}"
 
 ...

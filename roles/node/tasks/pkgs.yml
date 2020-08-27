@@ -1,22 +1,77 @@
 ---
-- name: Install node packages
-  tags: node_pkgs
-  block:
 
+#------------------------------------------------------------------------------
+# Setup node repo
+#------------------------------------------------------------------------------
+- name: Install pigsty yum repo
+  tags: node_repo
+  block:
+    # remove existing repos to backup dir
+    - name: Backup existing repos
+      when: node_repo_remove
+      shell:
+        warn: no
+        cmd: mkdir -p /etc/yum.repos.d/backup ; mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+
+    # install public repo (default, use this if you have public internet access)
+    - name: Install upstream repo
+      when: node_repo_method == "public"
+      yum_repository: "{{ item }}"
+      with_items: "{{ repo_upstreams }}"
+
+
+    # install local repo from url or file
+    - name: Install local repo
+      when: node_repo_method == "local"
+      get_url:
+        url: "{{ item }}"
+        dest: /etc/yum.repos.d/{{ item | basename }}
+      with_items: "{{ node_local_repo_url }}"
+
+
+#------------------------------------------------------------------------------
+# Install packages directly from public internet
+#------------------------------------------------------------------------------
+- name: Install node packages directly
+  tags: node_pkgs
+  when: node_repo_method == 'public'
+  block:
     # install common node packages
     - name: Install node basic packages
-      environment: "{{ node_proxy_env | default({}) }}"
+      environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
       with_items: "{{ node_packages }}"
 
     - name: Install node extra packages
-      environment: "{{ node_proxy_env | default({}) }}"
+      environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item }} disable_gpg_check=true
       with_items: "{{ node_extra_packages }}"
 
     - name: Install meta specific packages
       when: meta_node|bool
-      environment: "{{ node_proxy_env | default({}) }}"
+      environment: "{{ proxy_env | default({}) }}"
+      yum: name={{ item }} disable_gpg_check=true
+      with_items: "{{ node_meta_packages }}"
+
+
+#------------------------------------------------------------------------------
+# Install packages from local repo
+#------------------------------------------------------------------------------
+- name: Install node packages from loca repo
+  tags: node_pkgs
+  when: node_repo_method == 'local'
+  block:
+    # install common node packages
+    - name: Install node basic packages
+      yum: name={{ item }} disable_gpg_check=true
+      with_items: "{{ node_packages }}"
+
+    - name: Install node extra packages
+      yum: name={{ item }} disable_gpg_check=true
+      with_items: "{{ node_extra_packages }}"
+
+    - name: Install meta specific packages
+      when: meta_node|bool
       yum: name={{ item }} disable_gpg_check=true
       with_items: "{{ node_meta_packages }}"
 
