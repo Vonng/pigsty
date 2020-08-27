@@ -126,11 +126,11 @@
     #==============================================================#
     - name: Provision prometheus datasource
       grafana_datasource:
-        name: "Prometheus"
+        name: Prometheus
         grafana_url: "{{ grafana_url }}"
-        grafana_user: "admin"
-        grafana_password: "admin"
-        ds_type: "prometheus"
+        grafana_user: admin
+        grafana_password: "{{ grafana_admin_password | default('admin') }}"
+        ds_type: prometheus
         ds_url: "http://localhost:9090"
         is_default: yes
         time_interval:
@@ -141,8 +141,8 @@
     - name: Provision grafana dashboards
       grafana_dashboard:
         grafana_url: "{{ grafana_url }}"
-        grafana_user: "admin"
-        grafana_password: "admin"
+        grafana_user: admin
+        grafana_password: "{{ grafana_admin_password | default('admin') }}"
         state: present
         overwrite: yes
         path: /var/lib/grafana/dashboards/{{ item }}.json
