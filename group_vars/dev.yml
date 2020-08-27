@@ -14,14 +14,16 @@
 #------------------------------------------------------------------------------
 # CONNECTION PARAMETERS
 #------------------------------------------------------------------------------
+# this section defines connection parameters
+
 # ansible_user: vagrant             # admin user with ssh access and sudo privilege
 
 #proxy_env: {}
 proxy_env:                          # global proxy env when downloading packages
-  all_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
   http_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
   https_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
-  no_proxy:  "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty"
+  no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com"
+
 
 #------------------------------------------------------------------------------
 # REPO PROVISION
@@ -41,18 +43,64 @@ repo_remove: true                             # remove existing repos
 
 
 #------------------------------------------------------------------------------
-# DCS PROVISION
+# NODE PROVISION
 #------------------------------------------------------------------------------
-dcs_type: consul                              # consul | etcd | both
-dcs_name: pigsty                              # consul dc name | etcd initial cluster token
-dcs_servers:                                  # dcs name:ip dict
-  meta-1: 10.10.10.10                         # dcs server members
-  # meta-2: 10.10.10.11                         # 3/5 dcs nodes are recommend for production environment
-  # meta-3: 10.10.10.12                         # you can use external dcs clusters
+# this section defines how to provision nodes
 
-dcs_exists_action: skip                       # abort|skip|clean if dcs server already exists
-consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul/data by default)
-etcd_data_dir: /export/etcd/data              # etcd data dir (/var/lib/consul/data by default)
+# - node dns - #
+node_dns_hosts:                               # static dns records in /etc/hosts
+  - 10.10.10.10 yum.pigsty
+node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
+node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
+  - 10.10.10.10
+node_dns_options:                             # dns resolv options
+  - options single-request-reopen timeout:1 rotate
+  - domain service.consul
+
+# - node repo - #
+node_repo_method: local                       # none|local|public (use local repo for production env)
+node_repo_remove: true                        # whether remove existing repo
+node_local_repo_url:                          # local repo url (if method=local)
+  - http://yum.pigsty/pigsty.repo
+
+# - node packages - #
+node_extra_packages: []                       # extra packages for all nodes
+# node_packages: []                           # common packages for all nodes (use role default)
+# node_meta_packages: []                      # packages for meta nodes only (use role default)
+
+# - node features - #
+node_disable_numa: false                      # disable numa, important for production database, reboot required
+node_disable_swap: true                       # disable swap, important for production database
+node_disable_firewall: true                   # disable firewall (required if using kubernetes)
+node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
+node_static_network: true                     # keep dns resolver settings after reboot
+node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
+
+# - node kernel modules - #
+node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
+
+# - node tuned - #
+node_tuned: true                              # install and activate tuned profile: postgres
+node_sysctl_params:                           # set additional sysctl parameters, k:v format
+  net.bridge.bridge-nf-call-iptables: 1       # for kubernetes
+
+# - node user - #
+node_admin_setup: true                        # setup an default admin user ?
+node_admin_uid: 88                            # uid and gid for admin user
+node_admin_username: admin                    # default admin user
+node_admin_ssh_exchange: true                 # exchange ssh key among cluster ?
+node_admin_pks: []                            # public key list that will be installed
+
+# - node ntp - #
+node_ntp_service: ntp                         # ntp or chrony
+node_ntp_config: true                         # overwrite existing ntp config?
+node_timezone: Asia/Shanghai                  # default node timezone
+node_ntp_servers:                             # default NTP servers
+  - pool cn.pool.ntp.org iburst
+  - pool pool.ntp.org iburst
+  - pool time.pool.aliyun.com iburst
+  - server 10.10.10.10 iburst
+
 
 #------------------------------------------------------------------------------
 # META PROVISION
@@ -73,13 +121,14 @@ nginx_upstream:
 
 # - nameserver - #
 dns_records:                                  # dynamic dns record resolved by dnsmasq
-  - 10.10.10.2   pg-meta                      # sandbox vip for pg-meta
-  - 10.10.10.3   pg-test                      # sandbox vip for pg-test
-  - 10.10.10.10  meta-1                       # sandbox node meta-1 (node-0)
-  - 10.10.10.11  node-1                       # sandbox node node-1
-  - 10.10.10.12  node-2                       # sandbox node node-2
-  - 10.10.10.13  node-3                       # sandbox node node-3
-  - 10.10.10.10 pigsty y.pigsty yum.pigsty
+  - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
+  - 10.10.10.3  pg-test                       # sandbox vip for pg-test
+  - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
+  - 10.10.10.11 node-1                        # sandbox node node-1
+  - 10.10.10.12 node-2                        # sandbox node node-2
+  - 10.10.10.13 node-3                        # sandbox node node-3
+  - 10.10.10.10 pigsty
+  - 10.10.10.10 y.pigsty yum.pigsty
   - 10.10.10.10 c.pigsty consul.pigsty
   - 10.10.10.10 g.pigsty grafana.pigsty
   - 10.10.10.10 p.pigsty prometheus.pigsty
@@ -94,7 +143,8 @@ prometheus_data_dir: /export/prometheus/data  # prometheus data dir
 prometheus_retention: 30d                     # how long to keep
 
 # - grafana - #
-grafana_url: http://admin:admin@localhost:3000 # grafana url
+grafana_url: http://localhost:3000             # grafana url
+grafana_admin_password: admin                  # default grafana admin user password
 grafana_plugin: install                        # none|install|reinstall
 grafana_cache: /www/pigsty/grafana/plugins.tar.gz # path to grafana plugins tarball
 grafana_provision_mode: db                     # none|db|api
@@ -103,77 +153,19 @@ grafana_provision_mode: db                     # none|db|api
 # grafana_dashboards: []                       # default dashboards (use role default)
 
 
-
 #------------------------------------------------------------------------------
-# NODE PROVISION
+# DCS PROVISION
 #------------------------------------------------------------------------------
-# this section defines how to provision a node
+dcs_type: consul                              # consul | etcd | both
+dcs_name: pigsty                              # consul dc name | etcd initial cluster token
+dcs_servers:                                  # dcs server dict in name:ip format
+  meta-1: 10.10.10.10                         # you could use existing dcs cluster
+  # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
+  # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
 
-# - node dns - #
-node_dns_hosts:                               # static dns records in /etc/hosts
-  - 10.10.10.10 yum.pigsty pigsty
-node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
-node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
-  - 10.10.10.10
-node_dns_options:                             # dns resolv options
-  - options single-request-reopen timeout:1 rotate
-  - domain service.consul
-
-# - node repo - #
-node_repo_url:                                # additional repo to be installed via url
-  - http://yum.pigsty/pigsty.repo
-node_repo_remove: true                        # whether remove existing repo
-node_repo_add_upstream: true                  # whether add upstream repo to node (you could add and then disable them)
-node_local_repo: pigsty                       # if provide, all default repo will be disabled except this
-node_repo_config: []                          # if no local repo provide, these command will be run sequentially
-#  - disable *                                # disable all default repos
-
-
-# - node packages - #
-node_packages_proxy: false                    # install packages with proxy_env ?
-node_extra_packages: []                       # extra packages for nodes
-# node_packages: []                           # common packages for all nodes (use role default)
-# node_meta_packages: []                      # packages for meta nodes only (use role default)
-# - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,dnsmasq,nginx,ansible
-
-
-
-# - node features - #
-node_disable_numa: false                      # disable numa, important for production database, reboot required
-node_disable_swap: true                       # disable swap, important for production database
-node_disable_firewall: true                   # disable firewall (required if using kubernetes)
-node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
-node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
-
-
-# - node kernel modules - #
-node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh, nf_conntrack_ipv4]
-
-
-# - node tuned - #
-node_tuned: true                              # install and activate tuned profile: postgres
-node_sysctl_params:                           # set additional sysctl parameters, k:v format
-  net.bridge.bridge-nf-call-iptables: 1     # kubernetes
-
-
-# - node user - #
-node_admin_setup: true                        # setup an default admin user ?
-node_admin_uid: 88                            # uid and gid for admin user
-node_admin_username: admin                    # default admin user
-node_admin_ssh_exchange: true                 # exchange ssh key amoung cluster ?
-node_admin_servers:                           # ssh pub key of these host will to be installed on targets
-  - 10.10.10.10
-
-
-# - node ntp - #
-node_ntp_service: ntp                         # ntp or chrony
-node_ntp_config: true                         # overwrite existing ntp config?
-node_timezone: Asia/Shanghai                  # default node timezone
-node_ntp_servers:                             # default NTP servers
-  - pool cn.pool.ntp.org iburst
-  - pool pool.ntp.org iburst
-  - pool time.pool.aliyun.com iburst
-  - server 10.10.10.10 iburst
+dcs_exists_action: skip                       # abort|skip|clean if dcs server already exists
+consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
+etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
 
 
 #------------------------------------------------------------------------------
