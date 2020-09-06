@@ -1,0 +1,249 @@
+#!/usr/bin/ansible-playbook
+---
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+- name: Config Postgres
+  tags: pg_config
+  block:
+
+    #------------------------------------------------------------------------------
+    # calculate parameters
+    #------------------------------------------------------------------------------
+    - name: Get config parameter page count
+      command: getconf _PHYS_PAGES
+      register: node_page_count  # half mem in pages
+
+    - name: Get config parameter page size
+      shell: getconf PAGE_SIZE
+      register: node_page_size  # half mem in bytes
+
+    - name: Tune shared buffer and work mem
+      connection: local
+      set_fact: # max shared-buffer 32GB | max maintainance work mem 8GB
+        pg_shared_buffers_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 34359738368] | min)|int }}"
+        pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | min)|int }}"
+
+    - name: Hanlde small size mem occasion
+      connection: local
+      when: pg_shared_buffers_bytes|int < 1073741824  # < 1GB
+      set_fact:
+        pg_shared_buffers: "256MB"
+        pg_maintenance_work_mem: "64MB"
+
+    - name: Calculate postgres mem params
+      connection: local
+      when: pg_shared_buffers_bytes|int >= 1073741824  # >= 1GB
+      set_fact:
+        pg_shared_buffers: "{{ (pg_shared_buffers_bytes|int / 1073741824)|round(0)|int }}GB"
+        pg_maintenance_work_mem: "{{ (pg_maintenance_work_mem_bytes|int / 1048576)|round(0)|int }}MB"
+
+
+    #------------------------------------------------------------------------------
+    # render initdb scripts
+    #------------------------------------------------------------------------------
+    - name: Render default initdb scripts
+      template:
+        src: "{{ pg_init }}"
+        dest: /pg/conf/initdb.sh
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        mode: 0755
+
+
+    #------------------------------------------------------------------------------
+    # render config files
+    #------------------------------------------------------------------------------
+    - name: create patroni config dir
+      file:
+        path: /etc/patroni/
+        state: directory
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        mode: 0755
+
+    # use default patroni mode template if no user config is provided
+    - name: use predefined patroni template
+      when: pg_conf is not defined or pg_conf == ''
+      set_fact:
+        pg_conf: "patroni-{{ pg_mode }}.yml"
+
+    - name: Render default /pg/conf/patroni.yml
+      template:
+        src: "{{ pg_conf }}"
+        dest: "/pg/conf/{{ pg_instance }}.yml"
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        mode: 0755
+
+    - name: Link /pg/conf/patroni to /pg/bin/
+      file:
+        src: /pg/conf/{{ pg_instance }}.yml
+        dest: /pg/bin/patroni.yml
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        state: link
+
+    - name: Link /pg/bin/patroni.yml to /etc/patroni/
+      file:
+        src: /pg/bin/patroni.yml
+        dest: /etc/patroni/patroni.yml
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        state: link
+
+
+    #------------------------------------------------------------------------------
+    # chown watchdog
+    #------------------------------------------------------------------------------
+    - name: Config patroni watchdog support
+      ignore_errors: true
+      file: path=/dev/watchdog owner={{ pg_dbsu }} group=postgres
+
+
+    #------------------------------------------------------------------------------
+    # patroni systemd
+    #------------------------------------------------------------------------------
+    - name: create patroni systemd drop-in dir
+      file:
+        path: /etc/systemd/system/patroni.service.d
+        state: directory
+        mode: 0755
+
+    # copy postgres systemd service definition (only be used for non-patroni setup)
+    - name: Copy postgres systemd service file
+      template:
+        src: postgres.service.j2
+        dest: /usr/lib/systemd/system/postgres.service
+
+
+    # add dependency for patroni
+    - name: create patroni systemd drop-in file
+      copy:
+        dest: /etc/systemd/system/patroni.service.d/dependency.conf
+        content: |
+          [Unit]
+          After=consul.service
+          Requires=consul.service
+          [Service]
+          TimeoutStopSec=120s
+        mode: 0644
+
+
+
+#------------------------------------------------------------------------------
+# Launch patroni
+#------------------------------------------------------------------------------
+# primary first , replica next
+- name: Launch primary patroni instance
+  tags: pg_primary
+  any_errors_fatal: true
+  when: pg_role == 'primary'
+  block:
+    - name: Launch patroni on primary instance
+      systemd:
+        name: patroni
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for patroni primary online
+      wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=60
+
+    - name: Wait for postgres primary online
+      wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=10
+
+    - name: Check primary postgres service ready
+      become_user: "{{ pg_dbsu }}"
+      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+
+    - name: Check replication connectivity to primary
+      become_user: "{{ pg_dbsu }}"
+      environment:
+        PGPASSWORD: "{{ pg_replication_password }}"
+      command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+
+
+# bootstrap other replicas
+- name: Launch replica patroni instance
+  tags: pg_replica
+  any_errors_fatal: true
+  when: pg_role != 'primary'
+  block:
+    - name: Check replication connectivity to primary
+      become_user: "{{ pg_dbsu }}"
+      environment:
+        PGPASSWORD: "{{ pg_replication_password }}"
+      command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+
+    - name: Launch patroni on replica instances
+      systemd:
+        name: patroni
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for patroni replica online
+      wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=30
+
+    - name: Wait for postgres replica online
+      wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=10
+
+    - name: Check replica postgres service ready
+      become_user: "{{ pg_dbsu }}"
+      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+
+
+
+#------------------------------------------------------------------------------
+# Adjust Patroni mode
+#------------------------------------------------------------------------------
+# patroni_mode controls this section
+- name: Pause patroni
+  tags: pg_patroni
+  ignore_errors: true
+  when: patroni_mode == 'pause'
+  command: /usr/bin/patronictl -c /pg/bin/patroni.yml pause
+
+# this will degrade cluster into a raw cluster
+- name: Remove patroni
+  tags: pg_patroni
+  when: patroni_mode == 'remove'
+  block:
+    - name: Stop patroni on replica instance
+      when: pg_role != 'primary'
+      systemd:
+        name: patroni
+        state: stopped
+        enabled: no
+        daemon_reload: yes
+
+    - name: Stop patroni on primary instance
+      when: pg_role == 'primary'
+      systemd:
+        name: patroni
+        state: stopped
+        enabled: no
+        daemon_reload: yes
+
+    - name: Launch raw postgres on primary
+      when: pg_role == 'primary'
+      systemd:
+        name: postgres
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Launch raw postgres on primary
+      when: pg_role != 'primary'
+      systemd:
+        name: postgres
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for postgres online
+      wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=60
+
+
+...

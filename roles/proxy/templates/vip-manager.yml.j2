@@ -1,0 +1,14 @@
+key: "{{ patroni_namespace }}/{{ pg_cluster }}/leader"
+nodename: "{{ pg_cluster }}-{{ pg_seq }}"       # member name
+iface: {{ vip_interface }}             # interface to which the virtual ip will be added
+ip: {{ vip_address | ipaddr('address') }}       # the virtual ip address to manage
+mask: {{ vip_address | ipaddr('prefix') }}      # netmask for the virtual ip
+
+hosting_type: basic
+endpoint_type: consul
+endpoints:
+  - http://127.0.0.1:8500
+
+retry_num: 2        # how often things should be retried and how long to wait between retries
+retry_after: 250    # milliseconds
+interval: 1000      # milliseconds after which vip-manager wakes up and checks
