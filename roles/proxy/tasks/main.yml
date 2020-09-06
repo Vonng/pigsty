@@ -1,0 +1,91 @@
+---
+#--------------------------------------------------------------#
+# vip setup
+#--------------------------------------------------------------#
+- name: Setup vip manager
+  tags: vip
+  when: vip_enabled|bool
+  block:
+    - name: Templating /etc/default/vip-manager.yml
+      template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
+
+    - name: create vip-manager. systemd drop-in dir
+      file:
+        path: /etc/systemd/system/vip-manager.service.d
+        state: directory
+        mode: 0755
+
+    # add dependency for vip-manager
+    - name: create vip-manager systemd drop-in file
+      copy:
+        dest: /etc/systemd/system/vip-manager.service.d/consul.conf
+        content: |
+          [Unit]
+          After=consul.service
+          Requires=consul.service
+        mode: 0644
+
+    - name: Launch vip-manager
+      systemd: name=vip-manager state=restarted enabled=yes
+
+
+
+#--------------------------------------------------------------#
+# haproxy setup
+#--------------------------------------------------------------#
+- name: Setup Haproxy
+  tags: haproxy
+  when: haproxy_enabled|bool
+  block:
+    - name: Set pg_instance in case of absence
+      when: pg_instance is not defined or pg_instance == ''
+      set_fact:
+        pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
+
+    - name: Fetch postgres cluster memberships
+      set_fact:
+        pg_memberships={{ hostvars| json_query(pg_membership_query) }}
+        pg_instance="{{ pg_cluster }}-{{ pg_seq }}"
+      vars:
+        pg_membership_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}'][@.pg_instance,@.inventory_hostname]"
+
+    - name: Templating /etc/haproxyhaproxy.cfg
+      template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+
+    - name: Copy haproxy systemd service file
+      copy: src=haproxy.service dest=/usr/lib/systemd/system/haproxy.service
+
+    - name: Launch haproxy load balancer service
+      systemd:
+        name: haproxy
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for haproxy load balancer online
+      wait_for: host=localhost port=9101 state=started timeout=10
+
+
+#--------------------------------------------------------------#
+# Register Haproxy Service (optional)
+#--------------------------------------------------------------#
+- name: Register haproxy consul service
+  tags: haproxy_register
+  ignore_errors: true
+  block:
+    - name: Copy haproxy service definition
+      template:
+        src: svc-{{ item }}.json.j2
+        dest: /etc/consul.d/svc-{{ item }}.json
+        owner: consul
+        group: postgres
+        mode: 0660
+      with_items:
+        - haproxy
+        - cluster-primary
+        - cluster-replica
+
+    - name: Reload haproxy consul service
+      systemd: name=consul state=reloaded
+
+...

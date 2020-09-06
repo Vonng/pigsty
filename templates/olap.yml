@@ -1,0 +1,427 @@
+#!/usr/bin/env patroni
+
+######################################################################
+# File      :   patroni-olap.yml
+# Ctime     :   2020-04-08
+# Mtime     :   2020-09-03
+# Desc      :   patroni cluster definition for {{ pg_cluster }}
+# Path      :   /pg/bin/patroni.yml
+# Realpath  :   /pg/conf/{{ pg_instance }}.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
+# Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
+######################################################################
+
+# OLAP mode are optimized for performance, rt latency
+
+---
+#------------------------------------------------------------------------------
+# identity
+#------------------------------------------------------------------------------
+namespace: {{ patroni_namespace }}/     # key prefix in dcs
+scope: {{ pg_cluster }}                 # cluster name
+name: {{ pg_instance }}                 # instance name
+
+#------------------------------------------------------------------------------
+# log
+#------------------------------------------------------------------------------
+log:
+  level: INFO                           #  NOTEST|DEBUG|INFO|WARNING|ERROR|CRITICAL
+  dir: /pg/log/                         #  default log file: /pg/log/patroni.log
+  file_size: 100000                     #  100MB log triggers a log rotate
+  # format: '%(asctime)s %(levelname)s: %(message)s'
+
+#------------------------------------------------------------------------------
+# dcs
+#------------------------------------------------------------------------------
+consul:
+  host: 127.0.0.1:8500
+  register_service: true
+  service_check_interval: 15s
+  consistency: default         # default|consistent|stale
+
+#------------------------------------------------------------------------------
+# api
+#------------------------------------------------------------------------------
+# how to expose patroni service
+# default: listen on all ip, connect via public ip, use same credential as dbuser_monitor
+restapi:
+  listen: 0.0.0.0:{{ patroni_port }}
+  connect_address: {{ inventory_hostname }}:{{ patroni_port }}
+  authentication:
+    # none|optional|required
+    verify_client: none
+    username: {{ pg_monitor_username }}
+    password: '{{ pg_monitor_password }}'
+
+#------------------------------------------------------------------------------
+# ctl
+#------------------------------------------------------------------------------
+ctl:
+  optional:
+    insecure: true
+    # cacert: '/path/to/ca/cert'
+    # certfile: '/path/to/cert/file'
+    # keyfile: '/path/to/key/file'
+
+#------------------------------------------------------------------------------
+# tags
+#------------------------------------------------------------------------------
+tags:
+  nofailover: false
+  clonefrom: true
+  noloadbalance: false
+  nosync: false
+{% if pg_upstream is defined %}
+  replicatefrom: {{ pg_upstream }}    # clone from another replica rather than primary
+{% endif %}
+
+#------------------------------------------------------------------------------
+# watchdog
+#------------------------------------------------------------------------------
+# available mode: off|automatic|required
+watchdog:
+  mode: {{ patroni_watchdog_mode }}
+  device: /dev/watchdog
+  # safety_margin: 10s
+
+#------------------------------------------------------------------------------
+# bootstrap
+#------------------------------------------------------------------------------
+bootstrap:
+
+  #----------------------------------------------------------------------------
+  # bootstrap method
+  #----------------------------------------------------------------------------
+  method: initdb
+  # add custom bootstrap method here
+
+  # default bootstrap method: initdb
+  initdb:
+    - locale: C
+    - encoding: UTF8
+    # - data-checksums    # disable data-checksum on olap database
+
+
+  #----------------------------------------------------------------------------
+  # bootstrap users
+  #---------------------------------------------------------------------------
+  # additional users which need to be created after initializing new cluster
+  # replication user and monitor user are required
+  users:
+    {{ pg_replication_username }}:
+      password: '{{ pg_replication_password }}'
+    {{ pg_monitor_username }}:
+      password: '{{ pg_monitor_password }}'
+
+
+  # add these lines during bootstrap, allow replication
+  pg_hba:
+    - local   all             postgres                                ident
+    - local   replication     postgres                                ident
+    - local   replication     {{ pg_replication_username }}                              md5
+    - host    replication     {{ pg_replication_username }}          127.0.0.1/32        md5
+    - host    replication     {{ pg_replication_username }}          10.0.0.0/8          md5
+    - host    replication     {{ pg_replication_username }}          192.168.0.0/16      md5
+
+  #----------------------------------------------------------------------------
+  # customization
+  #---------------------------------------------------------------------------
+  post_init: /pg/conf/initdb.sh
+
+  #----------------------------------------------------------------------------
+  # bootstrap config
+  #---------------------------------------------------------------------------
+  # this section will be written to /{{ patroni_namespace }}/{{ pg_cluster }}/config
+  # if will NOT take any effect after cluster bootstrap
+  dcs:
+
+{% if pg_role == 'primary' and pg_upstream is defined %}
+    #----------------------------------------------------------------------------
+    # standby cluster definition
+    #---------------------------------------------------------------------------
+    standby_cluster:
+      host: {{ pg_upstream }}
+      port: {{ pg_port }}
+      # primary_slot_name: patroni     # must be create manually on upstream server, if specified
+      create_replica_methods:
+        - basebackup
+{% endif %}
+
+    #----------------------------------------------------------------------------
+    # important parameters
+    #---------------------------------------------------------------------------
+    # constraint: ttl >: loop_wait + retry_timeout * 2
+
+    # the number of seconds the loop will sleep. Default value: 10
+    # this is patroni check loop interval
+    loop_wait: 10
+
+    # the TTL to acquire the leader lock (in seconds). Think of it as the length of time before initiation of the automatic failover process. Default value: 30
+    # config this according to your network condition to avoid false-positive failover
+    ttl: 30
+
+    # timeout for DCS and PostgreSQL operation retries (in seconds). DCS or network issues shorter than this will not cause Patroni to demote the leader. Default value: 10
+    retry_timeout: 10
+
+    # the amount of time a master is allowed to recover from failures before failover is triggered (in seconds)
+    # Max RTO: 2 loop wait + master_start_timeout
+    master_start_timeout: 300
+
+    # important: candidate will not be promoted if replication lag is higher than this
+    # maximum RPO: 16MB
+    maximum_lag_on_failover: 16777216
+
+    # The number of seconds Patroni is allowed to wait when stopping Postgres and effective only when synchronous_mode is enabled
+    master_stop_timeout: 30
+
+    # turns on synchronous replication mode. In this mode a replica will be chosen as synchronous and only the latest leader and synchronous replica are able to participate in leader election
+    # set to true for RPO mode
+    synchronous_mode: false
+
+    # prevents disabling synchronous replication if no synchronous replicas are available, blocking all client writes to the master
+    synchronous_mode_strict: false
+
+
+    #----------------------------------------------------------------------------
+    # postgres parameters
+    #---------------------------------------------------------------------------
+    postgresql:
+      use_slots: true
+      use_pg_rewind: false
+      remove_data_directory_on_rewind_failure: true
+
+
+      parameters:
+        #----------------------------------------------------------------------
+        # IMPORTANT PARAMETERS
+        #----------------------------------------------------------------------
+        max_connections: 400
+        superuser_reserved_connections: 10
+        max_locks_per_transaction: 128
+        max_prepared_transactions: 0
+        track_commit_timestamp: on
+        max_worker_processes: 8
+        wal_level: logical
+        wal_log_hints: off
+        max_wal_senders: 16
+        max_replication_slots: 16
+        wal_keep_segments: 1000
+        password_encryption: md5
+
+        #----------------------------------------------------------------------
+        # RESOURCE USAGE (except WAL)
+        #----------------------------------------------------------------------
+        # memory: shared_buffers and maintenance_work_mem will be dynamically set
+        shared_buffers: {{ pg_shared_buffers }}
+        maintenance_work_mem: {{ pg_maintenance_work_mem }}
+        work_mem: 128MB
+        huge_pages: try
+        temp_file_limit: 100GB
+        vacuum_cost_delay: 2ms                  # wait 2ms per 10000
+        vacuum_cost_limit: 10000                # 10000 cost each round
+        bgwriter_delay: 10ms                    # check dirty page every 10ms
+        bgwriter_lru_maxpages: 800              # 100 -> 800
+        bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
+
+        #----------------------------------------------------------------------
+        # WAL
+        #----------------------------------------------------------------------
+        wal_buffers: 16MB
+        wal_writer_delay: 20ms
+        wal_writer_flush_after: 16MB             # max allowed data loss
+        min_wal_size: 100GB
+        max_wal_size: 500GB
+        # commit_delay: 20                        # 0 -> 20ms
+        # commit_siblings: 10                     # 5 -> 10
+        # checkpoint_timeout: 30min                 # checkpoint 5min -> 1h
+        checkpoint_completion_target: 0.95      # 0.5 -> 0.99
+
+        #----------------------------------------------------------------------
+        # REPLICATION
+        #----------------------------------------------------------------------
+        # synchronous_standby_names: ''
+        vacuum_defer_cleanup_age: 10000
+        promote_trigger_file: promote.signal
+        max_standby_archive_delay: 10min        # max delay before canceling queries when reading WAL from archive;
+        max_standby_streaming_delay: 10mi       # max delay before canceling queries when reading streaming WAL;
+        wal_receiver_status_interval: 1s        # send replies at least this often
+        hot_standby_feedback: on                # send info from standby to prevent query conflicts
+        wal_receiver_timeout: 60s               # time that receiver waits for
+        max_logical_replication_workers: 10
+        max_sync_workers_per_subscription: 10
+
+        #----------------------------------------------------------------------
+        # QUERY TUNING
+        #----------------------------------------------------------------------
+        # planner
+        # enable_partitionwise_join: on
+        random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
+        effective_cache_size: 320GB             # max mem - shared buffer
+        default_statistics_target: 1000         # stat bucket 100 -> 1000
+
+        #----------------------------------------------------------------------
+        # REPORTING AND LOGGING
+        #----------------------------------------------------------------------
+        log_destination: csvlog
+        logging_collector: on
+        log_directory: log
+        log_filename: 'postgresql-%a.log'
+        log_checkpoints: on
+        log_lock_waits: on
+        log_replication_commands: on
+        log_statement: ddl
+        log_min_duration_statement: 100
+
+        #----------------------------------------------------------------------
+        # STATISTICS
+        #----------------------------------------------------------------------
+        track_io_timing: on
+        track_functions: all                    # none, pl, all
+        track_activity_query_size: 4096         # (change requires restart)
+
+        #----------------------------------------------------------------------
+        # AUTOVACUUM
+        #----------------------------------------------------------------------
+        log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
+        autovacuum_max_workers: 4               # default autovacuum worker 3
+        autovacuum_naptime: 1min                # default autovacuum naptime 1min
+        autovacuum_vacuum_scale_factor: 0.2     # fraction of table size before vacuum   20% -> 8%
+        autovacuum_analyze_scale_factor: 0.1    # fraction of table size before analyze  10% -> 4%
+        autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay: same as vacuum_cost_delay
+        autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
+        autovacuum_freeze_max_age: 100000000    # age > 1 billion triggers force vacuum
+
+        #----------------------------------------------------------------------
+        # CLIENT
+        #----------------------------------------------------------------------
+{% if pg_default_schema != 'public' and pg_default_schema != '' %}
+        search_path: '{{ pg_default_schema }}, public'
+{% endif %}
+        deadlock_timeout: 50ms                             # 50ms for deadlock
+        idle_in_transaction_session_timeout: 36000000      # 1hour for idle in transaction
+
+        #----------------------------------------------------------------------
+        # CUSTOMIZED OPTIONS
+        #----------------------------------------------------------------------
+        shared_preload_libraries: '{{ pg_shared_libraries | default("pg_stat_statements, auto_explain") }}'
+
+        # extension settings
+        auto_explain.log_min_duration: 1min
+        auto_explain.log_analyze: true
+        auto_explain.log_verbose: true
+        auto_explain.log_timing: true
+        auto_explain.log_nested_statements: true
+        pg_stat_statements.max: 10000
+        pg_stat_statements.track: all
+
+
+#------------------------------------------------------------------------------
+# postgres
+#------------------------------------------------------------------------------
+postgresql:
+
+  #----------------------------------------------------------------------------
+  # how to connect to postgres
+  #----------------------------------------------------------------------------
+  bin_dir: {{ pg_bin_dir }}
+  data_dir: {{ pg_data }}
+  config_dir: {{ pg_data }}
+  pgpass: {{ pg_dbsu_home }}/.pgpass
+  listen: {{ pg_listen }}:{{ pg_port }}
+  connect_address: {{ inventory_hostname }}:{{ pg_port }}
+  use_unix_socket: true # default: /var/run/postgresql, /tmp
+
+  #----------------------------------------------------------------------------
+  # who to connect to postgres
+  #----------------------------------------------------------------------------
+
+  authentication:
+    superuser:
+      username: {{ pg_dbsu }}
+      # password: ''              # su password login is disabled when password not provided
+    replication:
+      username: {{ pg_replication_username }}
+      password: '{{ pg_replication_password }}'
+    rewind:
+      username: {{ pg_replication_username }}
+      password: '{{ pg_replication_password }}'
+
+  #----------------------------------------------------------------------------
+  # how to react to database operations
+  #----------------------------------------------------------------------------
+  # event callback script log: /pg/log/callback.log
+  callbacks:
+    on_start: /pg/bin/pg-failover-callback
+    on_stop: /pg/bin/pg-failover-callback
+    on_reload: /pg/bin/pg-failover-callback
+    on_restart: /pg/bin/pg-failover-callback
+    on_role_change: /pg/bin/pg-failover-callback
+
+  # rewind policy: data checksum should be enabled before using rewind
+  use_pg_rewind: true
+  remove_data_directory_on_rewind_failure: true
+  remove_data_directory_on_diverged_timelines: false
+
+  #----------------------------------------------------------------------------
+  # how to create replica
+  #----------------------------------------------------------------------------
+  # create replica method: default pg_basebackup
+  create_replica_methods:
+    - basebackup
+  basebackup:
+    - max-rate: '1000M'
+    - checkpoint: fast
+    - status-interva: 1s
+    - verbose
+    - progress
+
+  #----------------------------------------------------------------------------
+  # ad hoc parameters (overwrite with default)
+  #----------------------------------------------------------------------------
+  # parameters:
+
+  #----------------------------------------------------------------------------
+  # overwrite default hba settings
+  #----------------------------------------------------------------------------
+  pg_hba:
+    - "#=========================== TEMPLATE BEGIN ==========================#"
+    - "# allow: local su with ident"
+    - local   all             postgres                               ident
+    - local   replication     postgres                               ident
+    - "# allow: local replication with password"
+    - local   replication     {{ pg_replication_username }}                              md5
+    - host    replication     {{ pg_replication_username }}         127.0.0.1/32         md5
+    - "# allow: intranet replication with password"
+    - host    all             {{ pg_replication_username }}         10.0.0.0/8           md5
+    - host    all             {{ pg_replication_username }}         192.168.0.0/16       md5
+    - host    replication     {{ pg_replication_username }}         10.0.0.0/8           md5
+    - host    replication     {{ pg_replication_username }}         192.168.0.0/16       md5
+    - "# allow: local role monitor with password"
+    - local   all             {{ pg_monitor_username }}                          md5
+    - host    all             {{ pg_monitor_username }}      127.0.0.1/32        md5
+    - "# allow: intranet admin role with password"
+    - host    all     +dbrole_admin               10.0.0.0/8          md5
+    - host    all     +dbrole_admin               192.168.0.0/16      md5
+{% if pg_hba_common is defined and pg_hba_common|length > 0 %}
+    - "#======================= ADDITIONAL COMMON HBA =========================#"
+{% for hba in pg_hba_common %}
+    - {{ hba }}
+{% endfor %}
+{% endif %}
+{% if pg_role == 'primary' and pg_hba_primary is defined and pg_hba_primary|length > 0 %}
+    - "#========================= PRIMARY ONLY HBA ===========================#"
+{% for hba in pg_hba_primary %}
+    - {{ hba }}
+{% endfor %}
+{% endif %}
+{% if pg_role == 'replica' and pg_hba_replica is defined and pg_hba_replica|length > 0 %}
+    - "#========================= REPLICA ONLY HBA ===========================#"
+{% for hba in pg_hba_replica %}
+    - {{ hba }}
+{% endfor %}
+{% endif %}
+    - "#============================ TEMPLATE END ===========================#"
+
+
+...

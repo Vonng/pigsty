@@ -1,0 +1,47 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   remove.yml
+# Mtime     :   2020-07-31
+# Desc      :   remove running service
+# Path      :   remove.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+#------------------------------------------------------------------------------
+# Remove load balancer
+#------------------------------------------------------------------------------
+- name: Add database user
+  become: yes
+  hosts: all
+  serial: 1
+  gather_facts: no
+  tags: user_add
+  vars:
+    username: dbuser_test
+    password: ""
+    database: all
+    expires: ""
+    conn_limit: -1
+    groups:
+      - dbuser_readwrite
+    add_pgbouncer_user: true
+
+
+  tasks:
+
+    # TODO: create user on primary
+    - name: Stop load balancer
+      ignore_errors: true
+      shell: |
+        ls
+
+
+    # TODO: change /etc/pgbouncer/userlist.txt
+    # TODO: change /etc/pgbouncer/pgb_hba.conf
+    # TODO: change pg_hba.conf
+
+
+
+...

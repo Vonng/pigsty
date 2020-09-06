@@ -9,7 +9,7 @@ new: clean start upload init
 
 # write dns record to your own host, sudo required
 dns:
-	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat files/pigsty_dns >> /etc/hosts; fi
+	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat files/dns >> /etc/hosts; fi
 
 # cache / upload rpm packages (this is useful for accelerate or perform offline installation)
 cache:
@@ -43,8 +43,6 @@ clean:
 	cd vagrant && vagrant destroy -f --parallel; exit 0
 up:
 	cd vagrant && vagrant up
-mt:
-	cd vagrant && vagrant up meta
 halt:
 	cd vagrant && vagrant halt
 status:
@@ -57,9 +55,11 @@ provision:
 	cd vagrant && vagrant provision
 # sync ntp time (only works after ntp been installed during init-node)
 sync2:
-	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
+
 sync:
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate pool.ntp.org'; true
+	# echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
+
 # append pigsty ssh config to ~/.ssh
 ssh:
 	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true
@@ -69,6 +69,13 @@ ssh:
 start: up ssh sync
 stop: halt
 
+meta-up:
+	cd vagrant && vagrant up meta
+node-up:
+	cd vagrant && vagrant up node-1 node-2 node-3
+node-new:
+	cd vagrant && vagrant destroy -f node-1 node-2 node-3
+	cd vagrant && vagrant up node-1 node-2 node-3
 
 ###############################################################
 # pgbench (init/read-write/read-only)
