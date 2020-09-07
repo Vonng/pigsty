@@ -56,7 +56,7 @@ psql -AXtwq postgres <<- EOF
 	-- system user: dbuser_monitor
 	CREATE USER "${PG_MONITOR_USERNAME}";
 	COMMENT ON ROLE "${PG_MONITOR_USERNAME}" IS 'system user for monitor';
-	ALTER USER "${PG_MONITOR_USERNAME}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION;
+	ALTER USER "${PG_MONITOR_USERNAME}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION BYPASSRLS;
 	ALTER USER "${PG_MONITOR_USERNAME}" PASSWORD '${PG_MONITOR_PASSWORD}' CONNECTION LIMIT 5;
 	ALTER USER "${PG_MONITOR_USERNAME}" SET search_path = monitor, public;
 	GRANT pg_monitor TO "${PG_MONITOR_USERNAME}";
@@ -104,6 +104,25 @@ if [ ${PG_DEFAULT_USERNAME} != 'postgres' ]; then
 		GRANT dbrole_readwrite TO "${PG_DEFAULT_USERNAME}";
 	EOF
 fi
+
+
+#----------------------------------------------------------------------------
+# additional user dba and stats
+#----------------------------------------------------------------------------
+log "initdb: create additional users: dbuser_dba dbuser_stats"
+psql -AXtwq postgres <<-EOF
+	-- remote superuser
+	CREATE ROLE dbuser_dba;        -- administration tasks
+	GRANT dbrole_admin TO "dbuser_dba";
+	COMMENT ON ROLE dbuser_dba IS 'database administrator';
+	ALTER ROLE dbuser_dba SUPERUSER LOGIN NOINHERIT CREATEROLE CREATEDB REPLICATION BYPASSRLS  PASSWORD 'md57bb81c95d81079e81981f7c8cf84d586';;
+
+	-- remote stats user
+	CREATE ROLE dbuser_stats;        -- administration tasks
+	GRANT dbrole_readonly TO "dbuser_stats";
+	COMMENT ON ROLE dbuser_stats IS 'offline stats etl user';
+	ALTER ROLE dbuser_stats PASSWORD 'md5425da66bfc2f7d5df6905c0492b0033c';
+EOF
 
 
 #----------------------------------------------------------------------------
@@ -385,6 +404,7 @@ if [ ${PG_DEFAULT_DATABASE} != 'postgres' ]; then
 		psql -AXtwq ${PG_DEFAULT_DATABASE} <<- EOF
 			CREATE SCHEMA IF NOT EXISTS ${PG_DEFAULT_SCHEMA};
 			ALTER USER "${PG_DBSU}" SET search_path = ${PG_DEFAULT_SCHEMA}, monitor, public;
+			ALTER USER dbuser_dba SET search_path = ${PG_DEFAULT_SCHEMA}, monitor, public;
 		EOF
 	fi
 
