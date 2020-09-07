@@ -45,16 +45,19 @@
       template: src=pgb_hba.conf.j2 dest=/etc/pgbouncer/pgb_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
 
     - name: Add system users to pgbouncer
+      become_user: "{{ pg_dbsu }}"
       shell: |
         /pg/bin/pgb-user-add {{ pg_dbsu }}
         /pg/bin/pgb-user-add "{{ pg_monitor_username }}" "{{ pg_monitor_password }}"
 
     - name: Add default users to pgbouncer
+      become_user: "{{ pg_dbsu }}"
       shell: |
         /pg/bin/pgb-user-add "{{ pg_default_username }}" "{{ pg_default_username }}"
 
     - name: Add default database to pgbouncer
       when: pg_default_database != 'postgres'
+      become_user: "{{ pg_dbsu }}"
       shell: /pg/bin/pgb-db-add {{ pg_default_database }}
 
 
@@ -84,12 +87,6 @@
       environment:
         PGPASSWORD: "{{ pg_default_password }}"
       command: psql -w -p{{ pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
-
-
-
-#------------------------------------------------------------------------------
-# Register pgbouncer service (optional)
-#------------------------------------------------------------------------------
 
 
 ...

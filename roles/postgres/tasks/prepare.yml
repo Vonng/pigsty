@@ -81,12 +81,13 @@
     - name: Remove postgres metadata in consul
       when: pg_role == 'primary'
       shell: |
-        consul kv delete -recurse {{ patroni_namespace }}/{{ pg_cluster }}
+        consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}
 
     - name: Remove existing postgres data
       file: path={{ item }} state=absent
       with_items:
         - /pg
+        -
         - "{{ pg_fs_main }}/postgres"
         - "{{ pg_fs_bkup }}/postgres"
         - /etc/pgbouncer
@@ -186,6 +187,23 @@
   tags: pg_hostname
   when: pg_hostname|bool
   hostname: name={{ pg_instance }}
+
+
+#------------------------------------------------------------------------------
+# register consul service
+#------------------------------------------------------------------------------
+- name: Register consul node meta
+  block:
+    - name: Copy consul node-meta definition
+      template:
+        src: node-meta.json.j2
+        dest: /etc/consul.d/node-meta.json.j2
+        owner: consul
+        group: postgres
+        mode: 0644
+
+    - name: Restart consul to load new node-meta
+      systemd: name=consul state=restarted
 
 
 #------------------------------------------------------------------------------

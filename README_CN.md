@@ -11,38 +11,92 @@
 
 * 高可用部署
 * 自包含的监控、报警、日志收集系统，自动服务发现
+* 代码定义的基础设施（Infrastructure as Code）
 * 集成常规备份维护脚本
-* 基础设施参数化定制
 
 
 ## 快速开始
 
-1. 准备若干台机器，选定其中一台作为中控机，配置SSH免密访问并安装Ansible
+1. 准备若干台机器，选定其中一台作为中控机，配置从中控机到其他机器的SSH免密访问，并在中控机上安装Ansible
 2. 在中控机上克隆本项目：`git clone https://github.com/vonng/pigsty && cd pigsty`
-3. 修改`group_vars/all.yml`，根据需求修改全局参数
-4. 修改`cls/inventory.ini`，填入集群规划信息，包括机器IP，角色，用途等。
-5. 执行`infra.yml`初始化集群基础设施
-6. 执行`initdb.yml`初始化数据
+3. 根据需求修改配置文件根据需求修改全局参数
+  * `cls/inventory.yml`定义了目标机器的连接信息与主机级变量，通常需要修改其中的机器IP信息。
+  * `group_vars/all.yml`定义了默认的组变量，包含全局一致的基础设施配置信息，通常只需修改少量基础设施定义（例如DCS，DNS，NTP等服务位置）
+  * `templates/*.yml`定义了数据库的通用初始化规格，通常不需要修改，通过`-e pg_conf=*.yml`使用预定义的模板即可
+  * `templates/*.sh`定义了数据库的定制初始化逻辑，通常按照用户需求更改，通过`-e pg_init=*.sh`使用预定义或自定义的脚本即可
+4. 执行`./infra.yml`，在所有机器上初始化基础设施
+5. 执行`./postgres.yml`，在所有机器上初始化数据库 
 
-1. Install [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) and [ansible](https://www.ansible.com/)
-2. Clone this repo: `git clone https://github.com/vonng/pigsty && cd pigsty`
-3. Setup local dns: `sudo make dns` (one-time job)
-4. Pull up vm nodes: `make` 
-5. Init cluster via `make init`
-6. Explore pigsty via http://pigsty
+初始化完成后，可以访问控制节点3000端口，admin:admin查看Grafana监控。
 
 
-```bash
-# TL;DR
-brew install virtualbox vagrant ansible # (may not work that way)
-git clone https://github.com/vonng/pigsty && cd pigsty
-sudo make dns	# run-once to write /etc/hosts, may require password
-make new        # pull up all nodes and create a new cluster
+## 配置详情
 
-# delivered service url:
-PG_TEST_PRIMARY_URL=""
+项目的配置文件分为四部分：
 
+**全局变量定义**
+
+全局变量默认定义于`group_vars/all.yml`，针对不同的环境（开发，测试，生产），可以使用不同的全局变量，并通过软连接将`all.yml`指向对应的环境配置。
+全局变量针对所有机器生效，当用户希望使用统一的配置时，例如在所有机器上配置相同的 DNS，NTP Server，安装相同的软件包，使用统一的su密码时，可以修改全局变量
+全局变量定义分为8个部分，具体的配置项请参阅文档
+
+* 连接信息
+* 本地源定义
+* 机器节点初始化
+* 控制节点初始化
+* DCS元数据库初始化
+* Postgres安装
+* Postgres集群初始化
+* 监控初始化
+* 负载均衡代理初始化
+
+
+
+**主机变量定义**
+
+主机清单（IP，ssh信息，主机变量）默认定义于`cls/inventory.yml`，该文件包含了一套环境中所有主机相关的信息。可以通过`ansible -i <path>`使用其他的主机清单文件。
+主机清单使用`ini`格式，定义了一系列分组，默认分组`meta`包含了控制节点的信息。其他分组每个都包含了一个数据库集群的定义。
+例如，下面的例子定义了一个名为`pg-test`的集群，其中有三个实例，`10.10.10.11`为主库，`10.10.10.12`与`10.10.10.13`为从库，安装12版本的PostgreSQL数据库。
+
+```ini
+[pg-test]
+10.10.10.11 ansible_host=node-1 pg_role=primary pg_seq=1
+10.10.10.12 ansible_host=node-2 pg_role=replica pg_seq=2
+10.10.10.13 ansible_host=node-3 pg_role=replica pg_seq=3
+
+[pg-test:vars]
+pg_cluster = pg-test
+pg_version = 12
 ```
+
+**数据库初始化模板**
+
+初始化模板是用于初始化数据库集群的定义文件，默认位于`roles/postgres/templates/patroni.yml`，采用`patroni.yml` [配置文件格式](https://patroni.readthedocs.io/en/latest/SETTINGS.html)
+在[`templates/`](templates/)目录中，有四种预定义好的初始化模板：
+* [`oltp.yml`](oltp.yml) 常规OLTP模板，默认配置
+* [`olap.yml`](olap.yml) OLAP模板，提高并行度，针对吞吐量优化，针对长时间运行的查询进行优化。
+* [`crit.yml`](crit.yml) 核心业务模板，基于OLTP模板针对安全性，数据完整性进行优化，采用同步复制，启用数据校验和。
+* [`tiny.yml`](tiny.yml) 微型数据库模板，针对低资源场景进行优化，例如运行于虚拟机中的演示数据库集群。
+
+用户也可以基于上述模板进行定制与修改，并通过`pg_conf`参数使用相应的模板。
+
+
+**数据库初始化脚本**
+
+当数据库初始化完毕后，用户通常希望对数据库进行自定义的定制脚本，例如创建统一的默认角色，用户，创建默认的模式，配置默认权限等。
+本项目提供了一个默认的初始化脚本`roles/postgres/templates/initdb.sh`，基于以下几个变量创建默认的数据库与用户。
+
+```yaml
+pg_default_username: postgres                 # non 'postgres' will create a default admin user (not superuser)
+pg_default_password: postgres                 # dbsu password, omit for 'postgres'
+pg_default_database: postgres                 # non 'postgres' will create a default database
+pg_default_schema: public                     # default schema will be create under default database and used as first element of search_path
+pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm"
+```
+
+用户可以基于本脚本进行定制，并通过`pg_init`参数使用相应的自定义脚本。
+
+
 
 > #### Note 
 >
@@ -291,5 +345,5 @@ TBD
 
 Author：Vonng ([fengruohang@outlook.com](mailto:fengruohang@outlook.com))
 
-](https://creativecommons.org/licenses/by-nc/4.0/)
+License [Creative Common](https://creativecommons.org/licenses/by-nc/4.0/)
 

@@ -18,11 +18,10 @@
 
 # ansible_user: vagrant             # admin user with ssh access and sudo privilege
 
-#proxy_env: {}
 proxy_env:                          # global proxy env when downloading packages
-  # http_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
-  # https_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
   no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com"
+  http_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
+  https_proxy: "http://employee2:XgKCXtf5WH@proxy.p1staff.com:1337"
 
 
 #------------------------------------------------------------------------------
@@ -228,13 +227,13 @@ pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir
 #  - abort: abort entire play's execution (default)
 #  - clean: remove existing cluster (dangerous)
 #  - skip: end current play for this host
-# pg_exists: false                             # auxiliary flag variable (DO NOT SET THIS)
-pg_exists_action: abort
+# pg_exists: false                              # auxiliary flag variable (DO NOT SET THIS)
+# pg_exists_action: abort
 
 # - storage - #
-pg_data: /pg/data                             # postgres data directory
-pg_fs_main: /export                           # data disk mount point     /pg -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
-pg_fs_bkup: /var/backups                      # backup disk mount point   /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
+# pg_data: /pg/data                             # postgres data directory
+# pg_fs_main: /export                           # data disk mount point     /pg -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
+# pg_fs_bkup: /var/backups                      # backup disk mount point   /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
 
 # - connection - #
 # pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' by default (all ipv4 addr)
@@ -246,18 +245,11 @@ pg_fs_bkup: /var/backups                      # backup disk mount point   /pg/* 
 # pause:   into maintainance mode
 # remove:  remove patroni after bootstrap
 # patroni_mode: default                         # pause|default|remove
+# pg_namespace: /pg                             # top level key namespace in dcs
 # patroni_port: 8008                            # default patroni port
-# patroni_secure: false                         # enable enhanced authentication on patroni
-# patroni_namespace: /pg                        # top level key namespace in dcs
 # patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
 
 # - template - #
-# pg_mode, available options: oltp|olap|crit|tiny|bare
-# oltp : optimized for performance (default)
-# crit : enhanced oltp mode, focus on security, data checksum and sync standby are enabled
-# tiny : optimized for small vm
-# olap : optimized for throughput
-# pg_mode: oltp
 # pg_conf: patroni.yml                          # user provided patroni config template path
 # pg_init: initdb.sh                            # user provided post-init script path, default: initdb.sh
 
@@ -271,16 +263,20 @@ pg_hba_common:
   - '"# allow local (pgbouncer) read-write user (production user) password access"'
   - local   all     +dbrole_readwrite                               md5
   - host    all     +dbrole_readwrite           127.0.0.1/32        md5
-  - "# intranet common user password access"
+  - '"# intranet common user password access"'
   - host    all             all                 10.0.0.0/8          md5
   - host    all             all                 192.168.0.0/16      md5
-
 pg_hba_primary: []
 pg_hba_replica:
   - '"# allow remote readonly user (stats, personal user) password access (directly)"'
   - local   all     +dbrole_readonly                               md5
   - host    all     +dbrole_readonly           127.0.0.1/32        md5
-
+pg_hba_pgbouncer:
+  - '# biz_user intranet password access'
+  - local  all          all                                     md5
+  - host   all          all                     127.0.0.1/32    md5
+  - host   all          all                     10.0.0.0/8      md5
+  - host   all          all                     192.168.0.0/16  md5
 
 # - credential - #
 # pg_dbsu_password: ''                          # dbsu password (leaving blank will disable sa password login)
@@ -294,8 +290,12 @@ pg_hba_replica:
 # pg_default_password: postgres                 # dbsu password, omit for 'postgres'
 # pg_default_database: postgres                 # non 'postgres' will create a default database
 # pg_default_schema: public                     # default schema will be create under default database and used as first element of search_path
-# pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm,postgis"
+# pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm"
 
+# - pgbouncer - #
+# pgbouncer_port: 6432                          # default pgbouncer port
+# pgbouncer_poolmode: transaction               # default pooling mode: transaction pooling
+# pgbouncer_max_db_conn: 100                    # important! do not set this larger than postgres max conn or conn limit
 
 
 #------------------------------------------------------------------------------
@@ -306,5 +306,27 @@ node_exporter_port: 9100                # default port for node exporter
 pg_exporter_port: 9630                  # default port for pg exporter
 pgbouncer_exporter_port: 9631           # default port for pgbouncer exporter
 exporter_metrics_path: /metrics         # default metric path for pg related exporter
+
+
+#------------------------------------------------------------------------------
+# PROXY PROVISION
+#------------------------------------------------------------------------------
+# - vip - #
+# vip_enabled: false                            # level2 vip requires primary/standby under same switch
+# vip_address: 127.0.0.1/32                     # virtual ip address ip/cidr
+# vip_interface: eth0                           # virtual ip network interface
+
+# - haproxy - #
+haproxy_enabled: true                         # enable haproxy among every cluster members
+haproxy_policy: leastconn                     # roundrobin, leastconn
+haproxy_admin_username: admin                 # default haproxy admin username
+haproxy_admin_password: admin                 # default haproxy admin password
+haproxy_client_timeout: 3h                    # client side connection timeout
+haproxy_server_timeout: 3h                    # server side connection timeout
+haproxy_exporter_port: 9101                   # default admin/exporter port
+haproxy_check_port: 8008                      # default health check port (patroni 8008 by default)
+haproxy_primary_port:  5433                   # default primary port 5433
+haproxy_replica_port:  5434                   # default replica port 5434
+haproxy_backend_port:  6432                   # default target port: pgbouncer:6432 postgres:5432
 
 ...

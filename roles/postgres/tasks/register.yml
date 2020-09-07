@@ -5,17 +5,6 @@
 - name: Register postgres service to dcs
   tags: pg_register
   block:
-    #------------------------------------------------------------------------------
-    # register consul service
-    #------------------------------------------------------------------------------
-    - name: Copy consul node-meta definition
-      template:
-        src: node-meta.json.j2
-        dest: /etc/consul.d/node-meta.json.j2
-        owner: consul
-        group: postgres
-        mode: 0644
-
     - name: Copy postgres service definition
       template:
         src: svc-{{ item }}.json.j2
@@ -30,10 +19,6 @@
 
     - name: Reload consul service
       systemd: name=consul state=reloaded
-
-#    - name: Restart consul to load new node-meta
-#      systemd: name=consul state=restarted
-
 
     #------------------------------------------------------------------------------
     # register to grafana datasource

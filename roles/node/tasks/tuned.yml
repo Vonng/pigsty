@@ -12,6 +12,7 @@
       register: node_page_size  # half mem in bytes
 
     - name: Tune shmmax and shmall via mem
+      when: node_page_count.stdout|int > 1048576
       set_fact:
         param_shmall: "{{ ((node_page_count.stdout|int) / 2)|int }}"
         param_shmmax: "{{ ((node_page_count.stdout|int) * (node_page_size.stdout|int) / 2)|int }}"
@@ -34,4 +35,6 @@
         state: present
         reload: yes
       with_dict: "{{ node_sysctl_params }}"
+
+
 ...
