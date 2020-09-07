@@ -69,9 +69,8 @@ pg_port: 5432                                 # postgres port (5432 by default)
 # pause:   into maintainance mode
 # remove:  remove patroni after bootstrap
 patroni_mode: default                         # pause|default|remove
+pg_namespace: /pg                             # top level key namespace in dcs
 patroni_port: 8008                            # default patroni port
-patroni_secure: false                         # enable enhanced authentication on patroni
-patroni_namespace: /pg                        # top level key namespace in dcs
 patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
 
 # - template - #
@@ -85,6 +84,12 @@ pg_hba_common:
   - host    all             all                 192.168.0.0/16      md5
 pg_hba_primary: []
 pg_hba_replica: []
+pg_hba_pgbouncer:
+  - '# biz_user intranet password access'
+  - local  all          all                                     md5
+  - host   all          all                     127.0.0.1/32    md5
+  - host   all          all                     10.0.0.0/8      md5
+  - host   all          all                     192.168.0.0/16  md5
 
 # - credential - #
 pg_dbsu_password: ''                          # dbsu password (leaving blank will disable sa password login)
@@ -98,11 +103,11 @@ pg_default_username: postgres                 # non 'postgres' will create a def
 pg_default_password: postgres                 # dbsu password, omit for 'postgres'
 pg_default_database: postgres                 # non 'postgres' will create a default database
 pg_default_schema: public                     # default schema will be create under default database and used as first element of search_path
-pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm,postgis"
-
+pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm"
 
 # - pgbouncer - #
 pgbouncer_port: 6432                          # default pgbouncer port
 pgbouncer_poolmode: transaction               # default pooling mode: transaction pooling
 pgbouncer_max_db_conn: 100                    # important! do not set this larger than postgres max conn or conn limit
+
 ...
