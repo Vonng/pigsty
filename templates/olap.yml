@@ -1,10 +1,10 @@
 #!/usr/bin/env patroni
 
 ######################################################################
-# File      :   patroni-olap.yml
+# File      :   patroni.yml
 # Ctime     :   2020-04-08
 # Mtime     :   2020-09-03
-# Desc      :   patroni cluster definition for {{ pg_cluster }}
+# Desc      :   patroni cluster definition for {{ pg_cluster }} (standard olap)
 # Path      :   /pg/bin/patroni.yml
 # Realpath  :   /pg/conf/{{ pg_instance }}.yml
 # Author    :   Vonng(fengruohang@outlook.com)
@@ -166,7 +166,7 @@ bootstrap:
 
     # the amount of time a master is allowed to recover from failures before failover is triggered (in seconds)
     # Max RTO: 2 loop wait + master_start_timeout
-    master_start_timeout: 300
+    master_start_timeout: 20
 
     # important: candidate will not be promoted if replication lag is higher than this
     # maximum RPO: 16MB
@@ -201,7 +201,7 @@ bootstrap:
         max_locks_per_transaction: 128
         max_prepared_transactions: 0
         track_commit_timestamp: on
-        max_worker_processes: 8
+        max_worker_processes: 64                # SET THIS ACCORDING TO YOUR CPU CORES
         wal_level: logical
         wal_log_hints: off
         max_wal_senders: 16
@@ -223,6 +223,10 @@ bootstrap:
         bgwriter_delay: 10ms                    # check dirty page every 10ms
         bgwriter_lru_maxpages: 800              # 100 -> 800
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
+        max_parallel_workers: 64                # SET THIS ACCORDING TO YOUR CPU CORES
+        max_parallel_workers_per_gather: 64     # SET THIS ACCORDING TO YOUR CPU CORES
+        max_parallel_maintenance_workers: 4     # 2 -> 4
+
 
         #----------------------------------------------------------------------
         # WAL
@@ -234,8 +238,8 @@ bootstrap:
         max_wal_size: 500GB
         # commit_delay: 20                        # 0 -> 20ms
         # commit_siblings: 10                     # 5 -> 10
-        # checkpoint_timeout: 30min                 # checkpoint 5min -> 1h
-        checkpoint_completion_target: 0.95      # 0.5 -> 0.99
+        checkpoint_timeout: 60min                 # checkpoint 5min -> 1h
+        checkpoint_completion_target: 0.95        # 0.5 -> 0.99
 
         #----------------------------------------------------------------------
         # REPLICATION
@@ -255,10 +259,12 @@ bootstrap:
         # QUERY TUNING
         #----------------------------------------------------------------------
         # planner
-        # enable_partitionwise_join: on
+        enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
         effective_cache_size: 320GB             # max mem - shared buffer
         default_statistics_target: 1000         # stat bucket 100 -> 1000
+        jit: on                                 # default on
+        jit_above_cost: 100000                  # default
 
         #----------------------------------------------------------------------
         # REPORTING AND LOGGING
@@ -286,8 +292,8 @@ bootstrap:
         log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
         autovacuum_max_workers: 4               # default autovacuum worker 3
         autovacuum_naptime: 1min                # default autovacuum naptime 1min
-        autovacuum_vacuum_scale_factor: 0.2     # fraction of table size before vacuum   20% -> 8%
-        autovacuum_analyze_scale_factor: 0.1    # fraction of table size before analyze  10% -> 4%
+        autovacuum_vacuum_scale_factor: 0.2     # fraction of table size before vacuum   20%
+        autovacuum_analyze_scale_factor: 0.1    # fraction of table size before analyze  10%
         autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay: same as vacuum_cost_delay
         autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
         autovacuum_freeze_max_age: 100000000    # age > 1 billion triggers force vacuum
@@ -400,9 +406,6 @@ postgresql:
     - "# allow: local role monitor with password"
     - local   all             {{ pg_monitor_username }}                          md5
     - host    all             {{ pg_monitor_username }}      127.0.0.1/32        md5
-    - "# allow: intranet admin role with password"
-    - host    all     +dbrole_admin               10.0.0.0/8          md5
-    - host    all     +dbrole_admin               192.168.0.0/16      md5
 {% if pg_hba_common is defined and pg_hba_common|length > 0 %}
     - "#======================= ADDITIONAL COMMON HBA =========================#"
 {% for hba in pg_hba_common %}
