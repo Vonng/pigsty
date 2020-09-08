@@ -2,15 +2,17 @@
 
 ######################################################################
 # File      :   patroni.yml
-# Ctime     :   2020-04-08
-# Mtime     :   2020-09-01
-# Desc      :   patroni cluster definition for {{ pg_cluster }}
+# Ctime     :   2020-09-08
+# Mtime     :   2020-09-08
+# Desc      :   patroni cluster definition for {{ pg_cluster }} (critical)
 # Path      :   /pg/bin/patroni.yml
 # Realpath  :   /pg/conf/{{ pg_instance }}.yml
 # Author    :   Vonng(fengruohang@outlook.com)
 # Note      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 ######################################################################
+
+# OLTP database are optimized for performance, rt latency
 
 ---
 #------------------------------------------------------------------------------
@@ -164,18 +166,18 @@ bootstrap:
 
     # the amount of time a master is allowed to recover from failures before failover is triggered (in seconds)
     # Max RTO: 2 loop wait + master_start_timeout
-    master_start_timeout: 10
+    master_start_timeout: 120
 
     # import: candidate will not be promoted if replication lag is higher than this
-    # maximum RPO: 1MB
-    maximum_lag_on_failover: 1048576
+    # maximum RPO: 0 for critical database
+    maximum_lag_on_failover: 1024
 
     # The number of seconds Patroni is allowed to wait when stopping Postgres and effective only when synchronous_mode is enabled
-    master_stop_timeout: 30
+    master_stop_timeout: 10
 
     # turns on synchronous replication mode. In this mode a replica will be chosen as synchronous and only the latest leader and synchronous replica are able to participate in leader election
     # set to true for RPO mode
-    synchronous_mode: false
+    synchronous_mode: true
 
     # prevents disabling synchronous replication if no synchronous replicas are available, blocking all client writes to the master
     synchronous_mode_strict: false
@@ -188,7 +190,6 @@ bootstrap:
       use_slots: true
       use_pg_rewind: true
       remove_data_directory_on_rewind_failure: true
-
 
       parameters:
         #----------------------------------------------------------------------
@@ -324,7 +325,7 @@ postgresql:
   #----------------------------------------------------------------------------
   bin_dir: {{ pg_bin_dir }}
   data_dir: {{ pg_data }}
-  # config_dir: {{ pg_data }}
+  config_dir: {{ pg_data }}
   pgpass: {{ pg_dbsu_home }}/.pgpass
   listen: {{ pg_listen }}:{{ pg_port }}
   connect_address: {{ inventory_hostname }}:{{ pg_port }}

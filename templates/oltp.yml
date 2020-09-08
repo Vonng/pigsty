@@ -1,10 +1,10 @@
 #!/usr/bin/env patroni
 
 ######################################################################
-# File      :   patroni-oltp.yml
+# File      :   patroni.yml
 # Ctime     :   2020-04-08
 # Mtime     :   2020-09-03
-# Desc      :   patroni cluster definition for {{ pg_cluster }}
+# Desc      :   patroni cluster definition for {{ pg_cluster }} (standard oltp)
 # Path      :   /pg/bin/patroni.yml
 # Realpath  :   /pg/conf/{{ pg_instance }}.yml
 # Author    :   Vonng(fengruohang@outlook.com)
@@ -166,7 +166,7 @@ bootstrap:
 
     # the amount of time a master is allowed to recover from failures before failover is triggered (in seconds)
     # Max RTO: 2 loop wait + master_start_timeout
-    master_start_timeout: 300
+    master_start_timeout: 10
 
     # import: candidate will not be promoted if replication lag is higher than this
     # maximum RPO: 1MB
@@ -400,9 +400,6 @@ postgresql:
     - "# allow: local role monitor with password"
     - local   all             {{ pg_monitor_username }}                          md5
     - host    all             {{ pg_monitor_username }}      127.0.0.1/32        md5
-    - "# allow: intranet admin role with password"
-    - host    all     +dbrole_admin               10.0.0.0/8          md5
-    - host    all     +dbrole_admin               192.168.0.0/16      md5
 {% if pg_hba_common is defined and pg_hba_common|length > 0 %}
     - "#======================= ADDITIONAL COMMON HBA =========================#"
 {% for hba in pg_hba_common %}
