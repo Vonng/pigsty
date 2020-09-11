@@ -58,7 +58,7 @@ psql -AXtwq postgres <<- EOF
 	COMMENT ON ROLE "${PG_MONITOR_USERNAME}" IS 'system user for monitor';
 	ALTER USER "${PG_MONITOR_USERNAME}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION;
 	ALTER USER "${PG_MONITOR_USERNAME}" PASSWORD '${PG_MONITOR_PASSWORD}' CONNECTION LIMIT 5;
-	ALTER USER "${PG_MONITOR_USERNAME}" SET search_path = monitor, public;
+	ALTER USER "${PG_MONITOR_USERNAME}" SET search_path = public,monitor;
 	GRANT pg_monitor TO "${PG_MONITOR_USERNAME}";
 EOF
 
@@ -384,7 +384,7 @@ if [ ${PG_DEFAULT_DATABASE} != 'postgres' ]; then
 		log "initdb: create default schema on ${PG_DEFAULT_DATABASE} : ${PG_DEFAULT_SCHEMA}"
 		psql -AXtwq ${PG_DEFAULT_DATABASE} <<- EOF
 			CREATE SCHEMA IF NOT EXISTS ${PG_DEFAULT_SCHEMA};
-			ALTER USER "${PG_DBSU}" SET search_path = ${PG_DEFAULT_SCHEMA}, monitor, public;
+			ALTER USER "${PG_DBSU}" SET search_path = ${PG_DEFAULT_SCHEMA},public,monitor;
 		EOF
 	fi
 
