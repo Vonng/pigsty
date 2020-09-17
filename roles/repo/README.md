@@ -7,24 +7,24 @@ Tasks:
 
 ```yaml
 tasks:
-  - Create local repo directory			TAGS: [repo_dir]
-  - Backup & remove existing repos		TAGS: [repo_upstream]
-  - Add required upstream repos			TAGS: [repo_upstream]
-  - Check repo pkgs cache exists		TAGS: [repo_prepare]
-  - Set fact whether repo_exists		TAGS: [repo_prepare]
-  - Move upstream repo to backup		TAGS: [repo_prepare]
-  - Add local file system repos			TAGS: [repo_prepare]
-  - Remake yum cache if not exists		TAGS: [repo_prepare]
-  - Install repo bootstrap packages		TAGS: [repo_boot]
-  - Render repo nginx server files		TAGS: [repo_nginx]
-  - Disable selinux for repo server		TAGS: [repo_nginx]
-  - Launch repo nginx server			TAGS: [repo_nginx]
-  - Waits repo server online			TAGS: [repo_nginx]
-  - Download web url packages			TAGS: [repo_download]
-  - Download repo packages				TAGS: [repo_download]
-  - Download repo pkg deps				TAGS: [repo_download]
-  - Create local repo index				TAGS: [repo_download]
-  - Mark repo cache as valid			TAGS: [repo_download]
+  repo : Create local repo directory		TAGS: [repo, repo_dir]
+  repo : Backup & remove existing repos		TAGS: [repo, repo_upstream]
+  repo : Add required upstream repos		TAGS: [repo, repo_upstream]
+  repo : Check repo pkgs cache exists		TAGS: [repo, repo_prepare]
+  repo : Set fact whether repo_exists		TAGS: [repo, repo_prepare]
+  repo : Move upstream repo to backup		TAGS: [repo, repo_prepare]
+  repo : Add local file system repos		TAGS: [repo, repo_prepare]
+  repo : Remake yum cache if not exists		TAGS: [repo, repo_prepare]
+  repo : Install repo bootstrap packages	TAGS: [repo, repo_boot]
+  repo : Render repo nginx server files		TAGS: [repo, repo_nginx]
+  repo : Disable selinux for repo server	TAGS: [repo, repo_nginx]
+  repo : Launch repo nginx server			TAGS: [repo, repo_nginx]
+  repo : Waits repo server online			TAGS: [repo, repo_nginx]
+  repo : Download web url packages			TAGS: [repo, repo_download]
+  repo : Download repo packages				TAGS: [repo, repo_download]
+  repo : Download repo pkg deps				TAGS: [repo, repo_download]
+  repo : Create local repo index			TAGS: [repo, repo_download]
+  repo : Mark repo cache as valid			TAGS: [repo, repo_download]
 ```
 
 Related variables:
@@ -158,15 +158,15 @@ repo_packages:
   - ansible python python-pip python-psycopg2                                             # ansible & python
   - python3 python3-psycopg2                                                              # python3
   - haproxy keepalived dnsmasq                                                            # proxy and dns
-  # - docker-ce docker-ce-cli rkt                                                         # container
-  # - kubelet kubectl kubeadm kubernetes-cni helm                                         # kubernetes
+  - docker-ce docker-ce-cli rkt                                                           # container
+  - kubelet kubectl kubeadm kubernetes-cni helm                                           # kubernetes
   - postgresql12* postgis30_12* timescaledb_12 citus_12 pglogical_12                      # postgres 12 basic
   - pg_qualstats12 pg_cron_12 pg_top12 pg_repack12 pg_squeeze12 pg_stat_kcache12 wal2json12 pgpool-II-12 pgpool-II-12-extensions python3-psycopg2 python2-psycopg2
   - ddlx_12 bgw_replstatus12 count_distinct12 extra_window_functions_12 geoip12 hll_12 hypopg_12 ip4r12 jsquery_12 multicorn12 osm_fdw12 mysql_fdw_12 ogr_fdw12 mongo_fdw12 hdfs_fdw_12 cstore_fdw_12 wal2mongo12 orafce12 pagila12 pam-pgsql12 passwordcheck_cracklib12 periods_12 pg_auto_failover_12 pg_bulkload12 pg_catcheck12 pg_comparator12 pg_filedump12 pg_fkpart12 pg_jobmon12 pg_partman12 pg_pathman12 pg_track_settings12 pg_wait_sampling_12 pgagent_12 pgaudit14_12 pgauditlogtofile-12 pgbconsole12 pgcryptokey12 pgexportdoc12 pgfincore12 pgimportdoc12 pgmemcache-12 pgmp12 pgq-12 pgrouting_12 pgtap12 plpgsql_check_12 plr12 plsh12 postgresql_anonymizer12 postgresql-unit12 powa_12 prefix12 repmgr12 safeupdate_12 semver12 slony1-12 sqlite_fdw12 sslutils_12 system_stats_12 table_version12 topn_12
   - pgbouncer pg_cli pg_top pgbadger                                                      # postgres common utils
   - pgadmin4                                                                              # pg admin GUI tools
-  # - patroni patroni-consul patroni-etcd                                                 # these packages in pgdg are not usable for now
-  # - postgresql13*
+  - patroni patroni-consul patroni-etcd                                                   # these packages in pgdg are not usable for now
+  - postgresql13*
 
 repo_url_packages:
   - https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
