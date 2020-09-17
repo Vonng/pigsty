@@ -137,6 +137,10 @@ env-dev: env-clean
 	ln -s dev.ini cls/inventory.ini
 	ln -s dev.yml group_vars/all.yml
 
+env-vps: env-clean
+	ln -s vps.ini cls/inventory.ini
+	ln -s vps.yml group_vars/all.yml
+
 env-test: env-clean
 	ln -s test.ini cls/inventory.ini
 	ln -s test.yml group_vars/all.yml
