@@ -2,18 +2,50 @@
 
 Ansible roles:
 
-* [repo](repo_old/)
+* [repo](repo/)
+
+  Create local yum repo
+  
 * [node](node/)
-* [infra](infra/)
-* [dcs](dcs/)
+
+  Provision node (hostname, dns, ntp, nameserver, features, tuned, repo, packages, admin users, etc... )
+
+* [consul](consul/)
+
+  Install consul (server or agent) on nodes
+
+* [etcd](etcd/)
+
+  Install etcd server and write etcd client config 
+
 * [cloud](cloud/)
-* [meta](meta/)
-* [pg_preflight](pg_preflight/)
-* [pg_install](pg_install/)
-* [pg_primary](pg_init/)
-* [pg_replica](pg_replica/)
-* [pg_patroni](pg_patroni/)
-* [pg_pgbouncer](pg_pgbouncer/)
-* [haproxy](haproxy/)
-* [keepalived](keepalived/)
-* [pg_monitor](pg_monitor/)
+
+  Install cloud native packages (not used yet) 
+
+* [ca](ca/)
+
+  Create certificate infrastructure
+
+* [nginx](nginx/)
+
+  Create reverse proxy nginx on meta node
+
+* [prometheus](prometheus/)
+
+  Install and provision prometheus
+  
+* [grafana](grafana/)
+
+  Install and provision grafana
+  
+* [postgres](postgres/)
+    
+  Install and provision postgres clusters
+
+* [monitor](monitor/)
+    
+  Install and provision postgres monitoring system
+
+* [proxy](proxy/)
+    
+  Install and launch proxy for postgres
