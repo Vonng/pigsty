@@ -2,18 +2,19 @@
 
 ######################################################################
 # File      :   patroni.yml
-# Ctime     :   2020-09-08
-# Mtime     :   2020-09-08
-# Desc      :   patroni cluster definition for {{ pg_cluster }} (critical)
+# Ctime     :   2020-04-08
+# Mtime     :   2020-09-03
+# Desc      :   patroni cluster definition for {{ pg_cluster }} (tiny)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
-# Note      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
-# Note      :   Critical Database Cluster Template
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note      :   Tiny Database Cluster Template
+# Note      :   Transactional Database Cluster Template
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2019-2020 Ruohang Feng
 ######################################################################
 
-# CRIT database are optimized for security, RPO
+# TINY database are optimized for low-resource situation (e.g 1 Core 1G)
 
 ---
 #------------------------------------------------------------------------------
@@ -167,18 +168,18 @@ bootstrap:
 
     # the amount of time a master is allowed to recover from failures before failover is triggered (in seconds)
     # Max RTO: 2 loop wait + master_start_timeout
-    master_start_timeout: 120
+    master_start_timeout: 10
 
     # import: candidate will not be promoted if replication lag is higher than this
-    # maximum RPO: 0 for critical database
-    maximum_lag_on_failover: 1024
+    # maximum RPO: 1MB
+    maximum_lag_on_failover: 1048576
 
     # The number of seconds Patroni is allowed to wait when stopping Postgres and effective only when synchronous_mode is enabled
-    master_stop_timeout: 10
+    master_stop_timeout: 30
 
     # turns on synchronous replication mode. In this mode a replica will be chosen as synchronous and only the latest leader and synchronous replica are able to participate in leader election
     # set to true for RPO mode
-    synchronous_mode: true
+    synchronous_mode: false
 
     # prevents disabling synchronous replication if no synchronous replicas are available, blocking all client writes to the master
     synchronous_mode_strict: false
@@ -192,37 +193,38 @@ bootstrap:
       use_pg_rewind: true
       remove_data_directory_on_rewind_failure: true
 
+
       parameters:
         #----------------------------------------------------------------------
         # IMPORTANT PARAMETERS
         #----------------------------------------------------------------------
-        max_connections: 400
+        max_connections: 50
         superuser_reserved_connections: 10
-        max_locks_per_transaction: 128
+        max_locks_per_transaction: 64
         max_prepared_transactions: 0
         track_commit_timestamp: on
-        max_worker_processes: 8
+        max_worker_processes: 1
         wal_level: logical
         wal_log_hints: on
-        max_wal_senders: 16
-        max_replication_slots: 16
-        wal_keep_segments: 1000
+        max_wal_senders: 8
+        max_replication_slots: 8
+        wal_keep_segments: 10
         password_encryption: md5
 
         #----------------------------------------------------------------------
         # RESOURCE USAGE (except WAL)
         #----------------------------------------------------------------------
         # memory: shared_buffers and maintenance_work_mem will be dynamically set
-        shared_buffers: {{ pg_shared_buffers }}
-        maintenance_work_mem: {{ pg_maintenance_work_mem }}
-        work_mem: 32MB
+        shared_buffers: 256MB
+        maintenance_work_mem: 128MB
+        work_mem: 4MB
         huge_pages: try
-        temp_file_limit: 100GB
+        temp_file_limit: 1GB
         vacuum_cost_delay: 2ms                  # wait 2ms per 10000
         vacuum_cost_limit: 10000                # 10000 cost each round
         bgwriter_delay: 10ms                    # check dirty page every 10ms
-        bgwriter_lru_maxpages: 800              # 100 -> 800
-        bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
+        bgwriter_lru_maxpages: 200              # 100 -> 200
+        bgwriter_lru_multiplier: 2.0            # 2.0 default
 
         #----------------------------------------------------------------------
         # WAL
@@ -230,12 +232,12 @@ bootstrap:
         wal_buffers: 16MB
         wal_writer_delay: 20ms
         wal_writer_flush_after: 1MB             # max allowed data loss
-        min_wal_size: 100GB
-        max_wal_size: 500GB
+        min_wal_size: 1GB
+        max_wal_size: 4GB
         commit_delay: 20                        # 0 -> 20ms
         commit_siblings: 10                     # 5 -> 10
-        checkpoint_timeout: 60min               # checkpoint 5min -> 1h
-        checkpoint_completion_target: 0.95      # 0.5 -> 0.99
+        checkpoint_timeout: 10min               # checkpoint 5min -> 1h
+        checkpoint_completion_target: 0.8       # 0.5 -> 0.99
 
         #----------------------------------------------------------------------
         # REPLICATION
@@ -257,8 +259,8 @@ bootstrap:
         # planner
         # enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 320GB             # max mem - shared buffer
-        default_statistics_target: 1000         # stat bucket 100 -> 1000
+        effective_cache_size: 1GB               # max mem - shared buffer
+        default_statistics_target: 200          # stat bucket 100 -> 1000
 
         #----------------------------------------------------------------------
         # REPORTING AND LOGGING
@@ -284,10 +286,8 @@ bootstrap:
         # AUTOVACUUM
         #----------------------------------------------------------------------
         log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
-        autovacuum_max_workers: 3               # default autovacuum worker 3
+        autovacuum_max_workers: 2               # default autovacuum worker 3
         autovacuum_naptime: 1min                # default autovacuum naptime 1min
-        autovacuum_vacuum_scale_factor: 0.08    # fraction of table size before vacuum   20% -> 8%
-        autovacuum_analyze_scale_factor: 0.04   # fraction of table size before analyze  10% -> 4%
         autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay: same as vacuum_cost_delay
         autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
         autovacuum_freeze_max_age: 100000000    # age > 1 billion triggers force vacuum

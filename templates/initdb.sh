@@ -2,12 +2,13 @@
 set -euo pipefail
 #==============================================================#
 # File      :   initdb.sh
+# Ctime     :   2020-09-01
 # Mtime     :   2020-09-02
-# Desc      :   initdb.sh
+# Desc      :   create postgres business database and users
 # Path      :   /pg/bin/initdb.sh
 # Depend    :   CentOS 7
-# Author    :   Vonng(fengruohang@outlook.com)
 # Note      :   Run this as dbsu (postgres)
+# Copyright (C) 2019-2020 Ruohang Feng
 #==============================================================#
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"

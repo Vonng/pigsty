@@ -1,3 +1,11 @@
+#==============================================================#
+# File      :   Makefile
+# Ctime     :   2019-04-13
+# Mtime     :   2020-09-17
+# Desc      :   Makefile shortcuts
+# Path      :   Makefile
+# Copyright (C) 2019-2020 Ruohang Feng
+#==============================================================#
 default: start
 
 

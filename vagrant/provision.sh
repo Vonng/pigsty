@@ -5,9 +5,11 @@ set -uo pipefail
 # Mtime     :   2020-05-30
 # Desc      :   provision vagrant node with basic ssh/dns
 # Path      :   vagrant/provision.sh
-# Author    :   Vonng(fengruohang@outlook.com)
+# Note      :   currently only ssh is provisioned
 # Note      :   Run this as root
+# Copyright (C) 2019-2020 Ruohang Feng
 #==============================================================#
+
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
