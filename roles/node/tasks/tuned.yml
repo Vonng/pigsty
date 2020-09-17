@@ -1,7 +1,7 @@
 ---
 - name: Node tuned
   tags: node_tuned
-  when: node_tuned
+  when: node_tune is defined and node_tune != 'none'
   block:
     - name: Get config parameter page count
       command: getconf _PHYS_PAGES
@@ -17,14 +17,25 @@
         param_shmall: "{{ ((node_page_count.stdout|int) / 2)|int }}"
         param_shmmax: "{{ ((node_page_count.stdout|int) * (node_page_size.stdout|int) / 2)|int }}"
 
-    - name: Create tuned profile postgres
-      file: path=/etc/tuned/postgres state=directory mode=0755
+    - name: Create tuned profiles
+      file: path=/etc/tuned/{{ item }} state=directory mode=0755
+      with_items:
+        - oltp
+        - olap
+        - crit
+        - tiny
 
-    - name: Render tuned profile postgres
-      template: src=tuned.conf.j2 dest=/etc/tuned/postgres/tuned.conf mode=0644
+    - name: Render tuned profiles
+      template: src=tuned-{{ item }}.conf dest=/etc/tuned/{{ item }}/tuned.conf mode=0644
+      with_items:
+        - oltp
+        - olap
+        - crit
+        - tiny
 
-    - name: Active tuned profile postgres
-      command: tuned-adm profile postgres
+    - name: Active tuned profile
+      ignore_errors: true
+      command: tuned-adm profile {{ node_tune }}
 
     - name: Change additional sysctl params
       ignore_errors: true
@@ -35,6 +46,4 @@
         state: present
         reload: yes
       with_dict: "{{ node_sysctl_params }}"
-
-
 ...
