@@ -118,10 +118,14 @@ dump-monitor:
 	ssh meta "sudo rm -rf /tmp/grafana.db"
 
 restore-monitor:
-	scp files/grafana/grafana.db meta:/tmp/grafana.db
+	scp roles/grafana/files/grafana/grafana.db meta:/tmp/grafana.db
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
+restore-mini:
+	scp roles/grafana/files/grafana/grafana.db.mini meta:/tmp/grafana.db
+	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
+	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
 
 ###############################################################
