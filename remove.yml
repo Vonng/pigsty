@@ -2,10 +2,11 @@
 ---
 #==============================================================#
 # File      :   remove.yml
+# Mtime     :   2020-05-12
 # Mtime     :   2020-07-31
-# Desc      :   remove running service
+# Desc      :   remove running postgres & consul services
 # Path      :   remove.yml
-# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2019-2020 Ruohang Feng
 #==============================================================#
 
 
@@ -54,6 +55,21 @@
 
     - name: Reload consul
       systemd: name=consul state=reloaded
+
+
+#------------------------------------------------------------------------------
+# Remove watchdog owner
+#------------------------------------------------------------------------------
+- name: Remove monitor
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: rm-watchdog
+  tasks:
+    # - watchdog owner - #
+    - name: Remove patroni watchdog ownership
+      ignore_errors: true
+      file: path=/dev/watchdog owner=root group=root
 
 
 #------------------------------------------------------------------------------

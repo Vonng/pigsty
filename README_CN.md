@@ -2,17 +2,22 @@
 
 > PIGSTY: Postgres in Graphic STYle （图形化PostgreSQL环境）
 
-本项目为图形化PostgreSQL的演示项目，用于初始化高可用PG集群，并带有自包含的监控系统。
-本项目可以直接用于开发、测试、生产环境，针对本地开发，提供了基于[vagrant](https://vagrantup.com/)的沙箱环境（四虚机节点）
+本项目为图形化PostgreSQL的演示项目，带有一个演示版本的pigsty监控系统。
+
+本项目可以直接用于开发、测试、生产环境。针对本地开发，亦提供了基于[vagrant](https://vagrantup.com/)的沙箱环境（四虚机节点）
 
 
 
 ## 亮点
 
-* 高可用部署
-* 自包含的监控、报警、日志收集系统，自动服务发现
-* 代码定义的基础设施（Infrastructure as Code）
-* 集成常规备份维护脚本
+* 高可用PostgreSQL数据库集群，生产验证的部署方案
+* 自包含的监控、报警、日志收集系统，基于DCS的自动服务发现
+* 自包含的本地源，离线安装所有依赖，无需外网访问。
+* 针对四种主要场景：OLTP，OLAP，核心库，虚拟机进行专项优化
+* 常用管理，维护，备份，恢复脚本
+* 参数化，声明式定义的基础设施，幂等式的执行方式。
+
+  
 
 
 ## 快速开始
@@ -345,5 +350,4 @@ TBD
 
 Author：Vonng ([fengruohang@outlook.com](mailto:fengruohang@outlook.com))
 
-License [Creative Common](https://creativecommons.org/licenses/by-nc/4.0/)
-
+License: (Apache Apache License Version 2.0)[LICENSE] 
