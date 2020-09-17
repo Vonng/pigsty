@@ -1,7 +1,12 @@
+upstream {{ item.name }} {
+    server {{ item.url }} max_fails=0;
+}
+
 server {
     listen       80;
     server_name  {{ item.host }};
     location / {
-        proxy_pass {{ item.url }};
+        proxy_pass http://{{ item.name }}/;
+        proxy_connect_timeout 5;
     }
 }
