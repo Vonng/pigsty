@@ -8,33 +8,54 @@ This project provisioned a PostgreSQL cluster upon [vagrant](https://vagrantup.c
 
 
 
-## Features
+## Highlight
 
-* High Availability PostgreSQL Cluster
-* Production Grade Quality
-* Offline installtaion without network
-* Monitoring/Alerting/Logging System
-* Service Discovery with dcs
-* Performance tuning for bare metal
-* Util scripts
-* Cloud native deployment (TBD)
+* High-available PostgreSQL cluster with production grade quality.
+* Offline installtaion mode without Internet access
+* Intergreted monitoring alerting logging system
+* Service discovery and metadata storage with dcs
+* Performance tuning for different situations (OLTP, OLAP, CRIT, TINY)
+* Infra as Code: declarative parameters, customizable templates, idempotent playbooks.
 
 
 
 ## Quick Start
 
-1. Provision all nodes, select one as meta node, configure ssh nopass access to other nodes
-2. Install ansible on meta nodes (for offline environment, refer to [this(DOC TBD)]())
-3. [Configure] your infrastructure and defining you database clusters ([Configuration]()) 
-4. Run`infra.yml` to provision infrastructure
-5. Run`postgres.yml` to provision database cluster
+1. Prepare nodes, pick one as meta nodes which have ssh nopass access to other nodes and sudo privileges.
+2. Install ansible on meta nodes and clone this repo ([Offline installation guide]())
+   
+   ```bash
+   git clone https://github.com/vonng/pigsty && cd pigsty 
+   ```
+
+3. Configure your infrastructure and defining you database clusters ([Configuration Guide]())
+
+   ```bash
+   group_vars/all.yml   # infrastructure definition, global variables
+   cls/inventory.ini    # postgres cluster definition, node/cluster specific variables
+   templates/           # provision template (pre-defined or user-provided)   
+   ```
 
 
-### Requirement
+4. Run`infra.yml` on meta node to provision infrastructure. ([Infrastructure Parameters]())
+
+   ```bash
+   ./infra.yml          # setup infrastructure properly
+   ```
+   
+5. Run`postgres.yml` on meta node to provision database cluster ([Postgres Cluster Parameters]())
+
+   ```bash
+   ./postgres.yml       # pull up all postgres clusters  
+   ```
+
+
+
+## Requirement
 
 **Minimal setup**
 
-* 1 Node only, self-contained
+* 1 Node, self-contained
 * Meta node, and a one-node postgres instance `pg-meta`
 * Minimal requirement: 2 CPU Core & 2 GB RAM
 
@@ -42,15 +63,23 @@ This project provisioned a PostgreSQL cluster upon [vagrant](https://vagrantup.c
 
 * 4 Node, including 1 meta node and 3 database node
 * Two postgres cluster `pg-meta` and `pg-test` (1 primary, 2 replica)
-
 * Meta node requirement: 2~4 CPU Core & 4 ~ 8 GB RAM
 * DB node minimal requirement: 1 CPU Core & 1 GB RAM
 
-**VM Provision**
+
+## Vagrant Provision
+
+If you wish to run pigsty on your laptop, consider using vagrant and virtualbox as vm provisioner
 
 *  [`Vagrantfile`](vagrant/Vagrantfile) will provision 4 nodes (via [virtualbox](https://www.virtualbox.org/)) for this project.
 * Install  [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) and [ansible](https://www.ansible.com/) before next step
-* Make sure you have no-pass ssh access to these nodes from this machine
+* Make sure you have no-pass ssh access to these nodes from this machine, then:
+
+```bash
+make up     # alternative: cd vagrant && vagrant up
+```
+
+will pull up all four nodes
 
 
 
@@ -458,7 +487,7 @@ make clean	# delete current cluster
 ## Architecture
 
 TBD
- 
+
 
 ## What's Next?
 
