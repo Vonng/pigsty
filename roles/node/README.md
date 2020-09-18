@@ -96,24 +96,28 @@ node_dns_options:                             # dns resolv options
   - options single-request-reopen timeout:1 rotate
 
 # - node repo - #
+node_repo_method: public                      # none|local|public (public by default)
 node_repo_remove: true                        # whether remove existing repo
-node_repo_url: []                             # additional repo to be installed via url
-node_local_repo: pigsty                       # if provide, all default repo will be disabled except this
-node_repo_config: []                          # commands to config yum repos
+node_local_repo_url: []                       # local repo url (if method=local)
+
+#node_repo_add_upstream: false                 # whether add upstream to node
+#node_repo_url: []                             # additional repo to be installed via url
+#node_local_repo: pigsty                       # if provide, all default repo will be disabled except this
+#node_repo_config: []                          # commands to config yum repos
 
 # - node pkgs - #
 node_packages:                                # common packages for all nodes
-  - wget,yum-utils,ntp,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
+  - wget,yum-utils,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
   - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
-  - python-pip,python-psycopg2
-  - node_exporter,pg_exporter
-  - consul,consul-template,etcd,haproxy,keepalived
+  - python-pip,python-psycopg2,node_exporter
+  - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul # python3
+  - consul,consul-template,etcd,haproxy,keepalived,vip-manager
 
   # - postgresql12*
 node_extra_packages: []                       # extra packages for nodes
 node_meta_packages:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-  - dnsmasq,nginx,ansible,pgbadger
+  - dnsmasq,nginx,ansible,pgbadger,polysh
 
 
 # - node features - #
@@ -121,13 +125,14 @@ node_disable_numa: false                      # disable numa, important for prod
 node_disable_swap: true                       # disable swap, important for production database
 node_disable_firewall: true                   # disable firewall (required if using kubernetes)
 node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
+node_static_network: true                     # keep dns resolver settings after reboot
 node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
 
 # - node kernel modules - #
 node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
 # - node tuned - #
-node_tuned: true                              # install and activate tuned profile: postgres
+node_tune: oltp                               # install and activate tuned profile: oltp|olap|crit|tiny
 node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
 
 # - node user - #
@@ -138,10 +143,14 @@ node_admin_ssh_exchange: true                 # exchange ssh key amoung cluster 
 node_admin_servers: []                        # ssh pub key of these host will to be installed on targets
 
 # - node ntp - #
-node_ntp_setup: false                         # setup ntp
+node_ntp_service: ntp                         # ntp or chrony
+node_ntp_config: true                         # overwrite existing ntp config?
 node_timezone: Asia/Shanghai                  # default node timezone
-node_ntp_servers: []                          # default NTP servers
-
+node_ntp_servers:                             # default NTP servers
+  - pool cn.pool.ntp.org iburst
+  - pool pool.ntp.org iburst
+  - pool time.pool.aliyun.com iburst
+  - server 10.10.10.10 iburst
 
 # - foreign reference - #
 # this will be override by user provided repo list
