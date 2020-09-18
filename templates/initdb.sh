@@ -108,25 +108,6 @@ fi
 
 
 #----------------------------------------------------------------------------
-# additional user dba and stats
-#----------------------------------------------------------------------------
-log "initdb: create additional users: dbuser_dba dbuser_stats"
-psql -AXtwq postgres <<-EOF
-	-- remote superuser
-	CREATE ROLE dbuser_dba;        -- administration tasks
-	GRANT dbrole_admin TO "dbuser_dba";
-	COMMENT ON ROLE dbuser_dba IS 'database administrator';
-	ALTER ROLE dbuser_dba SUPERUSER LOGIN NOINHERIT CREATEROLE CREATEDB REPLICATION BYPASSRLS  PASSWORD 'md57bb81c95d81079e81981f7c8cf84d586';;
-
-	-- remote stats user
-	CREATE ROLE dbuser_stats;        -- administration tasks
-	GRANT dbrole_readonly TO "dbuser_stats";
-	COMMENT ON ROLE dbuser_stats IS 'offline stats etl user';
-	ALTER ROLE dbuser_stats PASSWORD 'md5425da66bfc2f7d5df6905c0492b0033c';
-EOF
-
-
-#----------------------------------------------------------------------------
 # create pgpass
 #----------------------------------------------------------------------------
 log "initdb: create pgpass file"
