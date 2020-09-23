@@ -14,7 +14,7 @@
 ## Example
 
 * [`group_vars/all.yml`](../group_vars/all.yml`) defines most infrastructure parameters and global postgres cluster parameters.
-* [`cls/inventory.ini`](../cls/inventory.ini) defines postgres cluster and override parameters
+* [`cls/inventory.ini`](../inventory/inventory.ini) defines postgres cluster and override parameters
 
 
 
