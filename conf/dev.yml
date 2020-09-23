@@ -32,6 +32,7 @@ all: # top-level namespace, match all hosts
       # nodes in meta group (1-3)
       hosts:
         10.10.10.10:                        # meta node IP ADDRESS
+        ansible_host: meta                  # comment this if not access via ssh alias
 
 
     #-----------------------------
@@ -117,9 +118,10 @@ all: # top-level namespace, match all hosts
           pg_seq: 3                       # instance sequence among cluster
 
 
-  #==============================================================#
-  #                         Globals                              #
-  #==============================================================#
+
+  #==================================================================#
+  #                           Globals                                #
+  #==================================================================#
   vars:
 
     #------------------------------------------------------------------------------
@@ -336,7 +338,7 @@ all: # top-level namespace, match all hosts
     node_admin_uid: 88                            # uid and gid for admin user
     node_admin_username: admin                    # default admin user
     node_admin_ssh_exchange: true                 # exchange ssh key among cluster ?
-    node_admin_pks:                               # public key list that will be installed
+    node_admin_pks: # public key list that will be installed
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     # - node ntp - #
@@ -362,10 +364,10 @@ all: # top-level namespace, match all hosts
 
     # - nginx - #
     nginx_upstream:
-      - {name: consul,        host: c.pigsty, url: "127.0.0.1:8500"}
-      - {name: grafana,       host: g.pigsty, url: "127.0.0.1:3000"}
-      - {name: prometheus,    host: p.pigsty, url: "127.0.0.1:9090"}
-      - {name: alertmanager,  host: a.pigsty, url: "127.0.0.1:9093"}
+      - { name: consul,        host: c.pigsty, url: "127.0.0.1:8500" }
+      - { name: grafana,       host: g.pigsty, url: "127.0.0.1:3000" }
+      - { name: prometheus,    host: p.pigsty, url: "127.0.0.1:9090" }
+      - { name: alertmanager,  host: a.pigsty, url: "127.0.0.1:9093" }
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
@@ -427,7 +429,8 @@ all: # top-level namespace, match all hosts
     #------------------------------------------------------------------------------
     dcs_type: consul                              # consul | etcd | both
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
-    dcs_servers: # dcs server dict in name:ip format
+    # dcs server dict in name:ip format
+    dcs_servers:
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
       # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
       # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
@@ -534,6 +537,7 @@ all: # top-level namespace, match all hosts
       - '"# allow remote readonly user (stats, personal user) password access (directly)"'
       - local   all     +dbrole_readonly                               md5
       - host    all     +dbrole_readonly           127.0.0.1/32        md5
+    # this hba is added directly to /etc/pgbouncer/pgb_hba.conf instead of patroni conf
     pg_hba_pgbouncer:
       - '# biz_user intranet password access'
       - local  all          all                                     md5
@@ -592,5 +596,7 @@ all: # top-level namespace, match all hosts
     haproxy_primary_port: 5433                   # default primary port 5433
     haproxy_replica_port: 5434                   # default replica port 5434
     haproxy_backend_port: 6432                   # default target port: pgbouncer:6432 postgres:5432
+
+
 
 ...
