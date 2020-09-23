@@ -62,8 +62,6 @@ resume:
 provision:
 	cd vagrant && vagrant provision
 # sync ntp time (only works after ntp been installed during init-node)
-sync2:
-
 sync:
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate pool.ntp.org'; true
 	# echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
@@ -142,24 +140,20 @@ restore-mini:
 env: env-dev
 
 env-clean:
-	rm -rf cls/inventory.ini
-	rm -rf group_vars/all.yml
+	rm -rf conf/all.yml
 
 env-dev: env-clean
-	ln -s dev.ini cls/inventory.ini
-	ln -s dev.yml group_vars/all.yml
+	ln -s dev.yml conf/all.yml
 
 env-vps: env-clean
-	ln -s vps.ini cls/inventory.ini
-	ln -s vps.yml group_vars/all.yml
+	ln -s vps.yml conf/all.yml
 
-env-test: env-clean
-	ln -s test.ini cls/inventory.ini
-	ln -s test.yml group_vars/all.yml
+env-pre: env-clean
+	ln -s pre.yml conf/all.yml
 
 env-prod: env-clean
-	ln -s prod.ini cls/inventory.ini
-	ln -s prod.yml group_vars/all.yml
+	ln -s prod.yml conf/all.yml
+
 
 ###############################################################
 # kubernetes management
