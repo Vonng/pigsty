@@ -96,7 +96,7 @@ EOF
 if [ ${PG_DEFAULT_USERNAME} != 'postgres' ]; then
 	log "initdb: create default business user: ${PG_DEFAULT_USERNAME}"
 	psql -AXtwq postgres <<- EOF
-		-- system user: dbuser_monitor
+		-- default user
 		CREATE USER "${PG_DEFAULT_USERNAME}";
 		COMMENT ON ROLE "${PG_DEFAULT_USERNAME}" IS 'default business user';
 		ALTER USER "${PG_DEFAULT_USERNAME}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION BYPASSRLS;
