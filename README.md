@@ -54,7 +54,7 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
    ```bash
    # GUI access:
    sudo make dns				   # write local DNS record to your /etc/hosts, sudo required
-   open http://g.pigsty   # monitoring system grafana, credential: admin:admin
+   open http://g.pigsty   # monitor system grafana, default credential: admin:admin
 
    # cli access: benching pg-test cluster with pgbench
    pgbench -is10 postgres://test:test@pg-test:5433/test						                          # init
@@ -67,9 +67,30 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
 
 ## Architecture
 
-Take standard demo cluster as an example
+### Cluster Overview
+
+Take standard demo cluster as an example, this cluster consist of four nodes: `meta` , `node-1` , `node-2`, `node-3`. 
 
 ![](doc/img/arch.png)
+
+### Service Overview
+
+Pigsty provides multiple ways to connect to database:
+
+* L2: via virtual IP address that are bond to primary instance
+* L4: via haproxy load balancer that runs symmetrically on all nodes among cluster
+* L7: via DNS (`pg-test`, `primary.pg-test`, `replica.pg-test`)
+
+And multiple ways to route (read-only/read-write) traffic:
+
+* Distinguish primary and replica service by DNS  (`pg-test`, `pg-test-primary`, `pg-test-replica`)
+* Distinguish primary and replica service by Port (5433 for primary, 5434 for replica)
+* Direct instance access
+* Smart Client (`target_session_attrs=read-write`)
+
+Lot's of configurable parameters items, refer to [Proxy Configuration Guide](doc/proxy-configuration.md) for more detail.
+
+![](doc/img/proxy.png)
 
 [Database Access Guide](doc/database-access.md) provides information about how to connect to database.
 
@@ -94,7 +115,7 @@ Take standard demo cluster as an example
 
 ## Support
 
-Business support is available. contact [me](mailto:fengruohang@outlook.com) for more detail.
+Business support is available. [Contact](mailto:fengruohang@outlook.com) for more detail.
 
 * Advance Monitoring System
 * MetaDB and Catalog Explorer
@@ -102,7 +123,7 @@ Business support is available. contact [me](mailto:fengruohang@outlook.com) for 
 * Customizable backup & recovery plan
 * Deployment assistance and trouble shooting
 
-Read more about enterprise (maybe later) version of pigsty.
+Read [more [TODO]](doc/enterprise.md) about enterprise version of pigsty.
 
 
 
