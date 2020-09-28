@@ -14,8 +14,9 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
 * Offline installtaion mode without Internet access
 * Intergreted monitoring alerting logging system
 * Service discovery and metadata storage with dcs
-* Performance tuning for different situations (OLTP, OLAP, CRIT, TINY)
-* Infra as Code: declarative parameters, customizable templates, idempotent playbooks.
+* Infra as Code. Fully customizable. optimized presets: OLTP, OLAP, CRITICAL, TINY-VM, etc...
+* Simplicity: simple interface, declarative parameters and idempotent playbooks.
+* Latest version support (PostgreSQL 13 and Patroni 2.0)
 
 
 
@@ -28,12 +29,10 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
    git clone https://github.com/vonng/pigsty && cd pigsty 
    ```
 
-3. Configure your infrastructure and defining you database clusters ([Configuration Guide](doc/configuration.md))
+3. **Configure** your infrastructure and defining you database clusters ([Configuration Guide](doc/configuration.md))
 
    ```bash
-   group_vars/all.yml   # infrastructure definition, global variables
-   cls/inventory.ini    # postgres cluster definition, node/cluster specific variables
-   templates/           # provision template (pre-defined or user-provided)   
+   conf/all.yml				 # default configuration path
    ```
 
 
@@ -71,7 +70,7 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
 
 Take standard demo cluster as an example, this cluster consist of four nodes: `meta` , `node-1` , `node-2`, `node-3`. 
 
-![](doc/img/arch.png)
+![](doc/img/arch.png)
 
 ### Service Overview
 
