@@ -209,7 +209,8 @@ bootstrap:
         wal_log_hints: on
         max_wal_senders: 8
         max_replication_slots: 8
-        wal_keep_segments: 10
+        wal_keep_size: 1GB
+        max_slot_wal_keep_size: 16GB
         password_encryption: md5
 
         #----------------------------------------------------------------------
@@ -220,7 +221,7 @@ bootstrap:
         maintenance_work_mem: 128MB
         work_mem: 4MB
         huge_pages: try
-        temp_file_limit: 1GB
+        temp_file_limit: 40GB
         vacuum_cost_delay: 2ms                  # wait 2ms per 10000
         vacuum_cost_limit: 10000                # 10000 cost each round
         bgwriter_delay: 10ms                    # check dirty page every 10ms
@@ -308,13 +309,13 @@ bootstrap:
         shared_preload_libraries: '{{ pg_shared_libraries | default("pg_stat_statements, auto_explain") }}'
 
         # extension settings
-        auto_explain.log_min_duration: 1min
+        auto_explain.log_min_duration: 100ms
         auto_explain.log_analyze: true
         auto_explain.log_verbose: true
         auto_explain.log_timing: true
         auto_explain.log_nested_statements: true
-        pg_stat_statements.max: 10000
-        pg_stat_statements.track: all
+        pg_stat_statements.max: 3200
+        pg_stat_statements.track: all           # all|top
 
 
 #------------------------------------------------------------------------------

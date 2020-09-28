@@ -19,30 +19,29 @@ new: clean start upload init
 dns:
 	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat files/dns >> /etc/hosts; fi
 
-# cache / upload rpm packages (this is useful for accelerate or perform offline installation)
+# write pigsty ssh config to ~/.ssh/pigsty_config
+ssh:
+	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true
+	if ! grep --quiet "pigsty_config" ~/.ssh/config ; then (echo 'Include ~/.ssh/pigsty_config' && cat ~/.ssh/config) >  ~/.ssh/config.tmp; mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config; fi
+	if ! grep --quiet "StrictHostKeyChecking=no" ~/.ssh/config ; then (echo 'StrictHostKeyChecking=no' && cat ~/.ssh/config) >  ~/.ssh/config.tmp; mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config; fi
+
+# upload rpm cache to meta controller
+upload:
+	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
+	scp -r pkg.tgz meta:/tmp/pkg.tgz
+	ssh -t meta "sudo mkdir -p /www/pigsty/; sudo rm -rf /www/pigsty/*; sudo tar -xf /tmp/pkg.tgz --strip-component=1 -C /www/pigsty/"
+
+# cache rpm packages from meta controller
 cache:
 	rm -rf pkg/* && mkdir -p pkg;
 	ssh -t meta "sudo tar -zcf /tmp/pkg.tgz -C /www pigsty; sudo chmod a+r /tmp/pkg.tgz"
 	scp -r meta:/tmp/pkg.tgz pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
 
-# upload rpm cache to meta node
-upload:
-	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
-	scp -r pkg.tgz meta:/tmp/pkg.tgz
-	ssh -t meta "sudo mkdir -p /www/pigsty/; sudo rm -rf /www/pigsty/*; sudo tar -xf /tmp/pkg.tgz --strip-component=1 -C /www/pigsty/"
-
-# init will pull up entire cluster
+# provision infrastructure and database clusters
 init:
 	./infra.yml
-	./initdb.yml 				# provision pg-test and pg-meta
-
-# down will halt all vm (not destroy)
-down: halt
-
-# show vagrant cluster status
-st: status
-
+	./postgres.yml 				# provision pg-test and pg-meta
 
 ###############################################################
 # vm management
@@ -53,6 +52,7 @@ up:
 	cd vagrant && vagrant up
 halt:
 	cd vagrant && vagrant halt
+down: halt
 status:
 	cd vagrant && vagrant status
 suspend:
@@ -61,20 +61,16 @@ resume:
 	cd vagrant && vagrant resume
 provision:
 	cd vagrant && vagrant provision
-# sync ntp time (only works after ntp been installed during init-node)
+# sync ntp time
 sync:
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate pool.ntp.org'; true
 	# echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
-
-# append pigsty ssh config to ~/.ssh
-ssh:
-	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true
-	if ! grep --quiet "pigsty_config" ~/.ssh/config ; then (echo 'Include ~/.ssh/pigsty_config' && cat ~/.ssh/config) >  ~/.ssh/config.tmp; mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config; fi
-	if ! grep --quiet "StrictHostKeyChecking=no" ~/.ssh/config ; then (echo 'StrictHostKeyChecking=no' && cat ~/.ssh/config) >  ~/.ssh/config.tmp; mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config; fi
-
+# show vagrant cluster status
+st: status
 start: up ssh sync
 stop: halt
 
+# only init partial of cluster
 meta-up:
 	cd vagrant && vagrant up meta
 node-up:
@@ -148,6 +144,9 @@ env-dev: env-clean
 env-vps: env-clean
 	ln -s vps.yml conf/all.yml
 
+env-vm: env-clean
+	ln -s vm.yml conf/all.yml
+
 env-pre: env-clean
 	ln -s pre.yml conf/all.yml
 
@@ -156,7 +155,7 @@ env-prod: env-clean
 
 
 ###############################################################
-# kubernetes management
+# kubernetes management (Obsolete)
 ###############################################################
 # open kubernetes dashboard
 k8s:

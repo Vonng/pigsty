@@ -117,6 +117,17 @@
         mode: 0644
 
 
+    #------------------------------------------------------------------------------
+    # initdb scripts
+    #------------------------------------------------------------------------------
+    - name: Render default initdb scripts
+      template:
+        src: "{{ pg_init }}"
+        dest: /pg/bin/initdb.sh
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        mode: 0755
+
 
 #------------------------------------------------------------------------------
 # Launch patroni
@@ -178,6 +189,36 @@
     - name: Check primary instance ready
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+
+
+
+#------------------------------------------------------------------------------
+# Write PGPASS
+#------------------------------------------------------------------------------
+- name: Write default userpass to .pgpass
+  tags: pg_pass
+  block:
+    # add replication and monitor user to pgpass
+    - name: Add replication and monitor user to pgpass
+      lineinfile:
+        create: on
+        dest: "{{ pg_dbsu_home }}/.pgpass"
+        line: "{{ item }}"
+        owner: "{{ pg_dbsu }}"
+        mode: 0600
+      with_items:
+        - "*:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}"
+        - "*:*:*:{{ pg_monitor_username }}:{{ pg_monitor_password }}"
+
+    # add default user/pass to pgpass
+    - name: Add default database user to pgpass
+      when: pg_default_username != 'postgres'
+      lineinfile:
+        create: on
+        dest: "{{ pg_dbsu_home }}/.pgpass"
+        line: "*:*:*:{{ pg_default_username }}:{{ pg_default_password }}"
+        owner: "{{ pg_dbsu }}"
+
 
 
 #------------------------------------------------------------------------------
