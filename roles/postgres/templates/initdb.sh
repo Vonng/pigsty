@@ -161,9 +161,8 @@ done
 # template database
 #----------------------------------------------------------------------------
 log "initdb: init database template: postgres, template1"
-for database in postgres template1
-do
-	psql -AXtwq ${database} <<- EOF
+for database in postgres template1; do
+	psql -AXtwq ${database} <<-EOF
 		CREATE SCHEMA IF NOT EXISTS monitor;
 		SET search_path = public, monitor;
 
@@ -173,10 +172,10 @@ do
 		CREATE EXTENSION IF NOT EXISTS pg_qualstats WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pg_buffercache WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pageinspect WITH SCHEMA monitor;
-		CREATE EXTENSION IF NOT EXISTS pg_repack WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pg_prewarm WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pg_visibility WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pg_freespacemap WITH SCHEMA monitor;
+		-- CREATE EXTENSION IF NOT EXISTS pg_repack WITH SCHEMA monitor;		-- temporarily not available for PG13
 		-- CREATE EXTENSION IF NOT EXISTS pg_stat_kcache WITH SCHEMA monitor;
 		-- CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA monitor;
 
@@ -366,8 +365,12 @@ do
 		ORDER BY seq_tup_read DESC
 		LIMIT 50;
 		COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
-
 	EOF
+
+	psql -AXtwq ${database} <<-'EOF'
+		CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
+	EOF
+
 done
 
 
