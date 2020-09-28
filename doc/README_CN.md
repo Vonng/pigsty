@@ -10,14 +10,14 @@
 
 ## 亮点
 
-* 高可用PostgreSQL数据库集群，生产验证的部署方案
+* 高可用PostgreSQL数据库集群，生产验证的部署方案，针对大规模数据库集群设计
 * 自包含的监控、报警、日志收集系统，基于DCS的自动服务发现
 * 自包含的本地源，离线安装所有依赖，无需外网访问。
-* 针对四种主要场景：OLTP，OLAP，核心库，虚拟机进行专项优化
-* 常用管理，维护，备份，恢复脚本
-* 参数化，声明式定义的基础设施，幂等式的执行方式。
+* 代码定义的基础设施，完全客制化。预设针对四种主要场景：OLTP，OLAP，核心库，虚拟机的优化方案
+* 使用简单，一键初始化：自带演示沙箱，接口简洁，声明式参数，幂等式剧本
+* 支持PostgreSQL 13与Patroni 2.0，在CentOS7下进行了充分测试
 
-  
+
 
 
 ## 快速开始
@@ -25,12 +25,12 @@
 1. **准备机器**
 
    * 使用预分配好的机器，或基于预定义的沙箱[Vagrantfile](vagrant/Vagrant)在本地生成演示虚拟机，选定一台作为中控机。
-
-   * 配置中控机到其他机器的SSH免密码访问，并确认所使用的的SSH用户在机器上具有免密码`sudo`的权限。
+* 配置中控机到其他机器的SSH免密码访问，并确认所使用的的SSH用户在机器上具有免密码`sudo`的权限。
+   *  使用Vagrant演示沙箱环境初始化虚拟机的过程可以参考：([Vagrant Provision Guide](doc/vagrant-provision.md))
 
 2. **准备项目**
 
-   在中控机上安装Ansible，克隆本项目，并下载离线安装包（可选）
+   在中控机上安装Ansible，克隆本项目，并下载可选的离线安装包。（离线安装请参考[离线安装指南](doc/bootstrap.md) ）
 
    ```bash
    git clone https://github.com/vonng/pigsty && cd pigsty 
@@ -38,30 +38,47 @@
 
 3. **修改配置**
 
-   根据需求修改配置文件根据需求修改全局参数，并按需修改初始化模板。
-    * [`cls/inventory.yml`](cls/inventory.yml)定义了目标机器的连接信息与主机级变量，通常需要修改其中的机器IP信息。
-    * [`group_vars/all.yml`](group_vars/all.yml)定义了默认的组变量，包含全局一致的基础设施配置信息，通常只需少量修改。
-    * [`templates/`](templates/) 中定义了数据库的通用初始化模板，通常不需要修改，但可以按需定制。
-   
+   **按需修改配置文件**。配置文件使用YAML格式与Ansible清单语义，格式参考 ([配置教程](doc/configuration.md))
+
+   ```bash
+   vi conf/all.yml			# 默认配置文件路径
+   ```
+
   4. **初始化基础设施**
 
      ```bash
-     ./infra.yml
+     ./infra.yml					# 执行此剧本，将基础设施定义参数实例化
      ```
 
   5. **初始化数据库集群**
 
      ```bash
-     ./postgres.yml
+     ./postgres.yml      # 执行此剧本，将所有数据库集群定义实例化
      ```
 
 6. **开始探索**
 
-   执行`sudo make dns`可以将沙箱所需域名写入本机`/etc/hosts`，然后即可访问 http://pigsty
+   执行`sudo make dns`可以将沙箱所需域名写入本机`/etc/hosts`，亦可直接通过IP端口访问。
 
-   初始化完成后，可以访问控制节点上的3000端口，admin:admin查看Grafana监控。
+   访问 http://pigsty 进入系统主页。监控系统Grafana的默认密码为admin:admin。详情参阅[监控系统介绍]()
 
-   
+
+
+## 架构概览
+
+### 集群架构
+
+![](img/arch.png)
+
+### 服务概览
+
+![](img/proxy.png)
+
+[Database Access Guide](doc/database-access.md) provides information about how to connect to database.
+
+
+
+
 
 ## 配置详情
 
