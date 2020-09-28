@@ -38,19 +38,6 @@
         pg_shared_buffers: "{{ (pg_shared_buffers_bytes|int / 1073741824)|round(0)|int }}GB"
         pg_maintenance_work_mem: "{{ (pg_maintenance_work_mem_bytes|int / 1048576)|round(0)|int }}MB"
 
-
-    #------------------------------------------------------------------------------
-    # render initdb scripts
-    #------------------------------------------------------------------------------
-    - name: Render default initdb scripts
-      template:
-        src: "{{ pg_init }}"
-        dest: /pg/conf/initdb.sh
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        mode: 0755
-
-
     #------------------------------------------------------------------------------
     # render config files
     #------------------------------------------------------------------------------
@@ -164,6 +151,38 @@
       command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
 
+
+#------------------------------------------------------------------------------
+# post init on primary
+#------------------------------------------------------------------------------
+- name: Init primary instance
+  tags: pg_init
+  any_errors_fatal: true
+  when: pg_role == 'primary'
+  block:
+    #------------------------------------------------------------------------------
+    # render initdb scripts
+    #------------------------------------------------------------------------------
+    - name: Render default initdb scripts
+      template:
+        src: "{{ pg_init }}"
+        dest: /pg/bin/initdb.sh
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        mode: 0755
+
+    - name: Execute bootstrap scripts
+      become_user: "{{ pg_dbsu }}"
+      command: /pg/bin/initdb.sh
+
+    - name: Check primary instance ready
+      become_user: "{{ pg_dbsu }}"
+      command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
+
+
+#------------------------------------------------------------------------------
+# Launch replicas
+#------------------------------------------------------------------------------
 # bootstrap other replicas
 - name: Launch replica patroni instance
   tags: pg_replica
