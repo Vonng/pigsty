@@ -13,6 +13,9 @@
 ######################################################################
 #               Development Environment Inventory                    #
 ######################################################################
+# This development environment is based on manual provisioned VM nodes
+# which is provisioned via VM Ware Fusion (BECAUSE virtualbox breaks on MacOS Big Sur)
+
 all: # top-level namespace, match all hosts
 
 
@@ -31,7 +34,7 @@ all: # top-level namespace, match all hosts
 
       # nodes in meta group (1-3)
       hosts:
-        10.10.10.10: # meta node IP ADDRESS
+        172.16.70.4: # meta node IP ADDRESS
           ansible_host: meta                # comment this if not access via ssh alias
 
 
@@ -44,14 +47,14 @@ all: # top-level namespace, match all hosts
       vars:
         # basic settings
         pg_cluster: pg-meta                 # define actual cluster name
-        pg_version: 12                      # define installed pgsql version
-        node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: oltp.yml                   # tune pgsql into oltp/olap/crit/tiny mode
+        pg_version: 13                      # define installed pgsql version
+        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
 
         # misc
         patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
-        pg_hostname: false                  # overwrite node hostname with pg instance name
+        pg_hostname: true                   # overwrite node hostname with pg instance name
         pg_nodename: true                   # overwrite consul nodename with pg instance name
 
         # bootstrap template
@@ -62,13 +65,13 @@ all: # top-level namespace, match all hosts
 
         # vip settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.2             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
+        vip_address: 172.16.70.100          # virtual ip address
+        vip_cidrmask: 24                    # cidr network mask length
+        vip_interface: ens33                # interface to add virtual ip
 
       # - cluster members - #
       hosts:
-        10.10.10.10:
+        172.16.70.4:
           ansible_host: meta              # comment this if not access via ssh alias
           pg_role: primary                # initial role: primary & replica
           pg_seq: 1                       # instance sequence among cluster
@@ -83,9 +86,11 @@ all: # top-level namespace, match all hosts
       vars:
         # basic settings
         pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 12                      # define installed pgsql version
+        pg_version: 13                      # define installed pgsql version
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
+        pg_hostname: true                   # overwrite node hostname with pg instance name
+        pg_nodename: true                   # overwrite consul nodename with pg instance name
 
         # bootstrap template
         pg_init: initdb.sh                  # bootstrap postgres cluster with initdb.sh
@@ -95,25 +100,21 @@ all: # top-level namespace, match all hosts
 
         # vip settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
+        vip_address: 172.16.70.101          # virtual ip address
+        vip_cidrmask: 24                    # cidr network mask length
+        vip_interface: ens33                # interface to add virtual ip
 
       # - cluster members - #
       hosts:
-        10.10.10.11:
-          ansible_host: node-1            # comment this if not access via ssh alias
+        172.16.70.5:
           pg_role: primary                # initial role: primary & replica
           pg_seq: 1                       # instance sequence among cluster
 
-        10.10.10.12:
-          ansible_host: node-2            # comment this if not access via ssh alias
+        172.16.70.6:
           pg_role: replica                # initial role: primary & replica
           pg_seq: 2                       # instance sequence among cluster
 
-        10.10.10.13:
-          ansible_host: node-3            # comment this if not access via ssh alias
+        172.16.70.7:
           pg_role: replica                # initial role: primary & replica
           pg_seq: 3                       # instance sequence among cluster
 
@@ -129,7 +130,7 @@ all: # top-level namespace, match all hosts
     #------------------------------------------------------------------------------
     # this section defines connection parameters
 
-    # ansible_user: vagrant             # admin user with ssh access and sudo privilege
+    ansible_user: vagrant             # admin user with ssh access and sudo privilege
 
     proxy_env: # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com"
@@ -274,9 +275,6 @@ all: # top-level namespace, match all hosts
       - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
 
 
-
-
-
     #------------------------------------------------------------------------------
     # NODE PROVISION
     #------------------------------------------------------------------------------
@@ -284,10 +282,10 @@ all: # top-level namespace, match all hosts
 
     # - node dns - #
     node_dns_hosts: # static dns records in /etc/hosts
-      - 10.10.10.10 yum.pigsty
+      - 172.16.70.4 yum.pigsty
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers: # dynamic nameserver in /etc/resolv.conf
-      - 10.10.10.10
+      - 172.16.70.4
     node_dns_options: # dns resolv options
       - options single-request-reopen timeout:1 rotate
       - domain service.consul
@@ -295,8 +293,7 @@ all: # top-level namespace, match all hosts
     # - node repo - #
     node_repo_method: local                       # none|local|public (use local repo for production env)
     node_repo_remove: true                        # whether remove existing repo
-    # local repo url (if method=local, make sure firewall is configured or disabled)
-    node_local_repo_url:
+    node_local_repo_url: # local repo url (if method=local)
       - http://yum.pigsty/pigsty.repo
 
     # - node packages - #
@@ -314,7 +311,7 @@ all: # top-level namespace, match all hosts
 
     # - node features - #
     node_disable_numa: false                      # disable numa, important for production database, reboot required
-    node_disable_swap: false                      # disable swap, important for production database
+    node_disable_swap: false                      # disable swap
     node_disable_firewall: true                   # disable firewall (required if using kubernetes)
     node_disable_selinux: true                    # disable selinux  (required if using kubernetes)
     node_static_network: true                     # keep dns resolver settings after reboot
@@ -352,7 +349,7 @@ all: # top-level namespace, match all hosts
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-      - server 10.10.10.10 iburst
+      - server 172.16.70.4 iburst
 
 
     #------------------------------------------------------------------------------
@@ -374,19 +371,19 @@ all: # top-level namespace, match all hosts
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
-      - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.11 node-1                        # sandbox node node-1
-      - 10.10.10.12 node-2                        # sandbox node node-2
-      - 10.10.10.13 node-3                        # sandbox node node-3
-      - 10.10.10.10 pigsty
-      - 10.10.10.10 y.pigsty yum.pigsty
-      - 10.10.10.10 c.pigsty consul.pigsty
-      - 10.10.10.10 g.pigsty grafana.pigsty
-      - 10.10.10.10 p.pigsty prometheus.pigsty
-      - 10.10.10.10 a.pigsty alertmanager.pigsty
-      - 10.10.10.10 n.pigsty ntp.pigsty
+      - 172.16.70.100 pg-meta                     # sandbox vip for pg-meta
+      - 172.16.70.101 pg-test                     # sandbox vip for pg-test
+      - 172.16.70.4 meta-1                        # sandbox node meta-1 (node-0)
+      - 172.16.70.5 node-1                        # sandbox node node-1
+      - 172.16.70.6 node-2                        # sandbox node node-2
+      - 172.16.70.7 node-3                        # sandbox node node-3
+      - 172.16.70.4 pigsty
+      - 172.16.70.4 y.pigsty yum.pigsty
+      - 172.16.70.4 c.pigsty consul.pigsty
+      - 172.16.70.4 g.pigsty grafana.pigsty
+      - 172.16.70.4 p.pigsty prometheus.pigsty
+      - 172.16.70.4 a.pigsty alertmanager.pigsty
+      - 172.16.70.4 n.pigsty ntp.pigsty
 
     # - prometheus - #
     prometheus_scrape_interval: 2s                # global scrape & evaluation interval (2s for dev, 15s for prod)
@@ -396,7 +393,7 @@ all: # top-level namespace, match all hosts
     prometheus_retention: 30d                     # how long to keep
 
     # - grafana - #
-    grafana_url: http://10.10.10.10:3000           # grafana url
+    grafana_url: http://172.16.70.4:3000           # grafana url
     grafana_admin_password: admin                  # default grafana admin user password
     grafana_plugin: install                        # none|install|reinstall
     grafana_cache: /www/pigsty/grafana/plugins.tar.gz # path to grafana plugins tarball
@@ -434,7 +431,7 @@ all: # top-level namespace, match all hosts
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     # dcs server dict in name:ip format
     dcs_servers:
-      meta-1: 10.10.10.10                         # you could use existing dcs cluster
+      meta-1: 172.16.70.4                         # you could use existing dcs cluster
       # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
       # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
 
@@ -454,7 +451,7 @@ all: # top-level namespace, match all hosts
     pg_dbsu_ssh_exchange: false                   # exchange ssh key among same cluster
 
     # - postgres packages - #
-    pg_version: 12                                # default postgresql version
+    pg_version: 13                                # default postgresql version = 13
     pgdg_repo: false                              # use official pgdg yum repo (disable if you have local mirror)
     pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir
@@ -475,6 +472,20 @@ all: # top-level namespace, match all hosts
       # - pgcryptokey${version}  pgexportdoc${version}  pgimportdoc${version}  pgmemcache-${version}  pgmp${version}  pgq-${version}  pgquarrel pgrouting_${version}
       # - pguint${version}  pguri${version}  prefix${version}   safeupdate_${version}  semver${version}   table_version${version}  tdigest${version}
 
+    # Postgres 12 extensions
+    #  - multicorn${pg_version}
+    #  - ddlx_${pg_version} bgw_replstatus${pg_version} count_distinct${pg_version} extra_window_functions_${pg_version}
+    #  - geoip${pg_version} hll_${pg_version} hypopg_${pg_version} ip4r${pg_version} jsquery_${pg_version}
+    #  - osm_fdw${pg_version} mysql_fdw_${pg_version} ogr_fdw${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version} cstore_fdw_${pg_version}
+    #  - wal2mongo${pg_version} orafce${pg_version} pagila${pg_version} pam-pgsql${pg_version} passwordcheck_cracklib${pg_version} periods_${pg_version}
+    #  - pg_auto_failover_${pg_version} pg_bulkload${pg_version} pg_catcheck${pg_version} pg_comparator${pg_version} pg_filedump${pg_version}
+    #  - pg_fkpart${pg_version} pg_jobmon${pg_version} pg_partman${pg_version} pg_pathman${pg_version} pg_track_settings${pg_version}
+    #  - pg_wait_sampling_${pg_version} pgagent_${pg_version} pgaudit14_${pg_version} pgauditlogtofile-${pg_version} pgbconsole${pg_version}
+    #  - pgcryptokey${pg_version} pgexportdoc${pg_version} pgfincore${pg_version} pgimportdoc${pg_version} pgmemcache-${pg_version} pgmp${pg_version}
+    #  - pgq-${pg_version} pgrouting_${pg_version} pgtap${pg_version} plpgsql_check_${pg_version} plr${pg_version} plsh${pg_version}
+    #  - postgresql_anonymizer${pg_version} postgresql-unit${pg_version} powa_${pg_version} prefix${pg_version} repmgr${pg_version}
+    #  - safeupdate_${pg_version} semver${pg_version} slony1-${pg_version} sqlite_fdw${pg_version} sslutils_${pg_version} system_stats_${pg_version}
+    #  - table_version${pg_version} topn_${pg_version}
 
 
     #------------------------------------------------------------------------------
@@ -521,19 +532,16 @@ all: # top-level namespace, match all hosts
     # - authentication - #
     pg_hba_common:
       - '"# allow: meta node access with password"'
-      - host    all     all                         10.10.10.10/32      md5
+      - host    all     all                         172.16.70.4/32      md5
       - '"# allow: intranet admin role with password"'
-      - host    all     +dbrole_admin               10.0.0.0/8          md5
-      - host    all     +dbrole_admin               172.16.0.0/12       md5
-      - host    all     +dbrole_admin               192.168.0.0/16      md5
+      - host    all     +dbrole_admin               172.16.70.0/24      md5
       - '"# allow local (pgbouncer) read-write user (production user) password access"'
       - local   all     +dbrole_readwrite                               md5
       - host    all     +dbrole_readwrite           127.0.0.1/32        md5
       - '"# intranet common user password access"'
-      - host    all             all                 10.0.0.0/8          md5
-      - host    all             all                 172.16.0.0/12       md5
-      - host    all             all                 192.168.0.0/16      md5
-    pg_hba_primary: [ ]
+      - host    all             all                 172.16.70.0/24      md5
+
+    pg_hba_primary: []
     pg_hba_replica:
       - '"# allow remote readonly user (stats, personal user) password access (directly)"'
       - local   all     +dbrole_readonly                               md5
@@ -543,9 +551,7 @@ all: # top-level namespace, match all hosts
       - '# biz_user intranet password access'
       - local  all          all                                     md5
       - host   all          all                     127.0.0.1/32    md5
-      - host   all          all                     10.0.0.0/8      md5
-      - host   all          all                     172.16.0.0/12   md5
-      - host   all          all                     192.168.0.0/16  md5
+      - host   all          all                     172.16.70.0/24  md5
 
     # - credential - #
     pg_dbsu_password: ''                          # dbsu password (leaving blank will disable sa password login)
