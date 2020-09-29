@@ -10,13 +10,14 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
 
 ## Highlight
 
-* High-available PostgreSQL cluster with production grade quality.
-* Offline installtaion mode without Internet access
-* Intergreted monitoring alerting logging system
-* Service discovery and metadata storage with dcs
-* Infra as Code. Fully customizable. optimized presets: OLTP, OLAP, CRITICAL, TINY-VM, etc...
-* Simplicity: simple interface, declarative parameters and idempotent playbooks.
-* Latest version support (PostgreSQL 13 and Patroni 2.0)
+* High-available PostgreSQL cluster with production grade quality
+* Intergreted monitoring, logging, alerting system
+* Service discovery and configuration management based on DCS
+* Offline installtaion without Internet access
+* Infrastructure as Code. Fully customizable. 
+* Optimized for different situations: OLTP, OLAP, Critical, Virtual Machine, ...
+* Simple interface, declarative parameters and idempotent playbooks
+* Latest version support (PostgreSQL 13 and Patroni 2.0), Tested under CentOS 7
 
 
 
@@ -95,32 +96,42 @@ Lot's of configurable parameters items, refer to [Proxy Configuration Guide](doc
 
 
 
-## Requirement
+## Sepcification
+
+**System Requirement**
+
+* CentOS 7 / Red Hat 7 / Oracle Linux 7
+* CentOS 7.6 is highly recommened (Fully tested under minimal installtion)
 
 **Minimal setup**
 
-* 1 Node, self-contained, CentOS 7 (Tested on 7.6)
-* Meta node, and a one-node postgres instance `pg-meta`
+* Self-contained single node, singleton database `pg-meta`
 * Minimal requirement: 2 CPU Core & 2 GB RAM
 
-**Standard setup (vagrant demo)**
+**Standard setup ( TINY mode, vagrant demo)**
 
-* 4 Node, including 1 meta node and 3 database node, CentOS 7.6
-* Two postgres cluster `pg-meta` and `pg-test` (1 primary, 2 replica)
-* Meta node requirement: 2~4 CPU Core & 4 ~ 8 GB RAM
-* DB node minimal requirement: 1 CPU Core & 1 GB RAM
+* 4 Node, including single meta node, singleton databaes cluster `pg-meta` and 3-instances database cluster `pg-test`
+* Recommend Spec: 2Core/2GB for meta controller node, 1Core/1GB for database node 
+
+**Production setup (OLTP/OLAP/CRIT mode)**
+
+* 200+ nodes,  3 meta nodes , 100+ database clusters
+* Verified Spec: Dell R740 / 64 Core / 400GB Mem / 3TB PCI-E SSD
 
 
 
-## Support
 
-Business support is available. [Contact](mailto:fengruohang@outlook.com) for more detail.
 
-* Advance Monitoring System
-* MetaDB and Catalog Explorer
-* Logging Summary System based on pgbadger
-* Customizable backup & recovery plan
-* Deployment assistance and trouble shooting
+## Business Support
+
+Business support for pigsty is available. [Contact](mailto:fengruohang@outlook.com) for more detail.
+
+* Advance Monitoring System, 3000+ metrics, 30+ detailed dashboards
+* Production  deployment & operation & administration scheme
+* Meta database and data dictionary
+* Log collecting system and daily log summary
+* Backup/Recovery plan
+* Deployment assistance and trouble shooting. Intergration with existing system.
 
 Read [more [TODO]](doc/enterprise.md) about enterprise version of pigsty.
 
