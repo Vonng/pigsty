@@ -1,18 +1,74 @@
-# Configuration Guide
+# Pigsty配置指南
+
+Pigsty的配置通过200+个参数定义了一套数据库基础设施，以及多个数据库集群，是项目的灵魂所在。
 
 
 
-## TL;DR
+## 太长不看
 
-* Ansible YAML [inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) format. define hosts and variables.
-* Variables controls behaviors. Change variables according to your environment.
-* Variable precedence: Host vars > group (cluster) vars > global (all) vars
-* Variable semantics: read [document](../roles/) for more information
-* Variable examples:  configuration file for vagrant demo: [dev.yml](../conf/dev.yml)
+* 配置文件采用YAML格式的Ansible [Inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) ，默认将所有机器与配置参数都定义在同一配置文件中。
+* 配置文件分为两大部分：全局变量定义，以及数据库集群定义。
+* 全局变量定义`all.vars`包含整个环境统一使用的配置，通常生产环境，开发环境等不同环境会有自己的一套配置。
+* 数据库集群定义`all.children`使用Ansible群组语法，每个数据库集群单独定义一个群组，特殊群组`meta`下的机器标记为中控机
+
+* 每个数据库集群/分组可以带有自己的变量，群组变量会覆盖全局变量，例如默认数据库名、用户名的定制可以使用群组变量。
+* 每个数据库集群包含至少一个主机，每个主机只能隶属于一个数据库集群，但中控机分组下的机器可以同时隶属于普通数据库群组。
+* 每个数据库集群必须包含一个且仅包含一个主库（主机变量 `pg_role=primary`）
+* 每个数据库实例必须带有三个变量：集群名`pg_cluster`，实例角色`pg_role`，实例序号：`pg_seq`。
+* 变量优先级：命令行变量 > 主机变量 > 群组变量 > 全局变量 > 默认变量
 
 
 
-## Minimal Configuration (one-node)
+## 集群清单
+
+集群清单定义了系统需要管理的数据库实例，一个数据库集群所需的最少信息包括：
+
+* 外部IP地址（或其他连接信息）
+* 集群名称`pg_cluster`，遵循DNS命名标准，只包含小写字母，数字和`-`
+* 实例标号`pg_seq`，实例标号为非负整数，必须在集群范围内唯一，通常建议从0开始依次分配。
+* 实例角色`pg_role`，实例角色必须为`primary` 或 `replica`，一个数据库集群中有且仅能有一个主库。
+* 其它变量，可以按照需求在主机或群组级别配置，并覆盖全局配置与默认配置。
+
+集群清单也可以按照Ansible标准使用`ini`格式（不推荐），如下所示。
+
+```ini
+[pg-test]
+10.10.10.11 pg_role=primary pg_seq=1
+10.10.10.12 pg_role=replica pg_seq=2
+10.10.10.13 pg_role=replica pg_seq=3
+
+[pg-test:vars]
+pg_cluster = pg-test
+pg_version = 12
+```
+
+
+
+## 全局变量定义
+
+全局变量默认定义于`all.vars`，也可以遵循ansible标准使用通过其他方式定义。
+
+全局变量旨在针对一套环境配置统一的默认选项。针对不同的环境（开发，测试，生产），可以使用不同的全局变量。
+
+全局变量针对所有机器生效，当用户希望使用统一的配置时，例如在所有机器上配置相同的 DNS，NTP Server，安装相同的软件包，使用统一的su密码时，可以修改全局变量。
+
+全局变量定义分为8个部分，具体的配置项请参阅文档
+
+* 连接信息
+* 本地源定义
+* 机器节点初始化
+* 控制节点初始化
+* DCS元数据库初始化
+* Postgres安装
+* Postgres集群初始化
+* 监控初始化
+* 负载均衡代理初始化
+
+
+
+## 单节点最小化配置样例
+
+下面的例子定义了一个仅包含一个节点的环境。
 
 ```yaml
 ---
@@ -81,7 +137,7 @@ all: # top-level namespace, match all hosts
 
 
 
-## Standard Configuration (demo)
+## 沙箱环境配置文件 (vagrant)
 
 ```yaml
 ---
@@ -117,8 +173,8 @@ all: # top-level namespace, match all hosts
 
       # nodes in meta group (1-3)
       hosts:
-        10.10.10.10:                        # meta node IP ADDRESS
-        ansible_host: meta                  # comment this if not access via ssh alias
+        10.10.10.10: # meta node IP ADDRESS
+          ansible_host: meta                # comment this if not access via ssh alias
 
 
     #-----------------------------
@@ -130,7 +186,7 @@ all: # top-level namespace, match all hosts
       vars:
         # basic settings
         pg_cluster: pg-meta                 # define actual cluster name
-        pg_version: 12                      # define installed pgsql version
+        pg_version: 13                      # define installed pgsql version
         node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: oltp.yml                   # tune pgsql into oltp/olap/crit/tiny mode
 
@@ -163,21 +219,21 @@ all: # top-level namespace, match all hosts
     #-----------------------------
     # cluster: pg-test
     #-----------------------------
-    pg-test: # define cluster named 'pg-meta'
+    pg-test: # define cluster named 'pg-test'
 
       # - cluster configs - #
       vars:
         # basic settings
         pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 12                      # define installed pgsql version
+        pg_version: 13                      # define installed pgsql version
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
 
         # bootstrap template
         pg_init: initdb.sh                  # bootstrap postgres cluster with initdb.sh
-        pg_default_username: meta           # default business username
-        pg_default_password: meta           # default business password
-        pg_default_database: meta           # default database name
+        pg_default_username: test           # default business username
+        pg_default_password: test           # default business password
+        pg_default_database: test           # default database name
 
         # vip settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
@@ -232,6 +288,8 @@ all: # top-level namespace, match all hosts
     repo_home: /www                               # default repo dir location
     repo_rebuild: false                           # force re-download packages
     repo_remove: true                             # remove existing repos
+
+    # - where to download - #
     repo_upstreams:
       - name: base
         description: CentOS-$releasever - Base - Aliyun Mirror
@@ -266,16 +324,6 @@ all: # top-level namespace, match all hosts
         gpgcheck: no
         failovermethod: priority
 
-      - name: docker
-        description: Docker - Aliyun Mirror
-        gpgcheck: no
-        baseurl: https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable
-
-      - name: kubernetes
-        description: Kubernetes - Aliyun Mirror
-        gpgcheck: no
-        baseurl: https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
-
       - name: grafana
         description: Grafana - TsingHua Mirror
         gpgcheck: no
@@ -291,26 +339,19 @@ all: # top-level namespace, match all hosts
         gpgcheck: no
         baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
 
-      - name: pgdg12
-        description: PostgreSQL 12 for RHEL/CentOS $releasever - $basearch
-        gpgcheck: no
-        baseurl: https://download.postgresql.org/pub/repos/yum/12/redhat/rhel-$releasever-$basearch
-
-      - name: pgdg13-updates-testing
+      - name: pgdg13
         description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch - Updates testing
         gpgcheck: no
-        baseurl: https://download.postgresql.org/pub/repos/yum/testing/13/redhat/rhel-$releasever-$basearch
+        baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
         gpgcheck: no
-        # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/sclo/
         mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-sclo
 
       - name: centos-sclo-rh
         description: CentOS-$releasever - SCLo rh
         gpgcheck: no
-        # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/rh/
         mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
 
       - name: nginx
@@ -325,36 +366,55 @@ all: # top-level namespace, match all hosts
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
 
-      - name: harbottle
-        description: Copr repo for harbottle
-        skip_if_unavailable: true
-        gpgcheck: no
-        baseurl: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
+    # - what to download - #
     repo_packages:
+      # repo bootstrap packages
       - epel-release nginx wget yum-utils yum createrepo                                      # bootstrap packages
+
+      # node basic packages
       - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget unzip git tuned   # basic system util
       - readline zlib openssl libyaml libxml2 libxslt perl-ExtUtils-Embed ca-certificates     # basic pg dependency
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet  # system utils
+
+      # dcs & monitor packages
       - grafana prometheus2 pushgateway alertmanager                                          # monitor and ui
       - node_exporter postgres_exporter nginx_exporter blackbox_exporter                      # exporter
       - consul consul_exporter consul-template etcd                                           # dcs
+
+      # python3 dependencies
       - ansible python python-pip python-psycopg2                                             # ansible & python
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul                # python3
+      - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography               # python3 patroni extra deps
+
+      # proxy and load balancer
       - haproxy keepalived dnsmasq                                                            # proxy and dns
-      - postgresql12* postgis30_12* timescaledb_12 citus_12 pglogical_12                      # postgres 12 basic
-      - pg_qualstats12 pg_cron_12 pg_top12 pg_repack12 pg_squeeze12 pg_stat_kcache12 wal2json12 pgpool-II-12 pgpool-II-12-extensions python3-psycopg2 python2-psycopg2
-      - ddlx_12 bgw_replstatus12 count_distinct12 extra_window_functions_12 geoip12 hll_12 hypopg_12 ip4r12 jsquery_12 multicorn12 osm_fdw12 mysql_fdw_12 ogr_fdw12 mongo_fdw12 hdfs_fdw_12 cstore_fdw_12 wal2mongo12 orafce12 pagila12 pam-pgsql12 passwordcheck_cracklib12 periods_12 pg_auto_failover_12 pg_bulkload12 pg_catcheck12 pg_comparator12 pg_filedump12 pg_fkpart12 pg_jobmon12 pg_partman12 pg_pathman12 pg_track_settings12 pg_wait_sampling_12 pgagent_12 pgaudit14_12 pgauditlogtofile-12 pgbconsole12 pgcryptokey12 pgexportdoc12 pgfincore12 pgimportdoc12 pgmemcache-12 pgmp12 pgq-12 pgrouting_12 pgtap12 plpgsql_check_12 plr12 plsh12 postgresql_anonymizer12 postgresql-unit12 powa_12 prefix12 repmgr12 safeupdate_12 semver12 slony1-12 sqlite_fdw12 sslutils_12 system_stats_12 table_version12 topn_12
-      - pgbouncer pg_cli pg_top pgbadger                                                      # postgres common utils
-      - pgadmin4                                                                              # pg admin GUI tools
-      - patroni                                                                               # these packages in pgdg are not usable for now
-      # - postgresql13*                                                                     # 13beta testing
-      # - docker-ce docker-ce-cli rkt                                                       # container
-      # - kubelet kubectl kubeadm kubernetes-cni helm                                       # kubernetes
+
+      # postgres common Packages
+      - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity             # major components
+      - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel              # other common utils
+      - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4
+
+      # postgres 13 packages
+      - postgresql13* postgis31*                                                              # postgres 13 and postgis 31
+      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                      # stats extensions
+      - plr13 plsh13 plpgsql_check_13 pldebugger13                                            # pl extensions
+      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13                           # FDW extensions
+      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                  # other extensions
+      - hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
+      - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
+      - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13 # pgrouting_13
+      - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
+
+      # Postgres 12 Packages
+      # - postgresql12* postgis30_12* timescaledb_12 citus_12 pglogical_12                    # postgres 12 basic
+      # - pg_qualstats12 pg_cron_12 pg_repack12 pg_squeeze12 pg_stat_kcache12 wal2json12 pgpool-II-12 pgpool-II-12-extensions python3-psycopg2 python2-psycopg2
+      # - ddlx_12 bgw_replstatus12 count_distinct12 extra_window_functions_12 geoip12 hll_12 hypopg_12 ip4r12 jsquery_12 multicorn12 osm_fdw12 mysql_fdw_12 ogr_fdw12 mongo_fdw12 hdfs_fdw_12 cstore_fdw_12 wal2mongo12 orafce12 pagila12 pam-pgsql12 passwordcheck_cracklib12 periods_12 pg_auto_failover_12 pg_bulkload12 pg_catcheck12 pg_comparator12 pg_filedump12 pg_fkpart12 pg_jobmon12 pg_partman12 pg_pathman12 pg_track_settings12 pg_wait_sampling_12 pgagent_12 pgaudit14_12 pgauditlogtofile-12 pgbconsole12 pgcryptokey12 pgexportdoc12 pgfincore12 pgimportdoc12 pgmemcache-12 pgmp12 pgq-12 pgrouting_12 pgtap12 plpgsql_check_12 plr12 plsh12 postgresql_anonymizer12 postgresql-unit12 powa_12 prefix12 repmgr12 safeupdate_12 semver12 slony1-12 sqlite_fdw12 sslutils_12 system_stats_12 table_version12 topn_12
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.2.0/pg_exporter-0.2.0-1.el7.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
       - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+
 
 
 
@@ -377,20 +437,19 @@ all: # top-level namespace, match all hosts
     # - node repo - #
     node_repo_method: local                       # none|local|public (use local repo for production env)
     node_repo_remove: true                        # whether remove existing repo
-    node_local_repo_url: # local repo url (if method=local)
+    # local repo url (if method=local, make sure firewall is configured or disabled)
+    node_local_repo_url:
       - http://yum.pigsty/pigsty.repo
 
     # - node packages - #
     node_packages: # common packages for all nodes
       - wget,yum-utils,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
       - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
-      - python-pip,python-psycopg2,node_exporter
-      - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul # python3
-      - consul,consul-template,etcd,haproxy,keepalived,vip-manager
-    node_extra_packages: # extra packages for all nodes (install postgres12 to accelerate initdb)
-      - postgresql12*,postgis30_12*,timescaledb_12,citus_12,pglogical_12   # postgres 12 basic
-      - pg_qualstats12,pg_cron_12,pg_top12,pg_repack12,pg_squeeze12,pg_stat_kcache12,wal2json12
-      - python36-requests,python3-consul,pgbouncer,patroni,pg_exporter,pg_top,pgbadger
+      - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
+      - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
+      - node_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
+    node_extra_packages: # extra packages for all nodes
+      - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages: # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
       - dnsmasq,nginx,ansible,pgbadger,polysh
@@ -543,25 +602,21 @@ all: # top-level namespace, match all hosts
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir
     pg_packages:
       - postgresql${pg_version}*
-      - postgis30_${pg_version}* timescaledb_${pg_version} citus_${pg_version} pglogical_${pg_version}
-      - pg_qualstats${pg_version} pg_cron_${pg_version} pg_top${pg_version} pg_repack${pg_version} pg_squeeze${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version}
-      - pgpool-II-${pg_version} pgpool-II-${pg_version}-extensions
-      - pgbouncer patroni pg_exporter pg_top pgbadger
+      - postgis31_${pg_version}*
+      - pgbouncer patroni pg_exporter pgbadger
+      - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
+      - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
+      - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
 
     pg_extensions:
-      - multicorn${pg_version}
-    #  - ddlx_${pg_version} bgw_replstatus${pg_version} count_distinct${pg_version} extra_window_functions_${pg_version}
-    #  - geoip${pg_version} hll_${pg_version} hypopg_${pg_version} ip4r${pg_version} jsquery_${pg_version}
-    #  - osm_fdw${pg_version} mysql_fdw_${pg_version} ogr_fdw${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version} cstore_fdw_${pg_version}
-    #  - wal2mongo${pg_version} orafce${pg_version} pagila${pg_version} pam-pgsql${pg_version} passwordcheck_cracklib${pg_version} periods_${pg_version}
-    #  - pg_auto_failover_${pg_version} pg_bulkload${pg_version} pg_catcheck${pg_version} pg_comparator${pg_version} pg_filedump${pg_version}
-    #  - pg_fkpart${pg_version} pg_jobmon${pg_version} pg_partman${pg_version} pg_pathman${pg_version} pg_track_settings${pg_version}
-    #  - pg_wait_sampling_${pg_version} pgagent_${pg_version} pgaudit14_${pg_version} pgauditlogtofile-${pg_version} pgbconsole${pg_version}
-    #  - pgcryptokey${pg_version} pgexportdoc${pg_version} pgfincore${pg_version} pgimportdoc${pg_version} pgmemcache-${pg_version} pgmp${pg_version}
-    #  - pgq-${pg_version} pgrouting_${pg_version} pgtap${pg_version} plpgsql_check_${pg_version} plr${pg_version} plsh${pg_version}
-    #  - postgresql_anonymizer${pg_version} postgresql-unit${pg_version} powa_${pg_version} prefix${pg_version} repmgr${pg_version}
-    #  - safeupdate_${pg_version} semver${pg_version} slony1-${pg_version} sqlite_fdw${pg_version} sslutils_${pg_version} system_stats_${pg_version}
-    #  - table_version${pg_version} topn_${pg_version}
+      - pg_qualstats${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version}
+      # - ogr_fdw${pg_version} mysql_fdw_${pg_version} redis_fdw_${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version}
+      # - count_distinct${version}  ddlx_${version}  geoip${version}  orafce${version}                                   # popular features
+      # - hypopg_${version}  ip4r${version}  jsquery_${version}  logerrors_${version}  periods_${version}  pg_auto_failover_${version}  pg_catcheck${version}
+      # - pg_fkpart${version}  pg_jobmon${version}  pg_partman${version}  pg_prioritize_${version}  pg_track_settings${version}  pgaudit15_${version}
+      # - pgcryptokey${version}  pgexportdoc${version}  pgimportdoc${version}  pgmemcache-${version}  pgmp${version}  pgq-${version}  pgquarrel pgrouting_${version}
+      # - pguint${version}  pguri${version}  prefix${version}   safeupdate_${version}  semver${version}   table_version${version}  tdigest${version}
+
 
 
     #------------------------------------------------------------------------------
@@ -611,12 +666,14 @@ all: # top-level namespace, match all hosts
       - host    all     all                         10.10.10.10/32      md5
       - '"# allow: intranet admin role with password"'
       - host    all     +dbrole_admin               10.0.0.0/8          md5
+      - host    all     +dbrole_admin               172.16.0.0/12       md5
       - host    all     +dbrole_admin               192.168.0.0/16      md5
       - '"# allow local (pgbouncer) read-write user (production user) password access"'
       - local   all     +dbrole_readwrite                               md5
       - host    all     +dbrole_readwrite           127.0.0.1/32        md5
       - '"# intranet common user password access"'
       - host    all             all                 10.0.0.0/8          md5
+      - host    all             all                 172.16.0.0/12       md5
       - host    all             all                 192.168.0.0/16      md5
     pg_hba_primary: [ ]
     pg_hba_replica:
@@ -629,6 +686,7 @@ all: # top-level namespace, match all hosts
       - local  all          all                                     md5
       - host   all          all                     127.0.0.1/32    md5
       - host   all          all                     10.0.0.0/8      md5
+      - host   all          all                     172.16.0.0/12   md5
       - host   all          all                     192.168.0.0/16  md5
 
     # - credential - #
@@ -690,46 +748,11 @@ all: # top-level namespace, match all hosts
 
 
 
+## 定制初始化模板
+
+在Pigsty中，除了上述的参数变量，还提供两种定制化的方式
 
 
-
-
-## 配置详情
-
-项目的配置文件分为四部分：
-
-**全局变量定义**
-
-全局变量默认定义于`group_vars/all.yml`，针对不同的环境（开发，测试，生产），可以使用不同的全局变量，并通过软连接将`all.yml`指向对应的环境配置。
-全局变量针对所有机器生效，当用户希望使用统一的配置时，例如在所有机器上配置相同的 DNS，NTP Server，安装相同的软件包，使用统一的su密码时，可以修改全局变量
-全局变量定义分为8个部分，具体的配置项请参阅文档
-
-* 连接信息
-* 本地源定义
-* 机器节点初始化
-* 控制节点初始化
-* DCS元数据库初始化
-* Postgres安装
-* Postgres集群初始化
-* 监控初始化
-* 负载均衡代理初始化
-
-**主机变量定义**
-
-主机清单（IP，ssh信息，主机变量）默认定义于`cls/inventory.yml`，该文件包含了一套环境中所有主机相关的信息。可以通过`ansible -i <path>`使用其他的主机清单文件。
-主机清单使用`ini`格式，定义了一系列分组，默认分组`meta`包含了控制节点的信息。其他分组每个都包含了一个数据库集群的定义。
-例如，下面的例子定义了一个名为`pg-test`的集群，其中有三个实例，`10.10.10.11`为主库，`10.10.10.12`与`10.10.10.13`为从库，安装12版本的PostgreSQL数据库。
-
-```ini
-[pg-test]
-10.10.10.11 ansible_host=node-1 pg_role=primary pg_seq=1
-10.10.10.12 ansible_host=node-2 pg_role=replica pg_seq=2
-10.10.10.13 ansible_host=node-3 pg_role=replica pg_seq=3
-
-[pg-test:vars]
-pg_cluster = pg-test
-pg_version = 12
-```
 
 **数据库初始化模板**
 
@@ -758,4 +781,7 @@ pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_
 ```
 
 用户可以基于本脚本进行定制，并通过`pg_init`参数使用相应的自定义脚本。
+
+
+
 
