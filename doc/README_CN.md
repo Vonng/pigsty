@@ -8,7 +8,7 @@
 
 [English Document](../README.md)
 
-
+![](img/logo-small.jpg)
 
 ## 亮点
 
@@ -19,7 +19,7 @@
 * 代码定义的基础设施，完全客制化
 * 预设四种优化方案：OLTP，OLAP，核心库，虚拟机
 * 使用简单，声明式的配置参数，幂等的剧本，本地演示沙箱。
-* 支持PostgreSQL 13与Patroni 2.0，在CentOS7下进行了充分测试
+* 支持PostgreSQL 13与Patroni 2.0，在CentOS 7下进行了充分测试
 
 
 
@@ -27,13 +27,16 @@
 ## 快速开始
 
 1. **准备机器**
-* 使用预分配好的机器，或基于预定义的沙箱[Vagrantfile](vagrant/Vagrant)在本地生成演示虚拟机，选定一台作为中控机。
-* 配置中控机到其他机器的SSH免密码访问，并确认所使用的的SSH用户在机器上具有免密码`sudo`的权限。
-   *  使用Vagrant演示沙箱环境初始化虚拟机的过程可以参考：([Vagrant Provision Guide](doc/vagrant-provision.md))
+
+   使用预分配好的机器，或基于预定义的沙箱[Vagrantfile](../vagrant/Vagrant)在本地生成演示虚拟机，选定一台作为中控机。
+
+   配置中控机到其他机器的SSH免密码访问，并确认所使用的的SSH用户在机器上具有免密码`sudo`的权限。
+
+   使用Vagrant演示沙箱环境初始化虚拟机的过程可以参考：([Vagrant Provision Guide](vagrant-provision.md))
 
 2. **准备项目**
 
-   在中控机上安装Ansible，克隆本项目，并下载可选的离线安装包。（离线安装请参考[离线安装指南](doc/bootstrap.md) ）
+   在中控机上安装Ansible，克隆本项目，并下载可选的离线安装包。（离线安装请参考[离线安装指南](bootstrap.md) ）
 
    ```bash
    git clone https://github.com/vonng/pigsty && cd pigsty 
@@ -41,7 +44,7 @@
 
 3. **修改配置**
 
-   **按需修改配置文件**。配置文件使用YAML格式与Ansible清单语义，格式参考 ([配置教程](doc/configuration.md))
+   **按需修改配置文件**。配置文件使用YAML格式与Ansible清单语义，格式参考 ([配置教程](configuration.md))
 
    ```bash
    vi conf/all.yml			# 默认配置文件路径
@@ -128,7 +131,7 @@ Pigsty提供商业支持，包括下列扩展内容与服务支持，详情请[�
 * 日志收集系统，日志摘要信息聚合汇总
 * 备份/恢复，并发备份、延时备份、备份校验等一条龙解决方案。
 * 协助部署，系统集成，对接监控报警基础设施或接入已有数据库
-* 7 x 24小时支持与答疑，故障诊断服务。
+* n x 24小时支持与答疑，故障诊断服务。
 
 
 

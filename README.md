@@ -6,7 +6,7 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
 
 [中文文档](doc/README_CN.md)
 
-
+![](doc/img/logo-small.jpg)
 
 ## Highlight
 
@@ -17,7 +17,7 @@ This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Whi
 * Infrastructure as Code. Fully customizable. 
 * Optimized for different situations: OLTP, OLAP, Critical, Virtual Machine, ...
 * Simple interface, declarative parameters and idempotent playbooks
-* Latest version support (PostgreSQL 13 and Patroni 2.0), Tested under CentOS 7
+* Latest version support (PostgreSQL 13 and Patroni 2.0), Fully tested under CentOS 7
 
 
 
@@ -133,7 +133,7 @@ Business support for pigsty is available. [Contact](mailto:fengruohang@outlook.c
 * Backup/Recovery plan
 * Deployment assistance and trouble shooting. Intergration with existing system.
 
-Read [more [TODO]](doc/enterprise.md) about enterprise version of pigsty.
+Read [more [TBD]](doc/enterprise.md) about business support of pigsty.
 
 
 

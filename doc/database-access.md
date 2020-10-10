@@ -31,5 +31,11 @@ Default VIP for `pg-meta` is `10.10.10.2` , and default VIP for `pg-test` is `10
 
 
 
+# 访问数据库
+
+数据库可以通过多种方式访问
+
+![](img/proxy.png)
+
 
 
