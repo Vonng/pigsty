@@ -175,8 +175,8 @@ for database in postgres template1; do
 		CREATE EXTENSION IF NOT EXISTS pg_prewarm WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pg_visibility WITH SCHEMA monitor;
 		CREATE EXTENSION IF NOT EXISTS pg_freespacemap WITH SCHEMA monitor;
-		-- CREATE EXTENSION IF NOT EXISTS pg_repack WITH SCHEMA monitor;		-- temporarily not available for PG13
-		-- CREATE EXTENSION IF NOT EXISTS pg_stat_kcache WITH SCHEMA monitor;
+		CREATE EXTENSION IF NOT EXISTS pg_repack WITH SCHEMA monitor;
+		CREATE EXTENSION IF NOT EXISTS pg_stat_kcache WITH SCHEMA monitor;
 		-- CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA monitor;
 
 		-- Table bloat estimate
