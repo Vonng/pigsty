@@ -4,17 +4,16 @@
 
 ## TL;DR
 
-1. Configure postgres parameters
+1. Configure postgres parameters in config file
 
    ```bash
-   vi group_vars/all.yml
-   vi cls/inventory.ini   # define your inventory and override parameters 
+   vi config/all.yml
    ```
-
+   
 2. Run postgres provision playbook
 
    ```bash
-   ./postgres.yml
+   ./initdb.yml
    ```
 
 

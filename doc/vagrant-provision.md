@@ -1,4 +1,4 @@
-# Vagrant Provision Guide
+# Vagrant Provision [DRAFT]
 
 If you wish to run pigsty on your laptop, consider using vagrant and virtualbox as vm provisioner
 
@@ -43,8 +43,6 @@ make cache	# copy local yum repo packages to your pigsty/pkg
 
 如果您希望在本地环境运行Pigsty示例，可以考虑使用 [vagrant](https://vagrantup.com/)与[virtualbox](https://www.virtualbox.org/)初始化本地虚拟机。
 
-
-
 1. 在宿主机上安装  [vagrant](https://vagrantup.com/), [virtualbox](https://www.virtualbox.org/) 与[ansible](https://www.ansible.com/)（可选）
 
    具体安装方式因平台而异，请参照软件官网文档进行，以MacOS为例，可以使用[homebrew](https://brew.sh/)一键安装：
@@ -77,5 +75,6 @@ make cache	# 制作离线安装包，并拷贝至宿主机本地，加速后续�
 make upload # 将离线安装缓存包 pkg.tgz 上传并解压至默认目录 /www/pigsty
 ```
 
-
+> 附带的Vagrantfile在MacOS 10.15下测试
+>
 

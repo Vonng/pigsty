@@ -1,4 +1,4 @@
-# Pigsty Configuration Guide
+# Configuration Guide [DRAFT]
 
 pigsty can be configured via 200+ parameters. Which defines the infrastructure and all database clusters.
 

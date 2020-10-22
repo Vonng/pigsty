@@ -1,4 +1,4 @@
-# Infrastructure Provision
+# Infrastructure Provision [DRAFT]
 
 
 
@@ -7,7 +7,7 @@
 1. Configure infrastructure parameters
 
     ```bash
-    vi group_vars/all.yml
+    vi config/all.yml
     ```
 
 2. Run infra provision playbook

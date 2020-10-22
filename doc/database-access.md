@@ -1,4 +1,4 @@
-# Database Access
+# Database Access  [DRAFT]
 
 You can access provisioned database cluster via different approach. Take standard demo as an example:
 
@@ -31,11 +31,15 @@ Default VIP for `pg-meta` is `10.10.10.2` , and default VIP for `pg-test` is `10
 
 
 
-# 访问数据库
-
-数据库可以通过多种方式访问
-
-![](img/proxy.png)
 
 
+## 访问数据库
+
+用户可以通过多种方式访问数据库服务
+
+在实例层次，可以通过5432端口直连Postgres数据库，也可以通过6432端口经由Pgbouncer访问数据库。即可以通过IP地址直接访问，也可以通过节点域名解析访问。
+
+在集群层次，每个集群带有一个可选的绑定至主库所在节点的VIP。可以通过VIP访问主库实例。同时，集群中的所有成员都运行有无状态的Haproxy负载均衡器。访问任意一个Haproxy实例都可以将只读流量与读写流量路由至集群的对应实例上。Haproxy本身的高可用亦通过绑定在主库的VIP实现。
+
+![](/Users/vonng/pigsty/doc/img/proxy.png)
 

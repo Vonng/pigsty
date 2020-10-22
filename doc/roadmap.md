@@ -1,4 +1,4 @@
-# Roadmap
+# Roadmap [DRAFT]
 
 
 
@@ -40,20 +40,3 @@
 * ha-pool-resume.yml
 
 
-
-
-
-
-## What's Next?
-
-* Explore the monitoring system
-* How service discovery works
-* Add some load to cluster
-* Managing postgres cluster with ansible
-* High Available Drill
-
-
-
-
-
-## 路线图
