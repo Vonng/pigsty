@@ -31,6 +31,10 @@ make clean	# delete current cluster
 make cache	# copy local yum repo packages to your pigsty/pkg
 ```
 
+> Vagrant provision scripts tested on MacOS 10.15 Catalina.
+
+
+
 
 
 

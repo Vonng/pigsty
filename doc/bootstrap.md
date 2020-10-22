@@ -4,7 +4,7 @@
 
 ## Offline Installation
 
-Sometimes you may not have Internet access. Offline installtion is prepared for this. (But currently only Cent 7 is supported)
+Sometimes you may not have Internet access. Offline installtion is prepared for this. (But currently only CentOS 7 is supported)
 
 It may takes around 5m~30m to download all packages (1GB) according to your network condition. Consider using a local [http proxy](group_vars/dev.yml), and don't forget to make a package cache via  `make cache` after bootstrap. 
 

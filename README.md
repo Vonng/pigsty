@@ -1,12 +1,14 @@
 # Pigsty -- PostgreSQL in Graphic Style
 
 > PIGSTY: Postgres in Graphic STYle
+>
+> ![](doc/logo/logo-full.svg)
 
-This project is a demonstration of `pigsty` — PostgreSQL in Graphic STYle. Which consist of a high-availability database solution and a battery-included monitoring system. This project has been tested in real world production environment. It can be used freely.
+This project is a skim version of `pigsty` — PostgreSQL in Graphic STYle. Which consist of a high-available database cluster provision solution, and a battery-included monitoring system. This project has been tested in real world / production environment.
 
 [中文文档](doc/README_CN.md)
 
-![](doc/img/logo-small.jpg)
+
 
 ## Highlight
 
