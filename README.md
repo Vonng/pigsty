@@ -1,10 +1,10 @@
 # Pigsty -- PostgreSQL in Graphic Style
 
 > PIGSTY: Postgres in Graphic STYle
->
-> ![](doc/logo/logo-full.svg)
 
-This project is a skim version of `pigsty` — PostgreSQL in Graphic STYle. Which consist of a high-available database cluster provision solution, and a battery-included monitoring system. This project has been tested in real world / production environment.
+This project provides a powerful monitoring system specially designed for PostgreSQL, along with a patroni-based high-available database cluster provision solution. It has been used and tested in real world production environment.
+
+![](doc/logo/logo-full.svg)
 
 [中文文档](doc/README_CN.md)
 
@@ -45,10 +45,10 @@ This project is a skim version of `pigsty` — PostgreSQL in Graphic STYle. Whic
    ./infra.yml          # setup infrastructure properly
    ```
    
-5. Run`postgres.yml` on meta node to provision database cluster ([Postgres Provision Guide](doc/postgres-provision.md))
+5. Run`initdb.yml` on meta node to provision database cluster ([Postgres Provision Guide](doc/postgres-provision.md))
 
    ```bash
-   ./postgres.yml       # pull up all postgres clusters  
+   ./initdb.yml       # pull up all postgres clusters  
    ```
 
 6. Start exploring ([Monitor System Guide](doc/monitor-system.md))

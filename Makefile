@@ -40,8 +40,8 @@ cache:
 
 # provision infrastructure and database clusters
 init:
-	./infra.yml
-	./postgres.yml 				# provision pg-test and pg-meta
+	./infra.yml                 # provision meta node infrastructure
+	./initdb.yml 				# provision pg-test and pg-meta
 
 ###############################################################
 # vm management
@@ -106,47 +106,50 @@ gis:
 	ssh -t meta "sudo -iu postgres psql meta -AXtwc 'CREATE EXTENSION IF NOT EXISTS postgis;'";
 
 ###############################################################
-# grafna management
+# monitoring management
 ###############################################################
-view:
-	open -n 'http://grafana.pigsty/d/pg-cluster/pg-cluster?refresh=5s&var-cls=pg-test'
-
-ha:
-	open -n 'http://pg-test:9101/haproxy'
-
-dump-monitor:
-	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
-	scp meta:/tmp/grafana.db roles/grafana/files/grafana/grafana.db
-	ssh meta "sudo rm -rf /tmp/grafana.db"
-
-restore-monitor:
-	scp roles/grafana/files/grafana/grafana.db meta:/tmp/grafana.db
-	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
-	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
-
-restore-mini:
-	scp roles/grafana/files/grafana/grafana.db.mini meta:/tmp/grafana.db
-	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
-	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
-
-
-###############################################################
-# monitoring release management
-###############################################################
+mon-view:
+	open -n 'http://g.pigsty/'
 
 mon-clean:
 	rm -rf roles/grafana/files/grafana/grafana.db roles/grafana/files/grafana/dashboards
 
 mon-full: mon-clean
-	cp roles/grafana/files/grafana/grafana-full.db roles/grafana/files/grafana/grafana.db
-	tar -xf roles/grafana/files/grafana/dashboards-full.tar.gz -C roles/grafana/files/grafana/
+	cp files/monitor/grafana-full.db roles/grafana/files/grafana/grafana.db
+	tar -xf files/monitor/dashboards-full.tar.gz -C roles/grafana/files/grafana/
 
 mon-skim: mon-clean
-	cp roles/grafana/files/grafana/grafana-skim.db roles/grafana/files/grafana/grafana.db
-	tar -xf roles/grafana/files/grafana/dashboards-skim.tar.gz -C roles/grafana/files/grafana/
+	cp files/monitor/grafana-skim.db roles/grafana/files/grafana/grafana.db
+	tar -xf files/monitor/dashboards-skim.tar.gz -C roles/grafana/files/grafana/
 
-mon-bin:
-	tar -xf roles/grafana/files/dashboard.yml .
+mon-dump:
+	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
+	scp meta:/tmp/grafana.db files/monitor/grafana-full.db
+	ssh meta "sudo rm -rf /tmp/grafana.db"
+
+mon-upload:
+	scp files/monitor/grafana-full.db meta:/tmp/grafana.db
+	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
+	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
+
+mon-dump-skim:
+	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
+	scp meta:/tmp/grafana.db files/monitor/grafana-skim.db
+	ssh meta "sudo rm -rf /tmp/grafana.db"
+
+mon-upload-skim:
+	scp files/monitor/grafana-skim.db meta:/tmp/grafana.db
+	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
+	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
+
+dashboard-dump:
+	./dashboard.yml -e action=dump
+
+dashboard-clean:
+	./dashboard.yml -e action=clean
+
+dashboard-install:
+	./dashboard.yml -e action=install
 
 ###############################################################
 # environment management
