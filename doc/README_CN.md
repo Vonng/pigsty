@@ -1,6 +1,8 @@
 # Pigsty —— 图形化PostgreSQL环境
 
 > PIGSTY: Postgres in Graphic STYle （图形化PostgreSQL环境）
+>
+> ![](logo/logo-full.svg)
 
 本项目为图形化PostgreSQL（`pigsty`）的演示项目，带有一套高可用集群方案与集成的监控系统。
 
@@ -8,7 +10,7 @@
 
 [English Document](../README.md)
 
-![](img/logo-small.jpg)
+
 
 ## 亮点
 
@@ -32,11 +34,11 @@
 
    配置中控机到其他机器的SSH免密码访问，并确认所使用的的SSH用户在机器上具有免密码`sudo`的权限。
 
-   使用Vagrant演示沙箱环境初始化虚拟机的过程可以参考：([Vagrant Provision Guide](vagrant-provision.md))
+   使用Vagrant演示沙箱环境初始化虚拟机的过程可以参考：（[Vagrant快速上手](vagrant-provision.md)）
 
 2. **准备项目**
 
-   在中控机上安装Ansible，克隆本项目，并下载可选的离线安装包。（离线安装请参考[离线安装指南](bootstrap.md) ）
+   在中控机上安装Ansible，克隆本项目，并下载可选的离线安装包（离线安装请参考[离线安装指南](bootstrap.md) ）
 
    ```bash
    git clone https://github.com/vonng/pigsty && cd pigsty 
@@ -59,14 +61,14 @@
   5. **初始化数据库集群**
 
      ```bash
-     ./postgres.yml     # 执行此剧本，将所有数据库集群定义实例化
+     ./initdb.yml        # 执行此剧本，将所有数据库集群定义实例化
      ```
 
 6. **开始探索**
 
    执行`sudo make dns`可以将沙箱所需域名写入本机`/etc/hosts`，亦可直接通过IP端口访问。
 
-   访问 http://pigsty 进入系统主页。监控系统Grafana的默认密码为admin:admin。详情参阅[监控系统介绍]()
+   访问 http://pigsty 进入系统主页。监控系统Grafana的默认密码为admin:admin。详情参阅[监控系统介绍](monitor-system)
 
 
 
@@ -125,7 +127,8 @@
 
 Pigsty提供商业支持，包括下列扩展内容与服务支持，详情请[联系](mailto:fengruohang@outlook.com)。
 
-* 完整的监控系统，包含约三千余项监控指标，几十幅信息详实美观精准的监控面板
+* 完整的监控系统，包含约三千余项监控指标。
+* 额外的监控面板，提供更为丰富的集群监控信息。
 * 生产级部署运维管理方案
 * 元数据库建设，全局数据字典
 * 日志收集系统，日志摘要信息聚合汇总
@@ -141,7 +144,7 @@ Pigsty提供商业支持，包括下列扩展内容与服务支持，详情请[�
 
 
 
-## 关于猪圈
+## 关于
 
 作者：冯若航  ([fengruohang@outlook.com](mailto:fengruohang@outlook.com))
 

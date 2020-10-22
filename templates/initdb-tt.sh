@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   initdb.sh
 # Mtime     :   2020-09-02
-# Desc      :   create postgres business database and users (TanTan Specific Version)
+# Desc      :   create postgres business database and users (TT Specific Version)
 # Path      :   /pg/bin/initdb.sh
 # Depend    :   CentOS 7
 # Author    :   Vonng(fengruohang@outlook.com)
@@ -31,6 +31,10 @@ PG_DEFAULT_PASSWORD='{{ pg_default_password }}'
 PG_DEFAULT_DATABASE='{{ pg_default_database }}'
 PG_DEFAULT_SCHEMA='{{ pg_default_schema }}'
 PG_DEFAULT_EXTENSIONS='{{ pg_default_extensions }}'
+
+# AD HOC Variables
+PG_DBUSER_DBA_PASSWORD="{{ pg_dbuser_dba_password }}"
+PG_DBUSER_STATS_PASSWORD="{{ pg_dbuser_stats_password }}"
 
 #----------------------------------------------------------------------------
 # system users
@@ -110,13 +114,13 @@ psql -AXtwq postgres <<-EOF
 	CREATE ROLE dbuser_dba;        -- administration tasks
 	GRANT dbrole_admin TO "dbuser_dba";
 	COMMENT ON ROLE dbuser_dba IS 'database administrator';
-	ALTER ROLE dbuser_dba SUPERUSER LOGIN NOINHERIT CREATEROLE CREATEDB REPLICATION BYPASSRLS  PASSWORD 'md57bb81c95d81079e81981f7c8cf84d586';;
+	ALTER ROLE dbuser_dba SUPERUSER LOGIN NOINHERIT CREATEROLE CREATEDB REPLICATION BYPASSRLS  PASSWORD '${PG_DBUSER_DBA_PASSWORD}';
 
 	-- remote stats user
 	CREATE ROLE dbuser_stats;        -- administration tasks
 	GRANT dbrole_readonly TO "dbuser_stats";
 	COMMENT ON ROLE dbuser_stats IS 'offline stats etl user';
-	ALTER ROLE dbuser_stats PASSWORD 'md5425da66bfc2f7d5df6905c0492b0033c';
+	ALTER ROLE dbuser_stats PASSWORD '${PG_DBUSER_STATS_PASSWORD}';
 EOF
 
 #----------------------------------------------------------------------------
