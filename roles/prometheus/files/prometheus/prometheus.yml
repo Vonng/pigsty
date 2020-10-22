@@ -1,0 +1,69 @@
+# note this config may be overwrite by rendered template
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - localhost:9093
+      scheme: http
+      timeout: 10s
+      api_version: v1
+
+rule_files:
+  - rules/*.yml
+
+scrape_configs:
+
+  # meta services
+  - job_name: meta
+    static_configs:
+      - targets:
+          - 127.0.0.1:3000    # grafana
+          - 127.0.0.1:9090    # prometheus
+          - 127.0.0.1:9093    # alertmanager
+          - 127.0.0.1:9113    # nginx
+
+
+  # node_exporter | pg_exporter | pgbouncer_exporter | haproxy exporter
+  - job_name: pg
+    # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#consul_sd_config
+    metrics_path: /metrics
+    consul_sd_configs:
+      - server: 127.0.0.1:8500
+        refresh_interval: 5s
+        tags:
+          - pg
+          - exporter
+
+    # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+    # final labels: [cls, svc, ins, role, node, ip, instance]
+    relabel_configs:
+      # cluster label: pg-test, pg-meta, ...
+      - source_labels: [__meta_consul_service_metadata_cluster]
+        action: replace
+        target_label: cls
+
+      # service label: pg-test-primary, pg-test-replica, ...
+      - source_labels: [__meta_consul_service_metadata_service]
+        action: replace
+        target_label: svc
+
+      # instance label: pg-meta-0, pg-test-1, ...
+      - source_labels: [__meta_consul_service_metadata_instance]
+        action: replace
+        target_label: ins
+
+      # role label      `primary|replica`
+      - source_labels: [__meta_consul_service_metadata_role]
+        action: replace
+        target_label: role
+
+      # node/ip address label
+      - source_labels: [__meta_consul_address]
+        action: replace
+        target_label: ip

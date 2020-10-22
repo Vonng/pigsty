@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pgb-db-add.sh
+# Mtime     :   2020-09-04
+# Desc      :   add database to pgbouncer pool
+# Path      :   /pg/bin/pgb-db-add.sh
+# Author    :   Vonng(fengruohang@outlook.com)
+# Depend    :   none
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pgbouncer_database_add
+# Desc: Add or modify pgbouncer userlist
+# Arg1: database name
+# Arg2: connection string (optional)
+# Note: Run this as dbsu (postgres)
+#--------------------------------------------------------------#
+function pgbouncer_database_add(){
+	local database=$1
+	local connstr=${2-'host=/var/run/postgresql'}
+	local dblist=${3-'/etc/pgbouncer/database.txt'}
+
+	mkdir -p /etc/pgbouncer/
+	touch ${dblist}
+	if grep -q ${database} ${dblist}; then
+		sed -i "/${database}/d" ${dblist}
+	fi
+	echo "${database} = ${connstr}" >> ${dblist}
+}
+
+pgbouncer_database_add $@
