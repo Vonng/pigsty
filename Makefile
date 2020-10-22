@@ -28,14 +28,14 @@ ssh:
 # upload rpm cache to meta controller
 upload:
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
-	scp -r pkg.tgz meta:/tmp/pkg.tgz
+	scp -r files/pkg.tgz meta:/tmp/pkg.tgz
 	ssh -t meta "sudo mkdir -p /www/pigsty/; sudo rm -rf /www/pigsty/*; sudo tar -xf /tmp/pkg.tgz --strip-component=1 -C /www/pigsty/"
 
 # cache rpm packages from meta controller
 cache:
 	rm -rf pkg/* && mkdir -p pkg;
 	ssh -t meta "sudo tar -zcf /tmp/pkg.tgz -C /www pigsty; sudo chmod a+r /tmp/pkg.tgz"
-	scp -r meta:/tmp/pkg.tgz pkg.tgz
+	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
 
 # provision infrastructure and database clusters
@@ -129,6 +129,24 @@ restore-mini:
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
+
+###############################################################
+# monitoring release management
+###############################################################
+
+mon-clean:
+	rm -rf roles/grafana/files/grafana/grafana.db roles/grafana/files/grafana/dashboards
+
+mon-full: mon-clean
+	cp roles/grafana/files/grafana/grafana-full.db roles/grafana/files/grafana/grafana.db
+	tar -xf roles/grafana/files/grafana/dashboards-full.tar.gz -C roles/grafana/files/grafana/
+
+mon-skim: mon-clean
+	cp roles/grafana/files/grafana/grafana-skim.db roles/grafana/files/grafana/grafana.db
+	tar -xf roles/grafana/files/grafana/dashboards-skim.tar.gz -C roles/grafana/files/grafana/
+
+mon-bin:
+	tar -xf roles/grafana/files/dashboard.yml .
 
 ###############################################################
 # environment management
