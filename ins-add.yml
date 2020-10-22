@@ -1,0 +1,37 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   init.yml
+# Ctime     :   2020-10-20
+# Mtime     :   2020-10-22
+# Desc      :   init new node
+# Path      :   init.yml
+# Copyright (C) 2019-2020 Ruohang Feng
+#==============================================================#
+
+
+#------------------------------------------------------------------------------
+# init node and database
+#------------------------------------------------------------------------------
+- name: Init
+  become: yes
+  hosts: all
+  gather_facts: no
+  roles:
+
+    - role: node                            # init node
+      tags: [infra, node]
+
+    - role: consul                          # init consul
+      tags: [infra, dcs]
+
+    - role: postgres                        # init postgres
+      tags: [pg, postgres]
+
+    - role: monitor                         # init monitor system
+      tags: [pg, monitor]
+
+    - role: proxy                           # init proxy
+      tags: [pg, proxy]
+
+...
