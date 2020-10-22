@@ -21,6 +21,10 @@ This project provides a powerful monitoring system specially designed for Postgr
 * Simple interface, declarative parameters and idempotent playbooks
 * Latest version support (PostgreSQL 13 and Patroni 2.0), Fully tested under CentOS 7
 
+![](doc/img/overview.jpg)
+
+
+
 
 
 ## Quick Start
@@ -124,15 +128,19 @@ Lot's of configurable parameters items, refer to [Proxy Configuration Guide](doc
 
 
 
-## Business Support
+## Support
+
+Bug fix and issue
+
+* No guaranteed deadline.
 
 Business support for pigsty is available. [Contact](mailto:fengruohang@outlook.com) for more detail.
 
-* Advance Monitoring System, 3000+ metrics, 30+ detailed dashboards
+* Advance Monitoring System, 3000+ metrics, 30+ extra dashboards
 * Production  deployment & operation & administration scheme
 * Meta database and data dictionary
 * Log collecting system and daily log summary
-* Backup/Recovery plan
+* Backup / Recovery plan
 * Deployment assistance and trouble shooting. Intergration with existing system.
 
 Read [more [TBD]](doc/enterprise.md) about business support of pigsty.

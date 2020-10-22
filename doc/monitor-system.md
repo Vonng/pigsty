@@ -16,6 +16,3 @@ Pigsty has a battery-included monitoring system
 ![](img/pigsty-slow-query.png)
 ![](img/proxy.png)
 
-
-# 监控系统简介
-
