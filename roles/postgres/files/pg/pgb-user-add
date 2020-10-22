@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pgb-user-add
+# Mtime     :   2020-09-04
+# Desc      :   add user to pgbouncer pool
+# Path      :   /pg/bin/pgb-user-add.sh
+# Author    :   Vonng(fengruohang@outlook.com)
+# Depend    :   none
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pgbouncer_userlist_add
+# Desc: Add or modify pgbouncer userlist
+# Arg1: username
+# Arg2: password (optional)
+# Note: Run this as dbsu (postgres)
+#--------------------------------------------------------------#
+function pgbouncer_userlist_add(){
+	local username=$1
+	local password=${2-''}
+	local userlist=${3-'/etc/pgbouncer/userlist.txt'}
+
+	local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
+	local userlist_entry="\"${username}\" \"${md5_mon_pass}\""
+	# get md5 password from database if 'auto' is set
+	if [[ $password == 'auto' ]]; then
+		userlist_entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE usename = '${username}'" 2>/dev/null)
+	fi
+
+	mkdir -p /etc/pgbouncer/
+	touch ${userlist}
+	if grep -q ${username} ${userlist}; then
+		sed -i "/${username}/d" ${userlist}
+	fi
+	if [[ -z "${password}" ]]; then
+		echo "\"${username}\" \"\"" >> ${userlist}
+	else
+		echo ${userlist_entry} >> ${userlist}
+	fi
+}
+
+pgbouncer_userlist_add $@

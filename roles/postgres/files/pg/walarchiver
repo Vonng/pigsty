@@ -1,0 +1,1018 @@
+#!/bin/bash
+
+set -uo pipefail
+
+#==============================================================#
+# File      :   walarchiver
+# Mtime     :   2019-03-10
+# Desc      :   PostgreSQL WAL archiver
+# Path      :   /usr/local/bin/walarchiver
+# Author    :   Vonng(fengruohang@outlook.com)
+# Depend    :   pg_receivewal, psql, .pgpass
+# Note      :
+#     * set `wal_keep_segments` to an appropriate value (1000)
+#     * role have replication privilege
+#     * credential is provided via url or .pgpass
+#     * This is write for PostgreSQL 10+
+#       But you can try ln -sf pg_receivexlog pg_receivewal for 9.x
+#==============================================================#
+
+
+# module info
+__MODULE_WALARCHIVER="walarchiver"
+
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PROG_NAME="$(basename $0)"
+
+export PATH=/usr/pgsql/bin:${PATH}
+WALARCHIVER_LOG="/pg/log/arcwal.log"
+
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<- 'EOF'
+
+	NAME
+	    walarchiver   -- Archive PostgreSQL WAL
+
+	SYNOPSIS
+	    # control
+	    walarchiver start    [-d dbname] [-D waldir] [-S slot_name] [-Z compress]   start walarchiver   (one-shot)
+	    walarchiver restart  [-d dbname] [-D waldir] [-S slot_name] [-Z compress]   restart walarchiver
+	    walarchiver stop                                                            stop walarchiver
+
+	    # information
+	    walarchiver log                                                             show walarchiver log
+	    walarchiver list     [waldir=/pg/arcwal]                                    list archive directory
+	    walarchiver status                                                          show walarchiver status
+
+	    # slot management
+	    walarchiver ping     [dbname='<from_config>']                               show source postgres status (down|primary|standby)
+	    walarchiver slots    [dbname='<from_config>']                               show all slots on given server
+	    walarchiver exists   [slot_name=walarchiver] [dbname='postgres']            whether slot '$slot_name' exists on src
+	    walarchiver create   [slot_name=walarchiver] [dbname='postgres']            create slot '$slot_name' on src
+	    walarchiver drop     [slot_name=walarchiver] [dbname='postgres']            drop slot '$slot_name' on src
+
+	    # waldir management
+	    walarchiver recover  [pgdata=/pg/data] [waldir=/pg/arcwal]                  write recovery.conf to /pg/data (recover from this)
+	    walarchiver remove   [waldir=/pg/arcwal]                                    remove all files in waldir
+	    walarchiver cleanup  <referer> [waldir=/pg/arcwal]                          cleanup older wal
+	    walarchiver rewind   <referer> [waldir=/pg/arcwal]                          remove newer wal
+
+	    # systemctl (sudo privilege required)
+	    walarchiver install  [-d dbname] [-D waldir] [-S slot_name] [-Z compress]   register systemctl service
+	    walarchiver config   [-d dbname] [-D waldir] [-S slot_name] [-Z compress]   change walarchiver.service config
+	    walarchiver launch                                                          start & enable walarchiver.service
+	    walarchiver disable                                                         stop & disable walarchiver.service
+
+	    walarchiver usage                                                           show this message
+
+	DESCRIPTION
+	    parameters
+	        dbname    (-d)   default: postgres:/// or from config                   default is local postgres instance
+	        waldir    (-D)   default: /pg/arcwal                                    archive dir create by install-postgres.sh
+	        slot_name (-S)   default: walarchiver                                   set to none to disable slot
+	        compress  (-Z)   default: 4                                             gzip compress level
+
+	    notes
+	        require user postgres (require root, or sudo privilege on systemctl * walarchiver)
+	        require pg_receivewal & psql in your PATH (you can create soft link pg_receivexlog -> pg_receivewal)
+	        require proper credential (trust/in dbname/~/.pgpass)
+	        config require edit privilege on /etc/walarchiver/env (chown postgres:postgres /etc/walarchiver/env)
+	        slot won't be dropped when walarchiver is stop (but will be drop when disable), be cautious with that
+	        you'd better set 'wal_keep_segments' to a proper value even use slot (e.g 1000=16GB)
+
+	TL;DR
+	    install & launch walarchiver.service (by default it will use a slot named walarchiver [from primary] )
+	        sudo walarchiver install
+	        sudo walarchiver launch
+	        walarchiver status
+
+	    change walarchiver.service config (archive from new source and disable slot)
+	        walarchiver config -d postgres://replicator@new.archive.target
+	        walarchiver config --slot=none
+	        walarchiver disable
+	        walarchiver launch
+	EOF
+
+    exit 1
+}
+
+
+
+#==============================================================#
+#                             Utils                            #
+#==============================================================#
+# logger functions
+function log_debug() {
+    [[ -t 2 ]] && printf "\033[0;34m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][DEBUG] $*\033[0m\n" >&2 || \
+ printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][DEBUG] $*\n" >&2
+}
+
+function log_info() {
+    [[ -t 2 ]] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\033[0m\n" >&2 || \
+ printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
+}
+
+function log_warn() {
+    [[ -t 2 ]] && printf "\033[0;33m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][WARN] $*\033[0m\n" >&2 || \
+ printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
+}
+
+function log_error() {
+    [[ -t 2 ]] && printf "\033[0;31m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][ERROR] $*\033[0m\n" >&2 || \
+ printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
+}
+
+#--------------------------------------------------------------#
+# Name: walarchiver_pid
+# Desc: detect any running pg_receivewal instance pid
+# Rets: pid of running pg_receivewal instance, "" if none
+# Note: assume at most 1 instance running
+#--------------------------------------------------------------#
+function walarchiver_pid() {
+    echo $(ps aux | grep pg_receive | grep -v grep | head -n1 | awk '{print $2}')
+}
+
+#--------------------------------------------------------------#
+# Name: walarchiver_running
+# Desc: detect any running pg_receivewal instance
+# Rets: 0 if any instance is running, other wise 1
+# Note: assume at most 1 instance running
+#--------------------------------------------------------------#
+function walarchiver_running() {
+    local pid=$(walarchiver_pid)
+    # no pid means not running so return 1
+    [[ -z "$pid" ]] && return 1 || return 0
+}
+
+#--------------------------------------------------------------#
+# Name: walarchiver_dir
+# Desc: detect the dir used for WAL archive
+# Rets: Archive dir name, "" if not running
+# Note: assume at most 1 instance running
+#--------------------------------------------------------------#
+function walarchiver_dir() {
+    local process=$(ps aux | grep pg_receive | grep -v grep | head -n1)
+    local pid=$(echo ${process} | awk '{print $2}' 2> /dev/null)
+    [[ -z ${pid} ]] && return 1
+
+    local cmd=$(echo ${process} | awk '{out=""; for(i=11;i<=NF;i++){out=out" "$i}; print out}' 2> /dev/null)
+    local seg=$(lsof -p ${pid} | grep partial | awk '{print $NF}' 2> /dev/null)
+    local dir=$(dirname ${seg} 2> /dev/null) # archive dir
+    echo ${dir}
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: pg_status
+# Desc: check postgres status from given URL
+# Arg1: archive src, default 'postgres://:5432/postgres?host=/tmp'
+# Rets: primary/standby/down
+#--------------------------------------------------------------#
+function pg_status() {
+    local src_url=${1}
+    local msg=$(psql ${src_url} -1wqAXtc "SELECT pg_is_in_recovery();" 2> /dev/null)
+
+    [[ $? != 0 ]] && echo "down" && return
+    case ${msg} in
+        t) echo "standby" ;return 0 ;;
+        f) echo "primary" ;return 0 ;;
+        *) echo "down"    ;return 1 ;;
+    esac
+}
+
+
+#--------------------------------------------------------------#
+# Name: pg_exists_slot
+# Desc: detect whether given slot is exist in remote url
+# Arg1: dbname      , source postgres url
+# Arg2: slot_name   , slot to be checked
+# Rets: 0: slot exist 1: slot not exist
+#--------------------------------------------------------------#
+function pg_exists_slot() {
+    local dbname=${1}
+    local slot_name=${2}
+    local result=$(psql ${dbname} -1qwAXtc "SELECT slot_name FROM pg_replication_slots WHERE slot_name = '$2';" 2> /dev/null)
+    [[ -z "${result}" ]] && return 1 || return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: pg_create_slot
+# Desc: create slot '$slot_name' on given database source
+# Arg1: dbname      , source postgres url
+# Arg2: slot_name   , slot to be created
+# Rets: 0: slot created  other: slot create fail
+#--------------------------------------------------------------#
+function pg_create_slot() {
+    local dbname=${1}
+    local slot_name=${2}
+    pg_receivewal -d ${dbname} --create-slot --if-not-exists --slot=${slot_name}
+    return $?
+}
+
+
+#--------------------------------------------------------------#
+# Name: pg_drop_slot
+# Desc: drop slot '$slot_name' on given database source
+# Arg1: dbname      , source postgres url
+# Arg2: slot_name   , slot to be dropped
+# Rets: 0: slot dropped  other: slot drop fail
+#--------------------------------------------------------------#
+function pg_drop_slot() {
+    local dbname=${1}
+    local slot_name=${2}
+    pg_receivewal -d ${dbname} --drop-slot --slot=${slot_name}
+    return $?
+}
+
+
+#--------------------------------------------------------------#
+# Name: get_config
+# Desc: Get value of given key in config from /etc/walarchiver/env
+# Arg1: key     config key
+# Rets: 0: ok   1:  fail
+# Echo: value corresponding to key
+#--------------------------------------------------------------#
+function get_config(){
+	local key=$1
+	local pattern="${key}"'=(.*)$'
+	local line=$(grep -Eo "${pattern}" /etc/walarchiver/env 2>/dev/null)
+	if [[ $? != 0 ]]; then
+		return 1
+	fi
+	local value=${line##"${key}="}
+	echo ${value}
+	return 0
+}
+
+
+
+#==============================================================#
+#                        CONTROL                               #
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_start
+# Desc: start pg_receivewal background process
+# Args: -d dbname       ('postgres://:5432/postgres?host=/tmp')
+# Args: -D waldir       ('/pg/arcwal')
+# Args: -S slot_name    ('walarchiver' use 'none' to disable)
+# Args: -Z compress     (4 compress level by default)
+#--------------------------------------------------------------#
+function walarchiver_start() {
+    local dbname="postgres:///postgres"
+    local waldir="/pg/arcwal"
+    local slot_name="walarchiver"
+    local compress="4"
+    while (($# > 0)); do
+        case "$1" in
+            -d | --dbname=*)
+                [[ "$1" == "-d" ]]  && shift
+                dbname=${1##*=};    shift ;;
+            -D | --waldir=*)
+                [[ "$1" == "-D" ]]  && shift
+                waldir=${1##*=};    shift ;;
+            -S | --slot=* | --slot-name=*)
+                [[ "$1" == "-S" ]]  && shift
+                slot_name=${1##*=}; shift ;;
+            -Z | --compress=*)
+                [[ "$1" == "-Z" ]]  && shift
+                compress=${1##*=};  shift ;;
+            *  ) usage ;;
+        esac
+    done
+    [[ -z "${slot_name}" ]] && slot_name="none"
+    log_debug "walarchiver_start: dbname=${dbname} waldir=${waldir} slot=${slot_name} compress=${compress}"
+
+    # exit when another process is running
+    if walarchiver_running; then
+        log_error "walarchiver $(walarchiver_pid) already running"
+        return 1
+    fi
+
+    # check source reachability
+    if ! walarchiver_ping ${dbname}; then
+        log_error "source postgresql unreachable: ${dbname}"
+        return 2
+    fi
+
+    # Create replication slot '${slot_name}' if src is primary and use slot (skip on error)
+    if [[ ${slot_name} != "none" && $(pg_status ${dbname}) = "primary" ]]; then
+        if walarchiver_create ${slot_name} ${dbname}; then
+            log_info "create slot ${slot_name} on ${dbname}"
+        else
+            log_warn "fail to create slot ${slot_name} on ${dbname} fail, proceed without slot"
+        fi
+    fi
+
+    # slot exist or not, check it out before launching
+    if walarchiver_exists ${slot_name} ${dbname}; then
+        nohup pg_receivewal -s 10 -d ${dbname} -D ${waldir} -Z ${compress} -S ${slot_name} >> "${WALARCHIVER_LOG}" 2>&1 &
+    else
+        nohup pg_receivewal -s 10 -d ${dbname} -D ${waldir} -Z ${compress} >> "${WALARCHIVER_LOG}" 2>&1 &
+    fi
+
+    sleep 1
+    if ! walarchiver_running; then
+        log_error "fail to start walarchiver, check ${WALARCHIVER_LOG}"
+        return 3
+    fi
+
+    log_info "walarchiver started, log appends to ${WALARCHIVER_LOG}"
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_stop
+# Desc: Stop running pg_receivewal instance
+#--------------------------------------------------------------#
+function walarchiver_stop() {
+    if ! walarchiver_running; then
+        log_warn "no running walarchiver found, skip"
+        return 0
+    fi
+
+    local pid=$(walarchiver_pid)
+    log_info "found walarchiver process ${pid} , shoot"
+    kill ${pid}
+
+    # check again
+    sleep 1
+    if walarchiver_running; then
+        log_error "walarchiver ${pid} stop failed. pid = $(walarchiver_pid) still running"
+        return 1
+    fi
+
+    log_info "walarchiver ${pid} stopped"
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_restart
+# Desc: same as walarchiver_start, but stop old one before start
+#--------------------------------------------------------------#
+function walarchiver_restart() {
+    walarchiver_stop
+    walarchiver_start $@
+    return $?
+}
+
+
+
+
+#==============================================================#
+#                              INFO                            #
+#==============================================================#
+
+#--------------------------------------------------------------#
+# Name: walarchiver_log
+# Desc: show walarchiver log
+#--------------------------------------------------------------#
+function walarchiver_log() {
+    tail -f ${WALARCHIVER_LOG}
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_list
+# Desc: ls walarchiver directory
+#--------------------------------------------------------------#
+function walarchiver_list() {
+    local waldir=${1-'/pg/arcwal'}
+    ls -alt ${waldir}
+}
+
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_status
+# Desc: Show current walarchiver detail info
+# Note: "down" if non is running
+#--------------------------------------------------------------#
+function walarchiver_status() {
+    local process=$(ps aux | grep pg_receive | grep -v grep | head -n1)
+    local pid=$(echo ${process} | awk '{print $2}' 2>/dev/null)
+    if [[ -z ${pid} ]]; then
+        echo "down"
+        return 1
+    fi
+
+    local cmd=$(echo ${process} | awk '{out=""; for(i=11;i<=NF;i++){out=out" "$i}; print out}' 2> /dev/null)
+    local pid=$(echo ${process} | awk '{print $2}')
+    local seg=$(lsof -p ${pid} | grep partial | awk '{print $NF}' 2> /dev/null)
+    local dir=$(dirname ${seg} 2> /dev/null) # archive dir
+    local lsn=$(basename ${seg} 2> /dev/null) # seg filename
+    local tli=${lsn:0:8} # timeline
+
+	cat <<- REPORT
+	running
+	cmd ${cmd}
+	dir ${dir}
+	pid ${pid}
+	lsn ${lsn}
+	tli ${tli}
+	REPORT
+
+    return 0
+}
+
+
+
+#==============================================================#
+#                      SLOT MANAGEMENT                         #
+#==============================================================#
+# Test Case
+# walarchiver ping postgres:///postgres
+# walarchiver exists postgres:///postgres myslot
+# walarchiver create postgres:///postgres myslot # create slot
+# walarchiver exists postgres:///postgres myslot # check slot
+# walarchiver create postgres:///postgres myslot # create again
+# walarchiver drop postgres:///postgres   myslot # drop it
+# walarchiver drop postgres:///postgres   myslot # drop twice
+
+#--------------------------------------------------------------#
+# Name: walarchiver_ping
+# Desc: check source url reachability
+# Arg1: dbname , source postgres url (if null then try conf)
+# Rets: 0 if reachable, 1 if unreachable
+#--------------------------------------------------------------#
+function walarchiver_ping() {
+    local dbname=${1-''}
+    if [[ -z ${dbname} && -f /etc/walarchiver/env ]]; then
+        dbname=$(get_config DBNAME)
+        if [[ $? != 0 || -z ${dbname} ]]; then
+            log_error "dbname is not provided, and not found in conf"
+            return 1
+        fi
+    fi
+
+    local status=$(pg_status ${dbname})
+    if [[ ${status} == "down" ]]; then
+        log_warn "ping dbname: ${dbname} status: ${status}"
+        return 2
+    fi
+    log_info "ping dbname: ${dbname} status: ${status}"
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_slots
+# Desc: show all replication slots on source
+# Arg1: dbname , source postgres url (if null then try conf)
+#--------------------------------------------------------------#
+function walarchiver_slots() {
+    local dbname=${1-''}
+    if [[ -z ${dbname} && -f /etc/walarchiver/env ]]; then
+        dbname=$(get_config DBNAME)
+        if [[ $? != 0 || -z ${dbname} ]]; then
+            log_error "dbname is not provided, and not found in conf"
+            return 1
+        fi
+    fi
+
+    log_info "slots on ${dbname}:"
+    psql ${dbname} -c 'TABLE pg_replication_slots;'
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_exists
+# Desc: detect whether given slot is exist in source
+# Arg1: slot_name   , slot to be checked (default walarchiver)
+# Arg2: dbname      , source postgres url (if null then try conf)
+# Rets: 0: slot exist 1: slot not exist
+#--------------------------------------------------------------#
+function walarchiver_exists() {
+    local slot_name=${1-'walarchiver'}
+    local dbname=${2-''}
+    if [[ -z ${dbname} && -f /etc/walarchiver/env ]]; then
+        dbname=$(get_config DBNAME)
+        if [[ $? != 0 || -z ${dbname} ]]; then
+            log_error "dbname is not provided, and not found in conf"
+            return 1
+        fi
+    fi
+
+    if [[ ${slot_name} = "none" ]]; then
+        log_info "slot_name is require to run walarchiver exists"
+        return 1
+    fi
+
+    if pg_exists_slot ${dbname} ${slot_name}; then
+        log_info "slot ${slot_name} exists in ${dbname}"
+        return 0
+    else
+        log_info "slot ${slot_name} not exists in ${dbname}"
+        return 1
+    fi
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_create
+# Desc: create slot '$slot_name' on given database source
+# Arg1: slot_name   , slot to be created (default walarchiver)
+# Arg2: dbname      , source postgres url (if null then try conf)
+#--------------------------------------------------------------#
+function walarchiver_create() {
+    local slot_name=${1-'walarchiver'}
+    local dbname=${2-''}
+    if [[ -z ${dbname} && -f /etc/walarchiver/env ]]; then
+        dbname=$(get_config DBNAME)
+        if [[ $? != 0 || -z ${dbname} ]]; then
+            log_error "dbname is not provided, and not found in conf"
+            return 1
+        fi
+    fi
+
+    if pg_exists_slot ${dbname} ${slot_name}; then
+        log_warn "${slot_name} already exists"
+        return 0
+    fi
+
+    pg_create_slot ${dbname} ${slot_name}
+    if ! pg_exists_slot ${dbname} ${slot_name}; then
+        log_error "create slot ${slot_name} on ${dbname} failed"
+        return 1
+    fi
+
+    log_info "create slot ${slot_name} on ${dbname}"
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_drop
+# Desc: drop slot '$slot_name' on given database source
+# Arg1: slot_name   , slot to be dropped (default walarchiver)
+# Arg2: dbname      , source postgres url (if null then try conf)
+#--------------------------------------------------------------#
+function walarchiver_drop() {
+    local slot_name=${1-'walarchiver'}
+    local dbname=${2-''}
+    if [[ -z ${dbname} && -f /etc/walarchiver/env ]]; then
+        dbname=$(get_config DBNAME)
+        if [[ $? != 0 || -z ${dbname} ]]; then
+            log_error "dbname is not provided, and not found in conf"
+            return 1
+        fi
+    fi
+
+    if ! pg_exists_slot ${dbname} ${slot_name}; then
+        log_warn "slot ${slot_name} on ${dbname} does not exist, skip"
+        return 0
+    fi
+
+    if ! pg_drop_slot ${dbname} ${slot_name}; then
+        log_error "drop slot ${slot_name} on ${dbname} failed"
+        return 1
+    fi
+
+    if pg_exists_slot ${dbname} ${slot_name}; then
+        log_error "${slot_name} on ${dbname} still exists, please check it out"
+        return 2
+    fi
+
+    log_info "${slot_name} on ${dbname} dropped"
+    return 0
+}
+
+
+#==============================================================#
+#                      WALDIR MANAGEMENT                       #
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_recover
+# Desc: generate a recovery.conf makes local offline recovery
+#       from given arcwal dir
+# Arg1: waldir  wal archive destination
+# Note: walarchiver recover > /pg/data/recovery.conf
+#--------------------------------------------------------------#
+function walarchiver_recover() {
+    local waldir=${1-'/pg/arcwal'}
+
+	cat  <<- EOF
+	# ADDITIONAL RECOVERY CONF
+	standby_mode=on
+	restore_command ='zcat ${waldir}/%f 1> %p 2> /pg/log/restore.log'
+	archive_cleanup_command = '/usr/pgsql/bin/pg_archivecleanup -x .gz ${waldir} %r'
+	recovery_target_timeline = 'latest'
+	recovery_min_apply_delay = '0'
+	trigger_file = '/pg/promote'
+
+	#recovery_end_command = ''
+	#recovery_target = 'immediate'
+	#recovery_target_name = ''    # e.g. 'daily backup 2011-01-26'
+	#recovery_target_time = ''    # e.g. '2004-07-14 22:39:00 EST'
+	#recovery_target_xid  = ''    # e.g. '1234567'
+	#recovery_target_lsn  = ''    # e.g. '0/70006B8'
+	#recovery_target_inclusive = true
+	#recovery_target_action = 'shutdown'
+	#reovery_target_action = 'pause'
+	EOF
+}
+
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_remove
+# Desc: remove all WAL in waldir
+# Case: only be used in initialization
+# Note: VERY DANGEROUS!
+#--------------------------------------------------------------#
+function walarchiver_remove() {
+    local waldir=${1-'/pg/arcwal'}
+    local force=${1-'true'}
+
+    if [[ -z ${waldir} || ${waldir} == '/' ]]; then
+        log_error "invalid waldir: ${waldir}, type before you think!"
+        return 21
+    fi
+
+    if [[ ${force} == "true" ]]; then
+        log_warn "force remove all file in ${waldir}"
+        rm -rf ${waldir}/*
+        return $?
+    fi
+
+
+    log_warn "waldir: ${waldir} , all files in this dir will be removed."
+    local choice=""
+    read -p "Continue (y/n)?>" choice
+    case "$choice" in
+        y | Y)
+            log_info "remove all files in ${waldir}"
+            rm -rf ${waldir}/*
+            return $?
+        ;;
+        n | N)
+            log_warn "user choose to abort"
+            return 1
+        ;;
+        *)
+            log_error "invalid answer, reply y or n"
+            return 2
+        ;;
+    esac
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_cleanup
+# Desc: clean archive WAL seg older than given file
+# Arg1: referer file (file in dir $2 older than $1 will be removed)
+# Arg2: archive dst, same as walarchiver_start
+# Note: walarchiver cleanup /pg/arcwal/000000010000000000000005.gz
+# Case: manual cleanup archive
+#--------------------------------------------------------------#
+function walarchiver_cleanup() {
+    local referer=${1}
+    local waldir=${2-'/pg/arcwal'}
+
+    find ${waldir} -type f ! -newer "${waldir}/${referer}" -maxdepth 1 # -delete
+    log_warn "above files are going to be removed (include referer)"
+
+    local choice=""
+    read -p "Continue (y/n)?>" choice
+    case "$choice" in
+        y | Y)
+            find ${waldir} -type f ! -newer "${waldir}/${referer}" -maxdepth 1 -delete
+            log_info "cleanup executed"
+            return 0
+        ;;
+        n | N)
+            log_warn "cleanup aborted"
+            return 1
+        ;;
+        *)
+            log_error "invalid answer, reply yes or no."
+            return 2
+        ;;
+    esac
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_rewind
+# Desc: remove archive WAL seg newer than given referer file
+# Arg1: referer file (file in dir $2 newer than $1 will be removed)
+# Arg2: archive dst, same as walarchiver_start
+# Note: walarchiver rewind /pg/arcwal/000000010000000000000005.gz
+# Case: manual resolve split brain case
+#--------------------------------------------------------------#
+function walarchiver_rewind() {
+    local referer=${1}
+    local waldir=${2-'/pg/arcwal'}
+
+    find ${waldir} -type f -newer "${waldir}/${referer}" -maxdepth 1 # -delete
+    log_warn "above files are going to be removed (exclude referer file)"
+
+    local choice=""
+    read -p "Continue (y/n)?>" choice
+    case "$choice" in
+        y | Y)
+            find ${waldir} -type f -newer "${waldir}/${referer}" -maxdepth 1 -delete
+            log_info "rewind executed"
+            return 0
+        ;;
+        n | N)
+            log_warn "rewind aborted"
+            return 1
+        ;;
+        *)
+            log_error "invalid answer, reply yes or no."
+            return 2
+        ;;
+    esac
+}
+
+
+
+
+#==============================================================#
+#                      SERVICE MANAGEMENT                      #
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_install
+# Desc: install walarchiver service to systemctl
+# Note: Assume viable walarchiver binary in /usr/local/bin/walarchiver
+# Note: Run this as root
+#  walarchiver conf file   : /etc/walarchiver/env
+#  walarchiver binary      : /usr/local/bin/walarchiver
+#  walarchiver service     : /etc/systemd/system/walarchiver.service
+#--------------------------------------------------------------#
+function walarchiver_install() {
+    if [[ $(whoami) != "root" ]]; then
+        echo "error: install walarchiver require root"
+        return 1
+    fi
+
+    # stop any running instance
+    if walarchiver_running; then
+        walarchiver_stop 2> /dev/null
+    fi
+
+    # copy this file itself to /usr/local/bin if not found
+    if [[ ! -x /usr/local/bin/walarchiver ]]; then
+        echo "warn: /usr/local/bin/walarchiver not found, copy itself to /usr/local/bin"
+        cp -rf $0 /usr/local/bin/walarchiver
+    fi
+
+    echo "warn: install walarchiver will clean up /pg/arcwal"
+    rm -rf /pg/arcwal/*
+
+    mkdir /etc/walarchiver
+    # services parameter
+    if [[ -f /opt/conf/walarchiver.env ]]; then
+        echo "info: found /opt/conf/walarchiver.env , copy walarchiver.env to /etc/walarchiver/env"
+        rm -rf /etc/walarchiver/env
+        cp /opt/conf/walarchiver.env /etc/walarchiver/env
+    else
+		cat > /etc/walarchiver/env <<- EOF
+		DBNAME='postgres://replicator@primary.test.pg/postgres'
+		WALDIR=/pg/arcwal
+		SLOT_NAME=walarchiver
+		COMPRESS=4
+		EOF
+    fi
+
+    # init walarchiver services
+    if [[ -f /opt/conf/services/walarchiver.service ]]; then
+        echo "info: found walarchiver.services in /opt/conf, copy walarchiver.service to /etc/systemd/system/"
+        rm -rf /etc/systemd/system/walarchiver.service
+        cp -f /opt/conf/services/walarchiver.service /etc/systemd/system/walarchiver.service
+    else
+        echo "info: overwrite /etc/systemd/system/walarchiver.service"
+		cat > /etc/systemd/system/walarchiver.service <<- 'EOF'
+		[Unit]
+		Description=PostgreSQL WAL Archiver
+		Wants=network-online.target
+		After=network-online.target
+
+		[Service]
+		Type=forking
+		User=postgres
+		Group=postgres
+		EnvironmentFile=/etc/walarchiver/env
+
+		ExecStartPre=-"/bin/mkdir -p ${WALDIR} /pg/log"
+		ExecStartPre=-"/bin/chown -R postgres:postgres ${WALDIR}"
+
+		ExecStart=/usr/local/bin/walarchiver start -d ${DBNAME} -D ${WALDIR} -S ${SLOT_NAME} -Z ${COMPRESS}
+		ExecStop=/usr/local/bin/walarchiver  stop
+		Restart=on-failure
+
+		[Install]
+		WantedBy=multi-user.target
+		EOF
+    fi
+
+    chown -R postgres:postgres /etc/systemd/system/walarchiver.service /etc/walarchiver
+    systemctl daemon-reload
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_config
+# Desc: config walarchiver.service parameters
+# Note: Have the same parameter rule with walarchiver_start
+#--------------------------------------------------------------#
+function walarchiver_config() {
+    # if if not parameter is specified, print the config
+    if [[ $# == 0 ]]; then
+        cat /etc/walarchiver/env
+        return 0
+    fi
+
+    # other wise, if any parameter is specified, change it
+    local dbname=""
+    local waldir=""
+    local slot_name=""
+    local compress=""
+    while (($# > 0)); do
+        case "$1" in
+            -d | --dbname=*)
+                [[ "$1" == "-d" ]]  && shift
+                dbname=${1##*=};    shift ;;
+            -D | --waldir=*)
+                [[ "$1" == "-D" ]]  && shift
+                waldir=${1##*=};    shift ;;
+            -S | --slot=* | --slot-name=*)
+                [[ "$1" == "-S" ]]  && shift
+                slot_name=${1##*=}; shift ;;
+            -Z | --compress=*)
+                [[ "$1" == "-Z" ]]  && shift
+                compress=${1##*=};  shift ;;
+            *  ) usage ;;
+        esac
+    done
+    log_debug "walarchiver_config: dbname=${dbname} waldir=${waldir} slot=${slot_name} compress=${compress}"
+
+    if [[ ! -z ${dbname} ]]; then
+        log_info "change DBNAME from $(get_config DBNAME) to ${dbname}"
+        sed -ie '/DBNAME=.*/d' /etc/walarchiver/env
+        echo "DBNAME=${dbname}" >> /etc/walarchiver/env
+    fi
+
+    if [[ ! -z ${waldir} ]]; then
+	    log_info "change WALDIR from $(get_config WALDIR) to ${waldir}"
+        log_info "change WALDIR=${waldir}"
+        sed -ie '/WALDIR=.*/d' /etc/walarchiver/env
+        echo "WALDIR=${waldir}" >> /etc/walarchiver/env
+    fi
+
+    if [[ ! -z ${slot_name} ]]; then
+	    log_info "change SLOT_NAME from $(get_config SLOT_NAME) to ${slot_name}"
+        sed -ie '/SLOT_NAME=.*/d' /etc/walarchiver/env
+        echo "SLOT_NAME=${slot_name}" >> /etc/walarchiver/env
+    fi
+
+    if [[ ! -z ${compress} ]]; then
+	    log_info "change COMPRESS from $(get_config COMPRESS) to ${compress}"
+        sed -ie '/COMPRESS=.*/d' /etc/walarchiver/env
+        echo "COMPRESS=${compress}" >> /etc/walarchiver/env
+    fi
+    return $?
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_launch
+# Desc: launch walarchiver.service
+# Note: sudo privilege required
+#--------------------------------------------------------------#
+function walarchiver_launch() {
+    sudo systemctl stop walarchiver > /dev/null 2>&1
+    sudo systemctl enable walarchiver > /dev/null 2>&1
+    sudo systemctl restart walarchiver > /dev/null 2>&1
+    if [[ $? != 0 ]]; then
+        log_info "restart walarchiver.service failed"
+        systemctl status walarchiver
+        return 11
+    fi
+
+    # Double check
+    if ! systemctl status walarchiver > /dev/null 2>&1; then
+        log_error "fail to start walarchiver.service"
+        return 12
+    fi
+    log_info "walarchiver.service started"
+    return 0
+}
+
+
+#--------------------------------------------------------------#
+# Name: walarchiver_disable
+# Desc: Stop running pg_receivewal and disable service
+#       Try dropping slot if listed in /etc/walarchiver/env
+# Note: sudo required
+#--------------------------------------------------------------#
+function walarchiver_disable() {
+    if ! systemctl | grep walarchiver.service; then
+        log_info "walarchiver.service not found"
+        install_walarchiver
+    fi
+
+    log_info "stop & disable walarchiver.service"
+    sudo systemctl stop walarchiver > /dev/null 2>&1
+    sudo systemctl disable walarchiver > /dev/null 2>&1
+
+    log_info "walarchiver.service disabled"
+
+    # drop slot if applicable
+    local slot_name=$(grep -Eo '^SLOT_NAME=(.*)$' /etc/walarchiver/env 2>/dev/null)
+    if [[ $? != 0 || -z ${slot_name} ]]; then
+        slot_name=${slot_name##'SLOT_NAME='}
+        if [[ -z ${slot_name} ]]; then
+            log_warn "slot name not found in /etc/walarchiver/env, you should check it out"
+            return 0
+        fi
+    fi
+
+    local slot_name=$(get_config SLOT_NAME)
+    if [[ $? != 0 || -z ${slot_name} ]]; then
+        log_warn "slot name not found in /etc/walarchiver/env, you should check it out"
+        return 0
+    fi
+
+    local dbname=$(get_config DBNAME)
+    if [[ $? != 0 || -z ${dbname} ]]; then
+        log_warn "dbname not found in /etc/walarchiver/env, you should check it out"
+        return 0
+    fi
+
+    if [[ ${slot_name} == 'none' ]]; then
+        log_info "slot is not enabled, skip dropping slot process"
+        return 0
+    fi
+
+    if walarchiver_drop ${slot_name} ${dbname}; then
+        log_info "drop slot ${slot_name} on ${dbname}"
+    fi
+
+    return $?
+}
+
+
+
+
+#==============================================================#
+#                            Main                              #
+#==============================================================#
+function main() {
+    if [[ $# == 0 ]]; then
+        usage
+    fi
+
+    local action=${1-'usage'}; shift
+    case ${action} in
+        # control
+        start     ) walarchiver_start   $@;;
+        restart   ) walarchiver_restart $@;;
+        stop      ) walarchiver_stop      ;;
+
+        # info
+        log       ) walarchiver_log       ;;
+        list      ) walarchiver_list    $@;;
+        status    ) walarchiver_status    ;;
+
+        # slot
+        ping      ) walarchiver_ping    $@;;
+        slots     ) walarchiver_slots   $@;;
+        exists    ) walarchiver_exists  $@;;
+        create    ) walarchiver_create  $@;;
+        drop      ) walarchiver_drop    $@;;
+
+        # waldir
+        recover   ) walarchiver_recover $@;;
+        remove    ) walarchiver_remove  $@;;
+        cleanup   ) walarchiver_cleanup $@;;
+        rewind    ) walarchiver_rewind  $@;;
+
+        # service
+        install   ) walarchiver_install   ;;
+        config    ) walarchiver_config  $@;;
+        launch    ) walarchiver_launch    ;;
+        disable   ) walarchiver_disable   ;;
+        usage|*   )                       ;;
+    esac
+    return $?
+}
+
+main $@
+

@@ -1,0 +1,384 @@
+groups:
+  ################################################################
+  #                    Alerts Overview                           #
+  ################################################################
+  # Alert lable:
+  #   - severity: P0, P1, P2
+
+
+  ################################################################
+  #                       PG Alerts                              #
+  ################################################################
+  # pg-alerts require DBA's immediately intervene!
+  - name: pg-alert
+    rules:
+
+      #==============================================================#
+      #                     Error / Aliveness                        #
+      #==============================================================#
+
+      # cluster size change triggers a P0 alert (warn: auto heal in 5min)
+      - alert: PG_CLUSTER_SHRINK
+        expr: delta(pg:cls:size{}[5m]) < 0
+        for: 15s
+        labels:
+          severity: P1
+        annotations:
+          summary: 'delta(pg:cls:size{ins={{ $labels.ins }}}[5m]) = {{ $value | printf "%.0f" }} < 0'
+          description: |
+            /d/pg-cluster/pg-cluster?var-cls={{ $labels.cls }}&fullscreen&panelId=186&from=now-10m&to=now
+
+
+      # postgres down for 15s triggers a P0 alert
+      - alert: PG_DOWN
+        expr: pg_up{} == 0
+        labels:
+          severity: P0
+        annotations:
+          summary: "[P0] PG_DOWN: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg_up[ins={{ $labels.ins }}] = {{ $value }} == 0
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{$labels.ins}}&from=now-5m&to=now
+
+      # pgbouncer down for 15s triggers a P0 alert
+      - alert: PGBOUNCER_DOWN
+        expr: pgbouncer_up{} == 0
+        labels:
+          severity: P0
+        annotations:
+          summary: "P0 Pgbouncer Down: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pgbouncer_up[ins={{ $labels.ins }}] = {{ $value }} == 0
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{$labels.ins}}&from=now-5m&to=now
+
+      # pg/pgbouncer exporter down for 1m triggers a P1 alert
+      - alert: PG_EXPORTER_DOWN
+        expr: up{instance=~"^.*:(9630|9631)$"} == 0
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG/PGB Exporter Down: {{ $labels.ins }} {{ $labels.instance }} {{ $value }}"
+          description: |
+            up[instance={{ $labels.instance }}] = {{ $value }} == 0
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=262&from=now-5m&to=now
+
+
+      #==============================================================#
+      #                         Latency                              #
+      #==============================================================#
+      # replication break for 1m triggers a P1 alert (warn: heal in 5m)
+      - alert: PG_REPLICATION_BREAK
+        expr: delta(pg_downstream_count{state="streaming"}[5m]) < 0
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Replication Break: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg_downstream_count_delta[ins={{ $labels.ins }}] = {{ $value }} < 0
+            http://grafana.pigsty/d/pg-cluster/pg-cluster?var-cls={{ $labels.cls }}&fullscreen&panelId=186&from=now-10m&to=now
+
+      # replication lag greater than 8 second for 3m triggers a P1 alert
+      - alert: PG_REPLICATION_LAG
+        expr: pg_replication_replay_lag{} > 8
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Replication Lagged: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg_replication_replay_lag[ins={{ $labels.ins }}] = {{ $value }} > 8s
+            http://grafana.pigsty/d/pg-cluster/pg-cluster?var-cls={{ $labels.cls }}&fullscreen&panelId=180&from=now-10m&to=now
+
+      # pg avg response time > 16ms
+      - alert: PG_QUERY_RT_HIGH
+        expr: pg:ins:query_rt > 0.016
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Query Response Time High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:query_rt[ins={{ $labels.ins }}] = {{ $value }} > 16ms
+            http://grafana.pigsty/d/pg-cluster/pg-cluster?var-cls={{ $labels.cls }}&fullscreen&panelId=180&from=now-10m&to=now
+
+      #==============================================================#
+      #                        Saturation                            #
+      #==============================================================#
+      # pg load1 high than 70% for 3m triggers a P1 alert
+      - alert: PG_LOAD_HIGH
+        expr: pg:ins:load1{} > 0.70
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Load High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:load1[ins={{ $labels.ins }}] = {{ $value }} > 70%
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=210&from=now-10m&to=now
+
+      # pg active backend more than 2 times of available cpu cores for 3m triggers a P1 alert
+      - alert: PG_BACKEND_HIGH
+        expr: pg:ins:active_backends / on(ins) node:ins:cpu_count > 2
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Backend High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:active_backends/node:ins:cpu_count[ins={{ $labels.ins }}] = {{ $value }} > 2
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=150&from=now-10m&to=now
+
+      # max idle xact duration exceed 3m
+      - alert: PG_IDLE_XACT_BACKEND_HIGH
+        expr: pg:ins:ixact_backends > 1
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P1 PG Idle In Transaction Backend High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:ixact_backends[ins={{ $labels.ins }}] = {{ $value }} > 2
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=150&from=now-10m&to=now
+
+
+      # 2 waiting clients for 3m triggers a P1 alert
+      - alert: PG_CLIENT_QUEUING
+        expr: pg:ins:waiting_clients > 2
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Client Queuing: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:waiting_clients[ins={{ $labels.ins }}] = {{ $value }} > 2
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=159&from=now-10m&to=now
+
+      # age wrap around (near half) triggers a P1 alert
+      - alert: PG_AGE_HIGH
+        expr: pg:ins:age > 1000000000
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Age High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:age[ins={{ $labels.ins }}] = {{ $value }} > 1000000000
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=172&from=now-10m&to=now
+
+
+      #==============================================================#
+      #                         Traffic                              #
+      #==============================================================#
+      # more than 30k TPS lasts for 3m triggers a P1 (pgbouncer bottleneck)
+      - alert: PG_TPS_HIGH
+        expr: pg:ins:xacts > 30000
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Postgres TPS High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:xacts[ins={{ $labels.ins }}] = {{ $value }} > 30000
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=276&from=now-10m&to=now
+
+
+
+  ################################################################
+  #                      Node Alerts                             #
+  ################################################################
+  # node-alerts require DBA or OPS's immediately intervene!
+  - name: node-alert
+    rules:
+
+      # node exporter down for 1m triggers a P1 alert
+      - alert: NODE_EXPORTER_DOWN
+        expr: up{instance=~"^.*:(9100)$"} == 0
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Exporter Down: {{ $labels.ins }} {{ $value }}"
+          description: |
+            up[instance={{ $labels.instance }}] = {{ $value }} == 0
+            http://grafana.pigsty/d/pg-instance/pg-instance?var-ins={{ $labels.ins }}&fullscreen&panelId=262&from=now-5m&to=now
+
+
+
+      #==============================================================#
+      #                          CPU & Load                          #
+      #==============================================================#
+      # node avg CPU usage > 90% for 1m
+      - alert: NODE_CPU_HIGH
+        expr: node:ins:cpu_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node CPU High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:cpu_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+      # node load5 > 100%
+      - alert: NODE_LOAD_HIGH
+        expr: node:ins:stdload5 > 1
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node Load High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:stdload5[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 100%
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+
+      #==============================================================#
+      #                      Disk & Filesystem                       #
+      #==============================================================#
+      # main fs readonly triggers an immediate P0 alert
+      - alert: NODE_FS_READONLY
+        expr: node_filesystem_readonly{fstype!~"(n|root|tmp)fs.*"} == 1
+        labels:
+          severity: P0
+        annotations:
+          summary: "P0 Node Filesystem Readonly: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node_filesystem_readonly{ins={{ $labels.ins }}, ip={{ $labels.ip }},fstype!~"(n|root|tmp)fs.*"} == 1
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=51&from=now-10m&to=now
+
+      # main fs usage > 90% for 1m triggers P1 alert
+      - alert: NODE_FS_SPACE_FULL
+        expr: node:fs:space_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Filesystem Space Full: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:fs:space_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=51&from=now-10m&to=now
+
+      # main fs inode usage > 90% for 1m triggers P1 alert
+      - alert: NODE_FS_INODE_FULL
+        expr: node:fs:inode_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Filesystem iNode Full: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:fs:inode_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=51&from=now-10m&to=now
+
+      # fd usage > 90% for 1m triggers P1 alert
+      - alert: NODE_FD_FULL
+        expr: node:fs:fd_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node File Descriptor Full: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:fs:fd_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=51&from=now-10m&to=now
+
+
+      # ssd read latency > 32ms for 3m
+      - alert: NODE_READ_LATENCY_HIGH
+        expr: node:dev:disk_read_rt  < 10000 and node:dev:disk_read_rt  > 0.032
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node Read Latency High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:dev:disk_read_rt[ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}] = {{ $value }} > 32ms
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=51&from=now-10m&to=now
+
+      # ssd write latency > 16ms for 3m
+      - alert: NODE_WRITE_LATENCY_HIGH
+        expr: node:dev:disk_write_rt  < 10000 and node:dev:disk_write_rt  > 0.016
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node Write Latency High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:dev:disk_write_rt[ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}] = {{ $value }} > 32ms
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=51&from=now-10m&to=now
+
+
+      #==============================================================#
+      #                           Memory                             #
+      #==============================================================#
+      # shared memory usage > 70% for 1m triggers a P1 alert
+      - alert: NODE_MEM_HIGH
+        expr: node:ins:mem_usage > 0.70
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Mem High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:mem_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 60%
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+
+      #==============================================================#
+      #                      Network & TCP                           #
+      #==============================================================#
+      # node tcp listen overflow > 2 for 3m
+      - alert: NODE_TCP_LISTEN_OVERFLOW
+        expr: node:ins:tcp_overflow_rate > 2
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node TCP Listen Overflow: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:tcp_overflow_rate[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 2
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+      # node tcp retrans segs high
+      - alert: NODE_TCP_RETRANS_HIGH
+        expr: node:ins:tcp_retranssegs > 4
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node TCP Retrans High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:tcp_retranssegs[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 2
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+      # node avg CPU usage > 90% for 1m
+      - alert: NODE_TCP_CONN_HIGH
+        expr: node_netstat_Tcp_CurrEstab > 32768
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node TCP Connection High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node_netstat_Tcp_CurrEstab[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 32768
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+
+      #==============================================================#
+      #                          Misc                                #
+      #==============================================================#
+      # node ntp offset > 1s for 1m
+      - alert: NODE_NTP_OFFSET_HIGH
+        expr: abs(node_ntp_offset_seconds) > 1
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node NTP Offset High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node_ntp_offset_seconds[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 32768
+            http://grafana.pigsty/d/node/node?var-ip={{ $labels.ip }}&fullscreen&panelId=36&from=now-10m&to=now
+
+

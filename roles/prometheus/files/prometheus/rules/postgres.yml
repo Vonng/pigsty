@@ -1,0 +1,1012 @@
+#==============================================================#
+# File      :   postgres.yml
+# Mtime     :   2020-04-22
+# Desc      :   prometheus record rules definition for pg_exporter
+# Path      :   /etc/prometheus/rules/pg_exporter.yml
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note      :   pre-process rules and alias for pg_exporter metrics
+#==============================================================#
+
+
+groups:
+
+  - name: pg_exporter
+    rules:
+
+      ################################################################
+      #                        Aliveness                             #
+      ################################################################
+      - record: pg_exporter_up
+        expr: up{instance=~".*:9185"}
+
+      - record: pgbouncer_exporter_up
+        expr: up{instance=~".*:9127"}
+
+
+      ################################################################
+      #                        Identity                              #
+      ################################################################
+      - record: pg_is_primary
+        expr: 1 - pg_in_recovery
+      - record: pg_is_replica
+        expr: pg_in_recovery
+      - record: pg_status
+        expr: (pg_up{} * 2) +  (1 - pg_in_recovery{})
+      # encoded: 0:replica[DOWN] 1:primary[DOWN] 2:replica 3:primary
+
+
+      ################################################################
+      #                            Age                               #
+      ################################################################
+      # age
+      - record: pg:ins:age
+        expr: max without (datname) (pg_database_age{datname!~"template[0-9]"})
+      - record: pg:cls:age
+        expr: max by (cls) (pg:ins:age)
+      - record: pg:all:age
+        expr: max(pg:cls:age)
+
+      # age derive and prediction
+      - record: pg:db:age_deriv_1h
+        expr: deriv(pg_database_age{}[1h])
+      - record: pg:db:age_exhaust
+        expr: (2147483648 - pg_database_age{}) / pg:db:age_deriv_1h
+
+
+
+      ################################################################
+      #                         Sessions                             #
+      ################################################################
+      # session count (by state)
+      - record: pg:db:sessions
+        expr: pg_activity_count
+      - record: pg:ins:sessions
+        expr: sum without (datname) (pg:db:sessions)
+      - record: pg:svc:sessions
+        expr: sum by (cls, role, state) (pg:ins:sessions)
+      - record: pg:cls:sessions
+        expr: sum by (cls, state) (pg:ins:sessions)
+      - record: pg:all:sessions
+        expr: sum by (state) (pg:cls:sessions)
+
+      # backends
+      - record: pg:db:backends
+        expr: pg_db_numbackends
+      - record: pg:ins:backends
+        expr: sum without (datname) (pg_db_numbackends)
+      - record: pg:svc:backends
+        expr: sum by (cls, role) (pg:ins:backends)
+      - record: pg:cls:backends
+        expr: sum by (cls) (pg:ins:backends)
+      - record: pg:all:backends
+        expr: sum(pg:cls:backends)
+
+      # active backends
+      - record: pg:ins:active_backends
+        expr: pg:ins:sessions{state="active"}
+      - record: pg:svc:active_backends
+        expr: sum by (cls, role) (pg:ins:active_backends)
+      - record: pg:cls:active_backends
+        expr: sum by (cls) (pg:ins:active_backends)
+      - record: pg:all:active_backends
+        expr: sum(pg:cls:active_backends)
+
+      # idle in xact backends (including abort)
+      - record: pg:ins:ixact_backends
+        expr: pg:ins:sessions{state=~"idle in.*"}
+      - record: pg:svc:ixact_backends
+        expr: sum by (cls, role) (pg:ins:active_backends)
+      - record: pg:cls:ixact_backends
+        expr: sum by (cls) (pg:ins:active_backends)
+      - record: pg:all:ixact_backends
+        expr: sum(pg:cls:active_backends)
+
+
+      ################################################################
+      #                    Servers (Pgbouncer)                       #
+      ################################################################
+
+      # active servers
+      - record: pg:pool:active_servers
+        expr: pgbouncer_pool_active_servers{datname!="pgbouncer"}
+      - record: pg:db:active_servers
+        expr: sum without(user) (pg:pool:active_servers)
+      - record: pg:ins:active_servers
+        expr: sum without(user, datname) (pg:pool:active_servers)
+      - record: pg:svc:active_servers
+        expr: sum by (cls, role) (pg:ins:active_servers)
+      - record: pg:cls:active_servers
+        expr: sum by (cls) (pg:ins:active_servers)
+      - record: pg:all:active_servers
+        expr: sum(pg:cls:active_servers)
+
+      # idle servers
+      - record: pg:pool:idle_servers
+        expr: pgbouncer_pool_idle_servers{datname!="pgbouncer"}
+      - record: pg:db:idle_servers
+        expr: sum without(user) (pg:pool:idle_servers)
+      - record: pg:ins:idle_servers
+        expr: sum without(user, datname) (pg:pool:idle_servers)
+      - record: pg:svc:idle_servers
+        expr: sum by (cls, role) (pg:ins:idle_servers)
+      - record: pg:cls:idle_servers
+        expr: sum by (cls) (pg:ins:idle_servers)
+      - record: pg:all:idle_servers
+        expr: sum(pg:cls:idle_servers)
+
+      # used servers
+      - record: pg:pool:used_servers
+        expr: pgbouncer_pool_used_servers{datname!="pgbouncer"}
+      - record: pg:db:used_servers
+        expr: sum without(user) (pg:pool:used_servers)
+      - record: pg:ins:used_servers
+        expr: sum without(user, datname) (pg:pool:used_servers)
+      - record: pg:svc:used_servers
+        expr: sum by (cls, role) (pg:ins:used_servers)
+      - record: pg:cls:used_servers
+        expr: sum by (cls) (pg:ins:used_servers)
+      - record: pg:all:used_servers
+        expr: sum(pg:cls:used_servers)
+
+      # tested servers
+      - record: pg:pool:tested_servers
+        expr: pgbouncer_pool_tested_servers{datname!="pgbouncer"}
+      - record: pg:db:tested_servers
+        expr: sum without(user) (pg:pool:tested_servers)
+      - record: pg:ins:tested_servers
+        expr: sum without(user, datname) (pg:pool:tested_servers)
+      - record: pg:svc:tested_servers
+        expr: sum by (cls, role) (pg:ins:tested_servers)
+      - record: pg:cls:tested_servers
+        expr: sum by (cls) (pg:ins:tested_servers)
+      - record: pg:all:tested_servers
+        expr: sum(pg:cls:tested_servers)
+
+      # login servers
+      - record: pg:pool:login_servers
+        expr: pgbouncer_pool_login_servers{datname!="pgbouncer"}
+      - record: pg:db:login_servers
+        expr: sum without(user) (pg:pool:login_servers)
+      - record: pg:ins:login_servers
+        expr: sum without(user, datname) (pg:pool:login_servers)
+      - record: pg:svc:login_servers
+        expr: sum by (cls, role) (pg:ins:login_servers)
+      - record: pg:cls:login_servers
+        expr: sum by (cls) (pg:ins:login_servers)
+      - record: pg:all:login_servers
+        expr: sum(pg:cls:login_servers)
+
+
+
+      ################################################################
+      #                   Clients (Pgbouncer)                        #
+      ################################################################
+      # active clients
+      - record: pg:pool:active_clients
+        expr: pgbouncer_pool_active_clients{datname!="pgbouncer"}
+      - record: pg:db:active_clients
+        expr: sum without(user) (pg:pool:active_clients)
+      - record: pg:ins:active_clients
+        expr: sum without(user, datname) (pg:pool:active_clients)
+      - record: pg:svc:active_clients
+        expr: sum by (cls, role) (pg:ins:active_clients)
+      - record: pg:cls:active_clients
+        expr: sum by (cls) (pg:ins:active_clients)
+      - record: pg:all:active_clients
+        expr: sum(pg:cls:active_clients)
+
+      # waiting clients
+      - record: pg:pool:waiting_clients
+        expr: pgbouncer_pool_waiting_clients{datname!="pgbouncer"}
+      - record: pg:db:waiting_clients
+        expr: sum without(user) (pg:pool:waiting_clients)
+      - record: pg:ins:waiting_clients
+        expr: sum without(user, datname) (pg:pool:waiting_clients)
+      - record: pg:svc:waiting_clients
+        expr: sum by (cls, role) (pg:ins:waiting_clients)
+      - record: pg:cls:waiting_clients
+        expr: sum by (cls) (pg:ins:waiting_clients)
+      - record: pg:all:waiting_clients
+        expr: sum(pg:cls:waiting_clients)
+
+
+      ################################################################
+      #                       Transactions                           #
+      ################################################################
+      # commits (realtime)
+      - record: pg:db:commits_realtime
+        expr: irate(pg_db_xact_commit{}[1m])
+      - record: pg:ins:commits_realtime
+        expr: sum without (datname) (pg:db:commits_realtime)
+      - record: pg:svc:commits_realtime
+        expr: sum by (cls, role) (pg:ins:commits_realtime)
+      - record: pg:cls:commits_realtime
+        expr: sum by (cls) (pg:ins:commits_realtime)
+      - record: pg:all:commits_realtime
+        expr: sum(pg:cls:commits_realtime)
+
+      # commits (rate1m)
+      - record: pg:db:commits
+        expr: rate(pg_db_xact_commit{}[1m])
+      - record: pg:ins:commits
+        expr: sum without (datname) (pg:db:commits)
+      - record: pg:svc:commits
+        expr: sum by (cls, role) (pg:ins:commits)
+      - record: pg:cls:commits
+        expr: sum by (cls) (pg:ins:commits)
+      - record: pg:all:commits
+        expr: sum(pg:cls:commits)
+
+      # rollbacks realtime
+      - record: pg:db:rollbacks_realtime
+        expr: irate(pg_db_xact_rollback{}[1m])
+      - record: pg:ins:rollbacks_realtime
+        expr: sum without (datname) (pg:db:rollbacks_realtime)
+      - record: pg:svc:rollbacks_realtime
+        expr: sum by (cls, role) (pg:ins:rollbacks_realtime)
+      - record: pg:cls:rollbacks_realtime
+        expr: sum by (cls) (pg:ins:rollbacks_realtime)
+      - record: pg:all:rollbacks_realtime
+        expr: sum(pg:cls:rollbacks_realtime)
+      # rollbacks
+      - record: pg:db:rollbacks
+        expr: rate(pg_db_xact_rollback{}[1m])
+      - record: pg:ins:rollbacks
+        expr: sum without (datname) (pg:db:rollbacks)
+      - record: pg:svc:rollbacks
+        expr: sum by (cls, role) (pg:ins:rollbacks)
+      - record: pg:cls:rollbacks
+        expr: sum by (cls) (pg:ins:rollbacks)
+      - record: pg:all:rollbacks
+        expr: sum(pg:cls:rollbacks)
+
+      # xacts (realtime)
+      - record: pg:db:xacts_realtime
+        expr: irate(pg_db_xact_commit{}[1m])
+      - record: pg:ins:xacts_realtime
+        expr: sum without (datname) (pg:db:xacts_realtime)
+      - record: pg:svc:xacts_realtime
+        expr: sum by (cls, role) (pg:ins:xacts_realtime)
+      - record: pg:cls:xacts_realtime
+        expr: sum by (cls) (pg:ins:xacts_realtime)
+      - record: pg:all:xacts_realtime
+        expr: sum(pg:cls:xacts_realtime)
+      # xacts (rate1m)
+      - record: pg:db:xacts
+        expr: rate(pg_db_xact_commit{}[1m])
+      - record: pg:ins:xacts
+        expr: sum without (datname) (pg:db:xacts)
+      - record: pg:svc:xacts
+        expr: sum by (cls, role) (pg:ins:xacts)
+      - record: pg:cls:xacts
+        expr: sum by (cls) (pg:ins:xacts)
+      - record: pg:all:xacts
+        expr: sum(pg:cls:xacts)
+      # xacts avg30m
+      - record: pg:db:xacts_avg30m
+        expr: avg_over_time(pg:db:xacts[30m])
+      - record: pg:ins:xacts_avg30m
+        expr: avg_over_time(pg:ins:xacts[30m])
+      - record: pg:svc:xacts_avg30m
+        expr: avg_over_time(pg:svc:xacts[30m])
+      - record: pg:cls:xacts_avg30m
+        expr: avg_over_time(pg:cls:xacts[30m])
+      - record: pg:all:xacts_avg30m
+        expr: avg_over_time(pg:all:xacts[30m])
+      # xacts µ
+      - record: pg:db:xacts_mu
+        expr: avg_over_time(pg:db:xacts_avg30m[30m])
+      - record: pg:ins:xacts_mu
+        expr: avg_over_time(pg:ins:xacts_avg30m[30m])
+      - record: pg:svc:xacts_mu
+        expr: avg_over_time(pg:svc:xacts_avg30m[30m])
+      - record: pg:cls:xacts_mu
+        expr: avg_over_time(pg:cls:xacts_avg30m[30m])
+      - record: pg:all:xacts_mu
+        expr: avg_over_time(pg:all:xacts_avg30m[30m])
+      # xacts σ: sigma
+      - record: pg:db:xacts_sigma
+        expr: stddev_over_time(pg:db:xacts[30m])
+      - record: pg:ins:xacts_sigma
+        expr: stddev_over_time(pg:ins:xacts[30m])
+      - record: pg:svc:xacts_sigma
+        expr: stddev_over_time(pg:svc:xacts[30m])
+      - record: pg:cls:xacts_sigma
+        expr: stddev_over_time(pg:cls:xacts[30m])
+      - record: pg:all:xacts_sigma
+        expr: stddev_over_time(pg:all:xacts[30m])
+
+
+      ################################################################
+      #                      TPS (Pgbouncer)                         #
+      ################################################################
+      # TPS realtime (irate1m)
+      - record: pg:db:tps_realtime
+        expr: irate(pgbouncer_stat_total_xact_count{}[1m])
+      - record: pg:ins:tps_realtime
+        expr: sum without(datname) (pg:db:tps_realtime{})
+      - record: pg:svc:tps_realtime
+        expr: sum by(cls, role) (pg:ins:tps_realtime{})
+      - record: pg:cls:tps_realtime
+        expr: sum by(cls) (pg:ins:tps_realtime{})
+      - record: pg:all:tps_realtime
+        expr: sum(pg:cls:tps_realtime{})
+
+      # TPS (rate1m)
+      - record: pg:db:tps
+        expr: pgbouncer_stat_avg_xact_count{datname!="pgbouncer"}
+      - record: pg:ins:tps
+        expr: sum without(datname) (pg:db:tps)
+      - record: pg:svc:tps
+        expr: sum by (cls, role) (pg:ins:tps)
+      - record: pg:cls:tps
+        expr: sum by(cls) (pg:ins:tps)
+      - record: pg:all:tps
+        expr: sum(pg:cls:tps)
+      # tps : avg30m
+      - record: pg:db:tps_avg30m
+        expr: avg_over_time(pg:db:tps[30m])
+      - record: pg:ins:tps_avg30m
+        expr: avg_over_time(pg:ins:tps[30m])
+      - record: pg:svc:tps_avg30m
+        expr: avg_over_time(pg:svc:tps[30m])
+      - record: pg:cls:tps_avg30m
+        expr: avg_over_time(pg:cls:tps[30m])
+      - record: pg:all:tps_avg30m
+        expr: avg_over_time(pg:all:tps[30m])
+      # tps µ
+      - record: pg:db:tps_mu
+        expr: avg_over_time(pg:db:tps_avg30m[30m])
+      - record: pg:ins:tps_mu
+        expr: avg_over_time(pg:ins:tps_avg30m[30m])
+      - record: pg:svc:tps_mu
+        expr: avg_over_time(pg:svc:tps_avg30m[30m])
+      - record: pg:cls:tps_mu
+        expr: avg_over_time(pg:cls:tps_avg30m[30m])
+      - record: pg:all:tps_mu
+        expr: avg_over_time(pg:all:tps_avg30m[30m])
+      # tps σ
+      - record: pg:db:tps_sigma
+        expr: stddev_over_time(pg:db:tps[30m])
+      - record: pg:ins:tps_sigma
+        expr: stddev_over_time(pg:ins:tps[30m])
+      - record: pg:svc:tps_sigma
+        expr: stddev_over_time(pg:svc:tps[30m])
+      - record: pg:cls:tps_sigma
+        expr: stddev_over_time(pg:cls:tps[30m])
+      - record: pg:all:tps_sigma
+        expr: stddev_over_time(pg:all:tps[30m])
+
+
+
+      # xact rt (rate1m)
+      - record: pg:db:xact_rt
+        expr: pgbouncer_stat_avg_xact_time{datname!="pgbouncer"} / 1000000
+      - record: pg:ins:xact_rt
+        expr: sum without(datname) (rate(pgbouncer_stat_total_xact_time[1m])) / sum without(datname) (rate(pgbouncer_stat_total_xact_count[1m])) / 1000000
+      - record: pg:svc:xact_rt
+        expr: sum by (cls, role) (rate(pgbouncer_stat_total_xact_time[1m])) / sum by (cls, role) (rate(pgbouncer_stat_total_xact_count[1m])) / 1000000
+      # xact_rt avg30m
+      - record: pg:db:xact_rt_avg30m
+        expr: avg_over_time(pg:db:xact_rt[30m])
+      - record: pg:ins:xact_rt_avg30m
+        expr: avg_over_time(pg:ins:xact_rt[30m])
+      - record: pg:svc:xact_rt_avg30m
+        expr: avg_over_time(pg:svc:xact_rt[30m])
+      # xact_rt µ
+      - record: pg:db:xact_rt_mu
+        expr: avg_over_time(pg:db:xact_rt_avg30m[30m])
+      - record: pg:ins:xact_rt_mu
+        expr: avg_over_time(pg:ins:xact_rt_avg30m[30m])
+      - record: pg:svc:xact_rt_mu
+        expr: avg_over_time(pg:svc:xact_rt_avg30m[30m])
+
+      # xact_rt σ: stddev30m
+      - record: pg:db:xact_rt_sigma
+        expr: stddev_over_time(pg:db:xact_rt[30m])
+      - record: pg:ins:xact_rt_sigma
+        expr: stddev_over_time(pg:ins:xact_rt[30m])
+      - record: pg:svc:xact_rt_sigma
+        expr: stddev_over_time(pg:svc:xact_rt[30m])
+
+
+
+      ################################################################
+      #                     QPS (Pgbouncer)                          #
+      ################################################################
+      # TPS realtime (irate1m)
+      - record: pg:db:qps_realtime
+        expr: irate(pgbouncer_stat_total_query_count{}[1m])
+      - record: pg:ins:qps_realtime
+        expr: sum without(datname) (pg:db:qps_realtime{})
+      - record: pg:svc:qps_realtime
+        expr: sum by(cls, role) (pg:ins:qps_realtime{})
+      - record: pg:cls:qps_realtime
+        expr: sum by(cls) (pg:ins:qps_realtime{})
+      - record: pg:all:qps_realtime
+        expr: sum(pg:cls:qps_realtime{})
+
+      # qps (rate1m)
+      - record: pg:db:qps
+        expr: pgbouncer_stat_avg_query_count{datname!="pgbouncer"}
+      - record: pg:ins:qps
+        expr: sum without(datname) (pg:db:qps)
+      - record: pg:svc:qps
+        expr: sum by (cls, role) (pg:ins:qps)
+      - record: pg:cls:qps
+        expr: sum by(cls) (pg:ins:qps)
+      - record: pg:all:qps
+        expr: sum(pg:cls:qps)
+      # qps avg30m
+      - record: pg:db:qps_avg30m
+        expr: avg_over_time(pg:db:qps[30m])
+      - record: pg:ins:qps_avg30m
+        expr: avg_over_time(pg:ins:qps[30m])
+      - record: pg:svc:qps_avg30m
+        expr: avg_over_time(pg:svc:qps[30m])
+      - record: pg:cls:qps_avg30m
+        expr: avg_over_time(pg:cls:qps[30m])
+      - record: pg:all:qps_avg30m
+        expr: avg_over_time(pg:all:qps[30m])
+      # qps µ
+      - record: pg:db:qps_mu
+        expr: avg_over_time(pg:db:qps_avg30m[30m])
+      - record: pg:ins:qps_mu
+        expr: avg_over_time(pg:ins:qps_avg30m[30m])
+      - record: pg:svc:qps_mu
+        expr: avg_over_time(pg:svc:qps_avg30m[30m])
+      - record: pg:cls:qps_mu
+        expr: avg_over_time(pg:cls:qps_avg30m[30m])
+      - record: pg:all:qps_mu
+        expr: avg_over_time(pg:all:qps_avg30m[30m])
+      # qps σ: stddev30m qps
+      - record: pg:db:qps_sigma
+        expr: stddev_over_time(pg:db:qps[30m])
+      - record: pg:ins:qps_sigma
+        expr: stddev_over_time(pg:ins:qps[30m])
+      - record: pg:svc:qps_sigma
+        expr: stddev_over_time(pg:svc:qps[30m])
+      - record: pg:cls:qps_sigma
+        expr: stddev_over_time(pg:cls:qps[30m])
+      - record: pg:all:qps_sigma
+        expr: stddev_over_time(pg:all:qps[30m])
+
+      # query rt (1m avg)
+      - record: pg:db:query_rt
+        expr: pgbouncer_stat_avg_query_time{datname!="pgbouncer"} / 1000000
+      - record: pg:ins:query_rt
+        expr: sum without(datname) (rate(pgbouncer_stat_total_query_time[1m])) / sum without(datname) (rate(pgbouncer_stat_total_query_count[1m])) / 1000000
+      - record: pg:svc:query_rt
+        expr: sum by (cls, role) (rate(pgbouncer_stat_total_query_time[1m])) / sum by (cls, role) (rate(pgbouncer_stat_total_query_count[1m])) / 1000000
+      # query_rt avg30m
+      - record: pg:db:query_rt_avg30m
+        expr: avg_over_time(pg:db:query_rt[30m])
+      - record: pg:ins:query_rt_avg30m
+        expr: avg_over_time(pg:ins:query_rt[30m])
+      - record: pg:svc:query_rt_avg30m
+        expr: avg_over_time(pg:svc:query_rt[30m])
+      # query_rt µ
+      - record: pg:db:query_rt_mu
+        expr: avg_over_time(pg:db:query_rt_avg30m[30m])
+      - record: pg:ins:query_rt_mu
+        expr: avg_over_time(pg:ins:query_rt_avg30m[30m])
+      - record: pg:svc:query_rt_mu
+        expr: avg_over_time(pg:svc:query_rt_avg30m[30m])
+      # query_rt σ: stddev30m
+      - record: pg:db:query_rt_sigma
+        expr: stddev_over_time(pg:db:query_rt[30m])
+      - record: pg:ins:query_rt_sigma
+        expr: stddev_over_time(pg:ins:query_rt[30m])
+      - record: pg:svc:query_rt_sigma
+        expr: stddev_over_time(pg:svc:query_rt[30m])
+
+
+      ################################################################
+      #                        PG Load                               #
+      ################################################################
+      # seconds spend on transaction in last minute
+      - record: pg:ins:xact_time_rate1m
+        expr: sum without (datname) (rate(pgbouncer_stat_total_xact_time{}[1m])) / 1000000
+      - record: pg:ins:xact_time_rate5m
+        expr: sum without (datname) (rate(pgbouncer_stat_total_xact_time{}[5m])) / 1000000
+      - record: pg:ins:xact_time_rate15m
+        expr: sum without (datname) (rate(pgbouncer_stat_total_xact_time{}[15m])) / 1000000
+
+      # seconds spend on queries in last minute
+      - record: pg:ins:query_time_rate1m
+        expr: sum without (datname) (rate(pgbouncer_stat_total_query_time{}[1m])) / 1000000
+      - record: pg:ins:query_time_rate5m
+        expr: sum without (datname) (rate(pgbouncer_stat_total_query_time{}[5m])) / 1000000
+      - record: pg:ins:query_time_rate15m
+        expr: sum without (datname) (rate(pgbouncer_stat_total_query_time{}[15m])) / 1000000
+
+      # instance level load
+      - record: pg:ins:load0
+        expr: sum without (datname) (irate(pgbouncer_stat_total_xact_time{}[1m])) / on (ip) group_left()  node:ins:cpu_count / 1000000
+      - record: pg:ins:load1
+        expr: pg:ins:xact_time_rate1m  / on (ip) group_left()  node:ins:cpu_count
+      - record: pg:ins:load5
+        expr: pg:ins:xact_time_rate5m  / on (ip) group_left()  node:ins:cpu_count
+      - record: pg:ins:load15
+        expr: pg:ins:xact_time_rate15m  / on (ip) group_left()  node:ins:cpu_count
+
+      # service level load
+      - record: pg:svc:load0
+        expr: sum by (svc, cls, role) (irate(pgbouncer_stat_total_xact_time{}[1m])) / on (svc) group_left() sum by (svc) (node:ins:cpu_count{}) / 1000000
+      - record: pg:svc:load1
+        expr: sum by (svc, cls, role) (pg:ins:xact_time_rate1m)  / on (svc) group_left() sum by (svc) (node:ins:cpu_count{}) / 1000000
+      - record: pg:svc:load5
+        expr: sum by (svc, cls, role) (pg:ins:xact_time_rate5m)  / on (svc) group_left() sum by (svc) (node:ins:cpu_count{}) / 1000000
+      - record: pg:svc:load15
+        expr: sum by (svc, cls, role) (pg:ins:xact_time_rate15m)  / on (svc) group_left() sum by (svc) (node:ins:cpu_count{}) / 1000000
+
+      # cluster level load
+      - record: pg:cls:load0
+        expr: sum by (cls) (irate(pgbouncer_stat_total_xact_time{}[1m])) / on (cls) node:cls:cpu_count{} / 1000000
+      - record: pg:cls:load1
+        expr: sum by (cls) (pg:ins:xact_time_rate1m)  / on (cls) node:cls:cpu_count
+      - record: pg:cls:load5
+        expr: sum by (cls) (pg:ins:xact_time_rate5m)  / on (cls) node:cls:cpu_count
+      - record: pg:cls:load15
+        expr: sum by (cls) (pg:ins:xact_time_rate15m)  / on (cls) node:cls:cpu_count
+
+
+      ################################################################
+      #                     PG Saturation                            #
+      ################################################################
+      # max value of pg_load and cpu_usage
+      
+      # instance level saturation
+      - record: pg:ins:saturation0
+        expr: pg:ins:load0 > node:ins:cpu_usage or node:ins:cpu_usage 
+      - record: pg:ins:saturation1
+        expr: pg:ins:load1 > node:ins:cpu_usage or node:ins:cpu_usage
+      - record: pg:ins:saturation5
+        expr: pg:ins:load5 > node:ins:cpu_usage or node:ins:cpu_usage
+      - record: pg:ins:saturation15
+        expr: pg:ins:load15 > node:ins:cpu_usage or node:ins:cpu_usage
+
+      # cluster level saturation
+      - record: pg:cls:saturation0
+        expr: pg:cls:load0 > node:cls:cpu_usage or node:cls:cpu_usage
+      - record: pg:cls:saturation1
+        expr: pg:cls:load1 > node:cls:cpu_usage or node:cls:cpu_usage
+      - record: pg:cls:saturation5
+        expr: pg:cls:load5 > node:cls:cpu_usage or node:cls:cpu_usage
+      - record: pg:cls:saturation15
+        expr: pg:cls:load15 > node:cls:cpu_usage or node:cls:cpu_usage
+
+
+      ################################################################
+      #                          CRUD                                #
+      ################################################################
+      # rows touched
+      - record: pg:db:tup_touched
+        expr: irate(pg_db_tup_fetched{}[1m])
+      - record: pg:ins:tup_touched
+        expr: sum without(datname) (pg:db:tup_touched)
+      - record: pg:svc:tup_touched
+        expr: sum by (cls, role) (pg:ins:tup_touched)
+      - record: pg:cls:tup_touched
+        expr: sum by (cls) (pg:ins:tup_touched)
+      - record: pg:all:tup_touched
+        expr: sum(pg:cls:tup_touched)
+
+      # selected
+      - record: pg:db:tup_selected
+        expr: irate(pg_db_tup_returned{}[1m])
+      - record: pg:ins:tup_selected
+        expr: sum without(datname) (pg:db:tup_selected)
+      - record: pg:svc:tup_selected
+        expr: sum by (cls, role) (pg:ins:tup_selected)
+      - record: pg:cls:tup_selected
+        expr: sum by (cls) (pg:ins:tup_selected)
+      - record: pg:all:tup_selected
+        expr: sum(pg:cls:tup_selected)
+
+      # inserted
+      - record: pg:db:tup_inserted
+        expr: irate(pg_db_tup_inserted{}[1m])
+      - record: pg:ins:tup_inserted
+        expr: sum without(datname) (pg:db:tup_inserted)
+      - record: pg:svc:tup_inserted
+        expr: sum by (cls, role) (pg:ins:tup_inserted)
+      - record: pg:cls:tup_inserted
+        expr: sum by (cls) (pg:ins:tup_inserted{role="primary"})
+      - record: pg:all:tup_inserted
+        expr: sum(pg:cls:tup_inserted)
+
+      # updated
+      - record: pg:db:tup_updated
+        expr: irate(pg_db_tup_updated{}[1m])
+      - record: pg:ins:tup_updated
+        expr: sum without(datname) (pg:db:tup_updated)
+      - record: pg:svc:tup_updated
+        expr: sum by (cls, role) (pg:ins:tup_updated)
+      - record: pg:cls:tup_updated
+        expr: sum by (cls) (pg:ins:tup_updated{role="primary"})
+      - record: pg:all:tup_updated
+        expr: sum(pg:cls:tup_updated)
+
+      # deleted
+      - record: pg:db:tup_deleted
+        expr: irate(pg_db_tup_deleted{}[1m])
+      - record: pg:ins:tup_deleted
+        expr: sum without(datname) (pg:db:tup_deleted)
+      - record: pg:svc:tup_deleted
+        expr: sum by (cls, role) (pg:ins:tup_deleted)
+      - record: pg:cls:tup_deleted
+        expr: sum by (cls) (pg:ins:tup_deleted{role="primary"})
+      - record: pg:all:tup_deleted
+        expr: sum(pg:cls:tup_deleted)
+
+      # modified
+      - record: pg:db:tup_modified
+        expr: irate(pg_db_tup_modified{}[1m])
+      - record: pg:ins:tup_modified
+        expr: sum without(datname) (pg:db:tup_modified)
+      - record: pg:svc:tup_modified
+        expr: sum by (cls, role) (pg:ins:tup_modified)
+      - record: pg:cls:tup_modified
+        expr: sum by (cls) (pg:ins:tup_modified{role="primary"})
+      - record: pg:all:tup_modified
+        expr: sum(pg:cls:tup_deleted)
+
+
+
+
+      ################################################################
+      #                     Query Statements                         #
+      ################################################################
+      # query statements
+      - record: pg:query:call
+        expr: rate(pg_query_calls{}[1m])
+      - record: pg:query:rt
+        expr: rate(pg_query_total_time{}[1m]) / pg:query:call / 1000
+
+
+
+      ################################################################
+      #                        Blocks IO                             #
+      ################################################################
+      # blocks read/hit/access in 1min
+      - record: pg:db:blks_read_1m
+        expr: increase(pg_db_blks_read{}[1m])
+      - record: pg:db:blks_hit_1m
+        expr: increase(pg_db_blks_hit{}[1m])
+      - record: pg:db:blks_access_1m
+        expr: increase(pg_db_blks_access{}[1m])
+
+      # buffer hit rate (1m)
+      - record: pg:db:buffer_hit_rate
+        expr: pg:db:blks_hit_1m / pg:db:blks_access_1m
+      - record: pg:ins:hit_rate
+        expr: sum without(datname) (pg:db:blks_hit_1m) / sum without(datname) (pg:db:blks_access_1m)
+
+      # read/write time usage
+      - record: pg:db:read_time_usage
+        expr: rate(pg_db_blk_read_time[1m])
+      - record: pg:db:write_time_usage
+        expr: rate(pg_db_blk_write_time[1m])
+      - record: pg:db:io_time_usage
+        expr: pg:db:read_time_usage + pg:db:write_time_usage
+
+
+
+      ################################################################
+      #                  Traffic IO (Pgbouncer)                      #
+      ################################################################
+      # transmit bandwidth (sent, out)
+      - record: pg:db:tx
+        expr: irate(pgbouncer_stat_total_sent{datname!="pgbouncer"}[1m])
+      - record: pg:ins:tx
+        expr: sum without (user, datname) (pg:db:tx)
+      - record: pg:svc:tx
+        expr: sum by (cls, role) (pg:ins:tx)
+      - record: pg:cls:tx
+        expr: sum by (cls) (pg:ins:tx)
+      - record: pg:all:tx
+        expr: sum(pg:cls:tx)
+
+      # receive bandwidth (sent, out)
+      - record: pg:db:rx
+        expr: irate(pgbouncer_stat_total_received{datname!="pgbouncer"}[1m])
+      - record: pg:ins:rx
+        expr: sum without (datname) (pg:db:rx)
+      - record: pg:svc:rx
+        expr: sum by (cls, role) (pg:ins:rx)
+      - record: pg:cls:rx
+        expr: sum by (cls) (pg:ins:rx)
+      - record: pg:all:rx
+        expr: sum(pg:cls:rx)
+
+
+
+      ################################################################
+      #                          Lock                                #
+      ################################################################
+      # lock count by mode
+      - record: pg:db:locks
+        expr: pg_lock_count
+      - record: pg:ins:locks
+        expr: sum without(datname) (pg:db:locks)
+      - record: pg:svc:locks
+        expr: sum by (cls, role, mode) (pg:ins:locks)
+      - record: pg:cls:locks
+        expr: sum by (cls, mode) (pg:ins:locks)
+
+      # total lock count
+      - record: pg:db:lock_count
+        expr: sum without (mode) (pg_lock_count{})
+      - record: pg:ins:lock_count
+        expr: sum without(datname) (pg:db:lock_count)
+      - record: pg:svc:lock_count
+        expr: sum by (cls, role) (pg:ins:lock_count)
+      - record: pg:cls:lock_count
+        expr: sum by (cls) (pg:ins:lock_count)
+
+      # read category lock
+      - record: pg:db:rlock
+        expr: sum without (mode) (pg_lock_count{mode="AccessShareLock"})
+      - record: pg:ins:rlock
+        expr: sum without(datname) (pg:db:rlock)
+      - record: pg:svc:rlock
+        expr: sum by (cls, role) (pg:ins:rlock)
+      - record: pg:cls:rlock
+        expr: sum by (cls) (pg:ins:rlock)
+
+      # write category lock (insert|update|delete)
+      - record: pg:db:wlock
+        expr: sum without (mode) (pg_lock_count{mode=~"RowShareLock|RowExclusiveLock"})
+      - record: pg:ins:wlock
+        expr: sum without(datname) (pg:db:wlock)
+      - record: pg:svc:wlock
+        expr: sum by (cls, role) (pg:ins:wlock)
+      - record: pg:cls:wlock
+        expr: sum by (cls) (pg:ins:wlock)
+
+      # exclusive category lock
+      - record: pg:db:xlock
+        expr: sum without (mode) (pg_lock_count{mode=~"AccessExclusiveLock|ExclusiveLock|ShareRowExclusiveLock|ShareLock|ShareUpdateExclusiveLock"})
+      - record: pg:ins:xlock
+        expr: sum without(datname) (pg:db:xlock)
+      - record: pg:svc:xlock
+        expr: sum by (cls, role) (pg:ins:xlock)
+      - record: pg:cls:xlock
+        expr: sum by (cls) (pg:ins:xlock)
+
+
+      ################################################################
+      #                          Temp                                #
+      ################################################################
+      # temp files and bytes
+      - record: pg:db:temp_bytes
+        expr: rate(pg_db_temp_bytes{}[1m])
+      - record: pg:ins:temp_bytes
+        expr: sum without(datname) (pg:db:temp_bytes)
+      - record: pg:svc:temp_bytes
+        expr: sum by (cls, role) (pg:ins:temp_bytes)
+      - record: pg:cls:temp_bytes
+        expr: sum by (cls) (pg:ins:temp_bytes)
+
+      # temp file count in last 1m
+      - record: pg:db:temp_files
+        expr: increase(pg_db_temp_files{}[1m])
+      - record: pg:ins:temp_files
+        expr: sum without(datname) (pg:db:temp_files)
+      - record: pg:svc:temp_files
+        expr: sum by (cls, role) (pg:ins:temp_files)
+      - record: pg:cls:temp_files
+        expr: sum by (cls) (pg:ins:temp_files)
+
+
+
+      ################################################################
+      #                           Size                               #
+      ################################################################
+      # database size
+      - record: pg:ins:db_size
+        expr: pg_size_database
+      - record: pg:cls:db_size
+        expr: sum by (cls) (pg:ins:db_size)
+      # wal size
+      - record: pg:ins:wal_size
+        expr: pg_size_wal
+      - record: pg:cls:wal_size
+        expr: sum by (cls) (pg:ins:wal_size)
+      # log size
+      - record: pg:ins:log_size
+        expr: pg_size_log
+      - record: pg:cls:log_size
+        expr: sum by (cls) (pg_size_log)
+
+
+
+      ################################################################
+      #                        Checkpoint                            #
+      ################################################################
+      # checkpoint stats
+      - record: pg:ins:last_ckpt
+        expr: pg_checkpoint_elapse
+      - record: pg:ins:ckpt_timed
+        expr: increase(pg_bgwriter_checkpoints_timed{}[30s])
+      - record: pg:ins:ckpt_req
+        expr: increase(pg_bgwriter_checkpoints_req{}[30s])
+      - record: pg:cls:ckpt_1h
+        expr: increase(pg:ins:ckpt_timed[1h]) + increase(pg:ins:ckpt_req[1h])
+
+      # buffer flush & alloc
+      - record: pg:ins:buf_flush_backend
+        expr: irate(pg_bgwriter_buffers_backend{}[1m]) * 8192
+      - record: pg:ins:buf_flush_checkpoint
+        expr: irate(pg_bgwriter_buffers_checkpoint{}[1m]) * 8192
+
+      - record: pg:ins:buf_flush
+        expr: pg:ins:buf_flush_backend + pg:ins:buf_flush_checkpoint
+      - record: pg:svc:buf_flush
+        expr: sum by (cls, role) (pg:ins:buf_flush)
+      - record: pg:cls:buf_flush
+        expr: sum by (cls) (pg:ins:buf_flush)
+      - record: pg:all:buf_flush
+        expr: sum(pg:cls:buf_flush)
+
+      - record: pg:ins:buf_alloc
+        expr: irate(pg_bgwriter_buffers_alloc{}[1m]) * 8192
+      - record: pg:svc:buf_alloc
+        expr: sum by (cls, role) (pg:ins:buf_alloc)
+      - record: pg:cls:buf_alloc
+        expr: sum by (cls) (pg:ins:buf_alloc)
+      - record: pg:all:buf_alloc
+        expr: sum(pg:cls:buf_alloc)
+
+
+
+
+      ################################################################
+      #                           LSN                                #
+      ################################################################
+      # timeline & LSN
+      - record: pg_timeline
+        expr: pg_checkpoint_tli
+      - record: pg:ins:redo_lsn
+        expr: pg_checkpoint_redo_lsn
+      - record: pg:ins:checkpoint_lsn
+        expr: pg_checkpoint_checkpoint_lsn
+
+      # wal rate
+      - record: pg:ins:wal_rate
+        expr: rate(pg_lsn[1m])
+      - record: pg:cls:wal_rate
+        expr: max by (cls) (pg:ins:wal_rate{role="primary"})
+      - record: pg:all:wal_rate
+        expr: sum(pg:cls:wal_rate)
+
+
+
+      ################################################################
+      #                       Replication                            #
+      ################################################################
+      # lag time from replica's view
+      - record: pg:ins:lag_seconds
+        expr: pg_lag
+      - record: pg:cls:lag_seconds
+        expr: max by (cls) (pg:ins:lag_seconds)
+      - record: pg:all:lag_seconds
+        expr: max(pg:cls:lag_seconds)
+
+      # sync status
+      - record: pg:ins:sync_status # application_name must set to replica ins name
+        expr: max by (ins, svc, cls) (label_replace(pg_replication_sync_status, "ins", "$1", "application_name", "(.+)"))
+
+      # lag of self (application_name must set to standby ins name)
+      - record: pg:ins:lag_bytes
+        expr: max by (ins, svc, cls, role) (label_replace(pg_replication_lsn{} - pg_replication_replay_lsn{}, "ins", "$1", "application_name", "(.+)"))
+      - record: pg:cls:lag_bytes
+        expr: max by (cls) (pg:ins:lag_bytes)
+      - record: pg:all:lag_bytes
+        expr: max(pg:cls:lag_bytes)
+
+      # replication slot retained bytes
+      - record: pg:ins:slot_retained_bytes
+        expr: pg_slot_retained_bytes
+
+      # replica walreceiver
+      - record: pg:ins:recv_init_lsn
+        expr: pg_walreceiver_init_lsn
+      - record: pg:ins:recv_last_lsn
+        expr: pg_walreceiver_last_lsn
+      - record: pg:ins:recv_init_tli
+        expr: pg_walreceiver_init_tli
+      - record: pg:ins:recv_last_tli
+        expr: pg_walreceiver_last_tli
+
+
+
+
+      ################################################################
+      # Cluster Level Metrics
+      ################################################################
+      # cluster member count
+      - record: pg:cls:leader
+        expr: count by (cls, ins) (max by (cls, ins) (pg_status{}) == 3)
+      - record: pg:cls:size
+        expr: count by (cls) (max by (cls, ins) (pg_up{}))
+      - record: pg:cls:timeline
+        expr: max by (cls) (pg_checkpoint_tli{})
+      - record: pg:cls:primarys
+        expr: count by (cls) (max by (cls, ins) (pg_in_recovery{}) == 0)
+      - record: pg:cls:replicas
+        expr: count by (cls) (max by (cls, ins) (pg_in_recovery{}) == 1)
+      - record: pg:cls:synchronous
+        expr: max by (cls) (pg_sync_standby_enabled) > bool 0
+      - record: pg:cls:bridging_instances
+        expr: count by (cls, role, ins, ip) (pg_replication_lsn{state="streaming", role!="primary"} > 0)
+      - record: pg:cls:bridging
+        expr: count by (cls) (pg:cls:bridging_instances)
+      - record: pg:cls:cascading
+        expr: count by (cls) (pg_replication_lsn{state="streaming", role!="primary"})
+
+
+
+
+
+      ################################################################
+      #                    Pgbouncer List                            #
+      ################################################################
+      # object list
+      - record: pg:ins:pools
+        expr: pgbouncer_list_items{list="pools"}
+      - record: pg:ins:pool_databases
+        expr: pgbouncer_list_items{list="databases"}
+      - record: pg:ins:pool_users
+        expr: pgbouncer_list_items{list="users"}
+      - record: pg:ins:login_clients
+        expr: pgbouncer_list_items{list="login_clients"}
+      - record: pg:ins:free_clients
+        expr: pgbouncer_list_items{list="free_clients"}
+      - record: pg:ins:used_clients
+        expr: pgbouncer_list_items{list="used_clients"}
+      - record: pg:ins:free_servers
+        expr: pgbouncer_list_items{list="free_servers"}
+
+
+
+      ################################################################
+      #                  DBConfig (Pgbouncer)                        #
+      ################################################################
+      - record: pg:db:pool_max_conn
+        expr: pgbouncer_database_pool_size{datname!="pgbouncer"} + pgbouncer_database_reserve_pool{datname!="pgbouncer"}
+      - record: pg:db:pool_size
+        expr: pgbouncer_database_pool_size{datname!="pgbouncer"}
+      - record: pg:db:pool_reserve_size
+        expr: pgbouncer_database_reserve_pool{datname!="pgbouncer"}
+      - record: pg:db:pool_current_conn
+        expr: pgbouncer_database_current_connections{datname!="pgbouncer"}
+      - record: pg:db:pool_paused
+        expr: pgbouncer_database_paused{datname!="pgbouncer"}
+      - record: pg:db:pool_disabled
+        expr: pgbouncer_database_disabled{datname!="pgbouncer"}
+
+
+
+      ################################################################
+      #                  Waiting (Pgbouncer)                         #
+      ################################################################
+      # average wait time
+      - record: pg:db:wait_rt
+        expr: pgbouncer_stat_avg_wait_time{datname!="pgbouncer"} / 1000000
+
+      # max wait time among all clients
+      - record: pg:pool:maxwait
+        expr: pgbouncer_pool_maxwait{datname!="pgbouncer"} + pgbouncer_pool_maxwait_us{datname!="pgbouncer"} / 1000000
+      - record: pg:db:maxwait
+        expr: max without(user) (pg:pool:maxwait)
+      - record: pg:ins:maxwait
+        expr: max without(user, datname) (pg:db:maxwait)
+      - record: pg:svc:maxwait
+        expr: max by (cls, role) (pg:ins:maxwait)
+      - record: pg:cls:maxwait
+        expr: max by (cls) (pg:ins:maxwait)
+      - record: pg:all:maxwait
+        expr: max(pg:cls:maxwait)
+

@@ -1,0 +1,161 @@
+#!/bin/bash
+set -euo pipefail
+#==============================================================#
+# File      :   pg-init
+# Mtime     :   2020-09-07
+# Desc      :   add database and user to postgres and pgbouncer
+# Path      :   /pg/bin/createdb
+# Note      :   Run this as dbsu (postgres)
+# Copyright (C) 2019-2020 Ruohang Feng
+#==============================================================#
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+
+#---------------------------------------------------------------------------
+function log() {
+    printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INITDB] $*\n"
+}
+#---------------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------------
+# Main
+#----------------------------------------------------------------------------
+PG_DEFAULT_DATABASE=${1-'postgres'}
+PG_DEFAULT_USERNAME=${2-'postgres'}
+PG_DEFAULT_PASSWORD=${3-'postgres'}
+PG_DEFAULT_SCHEMA=${4-'public'}
+PG_DEFAULT_EXTENSIONS=${5-'tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm'}
+
+if [[ ${PG_DEFAULT_USERNAME} == 'postgres' ]]; then
+	log "pg-createdb: skip db creation for postgres"
+	exit 0	
+fi
+if [[ ${PG_DEFAULT_DATABASE} == 'postgres' ]]; then
+	log "pg-createdb: skip db creation for postgres"
+	exit 0
+fi
+
+
+#----------------------------------------------------------------------------
+# default user (business account)
+#----------------------------------------------------------------------------
+log "pg-createdb: create default business user: ${PG_DEFAULT_USERNAME}"
+psql -AXtwq postgres <<- EOF
+	-- system user: dbuser_monitor
+	CREATE USER "${PG_DEFAULT_USERNAME}";
+	COMMENT ON ROLE "${PG_DEFAULT_USERNAME}" IS 'default business user';
+	ALTER USER "${PG_DEFAULT_USERNAME}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION BYPASSRLS;
+	ALTER USER "${PG_DEFAULT_USERNAME}" PASSWORD '${PG_DEFAULT_PASSWORD}';
+	GRANT dbrole_readwrite TO "${PG_DEFAULT_USERNAME}";
+EOF
+
+# default pgpass
+function add_pgpass(){
+	local username=$1
+	local password=$2
+	if grep -q "${username}": ~/.pgpass; then
+		sed -i "/${username}/d" ~/.pgpass
+	fi
+	echo '*:*:*'"${username}:${password}" >> ~/.pgpass
+	chmod 0600 ~/.pgpass
+}
+log "createdb: create pgpass file"
+echo "" >> ~/.pgpass
+add_pgpass ${PG_DEFAULT_USERNAME} ${PG_DEFAULT_PASSWORD}
+
+
+
+#----------------------------------------------------------------------------
+# default database
+#----------------------------------------------------------------------------
+
+log "pg-createdb: create default database: ${PG_DEFAULT_DATABASE}"
+psql -AXtwq postgres <<- EOF
+	CREATE DATABASE "${PG_DEFAULT_DATABASE}";
+EOF
+
+if [ ${PG_DEFAULT_SCHEMA} != 'public' ]; then
+	log "pg-createdb: create default schema on ${PG_DEFAULT_DATABASE} : ${PG_DEFAULT_SCHEMA}"
+	psql -AXtwq ${PG_DEFAULT_DATABASE} <<- EOF
+		CREATE SCHEMA IF NOT EXISTS ${PG_DEFAULT_SCHEMA};
+	EOF
+fi
+
+if [ ${PG_DEFAULT_EXTENSIONS} != '' ]; then
+	log "pg-createdb: create default extensions on ${PG_DEFAULT_DATABASE} : ${PG_DEFAULT_EXTENSIONS}"
+	for ext in ${PG_DEFAULT_EXTENSIONS//,/ }
+	do
+		log "pg-createdb: create extension ${ext};"
+		psql -AXtwq ${PG_DEFAULT_DATABASE} <<- EOF
+			CREATE EXTENSION IF NOT EXISTS ${ext} WITH SCHEMA public;
+		EOF
+	done
+fi
+
+
+
+#--------------------------------------------------------------#
+# Name: pgbouncer_database_add
+# Desc: Add or modify pgbouncer userlist
+# Arg1: database name
+# Arg2: connection string (optional)
+# Note: Run this as dbsu (postgres)
+#--------------------------------------------------------------#
+function pgbouncer_database_add(){
+	local database=$1
+	local connstr=${2-'host=/var/run/postgresql'}
+	local dblist=${3-'/etc/pgbouncer/database.txt'}
+
+	mkdir -p /etc/pgbouncer/
+	touch ${dblist}
+	if grep -q ${database} ${dblist}; then
+		sed -i "/${database}/d" ${dblist}
+	fi
+	echo "${database} = ${connstr}" >> ${dblist}
+}
+
+log "pg-createdb: create pgbouncer database ${PG_DEFAULT_DATABASE};"
+pgbouncer_database_add ${PG_DEFAULT_DATABASE}
+
+#--------------------------------------------------------------#
+# Name: pgbouncer_userlist_add
+# Desc: Add or modify pgbouncer userlist
+# Arg1: username
+# Arg2: password (optional)
+# Note: Run this as dbsu (postgres)
+#--------------------------------------------------------------#
+function pgbouncer_userlist_add(){
+	local username=$1
+	local password=${2-''}
+	local userlist=${3-'/etc/pgbouncer/userlist.txt'}
+
+	local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
+	local userlist_entry="\"${username}\" \"${md5_mon_pass}\""
+	# get md5 password from database if 'auto' is set
+	if [[ $password == 'auto' ]]; then
+		userlist_entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE usename = '${username}'" 2>/dev/null)
+	fi
+
+	mkdir -p /etc/pgbouncer/
+	touch ${userlist}
+	if grep -q ${username} ${userlist}; then
+		sed -i "/${username}/d" ${userlist}
+	fi
+	if [[ -z "${password}" ]]; then
+		echo "\"${username}\" \"\"" >> ${userlist}
+	else
+		echo ${userlist_entry} >> ${userlist}
+	fi
+}
+
+log "pg-createdb: create pgbouncer user ${PG_DEFAULT_DATABASE};"
+pgbouncer_userlist_add ${PG_DEFAULT_USERNAME} "${PG_DEFAULT_PASSWORD}"
+
+
+
+#----------------------------------------------------------------------------
+# customize commands
+#----------------------------------------------------------------------------
+log "pg-createdb: completed!"
