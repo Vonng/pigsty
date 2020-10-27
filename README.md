@@ -2,7 +2,7 @@
 
 > PIGSTY: Postgres in Graphic STYle
 
-Pigsty is a monitoring system that is specially designed for large scale PostgreSQL clusters. Along with a  database provisioning solution. It also shipped with a four-node VM sandbox environment based on [vagrant](https://vagrantup.com/).
+Pigsty is a monitoring system that is specially designed for large scale PostgreSQL clusters. Along with a  postgres cluster provisioning solution. It also shipped with a four-node VM sandbox environment based on [vagrant](https://vagrantup.com/) for demonstration purpose.
 
 ![](doc/logo/logo-full.svg)
 
@@ -10,19 +10,38 @@ Pigsty is a monitoring system that is specially designed for large scale Postgre
 
 
 
-## Features
+## Highlights
 
-### Highlights
-
-* [Monitoring System](doc/monitoring-system.md) based on prometheus & grafana. Industry best practice
-* [Provisioning Solution](doc/provision.md) based on ansible. kubernetes style, scale at ease.
-* [HA](doc/ha.md) deployment based on patroni. Self-healing and failover in seconds
+* [Monitoring System](doc/monitoring-system.md) based on prometheus & grafana &  [`pg_exporter`](https://github.com/Vonng/pg_exporter)
+* [Provisioning Solution](doc/provision.md) based on ansible. Kubernetes style, scale at ease.
+* [HA Deployment](doc/ha.md) based on patroni. Self-healing and failover in seconds
 * [Service Discovery](doc/service-discovery.md) based on DCS (consul / etcd), maintainence made easy.
 * [Offline Installataion](doc/offline-installation.md) without Internet access. fast and secure.
 * [Infrastructure as Code](doc/architecture.md). Fully [configurable](doc/configuration.md) and [customizable](doc/templates.md). 
-* Based on PostgreSQL 13 and Patroni 2. Tested under CentOS 7 (Monitoring System works with PostgreSQL 10+)
+* Based on PostgreSQL 13 and Patroni 2. Tested under CentOS 7
 
 
+
+## Quick Start
+
+If you already have vagrant and virtualbox installed. These commands will just setup everything for you.
+
+```bash
+# run under pigsty home dir
+make up          # pull up all vagrant nodes
+make ssh         # setup vagrant ssh access
+make init        # init infrastructure and databaes clusters
+sudo make dns    # write static DNS record to your host (sudo required)
+make mon-view    # monitoring system home page (default: admin:admin) 
+```
+
+> Verified version: MacOS 10.15, Vagrant 2.2.10, Virtualbox 6.1.14
+
+Check [Quick Start](doc/quick-start.md) for more inforamtion
+
+
+
+## Features
 
 ### Monitoring System
 
@@ -97,21 +116,6 @@ Pigsty comes with a local Yum repo that includes all required packages and its d
 
 
 
-## Quick Start
-
-If you already have vagrant and virtualbox installed. These command will just setup everything for your (Tested under MacOS 10.15)
-
-```bash
-# run under pigsty home dir
-make up          # pull up all vagrant nodes
-make ssh         # setup vagrant ssh access
-make init        # init infrastructure and databaes clusters
-sudo make dns    # write static DNS record to your host (sudo required)
-make mon-view    # monitoring system home page (default: admin:admin) 
-```
-
-For more information, check [Quick Start Document](doc/quick-start.md)
-
 
 
 ## Sepcification
@@ -119,7 +123,7 @@ For more information, check [Quick Start Document](doc/quick-start.md)
 **System Requirement**
 
 * CentOS 7 / Red Hat 7 / Oracle Linux 7
-* CentOS 7.6 is highly recommened (Fully tested under minimal installtion)
+* CentOS 7.6/7.8 is highly recommened (Fully tested under minimal installtion)
 
 **Minimal setup**
 
@@ -143,12 +147,13 @@ For more information, check [Quick Start Document](doc/quick-start.md)
 
 Business support for pigsty is available. [Contact](mailto:fengruohang@outlook.com) for more detail.
 
-* Advance Monitoring System, 3000+ metrics, 30+ extra dashboards
+* Complete version of monitoring system.
 * Production  deployment & operation & administration scheme
 * Meta database and data dictionary
 * Log collecting system and daily log summary
 * Backup / Recovery plan
-* Deployment assistance and trouble shooting. Intergration with existing system.
+* Deployment assistance and trouble shooting.
+* Intergration with existing system.
 
 Read more about [Business Support](doc/support.md)
 

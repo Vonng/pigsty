@@ -1,12 +1,12 @@
 # Monitoring System [DRAFT]
 
-Pigsty is shipped with an advanced monitoring system specially designed for PostgreSQL
+Pigsty is shipped with an advanced monitoring system specially designed for PostgreSQL.
 
 
 
 ## Architecture
 
-Pigsty is based on open source projects like prometheus & grafana and follow their best practices.
+Pigsty is based on open source projects like [prometheus](https://prometheus.io/), [grafana](https://grafana.com/),  [`pg_exporter`](https://github.com/Vonng/pg_exporter) and follow their best practices.
 
 ### TL;DR
 
@@ -14,6 +14,12 @@ Pigsty is based on open source projects like prometheus & grafana and follow the
 * Prometheus scrape, collect metrics and serve queries
 * Exporter (node, postgres, pgbouncer, haproxy) expose server metrics
 * Exporter service are registed into consul, and be discovered by prometheus
+
+* Read more about [`pg_exporter`](https://github.com/Vonng/pg_exporter)
+
+* Available metrics
+
+
 
 ![](img/arch.png)
 

@@ -116,11 +116,9 @@ mon-clean:
 
 mon-full: mon-clean
 	cp files/monitor/grafana-full.db roles/grafana/files/grafana/grafana.db
-	tar -xf files/monitor/dashboards-full.tar.gz -C roles/grafana/files/grafana/
 
 mon-skim: mon-clean
 	cp files/monitor/grafana-skim.db roles/grafana/files/grafana/grafana.db
-	tar -xf files/monitor/dashboards-skim.tar.gz -C roles/grafana/files/grafana/
 
 mon-dump:
 	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
@@ -148,8 +146,14 @@ dashboard-dump:
 dashboard-clean:
 	./dashboard.yml -e action=clean
 
+dashboard-rm-skim:
+	./dashboard.yml -e action=clean -e skim=true
+
 dashboard-install:
 	./dashboard.yml -e action=install
+
+dashboard-install-skim:
+	./dashboard.yml -e action=install -e skim=true
 
 ###############################################################
 # environment management
