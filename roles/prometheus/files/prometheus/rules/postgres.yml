@@ -17,10 +17,10 @@ groups:
       #                        Aliveness                             #
       ################################################################
       - record: pg_exporter_up
-        expr: up{instance=~".*:9185"}
+        expr: up{instance=~".*:9185|.*:9630"}
 
       - record: pgbouncer_exporter_up
-        expr: up{instance=~".*:9127"}
+        expr: up{instance=~".*:9127|.*:9631"}
 
 
       ################################################################
@@ -414,7 +414,7 @@ groups:
       ################################################################
       #                     QPS (Pgbouncer)                          #
       ################################################################
-      # TPS realtime (irate1m)
+      # QPS realtime (irate1m)
       - record: pg:db:qps_realtime
         expr: irate(pgbouncer_stat_total_query_count{}[1m])
       - record: pg:ins:qps_realtime
@@ -425,7 +425,6 @@ groups:
         expr: sum by(cls) (pg:ins:qps_realtime{})
       - record: pg:all:qps_realtime
         expr: sum(pg:cls:qps_realtime{})
-
       # qps (rate1m)
       - record: pg:db:qps
         expr: pgbouncer_stat_avg_query_count{datname!="pgbouncer"}
@@ -437,6 +436,7 @@ groups:
         expr: sum by(cls) (pg:ins:qps)
       - record: pg:all:qps
         expr: sum(pg:cls:qps)
+
       # qps avg30m
       - record: pg:db:qps_avg30m
         expr: avg_over_time(pg:db:qps[30m])
@@ -470,7 +470,6 @@ groups:
         expr: stddev_over_time(pg:cls:qps[30m])
       - record: pg:all:qps_sigma
         expr: stddev_over_time(pg:all:qps[30m])
-
       # query rt (1m avg)
       - record: pg:db:query_rt
         expr: pgbouncer_stat_avg_query_time{datname!="pgbouncer"} / 1000000

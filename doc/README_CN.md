@@ -20,7 +20,7 @@ Pigsty针对大规模数据库集群监控与管理而设计，提供简单便�
 
 * 专门针对PostgreSQL设计的[监控系统](monitoring-system.md)，开箱即用，遵循监控最佳实践。
 * PostgreSQL数据库集群[供给方案](provision.md)，一键拉起，全面定制化，扩缩自如。
-* [高可用](ha.md)数据库集群，故障自愈，秒级切换。provision
+* [高可用](ha.md)数据库集群，故障自愈，秒级切换。
 * 基于DCS的配置管理与[自动服务发现](service-discovery.md)
 * [离线安装](offline-installation.md)所有组件，无需外网访问
 * [参数定制](configuration.md)，代码定义的基础设施，完全客制化
