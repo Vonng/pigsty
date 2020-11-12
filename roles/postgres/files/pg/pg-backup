@@ -113,7 +113,7 @@ function send_mail() {
 
 # slave returns 't', psql access required
 function is_slave() {
-	echo $(psql -AXtqc "SELECT pg_is_in_recovery();")
+	echo $(psql -AXtwqc "SELECT pg_is_in_recovery();")
 }
 
 #==============================================================#
@@ -135,13 +135,13 @@ function make_backup() {
 
 	if [[ ! -z "${key}" ]]; then
 		# if key is provided, encrypt with rc4 using openssl
-		pg_basebackup -d ${pg_url} -Xf -Ft -c fast -v -D - |
+		pg_basebackup -w -d ${pg_url} -Xf -Ft -c fast -v -D - |
 			lz4 -q -z |
 			openssl enc -rc4 -k ${key} >"${backup_path}"
 		# extract:  openssl enc -rc4 -d -k ${KEY} -in ${BKUP_FILE} | unlz4 -c | tar -xC ${DATA_DIR}
 		return $?
 	else
-		pg_basebackup -d ${pg_url} -Xf -Ft -c fast -v -D - |
+		pg_basebackup -w -d ${pg_url} -Xf -Ft -c fast -v -D - |
 			lz4 -q -z >"${backup_path}"
 		# extract:  unlz4 ${BKUP_FILE} -c | tar -xC ${DATA_DIR}
 		return $?
@@ -209,7 +209,7 @@ function upload_backup() {
 function main() {
 	# default settings
 	local lock_path="/tmp/backup.lock"
-	local src="postgres://replicator@127.0.0.1/postgres"
+	local src="postgres:///"
 	local dst="/pg/backup"
 	local tag=$(local_ip)
 	local remove="1200"

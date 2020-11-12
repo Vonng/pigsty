@@ -117,7 +117,7 @@ function add_pgpass(){
 	if grep -q "${username}": ~/.pgpass; then
 		sed -i "/${username}/d" ~/.pgpass
 	fi
-	echo '*:*:*'"${username}:${password}" >> ~/.pgpass
+	echo '*:*:*:'"${username}:${password}" >> ~/.pgpass
 	chmod 0600 ~/.pgpass
 }
 add_pgpass ${PG_REPLICATION_USERNAME} ${PG_REPLICATION_PASSWORD}
