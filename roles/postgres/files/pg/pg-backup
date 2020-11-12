@@ -2,10 +2,10 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   backup.sh
+# File      :   pg-backup
 # Mtime     :   2018-12-06
 # Desc      :   PostgreSQL backup script
-# Path      :   /pg/bin/backup.sh
+# Path      :   /pg/bin/pg-backup
 # Author    :   Vonng(fengruohang@outlook.com)
 # Depend    :   lz4, ~/.pgpass for replication, openssl
 #==============================================================#
@@ -33,44 +33,46 @@ function usage() {
 		
 		DESCRIPTION
 			-s, --src, --url
-				Backup source URL, optional, "postgres://replication@127.0.0.1/postgres" by default
-				Note: if password is required, it should be provided in url or ~/.pgpass
+				Backup source URL, optional, "postgres:///" by default
+				Note: if password is required, it should be given in url, ENV or .pgpass
 		
 			-d, --dst, --dir
 				Where to put backup files, "/pg/backup" by default
 		
 			-f, --file
-				Backup filename, "backup_${tag}_${date}.tar.lz4" by default
+				Overwrite default backup filename, "backup_${tag}_${date}.tar.lz4"
 		
 			-r, --remove
 				.lz4 Files mtime before n minuts ago will be removed, default is 1200 (20hour)
 		
 			-t, --tag
-				Backup file tag, if not set, local ip address will be used.
-				Also used as part of default filename
+				Backup file tag, if not set, target cluster_name or local ip address will be used.
+				Also used as part of DEFAULT filename
 		
 			-k, --key
 				Encryption key when --encrypt is specified, default key is ${tag}
 		
 			-u, --upload
-				Upload backup files to ufile, filemgr & /etc/ufile/config.cfg is required
+				Upload backup files to cloud storage, (need your own implementation)
 		
 			-e, --encryption
-				Encrypt with RC4 using OpenSSL, if not key is specified, tag is used
+				Encrypt with RC4 using OpenSSL, if not key is specified, tag is used as key
 		
 			-h, --help
 				Print this message
 		
 		EXAMPLES
-			routine backup for coredb:
-				00 01 * * * /pg/bin/backup.sh --encrypt --upload --tag=paymentdb 2>> /pg/tlog/backup.log
+			routine backup crontab for somedb:
+				00 01 * * * /pg/bin/pg-backup --encrypt --upload --tag=somedb --key=<secret> 2>> /pg/log/backup.log
 		
-			manual & one-time backup:
-				./backup.sh -s postgres://10.189.1.1:5432/mydb -d . -f once_backup.tar.lz4 -e -tag manual
+			one-time manual backup:
+				pg-backup -s postgres:/// -d . -f one_time_backup.tar.lz4 -e
 		
 			extract backup files:
-				unlz4 -d -c ${BACKUP_FILE} | tar -xC ${DATA_DIR}
-				openssl enc -rc4 -d -k ${PASSWORD} -in ${BACKUP_FILE} | unlz4 -d -c | tar -xC ${DATA_DIR}
+			  backup_dir="/pg/backup"
+			  backup_latest=$(ls -t ${backup_dir} | head -n1)
+				unlz4 -d -c ${backup_latest} | tar -xC ${DATA_DIR}
+				openssl enc -rc4 -d -k ${PASSWORD} -in ${backup_latest} | unlz4 -d -c | tar -xC ${DATA_DIR}
 	EOF
 }
 
@@ -95,25 +97,27 @@ function log_error() {
 		printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" >&2
 }
 
-# get primary IP address
+# returns 't' on replica, psql access required
+function is_in_recovery() {
+	local pg_url=$1
+	echo $(psql ${pg_url} -AXtwqc "SELECT pg_is_in_recovery();")
+}
+
+# get primary IP address (which could be 10.x.x.x or 192.x.x.x)
 function local_ip() {
-	# ip range in 10.xxx.xxx.xx or 192.xxx.xx.xx
 	echo $(/sbin/ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' |
 		grep -v 127.0.0.1 | grep -Eo '(10|192)\.([0-9]*\.){2}[0-9]*' | head -n1)
 }
 
-# send mail via mail service
-function send_mail() {
-	local subject=$1
-	local content=$2
-	local to=${3-"fengruohang@outlook.com"}
-	local mail_service="http://xxx.xxx.xxx.xxx/v1/sendmail/"
-	curl -s -d "subject=${subject}&content=${content}&to=${to}" ${mail_service} >/dev/null
-}
-
-# slave returns 't', psql access required
-function is_slave() {
-	echo $(psql -AXtwqc "SELECT pg_is_in_recovery();")
+# return cluster_name, psql access required
+function get_cluster_name() {
+	local pg_url=$1
+	local cluster_name=$(psql ${pg_url} -AXtwqc "SHOW cluster_name")
+	if [[ -z "${cluster_name}" ]]; then
+	  echo $(local_ip)
+	else
+	  echo ${cluster_name}
+	fi
 }
 
 #==============================================================#
@@ -177,9 +181,10 @@ function remove_backup() {
 	local remove_condition=${2-'1200'}
 	remove_condition="-mmin +${remove_condition}"
 
-	log_warn "[BKUP] local obsolete backups:"
-	log_warn "$(find "${backup_dir}" -maxdepth 1 -type f ${remove_condition} -name '*.lz4')"
-	find "${backup_dir}" -maxdepth 1 -type f -name '*.lz4' ${remove_condition} -delete
+  log_info "[BKUP] find obsolete backups: find "${backup_dir}/" -maxdepth 1 -type f ${remove_condition} -name 'backup*.lz4'"
+  local obsolete_backups="$(find "${backup_dir}/" -maxdepth 1 -type f ${remove_condition} -name 'backup*.lz4')"
+	log_warn "[BKUP] remove obsolete backups: ${obsolete_backups}"
+	find "${backup_dir}/" -maxdepth 1 -type f -name 'backup_*.lz4' ${remove_condition} -delete
 	return $?
 }
 
@@ -211,7 +216,7 @@ function main() {
 	local lock_path="/tmp/backup.lock"
 	local src="postgres:///"
 	local dst="/pg/backup"
-	local tag=$(local_ip)
+	local tag=$(get_cluster_name ${src})
 	local remove="1200"
 	local upload="false"
 	local encrypt="false"
@@ -289,8 +294,9 @@ function main() {
 		key=${provided_key}
 	fi
 
+	log_info "================================================================"
 	# check parameters
-	log_info "[INIT] checking parameters"
+	log_info "[INIT] pg-backup begin, checking parameters"
 
 	if [[ ! -d ${dst} ]]; then
 		log_error "[INIT] destination directory ${dst} not exist"
@@ -375,6 +381,7 @@ function main() {
 
 	# done
 	log_info "[DONE] backup procdure complete!"
+	log_info "================================================================"
 }
 
 main "$@"

@@ -116,23 +116,23 @@ function repack_tables(){
 # Desc: find bloat tables in given database match some condition
 # Arg1: database_name
 # Echo: list of full table name
-# Deps: psql, monitor.pg_bloat_tables
+# Deps: psql, monitor.pg_table_bloat
 #--------------------------------------------------------------#
 function get_bloat_tables(){
     echo $(psql ${1} -AXtq <<-'EOF'
-    WITH bloat_tables AS (
-        SELECT
-          nspname || '.' || relname as relname,
-          actual_mb,
-          bloat_pct
-        FROM monitor.pg_bloat_tables
-        WHERE nspname NOT IN ('dba', 'monitor', 'trash')
-        ORDER BY 2 DESC,3 DESC
-    )
-    -- 64 small + 16 medium + 4 large
-    (SELECT relname FROM bloat_tables WHERE actual_mb < 256 AND bloat_pct > 40 ORDER BY bloat_pct DESC LIMIT 64) UNION
-    (SELECT relname FROM bloat_tables WHERE actual_mb BETWEEN 256 AND 1024  AND bloat_pct > 30 ORDER BY bloat_pct DESC LIMIT 16) UNION
-    (SELECT relname FROM bloat_tables WHERE actual_mb BETWEEN 1024 AND 4096  AND bloat_pct > 20 ORDER BY bloat_pct DESC  LIMIT 4);
+WITH bloat_tables AS (
+    SELECT
+    nspname || '.' || relname as relname,
+    size / 1024 AS actual_mb,
+    ratio AS bloat_pct
+    FROM monitor.pg_table_bloat
+    WHERE nspname NOT IN ('dba', 'monitor', 'trash')
+    ORDER BY 2 DESC,3 DESC
+)
+-- 64 small + 16 medium + 4 large
+(SELECT relname FROM bloat_tables WHERE actual_mb < 256 AND bloat_pct > 40 ORDER BY bloat_pct DESC LIMIT 64) UNION
+(SELECT relname FROM bloat_tables WHERE actual_mb BETWEEN 256 AND 1024  AND bloat_pct > 30 ORDER BY bloat_pct DESC LIMIT 16) UNION
+(SELECT relname FROM bloat_tables WHERE actual_mb BETWEEN 1024 AND 4096  AND bloat_pct > 20 ORDER BY bloat_pct DESC  LIMIT 4);
 EOF
 )
 }
@@ -188,24 +188,24 @@ function repack_indexes(){
 # Desc: find bloat index in given database match some condition
 # Arg1: database_name
 # Echo: list of full index name
-# Deps: psql, monitor.pg_bloat_indexes
+# Deps: psql, monitor.pg_index_bloat
 #--------------------------------------------------------------#
 function get_bloat_indexes(){
     echo $(psql ${1} -AXtq <<-'EOF'
-   WITH indexes_bloat AS (
-        SELECT
-          nspname || '.' || idxname as idx_name,
-          actual_mb,
-          bloat_pct
-        FROM monitor.pg_bloat_indexes
-        WHERE nspname NOT IN ('dba', 'monitor', 'trash')
-        ORDER BY 2 DESC,3 DESC
-    )
-    -- 64 small + 16 medium + 4 large + 1 top + custom
-    (SELECT idx_name FROM indexes_bloat WHERE actual_mb < 128 AND bloat_pct > 40 ORDER BY bloat_pct DESC LIMIT 64) UNION
-    (SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 128 AND 512 AND bloat_pct > 35 ORDER BY bloat_pct DESC LIMIT 16) UNION
-    (SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 512 AND 2048 AND bloat_pct > 30 ORDER BY bloat_pct DESC LIMIT 4) UNION
-    (SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 2048 AND 4096 AND bloat_pct > 25 ORDER BY bloat_pct DESC LIMIT 1);                        -- 3  top
+WITH indexes_bloat AS (
+    SELECT
+        nspname || '.' || relname as idx_name,
+        size / 1024 AS actual_mb,
+        ratio AS bloat_pct
+    FROM monitor.pg_index_bloat
+    WHERE nspname NOT IN ('dba', 'monitor')
+    ORDER BY 2 DESC,3 DESC
+)
+-- 64 small + 16 medium + 4 large + 1 top + custom
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb < 128 AND bloat_pct > 40 ORDER BY bloat_pct DESC LIMIT 64) UNION
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 128 AND 512 AND bloat_pct > 35 ORDER BY bloat_pct DESC LIMIT 16) UNION
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 512 AND 2048 AND bloat_pct > 30 ORDER BY bloat_pct DESC LIMIT 4) UNION
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 2048 AND 4096 AND bloat_pct > 25 ORDER BY bloat_pct DESC LIMIT 1);
 EOF
 )
 }

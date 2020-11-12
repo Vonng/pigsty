@@ -30,16 +30,13 @@ function pgbouncer_userlist_add(){
 		userlist_entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE usename = '${username}'" 2>/dev/null)
 	fi
 
+  echo ${userlist_entry}
 	mkdir -p /etc/pgbouncer/
 	touch ${userlist}
 	if grep -q ${username} ${userlist}; then
-		sed -i "/${username}/d" ${userlist}
+		sed -i "/^\"${username}\"[[:blank:]]*.*$/d" ${userlist}
 	fi
-	if [[ -z "${password}" ]]; then
-		echo "\"${username}\" \"\"" >> ${userlist}
-	else
-		echo ${userlist_entry} >> ${userlist}
-	fi
+	echo ${userlist_entry} >> ${userlist}
 }
 
 pgbouncer_userlist_add $@
