@@ -74,7 +74,7 @@
       ignore_errors: yes
       shell: |
         rm -rf /etc/consul.d/svc-*.json
-        rm -rf /etc/consul.d/node-meta.json
+        rm -rf /etc/consul.d/node-meta.json*
         /usr/bin/consul reload
         exit 0
 
@@ -194,11 +194,12 @@
 # register consul service
 #------------------------------------------------------------------------------
 - name: Register consul node meta
+  tags: pg_nodemeta
   block:
     - name: Copy consul node-meta definition
       template:
         src: node-meta.json.j2
-        dest: /etc/consul.d/node-meta.json.j2
+        dest: /etc/consul.d/node-meta.json
         owner: consul
         group: postgres
         mode: 0644
