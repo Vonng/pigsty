@@ -459,11 +459,79 @@ pg_meta:
            current_setting('server_version')                   AS version,
            current_setting('server_version_num')               AS ver_num,
            current_setting('shared_preload_libraries')         AS extensions,
-           current_setting('primary_conninfo')                 AS primary_conninfo,
+           'N/A'                                               AS primary_conninfo,
            1                                                   AS info
 
   ttl: 10
   min_version: 090600
+  max_version: 130000
+  tags:
+    - cluster
+
+  metrics:
+    - cluster_id:
+        usage: LABEL
+        description: cluster system identifier
+    - cluster_name:
+        usage: LABEL
+        description: cluster name
+    - listen_port:
+        usage: LABEL
+        description: listen port
+    - data_dir:
+        usage: LABEL
+        description: data directory path
+    - conf_path:
+        usage: LABEL
+        description: postgresql.conf path
+    - hba_path:
+        usage: LABEL
+        description: pg_hba.conf path
+    - wal_level:
+        usage: LABEL
+        description: wal level
+    - version:
+        usage: LABEL
+        description: server version in human readable format
+    - ver_num:
+        usage: LABEL
+        description: server version number in machine readable format
+    - extensions:
+        usage: LABEL
+        description: server installed preload libraries
+    - primary_conninfo:
+        usage: LABEL
+        description: connection string to upstream (do not set password here)
+    - info:
+        usage: GAUGE
+        description: constant 1
+
+
+#┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#┃ pg_meta_13
+#┃ PostgreSQL meta info
+#┣┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+#┃ pg_meta_info{cluster_id,cluster_name,listen_port,data_dir,conf_path,hba_path,wal_level,version,ver_num,extensions,primary_conninfo}  GAUGE    constant 1
+#┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+pg_meta_13:
+  name: pg_meta
+  desc: PostgreSQL meta info for pg 13, with extra primary conninfo
+  query: |
+    SELECT (SELECT system_identifier FROM pg_control_system()) AS cluster_id,
+           current_setting('cluster_name')                     AS cluster_name,
+           current_setting('port')                             AS listen_port,
+           current_setting('data_directory')                   AS data_dir,
+           current_setting('config_file')                      AS conf_path,
+           current_setting('hba_file')                         AS hba_path,
+           current_setting('wal_level')                        AS wal_level,
+           current_setting('server_version')                   AS version,
+           current_setting('server_version_num')               AS ver_num,
+           current_setting('shared_preload_libraries')         AS extensions,
+           current_setting('primary_conninfo')                 AS primary_conninfo,
+           1                                                   AS info
+
+  ttl: 10
+  min_version: 130000
   tags:
     - cluster
 
@@ -1650,7 +1718,7 @@ pg_query:
           max(stddev_time)      AS stddev_time,
           sum(rows)             AS rows,
           sum(blk_read_time) + sum(blk_write_time) AS blk_io_time
-      FROM pg_stat_statements(false) pg_stat_statements(userid, dbid, queryid, query, calls,
+      FROM monitor.pg_stat_statements(false) pg_stat_statements(userid, dbid, queryid, query, calls,
           total_time, min_time, max_time, mean_time, stddev_time, rows,
           shared_blks_hit, shared_blks_read, shared_blks_dirtied, shared_blks_written,
           local_blks_hit, local_blks_read, local_blks_dirtied, local_blks_written, temp_blks_read, temp_blks_written,
@@ -1666,6 +1734,7 @@ pg_query:
   tags:
     - cluster
     - extension:pg_stat_statements
+    - schema:monitor
 
 
   metrics:
@@ -1731,7 +1800,7 @@ pg_query_13:
             sum(rows)             AS rows,
             sum(blk_read_time) + sum(blk_write_time) AS blk_io_time,
             sum(wal_bytes)        AS wal_bytes
-     FROM pg_stat_statements(false)
+     FROM monitor.pg_stat_statements(false)
      WHERE dbid != 1 AND userid != 10 AND calls > 4 -- omit postgres db/user and one-time query
      GROUP BY dbid, queryid ORDER BY total_time DESC LIMIT 64
     ) q NATURAL JOIN (SELECT oid AS dbid, datname FROM pg_database WHERE datname NOT IN ('postgres','template0','template1')) d;
@@ -1742,6 +1811,7 @@ pg_query_13:
   tags:
     - cluster
     - extension:pg_stat_statements
+    - schema:monitor
 
 
   metrics:
@@ -2628,9 +2698,9 @@ pg_index:
 #┃ pg_func
 #┃ PostgreSQL function statistics, db level, normal version
 #┣┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-#┃ pg_func_calls{datname,nspname,funcname}       COUNTER  how many times this function has been called
-#┃ pg_func_total_time{datname,nspname,funcname}  COUNTER  how much time spent in this function and it's child function, in ms
-#┃ pg_func_self_time{datname,nspname,funcname}   COUNTER  how much time spent in this function itself (other func not included), in ms
+#┃ pg_func_calls{datname,nspname,funcname,funcid}       COUNTER  how many times this function has been called
+#┃ pg_func_total_time{datname,nspname,funcname,funcid}  COUNTER  how much time spent in this function and it's child function, in ms
+#┃ pg_func_self_time{datname,nspname,funcname,funcid}   COUNTER  how much time spent in this function itself (other func not included), in ms
 #┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 pg_func:
   desc: PostgreSQL function statistics, db level, normal version
@@ -2638,6 +2708,7 @@ pg_func:
     SELECT CURRENT_CATALOG AS datname,
            schemaname      AS nspname,
            funcname,
+           funcid,
            calls,
            total_time,
            self_time
@@ -2650,13 +2721,16 @@ pg_func:
   metrics:
     - datname:
         usage: LABEL
-        description: database name of this relation
+        description: database name of this function
     - nspname:
         usage: LABEL
-        description: schema name of this relation
+        description: schema name of this function
     - funcname:
         usage: LABEL
-        description: relation name of this relation
+        description: function name
+    - funcid:
+        usage: LABEL
+        description: function id, dedupe for funcname override
     - calls:
         usage: COUNTER
         description: how many times this function has been called
@@ -2666,6 +2740,8 @@ pg_func:
     - self_time:
         usage: COUNTER
         description: how much time spent in this function itself (other func not included), in ms
+
+
 #┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #┃ pg_defpart
 #┃ PostgreSQL default partition tuples
