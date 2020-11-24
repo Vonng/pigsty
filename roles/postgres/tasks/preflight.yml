@@ -9,12 +9,12 @@
   block:
 
     # make sure three important variable exists (pg_cluster, pg_role, pg_seq)
-    #  * pg_cluster is the unique cluster identifer such as 'pg-test', 'pg-meta'
-    #  * pg_role is part of the service identifer, such as 'primary', 'replica', 'archive'
-    #  * pg_seq is unique integer identifer (start from 0 or 1) among the cluster
+    #  * pg_cluster is the unique cluster identifier such as 'pg-test', 'pg-meta'
+    #  * pg_role is part of the service identifier, such as 'primary', 'replica', 'archive'
+    #  * pg_seq is unique integer identifier (start from 0 or 1) among the cluster
     # note these three fields are essential to identify a postgres instance
     # it CAN be generate automatically according some set of rules somewhere else
-    # but here we REQUIRE an explictly appointment
+    # but here we REQUIRE an explicitly appointment
     - name: Check necessary variables exists
       assert:
         that:
@@ -24,7 +24,7 @@
         fail_msg: variable `pg_cluster|pg_role|pg_seq` are required for this playbook
 
 
-    # fetchc cluster inventroy variable from hostvars of curresponding cluster
+    # fetch cluster inventory variable from hostvars of corresponding cluster
     - name: Fetch variables via pg_cluster
       set_fact:
         pg_meta={{ hostvars| json_query(cluster_query) }}
