@@ -8,18 +8,19 @@
 groups:
   - name: node_exporter
     rules:
-      ################################################################
+      #==============================================================#
       #                         Aliveness                            #
-      ################################################################
+      #==============================================================#
+      # TODO: change this to your node exporter port
       - record: node_exporter_up
         expr: up{instance=~".*:9099"}
       - record: node:uptime
         expr: time() - node_boot_time_seconds{}
 
 
-      ################################################################
+      #==============================================================#
       #                             CPU                              #
-      ################################################################
+      #==============================================================#
       # cpu mode time ratio
       - record: node:cpu:cpu_mode
         expr: irate(node_cpu_seconds_total{}[1m])
@@ -58,9 +59,9 @@ groups:
       - record: node:cls:cpu_usage_avg5m
         expr: avg_over_time(node:cls:cpu_usage[5m])
 
-      ################################################################
+      #==============================================================#
       #                            Memory                            #
-      ################################################################
+      #==============================================================#
       # mem usage
       - record: node:ins:mem_app
         expr: node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes - node_memory_Slab_bytes - node_memory_PageTables_bytes - node_memory_SwapCached_bytes
@@ -74,9 +75,9 @@ groups:
         expr: 1 - node_memory_SwapFree_bytes{} / node_memory_SwapTotal_bytes{}
 
 
-      ################################################################
+      #==============================================================#
       #                            Disk                              #
-      ################################################################
+      #==============================================================#
       # disk read iops
       - record: node:dev:disk_read_iops
         expr: irate(node_disk_reads_completed_total{device=~"[a-zA-Z-_]+"}[1m])
@@ -140,9 +141,9 @@ groups:
         expr: (node:dev:disk_read_time + node:dev:disk_write_time) / node:dev:iops
 
 
-      ################################################################
+      #==============================================================#
       #                            Network                           #
-      ################################################################
+      #==============================================================#
       # transmit bandwidth (out)
       - record: node:dev:network_tx
         expr: irate(node_network_transmit_bytes_total{}[1m])
@@ -168,9 +169,9 @@ groups:
         expr: node:cls:network_tx + node:cls:network_rx
 
 
-      ################################################################
+      #==============================================================#
       #                           Schedule                           #
-      ################################################################
+      #==============================================================#
       # normalized load
       - record: node:ins:stdload1
         expr: node_load1 / node:ins:cpu_count
@@ -189,9 +190,9 @@ groups:
         expr: irate(node_context_switches_total{}[1m])
 
 
-      ################################################################
+      #==============================================================#
       #                              VM                              #
-      ################################################################
+      #==============================================================#
       - record: node:ins:pagefault
         expr: irate(node_vmstat_pgfault[1m])
       - record: node:ins:pagein
@@ -204,9 +205,9 @@ groups:
         expr: irate(node_vmstat_pswpout[1m])
 
 
-      ################################################################
+      #==============================================================#
       #                              FS                              #
-      ################################################################
+      #==============================================================#
       # filesystem space usage
       - record: node:fs:free_bytes
         expr: max without(device, fstype) (node_filesystem_free_bytes{fstype!~"(n|root|tmp)fs.*"})
@@ -236,9 +237,9 @@ groups:
         expr: node_filefd_allocated / node_filefd_maximum
 
 
-      ################################################################
+      #==============================================================#
       #                             TCP                              #
-      ################################################################
+      #==============================================================#
       # tcp segments (rate1m)
       - record: node:ins:tcp_insegs
         expr: rate(node_netstat_Tcp_InSegs{}[1m])
@@ -256,9 +257,9 @@ groups:
         expr: rate(node_netstat_TcpExt_ListenOverflows[1m])
 
 
-      ################################################################
+      #==============================================================#
       #                           Netstat                            #
-      ################################################################
+      #==============================================================#
       # tcp open (rate1m)
       - record: node:ins:tcp_passive_opens
         expr: rate(node_netstat_Tcp_PassiveOpens[1m])
@@ -276,8 +277,8 @@ groups:
         expr: rate(node_netstat_TcpExt_ListenDrops[1m])
 
 
-      ################################################################
+      #==============================================================#
       #                             NTP                              #
-      ################################################################
+      #==============================================================#
       - record: node:cls:ntp_offset_range
         expr: max by (cls)(node_ntp_offset_seconds) - min by (cls)(node_ntp_offset_seconds)
