@@ -40,8 +40,3 @@ alias pglog='tail -f /pg/data/log/*.csv'
 alias plog='tail -f /pg/log/*.log'
 alias pg2md=" sed 's/+/|/g' | sed 's/^/|/' | sed 's/$/|/' |  grep -v rows | grep -v '||'"
 alias wal=walarchiver
-
-# consul alias
-alias cnode="consul catalog nodes -detailed"
-alias cnode="consul catalog nodes -detailed"
-alias csvc="consul catalog services --tags"

@@ -84,6 +84,14 @@ alias pg="/usr/pgsql/bin/pg_ctl"
 alias pt='patronictl -c /pg/bin/patroni.yml'
 alias ntpsync="sudo ntpdate pool.ntp.org"
 
+# consul alias
+alias cnode="consul catalog nodes -detailed"
+alias csvc="consul catalog services --tags"
+alias cst="systemctl status consul"
+alias cm="consul members"
+alias fd='consul catalog nodes | grep '
+alias fdd='consul catalog nodes -detailed | grep '
+
 #--------------------------------------------------------------#
 # ls corlor
 [ ls --color ] >/dev/null 2>&1 && colorflag="--color" || colorflag="-G"
