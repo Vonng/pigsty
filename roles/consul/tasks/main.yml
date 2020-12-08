@@ -95,6 +95,9 @@
     - name: Copy /etc/consul.d/consul.json
       template: src=consul.json.j2 dest=/etc/consul.d/consul.json mode=0644 owner=consul group=consul
 
+    # config consul
+    - name: Copy consul agent service
+      copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
 
 #------------------------------------------------------------------------------
 # Launch consul server first
@@ -108,9 +111,9 @@
     - name: Get dcs bootstrap expect quroum
       set_fact: consul_bootstrap_expect={{ ((dcs_servers.values() | length / 2)|round(0, 'floor') + 1)|int }}
 
-    # config consul
+    # write server specific configuration
     - name: Copy consul server service unit
-      template: src=consul-server.service.j2 dest=/usr/lib/systemd/system/consul.service
+      template: src=consul-server.json.j2 dest=/etc/consul.d/consul-server.json mode=0644 owner=consul group=consul
 
     # launch consul
     - name: Launch consul server service
@@ -128,10 +131,6 @@
   tags: consul_agent
   when: inventory_hostname not in dcs_servers.values()
   block:
-    # config consul
-    - name: Copy consul agent service
-      copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
-
     # launch consul
     - name: Launch consul agent service
       systemd: name=consul state=restarted enabled=yes daemon_reload=yes
