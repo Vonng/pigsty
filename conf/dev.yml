@@ -227,6 +227,14 @@ all: # top-level namespace, match all hosts
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
 
+      # for latest consul & kubernetes
+      - name: harbottle
+        description: Copr repo for main owned by harbottle
+        skip_if_unavailable: true
+        gpgcheck: no
+        baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
+
+
     # - what to download - #
     repo_packages:
       # repo bootstrap packages
@@ -269,7 +277,7 @@ all: # top-level namespace, match all hosts
 
 
     repo_url_packages:
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.0/pg_exporter-0.3.0-1.el7.x86_64.rpm
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.1/pg_exporter-0.3.1-1.el7.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
       - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
 
@@ -390,7 +398,7 @@ all: # top-level namespace, match all hosts
 
     # - prometheus - #
     prometheus_scrape_interval: 2s                # global scrape & evaluation interval (2s for dev, 15s for prod)
-    prometheus_scrape_timeout: 1s                 # global scrape timeout (1s for dev, 8s for prod)
+    prometheus_scrape_timeout: 1s                 # global scrape timeout (1s for dev, 1s for prod)
     prometheus_metrics_path: /metrics             # default metrics path (only affect job 'pg')
     prometheus_data_dir: /export/prometheus/data  # prometheus data dir
     prometheus_retention: 30d                     # how long to keep
@@ -576,7 +584,7 @@ all: # top-level namespace, match all hosts
     pg_exporter_port: 9630                        # default port for pg exporter
     pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
     exporter_metrics_path: /metrics               # default metric path for pg related exporter
-
+    pg_localhost: /var/run/postgresql             # localhost unix socket path
 
 
     #------------------------------------------------------------------------------
