@@ -1,12 +1,18 @@
+---
 #==============================================================#
 # File      :   node.yml
-# Mtime     :   2020-05-08
-# Desc      :   pre-process rules for node_exporter
+# Ctime     :   2020-04-22
+# Mtime     :   2020-12-03
+# Desc      :   Record and alert rules for node exporter
 # Path      :   /etc/prometheus/rules/node.yml
-# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2019-2020 Ruohang Feng
 #==============================================================#
+
 groups:
-  - name: node_exporter
+  ################################################################
+  #                          Node Rules                          #
+  ################################################################
+  - name: node-rules
     rules:
       #==============================================================#
       #                         Aliveness                            #
@@ -29,7 +35,7 @@ groups:
       - record: node:cls:cpu_mode
         expr: sum by (cls, mode) (node:ins:cpu_mode)
 
-      # cpu schedule timeslices
+      # cpu schedule time-slices
       - record: node:cpu:sched_timeslices
         expr: irate(node_schedstat_timeslices_total{}[1m])
       - record: node:ins:sched_timeslices
@@ -222,7 +228,6 @@ groups:
       - record: node:fs:total_inode
         expr: max without(device, fstype) (node_filesystem_files{fstype!~"(n|root|tmp)fs.*"})
 
-
       # space delta and prediction
       - record: node:fs:space_deriv_1h
         expr: 0 - deriv(node_filesystem_avail_bytes{}[1h])
@@ -282,3 +287,210 @@ groups:
       #==============================================================#
       - record: node:cls:ntp_offset_range
         expr: max by (cls)(node_ntp_offset_seconds) - min by (cls)(node_ntp_offset_seconds)
+
+
+  ################################################################
+  #                          Node Alert                          #
+  ################################################################
+  - name: node-alert
+    rules:
+
+      # node exporter down for 1m triggers a P1 alert
+      - alert: NODE_EXPORTER_DOWN
+        expr: up{instance=~"^.*:(9100)$"} == 0
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Exporter Down: {{ $labels.ins }} {{ $value }}"
+          description: |
+            up[instance={{ $labels.instance }}] = {{ $value }} == 0
+            https://dba.p1staff.com/d/node?var-ip={{ $labels.instance }}&from=now-5m&to=now&refresh=10s
+
+
+
+      #==============================================================#
+      #                          CPU & Load                          #
+      #==============================================================#
+      # node avg CPU usage > 90% for 1m
+      - alert: NODE_CPU_HIGH
+        expr: node:ins:cpu_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node CPU High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:cpu_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=28&fullscreen&var-ip={{ $labels.ip }}
+
+      # node load5 > 100%
+      - alert: NODE_LOAD_HIGH
+        expr: node:ins:stdload5 > 1
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node Load High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:stdload5[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 100%
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=37&fullscreen&var-ip={{ $labels.ip }}
+
+
+
+      #==============================================================#
+      #                      Disk & Filesystem                       #
+      #==============================================================#
+      # main fs readonly triggers an immediate P0 alert
+      - alert: NODE_FS_READONLY
+        expr: node_filesystem_readonly{fstype!~"(n|root|tmp)fs.*"} == 1
+        labels:
+          severity: P0
+        annotations:
+          summary: "P0 Node Filesystem Readonly: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node_filesystem_readonly{ins={{ $labels.ins }}, ip={{ $labels.ip }},fstype!~"(n|root|tmp)fs.*"} == 1
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=110&fullscreen&var-ip={{ $labels.ip }}
+
+      # main fs usage > 90% for 1m triggers P1 alert
+      - alert: NODE_FS_SPACE_FULL
+        expr: node:fs:space_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Filesystem Space Full: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:fs:space_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=110&fullscreen&var-ip={{ $labels.ip }}
+
+      # main fs inode usage > 90% for 1m triggers P1 alert
+      - alert: NODE_FS_INODE_FULL
+        expr: node:fs:inode_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Filesystem iNode Full: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:fs:inode_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=110&fullscreen&var-ip={{ $labels.ip }}
+
+      # fd usage > 90% for 1m triggers P1 alert
+      - alert: NODE_FD_FULL
+        expr: node:fs:fd_usage > 0.90
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node File Descriptor Full: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:fs:fd_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 90%
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=58&fullscreen&var-ip={{ $labels.ip }}
+
+
+      # ssd read latency > 32ms for 3m (except long-read)
+      - alert: NODE_READ_LATENCY_HIGH
+        expr: node:dev:disk_read_rt  < 10000 and node:dev:disk_read_rt  > 0.032
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node Read Latency High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:dev:disk_read_rt[ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}] = {{ $value }} > 32ms
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=29&fullscreen&var-ip={{ $labels.ip }}
+
+      # ssd write latency > 16ms for 3m
+      - alert: NODE_WRITE_LATENCY_HIGH
+        expr: node:dev:disk_write_rt  < 10000 and node:dev:disk_write_rt  > 0.016
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node Write Latency High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:dev:disk_write_rt[ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}] = {{ $value }} > 16ms
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=29&fullscreen&var-ip={{ $labels.ip }}
+
+
+
+      #==============================================================#
+      #                           Memory                             #
+      #==============================================================#
+      # shared memory usage > 80% for 1m triggers a P1 alert
+      - alert: NODE_MEM_HIGH
+        expr: node:ins:mem_usage > 0.80
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node Mem High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:mem_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 80%
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=40&fullscreen&var-ip={{ $labels.ip }}
+
+
+
+      #==============================================================#
+      #                      Network & TCP                           #
+      #==============================================================#
+      # node tcp listen overflow > 2 for 3m
+      - alert: NODE_TCP_LISTEN_OVERFLOW
+        expr: node:ins:tcp_overflow_rate > 2
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node TCP Listen Overflow: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:tcp_overflow_rate[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 2
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=55&fullscreen&var-ip={{ $labels.ip }}
+
+      # node tcp retrans > 32 per sec for 3m
+      - alert: NODE_TCP_RETRANS_HIGH
+        expr: node:ins:tcp_retranssegs > 32
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node TCP Retrans High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node:ins:tcp_retranssegs[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 32
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=52&fullscreen&var-ip={{ $labels.ip }}
+
+      # node tcp conn > 32768 for 1m
+      - alert: NODE_TCP_CONN_HIGH
+        expr: node_netstat_Tcp_CurrEstab > 32768
+        for: 3m
+        labels:
+          severity: P2
+        annotations:
+          summary: "P2 Node TCP Connection High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node_netstat_Tcp_CurrEstab[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 32768
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=54&fullscreen&var-ip={{ $labels.ip }}
+
+
+
+      #==============================================================#
+      #                          Misc                                #
+      #==============================================================#
+      # node ntp offset > 1s for 1m
+      - alert: NODE_NTP_OFFSET_HIGH
+        expr: abs(node_ntp_offset_seconds) > 1
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Node NTP Offset High: {{ $labels.ins }} {{ $labels.ip }}"
+          description: |
+            node_ntp_offset_seconds[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value }} > 32768
+            https://dba-g.p1staff.com/d/node?&from=now-10m&to=now&viewPanel=70&fullscreen&var-ip={{ $labels.ip }}
+
+
+
+
+
+
+...

@@ -23,7 +23,7 @@ bin/reload
 * [`prometheus.yml`](prometheus.yml) Major prometheus configuration
 * [`alertmanager.yml`](alertmanager.yml) Major alertmanager configuration
 * [`rules`](rules/) Prometheus rules
-  * [`alert.yml`](rules/alert.yaml) alert rules
-  * [`node.yaml`](rules/node.yml) Node metrics rules（based on Node Exporter v1.0）
-  * [`postgres.yml`](rules/postgres.yml) Postgres & Pgbouncer metrics rules（based on PG Exporter v0.2.0）
+  * [`pgsql.yml`](rules/alert.yaml) postgres record and alert rules 
+  * [`node.yaml`](rules/node.yml) node record and alert rules
+
 

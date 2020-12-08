@@ -1,26 +1,30 @@
+---
 #==============================================================#
-# File      :   postgres.yml
-# Mtime     :   2020-04-22
-# Desc      :   prometheus record rules definition for pg_exporter
-# Path      :   /etc/prometheus/rules/pg_exporter.yml
-# Author    :   Vonng(fengruohang@outlook.com)
-# Note      :   pre-process rules and alias for pg_exporter metrics
+# File      :   pgsql.yml
+# Ctime     :   2020-04-22
+# Mtime     :   2020-12-03
+# Desc      :   Record and alert rules for postgres
+# Path      :   /etc/prometheus/rules/pgsql.yml
+# Copyright (C) 2019-2020 Ruohang Feng
 #==============================================================#
-
 
 groups:
 
-  - name: pg_exporter
+  ################################################################
+  #                         PgSQL Rules                          #
+  ################################################################
+  - name: pgsql-rules
     rules:
 
       #==============================================================#
       #                        Aliveness                             #
       #==============================================================#
+      # TODO: change these to your pg_exporter & pgbouncer_exporter port
       - record: pg_exporter_up
-        expr: up{instance=~".*:9185|.*:9630"}
+        expr: up{instance=~".*:9185"}
 
       - record: pgbouncer_exporter_up
-        expr: up{instance=~".*:9127|.*:9631"}
+        expr: up{instance=~".*:9127"}
 
 
       #==============================================================#
@@ -554,10 +558,10 @@ groups:
       #                     PG Saturation                            #
       #==============================================================#
       # max value of pg_load and cpu_usage
-      
+
       # instance level saturation
       - record: pg:ins:saturation0
-        expr: pg:ins:load0 > node:ins:cpu_usage or node:ins:cpu_usage 
+        expr: pg:ins:load0 > node:ins:cpu_usage or node:ins:cpu_usage
       - record: pg:ins:saturation1
         expr: pg:ins:load1 > node:ins:cpu_usage or node:ins:cpu_usage
       - record: pg:ins:saturation5
@@ -1009,3 +1013,192 @@ groups:
       - record: pg:all:maxwait
         expr: max(pg:cls:maxwait)
 
+
+
+
+  ################################################################
+  #                         PgSQL Alert                          #
+  ################################################################
+  - name: pgsql-alert
+    rules:
+
+      #==============================================================#
+      #                     Error / Aliveness                        #
+      #==============================================================#
+      # cluster size change triggers a P0 alert (warn: auto heal in 5min)
+      - alert: PGSQL_CLUSTER_SHRINK
+        expr: delta(pg:cls:size{}[5m]) < 0
+        for: 15s
+        labels:
+          severity: P1
+        annotations:
+          summary: 'delta(pg:cls:size{cls={{ $labels.cls }}}[15s]) = {{ $value | printf "%.0f" }} < 0'
+          description: |
+            https://dba-g.p1staff.com/d/pg-cluster&from=now-10m&to=now&var-cls={{ $labels.cls }}
+
+
+      # postgres down for 15s triggers a P0 alert
+      - alert: PGSQL_DOWN
+        expr: PGSQL_up{} == 0
+        labels:
+          severity: P0
+        annotations:
+          summary: "[P0] PGSQL_DOWN: {{ $labels.ins }} {{ $value }}"
+          description: |
+            PGSQL_up[ins={{ $labels.ins }}] = {{ $value }} == 0
+            https://dba-g.p1staff.com/d/pg-instance&from=now-10m&to=now&var-ins={{ $labels.ins }}
+
+      # pgbouncer down for 15s triggers a P0 alert
+      - alert: PGBOUNCER_DOWN
+        expr: pgbouncer_up{} == 0
+        labels:
+          severity: P0
+        annotations:
+          summary: "P0 Pgbouncer Down: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pgbouncer_up[ins={{ $labels.ins }}] = {{ $value }} == 0
+            https://dba-g.p1staff.com/d/pg-pgbouncer&from=now-10m&to=now&var-ins={{ $labels.ins }}
+
+      # pg/pgbouncer exporter down for 1m triggers a P1 alert
+      - alert: PGSQL_EXPORTER_DOWN
+        expr: up{instance=~"^.*:(9630|9631)$"} == 0
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG/PGB Exporter Down: {{ $labels.ins }} {{ $labels.instance }} {{ $value }}"
+          description: |
+            up[instance={{ $labels.instance }}] = {{ $value }} == 0
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=262&fullscreen&var-ins={{ $labels.ins }}
+
+
+
+      #==============================================================#
+      #                         Latency                              #
+      #==============================================================#
+      # replication break for 1m triggers a P1 alert (warn: heal in 5m)
+      - alert: PGSQL_REPLICATION_BREAK
+        expr: delta(PGSQL_downstream_count{state="streaming"}[5m]) < 0
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Replication Break: {{ $labels.ins }} {{ $value }}"
+          description: |
+            PGSQL_downstream_count_delta[ins={{ $labels.ins }}] = {{ $value }} < 0
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=180&fullscreen&var-ins={{ $labels.ins }}
+
+      # replication lag greater than 8 second for 3m triggers a P1 alert
+      - alert: PGSQL_REPLICATION_LAG
+        expr: PGSQL_replication_replay_lag{application_name!='PGSQL_receivewal'} > 8
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Replication Lagged: {{ $labels.ins }} {{ $value }}"
+          description: |
+            PGSQL_replication_replay_lag[ins={{ $labels.ins }}] = {{ $value }} > 8s
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=384&fullscreen&var-ins={{ $labels.ins }}
+
+      # pg avg response time > 16ms
+      - alert: PGSQL_QUERY_RT_HIGH
+        expr: pg:ins:query_rt > 0.016
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Query Response Time High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:query_rt[ins={{ $labels.ins }}] = {{ $value }} > 16ms
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=137&fullscreen&var-ins={{ $labels.ins }}
+
+
+      #==============================================================#
+      #                        Saturation                            #
+      #==============================================================#
+      # pg load1 high than 70% for 3m triggers a P1 alert
+      - alert: PGSQL_LOAD_HIGH
+        expr: pg:ins:load1{} > 0.70
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Load High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:load1[ins={{ $labels.ins }}] = {{ $value }} > 70%
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=210&fullscreen&var-ins={{ $labels.ins }}
+
+      # pg active backend more than 2 times of available cpu cores for 3m triggers a P1 alert
+      - alert: PGSQL_BACKEND_HIGH
+        expr: pg:ins:active_backends / on(ins) node:ins:cpu_count > 2
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Backend High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:active_backends/node:ins:cpu_count[ins={{ $labels.ins }}] = {{ $value }} > 2
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=150&fullscreen&var-ins={{ $labels.ins }}
+
+      # max idle xact duration exceed 3m
+      - alert: PGSQL_IDLE_XACT_BACKEND_HIGH
+        expr: pg:ins:ixact_backends > 1
+        for: 3m
+        labels:
+          team: DBA
+          urgency: P2
+        annotations:
+          summary: "P1 PG Idle In Transaction Backend High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:ixact_backends[ins={{ $labels.ins }}] = {{ $value }} > 1
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=161&fullscreen&var-ins={{ $labels.ins }}
+
+
+      # 2 waiting clients for 3m triggers a P1 alert
+      - alert: PGSQL_CLIENT_QUEUING
+        expr: pg:ins:waiting_clients > 2
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Client Queuing: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:waiting_clients[ins={{ $labels.ins }}] = {{ $value }} > 2
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=159&fullscreen&var-ins={{ $labels.ins }}
+
+      # age wrap around (near half) triggers a P1 alert
+      - alert: PGSQL_AGE_HIGH
+        expr: pg:ins:age > 1000000000
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 PG Age High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:age[ins={{ $labels.ins }}] = {{ $value }} > 1000000000
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=172&fullscreen&var-ins={{ $labels.ins }}
+
+
+
+      #==============================================================#
+      #                         Traffic                              #
+      #==============================================================#
+      # more than 30k TPS lasts for 3m triggers a P1 (pgbouncer bottleneck)
+      - alert: PGSQL_TPS_HIGH
+        expr: pg:ins:xacts > 30000
+        for: 3m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Postgres TPS High: {{ $labels.ins }} {{ $value }}"
+          description: |
+            pg:ins:xacts[ins={{ $labels.ins }}] = {{ $value }} > 30000
+            https://dba-g.p1staff.com/d/pg-instance?from=now-10m&to=now&viewPanel=125&fullscreen&var-ins={{ $labels.ins }}
+
+
+
+
+
+
+
+...
