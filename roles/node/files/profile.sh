@@ -74,6 +74,7 @@ alias cl="clear"
 alias clc="clear"
 alias rf="rm -rf"
 alias ax="chmod a+x"
+alias sd="sudo su - dba"
 alias sa="sudo su - root"
 alias sp="sudo su - postgres"
 alias adm="sudo su - admin"
@@ -89,8 +90,25 @@ alias cnode="consul catalog nodes -detailed"
 alias csvc="consul catalog services --tags"
 alias cst="systemctl status consul"
 alias cm="consul members"
-alias fd='consul catalog nodes | grep '
-alias fdd='consul catalog nodes -detailed | grep '
+# find node
+function fd() {
+  local filter=${1-'pg'}
+  consul catalog nodes | awk '{printf("%-20s\t%-20s\n",$1,$3)}' | grep ${filter} | sort
+}
+# go to instance
+function gg() {
+  local filter=${1-'pg'}
+  local ip=$(consul catalog nodes | grep ${filter} | head -n1 | awk '{print $3}')
+  ssh ${ip}
+}
+# goto cluster master
+function gm() {
+  local cluster=${1-'pg-meta'}
+  local filter="(ServiceMeta.cluster ==  \"${cluster}\" and ServiceMeta.role == \"primary\")"
+  local ip=$(curl -ssLG localhost:8500/v1/catalog/service/postgres --data-urlencode "filter=${filter}" \
+      | jq  | grep lan_ipv4 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" )
+  [[ -z "$ip" ]] && echo "not found" || ssh ${ip}
+}
 
 #--------------------------------------------------------------#
 # ls corlor
