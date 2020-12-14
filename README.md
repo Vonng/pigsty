@@ -45,7 +45,7 @@ Check [Quick Start](doc/quick-start.md) for more inforamtion
 
 ### Monitoring System
 
-Pigsty provides a battery-included [Monitoring System](doc/monitoring-system.md). Which is specially designed for managing large-scale PostgreSQL clusters, and consist of thousands of metrics and dozens of dashboards.
+Pigsty provides a battery-included [Monitoring System](doc/monitoring-system.md). Which is specially designed for managing large-scale PostgreSQL clusters, and consist of thousands of metrics and 30+ dashboards.
 
 ![](doc/img/pg-overview.jpg)
 
@@ -148,11 +148,23 @@ Pigsty comes with a local Yum repo that includes all required packages and its d
 Business support for pigsty is available. [Contact](mailto:fengruohang@outlook.com) for more detail.
 
 * Complete version of monitoring system.
+
+  > Community version  includes 10 core dashboards. Which is already very powerful.
+  >
+  > Unlock 30+ dashboards with enterprise version 😊)
+
+* Security enhancement (DCS with ACL, SSL, CA, etc....)
+
 * Production  deployment & operation & administration scheme
+
 * Meta database and data dictionary
+
 * Log collecting system and daily log summary
+
 * Backup / Recovery plan
+
 * Deployment assistance and trouble shooting.
+
 * Intergration with existing system.
 
 Read more about [Business Support](doc/support.md)
