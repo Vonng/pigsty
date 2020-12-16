@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-default-privilege
+# Mtime     :   2020-12-16
+# Desc      :   setup default privilege for target role and database
+# Path      :   /pg/bin/pg_default_privilege
+# Copyright (C) 2018-2020 Ruohang Feng
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pg_default_privilege
+# Desc: object create in target database by target user will have
+#       default privileges properly set
+# Arg1: database name, template1 by default
+# Arg2: user name, postgres by default
+#--------------------------------------------------------------#
+function pg-default-privilege(){
+	local database=${1-'template1'}
+	local username=${2-'postgres'}
+	echo "ALTER DEFAULT PRIVILEGES FOR ROLE ${username} ON ${database};"
+	psql -AXtw ${database} <<-EOF
+		-- readonly access
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE ON SCHEMAS TO dbrole_readonly;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT SELECT ON TABLES TO dbrole_readonly;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT SELECT ON SEQUENCES TO dbrole_readonly;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT EXECUTE ON FUNCTIONS TO dbrole_readonly;
+		-- write access
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT INSERT, UPDATE, DELETE ON TABLES TO dbrole_readwrite;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE, UPDATE ON SEQUENCES TO dbrole_readwrite;
+		-- admin access
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO dbrole_admin;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT CREATE ON SCHEMAS TO dbrole_admin;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE ON TYPES TO dbrole_admin;
+	EOF
+}
+
+pg-default-privilege "$@"

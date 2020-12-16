@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-grant-role
+# Mtime     :   2020-12-16
+# Desc      :   grant role to postgres user
+# Path      :   /pg/bin/pg-grant-role
+# Author    :   Vonng(fengruohang@outlook.com)
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pg-grant-role
+# Arg1: user name
+# ArgN: role name list
+#--------------------------------------------------------------#
+function pg-grant-role(){
+	local user=${1}
+
+	# join role list into comma separated quoted string
+	shift
+	if (( $# == 0 )); then
+		echo "at least one role is needed"
+		return 1
+	fi
+	local roles=""
+	for role in "$@"
+	do
+		roles+="\"${role}\","
+	done
+	roles=$(echo ${roles} | sed 's/.$//')
+
+	# build and execute grant sql cmd
+	local sqlcmd="GRANT ${roles} to \"${user}\";"
+	echo ${sqlcmd}
+	psql -AXtwq postgres -c "${sqlcmd}"
+}
+
+pg-grant-role "$@"

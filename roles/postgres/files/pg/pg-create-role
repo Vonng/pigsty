@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-create-role
+# Mtime     :   2020-12-16
+# Desc      :   create postgres role
+# Path      :   /pg/bin/pg-create-role
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2020 Ruohang Feng
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pg-create-role
+# Arg1: role name
+# Arg2: role desc
+# Arg3: role option
+# Note: if role already exists, it still change options (compare to createuser)
+#--------------------------------------------------------------#
+function pg-create-role(){
+	local username=${1}
+	local options=${2-'INHERIT NOLOGIN'}
+	local comments=${3-"pgsql role ${username}"}
+
+	# normalize option: force overwrite inherit and login option
+	options=$(echo " ${options}" | sed 's/ INHERIT/ /Ig'  | sed 's/ LOGIN/ /Ig' | sed 's/ NOINHERIT/ /Ig'  | sed 's/ NOLOGIN/ /Ig')
+	options="${options} INHERIT NOLOGIN"
+
+	# echo command
+	echo "CREATE ROLE ${username} ${options} PASSWORD NULL; -- ${comments}"
+
+	# execute command
+	psql -AXtwq postgres <<-EOF
+		CREATE ROLE "${username}";
+		ALTER ROLE "${username}" PASSWORD NULL ${options};
+		COMMENT ON ROLE "${username}" IS '${comments}';
+	EOF
+}
+
+pg-create-role "$@"

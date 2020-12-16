@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-extension
+# Mtime     :   2020-12-16
+# Desc      :   install extension on target databases
+# Path      :   /pg/bin/pg_default_privilege
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2020 Ruohang Feng
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pg-extension
+# Desc: create extension in target database and target schema
+# Arg1: database name, template1 by default
+# Arg2: schema name, public by default
+# Arg3: extension name, list of extension name
+#--------------------------------------------------------------#
+function pg-extension(){
+	local database=${1-'template1'}
+	local schema=${2-'public'}
+	shift
+	shift
+	if (( $# == 0 )); then
+	  echo "at least one extension is needed"
+	  return 1
+	fi
+
+	echo "CREATE EXTENSION $@ WITH ${schema} ON DATABASE ${database};"
+	for extension_name in "$@"
+	do
+		psql -AXtw "${database}" <<-EOF
+			CREATE EXTENSION IF NOT EXISTS "${extension_name}" WITH SCHEMA "${schema}";
+		EOF
+	done
+}
+
+pg-extension "$@"

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-create-user
+# Mtime     :   2020-12-16
+# Desc      :   create postgres user
+# Path      :   /pg/bin/pg-create-user
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2020 Ruohang Feng
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pg-create-user
+# Arg1: user name
+# Arg2: user desc
+# Arg3: user option
+# Note: if user already exists, it still change options (compare to createuser)
+#--------------------------------------------------------------#
+function pg-create-user(){
+	local username=${1}
+	local password=${2}
+	local options=${3-'NOINHERIT LOGIN'}
+	local comments=${4-"pgsql user ${username}"}
+
+	# normalize option: force overwrite inherit and login option
+	options=$(echo " ${options}" | sed 's/ INHERIT/ /Ig'  | sed 's/ LOGIN/ /Ig' | sed 's/ NOINHERIT/ /Ig'  | sed 's/ NOLOGIN/ /Ig')
+	options="${options} NOINHERIT LOGIN"
+
+    # set password to null if empty password is given
+    local password_string="'${password}'"
+    if [[ -z "${password}" ]] || [[ "${password}" == "NULL" ]]; then
+        password_string='NULL'
+    fi
+
+	# echo command
+	echo "CREATE USER ${username} ${options} PASSWORD ${password_string}; -- ${comments}"
+
+	# execute command
+	psql -AXtwq postgres <<-EOF
+		CREATE USER "${username}";
+		ALTER USER "${username}" PASSWORD ${password_string} ${options};
+		COMMENT ON USER "${username}" IS '${comments}';
+	EOF
+}
+
+pg-create-user "$@"

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-pass-add
+# Mtime     :   2020-12-16
+# Desc      :   grant role to postgres user
+# Path      :   /pg/bin/pg-pass-add
+# Copyright (C) 2018-2020 Ruohang Feng
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: pg-pass-add
+# Arg1: username
+# Arg2: password
+# Arg3: pgpass file, optional
+#--------------------------------------------------------------#
+function pg-pass-add() {
+	local username=${1}
+	local password=${2-'*'}
+	local pgpass_path=${3-"${HOME}/.pgpass"}
+	local pgpass_temp="${pgpass_path}.tmp"
+
+    # add new entry to pgpass
+	touch ${pgpass_path} "${pgpass_temp}"
+	sed "/:${username}:/d" "${pgpass_path}" | sed '/^[[:space:]]*$/d' | sort | uniq > ${pgpass_temp}
+	echo '*:*:*:'"${username}:${password}" >> ${pgpass_temp}
+	chmod 0600 "${pgpass_path}" "${pgpass_temp}"
+	mv -f "${pgpass_temp}" "${pgpass_path}"
+}
+
+pg-pass-add "$@"
