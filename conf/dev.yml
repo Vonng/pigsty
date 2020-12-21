@@ -42,25 +42,28 @@ all: # top-level namespace, match all hosts
 
       # - cluster configs - #
       vars:
-        # basic settings
         pg_cluster: pg-meta                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
         node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: oltp.yml                   # tune pgsql into oltp/olap/crit/tiny mode
-
-        # misc
         patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_hostname: false                  # overwrite node hostname with pg instance name
         pg_nodename: true                   # overwrite consul nodename with pg instance name
 
-        # bootstrap template
-        pg_init: initdb.sh                  # bootstrap postgres cluster with initdb.sh
-        pg_default_username: meta           # default business username
-        pg_default_password: meta           # default business password
-        pg_default_database: meta           # default database name
+        pg_users:
+          - username: meta
+            password: meta
+            comment: default business user meta
+            groups: [dbrole_readwrite]
+        pg_databases:                       # create a business database 'meta'
+          - name: meta
+            schemas: [meta]                 # create extra schema named 'meta'
+            extensions: [{name: postgis}]   # create extra extension postgis
+            parameters:                     # overwrite database meta's default search_path
+              search_path: public, monitor
 
-        # vip settings
+        # proxy settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
         vip_address: 10.10.10.2             # virtual ip address
         vip_cidrmask: 8                     # cidr network mask length
@@ -87,18 +90,22 @@ all: # top-level namespace, match all hosts
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
 
-        # bootstrap template
-        pg_init: initdb.sh                  # bootstrap postgres cluster with initdb.sh
-        pg_default_username: test           # default business username
-        pg_default_password: test           # default business password
-        pg_default_database: test           # default database name
+        pg_users:
+          - username: test
+            password: test
+            comment: default test user
+            groups: [ dbrole_readwrite ]
+        pg_databases:                       # create a business database 'test'
+          - name: test
+            extensions: [{name: postgis}]   # create extra extension postgis
+            parameters:                     # overwrite database meta's default search_path
+              search_path: public,monitor
 
-        # vip settings
+        # proxy settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
         vip_address: 10.10.10.3             # virtual ip address
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
-
 
       # - cluster members - #
       hosts:
@@ -486,7 +493,7 @@ all: # top-level namespace, match all hosts
 
 
     #------------------------------------------------------------------------------
-    # POSTGRES CLUSTER PROVISION
+    # POSTGRES PROVISION
     #------------------------------------------------------------------------------
     # - identity - #
     # pg_cluster:                                 # [REQUIRED] cluster name (validated during pg_preflight)
@@ -521,10 +528,97 @@ all: # top-level namespace, match all hosts
     pg_namespace: /pg                             # top level key namespace in dcs
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
+    pg_conf: tiny.yml                             # user provided patroni config template path
+
+    # - pgbouncer - #
+    pgbouncer_port: 6432                          # default pgbouncer port
+    pgbouncer_poolmode: transaction               # default pooling mode: transaction pooling
+    pgbouncer_max_db_conn: 100                    # important! do not set this larger than postgres max conn or conn limit
 
     # - template - #
-    pg_conf: tiny.yml                             # user provided patroni config template path
-    pg_init: initdb.sh                            # user provided post-init script path, default: initdb.sh
+    pg_init: pg-init                              # init script for cluster template
+
+    # - system roles - #
+    pg_replication_username: replicator           # system replication user
+    pg_replication_password: DBUser.Replicator    # system replication password
+    pg_monitor_username: dbuser_monitor           # system monitor user
+    pg_monitor_password: DBUser.Monitor           # system monitor password
+    pg_admin_username: dbuser_admin               # system admin user
+    pg_admin_password: DBUser.Admin               # system admin password
+
+    # - default roles - #
+    pg_default_roles:
+      - username: dbrole_readonly                 # sample user:
+        options: NOLOGIN                          # role can not login
+        comment: role for readonly access         # comment string
+
+      - username: dbrole_readwrite                # sample user: one object for each user
+        options: NOLOGIN
+        comment: role for read-write access
+        groups: [ dbrole_readonly ]               # read-write includes read-only access
+
+      - username: dbrole_admin                    # sample user: one object for each user
+        options: NOLOGIN BYPASSRLS                # admin can bypass row level security
+        comment: role for object creation
+        groups: [ dbrole_readwrite,pg_read_all_settings,pg_read_all_stats,pg_stat_scan_tables,pg_monitor,pg_signal_backend ]
+
+      # NOTE: replicator, monitor, admin password are overwrite by separated config entry
+      - username: postgres                        # reset dbsu password to NULL (if dbsu is not postgres)
+        options: SUPERUSER LOGIN NOINHERIT
+        comment: system superuser
+
+      - username: replicator                       # reset dbsu password to NULL (if dbsu is not postgres)
+        options: REPLICATION LOGIN NOINHERIT
+        groups: [ dbrole_readonly, pg_read_all_settings, pg_read_all_stats ]
+        comment: system replicator
+
+      - username: dbuser_monitor
+        options: LOGIN NOINHERIT CONNECTION LIMIT 10
+        comment: system monitor user
+        groups: [ dbrole_readonly,pg_read_all_settings,pg_read_all_stats,pg_stat_scan_tables,pg_monitor ]
+        parameters: { search_path: 'monitor,public' }
+
+      - username: dbuser_admin
+        options: LOGIN NOINHERIT BYPASSRLS
+        comment: system admin user
+        groups: [ dbrole_admin ]
+
+      - username: dbuser_stats
+        password: DBUser.Stats
+        options: LOGIN NOINHERIT
+        comment: business read-only user for statistics
+        groups: [ dbrole_readonly ]
+
+    pg_default_schemas: [ monitor ]
+
+    pg_default_extensions:
+      - { name: 'pg_stat_statements',  schema: 'monitor' }
+      - { name: 'pgstattuple',         schema: 'monitor' }
+      - { name: 'pg_qualstats',        schema: 'monitor' }
+      - { name: 'pg_buffercache',      schema: 'monitor' }
+      - { name: 'pageinspect',         schema: 'monitor' }
+      - { name: 'pg_prewarm',          schema: 'monitor' }
+      - { name: 'pg_visibility',       schema: 'monitor' }
+      - { name: 'pg_freespacemap',     schema: 'monitor' }
+      - { name: 'pg_repack',           schema: 'monitor' }
+      - name: postgres_fdw
+      - name: file_fdw
+      - name: btree_gist
+      - name: btree_gin
+      - name: pg_trgm
+      - name: intagg
+      - name: intarray
+
+    pg_default_privilegs:
+      - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
+      - GRANT SELECT                        ON TABLES    TO dbrole_readonly
+      - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
+      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
+      - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
+      - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
+      - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
+      - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
+      - GRANT USAGE                         ON TYPES     TO dbrole_admin
 
     # - authentication - #
     pg_hba_common:
@@ -555,25 +649,6 @@ all: # top-level namespace, match all hosts
       - host   all          all                     172.16.0.0/12   md5
       - host   all          all                     192.168.0.0/16  md5
 
-    # - credential - #
-    pg_dbsu_password: ''                          # dbsu password (leaving blank will disable sa password login)
-    pg_replication_username: replicator           # replication user
-    pg_replication_password: replicator           # replication password
-    pg_monitor_username: dbuser_monitor           # monitor user
-    pg_monitor_password: dbuser_monitor           # monitor password
-
-    # - default - #
-    # pg_default_username: postgres               # non 'postgres' will create a default admin user (not superuser)
-    # pg_default_password: postgres               # dbsu password, omit for 'postgres'
-    # pg_default_database: postgres               # non 'postgres' will create a default database
-    pg_default_schema: public                     # default schema will be create under default database and used as first element of search_path
-    pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm"
-
-    # - pgbouncer - #
-    pgbouncer_port: 6432                          # default pgbouncer port
-    pgbouncer_poolmode: transaction               # default pooling mode: transaction pooling
-    pgbouncer_max_db_conn: 100                    # important! do not set this larger than postgres max conn or conn limit
-
 
     #------------------------------------------------------------------------------
     # MONITOR PROVISION
@@ -590,12 +665,6 @@ all: # top-level namespace, match all hosts
     #------------------------------------------------------------------------------
     # PROXY PROVISION
     #------------------------------------------------------------------------------
-    # - vip - #
-    vip_enabled: true                             # level2 vip requires primary/standby under same switch
-    # vip_address: 127.0.0.1                      # virtual ip address ip/cidr
-    # vip_cidrmask: 32                            # virtual ip address cidr mask
-    # vip_interface: eth0                         # virtual ip network interface
-
     # - haproxy - #
     haproxy_enabled: true                         # enable haproxy among every cluster members
     haproxy_policy: leastconn                     # roundrobin, leastconn
@@ -605,10 +674,14 @@ all: # top-level namespace, match all hosts
     haproxy_server_timeout: 3h                    # server side connection timeout
     haproxy_exporter_port: 9101                   # default admin/exporter port
     haproxy_check_port: 8008                      # default health check port (patroni 8008 by default)
-    haproxy_primary_port: 5433                   # default primary port 5433
-    haproxy_replica_port: 5434                   # default replica port 5434
-    haproxy_backend_port: 6432                   # default target port: pgbouncer:6432 postgres:5432
+    haproxy_primary_port: 5433                    # default primary port 5433
+    haproxy_replica_port: 5434                    # default replica port 5434
+    haproxy_backend_port: 6432                    # default target port: pgbouncer:6432 postgres:5432
 
-
+    # - vip - #
+    # vip_enabled: true                             # level2 vip requires primary/standby under same switch
+    # vip_address: 127.0.0.1                      # virtual ip address ip/cidr
+    # vip_cidrmask: 32                            # virtual ip address cidr mask
+    # vip_interface: eth0                         # virtual ip network interface
 
 ...

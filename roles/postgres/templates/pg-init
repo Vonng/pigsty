@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-init
+# Ctime     :   2020-12-16
+# Mtime     :   2020-12-21
+# Desc      :   init postgres cluster (after creation)
+# Path      :   /pg/bin/pg-init
+# Depend    :   psql, /pg/tmp/pg-init-*.sql
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==================================================================#
+#                          System Template                         #
+#==================================================================#
+# system default template
+psql template1 -qAXwtf /pg/tmp/pg-init-template.sql
+
+# make postgres same as templated database (optional)
+psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
+
+#==================================================================#
+#                          Customize Logic                         #
+#==================================================================#
+# add your template logic here

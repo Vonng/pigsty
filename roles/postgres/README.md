@@ -2,6 +2,28 @@
 
 This role will provision a postgres cluster
 
+It is a complex role consist of several stages:
+
+1. Precheck
+    * Local inventory integrity check
+2. Prepare 
+    * Check exists, clean, create structure, copy scripts
+3. Install
+    * Install postgres, create users, admin ssh setup
+4. Postgres
+    * Launch and bootstrap postgres cluster
+    * patroni, pg-init, pg_hba, pgpass, check
+5. Pgbouncer
+    * Launch and bootstrap pgbouncer     
+6. Business
+    * Setup business users and databases
+7. Register
+    * Register service to database
+
+
+
+
+
 ### Tasks
 
 [tasks/main.yml](tasks/main.yml)

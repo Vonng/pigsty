@@ -73,7 +73,7 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 
 -- alter databaes parameters
 {% if 'parameters' in database %}{% for key, value in database.parameters.items() %}
-ALTER DATABASE "{{ database.name }}" SET {{ key }} = '{{ value }}';
+ALTER DATABASE "{{ database.name }}" SET {{ key }} = {{ value }};
 {% endfor %}{% endif %}
 
 

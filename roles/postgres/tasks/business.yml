@@ -1,0 +1,51 @@
+---
+#------------------------------------------------------------------------------
+# Postgres Biz Users & Databases
+#------------------------------------------------------------------------------
+- name: Execute business init scripts
+  tags: pg_biz_init
+  when: pg_role == 'primary'
+  block:
+    - name: Render business init script
+      tags: pg_biz_config
+      template: src="pg-init-business.sql" dest=/pg/tmp/pg-init-business.sql owner={{ pg_dbsu }} group=postgres mode=0755
+
+    - name: Render database baseline sql
+      tags: pg_biz_config
+      copy: src={{ item.baseline }} dest=/pg/tmp/pg-init-database-{{ item.name }}.sql owner={{ pg_dbsu }} group=postgres mode=0755
+      with_items: "{{ pg_databases }}"
+      when: item.baseline is defined
+
+    - name: Execute business init script
+      become_user: "{{ pg_dbsu }}"
+      command: psql postgres -AXtwqf /pg/tmp/pg-init-business.sql
+
+    - name: Execute database baseline sql
+      become_user: "{{ pg_dbsu }}"
+      command: psql {{ item.name }} -AXtwqf /pg/tmp/pg-init-database-{{ item.name }}.sql
+      with_items: "{{ pg_databases }}"
+      when: item.baseline is defined
+
+
+#------------------------------------------------------------------------------
+# Pgbouncer Biz Users & Databases
+#------------------------------------------------------------------------------
+- name: Init pgbouncer business users and dbs
+  tags: pg_biz_pgbouncer
+  block:
+    # pgbouncer users are added to /etc/pgbouncer/userlist.txt
+    - name: Add pgbouncer busniess users
+      shell: /pg/bin/pgbouncer-create-user "{{ item.username }}" "{{ item.password }}"
+      with_items: "{{ pg_users }}"
+      when: item.pgbouncer is not defined or (item.pgbouncer is defined and item.pgbouncer|bool)
+
+    # pgbouncer databases are added to /etc/pgbouncer/database.txt
+    - name: Add pgbouncer busniess database
+      shell: /pg/bin/pgbouncer-create-db "{{ item.name }}"
+      with_items: "{{ pg_databases }}"
+
+    - name: Reload pgbouncer config
+      become_user: "{{ pg_dbsu }}"
+      shell: /usr/bin/pgbouncer -d -R /etc/pgbouncer/pgbouncer.ini
+
+...

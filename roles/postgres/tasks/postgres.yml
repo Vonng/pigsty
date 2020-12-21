@@ -164,7 +164,7 @@
 
 
 #------------------------------------------------------------------------------
-# post init on primary
+# init postgres cluster
 #------------------------------------------------------------------------------
 - name: Init primary instance
   tags: pg_init
@@ -174,17 +174,17 @@
     #------------------------------------------------------------------------------
     # render initdb scripts
     #------------------------------------------------------------------------------
-    - name: Render default initdb scripts
-      template:
-        src: "{{ pg_init }}"
-        dest: /pg/bin/initdb.sh
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        mode: 0755
+    - name: Render default pg-init scripts
+      tags: pg_init_config
+      template: src="{{ pg_init }}" dest=/pg/bin/pg-init owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Execute bootstrap scripts
+    - name: Render template init script
+      tags: pg_init_config
+      template: src="pg-init-template.sql" dest=/pg/tmp/pg-init-template.sql owner={{ pg_dbsu }} group=postgres mode=0755
+
+    - name: Execute initialization scripts
       become_user: "{{ pg_dbsu }}"
-      command: /pg/bin/initdb.sh
+      command: /pg/bin/pg-init
 
     - name: Check primary instance ready
       become_user: "{{ pg_dbsu }}"
@@ -197,28 +197,18 @@
 #------------------------------------------------------------------------------
 - name: Write default userpass to .pgpass
   tags: pg_pass
+  become_user: "{{ pg_dbsu }}"
   block:
-    # add replication and monitor user to pgpass
-    - name: Add replication and monitor user to pgpass
-      lineinfile:
-        create: on
-        dest: "{{ pg_dbsu_home }}/.pgpass"
-        line: "{{ item }}"
-        owner: "{{ pg_dbsu }}"
-        mode: 0600
+    - name: Add dbsu password to pgpass if exists
+      when: pg_dbsu_password is defined and pg_dbsu_password != ''
+      shell: /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
+
+    - name: Add system user to pgpass
+      shell: /pg/bin/pg-pass-add "{{ item.username }}" "{{ item.password }}"
       with_items:
-        - "*:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}"
-        - "*:*:*:{{ pg_monitor_username }}:{{ pg_monitor_password }}"
-
-    # add default user/pass to pgpass
-    - name: Add default database user to pgpass
-      when: pg_default_username != 'postgres'
-      lineinfile:
-        create: on
-        dest: "{{ pg_dbsu_home }}/.pgpass"
-        line: "*:*:*:{{ pg_default_username }}:{{ pg_default_password }}"
-        owner: "{{ pg_dbsu }}"
-
+        - { username: "{{ pg_replication_username }}", password: "{{ pg_replication_password }}" }
+        - { username: "{{ pg_monitor_username }}" ,password: "{{ pg_monitor_password }}" }
+        - { username: "{{ pg_admin_username }}", password: "{{ pg_admin_password }}" }
 
 
 #------------------------------------------------------------------------------
@@ -237,11 +227,7 @@
       command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
     - name: Launch patroni on replica instances
-      systemd:
-        name: patroni
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
+      systemd: name=patroni state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for patroni replica online
       wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=30
@@ -272,35 +258,19 @@
   block:
     - name: Stop patroni on replica instance
       when: pg_role != 'primary'
-      systemd:
-        name: patroni
-        state: stopped
-        enabled: no
-        daemon_reload: yes
+      systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
     - name: Stop patroni on primary instance
       when: pg_role == 'primary'
-      systemd:
-        name: patroni
-        state: stopped
-        enabled: no
-        daemon_reload: yes
+      systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
     - name: Launch raw postgres on primary
       when: pg_role == 'primary'
-      systemd:
-        name: postgres
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
+      systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 
     - name: Launch raw postgres on primary
       when: pg_role != 'primary'
-      systemd:
-        name: postgres
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
+      systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for postgres online
       wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=60

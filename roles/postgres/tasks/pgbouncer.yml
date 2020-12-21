@@ -10,8 +10,8 @@
 #------------------------------------------------------------------------------
 # Cleanup existing pgbouncer
 #------------------------------------------------------------------------------
-- name: Cleanup pgbouncer
-  tags: pgbouncer_cleanup
+- name: Clean existing pgbouncer
+  tags: pgbouncer_clean
   block:
     - name: Stop existing pgbouncer service
       ignore_errors: true
@@ -44,21 +44,18 @@
     - name: Copy /etc/pgbouncer/pgb_hba.conf
       template: src=pgb_hba.conf.j2 dest=/etc/pgbouncer/pgb_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
 
-    - name: Add system users to pgbouncer
-      become_user: "{{ pg_dbsu }}"
-      shell: |
-        /pg/bin/pgb-user-add {{ pg_dbsu }}
-        /pg/bin/pgb-user-add "{{ pg_monitor_username }}" "{{ pg_monitor_password }}"
+    - name: Touch userlist and database list
+      file: path=/etc/pgbouncer/{{ item }} state=touch owner={{ pg_dbsu }} group=postgres mode=0600
+      with_items:
+        - database.txt
+        - userlist.txt
 
     - name: Add default users to pgbouncer
       become_user: "{{ pg_dbsu }}"
       shell: |
-        /pg/bin/pgb-user-add "{{ pg_default_username }}" "{{ pg_default_password }}"
-
-    - name: Add default database to pgbouncer
-      when: pg_default_database != 'postgres'
-      become_user: "{{ pg_dbsu }}"
-      shell: /pg/bin/pgb-db-add {{ pg_default_database }}
+        /pg/bin/pgbouncer-create-user "{{ pg_dbsu }}"
+        /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" "{{ pg_monitor_password }}"
+        /pg/bin/pgbouncer-create-user "{{ pg_admin_username }}" "{{ pg_admin_password }}"
 
 
 #------------------------------------------------------------------------------
@@ -80,13 +77,5 @@
     - name: Check pgbouncer service is ready
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pgbouncer_port }}
-
-    - name: Check pgbouncer connectivity
-      when: pg_default_username != 'postgres'
-      become_user: "{{ pg_dbsu }}"
-      environment:
-        PGPASSWORD: "{{ pg_default_password }}"
-      command: psql -w -p{{ pgbouncer_port }} -U {{ pg_default_username }} -d {{ pg_default_database }} -Atc 'SELECT 1;'
-
 
 ...
