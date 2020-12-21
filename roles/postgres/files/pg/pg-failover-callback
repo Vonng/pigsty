@@ -1,17 +1,46 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -uo pipefail
+
 #==============================================================#
 # File      :   pg-failover-callback
-# Mtime     :   2020-04-07
+# Ctime     :   2018-12-06
+# Mtime     :   2020-12-17
 # Desc      :   Patroni event callback scripts
 # Path      :   /pg/bin/pg-failover-callback
+# Depend    :   pg-register pg-role
 # Author    :   Vonng(fengruohang@outlook.com)
-# Note      :   Run this as dbsu (postgres)
 # Copyright (C) 2018-2020 Ruohang Feng
 #==============================================================#
 
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+			pg-failover-callback   -- Patroni event callback scripts
+
+		SYNOPSIS
+			pg-failover-callback <event> <role> <cluster>
+
+		DESCRIPTION
+			This is patroni pg event callback scripts, it will be invoked
+			by patroni when certain event happens:
+			Available events: on_stop|on_start|on_role_change
+			Available roles:  master|replica
+			<cluster> will be passed as target cluster name
+
+		EXAMPLES
+			pg-failover-callback  on_role_change    master  pg-test
+			pg-failover-callback  on_start          replica pg-meta
+
+
+	EOF
+	exit 1
+}
 
 #==============================================================#
 function usage() {

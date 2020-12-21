@@ -3,38 +3,115 @@ set -uo pipefail
 
 #==============================================================#
 # File      :   pg-default-privilege
-# Mtime     :   2020-12-16
+# Ctime     :   2020-12-16
+# Mtime     :   2020-12-17
 # Desc      :   setup default privilege for target role and database
-# Path      :   /pg/bin/pg_default_privilege
+# Path      :   /pg/bin/pg-default-privilege
+# Depend    :   psql
+# Author    :   Vonng(fengruohang@outlook.com)
 # Copyright (C) 2018-2020 Ruohang Feng
 #==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==============================================================#
+#                           Parameters                         #
+#==============================================================#
+# system default role names
+DBROLE_ADMIN='dbrole_admin'
+DBROLE_READONLY='dbrole_readonly'
+DBROLE_READWRITE='dbrole_readwrite'
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+			pg-default-privilege   -- setup default privilege for database and user
+
+		SYNOPSIS
+			pg-default-privilege <username> [database=template1]
+
+		DESCRIPTION
+			object create in target database by target user will have default privileges
+			properly set: (dbrole_readonly=read dbrole_readwrite=write dbrole_admin=create)
+
+			template1 is the default target database, postgres is the default admin user
+			which means user postgres will have right default privileges in all NEWLY
+			created database.
+
+
+			                      Default access privileges
+			    Owner     | Schema |   Type   |         Access privileges
+			--------------+--------+----------+-----------------------------------
+			 username     |        | function | =X/postgres                      +
+			              |        |          | postgres=X/postgres              +
+			              |        |          | dbrole_readonly=X/postgres
+			 username     |        | schema   | postgres=UC/postgres             +
+			              |        |          | dbrole_readonly=U/postgres       +
+			              |        |          | dbrole_admin=C/postgres
+			 username     |        | sequence | postgres=rwU/postgres            +
+			              |        |          | dbrole_readonly=r/postgres       +
+			              |        |          | dbrole_readwrite=wU/postgres
+			 username     |        | table    | postgres=arwdDxt/postgres        +
+			              |        |          | dbrole_readonly=r/postgres       +
+			              |        |          | dbrole_readwrite=awd/postgres    +
+			              |        |          | dbrole_admin=Dxt/postgres
+			 username     |        | type     | =U/postgres                      +
+			              |        |          | postgres=U/postgres              +
+			              |        |          | dbrole_admin=U/postgres
+
+
+		EXAMPLES
+			pg-default-privilege  postgres      template1
+			pg-default-privilege  dbuser_admin  template1
+
+			pg-default-privilege  postgres      postgres
+			pg-default-privilege  dbuser_admin  postgres
+
+
+	EOF
+	exit 1
+}
 
 
 #--------------------------------------------------------------#
 # Name: pg_default_privilege
 # Desc: object create in target database by target user will have
 #       default privileges properly set
-# Arg1: database name, template1 by default
-# Arg2: user name, postgres by default
+# Arg1: user name, postgres by default
+# Arg2: database name, template1 by default
 #--------------------------------------------------------------#
 function pg-default-privilege(){
-	local database=${1-'template1'}
-	local username=${2-'postgres'}
+	local username=${1}
+	local database=${2-'template1'}
 	echo "ALTER DEFAULT PRIVILEGES FOR ROLE ${username} ON ${database};"
-	psql -AXtw ${database} <<-EOF
+	psql -qAXtw ${database} <<-EOF
 		-- readonly access
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE ON SCHEMAS TO dbrole_readonly;
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT SELECT ON TABLES TO dbrole_readonly;
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT SELECT ON SEQUENCES TO dbrole_readonly;
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT EXECUTE ON FUNCTIONS TO dbrole_readonly;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE ON SCHEMAS TO "${DBROLE_READONLY}";
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT SELECT ON TABLES TO "${DBROLE_READONLY}";
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT SELECT ON SEQUENCES TO "${DBROLE_READONLY}";
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT EXECUTE ON FUNCTIONS TO "${DBROLE_READONLY}";
 		-- write access
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT INSERT, UPDATE, DELETE ON TABLES TO dbrole_readwrite;
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE, UPDATE ON SEQUENCES TO dbrole_readwrite;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT INSERT, UPDATE, DELETE ON TABLES TO "${DBROLE_READWRITE}";
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE, UPDATE ON SEQUENCES TO "${DBROLE_READWRITE}";
 		-- admin access
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO dbrole_admin;
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT CREATE ON SCHEMAS TO dbrole_admin;
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE ON TYPES TO dbrole_admin;
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES TO "${DBROLE_ADMIN}";
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT CREATE ON SCHEMAS TO "${DBROLE_ADMIN}";
+		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} GRANT USAGE ON TYPES TO "${DBROLE_READWRITE}";
 	EOF
 }
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+if (( $# < 1 )); then
+	usage
+fi
+case "$1" in
+	-h | --help) usage ;;
+esac
 
 pg-default-privilege "$@"

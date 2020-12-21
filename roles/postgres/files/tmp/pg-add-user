@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-add-user
+# Ctime     :   2020-12-16
+# Mtime     :   2020-12-17
+# Desc      :   create postgres user
+# Path      :   /pg/bin/pg-add-user
+# Depend    :   psql
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2020 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+		    pg-add-user   -- create postgres user
+
+		SYNOPSIS
+		    pg-add-user <username> [password] [option] [comments]
+
+		DESCRIPTION
+		    pg-add-user will assure given user exists with given options and password
+
+		EXAMPLES
+		    pg-add-user dbuser_admin Admin.Password 'BYPASSRLS' 'role for admin'
+
+	EOF
+	exit 1
+}
+
+#--------------------------------------------------------------#
+# Name: pg-add-user
+# Arg1: username	: username
+# Arg2: password	: 'NULL' to unset, 'KEEP' to retain, 'AUTO' to generate
+# Arg3: options		: NOINHERIT LOGIN, etc...
+# Arg4: comment
+# Note: if user already exists, it still change options (compare to createuser)
+#--------------------------------------------------------------#
+function pg-add-user(){
+	local username=${1}
+	local password=${2-''}
+	local options=${3-'NOINHERIT LOGIN'}
+	local comments=${4-"pgsql user ${username}"}
+	local expire_days=${5-''}
+
+
+	# normalize option: force overwrite inherit and login option
+	options=$(echo " ${options}" | sed 's/ INHERIT/ /Ig'  | sed 's/ LOGIN/ /Ig' | sed 's/ NOINHERIT/ /Ig'  | sed 's/ NOLOGIN/ /Ig')
+	options="${options} NOINHERIT LOGIN"
+
+	# set password to null if empty password is given
+	local password_string="'${password}'"
+	if [[ -z "${password}" ]] || [[ "${password}" == "NULL" ]]; then
+		password_string='NULL'
+	fi
+
+	local role_exists=$(psql -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '${username}' LIMIT 1)")
+	if [[ -z "${role_exists}" ]]; then
+		echo "CREATE USER ${username} ${options} PASSWORD ${password_string}; -- ${comments}"
+		psql -AXtwq postgres <<-EOF
+			CREATE USER "${username}";
+			ALTER ROLE "${username}" PASSWORD NULL ${options};
+			COMMENT ON ROLE "${username}" IS '${comments}';
+		EOF
+	else
+		echo "ALTER USER ${username} ${options} PASSWORD ${password_string}; -- ${comments}"
+		psql -AXtwq postgres <<-EOF
+			ALTER USER "${username}" PASSWORD NULL ${options};
+			COMMENT ON ROLE "${username}" IS '${comments}';
+		EOF
+	fi
+}
+
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+#if (( $# < 1 )); then
+#	usage
+#fi
+#case "$1" in
+#	-h | --help) usage ;;
+#esac
+#
+#pg-add-user "$@"
+
+
+function main(){
+	local username=''
+	local password='AUTO'
+	local options='NOINHERIT LOGIN'
+	local connlimit=''
+	local comment=''
+	local groups=''
+
+	#==================================
+	# parse arguments
+	#==================================
+	while (($# > 0)); do
+		case "$1" in
+		-u|--user=*|--username=*)
+			[ "$1" == "-u" ]   && shift
+			username=${1##*=}; shift ;;
+		-p|--pass=*|--password=*)
+			[ "$1" == "-p" ]   && shift
+			password=${1##*=}; shift ;;
+		-o|--opts=*|--options=*)
+			[ "$1" == "-o" ]  && shift
+			options=${1##*=}; shift ;;
+		-c|--comment=*)
+			[ "$1" == "-c" ]  && shift
+			comment=${1##*=}; shift ;;
+		-l|--limit=*|--connlimit=*)
+			[ "$1" == "-l" ]  && shift
+			connlimit=${1##*=}; shift ;;
+		-g|--groups=*)
+			[ "$1" == "-g" ]  && shift
+			groups=${1##*=};  shift ;;
+		*)
+			usage
+			exit 1                 ;;
+		esac
+	done
+	if [[ -z "$username" ]]; then
+		echo "missing username"
+		return 1
+	fi
+
+	#==================================
+	# check, create, comment
+	#==================================
+
+	if ! psql -AXtwq postgres -c "SELECT 1;" &>/dev/null; then
+		echo "connect failed"
+		return 2
+	fi
+	local role_exists=$(psql -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '${username}' LIMIT 1)")
+
+	#==================================
+	# create and comment
+	#==================================
+	# create (and comment) user if not exists
+	echo t1
+	if [[ -z "${role_exists}" ]]; then
+		# add default comment for newly created user
+		if [[ -z "${comment}" ]]; then
+			comment="pgsql user ${username}"
+		fi
+		psql -AXtwq postgres --echo-all <<-EOF
+			CREATE USER "${username}";
+			COMMENT ON ROLE "${username}" IS '${comment}';
+		EOF
+	elif [[ ! -z "${comment}" ]]; then
+		# only comment with explict parameter
+		psql -AXtwq postgres --echo-all <<-EOF
+			COMMENT ON ROLE "${username}" IS '${comment}';
+		EOF
+	fi
+
+	#==================================
+	# alter
+	#==================================
+	echo username $username
+	echo option $options
+	local alter_string='ALTER ROLE'
+	alter_string+=' "'
+	alter_string+=${username}
+	alter_string+='" '
+	# normalize option: force overwrite inherit and login option
+	options=$(echo " ${options}" | sed 's/ INHERIT/ /Ig'  | sed 's/ LOGIN/ /Ig' | sed 's/ NOINHERIT/ /Ig'  | sed 's/ NOLOGIN/ /Ig')
+	options="${options} NOINHERIT LOGIN"
+	alter_string+="${options}"
+
+	# build password string
+	local password_string=""
+	case "$password" in
+	NULL|'')
+		password_string="PASSWORD '${password}'"  ;;
+	AUTO)
+		password=$(date | md5sum | base64 | head -c 16)
+		password_string="PASSWORD '${password}'"  ;;
+	KEEP)
+		password_string=""  ;;
+	*)
+		password_string="PASSWORD '${password}'"  ;;
+	esac
+	alter_string+=" ${password_string}"
+	echo "${alter_string}"
+	# psql -AXtwq postgres --echo-all -c ${alter_string}
+
+	#==================================
+	# grant
+	#==================================
+	if [[ ! -z "${groups}" ]]; then
+		psql -AXtwq postgres --echo-all <<-EOF
+			GRANT ${groups} TO "${username}";
+		EOF
+	fi
+}
+
+
+main $@

@@ -1,161 +1,122 @@
-#!/bin/bash
-set -euo pipefail
+#!/usr/bin/env bash
+set -uo pipefail
+
 #==============================================================#
 # File      :   pg-init
-# Mtime     :   2020-09-07
-# Desc      :   add database and user to postgres and pgbouncer
-# Path      :   /pg/bin/createdb
-# Note      :   Run this as dbsu (postgres)
-# Copyright (C) 2019-2020 Ruohang Feng
+# Ctime     :   2020-12-16
+# Mtime     :   2020-12-17
+# Desc      :   init postgres cluster (after creation)
+# Path      :   /pg/bin/pg-init
+# Depend    :   psql, /pg/bin/pg-misc-utils
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2020 Ruohang Feng
 #==============================================================#
+
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
+#==============================================================#
+#                           Parameters                         #
+#==============================================================#
+PG_DBSU='postgres'
+PG_REPLICATION_USERNAME='replicator'
+PG_REPLICATION_PASSWORD='DBUser.Replicator'
+PG_MONITOR_USERNAME='dbuser_monitor'
+PG_MONITOR_PASSWORD='DBUser.Monitor'
+PG_ADMIN_USERNAME='dbuser_admin'
+PG_ADMIN_PASSWORD='DBUser.Admin'
+PG_MONITOR_SCHEMA='monitor'
+PG_MONITOR_EXTENSIONS='pg_stat_statements pgstattuple pg_qualstats pg_buffercache pageinspect pg_prewarm pg_visibility pg_freespacemap pg_repack'
+PG_DEFAULT_SCHEMA='public'
+PG_DEFAULT_EXTENSIONS='tablefunc postgres_fdw file_fdw btree_gist btree_gin pg_trgm'
 
-#---------------------------------------------------------------------------
-function log() {
-    printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INITDB] $*\n"
-}
-#---------------------------------------------------------------------------
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+			pg-init   -- init postgres on a newly created cluster
 
+		SYNOPSIS
+			pg-init
 
-#----------------------------------------------------------------------------
-# Main
-#----------------------------------------------------------------------------
-PG_DEFAULT_DATABASE=${1-'postgres'}
-PG_DEFAULT_USERNAME=${2-'postgres'}
-PG_DEFAULT_PASSWORD=${3-'postgres'}
-PG_DEFAULT_SCHEMA=${4-'public'}
-PG_DEFAULT_EXTENSIONS=${5-'tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm'}
+		DESCRIPTION
+			pg-init will create default roles and users, setup default
+			privileges and install extensions and monitor views. It will
+			properly set default template database and postgres database.
+			It requires a connectible postgres as target
 
-if [[ ${PG_DEFAULT_USERNAME} == 'postgres' ]]; then
-	log "pg-createdb: skip db creation for postgres"
-	exit 0	
-fi
-if [[ ${PG_DEFAULT_DATABASE} == 'postgres' ]]; then
-	log "pg-createdb: skip db creation for postgres"
-	exit 0
-fi
+		EXAMPLES
+			pg-init
 
-
-#----------------------------------------------------------------------------
-# default user (business account)
-#----------------------------------------------------------------------------
-log "pg-createdb: create default business user: ${PG_DEFAULT_USERNAME}"
-psql -AXtwq postgres <<- EOF
-	-- system user: dbuser_monitor
-	CREATE USER "${PG_DEFAULT_USERNAME}";
-	COMMENT ON ROLE "${PG_DEFAULT_USERNAME}" IS 'default business user';
-	ALTER USER "${PG_DEFAULT_USERNAME}" LOGIN NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOREPLICATION BYPASSRLS;
-	ALTER USER "${PG_DEFAULT_USERNAME}" PASSWORD '${PG_DEFAULT_PASSWORD}';
-	GRANT dbrole_readwrite TO "${PG_DEFAULT_USERNAME}";
-EOF
-
-# default pgpass
-function add_pgpass(){
-	local username=$1
-	local password=$2
-	if grep -q "${username}": ~/.pgpass; then
-		sed -i "/${username}/d" ~/.pgpass
-	fi
-	echo '*:*:*'"${username}:${password}" >> ~/.pgpass
-	chmod 0600 ~/.pgpass
-}
-log "createdb: create pgpass file"
-echo "" >> ~/.pgpass
-add_pgpass ${PG_DEFAULT_USERNAME} ${PG_DEFAULT_PASSWORD}
-
-
-
-#----------------------------------------------------------------------------
-# default database
-#----------------------------------------------------------------------------
-
-log "pg-createdb: create default database: ${PG_DEFAULT_DATABASE}"
-psql -AXtwq postgres <<- EOF
-	CREATE DATABASE "${PG_DEFAULT_DATABASE}";
-EOF
-
-if [ ${PG_DEFAULT_SCHEMA} != 'public' ]; then
-	log "pg-createdb: create default schema on ${PG_DEFAULT_DATABASE} : ${PG_DEFAULT_SCHEMA}"
-	psql -AXtwq ${PG_DEFAULT_DATABASE} <<- EOF
-		CREATE SCHEMA IF NOT EXISTS ${PG_DEFAULT_SCHEMA};
 	EOF
-fi
-
-if [ ${PG_DEFAULT_EXTENSIONS} != '' ]; then
-	log "pg-createdb: create default extensions on ${PG_DEFAULT_DATABASE} : ${PG_DEFAULT_EXTENSIONS}"
-	for ext in ${PG_DEFAULT_EXTENSIONS//,/ }
-	do
-		log "pg-createdb: create extension ${ext};"
-		psql -AXtwq ${PG_DEFAULT_DATABASE} <<- EOF
-			CREATE EXTENSION IF NOT EXISTS ${ext} WITH SCHEMA public;
-		EOF
-	done
-fi
-
-
-
-#--------------------------------------------------------------#
-# Name: pgbouncer_database_add
-# Desc: Add or modify pgbouncer userlist
-# Arg1: database name
-# Arg2: connection string (optional)
-# Note: Run this as dbsu (postgres)
-#--------------------------------------------------------------#
-function pgbouncer_database_add(){
-	local database=$1
-	local connstr=${2-'host=/var/run/postgresql'}
-	local dblist=${3-'/etc/pgbouncer/database.txt'}
-
-	mkdir -p /etc/pgbouncer/
-	touch ${dblist}
-	if grep -q ${database} ${dblist}; then
-		sed -i "/${database}/d" ${dblist}
-	fi
-	echo "${database} = ${connstr}" >> ${dblist}
+	exit 1
 }
 
-log "pg-createdb: create pgbouncer database ${PG_DEFAULT_DATABASE};"
-pgbouncer_database_add ${PG_DEFAULT_DATABASE}
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+function pg-init(){
 
-#--------------------------------------------------------------#
-# Name: pgbouncer_userlist_add
-# Desc: Add or modify pgbouncer userlist
-# Arg1: username
-# Arg2: password (optional)
-# Note: Run this as dbsu (postgres)
-#--------------------------------------------------------------#
-function pgbouncer_userlist_add(){
-	local username=$1
-	local password=${2-''}
-	local userlist=${3-'/etc/pgbouncer/userlist.txt'}
+	# --------------------- #
+	# -   default roles   - #
+	# --------------------- #
+	# pg-create-role <username> [option] [comments]
+	/pg/bin/pg-create-role dbrole_readonly  NOLOGIN 'role for readonly access'
+	/pg/bin/pg-create-role dbrole_readwrite NOLOGIN 'role for readwrite access'
+	/pg/bin/pg-create-role dbrole_admin     NOLOGIN 'role for object creation'
 
-	local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
-	local userlist_entry="\"${username}\" \"${md5_mon_pass}\""
-	# get md5 password from database if 'auto' is set
-	if [[ $password == 'auto' ]]; then
-		userlist_entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE usename = '${username}'" 2>/dev/null)
-	fi
+	# pg-create-user <username> [password] [option] [comments]
+	/pg/bin/pg-create-user "${PG_DBSU}"                  NULL                           'SUPERUSER'                     'system superuser'
+	/pg/bin/pg-create-user "${PG_REPLICATION_USERNAME}" "${PG_REPLICATION_PASSWORD}"    'REPLICATION'                   'system replicator'
+	/pg/bin/pg-create-user "${PG_MONITOR_USERNAME}"     "${PG_MONITOR_PASSWORD}"        'CONNECTION LIMIT 10'           'system monitor user'
+	/pg/bin/pg-create-user "${PG_ADMIN_USERNAME}"       "${PG_ADMIN_PASSWORD}"          'CREATEDB CREATEROLE BYPASSRLS' 'system admin user'
 
-	mkdir -p /etc/pgbouncer/
-	touch ${userlist}
-	if grep -q ${username} ${userlist}; then
-		sed -i "/${username}/d" ${userlist}
-	fi
-	if [[ -z "${password}" ]]; then
-		echo "\"${username}\" \"\"" >> ${userlist}
-	else
-		echo ${userlist_entry} >> ${userlist}
-	fi
+	# --------------------- #
+	# -   default grant   - #
+	# --------------------- #
+	# pg-grant-role <username> [role...]
+	/pg/bin/pg-grant-role dbrole_readwrite              dbrole_readonly
+	/pg/bin/pg-grant-role dbrole_admin                  dbrole_readwrite
+
+	/pg/bin/pg-grant-role "${PG_ADMIN_USERNAME}"        dbrole_admin
+	/pg/bin/pg-grant-role "${PG_REPLICATION_USERNAME}"  dbrole_readonly
+	/pg/bin/pg-grant-role "${PG_MONITOR_USERNAME}"      dbrole_readonly pg_monitor
+
+	# --------------------- #
+	# - default privilege - #
+	# --------------------- #
+	# pg-default-privilege <username> [database=template1]
+	/pg/bin/pg-default-privilege postgres               template1
+	/pg/bin/pg-default-privilege "${PG_ADMIN_USERNAME}" template1
+
+	/pg/bin/pg-default-privilege postgres               postgres
+	/pg/bin/pg-default-privilege "${PG_ADMIN_USERNAME}" postgres
+
+	# --------------------- #
+	# -  default schema   - #
+	# --------------------- #
+	pg-create-schema template1 "${PG_MONITOR_SCHEMA}"
+	pg-create-schema template1 "${PG_DEFAULT_SCHEMA}"
+	pg-create-schema postgres  "${PG_MONITOR_SCHEMA}"
+	pg-create-schema postgres  "${PG_DEFAULT_SCHEMA}"
+
+	# --------------------- #
+	# - default extension - #
+	# --------------------- #
+	# pg-extension <database> <schema> <extensions>
+	/pg/bin/pg-create-extension template1 "${PG_MONITOR_SCHEMA}" ${PG_MONITOR_EXTENSIONS}
+	/pg/bin/pg-create-extension template1 "${PG_DEFAULT_SCHEMA}" ${PG_DEFAULT_EXTENSIONS}
+	/pg/bin/pg-create-extension postgres  "${PG_MONITOR_SCHEMA}" ${PG_MONITOR_EXTENSIONS}
+	/pg/bin/pg-create-extension postgres  "${PG_DEFAULT_SCHEMA}" ${PG_DEFAULT_EXTENSIONS}
+
+	# --------------------- #
+	# -   monitor view    - #
+	# --------------------- #
+	# TODO: use pg-deploy scripts
+	psql template1 -qAXtf /pg/conf/monitor.sql
+	psql postgres  -qAXtf /pg/conf/monitor.sql
 }
 
-log "pg-createdb: create pgbouncer user ${PG_DEFAULT_DATABASE};"
-pgbouncer_userlist_add ${PG_DEFAULT_USERNAME} "${PG_DEFAULT_PASSWORD}"
-
-
-
-#----------------------------------------------------------------------------
-# customize commands
-#----------------------------------------------------------------------------
-log "pg-createdb: completed!"
+pg-init

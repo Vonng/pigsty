@@ -2,22 +2,19 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   pg-dump
-# Mtime     :   2018-12-06
-# Desc      :   dump
+# File      :   pg-backup
+# Ctime     :   2018-12-06
+# Mtime     :   2020-12-17
+# Desc      :   PostgreSQL logical dump backup script
 # Path      :   /pg/bin/pg-dump
+# Depend    :   pg_dumpall
 # Author    :   Vonng(fengruohang@outlook.com)
-# Depend    :   lz4, psql
 # Copyright (C) 2018-2020 Ruohang Feng
 #==============================================================#
 
-# module info
-__MODULE_PG_DUMP="pg-dump"
-
+PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
-PROG_NAME="$(basename $0)"
 
-# psql & pg_basebackup PATH
 export PATH=/usr/pgsql/bin:${PATH}
 
 #==============================================================#
@@ -115,9 +112,9 @@ function get_cluster_name() {
 	local pg_url=$1
 	local cluster_name=$(psql ${pg_url} -AXtwqc "SHOW cluster_name")
 	if [[ -z "${cluster_name}" ]]; then
-	  echo $(local_ip)
+		echo $(local_ip)
 	else
-	  echo ${cluster_name}
+		echo ${cluster_name}
 	fi
 }
 
@@ -179,8 +176,8 @@ function remove_backup() {
 	local remove_condition=${2-'1200'}
 	remove_condition="-mmin +${remove_condition}"
 
-  log_info "[BKUP] find obsolete backups: find "${backup_dir}/" -maxdepth 1 -type f ${remove_condition} -name 'schema*.lz4'"
-  local obsolete_backups="$(find "${backup_dir}/" -maxdepth 1 -type f ${remove_condition} -name 'schema*.lz4')"
+	log_info "[BKUP] find obsolete backups: find "${backup_dir}/" -maxdepth 1 -type f ${remove_condition} -name 'schema*.lz4'"
+	local obsolete_backups="$(find "${backup_dir}/" -maxdepth 1 -type f ${remove_condition} -name 'schema*.lz4')"
 	log_warn "[BKUP] remove obsolete backups: ${obsolete_backups}"
 	find "${backup_dir}/" -maxdepth 1 -type f -name 'backup_*.lz4' ${remove_condition} -delete
 	return $?

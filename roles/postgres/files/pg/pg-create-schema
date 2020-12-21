@@ -2,12 +2,12 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   pg-pass-add
+# File      :   pg-create-schema
 # Ctime     :   2020-12-16
 # Mtime     :   2020-12-17
-# Desc      :   add pgpass entry
-# Path      :   /pg/bin/pg-pass-add
-# Depend    :   sed
+# Desc      :   create schema in target database
+# Path      :   /pg/bin/pg-create-schema
+# Depend    :   psql
 # Author    :   Vonng(fengruohang@outlook.com)
 # Copyright (C) 2018-2020 Ruohang Feng
 #==============================================================#
@@ -15,56 +15,64 @@ set -uo pipefail
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
+
 #==============================================================#
 #                             Usage                            #
 #==============================================================#
 function usage() {
 	cat <<-'EOF'
 		NAME
-			pg-pass-add   -- add pgpass entry
+			pg-create-schema   -- create schema in target database and target schema
 
 		SYNOPSIS
-			pg-pass-add <username> <password> [pgpass_path=~/.pgpass]
+			pg-create-schema <database> <schema>...
 
 		DESCRIPTION
-			pg-pass-add will add username:password pair to .pgpass file
+			pg-create-schema will create schema(s) in target databases
 
 		EXAMPLES
-			pg-pass-add  dbuser_test  Test.User.Password
+			pg-create-schema template1 public,monitor,
+			pg-create-schema postgres public,monitor
 
 
 	EOF
 	exit 1
 }
 
-#--------------------------------------------------------------#
-# Name: pg-pass-add
-# Arg1: username
-# Arg2: password
-# Arg3: pgpass file, optional
-#--------------------------------------------------------------#
-function pg-pass-add() {
-	local username=${1}
-	local password=${2-'*'}
-	local pgpass_path=${3-"${HOME}/.pgpass"}
-	local pgpass_temp="${pgpass_path}.tmp"
 
-	# add new entry to pgpass
-	touch ${pgpass_path} "${pgpass_temp}"
-	sed "/:${username}:/d" "${pgpass_path}" | sed '/^[[:space:]]*$/d' | sort | uniq > ${pgpass_temp}
-	echo '*:*:*:'"${username}:${password}" >> ${pgpass_temp}
-	chmod 0600 "${pgpass_path}" "${pgpass_temp}"
-	mv -f "${pgpass_temp}" "${pgpass_path}"
+
+#--------------------------------------------------------------#
+# Name: pg-create-schema
+# Desc: create schema in target database and target schema
+# Arg1: database name, template1 by default
+# ArgN: schema name, public by default
+#--------------------------------------------------------------#
+function pg-create-schema(){
+	local database=${1-'template1'}
+	shift
+	if (( $# == 0 )); then
+		echo "at least one schema is needed"
+		return 1
+	fi
+
+	echo "CREATE SCHEMA $@;"
+	for schema_name in "$@"
+	do
+		psql -qAXtw "${database}" <<-EOF
+			CREATE SCHEMA IF NOT EXISTS "${schema_name}";
+		EOF
+	done
 }
+
 
 #==============================================================#
 #                             Main                             #
 #==============================================================#
-if (( $# < 1 )); then
+if (( $# <= 1 )); then
 	usage
 fi
 case "$1" in
 	-h | --help) usage ;;
 esac
 
-pg-pass-add "$@"
+pg-create-schema "$@"

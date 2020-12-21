@@ -3,12 +3,37 @@ set -uo pipefail
 
 #==============================================================#
 # File      :   pg-create-role
-# Mtime     :   2020-12-16
+# Mtime     :   2020-12-17
 # Desc      :   create postgres role
 # Path      :   /pg/bin/pg-create-role
+# Depend    :   psql
 # Author    :   Vonng(fengruohang@outlook.com)
 # Copyright (C) 2018-2020 Ruohang Feng
 #==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+			pg-create-role   -- create postgres role
+
+		SYNOPSIS
+			pg-create-role <username> [option] [comments]
+
+		DESCRIPTION
+			pg-create-role will assure given role exists with given options properly set
+
+		EXAMPLES
+			pg-create-user dbuser_admin Admin.Password 'BYPASSRLS' 'role for admin'
+
+	EOF
+	exit 1
+}
 
 
 #--------------------------------------------------------------#
@@ -27,15 +52,31 @@ function pg-create-role(){
 	options=$(echo " ${options}" | sed 's/ INHERIT/ /Ig'  | sed 's/ LOGIN/ /Ig' | sed 's/ NOINHERIT/ /Ig'  | sed 's/ NOLOGIN/ /Ig')
 	options="${options} INHERIT NOLOGIN"
 
-	# echo command
-	echo "CREATE ROLE ${username} ${options} PASSWORD NULL; -- ${comments}"
-
-	# execute command
-	psql -AXtwq postgres <<-EOF
-		CREATE ROLE "${username}";
-		ALTER ROLE "${username}" PASSWORD NULL ${options};
-		COMMENT ON ROLE "${username}" IS '${comments}';
-	EOF
+	local role_exists=$(psql -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '${username}' LIMIT 1)")
+	if [[ -z "${role_exists}" ]]; then
+		echo "CREATE ROLE ${username} ${options} PASSWORD NULL; -- ${comments}"
+		psql -AXtwq postgres <<-EOF
+			CREATE ROLE "${username}";
+			ALTER ROLE "${username}" PASSWORD NULL ${options};
+			COMMENT ON ROLE "${username}" IS '${comments}';
+		EOF
+	else
+		echo "ALTER ROLE ${username} ${options} PASSWORD NULL; -- ${comments}"
+		psql -AXtwq postgres <<-EOF
+			ALTER ROLE "${username}" PASSWORD NULL ${options};
+			COMMENT ON ROLE "${username}" IS '${comments}';
+		EOF
+	fi
 }
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+if (( $# < 1 )); then
+	usage
+fi
+case "$1" in
+	-h | --help) usage ;;
+esac
 
 pg-create-role "$@"
