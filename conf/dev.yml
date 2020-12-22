@@ -29,11 +29,8 @@ all: # top-level namespace, match all hosts
         meta_node: true                     # mark node as meta controller
         ansible_group_priority: 99          # meta group is top priority
 
-      # nodes in meta group (1-3)
-      hosts:
-        10.10.10.10: # meta node IP ADDRESS
-          ansible_host: meta                # comment this if not access via ssh alias
-
+      # nodes in meta group
+      hosts: {10.10.10.10: {ansible_host: meta}}
 
     #-----------------------------
     # cluster: pg-meta
@@ -42,10 +39,7 @@ all: # top-level namespace, match all hosts
 
       # - cluster members - #
       hosts:
-        10.10.10.10:
-          ansible_host: meta              # comment this if not access via ssh alias
-          pg_role: primary                # initial role: primary & replica
-          pg_seq: 1                       # instance sequence among cluster
+        10.10.10.10: {pg_seq: 1, pg_role: primary, ansible_host: meta}
 
       # - cluster configs - #
       vars:
@@ -55,14 +49,8 @@ all: # top-level namespace, match all hosts
         pg_conf: oltp.yml                   # tune pgsql into oltp/olap/crit/tiny mode
         patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
-        pg_hostname: false                  # overwrite node hostname with pg instance name
-        pg_nodename: true                   # overwrite consul nodename with pg instance name
-
-        pg_users:
-          - username: meta
-            password: meta
-            comment: default business user meta
-            groups: [dbrole_readwrite]
+        pg_users:                           # create a business user named 'dbuser_meta'
+          - {username: dbuser_meta, password: DBUser.Meta, groups: [dbrole_readwrite]}
         pg_databases:                       # create a business database 'meta'
           - name: meta
             schemas: [meta]                 # create extra schema named 'meta'

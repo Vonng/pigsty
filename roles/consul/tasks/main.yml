@@ -39,8 +39,21 @@
       debug:
         msg: "[DANGEROUS] running instance {{ inventory_hostname }} will be purged!"
 
-    - name: Purge existing consul instance
-      script: purge_consul.sh
+    - name: Stop any running consul instance
+      script: stop_consul.sh
+
+    - name: Remove existing consul dir
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/consul.d
+        - "{{ consul_data_dir }}"
+
+    - name: Recreate consul dir
+      file: path={{ item }} state=directory owner=consul group=consul mode=0775
+      with_items:
+        - /etc/consul.d
+        - "{{ consul_data_dir }}"
+
 
 
 #------------------------------------------------------------------------------
