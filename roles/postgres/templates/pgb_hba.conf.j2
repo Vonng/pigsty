@@ -1,20 +1,48 @@
-# THIS FILE IS FOR PGBOUNCER HBA, DO NOT CHANGE
-# FILE PATH: /etc/pgbouncer/pgb_hba.conf
-
+#==============================================================#
+# Default HBA
+#==============================================================#
 # local admin access
 local  pgbouncer postgres                                       peer
 
 # local all password access
 host    all     all                         127.0.0.1/32        md5
 
-# local monitor access
+# local admin & monitor access
 local  pgbouncer    {{ pg_monitor_username }}                   md5
+local  pgbouncer    {{ pg_admin_username }}                     md5
 host   pgbouncer    {{ pg_monitor_username }}   127.0.0.1/32    md5
+host   pgbouncer    {{ pg_admin_username }}     127.0.0.1/32    md5
 
-# customize hba entry
-{% if pg_hba_pgbouncer is defined and pg_hba_pgbouncer|length > 0 %}
-{% for hba in pg_hba_pgbouncer %}
-{{ hba }}
+#==============================================================#
+# Common HBA
+#==============================================================#
+{% for hba in pgbouncer_hba_rules %}
+{% if hba.role == 'common' %}
+#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+
+{% for rule in hba.rules %}
+{{ rule }}
+{% endfor %}
+
+{% endif %}
+{% endfor %}
+
+
+#==============================================================#
+# {{ pg_role }} HBA
+#==============================================================#
+{% for hba in pgbouncer_hba_rules %}
+{% if hba.role == pg_role %}
+#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+
+{% for rule in hba.rules %}
+{{ rule }}
 {% endfor %}
 {% endif %}
+{% endfor %}
 
+
+#==============================================================#
+# Ad Hoc HBA
+#==============================================================#
+# add additional hba rules here

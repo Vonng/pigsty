@@ -5,10 +5,10 @@ Here are templates for **postgres cluster provision**.
 There are two kinds of provision templates:
 
 * The yaml format patroni template are used for cluster provision, there are four default templates
-  * [`oltp.yml`](oltp.yml) default template, transactional processing template, optimized for latency 
-  * [`olap.yml`](olap.yml) analysis processing template, optimized for throughput
-  * [`crit.yml`](crit.yml) critical database template, optimized for security and RPO
-  * [`tiny.yml`](tiny.yml) minimum database template, optimized for small instance (e.g 1CPU 1G RAM VM)
+  * [`oltp.yml`](../roles/postgres/templates/oltp.yml) default template, transactional processing template, optimized for latency 
+  * [`olap.yml`](../roles/postgres/templates/olap.yml) analysis processing template, optimized for throughput
+  * [`crit.yml`](../roles/postgres/templates/crit.yml) critical database template, optimized for security and RPO
+  * [`tiny.yml`](../roles/postgres/templates/tiny.yml) minimum database template, optimized for small instance (e.g 1CPU 1G RAM VM)
 
 * The shell scripts will be executed after cluster bootstrap
   * [`initdb.sh`](initdb.sh) is the default init scripts which create default roles, businesses database and users
@@ -17,8 +17,7 @@ There are two kinds of provision templates:
 ## Customization
 
 You can provide your own templates for cluster provision. Just fork existing examples and make your own modifications.
-Note that templates are really ansible jinja2 templates, so some of the variables will be passed via `{{ jinjia2 }}` syntax.
-
+Note that templates are ansible jinja2 templates, some variables will be passed with `{{ jinjia2 }}` syntax.
 To use a customized provision template, passing following variables (by group_vars, inventory vars, or extra args) to `postgres.yml` playbook
 
 ```yaml
@@ -49,10 +48,10 @@ Templates in `templates` directory will not need absolute path.
 
 初始化模板是用于初始化数据库集群的定义文件，默认位于`roles/postgres/templates/patroni.yml`，采用`patroni.yml` [配置文件格式](https://patroni.readthedocs.io/en/latest/SETTINGS.html)
 在[`templates/`](templates/)目录中，有四种预定义好的初始化模板：
-* [`oltp.yml`](oltp.yml) 常规OLTP模板，默认配置
-* [`olap.yml`](olap.yml) OLAP模板，提高并行度，针对吞吐量优化，针对长时间运行的查询进行优化。
-* [`crit.yml`](crit.yml) 核心业务模板，基于OLTP模板针对安全性，数据完整性进行优化，采用同步复制，启用数据校验和。
-* [`tiny.yml`](tiny.yml) 微型数据库模板，针对低资源场景进行优化，例如运行于虚拟机中的演示数据库集群。
+* [`oltp.yml`](../roles/postgres/templates/oltp.yml) 常规OLTP模板，默认配置
+* [`olap.yml`](../roles/postgres/templates/olap.yml) OLAP模板，提高并行度，针对吞吐量优化，针对长时间运行的查询进行优化。
+* [`crit.yml`](../roles/postgres/templates/crit.yml) 核心业务模板，基于OLTP模板针对安全性，数据完整性进行优化，采用同步复制，启用数据校验和。
+* [`tiny.yml`](../roles/postgres/templates/tiny.yml) 微型数据库模板，针对低资源场景进行优化，例如运行于虚拟机中的演示数据库集群。
 
 用户也可以基于上述模板进行定制与修改，并通过`pg_conf`参数使用相应的模板。
 

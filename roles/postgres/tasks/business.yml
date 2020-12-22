@@ -44,8 +44,11 @@
       shell: /pg/bin/pgbouncer-create-db "{{ item.name }}"
       with_items: "{{ pg_databases }}"
 
-    - name: Reload pgbouncer config
-      become_user: "{{ pg_dbsu }}"
-      shell: /usr/bin/pgbouncer -d -R /etc/pgbouncer/pgbouncer.ini
+    - name: Restart pgbouncer
+      systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
+
+#    - name: Reload pgbouncer config
+#      become_user: "{{ pg_dbsu }}"
+#      shell: /usr/bin/pgbouncer -d -R /etc/pgbouncer/pgbouncer.ini
 
 ...

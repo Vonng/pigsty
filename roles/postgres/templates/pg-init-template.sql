@@ -79,9 +79,12 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 --                          Default Privileges                      --
 --==================================================================--
 {% for priv in pg_default_privilegs %}
-ALTER DEFAULT PRIVILEGES {{ priv }};
+ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_dbsu }} {{ priv }};
 {% endfor %}
 
+{% for priv in pg_default_privilegs %}
+ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
+{% endfor %}
 
 --==================================================================--
 --                            Monitor Views                         --

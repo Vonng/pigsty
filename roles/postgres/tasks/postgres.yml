@@ -240,6 +240,20 @@
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
 
+#------------------------------------------------------------------------------
+# Write HBA
+#------------------------------------------------------------------------------
+- name: Write HBA Rules
+  tags: pg_hba
+  become_user: "{{ pg_dbsu }}"
+  block:
+    - name: Render hba rules
+      template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
+
+    - name: Reload hba rules
+      command: /usr/pgsql/bin/pg_ctl -D {{ pg_data }} reload
+
+
 
 #------------------------------------------------------------------------------
 # Adjust Patroni mode

@@ -43,6 +43,10 @@ init:
 	./infra.yml                 # provision meta node infrastructure
 	./initdb.yml 				# provision pg-test and pg-meta
 
+# recreate database cluster
+reinit:
+	./initdb.yml -e pg_exists_action=clean
+
 ###############################################################
 # vm management
 ###############################################################

@@ -62,6 +62,7 @@ all: # top-level namespace, match all hosts
             extensions: [{name: postgis}]   # create extra extension postgis
             parameters:                     # overwrite database meta's default search_path
               search_path: public, monitor
+        pg_default_database: meta           # default database will be used as primary monitor target
 
         # proxy settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
@@ -100,6 +101,7 @@ all: # top-level namespace, match all hosts
             extensions: [{name: postgis}]   # create extra extension postgis
             parameters:                     # overwrite database meta's default search_path
               search_path: public,monitor
+        pg_default_database: test           # default database will be used as primary monitor target
 
         # proxy settings
         vip_enabled: true                   # enable/disable vip (require members in same LAN)
@@ -591,6 +593,7 @@ all: # top-level namespace, match all hosts
 
     pg_default_schemas: [ monitor ]
 
+    # extension
     pg_default_extensions:
       - { name: 'pg_stat_statements',  schema: 'monitor' }
       - { name: 'pgstattuple',         schema: 'monitor' }
@@ -609,6 +612,7 @@ all: # top-level namespace, match all hosts
       - name: intagg
       - name: intarray
 
+    # object created by dbsu and admin will have their privileges properly set
     pg_default_privilegs:
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT                        ON TABLES    TO dbrole_readonly
@@ -620,35 +624,53 @@ all: # top-level namespace, match all hosts
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
       - GRANT USAGE                         ON TYPES     TO dbrole_admin
 
-    # - authentication - #
-    pg_hba_common:
-      - '"# allow: meta node access with password"'
-      - host    all     all                         10.10.10.10/32      md5
-      - '"# allow: intranet admin role with password"'
-      - host    all     +dbrole_admin               10.0.0.0/8          md5
-      - host    all     +dbrole_admin               172.16.0.0/12       md5
-      - host    all     +dbrole_admin               192.168.0.0/16      md5
-      - '"# allow local (pgbouncer) read-write user (production user) password access"'
-      - local   all     +dbrole_readwrite                               md5
-      - host    all     +dbrole_readwrite           127.0.0.1/32        md5
-      - '"# intranet common user password access"'
-      - host    all             all                 10.0.0.0/8          md5
-      - host    all             all                 172.16.0.0/12       md5
-      - host    all             all                 192.168.0.0/16      md5
-    pg_hba_primary: [ ]
-    pg_hba_replica:
-      - '"# allow remote readonly user (stats, personal user) password access (directly)"'
-      - local   all     +dbrole_readonly                               md5
-      - host    all     +dbrole_readonly           127.0.0.1/32        md5
-    # this hba is added directly to /etc/pgbouncer/pgb_hba.conf instead of patroni conf
-    pg_hba_pgbouncer:
-      - '# biz_user intranet password access'
-      - local  all          all                                     md5
-      - host   all          all                     127.0.0.1/32    md5
-      - host   all          all                     10.0.0.0/8      md5
-      - host   all          all                     172.16.0.0/12   md5
-      - host   all          all                     192.168.0.0/16  md5
+    # postgres host-based authentication rules
+    pg_hba_rules:
+      - title: allow meta node password access
+        role: common
+        rules:
+          - host    all     all                         10.10.10.10/32      md5
 
+      - title: allow intranet admin password access
+        role: common
+        rules:
+          - host    all     +dbrole_admin               10.0.0.0/8          md5
+          - host    all     +dbrole_admin               172.16.0.0/12       md5
+          - host    all     +dbrole_admin               192.168.0.0/16      md5
+
+      - title: allow intranet password access
+        role: common
+        rules:
+          - host    all             all                 10.0.0.0/8          md5
+          - host    all             all                 172.16.0.0/12       md5
+          - host    all             all                 192.168.0.0/16      md5
+
+      - title: allow local read-write access (local production user via pgbouncer)
+        role: common
+        rules:
+          - local   all     +dbrole_readwrite                               md5
+          - host    all     +dbrole_readwrite           127.0.0.1/32        md5
+
+      - title: allow read-only user (stats, personal) password directly access
+        role: replica
+        rules:
+          - local   all     +dbrole_readonly                               md5
+          - host    all     +dbrole_readonly           127.0.0.1/32        md5
+
+    # pgbouncer host-based authentication rules
+    pgbouncer_hba_rules:
+      - title: local password access
+        role: common
+        rules:
+          - local  all          all                                     md5
+          - host   all          all                     127.0.0.1/32    md5
+
+      - title: intranet password access
+        role: common
+        rules:
+          - host   all          all                     10.0.0.0/8      md5
+          - host   all          all                     172.16.0.0/12   md5
+          - host   all          all                     192.168.0.0/16  md5
 
     #------------------------------------------------------------------------------
     # MONITOR PROVISION
