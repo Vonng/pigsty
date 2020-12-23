@@ -71,25 +71,25 @@
   block:
     # main config
     - name: Copy /etc/grafana/grafana.ini
-      copy: src=grafana/grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+      copy: src=grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
 
-    # sqlite db provision
-    - name: Copy grafana.db to data dir
-      copy: src=grafana/grafana.db dest=/var/lib/grafana/grafana.db owner=grafana mode=0600
+    - name: Remove grafana provision dir
+      file: path=/etc/grafana/provisioning state=absent
 
+    - name: Copy provisioning content
+      copy: src=provisioning/ dest=/etc/grafana/provisioning/ owner=grafana group=grafana
 
-#--------------------------------------------------------------#
-# Customize grafana
-#--------------------------------------------------------------#
-- name: Customize Grafana
-  tags: grafana_customize
-  when: grafana_customize|bool
-  block:
+    - name: Copy pigsty dashboards
+      copy: src=dashboards dest=/var/lib/grafana/dashboards owner=grafana group=grafana
+
+    - name: Copy pigsty icon image
+      copy: src=pigsty.svg dest=/usr/share/grafana/public/img/pigsty.svg
+
     - name: Replace grafana icon with pigsty
+      tags: grafana_customize
+      when: grafana_customize|bool
       copy: src=logo.svg dest=/usr/share/grafana/public/img/grafana_icon.svg
 
-    - name: Install pigsty icon image
-      copy: src=pigsty.svg dest=/usr/share/grafana/public/img/pigsty.svg
 
 #--------------------------------------------------------------#
 # Launch grafana
@@ -104,61 +104,50 @@
       wait_for: host=localhost port=3000 state=started
 
 
+#--------------------------------------------------------------#
+# Provision Grafana
+#--------------------------------------------------------------#
+- name: Provision Grafana
+  tags: grafana_provision
+  block:
+    - name: Update grafana default preferences
+      shell: |
+        #!/bin/bash
+
+        # grafana api endpoint
+        GRAFANA_API="{{ grafana_url }}/api"
+
+        # use 'light' as default theme
+        GRAFANA_THEME="light"
+
+        # use 'Home' as default dashboard
+        GRAFANA_HOME="HOME"
+
+        # get home dashboard id by name
+        GRAFANA_HOME_ID=$(curl -s ${GRAFANA_API}/search?query=${GRAFANA_HOME} | jq '.[0].id')
+
+        # # build new preference:  {"theme":"dark","homeDashboardId":2}
+        GRAFANA_PREF='{"theme":"'${GRAFANA_THEME}'","homeDashboardId":'${GRAFANA_HOME_ID}'}'
+
+        # star home dashboards
+        curl -X POST ${GRAFANA_API}/user/stars/dashboard/${GRAFANA_HOME_ID}
+
+        # update preference
+        curl -X PUT -s ${GRAFANA_API}/org/preferences -H "Content-Type: application/json" --data ${GRAFANA_PREF}
+        curl -X PUT -s ${GRAFANA_API}/user/preferences -H "Content-Type: application/json" --data ${GRAFANA_PREF}
+
+
+#--------------------------------------------------------------#
+# Register Grafana Service
+#--------------------------------------------------------------#
 - name: Register Grafana Service
   tags: grafana_register
   block:
-    #--------------------------------------------------------------#
-    # Register grafana
-    #--------------------------------------------------------------#
     - name: Register consul grafana service
       template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
 
     - name: Reload consul
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
-
-#--------------------------------------------------------------#
-# Provision Grafana
-#--------------------------------------------------------------#
-- name: Provision Grafana via API
-  when: grafana_provision_mode == 'api'
-  tags: grafana_provision
-  block:
-    #==============================================================#
-    # Copy grafana dashboards
-    #==============================================================#
-    - name: Remove grafana dashboard dir
-      file: path=/var/lib/grafana/dashboards state=directory owner=grafana mode=0755
-    - name: Copy grafana dashboards json
-      copy: src=grafana/dashboards/ dest=/var/lib/grafana/dashboards/ owner=grafana group=admin
-    - name: Preprocess grafana dashboards
-      command: python /var/lib/grafana/dashboards/reform.py
-
-    #==============================================================#
-    # Provision grafana datasource
-    #==============================================================#
-    - name: Provision prometheus datasource
-      grafana_datasource:
-        name: Prometheus
-        grafana_url: "{{ grafana_url }}"
-        grafana_user: admin
-        grafana_password: "{{ grafana_admin_password | default('admin') }}"
-        ds_type: prometheus
-        ds_url: "http://localhost:9090"
-        is_default: yes
-        time_interval:
-
-    #==============================================================#
-    # Provision grafana dashboards
-    #==============================================================#
-    - name: Provision grafana dashboards
-      grafana_dashboard:
-        grafana_url: "{{ grafana_url }}"
-        grafana_user: admin
-        grafana_password: "{{ grafana_admin_password | default('admin') }}"
-        state: present
-        overwrite: yes
-        path: /var/lib/grafana/dashboards/{{ item }}.json
-      with_items: "{{ grafana_dashboards }}"
 
 ...
