@@ -58,6 +58,16 @@ ALTER ROLE "{{ pg_replication_username }}" PASSWORD '{{ pg_replication_password 
 ALTER ROLE "{{ pg_monitor_username }}" PASSWORD '{{ pg_monitor_password }}';
 ALTER ROLE "{{ pg_admin_username }}" PASSWORD '{{ pg_admin_password }}';
 
+--==================================================================--
+--                          Default Privileges                      --
+--==================================================================--
+{% for priv in pg_default_privilegs %}
+ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_dbsu }} {{ priv }};
+{% endfor %}
+
+{% for priv in pg_default_privilegs %}
+ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
+{% endfor %}
 
 --==================================================================--
 --                              Schemas                             --
@@ -74,17 +84,6 @@ CREATE SCHEMA IF NOT EXISTS "{{ schema_name }}";
 CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %}WITH SCHEMA "{{ extension.schema }}"{% endif %};
 {% endfor %}
 
-
---==================================================================--
---                          Default Privileges                      --
---==================================================================--
-{% for priv in pg_default_privilegs %}
-ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_dbsu }} {{ priv }};
-{% endfor %}
-
-{% for priv in pg_default_privilegs %}
-ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
-{% endfor %}
 
 --==================================================================--
 --                            Monitor Views                         --
