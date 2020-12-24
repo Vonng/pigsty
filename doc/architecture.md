@@ -20,7 +20,6 @@ Take standard demo cluster as an example, this cluster consist of four nodes: `m
 
 ![](img/arch.png)
 
-![](/Users/vonng/pigsty/doc/img/arch.png)
 
 * 节点运行有`postgres`, `pgbouncer`, `patroni`, `haproxy`, `node_exporter`, `pg_exporter`, `pgbouncer_exporter`,`consul`等服务
 * 集群中有两套数据库集群：`pg-meta` 与 `pg-test`。其中`pg-test`为一主两从结构，`pg-meta`为单主结构。

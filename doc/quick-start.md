@@ -114,50 +114,40 @@ If you wish to run pigsty on virtual machine in your laptop. Consider using vagr
 You can leave most parameters intact, only small portion of parameters need adjustment such as cluster inventory definition. A typical cluster definition only require 3 variables to work: `pg_cluster` , `pg_role`, and `pg_seq`. Check configuration guide for more detail.
 
 ```yaml
-    #-----------------------------
-    # cluster: pg-test
-    #-----------------------------
-    pg-test: # define cluster named 'pg-test'
+#-----------------------------
+# cluster: pg-test
+#-----------------------------
+pg-test: # define cluster named 'pg-test'
+  # - cluster members - #
+  hosts:
+    10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
+    10.10.10.12: {pg_seq: 1, pg_role: replica, ansible_host: node-2}
+    10.10.10.13: {pg_seq: 1, pg_role: replica, ansible_host: node-3}
+  # - cluster configs - #
+  vars:
+    # basic settings
+    pg_cluster: pg-test                 # define actual cluster name
+    pg_version: 13                      # define installed pgsql version
+    node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
+    pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
 
-      # - cluster configs - #
-      vars:
-        # basic settings
-        pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 13                      # define installed pgsql version
-        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
+    pg_users:
+      - username: test
+        password: test
+        comment: default test user
+        groups: [ dbrole_readwrite ]
+    pg_databases:                       # create a business database 'test'
+      - name: test
+        extensions: [{name: postgis}]   # create extra extension postgis
+        parameters:                     # overwrite database meta's default search_path
+          search_path: public,monitor
+    pg_default_database: test           # default database will be used as primary monitor target
 
-        # bootstrap template
-        pg_init: initdb.sh                  # bootstrap postgres cluster with initdb.sh
-        pg_default_username: test           # default business username
-        pg_default_password: test           # default business password
-        pg_default_database: test           # default database name
-
-        # vip settings
-        vip_enabled: true                   # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
-
-      # - cluster members - #
-      hosts:
-        10.10.10.11:
-          ansible_host: node-1            # comment this if not access via ssh alias
-          pg_role: primary                # initial role: primary & replica
-          pg_seq: 1                       # instance sequence among cluster
-
-        10.10.10.12:
-          ansible_host: node-2            # comment this if not access via ssh alias
-          pg_role: replica                # initial role: primary & replica
-          pg_seq: 2                       # instance sequence among cluster
-
-        10.10.10.13:
-          ansible_host: node-3            # comment this if not access via ssh alias
-          pg_role: replica                # initial role: primary & replica
-          pg_seq: 3                       # instance sequence among cluster
-
-
+    # proxy settings
+    vip_enabled: true                   # enable/disable vip (require members in same LAN)
+    vip_address: 10.10.10.3             # virtual ip address
+    vip_cidrmask: 8                     # cidr network mask length
+    vip_interface: eth1                 # interface to add virtual ip
 ```
 
 
@@ -182,7 +172,8 @@ It may take around 5~30min to download all necessary rpm packages from internet 
 Start exploring Pigsty.
 
 * Main Page: http://pigsty or `http://<meta-ip-address>`
-* Grafana: http://g.pigsty   or `http://<meta-ip-address>:3000` (default credential: admin:admin)
+
+* Grafana: http://g.pigsty   or `http://<meta-ip-address>:3000` (default userpass: admin:admin)
 
 * Consul: http://c.pigsty   or `http://<meta-ip-address>:8500` (consul only listen on localhost)
 

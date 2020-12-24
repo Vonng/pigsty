@@ -10,7 +10,7 @@ There are two ways to customize pigsty besides of variables, which are **patroni
 
 For the sake of unification, Pigsty use patroni for cluster bootstrap even if you choose not enabling it at all.  So you can customize your database cluster with [patroni configuration](https://patroni.readthedocs.io/en/latest/README.html#yaml-configuration).
 
-Pigsty is shipped with four pre-defined patroni [`templates/`](templates/)
+Pigsty is shipped with four pre-defined patroni [`templates/`](roles/postgres/templates/)
 
 * [`oltp.yml`](oltp.yml) Common OTLP database cluster, default configuration
 * [`olap.yml`](olap.yml) OLAP database cluster, increasing throughput and long-run queries
@@ -20,12 +20,11 @@ Pigsty is shipped with four pre-defined patroni [`templates/`](templates/)
 You can customize those templates or just write your own, and specify template path with variable `pg_conf`
 
 
-
 ### **Initdb Template**
 
 When database cluster is initialized. there's a chance that user can intercede. E.g: create default roles and users, schemas, privilleges and so forth.
 
-Pigsty will use `../roles/postgres/templates/initdb.sh` as the default initdb scripts. It is a shell scripts run as dbsu that can do anything to a newly bootstrapped database.
+Pigsty will use `../roles/postgres/templates/pg-init` as the default initdb scripts. It is a shell scripts run as dbsu that can do anything to a newly bootstrapped database.
 
 The default initdb scripts will customize database according to following variables:
 
@@ -37,7 +36,7 @@ pg_default_schema: public                     # default schema will be create un
 pg_default_extensions: "tablefunc,postgres_fdw,file_fdw,btree_gist,btree_gin,pg_trgm"
 ```
 
-Of course, you can customize initdb template or just write your own. and specify template path with variable `pg_init`
+Of course, you can customize initdb template or just write your own. and specify template path with variable `pg-init`
 
 
 

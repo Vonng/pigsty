@@ -1,10 +1,12 @@
-# Pigsty -- PostgreSQL in Graphic Style
+# [Pigsty](http://pigsty.cc) -- PostgreSQL in Graphic Style
 
-> PIGSTY: Postgres in Graphic STYle
+> [PIGSTY](http://pigsty.cc): Postgres in Graphic STYle
 
-Pigsty is a monitoring system that is specially designed for large scale PostgreSQL clusters. Along with a  postgres cluster provisioning solution. It also shipped with a four-node VM sandbox environment based on [vagrant](https://vagrantup.com/) for demonstration purpose.
+[Pigsty](http://pigsty.cc) is a monitoring system that is specially designed for large scale PostgreSQL clusters. Along with a  postgres cluster provisioning solution. It also shipped with a four-node VM sandbox environment based on [vagrant](https://vagrantup.com/) for demonstration purpose.
 
 ![](doc/logo/logo-full.svg)
+
+[Offical Site](http://pigsty.cc): http://pigsty.cc
 
 [中文文档](doc/README_CN.md)
 
