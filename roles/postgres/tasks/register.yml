@@ -20,23 +20,19 @@
     - name: Reload consul service
       systemd: name=consul state=reloaded
 
-    #------------------------------------------------------------------------------
-    # register to grafana datasource
-    #------------------------------------------------------------------------------
-    # load it to data source
-    - name: Create grafana datasource postgres
-      when: grafana_url is defined
-      ignore_errors: true
-      grafana_datasource:
-        name: "{{ pg_instance }}"
-        grafana_url: "{{ grafana_url }}"
-        grafana_user: admin
-        grafana_password: "{{ grafana_admin_password | default('admin') }}"
-        ds_type: postgres
-        ds_url: "{{ inventory_hostname }}:5432"
-        database: "{{ pg_default_database }}"
-        user: "{{ pg_monitor_username }}"
-        password: "{{ pg_monitor_password }}"
-        sslmode: disable
+#------------------------------------------------------------------------------
+# register postgres to grafana datasource
+#------------------------------------------------------------------------------
+- name: Register postgres service to grafana
+  tags: pg_grafana
+  ignore_errors: true
+  block:
+    - name: Render grafana datasource definition
+      template: src=datasource.json.j2 dest=/pg/tmp/datasource.json owner="{{ pg_dbsu }}" group=postgres mode=0600
+
+    - name: Register datasource to grafana
+      shell: |
+        curl -X DELETE -H 'Content-Type: application/json' {{ grafana_url }}/api/datasources/name/{{ pg_instance }}
+        curl -X POST -H 'Content-Type: application/json' {{ grafana_url }}/api/datasources -d @/pg/tmp/datasource.json
 
 ...
