@@ -549,36 +549,49 @@ all: # top-level namespace, match all hosts
       - username: dbrole_admin                    # sample user: one object for each user
         options: NOLOGIN BYPASSRLS                # admin can bypass row level security
         comment: role for object creation
-        groups: [ dbrole_readwrite,pg_read_all_settings,pg_read_all_stats,pg_stat_scan_tables,pg_monitor,pg_signal_backend ]
+        groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
       # NOTE: replicator, monitor, admin password are overwrite by separated config entry
       - username: postgres                        # reset dbsu password to NULL (if dbsu is not postgres)
-        options: SUPERUSER LOGIN NOINHERIT
+        options: SUPERUSER LOGIN
         comment: system superuser
 
-      - username: replicator                       # reset dbsu password to NULL (if dbsu is not postgres)
-        options: REPLICATION LOGIN NOINHERIT
-        groups: [ dbrole_readonly, pg_read_all_settings, pg_read_all_stats ]
+      - username: replicator
+        options: REPLICATION LOGIN
+        groups: [pg_monitor, dbrole_readonly]
         comment: system replicator
 
       - username: dbuser_monitor
-        options: LOGIN NOINHERIT CONNECTION LIMIT 10
+        options: LOGIN CONNECTION LIMIT 10
         comment: system monitor user
-        groups: [ dbrole_readonly,pg_read_all_settings,pg_read_all_stats,pg_stat_scan_tables,pg_monitor ]
-        parameters: { search_path: 'monitor,public' }
+        groups: [pg_monitor, dbrole_readonly]
 
       - username: dbuser_admin
-        options: LOGIN NOINHERIT BYPASSRLS
+        options: LOGIN BYPASSRLS
         comment: system admin user
-        groups: [ dbrole_admin ]
+        groups: [dbrole_admin]
 
       - username: dbuser_stats
         password: DBUser.Stats
-        options: LOGIN NOINHERIT
+        options: LOGIN
         comment: business read-only user for statistics
-        groups: [ dbrole_readonly ]
+        groups: [dbrole_readonly]
 
-    pg_default_schemas: [ monitor ]
+
+    # object created by dbsu and admin will have their privileges properly set
+    pg_default_privilegs:
+      - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
+      - GRANT SELECT                        ON TABLES    TO dbrole_readonly
+      - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
+      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
+      - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
+      - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
+      - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
+      - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
+      - GRANT USAGE                         ON TYPES     TO dbrole_admin
+
+    # schemas
+    pg_default_schemas: [monitor]
 
     # extension
     pg_default_extensions:
@@ -598,18 +611,6 @@ all: # top-level namespace, match all hosts
       - name: pg_trgm
       - name: intagg
       - name: intarray
-
-    # object created by dbsu and admin will have their privileges properly set
-    pg_default_privilegs:
-      - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
-      - GRANT SELECT                        ON TABLES    TO dbrole_readonly
-      - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
-      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
-      - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
-      - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
-      - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
-      - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
-      - GRANT USAGE                         ON TYPES     TO dbrole_admin
 
     # postgres host-based authentication rules
     pg_hba_rules:

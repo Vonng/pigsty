@@ -93,6 +93,9 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 -- cleanse
 ----------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS monitor;
+GRANT USAGE ON SCHEMA monitor TO "{{ pg_monitor_username }}";
+GRANT USAGE ON SCHEMA monitor TO "{{ pg_admin_username }}";
+GRANT USAGE ON SCHEMA monitor TO "{{ pg_replication_username }}";
 
 DROP VIEW IF EXISTS monitor.pg_table_bloat_human;
 DROP VIEW IF EXISTS monitor.pg_index_bloat_human;
@@ -102,6 +105,20 @@ DROP VIEW IF EXISTS monitor.pg_session;
 DROP VIEW IF EXISTS monitor.pg_kill;
 DROP VIEW IF EXISTS monitor.pg_cancel;
 DROP VIEW IF EXISTS monitor.pg_seq_scan;
+
+CREATE VIEW monitor.pg_schema_permission AS
+    WITH "names"("name") AS (
+      SELECT n.nspname AS "name"
+        FROM pg_catalog.pg_namespace n
+          WHERE n.nspname !~ '^pg_'
+            AND n.nspname <> 'information_schema'
+    ) SELECT "name",
+      pg_catalog.has_schema_privilege(current_user, "name", 'CREATE') AS "create",
+      pg_catalog.has_schema_privilege(current_user, "name", 'USAGE')  AS "usage",
+      "name" = pg_catalog.current_schema() AS "current"
+        FROM "names";
+COMMENT ON VIEW monitor.pg_schema_permission IS 'postgres schema privileges view';
+
 
 ----------------------------------------------------------------------
 -- Table bloat estimate
@@ -318,7 +335,7 @@ COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 ----------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF
     pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
-
+COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
 
 
 --==================================================================--

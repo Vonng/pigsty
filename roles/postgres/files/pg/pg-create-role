@@ -49,7 +49,7 @@ function pg-create-role(){
 	local comments=${3-"pgsql role ${username}"}
 
 	# normalize option: force overwrite inherit and login option
-	options=$(echo " ${options}" | sed 's/ INHERIT/ /Ig'  | sed 's/ LOGIN/ /Ig' | sed 's/ NOINHERIT/ /Ig'  | sed 's/ NOLOGIN/ /Ig')
+	options=$(echo " ${options}" | sed 's/ LOGIN/ /Ig' | sed 's/ NOLOGIN/ /Ig')
 	options="${options} INHERIT NOLOGIN"
 
 	local role_exists=$(psql -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '${username}' LIMIT 1)")
