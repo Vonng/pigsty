@@ -69,6 +69,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_dbsu }} {{ priv }};
 ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
 {% endfor %}
 
+-- for business admin, they can set role to dbrole_admin
+{% for priv in pg_default_privilegs %}
+ALTER DEFAULT PRIVILEGES FOR ROLE "dbrole_admin" {{ priv }};
+{% endfor %}
+
 --==================================================================--
 --                              Schemas                             --
 --==================================================================--
@@ -76,6 +81,8 @@ ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
 CREATE SCHEMA IF NOT EXISTS "{{ schema_name }}";
 {% endfor %}
 
+-- revoke public creation
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
 --==================================================================--
 --                             Extensions                           --

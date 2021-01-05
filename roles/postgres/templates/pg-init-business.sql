@@ -49,7 +49,27 @@ GRANT "{{ group }}" TO "{{ user.username }}";
 --==================================================================--
 {% for database in pg_databases %}
 CREATE DATABASE "{{ database.name }}";
-{% if 'owner' in database %}ALTER DATABASE "{{ database.name }}" OWNER TO {{ database.owner }};{% endif %}
+
+-- admin role have create privilege
+REVOKE CREATE ON DATABASE "{{ database.name }}" FROM PUBLIC;
+GRANT CREATE ON DATABASE "{{ database.name }}" TO "dbrole_admin";
+
+-- if owner is set, revoke public connect privilege
+{% if 'owner' in database %}
+-- setup owner
+ALTER DATABASE "{{ database.name }}" OWNER TO {{ database.owner }};
+
+-- revoke public connect
+REVOKE CONNECT ON DATABASE "{{ database.name }}" FROM PUBLIC;
+
+-- replicator, monitor have connect privilege
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_replication_username }}";
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_monitor_username }}";
+
+-- admin and dbowner have connect privilege with grant option
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_admin_username }}" WITH GRANT OPTION;
+GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ database.owner }}" WITH GRANT OPTION;
+{% endif %}
 
 {% endfor %}
 
@@ -65,6 +85,10 @@ CREATE DATABASE "{{ database.name }}";
 {% if 'schemas' in database %}{% for schema_name in database.schemas %}
 CREATE SCHEMA IF NOT EXISTS "{{ schema_name }}";
 {% endfor %}{% endif %}
+
+-- revoke public schema creation
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+GRANT CREATE ON SCHEMA public TO "dbrole_admin"; -- admin can create objects
 
 -- create extensions
 {% if 'extensions' in database %}{% for extension in database.extensions %}
