@@ -6,9 +6,9 @@
 
 ![](doc/logo/logo-full.svg)
 
-[Offical Site](http://pigsty.cc): http://pigsty.cc
+Official Site：http://pigsty.cc/en/
 
-[中文文档](doc/README_CN.md)
+中文站点：http://pigsty.cc/zh/
 
 
 

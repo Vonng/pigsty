@@ -87,6 +87,8 @@ node-new:
 # pgbench (init/read-write/read-only)
 ###############################################################
 ri:
+	ssh -t node-1 'sudo -iu postgres pgbench test -is10'
+ri2:
 	pgbench -is10 postgres://test:test@pg-test:5433/test
 rw:
 	while true; do pgbench -nv -P1 -c2 --rate=50 -T10 postgres://test:test@pg-test:5433/test; done
