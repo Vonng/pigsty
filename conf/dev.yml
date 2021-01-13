@@ -180,15 +180,18 @@ all: # top-level namespace, match all hosts
         gpgcheck: no
         baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
 
+      # consider using ZJU mirror in mainland china
       - name: pgdg-common
         description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+        # baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+        baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch
 
       - name: pgdg13
-        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch - Updates testing
+        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
+        # baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
+        baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -218,7 +221,6 @@ all: # top-level namespace, match all hosts
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-
 
     # - what to download - #
     repo_packages:
@@ -512,6 +514,10 @@ all: # top-level namespace, match all hosts
     pgbouncer_poolmode: transaction               # default pooling mode: transaction pooling
     pgbouncer_max_db_conn: 100                    # important! do not set this larger than postgres max conn or conn limit
 
+
+    #------------------------------------------------------------------------------
+    # POSTGRES TEMPLATE
+    #------------------------------------------------------------------------------
     # - template - #
     pg_init: pg-init                              # init script for cluster template
 
