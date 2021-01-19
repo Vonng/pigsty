@@ -1,0 +1,31 @@
+---
+#--------------------------------------------------------------#
+# vip setup
+#--------------------------------------------------------------#
+- name: Setup vip manager
+  tags: vip
+  when: vip_enabled|bool
+  block:
+    - name: Templating /etc/default/vip-manager.yml
+      template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
+
+    - name: create vip-manager. systemd drop-in dir
+      file:
+        path: /etc/systemd/system/vip-manager.service.d
+        state: directory
+        mode: 0755
+
+    # add dependency for vip-manager
+    - name: create vip-manager systemd drop-in file
+      copy:
+        dest: /etc/systemd/system/vip-manager.service.d/consul.conf
+        content: |
+          [Unit]
+          After=consul.service
+          Requires=consul.service
+        mode: 0644
+
+    - name: Launch vip-manager
+      systemd: name=vip-manager state=restarted enabled=yes
+
+...

@@ -77,8 +77,8 @@ all: # top-level namespace, match all hosts
     pg-test: # define cluster named 'pg-test'
       # - cluster members - #
       hosts:
-        10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
-        10.10.10.12: {pg_seq: 2, pg_role: replica, ansible_host: node-2}
+        10.10.10.11: {pg_seq: 1, pg_role: replica, ansible_host: node-1}
+        10.10.10.12: {pg_seq: 2, pg_role: primary, ansible_host: node-2}
         10.10.10.13: {pg_seq: 3, pg_role: replica, ansible_host: node-3}
 
       # - cluster configs - #
@@ -367,11 +367,12 @@ all: # top-level namespace, match all hosts
 
     # - nginx - #
     nginx_upstream:
-      - {name: home,           host: pigsty,   url: "127.0.0.1:3000"}
+      - { name: home,          host: pigsty,   url: "127.0.0.1:3000"}
       - { name: consul,        host: c.pigsty, url: "127.0.0.1:8500" }
       - { name: grafana,       host: g.pigsty, url: "127.0.0.1:3000" }
       - { name: prometheus,    host: p.pigsty, url: "127.0.0.1:9090" }
       - { name: alertmanager,  host: a.pigsty, url: "127.0.0.1:9093" }
+      - { name: haproxy,       host: h.pigsty, url: "127.0.0.1:9091" }
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
@@ -680,6 +681,7 @@ all: # top-level namespace, match all hosts
     # - haproxy - #
     haproxy_enabled: true                         # enable haproxy among every cluster members
     haproxy_policy: roundrobin                    # roundrobin, leastconn
+    haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
     haproxy_admin_password: admin                 # default haproxy admin password
     haproxy_client_timeout: 3h                    # client side connection timeout
@@ -689,7 +691,9 @@ all: # top-level namespace, match all hosts
     haproxy_primary_port: 5433                    # default primary port 5433
     haproxy_replica_port: 5434                    # default replica port 5434
     haproxy_backend_port: 6432                    # default target port: pgbouncer:6432 postgres:5432
-    haproxy_primary_ro_weight: 1                  # assign a small read-only traffic weight to primary (in case of singleton replica failure )
+    haproxy_weight: 100                           # default weight for load balancer
+    haproxy_weight_fallback: 1                    # assign a small weight for primary in replica service
+                                                  # (in case of singleton replica failure, primary can still take read-only  )
 
     # - vip - #
     # vip_enabled: true                             # level2 vip requires primary/standby under same switch

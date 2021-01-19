@@ -1,23 +1,17 @@
 ---
 #------------------------------------------------------------------------------
-# Update Nginx
+# Install Nginx
 #------------------------------------------------------------------------------
-- name: Setup nginx server
-  tags: nginx
+- name: Make sure nginx package installed
+  tags: nginx_install
+  package: name=nginx state=present
+
+#------------------------------------------------------------------------------
+# Create Nginx Dir
+#------------------------------------------------------------------------------
+- name: Create nginx dir
+  tags: nginx_dir
   block:
-
-    # - install - #
-    - name: Make sure nginx package installed
-      package: name=nginx state=present
-
-    # - config - #
-    - name: Copy nginx default config
-      template: src=default.conf.j2 dest=/etc/nginx/conf.d/default.conf
-
-    - name: Copy nginx upstream conf
-      template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
-      with_items: "{{ nginx_upstream }}"
-
     # - dir - #
     - name: Create local html directory
       file: path={{ repo_home }} state=directory
@@ -26,14 +20,62 @@
     - name: Update default nginx index page
       template: src=index.html.j2 dest=/{{ repo_home }}/index.html
 
-    # - launch - #
+#------------------------------------------------------------------------------
+# Config Nginx
+#------------------------------------------------------------------------------
+- name: Config nginx server
+  tags: nginx_config
+  block:
+    - name: Copy nginx default config
+      template: src=default.conf.j2 dest=/etc/nginx/conf.d/default.conf
+
+    - name: Copy nginx upstream conf
+      template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
+      with_items: "{{ nginx_upstream }}"
+
+#------------------------------------------------------------------------------
+# Config Nginx proxy for haproxy admin page
+#------------------------------------------------------------------------------
+- name: Config nginx server
+  tags: [ nginx_config, nginx_haproxy ]
+  block:
+    - name: Fetch haproxy facts
+      connection: local
+      set_fact:
+        haproxy_instances={{ hostvars| json_query(haproxy_instance_query) }}
+        haproxy_hostname={{ nginx_upstream | json_query('[?name==`haproxy`].host') | first }}
+      vars:
+        haproxy_instance_query: "[@.*][0][].{cluster: pg_cluster, role: pg_role, seq: pg_seq, enabled: haproxy_enabled, ip:inventory_hostname, port: haproxy_exporter_port}"
+
+    - debug:
+        msg: "{{ haproxy_hostname}} {{ haproxy_instances }}"
+
+    - name: Templating /etc/nginx/haproxy.conf
+      template: src=haproxy.conf.j2 dest=/etc/nginx/conf.d/haproxy.conf
+
+    - name: Templating haproxy.html
+      template: src=haproxy.html.j2 dest=/{{ repo_home }}/haproxy.html
+
+
+#------------------------------------------------------------------------------
+# Reload Nginx server
+#------------------------------------------------------------------------------
+- name: Launch nginx server
+  tags: nginx_reload
+  systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
+
+
+#------------------------------------------------------------------------------
+# Restart Nginx server
+#------------------------------------------------------------------------------
+- name: Launch nginx server
+  tags: nginx_launch
+  block:
     - name: Restart meta nginx service
       systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for nginx service online
       wait_for: host=localhost port=80 state=started timeout=10
-
-
 
 
 #------------------------------------------------------------------------------
@@ -60,17 +102,17 @@
 #------------------------------------------------------------------------------
 # register nginx service (optional)
 #------------------------------------------------------------------------------
-# - name: Setup nginx exporter
-#   tags: nginx_register
-#   ignore_errors: true
-#   block:
-#     - name: Register cosnul nginx service
-#       template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul group=admin mode=0660
-#
-#     - name: Register consul nginx-exporter service
-#       template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul group=admin mode=0660
-#
-#     - name: Reload consul
-#       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+- name: Register nginx exporter
+  tags: nginx_register
+  ignore_errors: true
+  block:
+    - name: Register cosnul nginx service
+      template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul group=admin mode=0660
+
+    - name: Register consul nginx-exporter service
+      template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul group=admin mode=0660
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 ...

@@ -1,13 +1,8 @@
 ---
-# - vip - #
-vip_enabled: false                            # level2 vip requires primary/standby under same switch
-vip_address: 127.0.0.1                        # virtual ip address ip/cidr
-vip_cidrmask: 24                              # virtual ip address cidr mask
-vip_interface: eth0                           # virtual ip network interface
-
 # - haproxy - #
 haproxy_enabled: true                         # enable haproxy among every cluster members
 haproxy_policy: roundrobin                    # roundrobin, leastconn
+haproxy_admin_auth_enabled: true              # enable authentication for haproxy admin?
 haproxy_admin_username: admin                 # default haproxy admin username
 haproxy_admin_password: admin                 # default haproxy admin password
 haproxy_client_timeout: 3h                    # client side connection timeout
@@ -17,9 +12,10 @@ haproxy_check_port: 8008                      # default health check port (patro
 haproxy_primary_port:  5433                   # default primary port 5433
 haproxy_replica_port:  5434                   # default replica port 5434
 haproxy_backend_port:  6432                   # default target port: pgbouncer:6432 postgres:5432
-haproxy_primary_ro_weight: 1                  # assign a small read-only traffic weight to primary (in case of singleton replica failure )
+haproxy_weight: 100                           # default weight for load balancer [instance level]
+haproxy_weight_fallback: 1                    # assign a small weight for primary in replica service [cluster level]
+                                              # (in case of singleton replica failure, primary can still take read-only  )
 
 # - reference - #
-pg_namespace: /pg                             # top level key namespace in dcs
-exporter_metrics_path: /metrics
+exporter_metrics_path: /metrics               # url path to expose metrics
 ...

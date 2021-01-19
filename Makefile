@@ -95,9 +95,9 @@ rw:
 ro:
 	while true; do pgbench -nv -P1 -c4 --select-only --rate=1000 -T10 postgres://test:test@pg-test:5434/test; done
 rw2:
-	while true; do pgbench -nv -P1 -c2 -T10 postgres://test:test@pg-test:5433/test; done
+	while true; do pgbench -nv -P1 -c20 -T10 postgres://test:test@pg-test:5433/test; done
 ro2:
-	while true; do pgbench -nv -P1 -c8 -T10 --select-only postgres://test:test@pg-test:5434/test; done
+	while true; do pgbench -nv -P1 -c80 -T10 --select-only postgres://test:test@pg-test:5434/test; done
 rl:
 	ssh -t node-1 "sudo -iu postgres patronictl -c /pg/bin/patroni.yml list -W"
 r1:
@@ -108,8 +108,8 @@ r3:
 	ssh -t node-3 "sudo reboot"
 ckpt:
 	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
-gis:
-	ssh -t meta "sudo -iu postgres psql meta -AXtwc 'CREATE EXTENSION IF NOT EXISTS postgis;'";
+lb:
+	./proxy.yml -l pg-test --tags=haproxy_config,haproxy_reload
 
 ###############################################################
 # monitoring management

@@ -1,4 +1,4 @@
-# proxy (Ansible role)
+# haproxy (Ansible role)
 
 install haproxy for postgres cluster
 
