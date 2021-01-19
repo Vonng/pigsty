@@ -6,9 +6,7 @@
 
 ![](img/logo.svg)
 
-Check [official site](https://pigsty.cc/en/  ) for more information：https://pigsty.cc/en/  
-
-[中文站点](https://pigsty.cc/zh/)：https://pigsty.cc/zh/
+Check [official site](https://pigsty.cc/en/  ) for more information：https://pigsty.cc/en/   | 中文站点：[https://pigsty.cc/zh/](](https://pigsty.cc/zh/))
 
 
 
@@ -50,19 +48,25 @@ Check [Quick Start](https://pigsty.cc/en/docs/getting-started/) for more inforam
 Pigsty provides a battery-included [Monitoring System](https://pigsty.cc/en/docs/monitoring/). Which is specially designed for managing large-scale PostgreSQL clusters, and consist of thousands of metrics and 30+ dashboards.
 
 ![](img/overview1.jpg)
+
 ![](img/overview2.jpg)
 
 ### Provisioning
 
-PostgreSQL cluster comes before monitoring system. That's why pigsty is shipping with a  [Provisioning Solution](https://pigsty.cc/en/docs/tutorials/). It allows you to create, update, scale your postgres cluster in kubernetes style.
+PostgreSQL cluster comes before monitoring system. That's why pigsty is shipping with a  [Provisioning Solution](https://pigsty.cc/en/docs/tutorials/).
+
+It allows you to create, update, scale your postgres cluster in kubernetes style.
 
 ```bash
-# most common database cluster management operations:
-vi conf/all.yml             # declare cluster status (check configuration guide for detail)
-./pgsql-add.yml  -l <host>  # setup new instance / adjust instance according to config
-./pgsql-del.yml  -l <host>  # remove instance on host
+vi pigsty.yml               # edit configuration and declare cluster status
+./meta.yml                  # provision infrastructure: meta node 
+./pgsql.yml -l <cluster>    # provision database on given cluster
 ```
-Here is an example base on vagrant 4-node demo. [Vagrantfile](vagrant/Vagrantfile) define four nodes: `meta` , `node-1` , `node-2`, `node-3`. Check [Architecture Overview](https://pigsty.cc/en/docs/concepts/architecture/) for more information.
+Here is an example base on vagrant 4-node demo. The default configuration file is [`pigsty.yml`](pigsty.yml)
+
+This [Vagrantfile](vagrant/Vagrantfile) defines four nodes: `meta` , `node-1` , `node-2`, `node-3`. 
+
+Check [Architecture Overview](https://pigsty.cc/en/docs/concepts/architecture/) for more information.
 
 ![](img/arch.png)
 

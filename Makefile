@@ -38,14 +38,18 @@ cache:
 	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
 
-# provision infrastructure and database clusters
+# fast provisioning on sandbox
 init:
-	./infra.yml                 # provision meta node infrastructure
-	./initdb.yml 				# provision pg-test and pg-meta
+	./sandbox.yml                       # interleave sandbox provisioning
+
+# provisioning on production
+init2:
+	./meta.yml                          # provision meta node infrastructure
+	./pgsql.yml -l pg-meta,pg-test		# provision pg-test and pg-meta
 
 # recreate database cluster
 reinit:
-	./initdb.yml -e pg_exists_action=clean
+	./pgsql.yml --tags=pgsql,proxy -e pg_exists_action=clean
 
 ###############################################################
 # vm management
@@ -109,7 +113,8 @@ r3:
 ckpt:
 	ansible all -b --become-user=postgres -a "psql -c 'CHECKPOINT;'"
 lb:
-	./proxy.yml -l pg-test --tags=haproxy_config,haproxy_reload
+	./pgsql.yml -l pg-test --tags=haproxy_config,haproxy_reload
+
 
 ###############################################################
 # monitoring management
@@ -146,6 +151,10 @@ mon-upload-skim:
 	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
 	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
 
+
+###############################################################
+# dashboards management
+###############################################################
 dashboard-dump:
 	./dashboard.yml -e action=dump
 
