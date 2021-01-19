@@ -47,9 +47,9 @@
         pg_memberships={{ hostvars| json_query(pg_membership_query) }}
         pg_instance="{{ pg_cluster }}-{{ pg_seq }}"
       vars:
-        pg_membership_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}'][@.pg_cluster,@.pg_seq,@.inventory_hostname]"
+        pg_membership_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}'][@.pg_cluster,@.pg_role,@.pg_seq,@.inventory_hostname]"
 
-    - name: Templating /etc/haproxyhaproxy.cfg
+    - name: Templating /etc/haproxy/haproxy.cfg
       template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
 
     - name: Copy haproxy systemd service file
