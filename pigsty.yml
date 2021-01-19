@@ -1,11 +1,11 @@
 ---
 ######################################################################
-# File      :   dev.yml
-# Path      :   conf/dev.yml
-# Desc      :   Configuration file for development (demo) environment
+# File      :   pigsty.yml
+# Path      :   pigsty.yml
+# Desc      :   Pigsty Configuration file (Vagrant Sandbox)
 # Note      :   follow ansible inventory file format
 # Ctime     :   2020-05-22
-# Mtime     :   2020-12-22
+# Mtime     :   2021-01-19
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
 
@@ -19,7 +19,12 @@ all: # top-level namespace, match all hosts
   #==================================================================#
   #                           Clusters                               #
   #==================================================================#
-  children: # top-level groups, one group per database cluster (and special group 'meta')
+  # postgres database clusters are defined as kv pair in `all.children`
+  # where the key is cluster name and the value is the object consist
+  # of cluster members (hosts) and ad-hoc variables (vars)
+  # meta node are defined in special group "meta" with `meta_node=true`
+
+  children:
 
     #-----------------------------
     # meta controller
@@ -114,7 +119,7 @@ all: # top-level namespace, match all hosts
     #------------------------------------------------------------------------------
     # this section defines connection parameters
 
-    # ansible_user: vagrant             # admin user with ssh access and sudo privilege
+    # ansible_user: vagrant                       # admin user with ssh access and sudo privilege
 
     proxy_env: # global proxy env when downloading packages
       # http_proxy: 'http://xxxxxx'
@@ -127,6 +132,7 @@ all: # top-level namespace, match all hosts
     #------------------------------------------------------------------------------
     # this section defines how to build a local repo
 
+    # - repo basic - #
     repo_enabled: true                            # build local yum repo on meta nodes?
     repo_name: pigsty                             # local repo name
     repo_address: yum.pigsty                      # repo external address (ip:port or url)
@@ -180,7 +186,7 @@ all: # top-level namespace, match all hosts
         gpgcheck: no
         baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
 
-      # consider using ZJU mirror in mainland china
+      # consider using ZJU PostgreSQL mirror in mainland china
       - name: pgdg-common
         description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
@@ -261,7 +267,6 @@ all: # top-level namespace, match all hosts
       - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
       - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
-
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.3.1/pg_exporter-0.3.1-1.el7.x86_64.rpm
