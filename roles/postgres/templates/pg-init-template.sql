@@ -5,7 +5,7 @@
 -- Desc      :   init postgres cluster template schema
 -- Path      :   /pg/tmp/pg-init-template.sql
 -- Author    :   Vonng(fengruohang@outlook.com)
--- Copyright (C) 2018-2020 Ruohang Feng
+-- Copyright (C) 2018-2021 Ruohang Feng
 ----------------------------------------------------------------------
 
 --==================================================================--
