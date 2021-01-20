@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   meta.yml
+# File      :   infra.yml
 # Ctime     :   2020-04-13
 # Mtime     :   2020-07-23
-# Desc      :   init meta nodes
-# Path      :   meta.yml
+# Desc      :   init infrastructure on meta nodes
+# Path      :   infra.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
@@ -45,6 +45,9 @@
   roles:
     - role: ca
       tags: ca
+
+    - role: nameserver
+      tags: nameserver
 
     - role: nginx
       tags: nginx
@@ -87,7 +90,7 @@
           connection: local
           run_once: true
           command:
-            cmd: tar -cf files/meta.tgz roles templates ansible.cfg pgsql.yml pgsql-rm.yml meta.yml pigsty.yml Makefile
+            cmd: tar -cf files/meta.tgz roles templates ansible.cfg infra.yml pgsql.yml pgsql-rm.yml pigsty.yml Makefile
             chdir: "{{ playbook_dir }}"
 
         - name: Create ansible directory
@@ -105,6 +108,7 @@
             chmod a+x *.yml
 
 
+
 #------------------------------------------------------------------------------
 # meta node database (optional)
 #------------------------------------------------------------------------------
@@ -112,22 +116,22 @@
 # it's good to reuse meta node as normal database nodes too
 # but it's always better to leave it be.
 #------------------------------------------------------------------------------
-- name: Pgsql Initialization
-  become: yes
-  hosts: meta
-  gather_facts: no
-  roles:
-    - role: postgres                        # init postgres
-      tags: [pgsql, postgres]
-
-    - role: monitor                         # init monitor system
-      tags: [pgsql, monitor]
-
-    - role: haproxy                         # init haproxy
-      tags: [proxy, haproxy]
-
-    - role: vip                             # init haproxy
-      tags: [proxy, vip]
-
+#- name: Pgsql Initialization
+#  become: yes
+#  hosts: meta
+#  gather_facts: no
+#  roles:
+#    - role: postgres                        # init postgres
+#      tags: [pgsql, postgres]
+#
+#    - role: monitor                         # init monitor system
+#      tags: [pgsql, monitor]
+#
+#    - role: haproxy                         # init haproxy
+#      tags: [proxy, haproxy]
+#
+#    - role: vip                             # init haproxy
+#      tags: [proxy, vip]
+#
 
 ...

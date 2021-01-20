@@ -44,7 +44,7 @@ init:
 
 # provisioning on production
 init2:
-	./meta.yml                          # provision meta node infrastructure
+	./infra.yml                         # provision meta node infrastructure
 	./pgsql.yml -l pg-meta,pg-test		# provision pg-test and pg-meta
 
 # recreate database cluster
@@ -193,6 +193,16 @@ env-pre: env-clean
 env-prod: env-clean
 	ln -s prod.yml conf/all.yml
 
+###############################################################
+# misc
+###############################################################
+svg:
+	ansible-playbook-grapher infra.yml -o infra
+	ansible-playbook-grapher --include-role-tasks infra.yml -o infra-full
+	ansible-playbook-grapher pgsql.yml -o pgsql
+	ansible-playbook-grapher --include-role-tasks pgsql.yml -o pgsql-full
+	ansible-playbook-grapher sandbox.yml -o sandbox
+	ansible-playbook-grapher --include-role-tasks sandbox.yml -o sandbox-full
 
 ###############################################################
 # kubernetes management (Obsolete)
