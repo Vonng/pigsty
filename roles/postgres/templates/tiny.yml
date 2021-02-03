@@ -241,6 +241,8 @@ bootstrap:
         commit_siblings: 10                     # 5 -> 10
         checkpoint_timeout: 15min               # checkpoint 5min -> 15min
         checkpoint_completion_target: 0.80      # 0.5 -> 0.8
+        archive_mode: on
+        archive_command: 'wal_dir=/pg/arcwal; [[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d); /bin/mkdir -p ${wal_dir}/$(date +%Y%m%d) && /usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4'
 
         #----------------------------------------------------------------------
         # REPLICATION

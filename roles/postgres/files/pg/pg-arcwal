@@ -1,0 +1,30 @@
+#!/bin/sh
+set -euo pipefail
+
+#==============================================================#
+# File      :   pg-arcwal
+# Ctime     :   2018-01-06
+# Mtime     :   2021-01-25
+# Desc      :   PostgreSQL wal archive script
+# Path      :   /pg/bin/pg-arcwal
+# Depend    :   lz4, mkdir, date
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+# archive_command = 'wal_dir=/pg/arcwal; [[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d); /bin/mkdir -p ${wal_dir}/$(date +%Y%m%d) && /usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4'
+
+# WAL Archive Format:
+#    /pg/arcwal/YYYYMMDD/
+
+# WAL archive directory
+wal_dir=/pg/arcwal;
+
+# remove yesterday's WAL archive dir on 12:00
+[[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d);
+
+# make sure today's WAL archive dir exists
+/bin/mkdir -p ${wal_dir}/$(date +%Y%m%d)
+
+# compress wal segment to target file
+/usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4
