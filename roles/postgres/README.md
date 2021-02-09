@@ -1,4 +1,4 @@
-# PG Init (ansible role)
+# Postgres (ansible role)
 
 This role will provision a postgres cluster
 
@@ -22,23 +22,17 @@ It is a complex role consist of several stages:
 
 
 
-
-
 ### Tasks
 
 [tasks/main.yml](tasks/main.yml)
-* [`check.yml`](check.yml)
-* [`clean.yml`](clean.yml)
-* [`directory.yml`](directory.yml)
-* [`initdb.yml`](initdb.yml) (primary)
-* [`config.yml`](config.yml)
-* [`bootstrap.yml`](bootstrap.yml)
-* [`role.yml`](role.yml)
-* [`template.yml`](template.yml)
-* [`createdb.yml`](createdb.yml)
-* [`pgpass.yml`](pgpass.yml)
-* [`replica.yml`](replica.yml)
-* [`register.yml`](register.yml)
+* [`business.yml`](tasks/business.yml)
+* [`install.yml`](tasks/install.yml)
+* [`main.yml`](tasks/main.yml)
+* [`pgbouncer.yml`](tasks/pgbouncer.yml)
+* [`postgres.yml`](tasks/postgres.yml)
+* [`preflight.yml`](tasks/preflight.yml)
+* [`prepare.yml`](tasks/prepare.yml)
+* [`register.yml`](tasks/register.yml)
 
 
 ```yaml
@@ -104,81 +98,253 @@ It is a complex role consist of several stages:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
-#==============================================================#
-# Postgres Dynamic Vars
-#==============================================================#
-pg_bin_dir:       "{{ pg_home }}/bin"
-pg_cluster_dir:   "{{ pg_fs_main }}/postgres/{{ pg_cluster }}-{{ pg_version }}"
-pg_backup_dir:    "{{ pg_fs_bkup }}/postgres/{{ pg_cluster }}-{{ pg_version }}"
+---
+#------------------------------------------------------------------------------
+# POSTGRES INSTALLATION
+#------------------------------------------------------------------------------
+# - dbsu - #
+pg_dbsu: postgres                             # os user for database, postgres by default (change it is not recommended!)
+pg_dbsu_uid: 26                               # os dbsu uid and gid, 26 for default postgres users and groups
+pg_dbsu_sudo: limit                           # none|limit|all|nopass (Privilege for dbsu, limit is recommended)
+pg_dbsu_home: /var/lib/pgsql                  # postgresql binary
+pg_dbsu_ssh_exchange: false                   # exchange ssh key among same cluster
 
-# this are variables build from pg_version and pg_role
-# they will be override by  pg_conf_path and pg_hba_path if provided
-pg_default_conf:  "postgresql-{{ pg_version }}.conf"
-pg_default_hba:   "pg_hba-{{ pg_role }}.conf"
+# - packages - #
+pg_version: 12                                # default postgresql version
+pgdg_repo: false                              # use official pgdg yum repo (disable if you have local mirror)
+pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
+pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir
+pg_packages: # packages to be installed (Postgres 13)
+  - postgresql${pg_version}*
+  - postgis31_${pg_version}*
+  - pgbouncer patroni pg_exporter pgbadger
+  - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
+  - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
+  - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
 
-#==============================================================#
-# Postgres Install Options
-#==============================================================#
-pg_version: 12                  # default postgresql version
-pg_dbsu:  postgres              # postgresql dbsu (currently setup during node provision)
-pg_home:  /usr/pgsql            # postgresql binary installed path
+pg_extensions:
+  - pg_repack${pg_version} pg_qualstats${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version}
+  # - ogr_fdw${pg_version} mysql_fdw_${pg_version} redis_fdw_${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version}
+  # - count_distinct${version}  ddlx_${version}  geoip${version}  orafce${version}
+  # - hypopg_${version}  ip4r${version}  jsquery_${version}  logerrors_${version}  periods_${version}  pg_auto_failover_${version}  pg_catcheck${version}
+  # - pg_fkpart${version}  pg_jobmon${version}  pg_partman${version}  pg_prioritize_${version}  pg_track_settings${version}  pgaudit15_${version}
+  # - pgcryptokey${version}  pgexportdoc${version}  pgimportdoc${version}  pgmemcache-${version}  pgmp${version}  pgq-${version}  pgquarrel pgrouting_${version}
+  # - pguint${version}  pguri${version}  prefix${version}   safeupdate_${version}  semver${version}   table_version${version}  tdigest${version}
 
+#------------------------------------------------------------------------------
+# POSTGRES PROVISION
+#------------------------------------------------------------------------------
+# - identity - #
+# pg_cluster:                                 # [REQUIRED] cluster name (validated during pg_preflight)
+# pg_seq: 0                                   # [REQUIRED] instance seq (validated during pg_preflight)
+pg_role: replica                              # [REQUIRED] service role (validated during pg_preflight)
+pg_hostname: false                            # overwrite node hostname with pg instance name
 
-#==============================================================#
-# Postgres Initdb Options
-#==============================================================#
-# important host variables
-# pg_cluster:                   # [REQUIRED] cluster name (already validate during pg_preflight)
-# pg_seq: 0                     # [REQUIRED] instance seq (already validate during pg_preflight)
-pg_role: replica                # [REQUIRED] service role (already validate during pg_preflight)
+# - cleanup - #
+# pg_exists_action, available options: abort|clean|skip
+#  - abort: abort entire play's execution (default)
+#  - clean: remove existing cluster (dangerous)
+#  - skip: end current play for this host
+pg_exists: false                              # auxiliary flag variable (DO NOT SET THIS)
+pg_exists_action: abort
+pg_disable_purge: false                       # if true, it will abort on any running instance regardless pg_exists_action
 
-pg_exists: false
-pg_exists_action: skip          # if cluster already eixsts, what to do:
-                                #     - abort: abort entire play's execution (default)
-                                #     - clean: remove existing cluster
-                                #     - skip: only
+# - storage - #
+pg_data: /pg/data                             # postgres data directory
+pg_fs_main: /export                           # data disk mount point     /pg -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
+pg_fs_bkup: /var/backups                      # backup disk mount point   /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
 
-pg_data: /pg/data               # postgres data directory
-pg_port: 5432                   # postgres port
+# - connection - #
+pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' by default (all ipv4 addr)
+pg_port: 5432                                 # postgres port (5432 by default)
+pg_localhost: /var/run/postgresql
+pg_shared_libraries: pg_stat_statements, auto_explain
 
-# directory structure
-pg_fs_main: /export             # main disk monutpoint (or /data is another common mountpoint)
-pg_fs_bkup: /var/backups        # backup mountpoint
-
-pg_overwrite_hostname: true     # overwrite node hostname with pg instance name
-pg_standby_cluster: false       # if set to true, init this cluster as a standby cluster
-pg_initdb_method: initdb        # option: initdb  | backup | upstream
-                                #   - initdb:  create a new database cluster with initdb
-                                #   - backup:  extract a baebackup from file
-                                #   - pg_baesbackup: make online backup from upstream
-                                #   - standby_cluster: mark this cluster as standby cluster
-
-
-# used when method=initdb : locale=C.UTF8 and enable datachecksum
-pg_initdb_opts: '--encoding=UTF8 --locale=C --data-checksum'
-pg_initdb_backup_path:          # used when method=backup : standard backup file path:
-pg_initdb_upstream_url:         # used when method=pg_basebackup|standby_cluster
-
-pg_listen_address: '*'          # postgres listen address, '*' by default
-# pg_conf_path:                 # user-providede postgresql.conf
-# pg_hba_path:                  # user-providede pg_hba.conf
-
-
-# system user: replication and monitor (important!)
-pg_replication_username: 'replicator'   # replication user
-pg_replication_password: 'replicator'
-pg_monitor_username: 'dbuser_monitor'   # monitor user
-pg_monitor_password: 'dbuser_monitor'
-
-# pg scripts that modify template1 database
-pg_template_scripts:
-  - monitor-schema.sql
-
-# default database and users
-pg_default_database: 'postgres'
-pg_default_username: 'postgres'
-pg_default_password: 'postgres'
-pg_default_scripts: []                 # sql scripts to init default database
+#------------------------------------------------------------------------------
+# PATRONI PROVISION
+#------------------------------------------------------------------------------
+# - patroni - #
+# patroni_mode, available options: default|pause|remove
+# default: default ha mode
+# pause:   into maintainance mode
+# remove:  remove patroni after bootstrap
+patroni_mode: default                         # pause|default|remove
+pg_namespace: /pg                             # top level key namespace in dcs
+patroni_port: 8008                            # default patroni port
+patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
+pg_conf: patroni.yml                          # user provided patroni config template path
 
 
+#------------------------------------------------------------------------------
+# PGBOUNCER PROVISION
+#------------------------------------------------------------------------------
+# - pgbouncer - #
+pgbouncer_port: 6432                          # default pgbouncer port
+pgbouncer_poolmode: transaction               # default pooling mode: transaction pooling
+pgbouncer_max_db_conn: 100                    # important! do not set this larger than postgres max conn or conn limit
+
+
+#------------------------------------------------------------------------------
+# CLUSTER TEMPLATE
+#------------------------------------------------------------------------------
+pg_init: pg-init                              # init script for cluster template
+
+# - system roles - #
+pg_replication_username: replicator           # system replication user
+pg_replication_password: DBUser.Replicator    # system replication password
+pg_monitor_username: dbuser_monitor           # system monitor user
+pg_monitor_password: DBUser.Monitor           # system monitor password
+pg_admin_username: dbuser_admin               # system admin user
+pg_admin_password: DBUser.Admin               # system admin password
+
+# - default roles - #
+pg_default_roles:
+  - username: dbrole_readonly                 # sample user:
+    options: NOLOGIN                          # role can not login
+    comment: role for readonly access         # comment string
+
+  - username: dbrole_readwrite                # sample user: one object for each user
+    options: NOLOGIN
+    comment: role for read-write access
+    groups: [ dbrole_readonly ]               # read-write includes read-only access
+
+  - username: dbrole_admin                    # sample user: one object for each user
+    options: NOLOGIN BYPASSRLS                # admin can bypass row level security
+    comment: role for object creation
+    groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
+
+  # NOTE: replicator, monitor, admin password are overwrite by separated config entry
+  - username: postgres                        # reset dbsu password to NULL (if dbsu is not postgres)
+    options: SUPERUSER LOGIN
+    comment: system superuser
+
+  - username: replicator
+    options: REPLICATION LOGIN
+    groups: [pg_monitor, dbrole_readonly]
+    comment: system replicator
+
+  - username: dbuser_monitor
+    options: LOGIN CONNECTION LIMIT 10
+    comment: system monitor user
+    groups: [pg_monitor, dbrole_readonly]
+
+  - username: dbuser_admin
+    options: LOGIN BYPASSRLS
+    comment: system admin user
+    groups: [dbrole_admin]
+
+  - username: dbuser_stats
+    password: DBUser.Stats
+    options: LOGIN
+    comment: business read-only user for statistics
+    groups: [dbrole_readonly]
+
+
+# object created by dbsu and admin will have their privileges properly set
+pg_default_privilegs:
+  - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
+  - GRANT SELECT                        ON TABLES    TO dbrole_readonly
+  - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
+  - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
+  - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
+  - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
+  - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
+  - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
+  - GRANT USAGE                         ON TYPES     TO dbrole_admin
+
+# schemas
+pg_default_schemas: [monitor]
+
+# extension
+pg_default_extensions:
+  - { name: 'pg_stat_statements',  schema: 'monitor' }
+  - { name: 'pgstattuple',         schema: 'monitor' }
+  - { name: 'pg_qualstats',        schema: 'monitor' }
+  - { name: 'pg_buffercache',      schema: 'monitor' }
+  - { name: 'pageinspect',         schema: 'monitor' }
+  - { name: 'pg_prewarm',          schema: 'monitor' }
+  - { name: 'pg_visibility',       schema: 'monitor' }
+  - { name: 'pg_freespacemap',     schema: 'monitor' }
+  - { name: 'pg_repack',           schema: 'monitor' }
+  - name: postgres_fdw
+  - name: file_fdw
+  - name: btree_gist
+  - name: btree_gin
+  - name: pg_trgm
+  - name: intagg
+  - name: intarray
+
+# - hba - #
+pg_hba_rules:
+  - title: allow meta node password access
+    role: common
+    rules:
+      - host    all     all                         10.10.10.10/32      md5
+
+  - title: allow intranet admin password access
+    role: common
+    rules:
+      - host    all     +dbrole_admin               10.0.0.0/8          md5
+      - host    all     +dbrole_admin               172.16.0.0/12       md5
+      - host    all     +dbrole_admin               192.168.0.0/16      md5
+
+  - title: allow intranet password access
+    role: common
+    rules:
+      - host    all             all                 10.0.0.0/8          md5
+      - host    all             all                 172.16.0.0/12       md5
+      - host    all             all                 192.168.0.0/16      md5
+
+  - title: allow local read-write access (local production user via pgbouncer)
+    role: common
+    rules:
+      - local   all     +dbrole_readwrite                               md5
+      - host    all     +dbrole_readwrite           127.0.0.1/32        md5
+
+  - title: allow read-only user (stats, personal) password directly access
+    role: replica
+    rules:
+      - local   all     +dbrole_readonly                               md5
+      - host    all     +dbrole_readonly           127.0.0.1/32        md5
+
+pg_hba_rules_extra: []
+
+# pgbouncer host-based authentication rules
+pgbouncer_hba_rules:
+  - title: local password access
+    role: common
+    rules:
+      - local  all          all                                     md5
+      - host   all          all                     127.0.0.1/32    md5
+
+  - title: intranet password access
+    role: common
+    rules:
+      - host   all          all                     10.0.0.0/8      md5
+      - host   all          all                     172.16.0.0/12   md5
+      - host   all          all                     192.168.0.0/16  md5
+
+pgbouncer_hba_rules_extra: []
+
+#------------------------------------------------------------------------------
+# BUSINESS TEMPLATE
+#------------------------------------------------------------------------------
+# - business - #
+# users that are ad hoc to each cluster
+pg_users:
+  - username: dbuser_test
+    password: DBUser.Test
+    options: LOGIN NOINHERIT
+    comment: business read-write user
+    groups: [dbrole_readwrite]
+
+pg_databases: # additional business database
+  - name: test                                # one object for each database
+    owner: dbuser_test
+    schemas: [monitor, public]
+    extensions: [{name: "postgis", schema: "public"}]
+    parameters:
+      search_path: 'yay,public,monitor'       # set default search path
+
+...
 ```

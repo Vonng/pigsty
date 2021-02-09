@@ -38,6 +38,10 @@ cache:
 	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
 
+# fetch pkg.tgz release packages from github
+fetch:
+	open https://github.com/Vonng/pigsty/releases/download/v0.5.0/pkg.tgz
+
 # fast provisioning on sandbox
 init:
 	./sandbox.yml                       # interleave sandbox provisioning

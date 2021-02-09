@@ -19,8 +19,11 @@
       set_fact:
         pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"
 
+    # when any running instance exists, abort play in two cases:
+    # 1. pg_disable_purge = true          (global flag to prevent accidentally purge)
+    # 2. pg_exists_action == 'abort'
     - name: Abort due to existing postgres instance
-      when: pg_exists and pg_exists_action == 'abort'
+      when: pg_exists and pg_disable_purge or pg_exists and pg_exists_action == 'abort'
       any_errors_fatal: true
       fail: msg="Abort because pg instance {{ pg_instance }} is already running"
 
