@@ -51,9 +51,14 @@ Wait for consul agent online	  TAGS: [consul_agent]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
+---
 dcs_type: consul                  # consul | etcd | both
 dcs_name: pigsty                  # consul dc name | etcd initial cluster token
 dcs_servers: {}                   # dcs name:ip dict (e.g: pg-meta-1: 10.10.10.10)
 dcs_exists_action: skip           # skip|abort|clean if dcs server already exists
+dcs_disable_purge: false          # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+
 consul_data_dir: /var/lib/consul  # default data directory
+consul_exists: false              # default value for inner variable (DO NOT CHANGE!)
+...
 ```
