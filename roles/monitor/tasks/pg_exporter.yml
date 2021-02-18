@@ -14,6 +14,10 @@
     - name: Config /etc/default/pg_exporter
       template: src=pg_exporter.j2 dest=/etc/default/pg_exporter owner=postgres group=postgres mode=0600
 
+    - name: Copy pg_exporter binary
+      when: exporter_binary_install
+      copy: src=pg_exporter dest=/usr/bin/pg_exporter
+
     - name: Config pg_exporter service unit
       copy: src=pg_exporter.service dest=/usr/lib/systemd/system/pg_exporter.service
 
