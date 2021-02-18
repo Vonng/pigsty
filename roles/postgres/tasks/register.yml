@@ -1,11 +1,12 @@
 ---
 #------------------------------------------------------------------------------
-# register postgres service
+# register postgres service to consul
 #------------------------------------------------------------------------------
-- name: Register postgres service to dcs
+- name: Register postgres service to consul
   tags: pg_register
+  when: service_registry == 'consul'
   block:
-    - name: Copy postgres service definition
+    - name: Copy pg service definition to consul
       template:
         src: svc-{{ item }}.json.j2
         dest: /etc/consul.d/svc-{{ item }}.json
@@ -17,7 +18,7 @@
         - pgbouncer
         - patroni
 
-    - name: Reload consul service
+    - name: Reload postgres consul service
       systemd: name=consul state=reloaded
 
 #------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 ---
-#==============================================================#
+#------------------------------------------------------------------------------
 # Setup pg_exporter
-#==============================================================#
+#------------------------------------------------------------------------------
 - name: Setup pg_exporter
   tags: pg_exporter
   block:
@@ -23,6 +23,15 @@
     - name: Wait for pg_exporter service online
       ignore_errors: true
       wait_for: host=localhost port={{ pg_exporter_port }} state=started  timeout=10
+
+
+#------------------------------------------------------------------------------
+# Register pg_exporter
+#------------------------------------------------------------------------------
+- name: Setup pg_exporter
+  tags: pg_exporter_register
+  when: service_registry == 'consul'
+  block:
 
     - name: Register pg-exporter consul service
       template:

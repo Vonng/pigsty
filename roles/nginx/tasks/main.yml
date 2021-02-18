@@ -101,13 +101,14 @@
 #------------------------------------------------------------------------------
 - name: Register nginx exporter
   tags: nginx_register
+  when: service_registry == 'consul'
   ignore_errors: true
   block:
     - name: Register cosnul nginx service
-      template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul group=admin mode=0660
+      template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul mode=0660
 
     - name: Register consul nginx-exporter service
-      template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul group=admin mode=0660
+      template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul mode=0660
 
     - name: Reload consul
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes

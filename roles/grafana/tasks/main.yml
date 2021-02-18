@@ -142,12 +142,12 @@
 #--------------------------------------------------------------#
 - name: Register Grafana Service
   tags: grafana_register
+  when: service_registry == 'consul'
   block:
     - name: Register consul grafana service
       template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
 
     - name: Reload consul
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
-
 
 ...

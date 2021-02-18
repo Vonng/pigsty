@@ -1,7 +1,7 @@
 ---
-#==============================================================#
+#------------------------------------------------------------------------------
 # Setup pgbouncer_exporter
-#==============================================================#
+#------------------------------------------------------------------------------
 - name: Setup pgbouncer_exporter
   tags: pgbouncer_exporter
   block:
@@ -18,6 +18,15 @@
       ignore_errors: true
       wait_for: host=localhost port={{ pgbouncer_exporter_port }} state=started timeout=10
 
+
+#------------------------------------------------------------------------------
+# Register pgbouncer_exporter
+#------------------------------------------------------------------------------
+# currently only consul registry is implemented
+- name: Setup pgbouncer_exporter
+  tags: node_exporter_register
+  when: service_registry == 'consul'
+  block:
     - name: Register pgb-exporter consul service
       template:
         src: svc-pgbouncer-exporter.json.j2

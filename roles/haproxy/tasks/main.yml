@@ -4,6 +4,7 @@
 #--------------------------------------------------------------#
 - name: Haproxy installation
   tags: haproxy_install
+  when: haproxy_enabled
   block:
     - name: Make sure haproxy is installed
       package: name=haproxy state=present
@@ -16,13 +17,12 @@
       copy: src=haproxy.service dest=/usr/lib/systemd/system/haproxy.service
 
 
-
 #--------------------------------------------------------------#
 # render haproxy configuration
 #--------------------------------------------------------------#
 - name: Setup Haproxy
   tags: haproxy_config
-  when: haproxy_enabled|bool
+  when: haproxy_enabled
   block:
     - name: Fetch postgres cluster memberships
       connection: local
@@ -41,7 +41,7 @@
 #--------------------------------------------------------------#
 - name: Restart Haproxy
   tags: haproxy_launch
-  when: haproxy_enabled|bool
+  when: haproxy_enabled
   block:
     - name: Launch haproxy load balancer service
       tags: haproxy_restart
@@ -59,7 +59,7 @@
 #--------------------------------------------------------------#
 - name: Reload Haproxy
   tags: haproxy_reload
-  when: haproxy_enabled|bool
+  when: haproxy_enabled
   block:
     - name: Reload haproxy load balancer service
       ignore_errors: true
@@ -75,8 +75,10 @@
 #--------------------------------------------------------------#
 - name: Register haproxy consul service
   tags: haproxy_register
+  when: haproxy_enabled and service_registry == 'consul'
   ignore_errors: true
   block:
+
     - name: Copy haproxy service definition
       template:
         src: svc-{{ item }}.json.j2

@@ -1,7 +1,7 @@
 ---
-#==============================================================#
+#------------------------------------------------------------------------------
 # Setup node_exporter
-#==============================================================#
+#------------------------------------------------------------------------------
 - name: Setup node_exporter
   tags: node_exporter
   block:
@@ -17,7 +17,16 @@
     - name: Wait for node_exporter online
       wait_for: host=localhost port={{ node_exporter_port }} state=started timeout=10
 
-    - name: Register node-exporter service
+
+#------------------------------------------------------------------------------
+# Register node_exporter
+#------------------------------------------------------------------------------
+# currently only consul registry is implemented
+- name: Register node_exporter
+  tags: node_exporter_register
+  when: service_registry == 'consul'
+  block:
+    - name: Register node-exporter service to consul
       template:
         src: svc-node-exporter.json.j2
         dest: /etc/consul.d/svc-node-exporter.json
