@@ -1,0 +1,8 @@
+# static monitoring targets based on pigsty inventory
+
+{% for i in prometheus_targets %}
+#======> {{ i.cls }}-{{ i.seq }} [{{ i.role }}]
+- labels: {cls: {{ i.cls }}, ins: {{ i.cls }}-{{ i.seq }}, ip: {{ i.ip }}, role: {{ i.role }}, svc: {{ i.cls }}-{{ i.role }}}
+  targets: [{{ i.ip }}:{{ i.pg_port }}{% if i.node_enabled %}, {{ i.ip }}:{{ i.node_port }}{% endif %}{% if i.pgbouncer_enabled %}, {{ i.ip }}:{{ i.pgbouncer_port }}{% endif %}{% if i.haproxy_enabled %}, {{ i.ip }}:{{ i.haproxy_port }}{% endif %}]
+
+{% endfor %}

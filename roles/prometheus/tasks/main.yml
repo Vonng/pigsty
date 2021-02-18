@@ -74,12 +74,29 @@
 
 
 #------------------------------------------------------------------------------
+# Targeting
+#------------------------------------------------------------------------------
+- name: Setup prometheus targets
+  tags: prometheus_targets
+  block:
+
+    - name: Fetch prometheus static monitoring targets
+      connection: local
+      set_fact:
+        prometheus_targets={{ hostvars|json_query(prometheus_targets_query) }}
+      vars:
+        prometheus_targets_query: "[@.*][0][].{cls: pg_cluster, role: pg_role, seq: pg_seq, ip:inventory_hostname, node_enabled:node_exporter_enabled, node_port:node_exporter_port, pg_enabled:pg_exporter_enabled, pg_port:pg_exporter_port, pgbouncer_enabled:pgbouncer_exporter_enabled, pgbouncer_port:pgbouncer_exporter_port , haproxy_enabled:haproxy_enabled, haproxy_port:haproxy_exporter_port }"
+
+    - name: Templating prometheus targets according to inventory
+      template: src=targets.yml.j2 dest=/etc/prometheus/targets.yml
+
+
+#------------------------------------------------------------------------------
 # Launch
 #------------------------------------------------------------------------------
 - name: Launch prometheus and alertmanager
   tags: prometheus_launch
   block:
-
     # - launch - #
     - name: Launch prometheus service
       systemd: name=prometheus state=restarted enabled=yes daemon_reload=yes
@@ -98,17 +115,18 @@
 #------------------------------------------------------------------------------
 # Register prometheus & alertmanager service (optional)
 #------------------------------------------------------------------------------
-# - name: Register prometheus and alertmanager service
-#   tags: prometheus_register
-#   block:
-#     - name: Copy prometheus service definition
-#       template: src=svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul group=admin mode=0660
-#
-#     - name: Copy alertmanager service definition
-#       template: src=svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul group=admin mode=0660
-#
-#     - name: Reload consul to register prometheus
-#       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+- name: Register prometheus and alertmanager service
+  tags: prometheus_register
+  when: service_registry == 'consul'
+  block:
+  - name: Copy prometheus service definition
+    template: src=svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul mode=0660
+
+  - name: Copy alertmanager service definition
+    template: src=svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul mode=0660
+
+  - name: Reload consul to register prometheus
+    systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
 ...
 
