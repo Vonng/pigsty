@@ -1,11 +1,30 @@
-# Meta (ansible role)
+# Prometheus (ansible role)
 
-This role will provision a meta node with following tasks:
-* Re-init nginx server
-* Nginx exporter
-* Dnsmasq setup
-* Prometheus setup
-* Grafana setup
+* Location: node0 (meta)
+* Binary Path: `/bin/prometheus`
+* Data Directory: `/var/lib/prometheus/data`
+* Config Directory: `/etc/prometheus`
+
+## TL;DR
+
+How to reload prometheus configuration
+
+```bash
+ssh node0
+sudo su
+cd /etc/prometheus
+
+bin/check
+bin/reload
+```
+
+## Files
+
+* [`prometheus.yml`](files/prometheus.yml) Major prometheus configuration
+* [`alertmanager.yml`](files/alertmanager.yml) Major alertmanager configuration
+* [`rules`](files/rules/) Prometheus rules
+  * [`pgsql.yml`](files/rules/alert.yaml) postgres record and alert rules 
+  * [`node.yaml`](files/rules/node.yml) node record and alert rules
 
 
 ### Tasks
@@ -37,15 +56,22 @@ Reload consul to register prometheus	  TAGS: [prometheus_register]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
+#------------------------------------------------------------------------------
+# Prometheus
+#------------------------------------------------------------------------------
+prometheus_data_dir: /var/lib/prometheus/data # prometheus data dir
+prometheus_options: '--storage.tsdb.retention=30d'
+prometheus_reload: false                      # reload prometheus instead of recreate it
+prometheus_sd_method: static                  # service discovery method: static|consul|etcd
 prometheus_scrape_interval: 15s               # global scrape & evaluation interval
 prometheus_scrape_timeout: 5s                 # scrape timeout
-prometheus_metrics_path: /metrics             # default metrics path (only for job 'pg')
-prometheus_data_dir: /var/lib/prometheus/data # prometheus data dir
-prometheus_retention: 90d                     # how long to keep
-prometheus_reload: false                      # reload prometheus instead of recreate it
+prometheus_sd_interval: 5s                    # service discovery refresh interval
 
-# - reference : dcs metadata - #
-dcs_type: consul                  # default dcs server type: consul
-consul_check_interval: 15s        # default service check interval
-consul_check_timeout:  1s         # default service check timeout
+# reference
+export_metrics_path: /metrics                 # default metrics path (only for job 'pg')
+node_exporter_port: 9100                      # default port for node exporter
+pg_exporter_port: 9630                        # default port for pg exporter
+pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
+haproxy_exporter_port: 9101                   # default admin/exporter port
+service_registry: consul                      # none | consul | etcd | both
 ```

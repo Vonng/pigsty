@@ -19,7 +19,7 @@
 #------------------------------------------------------------------------------
 - name: Clean existing prometheus and alertmanager
   tags: prometheus_clean
-  when: prometheus_reload is not defined or not prometheus_reload
+  when: not prometheus_reload
   block:
     # - clean - #
     - name: Wipe out prometheus config dir
@@ -35,60 +35,46 @@
 - name: Setup prometheus and alertmanager
   tags: prometheus_config
   block:
-    # - recreate - #
-    - name: Recreate prometheus data dir
-      file: path={{ prometheus_data_dir }} mode=0700 state=directory owner=prometheus group=prometheus
+    - name: Create postgres directory structure
+      file: path={{ item }} state=directory owner=prometheus group=prometheus mode=700
+      with_items:
+        - /etc/prometheus
+        - /etc/prometheus/bin
+        - /etc/prometheus/rules
+        - /etc/prometheus/targets
+        - "{{ prometheus_data_dir }}"
 
-    # copy entire config dir
-    - name: Copy /etc/prometheus configs
-      copy: src=prometheus/ dest=/etc/prometheus owner=prometheus mode=0755
+    # - bin scripts - #
+    - name: Copy prometheus bin scripts
+      copy: src=bin/ dest=/etc/prometheus/bin/ owner=prometheus mode=0755
+
+    # - pre-process & alerting rules - #
+    - name: Copy prometheus rules scripts
+      copy: src=rules/ dest=/etc/prometheus/rules/ owner=prometheus mode=0755
+
+    # - main config - #
+    - name: Copy altermanager config
+      copy: src=alertmanager.yml dest=/etc/prometheus/alertmanager.yml owner=prometheus mode=0644
+
+    - name: Render prometheus config
+      template: src=prometheus.yml.j2 dest=/etc/prometheus/prometheus.yml owner=prometheus mode=0644
 
     # - overwrite opts - #
-    - name: Copy /etc/prometheus opts
+    - name: Config /etc/prometheus opts
       template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
 
-    # - overwrite parameters - #
-    - name: Overwrite prometheus scrape_interval
-      lineinfile:
-        path: /etc/prometheus/prometheus.yml
-        regexp: '^  scrape_interval:'
-        line: '  scrape_interval: {{ prometheus_scrape_interval }}'
-
-    - name: Overwrite prometheus evaluation_interval
-      lineinfile:
-        path: /etc/prometheus/prometheus.yml
-        regexp: '^  evaluation_interval:'
-        line: '  evaluation_interval: {{ prometheus_scrape_interval }}'
-
-    - name: Overwrite prometheus scrape_timeout
-      lineinfile:
-        path: /etc/prometheus/prometheus.yml
-        regexp: '^  scrape_timeout:'
-        line: '  scrape_timeout: {{ prometheus_scrape_timeout }}'
-
-    - name: Overwrite prometheus pg metrics path
-      lineinfile:
-        path: /etc/prometheus/prometheus.yml
-        regexp: '    metrics_path:'
-        line: '    metrics_path: {{ prometheus_metrics_path }}'
-
-
-#------------------------------------------------------------------------------
-# Targeting
-#------------------------------------------------------------------------------
-- name: Setup prometheus targets
-  tags: prometheus_targets
-  block:
-
+    # - fetch static targets - #
     - name: Fetch prometheus static monitoring targets
+      tags: prometheus_targets
       connection: local
       set_fact:
         prometheus_targets={{ hostvars|json_query(prometheus_targets_query) }}
       vars:
         prometheus_targets_query: "[@.*][0][].{cls: pg_cluster, role: pg_role, seq: pg_seq, ip:inventory_hostname, node_enabled:node_exporter_enabled, node_port:node_exporter_port, pg_enabled:pg_exporter_enabled, pg_port:pg_exporter_port, pgbouncer_enabled:pgbouncer_exporter_enabled, pgbouncer_port:pgbouncer_exporter_port , haproxy_enabled:haproxy_enabled, haproxy_port:haproxy_exporter_port }"
 
-    - name: Templating prometheus targets according to inventory
-      template: src=targets.yml.j2 dest=/etc/prometheus/targets.yml
+    - name: Render prometheus static targets
+      tags: prometheus_targets
+      template: src=targets.yml.j2 dest=/etc/prometheus/targets/all.yml
 
 
 #------------------------------------------------------------------------------
@@ -106,10 +92,10 @@
 
     # - wait - #
     - name: Wait for prometheus online
-      wait_for: host=localhost port=9090 state=started
+      wait_for: host=127.0.0.1 port=9090 state=started
 
     - name: Wait for alertmanager online
-      wait_for: host=localhost port=9093 state=started
+      wait_for: host=127.0.0.1 port=9093 state=started
 
 
 #------------------------------------------------------------------------------

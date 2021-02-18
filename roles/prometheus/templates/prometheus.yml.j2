@@ -1,0 +1,113 @@
+---
+#==============================================================#
+# File      :   prometheus.yml
+# Ctime     :   2020-04-03
+# Mtime     :   2021-02-18
+# Desc      :   Prometheus Configuration File
+# Path      :   /etc/prometheus/prometheus.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+
+#------------------------------------------------------------------------------
+# Globals
+#------------------------------------------------------------------------------
+global:
+  scrape_interval: {{ prometheus_scrape_interval }}
+  evaluation_interval: {{ prometheus_scrape_interval }}
+  scrape_timeout: {{ prometheus_scrape_timeout }}
+
+#------------------------------------------------------------------------------
+# Alerts
+#------------------------------------------------------------------------------
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 127.0.0.1:9093
+      scheme: http
+      timeout: 10s
+      api_version: v1
+
+#------------------------------------------------------------------------------
+# Rules
+#------------------------------------------------------------------------------
+rule_files:
+  - rules/*.yml
+
+#------------------------------------------------------------------------------
+# Targets
+#------------------------------------------------------------------------------
+scrape_configs:
+
+  #------------------------------------------------------------------------------
+  # job: meta (self monitoring)
+  # grafana, prometheus, altermanager, nginx
+  #------------------------------------------------------------------------------
+  - job_name: meta
+    static_configs:
+      # customize this according to your actual deployment
+      - targets: [ 127.0.0.1:3000,  127.0.0.1:9090,  127.0.0.1:9093,  127.0.0.1:9113 ]
+        labels: {cls: "pg-meta", ins: "pg-meta-1"}
+
+
+  #------------------------------------------------------------------------------
+  # job: pg  (database monitoring)
+  # node_exporter | pg_exporter | pgbouncer_exporter | haproxy exporter
+  # final labels: [cls, svc, ins, role, node, ip, instance]
+  #------------------------------------------------------------------------------
+
+{% if prometheus_sd_method == 'static' %}
+  #------------------------------------------------------------------------------
+  # static file service discovery version
+  # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config
+  #------------------------------------------------------------------------------
+  - job_name: pg
+    metrics_path: {{ export_metrics_path }}
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [targets/*.yml]
+{% endif %}
+
+
+{% if prometheus_sd_method == 'consul' %}
+  #------------------------------------------------------------------------------
+  # consul service discovery version
+  # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#consul_sd_config
+  #------------------------------------------------------------------------------
+
+  - job_name: pg
+    metrics_path: {{ export_metrics_path }}
+    consul_sd_configs:
+      - server: 127.0.0.1:8500
+        refresh_interval: {{ prometheus_sd_interval }}
+        tags:
+          - pg
+          - exporter
+
+    relabel_configs:
+      # cluster label: pg-test, pg-meta, ...
+      - source_labels: [ __meta_consul_service_metadata_cluster ]
+        action: replace
+        target_label: cls
+
+      # service label: pg-test-primary, pg-test-replica, ...
+      - source_labels: [ __meta_consul_service_metadata_service ]
+        action: replace
+        target_label: svc
+
+      # instance label: pg-meta-0, pg-test-1, ...
+      - source_labels: [ __meta_consul_service_metadata_instance ]
+        action: replace
+        target_label: ins
+
+      # role label      `primary|replica`
+      - source_labels: [ __meta_consul_service_metadata_role ]
+        action: replace
+        target_label: role
+
+      # node/ip address label
+      - source_labels: [ __meta_consul_address ]
+        action: replace
+        target_label: ip
+{% endif %}
