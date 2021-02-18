@@ -99,45 +99,52 @@ pg_admin_password: DBUser.Admin               # system admin password
 
 # - default roles - #
 pg_default_roles:
-  - username: dbrole_readonly                 # sample user:
-    options: NOLOGIN                          # role can not login
-    comment: role for readonly access         # comment string
+  # default roles
+  - username: dbrole_readonly                 # production read-only roles
+    options: NOLOGIN
+    comment: role for readonly access
 
-  - username: dbrole_readwrite                # sample user: one object for each user
+  - username: dbrole_readwrite                # production read-write roles
     options: NOLOGIN
     comment: role for read-write access
     groups: [ dbrole_readonly ]               # read-write includes read-only access
 
-  - username: dbrole_admin                    # sample user: one object for each user
+  - username: dbrole_admin                    # production admin role (for DDL change)
     options: NOLOGIN BYPASSRLS                # admin can bypass row level security
     comment: role for object creation
     groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
+  - username: dbrole_offline                  # restricted read-only user (only allowed in specific replica)
+    options: NOLOGIN BYPASSRLS                # for running slow queries, interactive queries, perform ETL
+    comment: role for restricted read-only access
+    groups: [dbrole_readonly]
+
+  # default uesrs
   # NOTE: replicator, monitor, admin password are overwrite by separated config entry
-  - username: postgres                        # reset dbsu password to NULL (if dbsu is not postgres)
+  - username: postgres                        # dbsu
     options: SUPERUSER LOGIN
     comment: system superuser
 
-  - username: replicator
+  - username: replicator                      # default replication user
     options: REPLICATION LOGIN
     groups: [pg_monitor, dbrole_readonly]
     comment: system replicator
 
-  - username: dbuser_monitor
+  - username: dbuser_monitor                  # default monitor user
     options: LOGIN CONNECTION LIMIT 10
     comment: system monitor user
     groups: [pg_monitor, dbrole_readonly]
 
-  - username: dbuser_admin
+  - username: dbuser_admin                    # default admin user
     options: LOGIN BYPASSRLS
     comment: system admin user
     groups: [dbrole_admin]
 
-  - username: dbuser_stats
+  - username: dbuser_stats                    # default stats user (for ETL)
     password: DBUser.Stats
     options: LOGIN
     comment: business read-only user for statistics
-    groups: [dbrole_readonly]
+    groups: [dbrole_offline]
 
 
 # object created by dbsu and admin will have their privileges properly set
@@ -175,6 +182,7 @@ pg_default_extensions:
   - name: intarray
 
 # - hba - #
+pg_offline_query: false                     # set to true to enable offline query on instance
 pg_hba_rules:
   - title: allow meta node password access
     role: common
@@ -195,17 +203,18 @@ pg_hba_rules:
       - host    all             all                 172.16.0.0/12       md5
       - host    all             all                 192.168.0.0/16      md5
 
-  - title: allow local read-write access (local production user via pgbouncer)
+  - title: allow local read/write (local production user via pgbouncer)
     role: common
     rules:
-      - local   all     +dbrole_readwrite                               md5
-      - host    all     +dbrole_readwrite           127.0.0.1/32        md5
+      - local   all     +dbrole_readonly                                md5
+      - host    all     +dbrole_readonly           127.0.0.1/32         md5
 
-  - title: allow read-only user (stats, personal) password directly access
-    role: replica
+  - title: allow offline query (ETL,SAGA,Interactive) on offline instance
+    role: offline
     rules:
-      - local   all     +dbrole_readonly                               md5
-      - host    all     +dbrole_readonly           127.0.0.1/32        md5
+      - host    all     +dbrole_offline               10.0.0.0/8        md5
+      - host    all     +dbrole_offline               172.16.0.0/12     md5
+      - host    all     +dbrole_offline               192.168.0.0/16    md5
 
 pg_hba_rules_extra: []
 

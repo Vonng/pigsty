@@ -77,9 +77,9 @@ all: # top-level namespace, match all hosts
     pg-test: # define cluster named 'pg-test'
       # - cluster members - #
       hosts:
-        10.10.10.11: {pg_seq: 1, pg_role: replica, ansible_host: node-1}
-        10.10.10.12: {pg_seq: 2, pg_role: primary, ansible_host: node-2}
-        10.10.10.13: {pg_seq: 3, pg_role: replica, ansible_host: node-3}
+        10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
+        10.10.10.12: {pg_seq: 2, pg_role: replica, ansible_host: node-2}
+        10.10.10.13: {pg_seq: 3, pg_role: replica, ansible_host: node-3, pg_offline_query: true}
 
       # - cluster configs - #
       vars:
@@ -89,16 +89,26 @@ all: # top-level namespace, match all hosts
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
 
+        # business users, adjust on your own needs
         pg_users:
-          - username: test
-            password: test
+          - username: test                  # example production user have read-write access
+            password: test                  # example user's password
             comment: default test user
             groups: [ dbrole_readwrite ]    # dborole_admin|dbrole_readwrite|dbrole_readonly
+
+          - username: dbuser_vonng          # example personal user which only have limited access to offline instance
+            password: DBUser.Vonng          # or instance with explict mark `pg_offline_query = true`
+            comment: Example personal user
+            pgbouncer: false                # personal user should not be allowed to login with pgbouncer
+            groups: [ dbrole_offline]       # personal/stats/ETL user should be grant with dbrole_offline
+
         pg_databases:                       # create a business database 'test'
           - name: test
-            extensions: [{name: postgis}]   # create extra extension postgis
-            parameters:                     # overwrite database meta's default search_path
+            extensions:                     # create extra extension postgis under schema 'public'
+              - {name: postgis, schmea: public}
+            parameters:                     # overwrite database test's default search_path
               search_path: public,monitor
+
         pg_default_database: test           # default database will be used as primary monitor target
 
         # proxy settings
@@ -537,47 +547,55 @@ all: # top-level namespace, match all hosts
     pg_admin_username: dbuser_admin               # system admin user
     pg_admin_password: DBUser.Admin               # system admin password
 
+
     # - default roles - #
     pg_default_roles:
-      - username: dbrole_readonly                 # sample user:
-        options: NOLOGIN                          # role can not login
-        comment: role for readonly access         # comment string
+      # roles
+      - username: dbrole_readonly                 # production read-only roles
+        options: NOLOGIN
+        comment: role for readonly access
 
-      - username: dbrole_readwrite                # sample user: one object for each user
+      - username: dbrole_readwrite                # production read-write roles
         options: NOLOGIN
         comment: role for read-write access
         groups: [ dbrole_readonly ]               # read-write includes read-only access
 
-      - username: dbrole_admin                    # sample user: one object for each user
+      - username: dbrole_offline                  # restricted read-only user (only allowed in specific replica)
+        options: NOLOGIN                          # for running slow queries, interactive queries, perform ETL
+        comment: role for restricted read-only access
+
+      - username: dbrole_admin                    # production admin role (for DDL change)
         options: NOLOGIN BYPASSRLS                # admin can bypass row level security
         comment: role for object creation
         groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
-      # NOTE: replicator, monitor, admin password are overwritten by separated config entry
-      - username: postgres                        # reset dbsu password to NULL (if dbsu is not postgres)
+      # users
+      # NOTE: replicator, monitor, admin password are overwrite by separated config entry
+      - username: postgres                        # dbsu
         options: SUPERUSER LOGIN
         comment: system superuser
 
-      - username: replicator
+      - username: replicator                      # default replication user
         options: REPLICATION LOGIN
         groups: [pg_monitor, dbrole_readonly]
         comment: system replicator
 
-      - username: dbuser_monitor
+      - username: dbuser_monitor                  # default monitor user
         options: LOGIN CONNECTION LIMIT 10
         comment: system monitor user
         groups: [pg_monitor, dbrole_readonly]
 
-      - username: dbuser_admin
+      - username: dbuser_admin                    # default admin user
         options: LOGIN BYPASSRLS
         comment: system admin user
         groups: [dbrole_admin]
 
-      - username: dbuser_stats
+      - username: dbuser_stats                    # default stats user (for ETL)
         password: DBUser.Stats
         options: LOGIN
         comment: business read-only user for statistics
-        groups: [dbrole_readonly]
+        groups: [dbrole_offline]
+
 
 
     # object created by dbsu and admin will have their privileges properly set
@@ -585,6 +603,10 @@ all: # top-level namespace, match all hosts
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT                        ON TABLES    TO dbrole_readonly
       - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
+      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
+      - GRANT USAGE                         ON SCHEMAS   TO dbrole_offline
+      - GRANT SELECT                        ON TABLES    TO dbrole_offline
+      - GRANT SELECT                        ON SEQUENCES TO dbrole_offline
       - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
       - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
       - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
@@ -615,6 +637,7 @@ all: # top-level namespace, match all hosts
       - name: intarray
 
     # postgres host-based authentication rules
+    pg_offline_query: false                       # set to true to enable offline query on instance
     pg_hba_rules:
       - title: allow meta node password access
         role: common
@@ -635,17 +658,20 @@ all: # top-level namespace, match all hosts
           - host    all             all                 172.16.0.0/12       md5
           - host    all             all                 192.168.0.0/16      md5
 
-      - title: allow local read-write access (local production user via pgbouncer)
+      - title: allow local read/write (local production user via pgbouncer)
         role: common
         rules:
-          - local   all     +dbrole_readwrite                               md5
-          - host    all     +dbrole_readwrite           127.0.0.1/32        md5
+          - local   all     +dbrole_readonly                                md5
+          - host    all     +dbrole_readonly           127.0.0.1/32         md5
 
-      - title: allow read-only user (stats, personal) password directly access
-        role: replica
+      - title: allow offline query (ETL,SAGA,Interactive) on offline instance
+        role: offline
         rules:
-          - local   all     +dbrole_readonly                               md5
-          - host    all     +dbrole_readonly           127.0.0.1/32        md5
+          - host    all     +dbrole_offline               10.0.0.0/8        md5
+          - host    all     +dbrole_offline               172.16.0.0/12     md5
+          - host    all     +dbrole_offline               192.168.0.0/16    md5
+
+
     pg_hba_rules_extra: []
 
     # pgbouncer host-based authentication rules
