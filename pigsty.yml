@@ -279,12 +279,9 @@ all: # top-level namespace, match all hosts
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
     repo_url_packages:
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.1/pg_exporter-0.3.1-1.el7.x86_64.rpm
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
       - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
-
-
-
 
 
     #------------------------------------------------------------------------------
@@ -296,29 +293,28 @@ all: # top-level namespace, match all hosts
     node_dns_hosts: # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
-    node_dns_servers: # dynamic nameserver in /etc/resolv.conf
+    node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
-    node_dns_options: # dns resolv options
+    node_dns_options:                             # dns resolv options
       - options single-request-reopen timeout:1 rotate
       - domain service.consul
 
     # - node repo - #
     node_repo_method: local                       # none|local|public (use local repo for production env)
     node_repo_remove: true                        # whether remove existing repo
-    # local repo url (if method=local, make sure firewall is configured or disabled)
-    node_local_repo_url:
+    node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
       - http://yum.pigsty/pigsty.repo
 
     # - node packages - #
-    node_packages: # common packages for all nodes
+    node_packages:                                # common packages for all nodes
       - wget,yum-utils,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
       - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
       - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
       - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
       - node_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
-    node_extra_packages: # extra packages for all nodes
+    node_extra_packages:                          # extra packages for all nodes
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
-    node_meta_packages: # packages for meta nodes only
+    node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
       - dnsmasq,nginx,ansible,pgbadger,polysh
 
@@ -343,7 +339,7 @@ all: # top-level namespace, match all hosts
 
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params: # set additional sysctl parameters, k:v format
+    node_sysctl_params:                           # set additional sysctl parameters, k:v format
       net.bridge.bridge-nf-call-iptables: 1       # for kubernetes
 
     # - node user - #
@@ -351,14 +347,14 @@ all: # top-level namespace, match all hosts
     node_admin_uid: 88                            # uid and gid for admin user
     node_admin_username: admin                    # default admin user
     node_admin_ssh_exchange: true                 # exchange ssh key among cluster ?
-    node_admin_pks: # public key list that will be installed
+    node_admin_pks:                               # public key list that will be installed
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     # - node ntp - #
     node_ntp_service: ntp                         # ntp or chrony
     node_ntp_config: true                         # overwrite existing ntp config?
     node_timezone: Asia/Shanghai                  # default node timezone
-    node_ntp_servers: # default NTP servers
+    node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
@@ -519,6 +515,7 @@ all: # top-level namespace, match all hosts
     # - connection - #
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' by default (all ipv4 addr)
     pg_port: 5432                                 # postgres port (5432 by default)
+    pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
 
     # - patroni - #
     # patroni_mode, available options: default|pause|remove
@@ -601,7 +598,6 @@ all: # top-level namespace, match all hosts
         groups: [dbrole_offline]
 
 
-
     # object created by dbsu and admin will have their privileges properly set
     pg_default_privilegs:
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
@@ -619,10 +615,10 @@ all: # top-level namespace, match all hosts
       - GRANT USAGE                         ON TYPES     TO dbrole_admin
 
     # schemas
-    pg_default_schemas: [monitor]
+    pg_default_schemas: [monitor]                 # default schemas to be created
 
     # extension
-    pg_default_extensions:
+    pg_default_extensions:                        # default extensions to be created
       - { name: 'pg_stat_statements',  schema: 'monitor' }
       - { name: 'pgstattuple',         schema: 'monitor' }
       - { name: 'pg_qualstats',        schema: 'monitor' }
@@ -676,7 +672,7 @@ all: # top-level namespace, match all hosts
           - host    all     +dbrole_offline               192.168.0.0/16    md5
 
 
-    pg_hba_rules_extra: []
+    pg_hba_rules_extra: []                        # extra hba rules (for cluster/instance overwrite)
 
     # pgbouncer host-based authentication rules
     pgbouncer_hba_rules:
@@ -692,7 +688,7 @@ all: # top-level namespace, match all hosts
           - host   all          all                     10.0.0.0/8      md5
           - host   all          all                     172.16.0.0/12   md5
           - host   all          all                     192.168.0.0/16  md5
-    pgbouncer_hba_rules_extra: []
+    pgbouncer_hba_rules_extra: []                 # extra pgbouncer hba rules (for cluster/instance overwrite)
 
 
     #------------------------------------------------------------------------------
@@ -712,9 +708,6 @@ all: # top-level namespace, match all hosts
     pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance
     pg_exporter_port: 9630                        # default port for pg exporter
     pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
-    pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
-
-
 
     #------------------------------------------------------------------------------
     # PROXY PROVISION
@@ -737,7 +730,7 @@ all: # top-level namespace, match all hosts
                                                   # (in case of singleton replica failure, primary can still take read-only  )
 
     # - vip - #
-    # vip_enabled: true                             # level2 vip requires primary/standby under same switch
+    # vip_enabled: true                           # level2 vip requires primary/standby under same switch
     # vip_address: 127.0.0.1                      # virtual ip address ip/cidr
     # vip_cidrmask: 32                            # virtual ip address cidr mask
     # vip_interface: eth0                         # virtual ip network interface
