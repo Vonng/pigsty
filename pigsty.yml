@@ -29,7 +29,7 @@ all: # top-level namespace, match all hosts
     #-----------------------------
     # meta controller
     #-----------------------------
-    meta: # special group 'meta' defines the main controller machine
+    meta:       # special group 'meta' defines the main controller machine
       vars:
         meta_node: true                     # mark node as meta controller
         ansible_group_priority: 99          # meta group is top priority
@@ -41,7 +41,6 @@ all: # top-level namespace, match all hosts
     # cluster: pg-meta
     #-----------------------------
     pg-meta:
-
       # - cluster members - #
       hosts:
         10.10.10.10: {pg_seq: 1, pg_role: primary, ansible_host: meta}
@@ -93,22 +92,21 @@ all: # top-level namespace, match all hosts
         pg_users:
           - username: test                  # example production user have read-write access
             password: test                  # example user's password
-            comment: default test user
             groups: [ dbrole_readwrite ]    # dborole_admin|dbrole_readwrite|dbrole_readonly
+            comment: default test user for production usage
 
-          - username: dbuser_vonng          # example personal user which only have limited access to offline instance
+          - username: dbuser_vonng          # personal user example which only have limited access to offline instance
             password: DBUser.Vonng          # or instance with explict mark `pg_offline_query = true`
-            comment: Example personal user
+            groups: [ dbrole_offline ]       # personal/stats/ETL user should be grant with dbrole_offline
             pgbouncer: false                # personal user should not be allowed to login with pgbouncer
-            groups: [ dbrole_offline]       # personal/stats/ETL user should be grant with dbrole_offline
+            comment: example personal user for interactive queries
 
         pg_databases:                       # create a business database 'test'
           - name: test
             extensions:                     # create extra extension postgis under schema 'public'
               - {name: postgis, schmea: public}
-            parameters:                     # overwrite database test's default search_path
+            parameters:                     # overwrite database test's default search_path parameter
               search_path: public,monitor
-
         pg_default_database: test           # default database will be used as primary monitor target
 
         # proxy settings
@@ -116,7 +114,6 @@ all: # top-level namespace, match all hosts
         vip_address: 10.10.10.3             # virtual ip address
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
-
 
 
   #==================================================================#
@@ -132,10 +129,11 @@ all: # top-level namespace, match all hosts
     # ansible_user: vagrant                       # admin user with ssh access and sudo privilege
 
     proxy_env: # global proxy env when downloading packages
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.aliyuncs.com,/mirrors.tuna.tsinghua.edu.cn"
       # http_proxy: 'http://xxxxxx'
       # https_proxy: 'http://xxxxxx'
       # all_proxy: 'http://xxxxxx'
-      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.aliyuncs.com,/mirrors.tuna.tsinghua.edu.cn"
+
 
     #------------------------------------------------------------------------------
     # REPO PROVISION
@@ -401,7 +399,7 @@ all: # top-level namespace, match all hosts
     prometheus_data_dir: /export/prometheus/data  # prometheus data dir
     prometheus_options: '--storage.tsdb.retention=30d'
     prometheus_reload: false                      # reload prometheus instead of recreate it
-    prometheus_sd_method: consul                  # service discovery method: static|consul|etcd
+    prometheus_sd_method: static                  # service discovery method: static|consul|etcd
     prometheus_scrape_interval: 2s                # global scrape & evaluation interval
     prometheus_scrape_timeout: 1s                 # scrape timeout
     prometheus_sd_interval: 2s                    # service discovery refresh interval
@@ -439,15 +437,13 @@ all: # top-level namespace, match all hosts
     #------------------------------------------------------------------------------
     # DCS PROVISION
     #------------------------------------------------------------------------------
-    service_registry: consul                      # none | consul | etcd | both
+    service_registry: consul                      # where to register services: none | consul | etcd | both
     dcs_type: consul                              # consul | etcd | both
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
-    # dcs server dict in name:ip format
-    dcs_servers:
+    dcs_servers:                                  # dcs server dict in name:ip format
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
       # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
       # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
-
     dcs_exists_action: skip                       # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
@@ -548,7 +544,6 @@ all: # top-level namespace, match all hosts
     pg_admin_username: dbuser_admin               # system admin user
     pg_admin_password: DBUser.Admin               # system admin password
 
-
     # - default roles - #
     pg_default_roles:
       # roles
@@ -597,9 +592,8 @@ all: # top-level namespace, match all hosts
         comment: business read-only user for statistics
         groups: [dbrole_offline]
 
-
-    # object created by dbsu and admin will have their privileges properly set
-    pg_default_privilegs:
+    # - privileges - #
+    pg_default_privilegs:                         # object created by dbsu and admin will have their privileges properly set
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT                        ON TABLES    TO dbrole_readonly
       - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
@@ -614,10 +608,10 @@ all: # top-level namespace, match all hosts
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
       - GRANT USAGE                         ON TYPES     TO dbrole_admin
 
-    # schemas
+    # - schemas - #
     pg_default_schemas: [monitor]                 # default schemas to be created
 
-    # extension
+    # - extension - #
     pg_default_extensions:                        # default extensions to be created
       - { name: 'pg_stat_statements',  schema: 'monitor' }
       - { name: 'pgstattuple',         schema: 'monitor' }
@@ -636,9 +630,9 @@ all: # top-level namespace, match all hosts
       - name: intagg
       - name: intarray
 
-    # postgres host-based authentication rules
+    # - hba - #
     pg_offline_query: false                       # set to true to enable offline query on instance
-    pg_hba_rules:
+    pg_hba_rules:                                 # postgres host-based authentication rules
       - title: allow meta node password access
         role: common
         rules:
@@ -671,11 +665,9 @@ all: # top-level namespace, match all hosts
           - host    all     +dbrole_offline               172.16.0.0/12     md5
           - host    all     +dbrole_offline               192.168.0.0/16    md5
 
-
     pg_hba_rules_extra: []                        # extra hba rules (for cluster/instance overwrite)
 
-    # pgbouncer host-based authentication rules
-    pgbouncer_hba_rules:
+    pgbouncer_hba_rules:                          # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
@@ -688,6 +680,7 @@ all: # top-level namespace, match all hosts
           - host   all          all                     10.0.0.0/8      md5
           - host   all          all                     172.16.0.0/12   md5
           - host   all          all                     192.168.0.0/16  md5
+
     pgbouncer_hba_rules_extra: []                 # extra pgbouncer hba rules (for cluster/instance overwrite)
 
 
