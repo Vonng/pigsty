@@ -27,8 +27,9 @@
       ignore_errors: true
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
-        - keepalived
+        - vip-manager
         - haproxy
+        # - kealived
 
 
 #------------------------------------------------------------------------------
@@ -94,6 +95,15 @@
         - postgres
         - pgbouncer
 
+    # if in resume mode, postgres will not be stopped
+    - name: Force stop postgres non-primary process
+      become_user: "{{ pg_dbsu }}"
+      when: pg_role != 'primary'
+      ignore_errors: true
+      shell: |
+        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
+        exit 0
+
     - name: Remove postgres primary services
       when: pg_role == 'primary'
       ignore_errors: true
@@ -102,6 +112,14 @@
         - patroni
         - postgres
         - pgbouncer
+
+    - name: Force stop postgres primary process
+      become_user: "{{ pg_dbsu }}"
+      when: pg_role == 'primary'
+      ignore_errors: true
+      shell: |
+        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
+        exit 0
 
     - name: Deregister postgres services
       ignore_errors: true
