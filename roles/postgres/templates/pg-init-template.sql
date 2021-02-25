@@ -61,16 +61,16 @@ ALTER ROLE "{{ pg_admin_username }}" PASSWORD '{{ pg_admin_password }}';
 --==================================================================--
 --                          Default Privileges                      --
 --==================================================================--
-{% for priv in pg_default_privilegs %}
+{% for priv in pg_default_privileges %}
 ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_dbsu }} {{ priv }};
 {% endfor %}
 
-{% for priv in pg_default_privilegs %}
+{% for priv in pg_default_privileges %}
 ALTER DEFAULT PRIVILEGES FOR ROLE {{ pg_admin_username }} {{ priv }};
 {% endfor %}
 
--- for business admin, they can set role to dbrole_admin
-{% for priv in pg_default_privilegs %}
+-- for additional business admin, they can SET ROLE to dbrole_admin
+{% for priv in pg_default_privileges %}
 ALTER DEFAULT PRIVILEGES FOR ROLE "dbrole_admin" {{ priv }};
 {% endfor %}
 
