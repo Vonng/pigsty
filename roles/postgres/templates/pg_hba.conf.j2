@@ -26,9 +26,8 @@ host    all             {{ pg_monitor_username }}      127.0.0.1/32        md5
 # {{ pg_role }} HBA
 #==============================================================#
 {% for hba in pg_hba_rules %}
-{% if hba.role == '!' + pg_role %}
-# negate hba rules
-#  {% if 'title' in hba %}{{ hba.title }}{% endif %}
+{% if hba.role == pg_role %}
+{% if 'title' in hba %}# {{ hba.title }}{% endif %}
 
 {% for rule in hba.rules %}
 {{ rule }}

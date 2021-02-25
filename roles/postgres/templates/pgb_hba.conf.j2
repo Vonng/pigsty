@@ -1,17 +1,20 @@
 #==============================================================#
 # Default HBA
 #==============================================================#
-# local admin access
+# local dbsu quick access
 local  pgbouncer postgres                                       peer
 
-# local all password access
+# local all password access (for biz user test)
+local   all     all                                             md5
 host    all     all                         127.0.0.1/32        md5
 
-# local admin & monitor access
-local  pgbouncer    {{ pg_monitor_username }}                   md5
-local  pgbouncer    {{ pg_admin_username }}                     md5
-host   pgbouncer    {{ pg_monitor_username }}   127.0.0.1/32    md5
-host   pgbouncer    {{ pg_admin_username }}     127.0.0.1/32    md5
+# monitor user intranet access to pgbouncer stats
+host   pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      md5
+host   all          {{ pg_monitor_username }}   0.0.0.0/0       reject
+
+# admin user have intranet access to pgbouncer admin
+host   pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      md5
+host   all          {{ pg_admin_username }}     0.0.0.0/0       reject
 
 #==============================================================#
 # Common HBA
