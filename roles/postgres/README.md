@@ -215,8 +215,10 @@ pg_fs_bkup: /var/backups                      # backup disk mount point   /pg/* 
 # - connection - #
 pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' by default (all ipv4 addr)
 pg_port: 5432                                 # postgres port (5432 by default)
-pg_localhost: /var/run/postgresql
-pg_shared_libraries: pg_stat_statements, auto_explain
+pg_localhost: /var/run/postgresql             # default unix socket directory
+pg_shared_libraries: pg_stat_statements, auto_explain      # default shared libraries
+
+
 
 #------------------------------------------------------------------------------
 # PATRONI PROVISION
@@ -306,16 +308,19 @@ pg_default_roles:
 
 
 # object created by dbsu and admin will have their privileges properly set
-pg_default_privilegs:
+pg_default_privileges:
   - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
   - GRANT SELECT                        ON TABLES    TO dbrole_readonly
   - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
   - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
+  - GRANT USAGE                         ON SCHEMAS   TO dbrole_offline
+  - GRANT SELECT                        ON TABLES    TO dbrole_offline
+  - GRANT SELECT                        ON SEQUENCES TO dbrole_offline
+  - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_offline
   - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
   - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
   - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
   - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
-  - GRANT USAGE                         ON TYPES     TO dbrole_admin
 
 # schemas
 pg_default_schemas: [monitor]
@@ -413,5 +418,7 @@ pg_databases: # additional business database
     parameters:
       search_path: 'yay,public,monitor'       # set default search path
 
-...
+
+# - reference - #
+service_registry: consul                      # none | consul | etcd | both
 ```
