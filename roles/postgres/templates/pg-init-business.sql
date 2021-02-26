@@ -92,7 +92,7 @@ GRANT CREATE ON SCHEMA public TO "dbrole_admin"; -- admin can create objects
 
 -- create extensions
 {% if 'extensions' in database %}{% for extension in database.extensions %}
-CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %}WITH SCHEMA "{{ extension.schema }}"{% endif %};
+CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %};
 {% endfor %}{% endif %}
 
 -- alter databaes parameters
