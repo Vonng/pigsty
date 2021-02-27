@@ -101,52 +101,53 @@ pg_admin_password: DBUser.Admin               # system admin password
 
 # - default roles - #
 pg_default_roles:
-  # default roles
-  - username: dbrole_readonly                 # production read-only roles
-    options: NOLOGIN
-    comment: role for readonly access
+  # common production readonly user
+  - name: dbrole_readonly                 # production read-only roles
+    login: false
+    comment: role for global readonly access
 
-  - username: dbrole_readwrite                # production read-write roles
-    options: NOLOGIN
-    comment: role for read-write access
-    groups: [ dbrole_readonly ]               # read-write includes read-only access
+  # common production read-write user
+  - name: dbrole_readwrite                # production read-write roles
+    login: false
+    groups: [dbrole_readonly]             # read-write includes read-only access
+    comment: role for global read-write access
 
-  - username: dbrole_admin                    # production admin role (for DDL change)
-    options: NOLOGIN BYPASSRLS                # admin can bypass row level security
+  # offline have same privileges as readonly, but with limited hba access on offline instance only
+  # for the purpose of running slow queries, interactive queries and perform ETL tasks
+  - name: dbrole_offline
+    login: false
+    comment: role for restricted read-only access (offline instance)
+
+  # admin have the privileges to issue DDL changes
+  - name: dbrole_admin
+    login: false
+    bypassrls: true
     comment: role for object creation
     groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
-  - username: dbrole_offline                  # restricted read-only user (only allowed in specific replica)
-    options: NOLOGIN BYPASSRLS                # for running slow queries, interactive queries, perform ETL
-    comment: role for restricted read-only access
-    groups: [dbrole_readonly]
-
-  # default uesrs
-  # NOTE: replicator, monitor, admin password are overwrite by separated config entry
-  - username: postgres                        # dbsu
-    options: SUPERUSER LOGIN
+  # dbsu, name is designated by `pg_dbsu`. It's not recommend to set password for dbsu
+  - name: postgres
+    superuser: true
     comment: system superuser
 
-  - username: replicator                      # default replication user
-    options: REPLICATION LOGIN
+  # default replication user, name is designated by `pg_replication_username`, and password is set by `pg_replication_password`
+  - name: replicator
+    replication: true
     groups: [pg_monitor, dbrole_readonly]
     comment: system replicator
 
-  - username: dbuser_monitor                  # default monitor user
-    options: LOGIN CONNECTION LIMIT 10
+  # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
+  - name: dbuser_monitor
+    connlimit: 16
     comment: system monitor user
     groups: [pg_monitor, dbrole_readonly]
 
-  - username: dbuser_admin                    # default admin user
-    options: LOGIN BYPASSRLS
+  # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
+  - name: dbuser_admin
+    bypassrls: true
     comment: system admin user
     groups: [dbrole_admin]
 
-  - username: dbuser_stats                    # default stats user (for ETL)
-    password: DBUser.Stats
-    options: LOGIN
-    comment: business read-only user for statistics
-    groups: [dbrole_offline]
 
 
 # object created by dbsu and admin will have their privileges properly set
@@ -245,22 +246,11 @@ pgbouncer_hba_rules_extra: []
 #------------------------------------------------------------------------------
 # - business - #
 # users that are ad hoc to each cluster
-pg_users:
-  - username: dbuser_test
-    password: DBUser.Test
-    options: LOGIN NOINHERIT
-    comment: business read-write user
-    groups: [dbrole_readwrite]
+pg_users: []
 
-pg_databases: # additional business database
-  - name: test                                # one object for each database
-    owner: dbuser_test
-    schemas: [monitor, public]
-    extensions: [{name: "postgis", schema: "public"}]
-    parameters:
-      search_path: 'yay,public,monitor'       # set default search path
-
+pg_databases: []
 
 # - reference - #
 service_registry: consul                      # none | consul | etcd | both
+dcs_type: consul                              # none | consul | etcd
 ...

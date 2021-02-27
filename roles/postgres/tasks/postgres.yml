@@ -91,6 +91,12 @@
     #------------------------------------------------------------------------------
     # patroni systemd
     #------------------------------------------------------------------------------
+    # it may be overwritten by patroni upgrade!
+    - name: Copy patroni systemd service file
+      template:
+        src: patroni.service.j2
+        dest: /usr/lib/systemd/system/patroni.service
+
     - name: create patroni systemd drop-in dir
       file:
         path: /etc/systemd/system/patroni.service.d
@@ -104,8 +110,9 @@
         dest: /usr/lib/systemd/system/postgres.service
 
 
-    # add dependency for patroni
-    - name: create patroni systemd drop-in file
+    # add consul dependency for patroni
+    - name: Drop-In consul dependency for patroni
+      when: dcs_type == 'consul'
       copy:
         dest: /etc/systemd/system/patroni.service.d/dependency.conf
         content: |
