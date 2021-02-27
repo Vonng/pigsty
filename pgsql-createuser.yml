@@ -1,0 +1,90 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-createuser.yml
+# Ctime     :   2021-02-27
+# Mtime     :   2021-02-27
+# Desc      :   create user on running cluster
+# Path      :   pgsql-createuser.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+
+#=============================================================================#
+# How to create user ?
+#   1. define user in your configuration file! <cluster>.vars.pg_usesrs
+#   2. execute this playbook with pg_user set to your new user.name
+#   3. run playbook on target cluster
+# It essentially does:
+#   1. create sql file in /pg/tmp/pg-user-{{ user.name }}.sql
+#   2. create user on primary instance with that sql
+#   3. if {{ user.pgbouncer }}, add to all cluster members and reload
+#=============================================================================#
+
+
+- name: Create user in cluster
+  become: yes
+  hosts: all
+  gather_facts: no
+  vars:
+
+    ##################################################################################
+    # IMPORTANT: Change this or use cli-arg to specify target user in inventory  #
+    ##################################################################################
+    pg_user: test
+
+  tasks:
+    #------------------------------------------------------------------------------
+    # pre-flight check: validate pg_user and user definition
+    # ------------------------------------------------------------------------------
+    - name: Preflight
+      when: pg_role == 'primary'
+      block:
+        - name: Check parameter pg_user
+          connection: local
+          assert:
+            that:
+              - pg_user is defined
+              - pg_user != ''
+              - pg_user != 'postgres'
+            fail_msg: variable 'pg_user' should be specified to create target user
+
+        - name: Fetch user definition
+          connection: local
+          set_fact:
+            pg_user_definition={{ pg_users | json_query(pg_user_definition_query) }}
+          vars:
+            pg_user_definition_query: "[?name=='{{ pg_user }}'] | [0]"
+
+        # print user definition
+        - debug:
+            msg: "{{ pg_user_definition }}"
+
+        - name: Check user definition
+          assert:
+            that:
+              - pg_user_definition is defined
+              - pg_user_definition != None
+              - pg_user_definition != ''
+              - pg_user_definition != {}
+            fail_msg: user definition for {{ pg_user }} should exists in pg_users
+
+    #------------------------------------------------------------------------------
+    # Create user on cluster primary and add pgbouncer entry to cluster members
+    #------------------------------------------------------------------------------
+    # create user according to user definition
+    - include_tasks: roles/postgres/tasks/createuser.yml
+      vars:
+        user: "{{ pg_user_definition }}"
+
+
+    #------------------------------------------------------------------------------
+    # Pgbouncer Reload (entire cluster)
+    #------------------------------------------------------------------------------
+    - name: Reload pgbouncer to add user
+      when: pg_user_definition.pgbouncer is defined and pg_user_definition.pgbouncer|bool
+      tags: pgbouncer_reload
+      systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
+
+...

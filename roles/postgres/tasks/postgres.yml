@@ -171,22 +171,26 @@
   any_errors_fatal: true
   when: pg_role == 'primary'
   block:
-    #------------------------------------------------------------------------------
-    # render initdb scripts
-    #------------------------------------------------------------------------------
-    - name: Render default pg-init scripts
-      tags: pg_init_config
-      template: src="{{ pg_init }}" dest=/pg/bin/pg-init owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Render template init script
-      tags: pg_init_config
+    - name: Render init roles sql
+      tags: pg_init_role
+      template: src="pg-init-roles.sql" dest=/pg/tmp/pg-init-roles.sql owner={{ pg_dbsu }} group=postgres mode=0755
+
+    - name: Render init template sql
+      tags: pg_init_tmpl
       template: src="pg-init-template.sql" dest=/pg/tmp/pg-init-template.sql owner={{ pg_dbsu }} group=postgres mode=0755
 
+    - name: Render default pg-init scripts
+      tags: pg_init_main
+      template: src="{{ pg_init }}" dest=/pg/bin/pg-init owner={{ pg_dbsu }} group=postgres mode=0755
+
     - name: Execute initialization scripts
+      tags: pg_init_exec
       become_user: "{{ pg_dbsu }}"
       command: /pg/bin/pg-init
 
     - name: Check primary instance ready
+      tags: pg_init_exec
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 

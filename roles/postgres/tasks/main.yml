@@ -34,11 +34,31 @@
   tags: pgbouncer
 
 #------------------------------------------------------------------------------
-# Business
+# Users
 #------------------------------------------------------------------------------
-# setup business database and users
-- import_tasks: business.yml
-  tags: business
+- include_tasks: createuser.yml
+  tags: pg_user
+  vars:
+    user: "{{ item }}"
+  with_items: "{{ pg_users }}"
+
+#------------------------------------------------------------------------------
+# Databases
+#------------------------------------------------------------------------------
+- include_tasks: createdb.yml
+  tags: pg_db
+  vars:
+    database: "{{ item }}"
+  with_items: "{{ pg_databases }}"
+
+
+#------------------------------------------------------------------------------
+# Pgbouncer Reload
+#------------------------------------------------------------------------------
+- name: Reload pgbouncer to add db and users
+  tags: pgbouncer_reload
+  systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
 
 #------------------------------------------------------------------------------
 # Register

@@ -1,0 +1,89 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-createdb.yml
+# Ctime     :   2021-02-27
+# Mtime     :   2021-02-27
+# Desc      :   create database on running cluster
+# Path      :   pgsql-createdb.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+
+#=============================================================================#
+# How to create database ?
+#   1. define database in your configuration file! <cluster>.vars.pg_databases
+#   2. execute this playbook with pg_database set to your new database.name
+#   3. run playbook on target cluster
+# It essentially does:
+#   1. create sql file in /pg/tmp/pg-db-{{ database.name }}.sql
+#   2. create database on primary instance with that sql
+#   3. if {{ database.pgbouncer }}, add to all cluster members and reload
+#=============================================================================#
+
+- name: Create Database In Cluster
+  become: yes
+  hosts: all
+  gather_facts: no
+  vars:
+
+    ##################################################################################
+    # IMPORTANT: Change this or use cli-arg to specify target database in inventory  #
+    ##################################################################################
+    pg_database: test
+
+  tasks:
+    #------------------------------------------------------------------------------
+    # pre-flight check: validate pg_database and database definition
+    # ------------------------------------------------------------------------------
+    - name: Preflight
+      when: pg_role == 'primary'
+      block:
+        - name: Check parameter pg_database
+          connection: local
+          assert:
+            that:
+              - pg_database is defined
+              - pg_database != ''
+              - pg_database != 'postgres'
+            fail_msg: variable 'pg_database' should be specified to create target database
+
+        - name: Fetch database definition
+          connection: local
+          set_fact:
+            pg_database_definition={{ pg_databases | json_query(pg_database_definition_query) }}
+          vars:
+            pg_database_definition_query: "[?name=='{{ pg_database }}'] | [0]"
+
+        # print database definition
+        - debug:
+            msg: "{{ pg_database_definition }}"
+
+        - name: Check database definition
+          assert:
+            that:
+              - pg_database_definition is defined
+              - pg_database_definition != None
+              - pg_database_definition != ''
+              - pg_database_definition != {}
+            fail_msg: database definition for {{ pg_database }} should exists in pg_databases
+
+    #------------------------------------------------------------------------------
+    # Create database on cluster primary and add pgbouncer entry to cluster members
+    #------------------------------------------------------------------------------
+    # create database according to database definition
+    - include_tasks: roles/postgres/tasks/createdb.yml
+      vars:
+        database: "{{ pg_database_definition }}"
+
+
+    #------------------------------------------------------------------------------
+    # Pgbouncer Reload (entire cluster)
+    #------------------------------------------------------------------------------
+    - name: Reload pgbouncer to add database
+      when: pg_database_definition.pgbouncer is not defined or pg_database_definition.pgbouncer|bool
+      tags: pgbouncer_reload
+      systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
+
+...

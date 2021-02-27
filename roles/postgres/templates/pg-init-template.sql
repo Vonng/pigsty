@@ -1,62 +1,25 @@
 ----------------------------------------------------------------------
 -- File      :   pg-init-template.sql
 -- Ctime     :   2018-10-30
--- Mtime     :   2020-12-17
--- Desc      :   init postgres cluster template schema
+-- Mtime     :   2021-02-27
+-- Desc      :   init postgres cluster template
 -- Path      :   /pg/tmp/pg-init-template.sql
 -- Author    :   Vonng(fengruohang@outlook.com)
 -- Copyright (C) 2018-2021 Ruohang Feng
 ----------------------------------------------------------------------
 
+
 --==================================================================--
---                            executions                            --
+--                           Executions                             --
 --==================================================================--
 -- psql template1 -AXtwqf /pg/tmp/pg-init-template.sql
 -- this sql scripts is responsible for post-init procedure
 -- it will
 --    * create system users such as replicator, monitor user, admin user
---    * create system default role system
---    * create schema, extensions in template1 database
---    * create monitor views in template1 database
+--    * create system default roles
+--    * create schema, extensions in template1 & postgres
+--    * create monitor views in template1 & postgres
 
---==================================================================--
---                              Roles                               --
---==================================================================--
--- default roles
-{% for user in pg_default_roles %}
-CREATE ROLE "{{ user.username }}";
-{% endfor %}
-
--- system users
-CREATE USER "{{ pg_replication_username }}";
-CREATE USER "{{ pg_monitor_username }}";
-CREATE USER "{{ pg_admin_username }}";
-
-
-{% for user in pg_default_roles %}
---------------------------
--- {{ user.username }}
---------------------------
-{% if 'password' in user %}
-{% if user.password == '' %}ALTER ROLE "{{ user.username }}" PASSWORD NULL;
-{% else %}ALTER ROLE "{{ user.username }}" PASSWORD '{{ user.password }}';{% endif %}
-{% endif %}
-{% if 'options' in user %}ALTER ROLE "{{ user.username }}" {{ user.options }};{% endif %}
-
-{% if 'comment' in user %}COMMENT ON ROLE "{{ user.username }}" IS '{{ user.comment }}';{% endif %}
-
-{% if 'groups' in user %}
-{% for group in user.groups %}
-GRANT "{{ group }}" TO "{{ user.username }}";
-{% endfor %}
-{% endif %}
-
-{% endfor %}
-
--- enforce password overwrite for system users
-ALTER ROLE "{{ pg_replication_username }}" PASSWORD '{{ pg_replication_password }}';
-ALTER ROLE "{{ pg_monitor_username }}" PASSWORD '{{ pg_monitor_password }}';
-ALTER ROLE "{{ pg_admin_username }}" PASSWORD '{{ pg_admin_password }}';
 
 --==================================================================--
 --                          Default Privileges                      --
@@ -88,8 +51,9 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 --                             Extensions                           --
 --==================================================================--
 {% for extension in pg_default_extensions %}
-CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %}WITH SCHEMA "{{ extension.schema }}"{% endif %};
+CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %};
 {% endfor %}
+
 
 
 --==================================================================--
@@ -112,19 +76,6 @@ DROP VIEW IF EXISTS monitor.pg_session;
 DROP VIEW IF EXISTS monitor.pg_kill;
 DROP VIEW IF EXISTS monitor.pg_cancel;
 DROP VIEW IF EXISTS monitor.pg_seq_scan;
-
-CREATE VIEW monitor.pg_schema_permission AS
-    WITH "names"("name") AS (
-      SELECT n.nspname AS "name"
-        FROM pg_catalog.pg_namespace n
-          WHERE n.nspname !~ '^pg_'
-            AND n.nspname <> 'information_schema'
-    ) SELECT "name",
-      pg_catalog.has_schema_privilege(current_user, "name", 'CREATE') AS "create",
-      pg_catalog.has_schema_privilege(current_user, "name", 'USAGE')  AS "usage",
-      "name" = pg_catalog.current_schema() AS "current"
-        FROM "names";
-COMMENT ON VIEW monitor.pg_schema_permission IS 'postgres schema privileges view';
 
 
 ----------------------------------------------------------------------
@@ -336,6 +287,7 @@ LIMIT 50;
 COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 
 
+{% if pg_version >= 13 %}
 ----------------------------------------------------------------------
 -- pg_shmem auxiliary function
 -- PG 13 ONLY!
@@ -343,6 +295,7 @@ COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF
     pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
 COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
+{% endif %}
 
 
 --==================================================================--

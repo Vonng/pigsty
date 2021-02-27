@@ -53,14 +53,52 @@ all: # top-level namespace, match all hosts
         pg_conf: oltp.yml                   # tune pgsql into oltp/olap/crit/tiny mode
         patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
-        pg_users:                           # create a business user named 'dbuser_meta'
-          - {username: dbuser_meta, password: DBUser.Meta, groups: [dbrole_readwrite]}
-        pg_databases:                       # create a business database 'meta'
-          - name: meta
-            schemas: [meta]                 # create extra schema named 'meta'
-            extensions: [{name: postgis}]   # create extra extension postgis
-            parameters:                     # overwrite database meta's default search_path
-              search_path: public, monitor
+
+        pg_users:
+          # complete example of user/role definition for production user
+          - name: dbuser_meta               # example production user have read-write access
+            password: DBUser.Meta           # example user's password, can be encrypted
+            login: true                     # can login, true by default (should be false for role)
+            superuser: false                # is superuser? false by default
+            createdb: false                 # can create database? false by default
+            createrole: false               # can create role? false by default
+            inherit: true                   # can this role use inherited privileges?
+            replication: false              # can this role do replication? false by default
+            bypassrls: false                # can this role bypass row level security? false by default
+            connlimit: -1                   # connection limit, -1 disable limit
+            expire_at: '2030-12-31'         # 'timestamp' when this role is expired
+            expire_in: 365                  # now + n days when this role is expired (OVERWRITE expire_at)
+            roles: [dbrole_readwrite]       # dborole_admin|dbrole_readwrite|dbrole_readonly
+            pgbouncer: true                 # add this user to pgbouncer? false by default (true for production user)
+            parameters:                     # user's default search path
+              search_path: public
+            comment: test user
+
+          # simple example for personal user definition
+          - name: dbuser_vonng2              # personal user example which only have limited access to offline instance
+            password: DBUser.Vonng          # or instance with explict mark `pg_offline_query = true`
+            groups: [dbrole_offline]        # personal/stats/ETL user should be grant with dbrole_offline
+            expire_in: 365                  # expire in 365 days since creation
+            pgbouncer: false                # personal user should NOT be allowed to login with pgbouncer
+            comment: example personal user for interactive queries
+
+        pg_databases:
+          - name: meta                      # name is the only required field for a database
+            owner: postgres                 # optional, database owner
+            template: template1             # optional, template1 by default
+            encoding: UTF8                  # optional, UTF8 by default
+            locale: C                       # optional, C by default
+            allowconn: true                 # optional, true by default, false disable connect at all
+            revokeconn: false               # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
+            tablespace: pg_default          # optional, 'pg_default' is the default tablespace
+            connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
+            extensions:                     # optional, extension name and where to create
+              - {name: postgis, schema: public}
+            parameters:                     # optional, extra parameters with ALTER DATABASE
+              enable_partitionwise_join: true
+            pgbouncer: true                 # optional, add this database to pgbouncer list? true by default
+            comment: pigsty meta database   # optional, comment string for database
+
         pg_default_database: meta           # default database will be used as primary monitor target
 
         # proxy settings
@@ -90,23 +128,15 @@ all: # top-level namespace, match all hosts
 
         # business users, adjust on your own needs
         pg_users:
-          - username: test                  # example production user have read-write access
+          - name: test                      # example production user have read-write access
             password: test                  # example user's password
-            groups: [ dbrole_readwrite ]    # dborole_admin|dbrole_readwrite|dbrole_readonly
+            groups: [dbrole_readwrite]      # dborole_admin|dbrole_readwrite|dbrole_readonly|dbrole_offline
+            pgbouncer: true                 # production user that access via pgbouncer
             comment: default test user for production usage
 
-          - username: dbuser_vonng          # personal user example which only have limited access to offline instance
-            password: DBUser.Vonng          # or instance with explict mark `pg_offline_query = true`
-            groups: [ dbrole_offline ]       # personal/stats/ETL user should be grant with dbrole_offline
-            pgbouncer: false                # personal user should not be allowed to login with pgbouncer
-            comment: example personal user for interactive queries
-
         pg_databases:                       # create a business database 'test'
-          - name: test
-            extensions:                     # create extra extension postgis under schema 'public'
-              - {name: postgis, schmea: public}
-            parameters:                     # overwrite database test's default search_path parameter
-              search_path: public,monitor
+          - name: test                      # use the simplest form
+
         pg_default_database: test           # default database will be used as primary monitor target
 
         # proxy settings
@@ -545,55 +575,66 @@ all: # top-level namespace, match all hosts
     pg_admin_password: DBUser.Admin               # system admin password
 
     # - default roles - #
+    # chekc http://pigsty.cc/zh/docs/concepts/provision/acl/ for more detail
     pg_default_roles:
-      # roles
-      - username: dbrole_readonly                 # production read-only roles
-        options: NOLOGIN
-        comment: role for readonly access
 
-      - username: dbrole_readwrite                # production read-write roles
-        options: NOLOGIN
-        comment: role for read-write access
-        groups: [ dbrole_readonly ]               # read-write includes read-only access
+      # common production readonly user
+      - name: dbrole_readonly                 # production read-only roles
+        login: false
+        comment: role for global readonly access
 
-      - username: dbrole_offline                  # restricted read-only user (only allowed in specific replica)
-        options: NOLOGIN                          # for running slow queries, interactive queries, perform ETL
-        comment: role for restricted read-only access
+      # common production read-write user
+      - name: dbrole_readwrite                # production read-write roles
+        login: false
+        groups: [dbrole_readonly]             # read-write includes read-only access
+        comment: role for global read-write access
 
-      - username: dbrole_admin                    # production admin role (for DDL change)
-        options: NOLOGIN BYPASSRLS                # admin can bypass row level security
+      # offline have same privileges as readonly, but with limited hba access on offline instance only
+      # for the purpose of running slow queries, interactive queries and perform ETL tasks
+      - name: dbrole_offline
+        login: false
+        comment: role for restricted read-only access (offline instance)
+
+      # admin have the privileges to issue DDL changes
+      - name: dbrole_admin
+        login: false
+        bypassrls: true
         comment: role for object creation
         groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
-      # users
-      # NOTE: replicator, monitor, admin password are overwrite by separated config entry
-      - username: postgres                        # dbsu
-        options: SUPERUSER LOGIN
+      # dbsu, name is designated by `pg_dbsu`. It's not recommend to set password for dbsu
+      - name: postgres
+        superuser: true
         comment: system superuser
 
-      - username: replicator                      # default replication user
-        options: REPLICATION LOGIN
+      # default replication user, name is designated by `pg_replication_username`, and password is set by `pg_replication_password`
+      - name: replicator
+        replication: true
         groups: [pg_monitor, dbrole_readonly]
         comment: system replicator
 
-      - username: dbuser_monitor                  # default monitor user
-        options: LOGIN CONNECTION LIMIT 10
+      # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
+      - name: dbuser_monitor
+        connlimit: 16
         comment: system monitor user
         groups: [pg_monitor, dbrole_readonly]
 
-      - username: dbuser_admin                    # default admin user
-        options: LOGIN BYPASSRLS
+      # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
+      - name: dbuser_admin
+        bypassrls: true
         comment: system admin user
         groups: [dbrole_admin]
 
-      - username: dbuser_stats                    # default stats user (for ETL)
+      # default stats user, for ETL and slow queries
+      - name: dbuser_stats
         password: DBUser.Stats
-        options: LOGIN
-        comment: business read-only user for statistics
+        comment: business offline user for offline queries and ETL
         groups: [dbrole_offline]
 
+
     # - privileges - #
-    pg_default_privileges:                         # object created by dbsu and admin will have their privileges properly set
+    # object created by dbsu and admin will have their privileges properly set
+    pg_default_privileges:
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT                        ON TABLES    TO dbrole_readonly
       - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
