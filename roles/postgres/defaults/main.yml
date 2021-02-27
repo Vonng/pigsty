@@ -101,6 +101,7 @@ pg_admin_password: DBUser.Admin               # system admin password
 
 # - default roles - #
 pg_default_roles:
+
   # common production readonly user
   - name: dbrole_readonly                 # production read-only roles
     login: false
@@ -109,7 +110,7 @@ pg_default_roles:
   # common production read-write user
   - name: dbrole_readwrite                # production read-write roles
     login: false
-    groups: [dbrole_readonly]             # read-write includes read-only access
+    roles: [dbrole_readonly]             # read-write includes read-only access
     comment: role for global read-write access
 
   # offline have same privileges as readonly, but with limited hba access on offline instance only
@@ -123,7 +124,7 @@ pg_default_roles:
     login: false
     bypassrls: true
     comment: role for object creation
-    groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
+    roles: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
   # dbsu, name is designated by `pg_dbsu`. It's not recommend to set password for dbsu
   - name: postgres
@@ -133,20 +134,26 @@ pg_default_roles:
   # default replication user, name is designated by `pg_replication_username`, and password is set by `pg_replication_password`
   - name: replicator
     replication: true
-    groups: [pg_monitor, dbrole_readonly]
+    roles: [pg_monitor, dbrole_readonly]
     comment: system replicator
 
   # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
   - name: dbuser_monitor
     connlimit: 16
     comment: system monitor user
-    groups: [pg_monitor, dbrole_readonly]
+    roles: [pg_monitor, dbrole_readonly]
 
   # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
   - name: dbuser_admin
     bypassrls: true
     comment: system admin user
-    groups: [dbrole_admin]
+    roles: [dbrole_admin]
+
+  # default stats user, for ETL and slow queries
+  - name: dbuser_stats
+    password: DBUser.Stats
+    comment: business offline user for offline queries and ETL
+    roles: [dbrole_offline]
 
 
 

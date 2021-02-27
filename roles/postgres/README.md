@@ -15,10 +15,12 @@ It is a complex role consist of several stages:
     * patroni, pg-init, pg_hba, pgpass, check
 5. Pgbouncer
     * Launch and bootstrap pgbouncer     
-6. Business
-    * Setup business users and databases
-7. Register
-    * Register service to database
+6. Users
+    * Setup business users
+7. Users
+    * Setup business databases
+8. Register
+    * Register service and datasource to meta 
 
 
 
@@ -36,119 +38,117 @@ It is a complex role consist of several stages:
 
 
 ```yaml
-tasks:
-  postgres : Create os group postgres						TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Make sure dcs group exists						TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Create dbsu {{ pg_dbsu }}						TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Grant dbsu nopass sudo							TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Grant dbsu all sudo							TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Grant dbsu limited sudo						TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Config patroni watchdog support				TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Add dbsu ssh no host checking					TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Fetch dbsu public keys							TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Exchange dbsu ssh keys							TAGS[instal, pg_dbsu, pgsql, postgres]
-  postgres : Install offical pgdg yum repo					TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Install pg packages							TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Install pg extensions							TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Link /usr/pgsql to current version				TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Add pg bin dir to profile path					TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Fix directory ownership						TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Remove default postgres service				TAGS[instal, pg_install, pgsql, postgres]
-  postgres : Check necessary variables exists				TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Fetch variables via pg_cluster					TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Set cluster basic facts for hosts				TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Assert cluster primary singleton				TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Setup cluster primary ip address				TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Setup repl upstream for primary				TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Setup repl upstream for replicas				TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Debug print instance summary					TAGS[always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Check for existing postgres instance			TAGS[pg_check, pgsql, postgres, prepare]
-  postgres : Set fact whether pg port is open				TAGS[pg_check, pgsql, postgres, prepare]
-  postgres : Abort due to existing postgres instance		TAGS[pg_check, pgsql, postgres, prepare]
-  postgres : Clean existing postgres instance				TAGS[pg_check, pgsql, postgres, prepare]
-  postgres : Shutdown existing postgres service				TAGS[pg_clean, pgsql, postgres, prepare]
-  postgres : Remove registerd consul service				TAGS[pg_clean, pgsql, postgres, prepare]
-  postgres : Remove postgres metadata in consul				TAGS[pg_clean, pgsql, postgres, prepare]
-  postgres : Remove existing postgres data					TAGS[pg_clean, pgsql, postgres, prepare]
-  postgres : Make sure main and backup dir exists			TAGS[pg_dir, pgsql, postgres, prepare]
-  postgres : Create postgres directory structure			TAGS[pg_dir, pgsql, postgres, prepare]
-  postgres : Create pgbouncer directory structure			TAGS[pg_dir, pgsql, postgres, prepare]
-  postgres : Create links from pgbkup to pgroot				TAGS[pg_dir, pgsql, postgres, prepare]
-  postgres : Create links from current cluster				TAGS[pg_dir, pgsql, postgres, prepare]
-  postgres : Copy pg_cluster to /pg/meta/cluster			TAGS[pg_meta, pgsql, postgres, prepare]
-  postgres : Copy pg_version to /pg/meta/version			TAGS[pg_meta, pgsql, postgres, prepare]
-  postgres : Copy pg_instance to /pg/meta/instance			TAGS[pg_meta, pgsql, postgres, prepare]
-  postgres : Copy pg_seq to /pg/meta/sequence				TAGS[pg_meta, pgsql, postgres, prepare]
-  postgres : Copy pg_role to /pg/meta/role					TAGS[pg_meta, pgsql, postgres, prepare]
-  postgres : Copy postgres scripts to /pg/bin/				TAGS[pg_scripts, pgsql, postgres, prepare]
-  postgres : Copy alias profile to /etc/profile.d			TAGS[pg_scripts, pgsql, postgres, prepare]
-  postgres : Copy psqlrc to postgres home					TAGS[pg_scripts, pgsql, postgres, prepare]
-  postgres : Setup hostname to pg instance name				TAGS[pg_hostname, pgsql, postgres, prepare]
-  postgres : Copy consul node-meta definition				TAGS[pg_nodemeta, pgsql, postgres, prepare]
-  postgres : Restart consul to load new node-meta			TAGS[pg_nodemeta, pgsql, postgres, prepare]
-  postgres : Config patroni watchdog support				TAGS[pg_watchdog, pgsql, postgres, prepare]
-  postgres : Get config parameter page count				TAGS[pg_config, pgsql, postgres]
-  postgres : Get config parameter page size					TAGS[pg_config, pgsql, postgres]
-  postgres : Tune shared buffer and work mem				TAGS[pg_config, pgsql, postgres]
-  postgres : Hanlde small size mem occasion					TAGS[pg_config, pgsql, postgres]
-  postgres : Calculate postgres mem params					TAGS[pg_config, pgsql, postgres]
-  postgres : create patroni config dir						TAGS[pg_config, pgsql, postgres]
-  postgres : use predefined patroni template				TAGS[pg_config, pgsql, postgres]
-  postgres : Render default /pg/conf/patroni.yml			TAGS[pg_config, pgsql, postgres]
-  postgres : Link /pg/conf/patroni to /pg/bin/				TAGS[pg_config, pgsql, postgres]
-  postgres : Link /pg/bin/patroni.yml to /etc/patroni/		TAGS[pg_config, pgsql, postgres]
-  postgres : Config patroni watchdog support				TAGS[pg_config, pgsql, postgres]
-  postgres : create patroni systemd drop-in dir				TAGS[pg_config, pgsql, postgres]
-  postgres : Copy postgres systemd service file				TAGS[pg_config, pgsql, postgres]
-  postgres : create patroni systemd drop-in file			TAGS[pg_config, pgsql, postgres]
-  postgres : Render default initdb scripts					TAGS[pg_config, pgsql, postgres]
-  postgres : Launch patroni on primary instance				TAGS[pg_primary, pgsql, postgres]
-  postgres : Wait for patroni primary online				TAGS[pg_primary, pgsql, postgres]
-  postgres : Wait for postgres primary online				TAGS[pg_primary, pgsql, postgres]
-  postgres : Check primary postgres service ready			TAGS[pg_primary, pgsql, postgres]
-  postgres : Check replication connectivity to primary		TAGS[pg_primary, pgsql, postgres]
-  postgres : Render default pg-init scripts					TAGS[pg_init, pg_init_config, pgsql, postgres]
-  postgres : Render template init script					TAGS[pg_init, pg_init_config, pgsql, postgres]
-  postgres : Execute initialization scripts					TAGS[pg_init, pgsql, postgres]
-  postgres : Check primary instance ready					TAGS[pg_init, pgsql, postgres]
-  postgres : Add dbsu password to pgpass if exists			TAGS[pg_pass, pgsql, postgres]
-  postgres : Add system user to pgpass						TAGS[pg_pass, pgsql, postgres]
-  postgres : Check replication connectivity to primary		TAGS[pg_replica, pgsql, postgres]
-  postgres : Launch patroni on replica instances			TAGS[pg_replica, pgsql, postgres]
-  postgres : Wait for patroni replica online				TAGS[pg_replica, pgsql, postgres]
-  postgres : Wait for postgres replica online				TAGS[pg_replica, pgsql, postgres]
-  postgres : Check replica postgres service ready			TAGS[pg_replica, pgsql, postgres]
-  postgres : Render hba rules								TAGS[pg_hba, pgsql, postgres]
-  postgres : Reload hba rules								TAGS[pg_hba, pgsql, postgres]
-  postgres : Pause patroni									TAGS[pg_patroni, pgsql, postgres]
-  postgres : Stop patroni on replica instance				TAGS[pg_patroni, pgsql, postgres]
-  postgres : Stop patroni on primary instance				TAGS[pg_patroni, pgsql, postgres]
-  postgres : Launch raw postgres on primary					TAGS[pg_patroni, pgsql, postgres]
-  postgres : Launch raw postgres on primary					TAGS[pg_patroni, pgsql, postgres]
-  postgres : Wait for postgres online						TAGS[pg_patroni, pgsql, postgres]
-  postgres : Check pgbouncer is installed					TAGS[pgbouncer, pgbouncer_check, pgsql, postgres]
-  postgres : Stop existing pgbouncer service				TAGS[pgbouncer, pgbouncer_clean, pgsql, postgres]
-  postgres : Remove existing pgbouncer dirs					TAGS[pgbouncer, pgbouncer_clean, pgsql, postgres]
-  postgres : Recreate dirs with owner postgres				TAGS[pgbouncer, pgbouncer_clean, pgsql, postgres]
-  postgres : Copy /etc/pgbouncer/pgbouncer.ini				TAGS[pgbouncer, pgbouncer_config, pgbouncer_ini, pgsql, postgres]
-  postgres : Copy /etc/pgbouncer/pgb_hba.conf				TAGS[pgbouncer, pgbouncer_config, pgbouncer_hba, pgsql, postgres]
-  postgres : Touch userlist and database list				TAGS[pgbouncer, pgbouncer_config, pgsql, postgres]
-  postgres : Add default users to pgbouncer					TAGS[pgbouncer, pgbouncer_config, pgsql, postgres]
-  postgres : Copy pgbouncer systemd service					TAGS[pgbouncer, pgbouncer_launch, pgsql, postgres]
-  postgres : Launch pgbouncer pool service					TAGS[pgbouncer, pgbouncer_launch, pgsql, postgres]
-  postgres : Wait for pgbouncer service online				TAGS[pgbouncer, pgbouncer_launch, pgsql, postgres]
-  postgres : Check pgbouncer service is ready				TAGS[pgbouncer, pgbouncer_launch, pgsql, postgres]
-  postgres : Render business init script					TAGS[business, pg_biz_config, pg_biz_init, pgsql, postgres]
-  postgres : Render database baseline sql					TAGS[business, pg_biz_config, pg_biz_init, pgsql, postgres]
-  postgres : Execute business init script					TAGS[business, pg_biz_init, pgsql, postgres]
-  postgres : Execute database baseline sql					TAGS[business, pg_biz_init, pgsql, postgres]
-  postgres : Add pgbouncer busniess users					TAGS[business, pg_biz_pgbouncer, pgsql, postgres]
-  postgres : Add pgbouncer busniess database				TAGS[business, pg_biz_pgbouncer, pgsql, postgres]
-  postgres : Restart pgbouncer								TAGS[business, pg_biz_pgbouncer, pgsql, postgres]
-  postgres : Copy postgres service definition				TAGS[pg_register, pgsql, postgres, register]
-  postgres : Reload consul service							TAGS[pg_register, pgsql, postgres, register]
-  postgres : Render grafana datasource definition			TAGS[pg_grafana, pgsql, postgres, register]
-  postgres : Register datasource to grafana					TAGS[pg_grafana, pgsql, postgres, register]
+    tasks:
+      postgres : Create os group postgres	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Make sure dcs group exists	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Create dbsu {{ pg_dbsu }}	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Grant dbsu nopass sudo	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Grant dbsu all sudo	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Grant dbsu limited sudo	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Config patroni watchdog support	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Add dbsu ssh no host checking	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Fetch dbsu public keys	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Exchange dbsu ssh keys	TAGS: [instal, pg_dbsu, pgsql, postgres]
+      postgres : Install offical pgdg yum repo	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Install pg packages	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Install pg extensions	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Link /usr/pgsql to current version	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Add pg bin dir to profile path	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Fix directory ownership	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Remove default postgres service	TAGS: [instal, pg_install, pgsql, postgres]
+      postgres : Check necessary variables exists	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Fetch variables via pg_cluster	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Set cluster basic facts for hosts	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Assert cluster primary singleton	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Setup cluster primary ip address	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Setup repl upstream for primary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Setup repl upstream for replicas	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Debug print instance summary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+      postgres : Check for existing postgres instance	TAGS: [pg_check, pgsql, postgres, prepare]
+      postgres : Set fact whether pg port is open	TAGS: [pg_check, pgsql, postgres, prepare]
+      postgres : Abort due to existing postgres instance	TAGS: [pg_check, pgsql, postgres, prepare]
+      postgres : Clean existing postgres instance	TAGS: [pg_check, pgsql, postgres, prepare]
+      postgres : Shutdown existing postgres service	TAGS: [pg_clean, pgsql, postgres, prepare]
+      postgres : Remove registerd consul service	TAGS: [pg_clean, pgsql, postgres, prepare]
+      postgres : Remove postgres metadata in consul	TAGS: [pg_clean, pgsql, postgres, prepare]
+      postgres : Remove existing postgres data	TAGS: [pg_clean, pgsql, postgres, prepare]
+      postgres : Make sure main and backup dir exists	TAGS: [pg_dir, pgsql, postgres, prepare]
+      postgres : Create postgres directory structure	TAGS: [pg_dir, pgsql, postgres, prepare]
+      postgres : Create pgbouncer directory structure	TAGS: [pg_dir, pgsql, postgres, prepare]
+      postgres : Create links from pgbkup to pgroot	TAGS: [pg_dir, pgsql, postgres, prepare]
+      postgres : Create links from current cluster	TAGS: [pg_dir, pgsql, postgres, prepare]
+      postgres : Copy pg_cluster to /pg/meta/cluster	TAGS: [pg_meta, pgsql, postgres, prepare]
+      postgres : Copy pg_version to /pg/meta/version	TAGS: [pg_meta, pgsql, postgres, prepare]
+      postgres : Copy pg_instance to /pg/meta/instance	TAGS: [pg_meta, pgsql, postgres, prepare]
+      postgres : Copy pg_seq to /pg/meta/sequence	TAGS: [pg_meta, pgsql, postgres, prepare]
+      postgres : Copy pg_role to /pg/meta/role	TAGS: [pg_meta, pgsql, postgres, prepare]
+      postgres : Copy postgres scripts to /pg/bin/	TAGS: [pg_scripts, pgsql, postgres, prepare]
+      postgres : Copy alias profile to /etc/profile.d	TAGS: [pg_scripts, pgsql, postgres, prepare]
+      postgres : Copy psqlrc to postgres home	TAGS: [pg_scripts, pgsql, postgres, prepare]
+      postgres : Setup hostname to pg instance name	TAGS: [pg_hostname, pgsql, postgres, prepare]
+      postgres : Copy consul node-meta definition	TAGS: [pg_nodemeta, pgsql, postgres, prepare]
+      postgres : Restart consul to load new node-meta	TAGS: [pg_nodemeta, pgsql, postgres, prepare]
+      postgres : Config patroni watchdog support	TAGS: [pg_watchdog, pgsql, postgres, prepare]
+      postgres : Get config parameter page count	TAGS: [pg_config, pgsql, postgres]
+      postgres : Get config parameter page size	TAGS: [pg_config, pgsql, postgres]
+      postgres : Tune shared buffer and work mem	TAGS: [pg_config, pgsql, postgres]
+      postgres : Hanlde small size mem occasion	TAGS: [pg_config, pgsql, postgres]
+      postgres : Calculate postgres mem params	TAGS: [pg_config, pgsql, postgres]
+      postgres : create patroni config dir	TAGS: [pg_config, pgsql, postgres]
+      postgres : use predefined patroni template	TAGS: [pg_config, pgsql, postgres]
+      postgres : Render default /pg/conf/patroni.yml	TAGS: [pg_config, pgsql, postgres]
+      postgres : Link /pg/conf/patroni to /pg/bin/	TAGS: [pg_config, pgsql, postgres]
+      postgres : Link /pg/bin/patroni.yml to /etc/patroni/	TAGS: [pg_config, pgsql, postgres]
+      postgres : Config patroni watchdog support	TAGS: [pg_config, pgsql, postgres]
+      postgres : Copy patroni systemd service file	TAGS: [pg_config, pgsql, postgres]
+      postgres : create patroni systemd drop-in dir	TAGS: [pg_config, pgsql, postgres]
+      postgres : Copy postgres systemd service file	TAGS: [pg_config, pgsql, postgres]
+      postgres : Drop-In consul dependency for patroni	TAGS: [pg_config, pgsql, postgres]
+      postgres : Render default initdb scripts	TAGS: [pg_config, pgsql, postgres]
+      postgres : Launch patroni on primary instance	TAGS: [pg_primary, pgsql, postgres]
+      postgres : Wait for patroni primary online	TAGS: [pg_primary, pgsql, postgres]
+      postgres : Wait for postgres primary online	TAGS: [pg_primary, pgsql, postgres]
+      postgres : Check primary postgres service ready	TAGS: [pg_primary, pgsql, postgres]
+      postgres : Check replication connectivity to primary	TAGS: [pg_primary, pgsql, postgres]
+      postgres : Render init roles sql	TAGS: [pg_init, pg_init_role, pgsql, postgres]
+      postgres : Render init template sql	TAGS: [pg_init, pg_init_tmpl, pgsql, postgres]
+      postgres : Render default pg-init scripts	TAGS: [pg_init, pg_init_main, pgsql, postgres]
+      postgres : Execute initialization scripts	TAGS: [pg_init, pg_init_exec, pgsql, postgres]
+      postgres : Check primary instance ready	TAGS: [pg_init, pg_init_exec, pgsql, postgres]
+      postgres : Add dbsu password to pgpass if exists	TAGS: [pg_pass, pgsql, postgres]
+      postgres : Add system user to pgpass	TAGS: [pg_pass, pgsql, postgres]
+      postgres : Check replication connectivity to primary	TAGS: [pg_replica, pgsql, postgres]
+      postgres : Launch patroni on replica instances	TAGS: [pg_replica, pgsql, postgres]
+      postgres : Wait for patroni replica online	TAGS: [pg_replica, pgsql, postgres]
+      postgres : Wait for postgres replica online	TAGS: [pg_replica, pgsql, postgres]
+      postgres : Check replica postgres service ready	TAGS: [pg_replica, pgsql, postgres]
+      postgres : Render hba rules	TAGS: [pg_hba, pgsql, postgres]
+      postgres : Reload hba rules	TAGS: [pg_hba, pgsql, postgres]
+      postgres : Pause patroni	TAGS: [pg_patroni, pgsql, postgres]
+      postgres : Stop patroni on replica instance	TAGS: [pg_patroni, pgsql, postgres]
+      postgres : Stop patroni on primary instance	TAGS: [pg_patroni, pgsql, postgres]
+      postgres : Launch raw postgres on primary	TAGS: [pg_patroni, pgsql, postgres]
+      postgres : Launch raw postgres on primary	TAGS: [pg_patroni, pgsql, postgres]
+      postgres : Wait for postgres online	TAGS: [pg_patroni, pgsql, postgres]
+      postgres : Check pgbouncer is installed	TAGS: [pgbouncer, pgbouncer_check, pgsql, postgres]
+      postgres : Stop existing pgbouncer service	TAGS: [pgbouncer, pgbouncer_clean, pgsql, postgres]
+      postgres : Remove existing pgbouncer dirs	TAGS: [pgbouncer, pgbouncer_clean, pgsql, postgres]
+      postgres : Recreate dirs with owner postgres	TAGS: [pgbouncer, pgbouncer_clean, pgsql, postgres]
+      postgres : Copy /etc/pgbouncer/pgbouncer.ini	TAGS: [pgbouncer, pgbouncer_config, pgbouncer_ini, pgsql, postgres]
+      postgres : Copy /etc/pgbouncer/pgb_hba.conf	TAGS: [pgbouncer, pgbouncer_config, pgbouncer_hba, pgsql, postgres]
+      postgres : Touch userlist and database list	TAGS: [pgbouncer, pgbouncer_config, pgsql, postgres]
+      postgres : Add default users to pgbouncer	TAGS: [pgbouncer, pgbouncer_config, pgsql, postgres]
+      postgres : Copy pgbouncer systemd service	TAGS: [pgbouncer, pgbouncer_launch, pgsql, postgres]
+      postgres : Launch pgbouncer pool service	TAGS: [pgbouncer, pgbouncer_launch, pgsql, postgres]
+      postgres : Wait for pgbouncer service online	TAGS: [pgbouncer, pgbouncer_launch, pgsql, postgres]
+      postgres : Check pgbouncer service is ready	TAGS: [pgbouncer, pgbouncer_launch, pgsql, postgres]
+      include_tasks	TAGS: [pg_user, pgsql, postgres]
+      include_tasks	TAGS: [pg_db, pgsql, postgres]
+      postgres : Reload pgbouncer to add db and users	TAGS: [pgbouncer_reload, pgsql, postgres]
+      postgres : Copy pg service definition to consul	TAGS: [pg_register, pgsql, postgres, register]
+      postgres : Reload postgres consul service	TAGS: [pg_register, pgsql, postgres, register]
+      postgres : Render grafana datasource definition	TAGS: [pg_grafana, pgsql, postgres, register]
+      postgres : Register datasource to grafana	TAGS: [pg_grafana, pgsql, postgres, register]
 ```
 
 ### Default variables
@@ -259,52 +259,60 @@ pg_admin_password: DBUser.Admin               # system admin password
 
 # - default roles - #
 pg_default_roles:
-  # default roles
-  - username: dbrole_readonly                 # production read-only roles
-    options: NOLOGIN
-    comment: role for readonly access
 
-  - username: dbrole_readwrite                # production read-write roles
-    options: NOLOGIN
-    comment: role for read-write access
-    groups: [ dbrole_readonly ]               # read-write includes read-only access
+  # common production readonly user
+  - name: dbrole_readonly                 # production read-only roles
+    login: false
+    comment: role for global readonly access
 
-  - username: dbrole_admin                    # production admin role (for DDL change)
-    options: NOLOGIN BYPASSRLS                # admin can bypass row level security
+  # common production read-write user
+  - name: dbrole_readwrite                # production read-write roles
+    login: false
+    roles: [dbrole_readonly]             # read-write includes read-only access
+    comment: role for global read-write access
+
+  # offline have same privileges as readonly, but with limited hba access on offline instance only
+  # for the purpose of running slow queries, interactive queries and perform ETL tasks
+  - name: dbrole_offline
+    login: false
+    comment: role for restricted read-only access (offline instance)
+
+  # admin have the privileges to issue DDL changes
+  - name: dbrole_admin
+    login: false
+    bypassrls: true
     comment: role for object creation
-    groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
+    roles: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
-  - username: dbrole_offline                  # restricted read-only user (only allowed in specific replica)
-    options: NOLOGIN BYPASSRLS                # for running slow queries, interactive queries, perform ETL
-    comment: role for restricted read-only access
-    groups: [dbrole_readonly]
-
-  # default uesrs
-  # NOTE: replicator, monitor, admin password are overwrite by separated config entry
-  - username: postgres                        # dbsu
-    options: SUPERUSER LOGIN
+  # dbsu, name is designated by `pg_dbsu`. It's not recommend to set password for dbsu
+  - name: postgres
+    superuser: true
     comment: system superuser
 
-  - username: replicator                      # default replication user
-    options: REPLICATION LOGIN
-    groups: [pg_monitor, dbrole_readonly]
+  # default replication user, name is designated by `pg_replication_username`, and password is set by `pg_replication_password`
+  - name: replicator
+    replication: true
+    roles: [pg_monitor, dbrole_readonly]
     comment: system replicator
 
-  - username: dbuser_monitor                  # default monitor user
-    options: LOGIN CONNECTION LIMIT 10
+  # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
+  - name: dbuser_monitor
+    connlimit: 16
     comment: system monitor user
-    groups: [pg_monitor, dbrole_readonly]
+    roles: [pg_monitor, dbrole_readonly]
 
-  - username: dbuser_admin                    # default admin user
-    options: LOGIN BYPASSRLS
+  # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
+  - name: dbuser_admin
+    bypassrls: true
     comment: system admin user
-    groups: [dbrole_admin]
+    roles: [dbrole_admin]
 
-  - username: dbuser_stats                    # default stats user (for ETL)
+  # default stats user, for ETL and slow queries
+  - name: dbuser_stats
     password: DBUser.Stats
-    options: LOGIN
-    comment: business read-only user for statistics
-    groups: [dbrole_offline]
+    comment: business offline user for offline queries and ETL
+    roles: [dbrole_offline]
+
 
 
 # object created by dbsu and admin will have their privileges properly set
@@ -403,22 +411,12 @@ pgbouncer_hba_rules_extra: []
 #------------------------------------------------------------------------------
 # - business - #
 # users that are ad hoc to each cluster
-pg_users:
-  - username: dbuser_test
-    password: DBUser.Test
-    options: LOGIN NOINHERIT
-    comment: business read-write user
-    groups: [dbrole_readwrite]
+pg_users: []
 
-pg_databases: # additional business database
-  - name: test                                # one object for each database
-    owner: dbuser_test
-    schemas: [monitor, public]
-    extensions: [{name: "postgis", schema: "public"}]
-    parameters:
-      search_path: 'yay,public,monitor'       # set default search path
-
+pg_databases: []
 
 # - reference - #
 service_registry: consul                      # none | consul | etcd | both
+dcs_type: consul                              # none | consul | etcd
+...
 ```

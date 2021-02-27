@@ -77,7 +77,7 @@ all: # top-level namespace, match all hosts
           # simple example for personal user definition
           - name: dbuser_vonng2              # personal user example which only have limited access to offline instance
             password: DBUser.Vonng          # or instance with explict mark `pg_offline_query = true`
-            groups: [dbrole_offline]        # personal/stats/ETL user should be grant with dbrole_offline
+            roles: [dbrole_offline]         # personal/stats/ETL user should be grant with dbrole_offline
             expire_in: 365                  # expire in 365 days since creation
             pgbouncer: false                # personal user should NOT be allowed to login with pgbouncer
             comment: example personal user for interactive queries
@@ -130,7 +130,7 @@ all: # top-level namespace, match all hosts
         pg_users:
           - name: test                      # example production user have read-write access
             password: test                  # example user's password
-            groups: [dbrole_readwrite]      # dborole_admin|dbrole_readwrite|dbrole_readonly|dbrole_offline
+            roles: [dbrole_readwrite]       # dborole_admin|dbrole_readwrite|dbrole_readonly|dbrole_offline
             pgbouncer: true                 # production user that access via pgbouncer
             comment: default test user for production usage
 
@@ -586,7 +586,7 @@ all: # top-level namespace, match all hosts
       # common production read-write user
       - name: dbrole_readwrite                # production read-write roles
         login: false
-        groups: [dbrole_readonly]             # read-write includes read-only access
+        roles: [dbrole_readonly]             # read-write includes read-only access
         comment: role for global read-write access
 
       # offline have same privileges as readonly, but with limited hba access on offline instance only
@@ -600,7 +600,7 @@ all: # top-level namespace, match all hosts
         login: false
         bypassrls: true
         comment: role for object creation
-        groups: [dbrole_readwrite,pg_monitor,pg_signal_backend]
+        roles: [dbrole_readwrite,pg_monitor,pg_signal_backend]
 
       # dbsu, name is designated by `pg_dbsu`. It's not recommend to set password for dbsu
       - name: postgres
@@ -610,26 +610,26 @@ all: # top-level namespace, match all hosts
       # default replication user, name is designated by `pg_replication_username`, and password is set by `pg_replication_password`
       - name: replicator
         replication: true
-        groups: [pg_monitor, dbrole_readonly]
+        roles: [pg_monitor, dbrole_readonly]
         comment: system replicator
 
       # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
       - name: dbuser_monitor
         connlimit: 16
         comment: system monitor user
-        groups: [pg_monitor, dbrole_readonly]
+        roles: [pg_monitor, dbrole_readonly]
 
       # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
       - name: dbuser_admin
         bypassrls: true
         comment: system admin user
-        groups: [dbrole_admin]
+        roles: [dbrole_admin]
 
       # default stats user, for ETL and slow queries
       - name: dbuser_stats
         password: DBUser.Stats
         comment: business offline user for offline queries and ETL
-        groups: [dbrole_offline]
+        roles: [dbrole_offline]
 
 
     # - privileges - #
