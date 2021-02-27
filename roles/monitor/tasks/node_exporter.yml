@@ -5,13 +5,8 @@
 - name: Setup node_exporter
   tags: node_exporter
   block:
-    - name: Copy node_exporter binary
-      tags: node_exporter_binary
-      when: exporter_binary_install
-      copy: src=node_exporter dest=/usr/bin/node_exporter
-
     - name: Copy node_exporter systemd service
-      copy: src=node_exporter.service dest=/usr/lib/systemd/system/node_exporter.service
+      template: src=node_exporter.service.j2 dest=/usr/lib/systemd/system/node_exporter.service
 
     - name: Config default node_exporter options
       template: src=node_exporter.j2 dest=/etc/default/node_exporter
@@ -20,7 +15,7 @@
       systemd: name=node_exporter state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for node_exporter online
-      wait_for: host=localhost port={{ node_exporter_port }} state=started timeout=10
+      wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
 
 
 #------------------------------------------------------------------------------

@@ -2,22 +2,31 @@
 #------------------------------------------------------------------------------
 # MONITOR PROVISION
 #------------------------------------------------------------------------------
-# - common - #
+# - install - #
+exporter_install: none                        # none|yum|binary, none by default
+exporter_repo_url: ''                         # if set, repo will be added to /etc/yum.repos.d/ before yum installation
+
+# - collect - #
 exporter_metrics_path: /metrics               # default metric path for pg related exporter
-exporter_binary_install: false                # install exporter via copy local binary (from files/{pg,node}_exporter)
 
 # - node exporter - #
 node_exporter_enabled: true                   # setup node_exporter on instance
 node_exporter_port: 9100                      # default port for node exporter
+node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
 
-# - pg/pgb exporter - #
+# - pg exporter - #
 pg_exporter_config: pg_exporter-demo.yaml     # default config files for pg_exporter
 pg_exporter_enabled: true                     # setup pg_exporter on instance
-pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance
 pg_exporter_port: 9630                        # default port for pg exporter
+pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
+
+# - pgbouncer exporter - #
+pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
 pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
+pgbouncer_exporter_url: ''                    # optional, if not set, generate from reference parameters
 
 # - postgres variables reference - #
+pg_dbsu: postgres
 pg_port: 5432                                 # postgres port (5432 by default)
 pgbouncer_port: 6432                          # pgbouncer port (6432 by default)
 pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection

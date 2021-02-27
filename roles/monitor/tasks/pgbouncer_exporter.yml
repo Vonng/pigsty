@@ -9,14 +9,14 @@
       template: src=pgbouncer_exporter.j2 dest=/etc/default/pgbouncer_exporter owner=postgres group=postgres mode=0600
 
     - name: Config pgbouncer_exporter service
-      copy: src=pgbouncer_exporter.service dest=/usr/lib/systemd/system/pgbouncer_exporter.service
+      template: src=pgbouncer_exporter.service.j2 dest=/usr/lib/systemd/system/pgbouncer_exporter.service
 
     - name: Launch pgbouncer_exporter service
       systemd: name=pgbouncer_exporter state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for pgbouncer_exporter online
       ignore_errors: true
-      wait_for: host=localhost port={{ pgbouncer_exporter_port }} state=started timeout=10
+      wait_for: host=127.0.0.1 port={{ pgbouncer_exporter_port }} state=started timeout=10
 
 
 #------------------------------------------------------------------------------

@@ -14,20 +14,15 @@
     - name: Config /etc/default/pg_exporter
       template: src=pg_exporter.j2 dest=/etc/default/pg_exporter owner=postgres group=postgres mode=0600
 
-    - name: Copy pg_exporter binary
-      tags: pg_exporter_binary
-      when: exporter_binary_install
-      copy: src=pg_exporter dest=/usr/bin/pg_exporter
-
     - name: Config pg_exporter service unit
-      copy: src=pg_exporter.service dest=/usr/lib/systemd/system/pg_exporter.service
+      template: src=pg_exporter.service.j2 dest=/usr/lib/systemd/system/pg_exporter.service
 
     - name: Launch pg_exporter systemd service
       systemd: name=pg_exporter state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for pg_exporter service online
       ignore_errors: true
-      wait_for: host=localhost port={{ pg_exporter_port }} state=started  timeout=10
+      wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started  timeout=10
 
 
 #------------------------------------------------------------------------------

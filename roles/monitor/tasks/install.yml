@@ -1,0 +1,44 @@
+---
+#------------------------------------------------------------------------------
+# install via yum
+#------------------------------------------------------------------------------
+- name: Setup node_exporter
+  tags: [exporter_install, exporter_yum_install]
+  when: exporter_install == 'yum'
+  block:
+
+    #------------------------------------------------------------------------------
+    # if exporter_repo_url is set, add that url repo to /etc/yum.repos.d first
+    #------------------------------------------------------------------------------
+    - name: Install exporter yum repo
+      when: exporter_repo_url != ''
+      get_url:
+        url: "{{ exporter_repo_url }}"
+        dest: /etc/yum.repos.d/{{ item | basename }}
+
+    #------------------------------------------------------------------------------
+    # if exporter_repo_url is set, add that url repo to /etc/yum.repos.d first
+    #------------------------------------------------------------------------------
+    - name: Install node_exporter and pg_exporter
+      package: name={{ item }} state=present
+      with_items:
+        - node_exporter
+        - pg_exporter
+
+
+#------------------------------------------------------------------------------
+# install via copy binary
+# the binary MUST be put into files/ directory before running
+# you can download that binary with files/download-exporter.sh
+# or just copy that from meta node /usr/bin/*_exporter
+#------------------------------------------------------------------------------
+- name: Copy node_exporter and pg_exporter
+  tags: [exporter_install, exporter_binary_install]
+  when: exporter_install == 'binary'
+  block:
+    - name: Copy node_exporter binary
+      copy: src=node_exporter dest=/usr/bin/node_exporter
+
+    - name: Copy pg_exporter binary
+      copy: src=pg_exporter dest=/usr/bin/pg_exporter
+...

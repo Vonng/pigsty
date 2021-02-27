@@ -1,7 +1,10 @@
 # or just using local su ident
 # PG_EXPORTER_URL='postgres:///postgres?host=/var/run/postgresql&sslmode=disable'
-
+{% if pg_exporter_url != '' %}
+PG_EXPORTER_URL='{{ pg_exporter_url }}
+{% else %}
 PG_EXPORTER_URL='postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@:{{ pg_port }}/{{ pg_default_database }}?host={{ pg_localhost }}&sslmode=disable'
+{% endif %}
 PG_EXPORTER_CONFIG=/etc/pg_exporter
 PG_EXPORTER_LISTEN_ADDRESS=":{{ pg_exporter_port }}"
 PG_EXPORTER_TELEMETRY_PATH="{{ exporter_metrics_path }}"
