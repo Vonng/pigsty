@@ -381,8 +381,6 @@ groups:
       - record: pg:all:tps_sigma
         expr: stddev_over_time(pg:all:tps[30m])
 
-
-
       # xact rt (rate1m)
       - record: pg:db:xact_rt
         expr: pgbouncer_stat_avg_xact_time{datname!="pgbouncer"} / 1000000
@@ -656,12 +654,30 @@ groups:
         expr: sum(pg:cls:tup_deleted)
 
 
-
-
       #==============================================================#
-      #                     Query Statements                         #
+      #                      Object Access                           #
       #==============================================================#
-      # query statements
+      # table access
+      - record: pg:table:idx_scan
+        expr: rate(pg_table_idx_scan{}[1m])
+      - record: pg:table:seq_scan
+        expr: rate(pg_table_seq_scan{}[1m])
+      - record: pg:table:qps_realtime
+        expr: irate(pg_table_idx_scan{}[1m])
+
+      # index access
+      - record: pg:index:idx_scan
+        expr: rate(pg_index_idx_scan{}[1m])
+      - record: pg:index:qps_realtime
+        expr: irate(pg_index_idx_scan{}[1m])
+
+      # func access
+      - record: pg:func:call
+        expr: rate(pg_func_calls{}[1m])
+      - record: pg:func:rt
+        expr: rate(pg_func_total_time{}[1m]) / pg:func:call
+
+      # query access
       - record: pg:query:call
         expr: rate(pg_query_calls{}[1m])
       - record: pg:query:rt
