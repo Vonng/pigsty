@@ -63,18 +63,6 @@
     - name: Config /etc/prometheus opts
       template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
 
-    # - fetch static targets - #
-    - name: Fetch prometheus static monitoring targets
-      tags: prometheus_targets
-      connection: local
-      set_fact:
-        prometheus_targets={{ hostvars|json_query(prometheus_targets_query) }}
-      vars:
-        prometheus_targets_query: "[@.*][0][].{cls: pg_cluster, role: pg_role, seq: pg_seq, ip:inventory_hostname, node_enabled:node_exporter_enabled, node_port:node_exporter_port, pg_enabled:pg_exporter_enabled, pg_port:pg_exporter_port, pgbouncer_enabled:pgbouncer_exporter_enabled, pgbouncer_port:pgbouncer_exporter_port , haproxy_enabled:haproxy_enabled, haproxy_port:haproxy_exporter_port }"
-
-    - name: Render prometheus static targets
-      tags: prometheus_targets
-      template: src=targets.yml.j2 dest=/etc/prometheus/targets/all.yml
 
 
 #------------------------------------------------------------------------------
@@ -96,6 +84,36 @@
 
     - name: Wait for alertmanager online
       wait_for: host=127.0.0.1 port=9093 state=started
+
+
+
+#------------------------------------------------------------------------------
+# Targets
+#------------------------------------------------------------------------------
+- name: Add static monitor targets
+  tags: prometheus_targets
+  block:
+    - name: Fetch prometheus static monitoring targets
+      connection: local
+      set_fact:
+        prometheus_targets={{ hostvars|json_query(prometheus_targets_query) }}
+      vars:
+        prometheus_targets_query: "[@.*][0][].{cls: pg_cluster, role: pg_role, seq: pg_seq, ip:inventory_hostname, node_enabled:node_exporter_enabled, node_port:node_exporter_port, pg_enabled:pg_exporter_enabled, pg_port:pg_exporter_port, pgbouncer_enabled:pgbouncer_exporter_enabled, pgbouncer_port:pgbouncer_exporter_port , haproxy_enabled:haproxy_enabled, haproxy_port:haproxy_exporter_port }"
+
+    # render in batch mode
+    - name: Render prometheus static targets in batch
+      tags: prometheus_targets
+      when: prometheus_sd_target == 'batch'
+      template: src=targets.yml.j2 dest=/etc/prometheus/targets/all.yml
+
+    # render in single mode
+    - name: Render prometheus static targets2
+      when: prometheus_sd_target == 'single'
+      template: src=target.yml.j2 dest=/etc/prometheus/targets/{{ target.cls }}-{{ target.seq }}.yml
+      vars:
+        target: "{{ item }}"
+      with_items: "{{ prometheus_targets }}"
+
 
 
 #------------------------------------------------------------------------------
