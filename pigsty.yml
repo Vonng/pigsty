@@ -610,8 +610,9 @@ all: # top-level namespace, match all hosts
 
       # default replication user, name is designated by `pg_replication_username`, and password is set by `pg_replication_password`
       - name: replicator
-        replication: true
-        roles: [pg_monitor, dbrole_readonly]
+        replication: true                          # for replication user
+        bypassrls: true                            # logical replication require bypassrls
+        roles: [pg_monitor, dbrole_readonly]       # logical replication require select privileges
         comment: system replicator
 
       # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
@@ -623,6 +624,7 @@ all: # top-level namespace, match all hosts
       # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
       - name: dbuser_admin
         bypassrls: true
+        superuser: true
         comment: system admin user
         roles: [dbrole_admin]
 
