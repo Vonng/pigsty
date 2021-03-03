@@ -206,10 +206,10 @@ bootstrap:
         max_locks_per_transaction: 128          # 64 -> 128
         max_prepared_transactions: 0            # 0 disable 2PC
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 8                 # default 8, set to cpu core
+        max_worker_processes: 64                # default 8 -> 64, set to cpu core 64
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
-        max_wal_senders: 16                     # 10 -> 16
+        max_wal_senders: 24                     # 10 -> 24
         max_replication_slots: 16               # 10 -> 16
         wal_keep_size: 100GB                    # keep at least 100GB WAL
         password_encryption: md5                # use traditional md5 auth
@@ -228,6 +228,9 @@ bootstrap:
         bgwriter_delay: 10ms                    # check dirty page every 10ms
         bgwriter_lru_maxpages: 800              # 100 -> 800
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
+        max_parallel_workers: 32                # default 8 -> 32, limit by max_worker_processes
+        max_parallel_maintenance_workers: 8     # default 2 -> 8, limit by parallel worker
+        max_parallel_workers_per_gather: 0      # default 2 -> 0, disable parallel query in OLTP mode
 
         #----------------------------------------------------------------------
         # WAL
@@ -255,8 +258,8 @@ bootstrap:
         wal_receiver_status_interval: 1s        # send replies at least this often
         hot_standby_feedback: on                # send info from standby to prevent query conflicts
         wal_receiver_timeout: 60s               # time that receiver waits for
-        max_logical_replication_workers: 8      # 4 -> 8
-        max_sync_workers_per_subscription: 8    # 4 -> 8
+        max_logical_replication_workers: 8      # 4 -> 8, 6 sync worker + 1~2 apply worker
+        max_sync_workers_per_subscription: 6    # 2 -> 6, 6 sync worker
 
         #----------------------------------------------------------------------
         # QUERY TUNING
