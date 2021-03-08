@@ -15,6 +15,8 @@
 {% if 'template'   in  database and database.template != ''   %}-T '{{ database.template   }}' {% endif %}
 {% if 'encoding'   in  database and database.encoding != ''   %}-E '{{ database.encoding   }}' {% endif %}
 {% if 'locale'     in  database and database.locale != ''     %}-l '{{ database.locale     }}' {% endif %}
+{% if 'lc_collate' in  database and database.lc_collate != '' %}--lc-collate '{{ database.lc_collate }}' {% endif %}
+{% if 'lc_ctype'   in  database and database.lc_ctype != ''   %}--lc-ctype '{{ database.lc_ctype   }}' {% endif %}
 {% if 'tablespace' in  database and database.tablespace != '' %}-D '{{ database.tablespace }}' {% endif %}
 '{{ database.name }}';
 -- psql {{ database.name }} -p {{ pg_port }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}.sql
@@ -29,7 +31,9 @@
 -- CREATE DATABASE "{{ database.name }}" {% if 'owner' in  database and database.owner != '' %}OWNER "{{ database.owner }}" {% endif %}
 {% if 'template'   in  database and database.template != ''   %}TEMPLATE "{{ database.template }}" {% endif %}
 {% if 'encoding'   in  database and database.encoding != ''   %}ENCODING '{{ database.encoding }}' {% endif %}
-{% if 'locale'     in  database and database.locale != ''     %}LOCALE '{{ database.locale }}' {% endif %}
+{% if 'locale'     in  database and database.locale != ''     %}LOCALE "{{ database.locale }}" {% endif %}
+{% if 'lc_collate' in  database and database.lc_collate != '' %}LC_COLLATE "{{ database.lc_collate }}" {% endif %}
+{% if 'lc_ctype'   in  database and database.lc_ctype != ''   %}LC_CTYPE "{{ database.lc_ctype }}" {% endif %}
 {% if 'tablespace' in  database and database.tablespace != '' %}TABLESPACE "{{ database.tablespace }}" {% endif %}
 ;
 -- following commands are executed within database "{{ database.name }}"

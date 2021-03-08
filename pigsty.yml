@@ -49,10 +49,11 @@ all: # top-level namespace, match all hosts
       vars:
         pg_cluster: pg-meta                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
-        node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: oltp.yml                   # tune pgsql into oltp/olap/crit/tiny mode
+        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
         patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
+        pg_lc_ctype: en_US.UTF8             # enabled pg_trgm support on chinese
 
         pg_users:
           # complete example of user/role definition for production user
@@ -84,13 +85,15 @@ all: # top-level namespace, match all hosts
 
         pg_databases:
           - name: meta                      # name is the only required field for a database
-            owner: postgres                 # optional, database owner
-            template: template1             # optional, template1 by default
-            encoding: UTF8                  # optional, UTF8 by default
-            locale: C                       # optional, C by default
+            # owner: postgres                 # optional, database owner
+            # template: template1             # optional, template1 by default
+            # encoding: UTF8                # optional, UTF8 by default , must same as template database, leave blank to set to db default
+            # locale: C                     # optional, C by default , must same as template database, leave blank to set to db default
+            # lc_collate: C                 # optional, C by default , must same as template database, leave blank to set to db default
+            # lc_ctype: C                   # optional, C by default , must same as template database, leave blank to set to db default
             allowconn: true                 # optional, true by default, false disable connect at all
             revokeconn: false               # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
-            tablespace: pg_default          # optional, 'pg_default' is the default tablespace
+            # tablespace: pg_default          # optional, 'pg_default' is the default tablespace
             connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
             extensions:                     # optional, extension name and where to create
               - {name: postgis, schema: public}
@@ -295,7 +298,7 @@ all: # top-level namespace, match all hosts
       - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
 
       # postgres 13 packages
-      - postgresql13* postgis31* citus_13 pgrouting_13                                          # postgres 13 and postgis 31
+      - postgresql13* postgis31* citus_13 timescaledb_13 # pgrouting_13                         # postgres 13 and postgis 31
       - pg_repack13 pg_squeeze13                                                                # maintenance extensions
       - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
       - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions                                      # pl extensions
@@ -475,7 +478,7 @@ all: # top-level namespace, match all hosts
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
       # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
       # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
-    dcs_exists_action: skip                       # abort|skip|clean if dcs server already exists
+    dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
@@ -554,6 +557,12 @@ all: # top-level namespace, match all hosts
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
     pg_conf: tiny.yml                             # user provided patroni config template path
+
+    # - localization - #
+    pg_encoding: UTF8                             # default to UTF8
+    pg_locale: C                                  # default to en_US.UTF8
+    pg_lc_collate: C                              # default to C
+    pg_lc_ctype: C                                # default to en_US.UTF8
 
     # - pgbouncer - #
     pgbouncer_port: 6432                          # pgbouncer port (6432 by default)

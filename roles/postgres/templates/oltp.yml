@@ -100,10 +100,18 @@ bootstrap:
 
   # default bootstrap method: initdb
   initdb:
-    - locale: C
-    - encoding: UTF8
-    # - data-checksums    # enable data-checksum
-
+{% if pg_encoding != '' %}
+    - encoding: {{ pg_encoding }}
+{% endif %}
+{% if pg_locale != '' %}
+    - locale: {{ pg_locale }}
+{% endif %}
+{% if pg_lc_collate != '' %}
+    - lc-collate: {{ pg_lc_collate }}
+{% endif %}
+{% if pg_lc_ctype != '' %}
+    - lc-ctype: {{ pg_lc_ctype }}
+{% endif %}
 
   #----------------------------------------------------------------------------
   # bootstrap users
@@ -201,7 +209,7 @@ bootstrap:
         #----------------------------------------------------------------------
         # IMPORTANT PARAMETERS
         #----------------------------------------------------------------------
-        max_connections: 400                    # 100 -> 400
+        max_connections: 800                    # 100 -> 800
         superuser_reserved_connections: 10      # reserve 10 connection for su
         max_locks_per_transaction: 128          # 64 -> 128
         max_prepared_transactions: 0            # 0 disable 2PC

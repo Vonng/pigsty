@@ -102,9 +102,18 @@ bootstrap:
 
   # default bootstrap method: initdb
   initdb:
-    - locale: C
-    - encoding: UTF8
-    - data-checksums    # enable data-checksum
+{% if pg_encoding != '' %}
+    - encoding: {{ pg_encoding }}
+{% endif %}
+{% if pg_locale != '' %}
+    - locale: {{ pg_locale }}
+{% endif %}
+{% if pg_lc_collate != '' %}
+    - lc-collate: {{ pg_lc_collate }}
+{% endif %}
+{% if pg_lc_ctype != '' %}
+    - lc-ctype: {{ pg_lc_ctype }}
+{% endif %}
 
 
   #----------------------------------------------------------------------------
