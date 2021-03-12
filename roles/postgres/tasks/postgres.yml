@@ -262,7 +262,9 @@
       template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
 
     - name: Reload hba rules
-      command: /usr/pgsql/bin/pg_ctl -D {{ pg_data }} reload
+      when: pg_reload|bool
+      shell: |
+        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload
 
 
 
