@@ -105,7 +105,7 @@ all: # top-level namespace, match all hosts
         pg_default_database: meta           # default database will be used as primary monitor target
 
         # proxy settings
-        vip_enabled: true                   # enable/disable vip (require members in same LAN)
+        vip_mode: l2                      # enable/disable vip (require members in same LAN)
         vip_address: 10.10.10.2             # virtual ip address
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
@@ -119,7 +119,7 @@ all: # top-level namespace, match all hosts
       hosts:
         10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
         10.10.10.12: {pg_seq: 2, pg_role: replica, ansible_host: node-2}
-        10.10.10.13: {pg_seq: 3, pg_role: replica, ansible_host: node-3, pg_offline_query: true}
+        10.10.10.13: {pg_seq: 3, pg_role: offline, ansible_host: node-3}
 
       # - cluster configs - #
       vars:
@@ -143,7 +143,7 @@ all: # top-level namespace, match all hosts
         pg_default_database: test           # default database will be used as primary monitor target
 
         # proxy settings
-        vip_enabled: true                   # enable/disable vip (require members in same LAN)
+        vip_mode: l2                        # enable/disable vip (require members in same LAN)
         vip_address: 10.10.10.3             # virtual ip address
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
@@ -764,29 +764,70 @@ all: # top-level namespace, match all hosts
 
 
     #------------------------------------------------------------------------------
-    # PROXY PROVISION
+    # SERVICE PROVISION
     #------------------------------------------------------------------------------
+    pg_weight: 100              # default load balance weight (instance level)
+
+    # - service - #
+    pg_services:                                  # how to expose postgres service in cluster?
+      # primary service will route {ip|name}:5433 to primary pgbouncer (5433->6432 rw)
+      - name: primary           # service name {{ pg_cluster }}_primary
+        src_ip: "*"
+        src_port: 5433
+        dst_port: pgbouncer     # 5433 route to pgbouncer
+        check_url: /primary     # primary health check, success when instance is primary
+        selector: "[]"          # select all instance as primary service candidate
+
+      # replica service will route {ip|name}:5434 to replica pgbouncer (5434->6432 ro)
+      - name: replica           # service name {{ pg_cluster }}_replica
+        src_ip: "*"
+        src_port: 5434
+        dst_port: pgbouncer
+        check_url: /read-only   # read-only health check. (including primary)
+        selector: "[]"          # select all instance as replica service candidate
+        selector_backup: "[? pg_role == `primary`]"   # primary are used as backup server in replica service
+
+      # offline service will route {ip|name}:5435 to offline postgres (5434->5432 ro)
+      - name: offline           # service name {{ pg_cluster }}_replica
+        src_ip: "*"
+        src_port: 5435
+        dst_port: postgres
+        check_url: /replica     # offline MUST be a replica
+        selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
+        selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
+
+    pg_services_extra:          # extra services to be added
+
+      # default service will route {ip|name}:5436 to primary postgres (5436->5432) (example service)
+      - name: default           # service's actual name is {{ pg_cluster }}-{{ service.name }}
+        src_ip: "*"             # service bind ip address, * for all, vip for cluster virtual ip address
+        src_port: 5436          # bind port, mandatory
+        dst_port: postgres      # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
+        check_method: http      # health check method: only http is available for now
+        check_port: patroni     # health check port:  patroni|pg_exporter|port_number , patroni by default
+        check_url: /primary     # health check url path, / as default
+        check_code: 200         # health check http code, 200 as default
+        selector: "[]"          # instance selector
+        haproxy:                # haproxy specific fields
+          maxconn: 3000         # default front-end connection
+          balance: roundrobin   # load balance algorithm (roundrobin by default)
+          default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+
+
     # - haproxy - #
     haproxy_enabled: true                         # enable haproxy among every cluster members
     haproxy_policy: roundrobin                    # roundrobin, leastconn
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
     haproxy_admin_password: admin                 # default haproxy admin password
+    haproxy_exporter_port: 9101                   # default admin/exporter port
     haproxy_client_timeout: 3h                    # client side connection timeout
     haproxy_server_timeout: 3h                    # server side connection timeout
-    haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_check_port: 8008                      # default health check port (patroni 8008 by default)
-    haproxy_primary_port: 5433                    # default primary port 5433
-    haproxy_replica_port: 5434                    # default replica port 5434
-    haproxy_backend_port: 6432                    # default target port: pgbouncer:6432 postgres:5432
-    haproxy_weight: 100                           # default weight for load balancer
-    haproxy_weight_fallback: 1                    # assign a small weight for primary in replica service
-                                                  # (in case of singleton replica failure, primary can still take read-only  )
 
     # - vip - #
-    # vip_enabled: true                           # level2 vip requires primary/standby under same switch
-    # vip_address: 127.0.0.1                      # virtual ip address ip/cidr
-    # vip_cidrmask: 32                            # virtual ip address cidr mask
-    # vip_interface: eth0                         # virtual ip network interface
+    vip_mode: none                                # none | l2 | l4
+    vip_address: 127.0.0.1                        # virtual ip address ip (l2 or l4)
+    vip_cidrmask: 24                              # virtual ip address cidr mask (l2 only)
+    vip_interface: eth0                           # virtual ip network interface (l2 only)
 
 ...

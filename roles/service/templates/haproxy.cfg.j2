@@ -1,0 +1,111 @@
+#=====================================================================
+# Global settings
+# Document1: https://www.haproxy.org/download/2.2/doc/configuration.txt
+# Document2: https://cbonte.github.io/haproxy-dconv/2.2/configuration.html#timeout%20connect
+#=====================================================================
+global
+    daemon
+    user        haproxy
+    group       haproxy
+    node        {{ pg_cluster }}-haproxy-{{ pg_seq }}
+    pidfile     /var/run/haproxy.pid
+    # chroot      /var/lib/haproxy          # if chrooted, change stats socket above
+    stats socket /var/run/haproxy.socket user haproxy group haproxy mode 600 level admin
+
+    # spread-checks 3                       # add randomness in check interval
+    # quiet                                 # Do not display any message during startup
+    maxconn     65535                       # maximum per-process number of concurrent connections
+
+
+#---------------------------------------------------------------------
+# default settings
+#---------------------------------------------------------------------
+defaults
+    # log                global
+
+    mode               tcp
+    retries            3            # max retry connect to upstream
+    timeout queue      3s           # maximum time to wait in the queue for a connection slot to be free
+    timeout connect    3s           # maximum time to wait for a connection attempt to a server to succeed
+    timeout client     {{ haproxy_client_timeout }}           # client connection timeout
+    timeout server     {{ haproxy_server_timeout }}           # server connection timeout
+    timeout check      3s           # health check timeout
+
+
+#---------------------------------------------------------------------
+# default admin users
+#---------------------------------------------------------------------
+userlist STATS_USERS
+        group admin     users {{ haproxy_admin_username }}
+        user stats  insecure-password {{ haproxy_admin_password }}
+        user {{ haproxy_admin_username }}  insecure-password {{ haproxy_admin_password }}
+
+#---------------------------------------------------------------------
+# stats and exporter
+#---------------------------------------------------------------------
+listen stats                                # both frontend and a backend for statistics
+    # option httplog                        # log http activity
+    stats realm {{ pg_cluster }}-{{ pg_seq }}-haproxy-{{ inventory_hostname }}
+
+    bind *:{{ haproxy_exporter_port }}  # default haproxy exporter port
+    mode  http                              # server in http mode
+    stats enable                            # enable stats page on http://localhost:9101/haproxy
+    stats uri /{{ pg_cluster }}-{{ pg_seq }}/     # stats endpoint
+    stats refresh 30s                       # refresh stats page every 30 seconds
+    stats show-node
+
+{% if haproxy_admin_auth_enabled == false %}
+    stats admin if TRUE                     # no auth for admin
+{% else %}
+    stats auth {{ haproxy_admin_username }} {{ haproxy_admin_password }}
+{% endif %}
+
+    # embed prometheus exporter on http://localhost:9101/metrics
+    http-request use-service prometheus-exporter if { path {{ exporter_metrics_path }} }
+
+#=====================================================================
+# Service Definition
+#=====================================================================
+
+{% for service in pg_services %}
+#---------------------------------------------------------------------
+# service: {{ pg_cluster }}-{{ service.name }}
+#---------------------------------------------------------------------
+{% set pg_service_members = pg_cluster_members|json_query(service.selector) %}
+{% set pg_service_member_names = pg_service_members|json_query('[].inventory_hostname') %}
+{% set pg_service_backups = [] %}{% if 'selector_backup' in service %}{% set pg_service_backups = pg_cluster_members|json_query(service.selector_backup) %}{% endif %}
+{% if pg_service_backups == [] %}{% set pg_service_backups = [] %}{% endif %}
+{% set pg_service_backup_names = pg_service_backups|json_query('[].inventory_hostname') %}
+# service instances {{ pg_service_member_names }}
+# service backups   {{ pg_service_backup_names }}
+listen {{ pg_cluster }}-{{ service.name }}
+    bind {% if 'src_ip' not in service %}*{% elif service.src_ip == 'vip' %}{{ vip_address }}{% else %}{{ service.src_ip }}{% endif %}:{{ service.src_port }}
+    mode tcp
+    maxconn {{ service.haproxy.maxconn|default(3000) }}
+    balance {{ service.haproxy.balance|default('roundrobin') }}
+{% if 'check_method' not in service or service.check_method == 'http' %}
+    option httpchk
+    option http-keep-alive
+    http-check send meth GET uri {{ service.check_url|default('/') }}
+    http-check expect status {{ service.check_code|default(200) }}
+{% endif %}
+    default-server {{ service.haproxy.default_server_options|default('inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100') }} {% if service.check_port is number %}{{ service.check_port }}{% endif %}
+
+    # service members
+{% for host in pg_service_members %}
+    server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if 'dst_port' not in service %}{{ host.pg_port }}{% elif service.dst_port is number %}{{ service.dst_port }}{% elif service.dst_port == 'postgres' %}{{ host.pg_port }}{% elif service.dst_port == 'pgbouncer' %}{{ host.pgbouncer_port }}{% else %}5432{% endif %}
+{% if 'check_port' not in service %} check port {{ patroni_port }}{% elif service.check_port == 'patroni' %} check port {{ host.patroni_port }}{% elif service.check_port == 'pg_exporter' %} check port {{ host.pg_exporter_port }}{% elif service.check_port == 'none' %}{% endif %}
+{% if host.g_weight is number %} weight {{ host.pg_weight }}{% endif %}
+{% if host.inventory_hostname in pg_service_backup_names %} backup {% endif %}
+
+{% endfor %}
+{% for host in pg_service_backups %}
+{% if host.inventory_hostname not in pg_service_member_names %}
+    server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if 'dst_port' not in service %}{{ host.pg_port }}{% elif service.dst_port == 'postgres' %}{{ host.pg_port }}{% elif service.dst_port == 'pgbouncer' %}{{ host.pgbouncer_port }}{% else %}5432{% endif %}
+{% if 'check_port' not in service %} check port {{ patroni_port }}{% elif service.check_port == 'patroni' %} check port {{ host.patroni_port }}{% elif service.check_port == 'pg_exporter' %} check port {{ host.pg_exporter_port }}{% elif service.check_port == 'none' %}{% endif %}
+{% if host.g_weight is number %} weight {{ host.pg_weight }}{% endif %}
+ backup
+{% endif %}
+{% endfor %}
+
+{% endfor %}

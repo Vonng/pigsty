@@ -1,0 +1,25 @@
+---
+
+#--------------------------------------------------------------#
+# use haproxy as service provider
+#--------------------------------------------------------------#
+- import_tasks: haproxy.yml
+  tags: haproxy
+  when: haproxy_enabled
+
+#--------------------------------------------------------------#
+# use vip-manager as l2 vip provider
+#--------------------------------------------------------------#
+- import_tasks: vip-manager.yml
+  tags: l2vip
+  when: vip_mode == 'l2'
+
+#--------------------------------------------------------------#
+# use l4vip as l4 vip-provider
+#--------------------------------------------------------------#
+- import_tasks: l4vip.yml
+  tags: l4vip
+  when: vip_mode == 'l4'
+
+
+...

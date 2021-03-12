@@ -1,0 +1,47 @@
+---
+#--------------------------------------------------------------#
+# vip-manager install
+#--------------------------------------------------------------#
+- name: Install vip-manager
+  tags: vip_manager_install
+  block:
+    - name: Make sure vip-manager is installed
+      package: name=vip-manager state=present
+
+
+#--------------------------------------------------------------#
+# vip-manager config
+#--------------------------------------------------------------#
+- name: Config vip-manager
+  tags: vip_manager_config
+  block:
+    - name: Copy vip-manager systemd service file
+      copy: src=vip-manager.service dest=/usr/lib/systemd/system/vip-manager.service
+
+    - name: create vip-manager systemd drop-in dir
+      file:
+        path: /etc/systemd/system/vip-manager.service.d
+        state: directory
+        mode: 0755
+
+    - name: create vip-manager systemd drop-in file
+      copy:
+        dest: /etc/systemd/system/vip-manager.service.d/consul.conf
+        content: |
+          [Unit]
+          After=consul.service
+          Requires=consul.service
+        mode: 0644
+
+    - name: Templating /etc/default/vip-manager.yml
+      tags: vip_manager_config
+      template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
+
+
+#--------------------------------------------------------------#
+# vip-manager launch
+#--------------------------------------------------------------#
+- name: Launch vip-manager
+  systemd: name=vip-manager state=restarted enabled=yes
+
+...
