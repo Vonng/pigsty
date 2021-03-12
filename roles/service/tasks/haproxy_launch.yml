@@ -1,0 +1,14 @@
+---
+#--------------------------------------------------------------#
+# haproxy launch
+#--------------------------------------------------------------#
+- name: Restart Haproxy
+  block:
+    - name: Launch haproxy load balancer service
+      tags: haproxy_restart
+      when: haproxy_enabled
+      systemd: name=haproxy state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for haproxy load balancer online
+      wait_for: host=127.0.0.1 port=9101 state=started timeout=10
+...

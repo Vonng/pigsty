@@ -1,0 +1,17 @@
+---
+#--------------------------------------------------------------#
+# haproxy install
+#--------------------------------------------------------------#
+- name: Haproxy installation
+  block:
+    - name: Make sure haproxy is installed
+      package: name=haproxy state=present
+
+    - name: Create haproxy directory
+      file: path=/etc/haproxy state=directory
+
+    - name: Copy haproxy systemd service file
+      tags: haproxy_unit
+      copy: src=haproxy.service dest=/usr/lib/systemd/system/haproxy.service
+
+...

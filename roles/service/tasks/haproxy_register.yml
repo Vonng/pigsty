@@ -1,0 +1,32 @@
+---
+#--------------------------------------------------------------#
+# Register Haproxy Service
+#--------------------------------------------------------------#
+- name: Register haproxy consul service
+  when: service_registry == 'consul'
+  ignore_errors: true
+  block:
+
+    - name: Copy haproxy exporter definition
+      template:
+        src: svc-haproxy.json.j2
+        dest: /etc/consul.d/svc-haproxy.json
+        owner: consul
+        group: postgres
+        mode: 0660
+
+    - name: Copy haproxy service definition
+      template:
+        src: svc-cluster-role.json.j2
+        dest: /etc/consul.d/svc-{{ pg_cluster }}-{{ service.name }}.json
+        owner: consul
+        group: postgres
+        mode: 0660
+      vars:
+        service: "{{ item }}"
+      with_items: "{{ pg_services }}"
+
+    - name: Reload haproxy consul service
+      systemd: name=consul state=reloaded
+
+...

@@ -8,18 +8,36 @@
   when: haproxy_enabled
 
 #--------------------------------------------------------------#
-# use vip-manager as l2 vip provider
+# setup haproxy if enabled
+#--------------------------------------------------------------#
+- import_tasks: haproxy_install.yml
+  tags: haproxy_install
+  when: haproxy_enabled
+
+- import_tasks: haproxy_config.yml
+  tags: haproxy_config
+  when: haproxy_enabled
+
+- import_tasks: haproxy_launch.yml
+  tags: haproxy_launch
+  when: haproxy_enabled
+
+- import_tasks: haproxy_register.yml
+  tags: haproxy_register
+  when: haproxy_enabled
+
+#--------------------------------------------------------------#
+# setup vip manager if vip_mode  == l2
 #--------------------------------------------------------------#
 - import_tasks: vip-manager.yml
-  tags: l2vip
+  tags: vip_l2
   when: vip_mode == 'l2'
 
 #--------------------------------------------------------------#
-# use l4vip as l4 vip-provider
+# setup external l4 vip if vip_mode == l4 (not implemented yet)
 #--------------------------------------------------------------#
-- import_tasks: l4vip.yml
-  tags: l4vip
+- import_tasks: vip_l4.yml
+  tags: vip_l4
   when: vip_mode == 'l4'
-
 
 ...

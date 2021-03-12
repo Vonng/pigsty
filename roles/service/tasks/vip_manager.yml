@@ -8,13 +8,6 @@
     - name: Make sure vip-manager is installed
       package: name=vip-manager state=present
 
-
-#--------------------------------------------------------------#
-# vip-manager config
-#--------------------------------------------------------------#
-- name: Config vip-manager
-  tags: vip_manager_config
-  block:
     - name: Copy vip-manager systemd service file
       copy: src=vip-manager.service dest=/usr/lib/systemd/system/vip-manager.service
 
@@ -33,6 +26,13 @@
           Requires=consul.service
         mode: 0644
 
+
+#--------------------------------------------------------------#
+# vip-manager config
+#--------------------------------------------------------------#
+- name: Config vip-manager
+  tags: vip_manager_config
+  block:
     - name: Templating /etc/default/vip-manager.yml
       tags: vip_manager_config
       template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
