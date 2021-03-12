@@ -1,0 +1,37 @@
+---
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+- name: Setup prometheus and alertmanager
+  block:
+    - name: Create postgres directory structure
+      file: path={{ item }} state=directory owner=prometheus group=prometheus mode=700
+      with_items:
+        - /etc/prometheus
+        - /etc/prometheus/bin
+        - /etc/prometheus/rules
+        - /etc/prometheus/targets
+        - "{{ prometheus_data_dir }}"
+
+    # - bin scripts - #
+    - name: Copy prometheus bin scripts
+      copy: src=bin/ dest=/etc/prometheus/bin/ owner=prometheus mode=0755
+
+    # - pre-process & alerting rules - #
+    - name: Copy prometheus rules scripts
+      copy: src=rules/ dest=/etc/prometheus/rules/ owner=prometheus mode=0755
+
+    # - main config - #
+    - name: Copy altermanager config
+      copy: src=alertmanager.yml dest=/etc/prometheus/alertmanager.yml owner=prometheus mode=0644
+
+    - name: Render prometheus config
+      template: src=prometheus.yml.j2 dest=/etc/prometheus/prometheus.yml owner=prometheus mode=0644
+
+    # - overwrite opts - #
+    - name: Config /etc/prometheus opts
+      template: src=prometheus.default.j2 dest=/etc/default/prometheus owner=prometheus mode=0755
+
+...
+
+

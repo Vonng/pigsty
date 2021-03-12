@@ -6,7 +6,6 @@
 # Mtime     :   2021-02-27
 # Desc      :   deploy monitor components only
 # Path      :   pgsql-monitor.yml
-# Deps      :   templates/{target,targets}.sql
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
@@ -21,6 +20,10 @@
 # You MUST use static services discovery for prometheus
 # You CAN NOT use services_registry
 
+
+#------------------------------------------------------------------------------
+# Deploy monitor on selected targets
+#------------------------------------------------------------------------------
 - name: Monitor Only Deployment
   become: yes
   hosts: all
@@ -81,10 +84,10 @@
 
 
 
-    #------------------------------------------------------------------------------
-    # RECOMMEND CHANGES
-    #------------------------------------------------------------------------------
-- name: Monitor Only Deployment
+#------------------------------------------------------------------------------
+# update static inventory in meta node and reload
+#------------------------------------------------------------------------------
+- name: Update prometheus static sd files
   become: yes
   hosts: meta
   tags: prometheus
@@ -94,44 +97,10 @@
     # RECOMMEND CHANGES
     #------------------------------------------------------------------------------
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
-    prometheus_sd_target: single                  # batch or single (monolith or per instance)
+    prometheus_sd_target: cluster                 # none | batch | cluster | single
 
   tasks:
-
-    #------------------------------------------------------------------------------
-    # Targets
-    #------------------------------------------------------------------------------
-    - name: Add static monitor targets
-      tags: prometheus_targets
-      block:
-        - name: Fetch prometheus static monitoring targets
-          connection: local
-          set_fact:
-            prometheus_targets={{ hostvars|json_query(prometheus_targets_query) }}
-          vars:
-            prometheus_targets_query: "[@.*][0][].{cls: pg_cluster, role: pg_role, seq: pg_seq, ip:inventory_hostname, node_enabled:node_exporter_enabled, node_port:node_exporter_port, pg_enabled:pg_exporter_enabled, pg_port:pg_exporter_port, pgbouncer_enabled:pgbouncer_exporter_enabled, pgbouncer_port:pgbouncer_exporter_port , haproxy_enabled:haproxy_enabled, haproxy_port:haproxy_exporter_port }"
-
-        # render in batch mode
-        - name: Render prometheus static targets in batch
-          tags: prometheus_targets
-          when: prometheus_sd_target == 'batch'
-          template: src=targets.yml.j2 dest=/etc/prometheus/targets/all.yml
-
-        # render in single mode
-        - name: Render prometheus static targets2
-          when: prometheus_sd_target == 'single'
-          template: src=target.yml.j2 dest=/etc/prometheus/targets/{{ target.cls }}-{{ target.seq }}.yml
-          vars:
-            target: "{{ item }}"
-          with_items: "{{ prometheus_targets }}"
-
-    #------------------------------------------------------------------------------
-    # Reload
-    #------------------------------------------------------------------------------
-    - name: Reload prometheus and alertmanager
-      tags: prometheus_reload
-      block:
-        - name: Reload prometheus service
-          systemd: name=prometheus state=reloaded enabled=yes daemon_reload=yes
+    - include_tasks: roles/prometheus/tasks/targets.yml
+    - include_tasks: roles/prometheus/tasks/reload.yml
 
 ...

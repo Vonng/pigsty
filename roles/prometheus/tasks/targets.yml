@@ -1,0 +1,57 @@
+---
+#------------------------------------------------------------------------------
+# Targets
+#------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------
+# render in batch mode
+#--------------------------------------------------------------------------
+- name: Render prometheus targets in batch mode
+  when: prometheus_sd_target == 'batch'
+  copy:
+    dest: /etc/prometheus/targets/all.yml
+    content: |
+      {% for ip, target in hostvars.items() %}
+      #======> {{ target.pg_cluster }}-{{ target.pg_seq }} [{{ target.pg_role }}] @ {{ target.inventory_hostname }}
+      - labels: {cls: {{ target.pg_cluster }}, ins: {{ target.pg_cluster }}-{{ target.pg_seq }}, ip: {{ target.inventory_hostname }}, role: {{ target.pg_role }}, svc: {{ target.pg_cluster }}-{{ target.pg_role }}}
+        targets: [{{ target.inventory_hostname }}:{{ target.pg_exporter_port }}{% if target.node_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.node_exporter_port }}{% endif %}{% if target.pgbouncer_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.pgbouncer_exporter_port }}{% endif %}{% if target.haproxy_enabled %}, {{ target.inventory_hostname }}:{{ target.haproxy_exporter_port }}{% endif %}]
+
+      {% endfor %}
+
+#--------------------------------------------------------------------------
+# render in cluster mode
+#--------------------------------------------------------------------------
+- name: Render prometheus targets in cluster mode
+  when: prometheus_sd_target == 'cluster'
+  copy:
+    dest: /etc/prometheus/targets/{{ item }}.yml
+    content: |
+      {% set target_list = hostvars|json_query(cluster_query) %}
+      {% for target in target_list %}
+      #======> {{ target.pg_cluster }}-{{ target.pg_seq }} [{{ target.pg_role }}] @ {{ target.inventory_hostname }}
+      - labels: {cls: {{ target.pg_cluster }}, ins: {{ target.pg_cluster }}-{{ target.pg_seq }}, ip: {{ target.inventory_hostname }}, role: {{ target.pg_role }}, svc: {{ target.pg_cluster }}-{{ target.pg_role }}}
+        targets: [{{ target.inventory_hostname }}:{{ target.pg_exporter_port }}{% if target.node_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.node_exporter_port }}{% endif %}{% if target.pgbouncer_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.pgbouncer_exporter_port }}{% endif %}{% if target.haproxy_enabled %}, {{ target.inventory_hostname }}:{{ target.haproxy_exporter_port }}{% endif %}]
+
+      {% endfor %}
+  vars:
+    cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
+  with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
+
+#--------------------------------------------------------------------------
+# render in single mode
+#--------------------------------------------------------------------------
+- name: Render prometheus targets in single mode
+  when: prometheus_sd_target == 'single'
+  copy:
+    dest: /etc/prometheus/targets/{{ hostvars[item].pg_cluster }}-{{ hostvars[item].pg_seq }}.yml
+    content: |
+      {% set target = hostvars[item] %}
+      #======> {{ target.pg_cluster }}-{{ target.pg_seq }} [{{ target.pg_role }}] @ {{ target.inventory_hostname }}
+      - labels: {cls: {{ target.pg_cluster }}, ins: {{ target.pg_cluster }}-{{ target.pg_seq }}, ip: {{ target.inventory_hostname }}, role: {{ target.pg_role }}, svc: {{ target.pg_cluster }}-{{ target.pg_role }}}
+        targets: [{{ target.inventory_hostname }}:{{ target.pg_exporter_port }}{% if target.node_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.node_exporter_port }}{% endif %}{% if target.pgbouncer_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.pgbouncer_exporter_port }}{% endif %}{% if target.haproxy_enabled %}, {{ target.inventory_hostname }}:{{ target.haproxy_exporter_port }}{% endif %}]
+
+  with_items: "{{ hostvars }}"    # distinct cluster names
+
+...
+
+
