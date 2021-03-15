@@ -22,6 +22,7 @@
   tags: haproxy_register
   when: haproxy_enabled
 
+
 #--------------------------------------------------------------#
 # setup vip manager for L2 VIP  if vip_mode  == l2
 #--------------------------------------------------------------#
@@ -37,11 +38,15 @@
   tags: vip_l2_reload
   when: vip_mode == 'l2' and vip_reload|bool
 
+
 #--------------------------------------------------------------#
-# setup external l4 vip  if vip_mode == l4 (not implemented yet)
+# setup external l4 vip  if vip_mode == l4
 #--------------------------------------------------------------#
-- import_tasks: vip_l4_reload.yml
+- import_tasks: vip_l4_config.yml
+  tags: vip_l4_config
+  when: vip_mode == 'l4'
+
+- include_tasks: vip_l4_reload.yml
   tags: vip_l4_reload
   when: vip_mode == 'l4' and vip_reload|bool
-
 ...

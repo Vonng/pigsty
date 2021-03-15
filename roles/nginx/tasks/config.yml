@@ -1,0 +1,15 @@
+---
+#------------------------------------------------------------------------------
+# Config Nginx
+#------------------------------------------------------------------------------
+- name: Config nginx server
+  tags: nginx_config
+  block:
+    - name: Copy nginx default config
+      template: src=default.conf.j2 dest=/etc/nginx/conf.d/default.conf
+
+    - name: Copy nginx upstream conf
+      template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
+      with_items: "{{ nginx_upstream }}"
+
+...

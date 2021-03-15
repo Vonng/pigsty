@@ -434,7 +434,6 @@ all: # top-level namespace, match all hosts
     prometheus_options: '--storage.tsdb.retention=30d'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: consul                  # service discovery method: static|consul|etcd
-    prometheus_sd_target: batch                   # batch or single (monolith or per instance)
     prometheus_scrape_interval: 2s                # global scrape & evaluation interval
     prometheus_scrape_timeout: 1s                 # scrape timeout
     prometheus_sd_interval: 2s                    # service discovery refresh interval
@@ -561,9 +560,9 @@ all: # top-level namespace, match all hosts
 
     # - localization - #
     pg_encoding: UTF8                             # default to UTF8
-    pg_locale: C                                  # default to en_US.UTF8
+    pg_locale: C                                  # default to C
     pg_lc_collate: C                              # default to C
-    pg_lc_ctype: C                                # default to en_US.UTF8
+    pg_lc_ctype: en_US.UTF8                       # default to en_US.UTF8
 
     # - pgbouncer - #
     pgbouncer_port: 6432                          # pgbouncer port (6432 by default)
@@ -789,18 +788,7 @@ all: # top-level namespace, match all hosts
         selector: "[]"          # select all instance as replica service candidate
         selector_backup: "[? pg_role == `primary`]"   # primary are used as backup server in replica service
 
-      # offline service will route {ip|name}:5435 to offline postgres (5434->5432 ro)
-      - name: offline           # service name {{ pg_cluster }}_replica
-        src_ip: "*"
-        src_port: 5435
-        dst_port: postgres
-        check_url: /replica     # offline MUST be a replica
-        selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
-        selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
-
-    pg_services_extra:          # extra services to be added
-
-      # default service will route {ip|name}:5436 to primary postgres (5436->5432) (example service)
+      # default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
       - name: default           # service's actual name is {{ pg_cluster }}-{{ service.name }}
         src_ip: "*"             # service bind ip address, * for all, vip for cluster virtual ip address
         src_port: 5436          # bind port, mandatory
@@ -815,6 +803,16 @@ all: # top-level namespace, match all hosts
           balance: roundrobin   # load balance algorithm (roundrobin by default)
           default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
+      # offline service will route {ip|name}:5438 to offline postgres (5438->5432 offline)
+      - name: offline           # service name {{ pg_cluster }}_replica
+        src_ip: "*"
+        src_port: 5438
+        dst_port: postgres
+        check_url: /replica     # offline MUST be a replica
+        selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
+        selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
+
+    pg_services_extra: []        # extra services to be added
 
     # - haproxy - #
     haproxy_enabled: true                         # enable haproxy among every cluster members
@@ -830,8 +828,8 @@ all: # top-level namespace, match all hosts
     # - vip - #
     vip_mode: none                                # none | l2 | l4
     vip_reload: true                              # whether reload service after config
-    vip_address: 127.0.0.1                        # virtual ip address ip (l2 or l4)
-    vip_cidrmask: 24                              # virtual ip address cidr mask (l2 only)
-    vip_interface: eth0                           # virtual ip network interface (l2 only)
+    # vip_address: 127.0.0.1                      # virtual ip address ip (l2 or l4)
+    # vip_cidrmask: 24                            # virtual ip address cidr mask (l2 only)
+    # vip_interface: eth0                         # virtual ip network interface (l2 only)
 
 ...

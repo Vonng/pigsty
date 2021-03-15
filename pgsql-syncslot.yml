@@ -1,0 +1,43 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-syncslot.yml
+# Ctime     :   2021-03-14
+# Mtime     :   2021-03-14
+# Desc      :   sync replication slot file from primary to replicas
+# Path      :   pgsql-syncslot.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+- name: Sync Replication Slots
+  become: yes
+  hosts: all
+  gather_facts: no
+  tasks:
+
+    - name: Perform checkpoint and archive slot status
+      when: pg_role == 'primary'
+      shell: |
+        sudo -iu {{ pg_dbsu }} psql -p {{ pg_port }} -c 'CHECKPOINT;'
+        tar -zcf "/tmp/{{ pg_cluster }}-slots.tgz" -C /pg/data pg_replslot;
+
+    - name: Fetch slot archive to meta node
+      when: pg_role == 'primary'
+      fetch: dest=files/ flat=true src=/tmp/{{ pg_cluster }}-slots.tgz
+
+    - name: Copy slot archive to non primary instances
+      when: pg_role != 'primary'
+      copy:
+        src: "{{ pg_cluster }}-slots.tgz"
+        dest: /tmp/{{ pg_cluster }}-slots.tgz
+
+    - name: Unzip slot files and set owner
+      when: pg_role != 'primary'
+      shell:
+        tar -C /pg/data/pg_replslot/ --strip-component=1 -xf /tmp/{{ pg_cluster }}-slots.tgz ;
+        chown -R {{ pg_dbsu }}:postgres /pg/data/pg_replslot;
+        chmod 0700 /pg/data/pg_replslot/*;
+        chmod 0600 /pg/data/pg_replslot/*/state;
+        rm -rf /tmp/{{ pg_cluster }}-slots.tgz;
+
+...

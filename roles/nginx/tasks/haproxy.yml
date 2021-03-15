@@ -1,0 +1,90 @@
+---
+#------------------------------------------------------------------------------
+# Config Nginx proxy for haproxy index
+#------------------------------------------------------------------------------
+- name: Config haproxy index
+  block:
+    - name: Templating /etc/nginx/haproxy.conf
+      copy:
+        dest: /etc/nginx/conf.d/haproxy.conf
+        content: |
+          # haproxy instance definition
+          include /etc/nginx/conf.d/haproxy/upstream-*.conf;
+          # nginx proxy for haproxy admin
+          server {
+              listen       80;
+              server_name  {{ nginx_upstream | json_query('[?name==`haproxy`].host') | first }};
+              include /etc/nginx/conf.d/haproxy/location-*.conf;
+              location / {
+                  root        {{ repo_home }}/;
+                  index       haproxy.html;
+              }
+          }
+
+    - name: Render haproxy upstream in cluster mode
+      copy:
+        dest: /etc/nginx/conf.d/haproxy/upstream-{{ item }}.conf
+        content: |
+          {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
+          {% if host.haproxy_enabled %}
+          upstream {{ host.pg_cluster }}-{{ host.pg_seq }} {
+              server {{ host.inventory_hostname }}:{{ host.haproxy_exporter_port }} max_fails=0;
+          }
+          {% endif %}
+          {% endfor %}
+      vars:
+        cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
+      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
+
+    - name: Render haproxy location in cluster mode
+      copy:
+        dest: /etc/nginx/conf.d/haproxy/location-{{ item }}.conf
+        content: |
+          {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
+          {% if host.haproxy_enabled %}
+              location ^~/{{ host.pg_cluster }}-{{ host.pg_seq }}/ {
+                  proxy_pass http://{{ host.pg_cluster }}-{{ host.pg_seq }};
+                  proxy_connect_timeout 2;
+              }
+          {% endif %}
+          {% endfor %}
+      vars:
+        cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
+      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
+
+
+    - name: Templating haproxy cluster index
+      copy:
+        dest: "{{ repo_home }}/haproxy-{{ item }}.html"
+        content: |
+
+          <html lang="en"><head><title>Pigsty HAProxy</title></head><br>
+          <body><h1>PIGSTY HAPROXY INDEX for Cluster {{ item }}</h1><div><ul>
+
+          {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
+          {% if host.haproxy_enabled %}
+          <li><a href="/{{ host.pg_cluster }}-{{ host.pg_seq }}/"><h2>  {{ host.pg_cluster }}-{{ host.pg_seq }} </h2></a>
+          <code>http://{{ host.inventory_hostname }}:{{ host.haproxy_exporter_port }}  Cluster: {{ host.pg_cluster }} Role: {{ host.pg_role }})</code></li>
+          {% endif %}
+          {% endfor %}
+
+          </ul></div></body></html>
+      vars:
+        cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
+      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
+
+
+    - name: Templating haproxy cluster index
+      copy:
+        dest: "{{ repo_home }}/haproxy.html"
+        content: |
+          <html lang="en"><head><title>Pigsty HAProxy Index</title></head><br>
+          <body><h1>PIGSTY GLOBAL HAPROXY INDEX</h1><div><ul>
+          {% for cluster in hostvars|json_query('*.pg_cluster')|sort|unique %}
+          <li><a href="/haproxy-{{ cluster }}.html"><h2>{{ cluster }}</h2></a>
+          {% endfor %}
+          </ul></div></body></html>
+      vars:
+        cluster_name: "{{ item }}"
+      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
+...

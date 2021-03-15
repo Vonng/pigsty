@@ -74,7 +74,7 @@ listen stats                                # both frontend and a backend for st
 {% set pg_service_members = pg_cluster_members|json_query(service.selector) %}
 {% set pg_service_member_names = pg_service_members|json_query('[].inventory_hostname') %}
 {% set pg_service_backups = [] %}{% if 'selector_backup' in service %}{% set pg_service_backups = pg_cluster_members|json_query(service.selector_backup) %}{% endif %}
-{% if pg_service_backups == [] %}{% set pg_service_backups = [] %}{% endif %}
+{% if not pg_service_backups %}{% set pg_service_backups = [] %}{% endif %}
 {% set pg_service_backup_names = pg_service_backups|json_query('[].inventory_hostname') %}
 # service instances {{ pg_service_member_names }}
 # service backups   {{ pg_service_backup_names }}
@@ -94,8 +94,8 @@ listen {{ pg_cluster }}-{{ service.name }}
     # service members
 {% for host in pg_service_members %}
     server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if 'dst_port' not in service %}{{ host.pg_port }}{% elif service.dst_port is number %}{{ service.dst_port }}{% elif service.dst_port == 'postgres' %}{{ host.pg_port }}{% elif service.dst_port == 'pgbouncer' %}{{ host.pgbouncer_port }}{% else %}5432{% endif %}
-{% if 'check_port' not in service %} check port {{ patroni_port }}{% elif service.check_port == 'patroni' %} check port {{ host.patroni_port }}{% elif service.check_port == 'pg_exporter' %} check port {{ host.pg_exporter_port }}{% elif service.check_port == 'none' %}{% endif %}
-{% if host.g_weight is number %} weight {{ host.pg_weight }}{% endif %}
+{% if 'check_port' not in service %} check port {{ patroni_port }}{% elif service.check_port == 'patroni' %} check port {{ host.patroni_port }}{% elif service.check_port == 'pg_exporter' %} check port {{ host.pg_exporter_port }}{% elif service.check_port == 'none' %}8008{% endif %}
+{% if host.pg_weight is number %} weight {{ host.pg_weight }}{% endif %}
 {% if host.inventory_hostname in pg_service_backup_names %} backup {% endif %}
 
 {% endfor %}
@@ -103,7 +103,7 @@ listen {{ pg_cluster }}-{{ service.name }}
 {% if host.inventory_hostname not in pg_service_member_names %}
     server {{ host.pg_cluster }}-{{ host.pg_seq }} {{ host.inventory_hostname }}:{% if 'dst_port' not in service %}{{ host.pg_port }}{% elif service.dst_port == 'postgres' %}{{ host.pg_port }}{% elif service.dst_port == 'pgbouncer' %}{{ host.pgbouncer_port }}{% else %}5432{% endif %}
 {% if 'check_port' not in service %} check port {{ patroni_port }}{% elif service.check_port == 'patroni' %} check port {{ host.patroni_port }}{% elif service.check_port == 'pg_exporter' %} check port {{ host.pg_exporter_port }}{% elif service.check_port == 'none' %}{% endif %}
-{% if host.g_weight is number %} weight {{ host.pg_weight }}{% endif %}
+{% if host.pg_weight is number %} weight {{ host.pg_weight }}{% endif %}
  backup
 {% endif %}
 {% endfor %}

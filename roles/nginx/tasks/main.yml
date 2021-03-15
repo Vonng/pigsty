@@ -2,115 +2,43 @@
 #------------------------------------------------------------------------------
 # Install Nginx
 #------------------------------------------------------------------------------
-- name: Make sure nginx package installed
+- name: Make sure nginx installed
   tags: nginx_install
   package: name=nginx state=present
 
 #------------------------------------------------------------------------------
-# Create Nginx Dir
+# Content
 #------------------------------------------------------------------------------
-- name: Create nginx dir
-  tags: nginx_dir
-  block:
-    # - dir - #
-    - name: Create local html directory
-      file: path={{ repo_home }} state=directory
-
-    # - index - #
-    - name: Update default nginx index page
-      template: src=index.html.j2 dest=/{{ repo_home }}/index.html
+- import_tasks: content.yml
+  tags: nginx_content
 
 #------------------------------------------------------------------------------
 # Config Nginx
 #------------------------------------------------------------------------------
-- name: Config nginx server
+- import_tasks: config.yml
   tags: nginx_config
-  block:
-    - name: Copy nginx default config
-      template: src=default.conf.j2 dest=/etc/nginx/conf.d/default.conf
-
-    - name: Copy nginx upstream conf
-      template: src=upstream.conf.j2 dest=/etc/nginx/conf.d/{{ item.name }}.conf
-      with_items: "{{ nginx_upstream }}"
 
 #------------------------------------------------------------------------------
-# Config Nginx proxy for haproxy admin page
+# Config HAProxy Index
 #------------------------------------------------------------------------------
-- name: Config nginx server
-  tags: [ nginx_config, nginx_haproxy ]
-  block:
-    - name: Fetch haproxy facts
-      connection: local
-      set_fact:
-        haproxy_instances={{ hostvars| json_query(haproxy_instance_query) }}
-        haproxy_hostname={{ nginx_upstream | json_query('[?name==`haproxy`].host') | first }}
-      vars:
-        haproxy_instance_query: "[@.*][0][].{cluster: pg_cluster, role: pg_role, seq: pg_seq, enabled: haproxy_enabled, ip:inventory_hostname, port: haproxy_exporter_port}"
-
-    - name: Templating /etc/nginx/haproxy.conf
-      template: src=haproxy.conf.j2 dest=/etc/nginx/conf.d/haproxy.conf
-
-    - name: Templating haproxy.html
-      template: src=haproxy.html.j2 dest=/{{ repo_home }}/haproxy.html
-
+- import_tasks: haproxy.yml
+  tags: nginx_haproxy
 
 #------------------------------------------------------------------------------
-# Reload Nginx server
+# Restart Nginx
 #------------------------------------------------------------------------------
-- name: Launch nginx server
-  tags: nginx_reload
-  systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
-
+- import_tasks: restart.yml
+  tags: nginx_restart
 
 #------------------------------------------------------------------------------
-# Restart Nginx server
+# Nginx Exporter
 #------------------------------------------------------------------------------
-- name: Launch nginx server
-  tags: nginx_launch
-  block:
-    - name: Restart meta nginx service
-      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
-
-    - name: Wait for nginx service online
-      wait_for: host=localhost port=80 state=started timeout=10
-
-
-#------------------------------------------------------------------------------
-# setup nginx exporter
-#------------------------------------------------------------------------------
-- name: Setup nginx exporter
+- import_tasks: exporter.yml
   tags: nginx_exporter
-  ignore_errors: true
-  block:
-    - name: Make sure nginx exporter installed
-      package: name=nginx_exporter state=present
-
-    - name: Config nginx_exporter options
-      template: src=nginx_exporter.default.j2 dest=/etc/default/nginx_exporter
-
-    - name: Restart nginx_exporter service
-      systemd: name=nginx_exporter state=restarted enabled=yes daemon_reload=yes
-
-    - name: Wait for nginx exporter online
-      wait_for: host=localhost port=9113 state=started timeout=10
-
-
 
 #------------------------------------------------------------------------------
-# register nginx service (optional)
+# Nginx Register
 #------------------------------------------------------------------------------
-- name: Register nginx exporter
+- import_tasks: register.yml
   tags: nginx_register
-  when: service_registry == 'consul'
-  ignore_errors: true
-  block:
-    - name: Register cosnul nginx service
-      template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul mode=0660
-
-    - name: Register consul nginx-exporter service
-      template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul mode=0660
-
-    - name: Reload consul
-      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
-
 ...

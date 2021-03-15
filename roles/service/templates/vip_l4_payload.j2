@@ -1,0 +1,41 @@
+{% set pg_service_members = pg_cluster_members|json_query(service.selector) %}
+{% set pg_service_member_names = pg_service_members|json_query('[].inventory_hostname') %}
+{% set pg_service_backups = [] %}{% if 'selector_backup' in service %}{% set pg_service_backups = pg_cluster_members|json_query(service.selector_backup) %}{% endif %}
+{% set pg_service_backup_names = pg_service_backups|json_query('[].inventory_hostname') %}
+
+{
+    "vs_name": "{{ pg_cluster }}-{{ service.name }}",
+    "vs_ip": "{% if 'src_ip' not in service %}{{ vip_address }}{% elif service.src_ip == 'vip' or service.src_ip == '*' %}{{ vip_address }}{% else %}{{ service.src_ip }}{% endif %}",
+    "vs_port": {{ service.src_port }},
+    "service_name": "{{ pg_cluster|replace('-','.')}}",
+    "balance": "conhash",
+    "quorum": 100,
+{% if pg_service_backups and pg_service_backups|length > 0 %}
+    "sorry_server_ip": "{{ pg_service_backups[0].inventory_hostname }}",
+    "sorry_server_port": 8080,
+{% endif %}
+{% if 'check_method' not in service or service.check_method == 'http' %}
+    "health_mode": "http",
+    "health_http_url_path": "{{ service.check_url|default('/') }}",
+    "health_http_expect_code": {{ service.check_code|default(200) }},
+{% endif %}
+{% if 'check_url' in service and service.check_url == '/primary' %}
+    "rs_check_strategy": "one",
+{% endif %}
+    "http_nb_get_retry": 3,
+    "http_delay_before_retry": 1,
+    "http_connect_timeout": 2,
+    "rs_list": [
+{% for host in pg_service_members %}
+        {% if loop.index > 1 %},{% endif %}
+{
+            "rs_ip": "{{ host.inventory_hostname }}",
+            "rs_name": "{{ host.pg_cluster }}-{{ host.pg_seq }}",
+            "rs_weight": {{ host.pg_weight|default(100) }},
+            "rs_port": {% if 'dst_port' not in service %}{{ host.pg_port }}{% elif service.dst_port is number %}{{ service.dst_port }}{% elif service.dst_port == 'postgres' %}{{ host.pg_port }}{% elif service.dst_port == 'pgbouncer' %}{{ host.pgbouncer_port }}{% else %}5432{% endif %},
+            "rs_health_port": {% if 'check_port' not in service %}{{ patroni_port }}{% elif service.check_port == 'patroni' %}{{ host.patroni_port }}{% elif service.check_port == 'pg_exporter' %}{{ host.pg_exporter_port }}{% elif service.check_port == 'none' %}8008{% endif %}
+
+        }
+{% endfor %}
+    ]
+}

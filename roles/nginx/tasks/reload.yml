@@ -1,0 +1,12 @@
+---
+#------------------------------------------------------------------------------
+# Reload Nginx
+#------------------------------------------------------------------------------
+- name: Reload nginx
+  block:
+    - name: Reload meta nginx service
+      systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
+
+    - name: Wait for nginx reload complete
+      wait_for: host=127.0.0.1 port=80 state=started timeout=10
+...
