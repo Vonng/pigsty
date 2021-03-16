@@ -56,13 +56,14 @@ Reload consul to register prometheus	  TAGS: [prometheus_register]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
+---
 #------------------------------------------------------------------------------
 # Prometheus
 #------------------------------------------------------------------------------
 prometheus_data_dir: /var/lib/prometheus/data # prometheus data dir
 prometheus_options: '--storage.tsdb.retention=30d'
 prometheus_reload: false                      # reload prometheus instead of recreate it
-prometheus_sd_method: static                  # service discovery method: static|consul|etcd
+prometheus_sd_method: consul                  # service discovery method: static|consul|etcd
 prometheus_scrape_interval: 15s               # global scrape & evaluation interval
 prometheus_scrape_timeout: 5s                 # scrape timeout
 prometheus_sd_interval: 5s                    # service discovery refresh interval
@@ -74,4 +75,5 @@ pg_exporter_port: 9630                        # default port for pg exporter
 pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
 haproxy_exporter_port: 9101                   # default admin/exporter port
 service_registry: consul                      # none | consul | etcd | both
+...
 ```

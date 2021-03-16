@@ -41,7 +41,7 @@ pg_services_extra: []
   # when using external load balancer such as l4 vip, this can be used for virtual IP
   # # default service will route {ip|name}:5432 to primary postgres (5432->5432)
   #- name: default           # service's actual name is {{ pg_cluster }}-{{ service.name }}
-  #  src_ip: "*"             # service bind ip address, * for all, vip for cluster virtual ip address
+  #  src_ip: "*"             # service bind ip address, * for all, vip for vip_address
   #  src_port: 5432          # bind port, mandatory
   #  dst_port: postgres      # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
   #  check_method: http      # health check method: only http is available for now
@@ -54,22 +54,26 @@ pg_services_extra: []
   #    balance: roundrobin   # load balance algorithm (roundrobin by default)
   #    default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
-# - vip - #
-vip_enabled: false                            # enable vip ? l2 vip requires same l2 network
-vip_address: 127.0.0.1                        # virtual ip address ip/cidr (l2 or l4)
-vip_cidrmask: 24                              # virtual ip address cidr mask (l2)
-vip_interface: eth0                           # virtual ip network interface (l2)
-pg_namespace: /pg                             # top level key namespace in dcs (l2)
-
 # - haproxy - #
 haproxy_enabled: true                         # enable haproxy among every cluster members
+haproxy_reload: true                          # reload configuration after config?
 haproxy_policy: roundrobin                    # roundrobin, leastconn
 haproxy_admin_auth_enabled: true              # enable authentication for haproxy admin?
 haproxy_admin_username: admin                 # default haproxy admin username
 haproxy_admin_password: admin                 # default haproxy admin password
 haproxy_exporter_port: 9101                   # default admin/exporter port
+haproxy_client_timeout: 3h                    # client side connection timeout
+haproxy_server_timeout: 3h                    # server side connection timeout
+
+# - vip - #
+vip_mode: none                                # none | l2 | l4
+vip_reload: true                              # whether reload & restart proxy after config?
+vip_address: 127.0.0.1                        # virtual ip address ip (l2 or l4)
+vip_cidrmask: 24                              # virtual ip address cidr mask (l2 only)
+vip_interface: eth0                           # virtual ip network interface (l2 only)
 
 # - reference - #
+pg_namespace: /pg                             # top level key namespace in dcs (l2)
 pg_weight: 100
 pg_port: 5432
 pgbouncer_port: 6432

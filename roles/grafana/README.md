@@ -36,11 +36,15 @@ tasks:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
+---
+#------------------------------------------------------------------------------
+# Grafana
+#------------------------------------------------------------------------------
 grafana_url: http://admin:admin@localhost:3000 # grafana url
+grafana_admin_password: admin
 grafana_plugin: install                        # none|install|reinstall
 grafana_cache: /tmp/plugins.tar.gz             # path to grafana plugins tarball
-grafana_provision_mode: db                     # none|db|api
-
+grafana_customize: true                        # customize grafana resources
 grafana_plugins:                               # default grafana plugins list
   - redis-datasource
   - simpod-json-datasource
@@ -64,5 +68,8 @@ grafana_plugins:                               # default grafana plugins list
 grafana_git_plugins:
   - https://github.com/Vonng/grafana-echarts
 
-grafana_dashboards: []                        # default dashboards
+
+# - reference - #
+service_registry: consul                      # none | consul | etcd | both
+...
 ```

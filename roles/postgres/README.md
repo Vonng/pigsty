@@ -156,7 +156,6 @@ It is a complex role consist of several stages:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
----
 #------------------------------------------------------------------------------
 # POSTGRES INSTALLATION
 #------------------------------------------------------------------------------
@@ -234,6 +233,11 @@ patroni_port: 8008                            # default patroni port
 patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
 pg_conf: patroni.yml                          # user provided patroni config template path
 
+# - localization - #
+pg_encoding: UTF8                             # default to UTF8
+pg_locale: C                                  # default to en_US.UTF8
+pg_lc_collate: C                              # default to C
+pg_lc_ctype: C                                # default to en_US.UTF8
 
 #------------------------------------------------------------------------------
 # PGBOUNCER PROVISION
@@ -354,6 +358,7 @@ pg_default_extensions:
 
 # - hba - #
 pg_offline_query: false                     # set to true to enable offline query on instance
+pg_reload: true                             # reload postgres after hba changes
 pg_hba_rules:
   - title: allow meta node password access
     role: common
@@ -418,5 +423,4 @@ pg_databases: []
 # - reference - #
 service_registry: consul                      # none | consul | etcd | both
 dcs_type: consul                              # none | consul | etcd
-...
 ```
