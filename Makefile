@@ -42,6 +42,9 @@ cache:
 fetch:
 	open https://github.com/Vonng/pigsty/releases/download/v0.5.0/pkg.tgz
 
+download:
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg.tgz -o files/pkg.tgz
+
 # fast provisioning on sandbox
 init:
 	./sandbox.yml                       # interleave sandbox provisioning
