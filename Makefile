@@ -38,12 +38,17 @@ cache:
 	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
 
-# fetch pkg.tgz release packages from github
-fetch:
-	open https://github.com/Vonng/pigsty/releases/download/v0.5.0/pkg.tgz
-
+# download pkg.tgz release packages from CDN
 download:
-	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg.tgz -o files/pkg.tgz
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pkg.tgz -o files/pkg.tgz
+
+# download latest pigsty source code tarball
+download-pigsty:
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pigsty.tar.gz -o files/pigsty.tgz
+
+# download pkg.tgz from github release
+downlaod2:
+	open https://github.com/Vonng/pigsty/releases/download/v0.8.0/pkg.tgz
 
 # fast provisioning on sandbox
 init:
@@ -204,12 +209,19 @@ env-prod: env-clean
 # misc
 ###############################################################
 svg:
-	ansible-playbook-grapher infra.yml -o infra
-	ansible-playbook-grapher --include-role-tasks infra.yml -o infra-full
-	ansible-playbook-grapher pgsql.yml -o pgsql
-	ansible-playbook-grapher --include-role-tasks pgsql.yml -o pgsql-full
-	ansible-playbook-grapher sandbox.yml -o sandbox
-	ansible-playbook-grapher --include-role-tasks sandbox.yml -o sandbox-full
+	mkdir -p play || true
+	ansible-playbook-grapher infra.yml -o play/infra
+	ansible-playbook-grapher --include-role-tasks infra.yml -o play/infra-full
+	ansible-playbook-grapher pgsql.yml -o play/pgsql
+	ansible-playbook-grapher --include-role-tasks pgsql.yml -o play/pgsql-full
+	ansible-playbook-grapher sandbox.yml -o play/sandbox
+	ansible-playbook-grapher --include-role-tasks sandbox.yml -o play/sandbox-full
+	ansible-playbook-grapher pgsql-remove.yml -o play/pgsql-remove
+	ansible-playbook-grapher pgsql-monitor.yml -o play/pgsql-monitor
+	ansible-playbook-grapher pgsql-createuser.yml -o play/pgsql-createuser
+	ansible-playbook-grapher pgsql-createdb.yml -o play/pgsql-createdb
+	ansible-playbook-grapher pgsql-service.yml -o play/pgsql-service
+
 
 ###############################################################
 # kubernetes management (Obsolete)
