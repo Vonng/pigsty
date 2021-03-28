@@ -44,7 +44,7 @@ download:
 
 # download latest pigsty source code tarball
 download-pigsty:
-	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pigsty.tar.gz -o files/pigsty.tgz
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pigsty.tar.gz -o /tmp/pigsty.tgz
 
 # download pkg.tgz from github release
 downlaod2:
@@ -61,7 +61,7 @@ init2:
 
 # recreate database cluster
 reinit:
-	./pgsql.yml --tags=pgsql,proxy -e pg_exists_action=clean
+	./pgsql.yml --tags=pgsql -e pg_exists_action=clean
 
 ###############################################################
 # vm management

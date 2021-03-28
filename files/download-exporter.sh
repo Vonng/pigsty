@@ -15,11 +15,11 @@ set -euo pipefail
 # Name: download_node_exporter
 # Desc: Guarantee a usable node_exporter in ${target_location}
 # Arg1: target node_exporter location      (/usr/local/bin/node_exporter)
-# Arg2: node_exporter version to download  (1.1.1)
+# Arg2: node_exporter version to download  (1.1.2)
 #--------------------------------------------------------------#
 function download_node_exporter() {
     local target_location=${1-'./node_exporter'}
-    local node_exporter_version=${3-'1.1.1'}
+    local node_exporter_version=${3-'1.1.2'}
 
     # if exact same version already in target location, skip
     if [[ -x ${target_location} ]]; then
