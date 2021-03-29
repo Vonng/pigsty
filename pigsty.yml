@@ -371,8 +371,8 @@ all: # top-level namespace, match all hosts
 
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params:                           # set additional sysctl parameters, k:v format
-      net.bridge.bridge-nf-call-iptables: 1       # for kubernetes
+    node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
+      # net.bridge.bridge-nf-call-iptables: 1     # example config for kubernetes
 
     # - node user - #
     node_admin_setup: true                        # setup an default admin user ?
@@ -550,6 +550,8 @@ all: # top-level namespace, match all hosts
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' by default (all ipv4 addr)
     pg_port: 5432                                 # postgres port (5432 by default)
     pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
+    # pg_upstream:                                # [OPTIONAL] specify replication upstream (set on primary transform cluster into a standby cluster)
+
 
     # - patroni - #
     # patroni_mode, available options: default|pause|remove
@@ -561,6 +563,10 @@ all: # top-level namespace, match all hosts
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
     pg_conf: tiny.yml                             # user provided patroni config template path
+
+    # - flags - #
+    pg_backup: false                              # store base backup on this node
+    pg_delay: 0                                   # apply delay for offline|delayed instance
 
     # - localization - #
     pg_encoding: UTF8                             # default to UTF8
@@ -835,5 +841,9 @@ all: # top-level namespace, match all hosts
     # vip_address: 127.0.0.1                      # virtual ip address ip (l2 or l4)
     # vip_cidrmask: 24                            # virtual ip address cidr mask (l2 only)
     # vip_interface: eth0                         # virtual ip network interface (l2 only)
+
+    # - dns - #                                   # NOT IMPLEMENTED
+    # dns_mode: vip                               # vip|all|selector: how to resolve cluster DNS?
+    # dns_selector: '[]'                          # if dns_mode == vip, filter instances been resolved
 
 ...
