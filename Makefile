@@ -47,7 +47,7 @@ download-pigsty:
 	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pigsty.tar.gz -o /tmp/pigsty.tgz
 
 # download pkg.tgz from github release
-downlaod2:
+download2:
 	open https://github.com/Vonng/pigsty/releases/download/v0.8.0/pkg.tgz
 
 # fast provisioning on sandbox
