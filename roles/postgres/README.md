@@ -156,6 +156,7 @@ It is a complex role consist of several stages:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
+---
 #------------------------------------------------------------------------------
 # POSTGRES INSTALLATION
 #------------------------------------------------------------------------------
@@ -299,11 +300,13 @@ pg_default_roles:
     roles: [pg_monitor, dbrole_readonly]
     comment: system replicator
 
-  # default replication user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
+  # default monitor user, name is designated by `pg_monitor_username`, and password is set by `pg_monitor_password`
   - name: dbuser_monitor
     connlimit: 16
     comment: system monitor user
     roles: [pg_monitor, dbrole_readonly]
+    parameters:
+      log_min_duration_statement: 1000
 
   # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
   - name: dbuser_admin
@@ -423,4 +426,5 @@ pg_databases: []
 # - reference - #
 service_registry: consul                      # none | consul | etcd | both
 dcs_type: consul                              # none | consul | etcd
+...
 ```

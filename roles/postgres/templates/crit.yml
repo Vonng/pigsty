@@ -29,8 +29,11 @@ name: {{ pg_instance }}                 # instance name
 log:
   level: INFO                           #  NOTEST|DEBUG|INFO|WARNING|ERROR|CRITICAL
   dir: /pg/log/                         #  default log file: /pg/log/patroni.log
-  file_size: 100000000                  #  100MB log triggers a log rotate
-  # format: '%(asctime)s %(levelname)s: %(message)s'
+  file_size: 33554432                   #  32MB log triggers log rotation
+  file_num: 20                          #  keep at most 30x32MB = 1GB log
+  dateformat: '%Y-%m-%d %H:%M:%S %z'    #  IMPORTANT: discard milli timestamp
+  format: '%(asctime)s %(levelname)s: %(message)s'
+
 
 #------------------------------------------------------------------------------
 # dcs
