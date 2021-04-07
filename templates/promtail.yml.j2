@@ -1,0 +1,107 @@
+server:
+  http_listen_port: {{ promtail_port|default(9080) }}
+  grpc_listen_port: 0
+
+positions:
+  filename: {{ promtail_status_file }}
+
+clients:
+  - url: {{ promtail_send_url }}
+    external_labels:
+      ip: {{ inventory_hostname }}
+      cls: {{ pg_cluster }}
+      ins: {{ pg_cluster }}-{{ pg_seq }}
+
+scrape_configs:
+
+  ################################################################
+  #                      PostgreSQL Logs                         #
+  ################################################################
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: postgres
+          __path__: /pg/data/log/*.csv
+
+    pipeline_stages:
+      - match:
+          selector: '{job="postgres"}'
+          stages:
+            - multiline:
+                firstline: '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+,'
+                max_wait_time: 8s
+                max_lines: 8192
+            - regex:
+                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+),"?(?P<user>[^"]+)?"?,"?(?P<datname>[^"]+)?"?,(?P<pid>\d+)?,"?(?P<conn>[^"]+)?"?,(?P<session_id>\w+\.\w+)?,(?P<line_num>\d+)?,"?(?P<cmdtag>[^"]+)?"?,(?P<session_start>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w+)?,(?P<vxid>[\d\/]+)?,(?P<txid>\d+)?,(?P<level>\w+)?,(?P<code>\w{5})?,.*$'
+            - labels:
+                datname:
+                level:
+            - timestamp:
+                source: ts
+                format: '2006-01-02 15:04:05 MST'
+
+  ################################################################
+  #                      Pgbouncer Logs                          #
+  ################################################################
+  - job_name: pgbouncer
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: pgbouncer
+          __path__: /var/log/pgbouncer/pgbouncer.log
+
+    pipeline_stages:
+      - match:
+          selector: '{job="pgbouncer"}'
+          stages:
+            - multiline:
+                firstline: '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+ \[\d+\]'
+                max_wait_time: 8s
+                max_lines: 128
+            - regex:
+                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+) \[(?P<pid>\d+)\] (?P<pid>\d+) (?P<level>\w+).*$'
+            - labels:
+                level:
+            - timestamp:
+                source: ts
+                format: '2006-01-02 15:04:05 MST'
+
+
+  ################################################################
+  #                        Patroni Logs                          #
+  ################################################################
+  - job_name: patroni
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: patroni
+          __path__: /pg/log/patroni.log
+
+    pipeline_stages:
+      - match:
+          selector: '{job="patroni"}'
+          stages:
+            - regex:
+                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4}) (?P<level>\w+): (?P<message>.*)'
+            - labels:
+                level:
+            - timestamp:
+                source: ts
+                format: '2006-01-02 15:04:05 -0700'
+
+
+  ################################################################
+  #                      Syslog (Optional)                       #
+  ################################################################
+  #  # collect /var/log/messages
+  #  - job_name: syslog
+  #    static_configs:
+  #      - targets:
+  #          - localhost
+  #        labels:
+  #          job: syslog
+  #          __path__: /var/log/messages
