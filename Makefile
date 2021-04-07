@@ -33,22 +33,11 @@ upload:
 
 # cache rpm packages from meta controller
 cache:
+	tar -zcf /www/pigsty/grafana/plugins.tgz -C /var/lib/grafana/ plugins
 	rm -rf pkg/* && mkdir -p pkg;
 	ssh -t meta "sudo tar -zcf /tmp/pkg.tgz -C /www pigsty; sudo chmod a+r /tmp/pkg.tgz"
 	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
-
-# download pkg.tgz release packages from CDN
-download:
-	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pkg.tgz -o files/pkg.tgz
-
-# download latest pigsty source code tarball
-download-pigsty:
-	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pigsty.tar.gz -o /tmp/pigsty.tgz
-
-# download pkg.tgz from github release
-download2:
-	open https://github.com/Vonng/pigsty/releases/download/v0.8.0/pkg.tgz
 
 # fast provisioning on sandbox
 init:
@@ -62,6 +51,22 @@ init2:
 # recreate database cluster
 reinit:
 	./pgsql.yml --tags=pgsql -e pg_exists_action=clean
+
+###############################################################
+# Download Resource
+###############################################################
+dw: download-pigsty download-bin download-bin
+download: download-pkg
+
+download-pkg:
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pkg.tgz -o files/pkg.tgz
+
+download-bin:
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/bin.tgz -o files/bin.tgz
+
+download-pigsty:
+	curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/pigsty.tar.gz -o /tmp/pigsty.tgz
+
 
 ###############################################################
 # vm management

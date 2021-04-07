@@ -28,17 +28,21 @@
 
 #------------------------------------------------------------------------------
 # install via copy binary
-# the binary MUST be put into files/ directory before running
-# you can download that binary with files/download-exporter.sh
-# or just copy that from meta node /usr/bin/*_exporter
+# the binary MUST be put into files/bin directory before running
+# you can download that binary with files/download-bin.sh
+# or use makefile shortcut make download-bin
+# curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/bin.tgz -o files/bin.tz
 #------------------------------------------------------------------------------
 - name: Copy node_exporter and pg_exporter
   tags: [exporter_install, exporter_binary_install]
   when: exporter_install == 'binary'
   block:
-    - name: Copy node_exporter binary
-      copy: src=node_exporter dest=/usr/bin/node_exporter owner=root mode=0755
+    - name: Copy monitor binaries
+      copy: src=bin/{{ item }} dest=/usr/bin/{{ item }} owner=root mode=0755
+      ignore_errors: true
+      with_items:
+        - node_exporter
+        - pg_exporter
+        - promtail
 
-    - name: Copy pg_exporter binary
-      copy: src=pg_exporter dest=/usr/bin/pg_exporter owner=root mode=0755
 ...
