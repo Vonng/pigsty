@@ -162,7 +162,7 @@ all: # top-level namespace, match all hosts
     # ansible_user: vagrant                       # admin user with ssh access and sudo privilege
 
     proxy_env: # global proxy env when downloading packages
-      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.aliyuncs.com,mirrors.tuna.tsinghua.edu.cn,mirrors.zju.edu.cn"
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.aliyuncs.com,mirrors.tuna.tsinghua.edu.cn,mirrors.zju.edu.cn,*.myqcloud.com"
       # http_proxy: ''
       # https_proxy: ''
       # all_proxy: ''
@@ -310,9 +310,14 @@ all: # top-level namespace, match all hosts
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
     repo_url_packages:
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
-      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-      - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+      # mirror in mainland china (use commented packages to install from official site)
+      - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
+      - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
+      - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
+      # github access outside mainland china
+      # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
+      # - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
+      # - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
 
 
     #------------------------------------------------------------------------------
@@ -440,10 +445,10 @@ all: # top-level namespace, match all hosts
 
     # - grafana - #
     grafana_url: http://admin:admin@10.10.10.10:3000 # grafana url
-    grafana_admin_password: admin                  # default grafana admin user password
-    grafana_plugin: install                        # none|install|reinstall
-    grafana_cache: /www/pigsty/grafana/plugins.tar.gz # path to grafana plugins tarball
-    grafana_customize: true                        # customize grafana resources
+    grafana_admin_password: admin                    # default grafana admin user password
+    grafana_plugin: install                          # none|install|reinstall
+    grafana_cache: /www/pigsty/grafana/plugins.tgz   # path to grafana plugins tarball
+    grafana_customize: true                          # customize grafana resources
     grafana_plugins: # default grafana plugins list
       - redis-datasource
       - simpod-json-datasource

@@ -1,99 +1,40 @@
 ---
-
-#--------------------------------------------------------------#
-# 1. Install Grafana RPM
-#--------------------------------------------------------------#
+#------------------------------------------------------------------------------
+# Install Grafana
+#------------------------------------------------------------------------------
 - name: Make sure grafana is installed
   tags: grafana_install
   package: name=grafana state=present
 
-#--------------------------------------------------------------#
-# 2. Install Plugins
-#--------------------------------------------------------------#
-- name: Install grafana plugins
-  tags: grafana_plugin
-  when: grafana_plugin != 'none'
-  block:
+#------------------------------------------------------------------------------
+# Stop Grafana
+#------------------------------------------------------------------------------
+- name: Stop grafana service
+  ignore_errors: true
+  tags: grafana_stop
+  systemd: name=grafana-server state=stopped enabled=yes daemon_reload=yes
 
-    #--------------------------------------------------------------#
-    # Check Cache Exists
-    #--------------------------------------------------------------#
-    - name: Check grafana plugin cache exists
-      stat: path={{ grafana_cache }}
-      register: grafana_plugins_cache
+#------------------------------------------------------------------------------
+# Install Plugins
+#------------------------------------------------------------------------------
+- import_tasks: plugins.yml
+  tags: grafana_plugins
 
-
-    #--------------------------------------------------------------#
-    # Extract plugins cache if applicable
-    #--------------------------------------------------------------#
-    - name: Provision grafana plugins via cache
-      when: grafana_plugins_cache.stat.exists
-      shell: |
-        rm -rf /var/lib/grafana/plugins
-        tar -xf {{ grafana_cache }} -C /var/lib/grafana
-        chown -R grafana /var/lib/grafana
-
-    #--------------------------------------------------------------#
-    # download plugins from web if 1. cache not exists, 2. reinstall mode
-    #--------------------------------------------------------------#
-    - name: Download grafana plugins from web
-      when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'reinstall'
-      ignore_errors: true
-      environment: "{{ proxy_env | default({}) }}"
-      grafana_plugin: name={{ item }}
-      with_items: "{{ grafana_plugins  }}"
-
-    - name: Download grafana plugins from web
-      when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'reinstall'
-      ignore_errors: true
-      environment: "{{ proxy_env | default({}) }}"
-      git:
-        repo: '{{ item }}'
-        dest: /var/lib/grafana/plugins/{{ item | basename }}
-        update: yes
-      with_items: "{{ grafana_git_plugins }}"
-
-    #--------------------------------------------------------------#
-    # Make new cache file after download
-    #--------------------------------------------------------------#
-    - name: Create grafana plugins cache
-      when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'reinstall'
-      shell: |
-        mkdir -p {{ grafana_cache | dirname }};
-        tar -zcf {{ grafana_cache }} -C /var/lib/grafana/ plugins
-
-
-#--------------------------------------------------------------#
-# Config grafana
-#--------------------------------------------------------------#
-- name: Config Grafana
+#------------------------------------------------------------------------------
+# Config Grafana
+#------------------------------------------------------------------------------
+- import_tasks: config.yml
   tags: grafana_config
-  block:
-    # main config
-    - name: Copy /etc/grafana/grafana.ini
-      copy: src=grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
 
-    - name: Remove grafana provision dir
-      file: path=/etc/grafana/provisioning state=absent
+#------------------------------------------------------------------------------
+# Customize Grafana
+#------------------------------------------------------------------------------
+- import_tasks: customize.yml
+  tags: grafana_customize
 
-    - name: Copy provisioning content
-      copy: src=provisioning/ dest=/etc/grafana/provisioning/ owner=grafana group=grafana
-
-    - name: Copy pigsty dashboards
-      copy: src=dashboards dest=/var/lib/grafana/dashboards owner=grafana group=grafana
-
-    - name: Copy pigsty icon image
-      copy: src=pigsty.svg dest=/usr/share/grafana/public/img/pigsty.svg
-
-    - name: Replace grafana icon with pigsty
-      tags: grafana_customize
-      when: grafana_customize|bool
-      copy: src=logo.svg dest=/usr/share/grafana/public/img/grafana_icon.svg
-
-
-#--------------------------------------------------------------#
-# Launch grafana
-#--------------------------------------------------------------#
+#------------------------------------------------------------------------------
+# Launch Grafana
+#------------------------------------------------------------------------------
 - name: Launch Grafana
   tags: grafana_launch
   block:
@@ -103,51 +44,17 @@
     - name: Wait for grafana online
       wait_for: host=localhost port=3000 state=started
 
-
-#--------------------------------------------------------------#
-# Provision Grafana
-#--------------------------------------------------------------#
-- name: Provision Grafana
-  tags: grafana_provision
-  block:
-    - name: Update grafana default preferences
-      shell: |
-        #!/bin/bash
-
-        # grafana api endpoint
-        GRAFANA_API="{{ grafana_url }}/api"
-
-        # use 'light' as default theme
-        GRAFANA_THEME="light"
-
-        # use 'Home' as default dashboard
-        GRAFANA_HOME="HOME"
-
-        # get home dashboard id by name
-        GRAFANA_HOME_ID=$(curl -s ${GRAFANA_API}/search?query=${GRAFANA_HOME} | jq '.[0].id')
-
-        # # build new preference:  {"theme":"dark","homeDashboardId":2}
-        GRAFANA_PREF='{"theme":"'${GRAFANA_THEME}'","homeDashboardId":'${GRAFANA_HOME_ID}'}'
-
-        # star home dashboards
-        curl -X POST ${GRAFANA_API}/user/stars/dashboard/${GRAFANA_HOME_ID}
-
-        # update preference
-        curl -X PUT -s ${GRAFANA_API}/org/preferences -H "Content-Type: application/json" --data ${GRAFANA_PREF}
-        curl -X PUT -s ${GRAFANA_API}/user/preferences -H "Content-Type: application/json" --data ${GRAFANA_PREF}
-
-
-#--------------------------------------------------------------#
-# Register Grafana Service
-#--------------------------------------------------------------#
-- name: Register Grafana Service
-  tags: grafana_register
+#------------------------------------------------------------------------------
+# Register Pigsty
+#------------------------------------------------------------------------------
+- import_tasks: register.yml
   when: service_registry == 'consul'
-  block:
-    - name: Register consul grafana service
-      template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
+  tags: grafana_register
 
-    - name: Reload consul
-      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+#------------------------------------------------------------------------------
+# Provision Pigsty
+#------------------------------------------------------------------------------
+- import_tasks: provision.yml
+  tags: grafana_provision
 
 ...

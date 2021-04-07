@@ -33,8 +33,8 @@ upload:
 
 # cache rpm packages from meta controller
 cache:
-	tar -zcf /www/pigsty/grafana/plugins.tgz -C /var/lib/grafana/ plugins
-	rm -rf pkg/* && mkdir -p pkg;
+	ssh -t meta 'sudo mkdir -p /www/pigsty/grafana;sudo tar -zcf /www/pigsty/grafana/plugins.tgz -C /var/lib/grafana/ plugins'
+	mkdir -p files/
 	ssh -t meta "sudo tar -zcf /tmp/pkg.tgz -C /www pigsty; sudo chmod a+r /tmp/pkg.tgz"
 	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
 	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"

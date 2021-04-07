@@ -1,0 +1,23 @@
+---
+#--------------------------------------------------------------#
+# Config grafana
+#--------------------------------------------------------------#
+- name: Copy /etc/grafana/grafana.ini
+  copy: src=grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
+
+- name: Remove grafana provision dir
+  file: path=/etc/grafana/provisioning state=absent
+
+- name: Copy provisioning content
+  copy: src=provisioning/ dest=/etc/grafana/provisioning/ owner=grafana group=grafana
+
+- name: Copy pigsty dashboards
+  copy: src=dashboards dest=/var/lib/grafana/dashboards owner=grafana group=grafana
+
+- name: Copy pigsty logo image
+  copy: src=pigsty.svg dest=/usr/share/grafana/public/img/pigsty.svg
+
+- name: Copy pigsty icon svg
+  copy: src=logo.svg dest=/usr/share/grafana/public/img/grafana_icon.svg
+
+...
