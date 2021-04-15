@@ -20,13 +20,16 @@
       mount: name={{ item }} fstype=swap state=absent
       with_items: [swap, none]
 
+
     # - static network - #
     - name: Node setup static network
       when: node_static_network
       script: static_network.sh
 
     - name: Node configure disable firewall
+      when: node_disable_firewall
       systemd: name=NetworkManager state=stopped enabled=no
+
 
     # - eanble disk prefetch - #
     - name: Node configure disk prefetch
