@@ -29,20 +29,23 @@
       shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
       register: old_nameservers
 
-    - name: Truncate resolv file
-      shell: echo -n "" > /etc/resolv.conf
+    - name: Write tmp resolv file
+      shell: echo -n "" > /etc/resolv.conf.tmp
 
     - name: Write resolv options
-      shell: echo {{ item }} >> /etc/resolv.conf
+      shell: echo {{ item }} >> /etc/resolv.conf.tmp
       with_items: "{{ node_dns_options }}"
 
-    - name: Add new nameservers
-      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf
+    - name: Write additional nameservers
+      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf.tmp
       with_items: "{{ node_dns_servers }}"
 
-    - name: Append old nameservers
-      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf
+    - name: Append existing nameservers
+      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf.tmp
       with_items: "{{ old_nameservers.stdout_lines }}"
       when: node_dns_server == 'add' and item not in node_dns_servers
+
+    - name: Swap resolv.conf
+      shell: mv -f /etc/resolv.conf /etc/resolv.conf.backup; mv /etc/resolv.conf.tmp /etc/resolv.conf
 
 ...
