@@ -124,18 +124,6 @@
         mode: 0644
 
 
-    #------------------------------------------------------------------------------
-    # initdb scripts
-    #------------------------------------------------------------------------------
-    - name: Render default initdb scripts
-      template:
-        src: "{{ pg_init }}"
-        dest: /pg/bin/initdb.sh
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        mode: 0755
-
-
 #------------------------------------------------------------------------------
 # Launch patroni
 #------------------------------------------------------------------------------
@@ -178,7 +166,6 @@
   any_errors_fatal: true
   when: pg_role == 'primary'
   block:
-
     - name: Render init roles sql
       tags: pg_init_role
       template: src="pg-init-roles.sql" dest=/pg/tmp/pg-init-roles.sql owner={{ pg_dbsu }} group=postgres mode=0755
