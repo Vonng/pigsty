@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-remove.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2021-03-15
+# Mtime     :   2021-04-13
 # Desc      :   remove postgres & consul services
 # Path      :   pgsql-remove.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -16,21 +16,20 @@
 #------------------------------------------------------------------------------
 # Remove load balancer
 #------------------------------------------------------------------------------
-- name: Remove load balancer
+- name: Remove service provider
   become: yes
   hosts: all
   serial: 1
   gather_facts: no
-  tags: rm-lb
+  tags: service
+  ignore_errors: true
   tasks:
-    - name: Stop load balancer
-      ignore_errors: true
+
+    - name: Stop load balancer and vip-manager
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
         - vip-manager
         - haproxy
-        # - keepalived
-
 
 #------------------------------------------------------------------------------
 # Remove pg monitor
@@ -39,18 +38,17 @@
   become: yes
   hosts: all
   gather_facts: no
-  tags: rm-monitor
+  tags: monitor
+  ignore_errors: true
   tasks:
 
     - name: Stop monitor service
-      ignore_errors: true
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
         - pg_exporter
         - pgbouncer_exporter
 
     - name: Deregister exporter service
-      ignore_errors: true
       file: path=/etc/consul.d/svc-{{ item }}.json state=absent
       with_items:
         - haproxy
@@ -62,21 +60,6 @@
 
 
 #------------------------------------------------------------------------------
-# Remove watchdog owner
-#------------------------------------------------------------------------------
-- name: Remove monitor
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: rm-watchdog
-  tasks:
-    # - watchdog owner - #
-    - name: Remove patroni watchdog ownership
-      ignore_errors: true
-      file: path=/dev/watchdog owner=root group=root
-
-
-#------------------------------------------------------------------------------
 # Remove postgres service
 #------------------------------------------------------------------------------
 - name: Remove Postgres service
@@ -84,11 +67,11 @@
   hosts: all
   serial: 1
   gather_facts: no
-  tags: rm-pg
+  tags: postgres
+  ignore_errors: true
   tasks:
     - name: Remove postgres replica services
       when: pg_role != 'primary'
-      ignore_errors: true
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
         - patroni
@@ -99,14 +82,12 @@
     - name: Force stop postgres non-primary process
       become_user: "{{ pg_dbsu }}"
       when: pg_role != 'primary'
-      ignore_errors: true
       shell: |
         {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
         exit 0
 
     - name: Remove postgres primary services
       when: pg_role == 'primary'
-      ignore_errors: true
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
         - patroni
@@ -116,13 +97,11 @@
     - name: Force stop postgres primary process
       become_user: "{{ pg_dbsu }}"
       when: pg_role == 'primary'
-      ignore_errors: true
       shell: |
         {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
         exit 0
 
     - name: Deregister postgres services
-      ignore_errors: true
       file: path=/etc/consul.d/svc-{{ item }}.json state=absent
       with_items:
         - postgres
@@ -138,11 +117,10 @@
   hosts: all
   serial: 1
   gather_facts: no
-  tags: rm-infra
+  ignore_errors: true
+  tags: dcs
   tasks:
-
     - name: Consul leave cluster
-      ignore_errors: true
       command: /usr/bin/consul leave
 
     - name: Stop consul and node_exporter
@@ -154,12 +132,13 @@
 
 #------------------------------------------------------------------------------
 # Uninstall postgres and consul
+# -e yum_remove=true will uninstall packages
 #------------------------------------------------------------------------------
 - name: Uninstall Packages
   become: yes
   hosts: all
   gather_facts: no
-  tags: rm-pkgs
+  tags: pkgs
   tasks:
     - name: Uninstall postgres and consul
       when: yum_remove is defined and yum_remove|bool
