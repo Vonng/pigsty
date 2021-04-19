@@ -1,0 +1,31 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-status.yml
+# Ctime     :   2021-03-12
+# Mtime     :   2021-03-12
+# Desc      :   reload status for postgres clusters
+# Path      :   pgsql-status.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+- name: Get pgsql status
+  become: yes
+  become_user: postgres
+  hosts: all
+  gather_facts: no
+  tasks:
+
+    - name: Get actual role
+      shell: |
+        /pg/bin/pg-role
+      register: pg_role_detect
+
+    - name: Print actual role
+      debug:
+        msg: "{{ pg_role_detect.stdout }}"
+
+
+    - name: Debug print config role
+      debug:
+        msg: "{{ pg_role }}"

@@ -1,11 +1,11 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Path      :   pigsty.yml
-# Desc      :   Pigsty Configuration file
-# Note      :   follow ansible inventory file format
+# Desc      :   Pigsty Configuration Example
+# Note      :   Pigsty Sandbox Demo
+# Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-03-16
+# Mtime     :   2021-04-19
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
 
@@ -13,52 +13,68 @@
 ######################################################################
 #               Development Environment Inventory                    #
 ######################################################################
-all: # top-level namespace, match all hosts
 
+
+all: # top-level namespace
 
   #==================================================================#
   #                           Clusters                               #
   #==================================================================#
   # postgres database clusters are defined as kv pair in `all.children`
   # where the key is cluster name and the value is the object consist
-  # of cluster members (hosts) and ad-hoc variables (vars)
-  # meta node are defined in special group "meta" with `meta_node=true`
+  # of cluster members (hosts) and cluster specific variables (vars)
+  # meta nodes are defined in special group "meta" with `meta_node=true`
 
   children:
 
     #-----------------------------
     # meta controller
     #-----------------------------
-    meta:       # special group 'meta' defines the main controller machine
+    meta:      # special group 'meta' defines the main controller machine
       vars:
-        meta_node: true                     # mark node as meta controller
-        ansible_group_priority: 99          # meta group is top priority
-
-      # nodes in meta group
-      hosts: {10.10.10.10: {ansible_host: meta}}
+        meta_node: true                    # mark node as meta controller
+        ansible_group_priority: 99         # meta group has top priority
+      hosts:
+        10.10.10.10: {ansible_host: meta}
 
     #-----------------------------
     # cluster: pg-meta
     #-----------------------------
+    # pg-meta is a single-node pgsql cluster deployed on meta node (10.10.10.10)
     pg-meta:
       # - cluster members - #
       hosts:
-        10.10.10.10: {pg_seq: 1, pg_role: primary, ansible_host: meta}
+        10.10.10.10: {pg_seq: 1, pg_role: primary, ansible_host: meta, pg_offline_query: true}
 
       # - cluster configs - #
       vars:
         pg_cluster: pg-meta                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
+        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
         patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_lc_ctype: en_US.UTF8             # enabled pg_trgm i18n char support
 
+        # - defining business users - #
         pg_users:
-          # complete example of user/role definition for production user
-          - name: dbuser_meta               # example production user have read-write access
-            password: DBUser.Meta           # example user's password, can be encrypted
+          # default production read-write user dbuser_meta
+          - name: dbuser_meta                              # user's name is required
+            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 password is acceptable
+            pgbouncer: true                                # add user to pgbouncer userlist
+            roles: [dbrole_readwrite]                      # grant roles to user
+            comment: default production read-write user for meta database
+
+          # default production read-only user for grafana direct access
+          - name: dbuser_grafana
+            password: DBUser.Grafana
+            pgbouncer: true
+            roles: [dbrole_readonly]
+            comment: default readonly access for grafana datasource
+
+          # complete example of user/role definition
+          - name: dbuser_pigsty             # pigsty user have admin access (DDL|DML)
+            password: DBUser.Pigsty         # example user's password, can be md5 encrypted
             login: true                     # can login, true by default (should be false for role)
             superuser: false                # is superuser? false by default
             createdb: false                 # can create database? false by default
@@ -66,46 +82,48 @@ all: # top-level namespace, match all hosts
             inherit: true                   # can this role use inherited privileges?
             replication: false              # can this role do replication? false by default
             bypassrls: false                # can this role bypass row level security? false by default
-            connlimit: -1                   # connection limit, -1 disable limit
-            expire_at: '2030-12-31'         # 'timestamp' when this role is expired
-            expire_in: 365                  # now + n days when this role is expired (OVERWRITE expire_at)
-            roles: [dbrole_readwrite]       # dborole_admin|dbrole_readwrite|dbrole_readonly
             pgbouncer: true                 # add this user to pgbouncer? false by default (true for production user)
-            parameters:                     # user's default search path
-              search_path: public
-            comment: test user
+            connlimit: -1                   # connection limit, -1 disable limit
+            expire_in: 3650                 # now + n days when this role is expired (OVERWRITE expire_at)
+            expire_at: '2030-12-31'         # 'timestamp' when this role is expired (OVERWRITTEN by expire_in)
+            comment: pigsty admin user      # comment on user/role
+            roles: [dbrole_admin]           # dbrole_{admin,readonly,readwrite,offline}
+            parameters:                     # additional role level parameters
+              search_path: public           # set search_path to public
 
-          # simple example for personal user definition
-          - name: dbuser_vonng              # personal user example which only have limited access to offline instance
-            password: DBUser.Vonng          # or instance with explict mark `pg_offline_query = true`
-            roles: [dbrole_offline]         # personal/stats/ETL user should be grant with dbrole_offline
-            expire_in: 365                  # expire in 365 days since creation
-            pgbouncer: false                # personal user should NOT be allowed to login with pgbouncer
-            comment: example personal user for interactive queries
-
+        # - defining business databases - #
         pg_databases:
           - name: meta                      # name is the only required field for a database
-            # owner: postgres                 # optional, database owner
-            # template: template1             # optional, template1 by default
+            # owner: postgres               # optional, database owner
+            # template: template1           # optional, template1 by default
             # encoding: UTF8                # optional, UTF8 by default , must same as template database, leave blank to set to db default
             # locale: C                     # optional, C by default , must same as template database, leave blank to set to db default
             # lc_collate: C                 # optional, C by default , must same as template database, leave blank to set to db default
             # lc_ctype: C                   # optional, C by default , must same as template database, leave blank to set to db default
-            allowconn: true                 # optional, true by default, false disable connect at all
-            revokeconn: false               # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
-            # tablespace: pg_default          # optional, 'pg_default' is the default tablespace
-            connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
-            extensions:                     # optional, extension name and where to create
-              - {name: postgis, schema: public}
-            parameters:                     # optional, extra parameters with ALTER DATABASE
-              enable_partitionwise_join: true
-            pgbouncer: true                 # optional, add this database to pgbouncer list? true by default
+            # tablespace: pg_default        # optional, 'pg_default' is the default tablespace
+            # allowconn: true               # optional, true by default, false disable connect at all
+            # revokeconn: false             # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
+            # pgbouncer: true               # optional, add this database to pgbouncer list? true by default
             comment: pigsty meta database   # optional, comment string for database
+            connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
+            # extensions:                   # optional, extension name and which schema to create
+            #  - {name: postgis, schema: public}
+            parameters:                     # optional, extra parameters with ALTER DATABASE
+              log_min_duration_statement: 0 # log all action on meta database
 
         pg_default_database: meta           # default database will be used as primary monitor target
 
-        # proxy settings
-        vip_mode: l2                      # enable/disable vip (require members in same LAN)
+        # service settings
+        pg_services_extra:                  # extra services to be added
+          - name: standby                   # service name pg-meta-standby
+            src_ip: "*"
+            src_port: 5435                  # 5435 routes to sync replica
+            dst_port: postgres
+            check_url: /sync                # use /sync health check
+            selector: "[]"                  # jmespath to filter instances
+            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
+
+        vip_mode: l2                        # none|l2|l4, l2 vip are used in sandbox demo
         vip_address: 10.10.10.2             # virtual ip address
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
@@ -114,6 +132,8 @@ all: # top-level namespace, match all hosts
     #-----------------------------
     # cluster: pg-test
     #-----------------------------
+    # comment this for single-node demo environment
+
     pg-test: # define cluster named 'pg-test'
       # - cluster members - #
       hosts:
@@ -127,19 +147,24 @@ all: # top-level namespace, match all hosts
         pg_cluster: pg-test                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp/olap/crit/tiny mode
-
-        # business users, adjust on your own needs
+        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
         pg_users:
-          - name: test                      # example production user have read-write access
-            password: test                  # example user's password
-            roles: [dbrole_readwrite]       # dborole_admin|dbrole_readwrite|dbrole_readonly|dbrole_offline
-            pgbouncer: true                 # production user that access via pgbouncer
+          - name: test                      # admin user for pg-test, have DDL
+            password: test
+            roles: [dbrole_admin]
+            pgbouncer: true
+            comment: default admin user for test database
+
+          - name: dbuser_test               # production rw-user
+            password: DBUser.Test
+            roles: [dbrole_readwrite]
+            pgbouncer: true
             comment: default test user for production usage
 
         pg_databases:                       # create a business database 'test'
           - name: test                      # use the simplest form
-
+            extensions:                     # install postgis to test database
+              - {name: postgis, schema: public}
         pg_default_database: test           # default database will be used as primary monitor target
 
         # proxy settings
@@ -471,6 +496,9 @@ all: # top-level namespace, match all hosts
     grafana_git_plugins:
       - https://github.com/Vonng/grafana-echarts
 
+    # - loki - #
+    loki_clean: false                 # whether remove existing loki data
+    loki_data_dir: /export/loki       # default loki data dir
 
 
     #------------------------------------------------------------------------------
@@ -596,8 +624,8 @@ all: # top-level namespace, match all hosts
     pg_replication_password: DBUser.Replicator    # system replication password
     pg_monitor_username: dbuser_monitor           # system monitor user
     pg_monitor_password: DBUser.Monitor           # system monitor password
-    pg_admin_username: dbuser_admin               # system admin user
-    pg_admin_password: DBUser.Admin               # system admin password
+    pg_admin_username: dbuser_dba                 # system admin user
+    pg_admin_password: DBUser.DBA                 # system admin password
 
     # - default roles - #
     # chekc http://pigsty.cc/zh/docs/concepts/provision/acl/ for more detail
@@ -647,9 +675,8 @@ all: # top-level namespace, match all hosts
         parameters:
           log_min_duration_statement: 1000
 
-      # default admin user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
-      - name: dbuser_admin
-        bypassrls: true
+      # default admin super user, name is designated by `pg_admin_username`, and password is set by `pg_admin_password`
+      - name: dbuser_dba
         superuser: true
         comment: system admin user
         roles: [dbrole_admin]
@@ -781,6 +808,12 @@ all: # top-level namespace, match all hosts
     pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
     pgbouncer_exporter_url: ''                    # optional, if not set, generate from reference parameters
 
+    # - promtail - #                              # promtail is a beta feature which requires manual deployment
+    promtail_enabled: true                        # enable promtail logging collector?
+    promtail_clean: false                         # remove promtail status file? false by default
+    promtail_port: 9080                           # default listen address for promtail
+    promtail_status_file: /tmp/promtail-status.yml
+    promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
 
     #------------------------------------------------------------------------------
     # SERVICE PROVISION
@@ -790,7 +823,7 @@ all: # top-level namespace, match all hosts
     # - service - #
     pg_services:                                  # how to expose postgres service in cluster?
       # primary service will route {ip|name}:5433 to primary pgbouncer (5433->6432 rw)
-      - name: primary           # service name {{ pg_cluster }}_primary
+      - name: primary           # service name {{ pg_cluster }}-primary
         src_ip: "*"
         src_port: 5433
         dst_port: pgbouncer     # 5433 route to pgbouncer
@@ -798,7 +831,7 @@ all: # top-level namespace, match all hosts
         selector: "[]"          # select all instance as primary service candidate
 
       # replica service will route {ip|name}:5434 to replica pgbouncer (5434->6432 ro)
-      - name: replica           # service name {{ pg_cluster }}_replica
+      - name: replica           # service name {{ pg_cluster }}-replica
         src_ip: "*"
         src_port: 5434
         dst_port: pgbouncer
@@ -807,7 +840,7 @@ all: # top-level namespace, match all hosts
         selector_backup: "[? pg_role == `primary`]"   # primary are used as backup server in replica service
 
       # default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
-      - name: default           # service's actual name is {{ pg_cluster }}-{{ service.name }}
+      - name: default           # service's actual name is {{ pg_cluster }}-default
         src_ip: "*"             # service bind ip address, * for all, vip for cluster virtual ip address
         src_port: 5436          # bind port, mandatory
         dst_port: postgres      # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
@@ -822,7 +855,7 @@ all: # top-level namespace, match all hosts
           default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
       # offline service will route {ip|name}:5438 to offline postgres (5438->5432 offline)
-      - name: offline           # service name {{ pg_cluster }}_replica
+      - name: offline           # service name {{ pg_cluster }}-offline
         src_ip: "*"
         src_port: 5438
         dst_port: postgres

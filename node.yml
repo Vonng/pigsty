@@ -1,0 +1,31 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   node.yml
+# Mtime     :   2021-04-19
+# Mtime     :   2021-04-19
+# Desc      :   initialize pigsty database node
+# Path      :   node.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+
+#------------------------------------------------------------------------------
+# init node
+#------------------------------------------------------------------------------
+# node needs init before deploying database
+# init procedure enable infrastructure and dcs agent on node
+
+- name: Node Init
+  become: yes
+  hosts: all
+  gather_facts: no
+  roles:
+
+    - role: node                            # init node
+      tags: [ infra, node ]
+
+    - role: consul                          # init consul
+      tags: [ infra, dcs ]
+
+...

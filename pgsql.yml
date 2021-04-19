@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2021-03-15
+# Mtime     :   2021-04-19
 # Desc      :   initialize pigsty cluster
 # Path      :   pgsql.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -11,25 +11,23 @@
 
 
 #------------------------------------------------------------------------------
-# init node and database
+# init pgsql clusters
 #------------------------------------------------------------------------------
-- name: Pgsql Initialization
+# pgsql init assume that target nodes have already been initialized with `node.yml`
+# if you just want re-init instance with same identity, ./pgsql.yml is sufficient
+
+
+- name: Pgsql Init
   become: yes
   hosts: all
   gather_facts: no
+  tags: pgsql
   roles:
-
-    - role: node                            # init node
-      tags: [infra, node]
-
-    - role: consul                          # init consul
-      tags: [infra, dcs]
-
     - role: postgres                        # init postgres
-      tags: [pgsql, postgres]
+      tags: [postgres]
 
     - role: monitor                         # init monitor system
-      tags: [pgsql, monitor]
+      tags: [monitor]
 
     - role: service                         # init service
       tags: [service]

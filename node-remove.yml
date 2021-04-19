@@ -1,0 +1,88 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   node-remove.yml
+# Mtime     :   2020-05-12
+# Mtime     :   2021-04-19
+# Desc      :   remove node from pigsty env
+# Path      :   node-remove.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+# this playbook aims at removing consul (deregister services)
+# so the node can be recycled for database deploy again
+
+
+#------------------------------------------------------------------------------
+# Remove node exporter service
+#------------------------------------------------------------------------------
+- name: Remove Node Exporter
+  become: yes
+  hosts: all
+  gather_facts: no
+  ignore_errors: true
+  tags: node_exporter
+  tasks:
+    - name: Remove node_exporter
+      systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
+
+    - name: Reload consul
+      when: service_registry == 'consul'
+      systemd: name=consul state=reloaded
+
+
+#------------------------------------------------------------------------------
+# Remove dcs service
+#------------------------------------------------------------------------------
+- name: Remove DCS
+  become: yes
+  hosts: all
+  gather_facts: no
+  ignore_errors: true
+  tags: dcs
+  tasks:
+
+    #------------------------------------------------------------------------------
+    # if host is a DCS SERVER
+    # you MUST specify dcs_exists_action = 'clean' to force remove it
+    # to prevent crash entire environment by accident
+    #------------------------------------------------------------------------------
+    - name: Avoid removing dcs servers
+      connection: local
+      when: inventory_hostname in dcs_servers.values() and dcs_exists_action != 'clean'
+      any_errors_fatal: true
+      fail: msg="Abort trying to remove consul server without dcs_exists_action=clean"
+
+    - name: Consul leave cluster
+      when: service_registry == 'consul'
+      command: /usr/bin/consul leave
+
+    - name: Stop consul service
+      when: service_registry == 'consul'
+      systemd: name=consul state=stopped enabled=no daemon_reload=yes
+
+    - name: Cleanup consul data
+      when: service_registry == 'consul'
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/consul.d
+        - "{{ consul_data_dir }}"
+
+
+#------------------------------------------------------------------------------
+# Uninstall postgres and consul packages.
+# Packages will not be uninstalled unless using `-e yum_remove=true`
+#------------------------------------------------------------------------------
+- name: Uninstall Node Packages
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: packages
+  tasks:
+    - name: Uninstall postgres and consul
+      when: yum_remove is defined and yum_remove|bool
+      shell: |
+        yum remove -y consul
+        yum remove -y postgresql{{ pg_version }}*
+
+...

@@ -3,36 +3,67 @@
 #==============================================================#
 # File      :   pgsql-remove.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2021-04-13
-# Desc      :   remove postgres & consul services
+# Mtime     :   2021-04-19
+# Desc      :   remove pgsql from nodes
 # Path      :   pgsql-remove.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
-# this playbook aims at removing postgres & consul & related service
-# from # existing instances. So that the node can be recycled for
-# re-initialize or other database clusters.
+# this playbook aims at REMOVING postgres related service from database node
+# to remove dcs and other infrastructure, use ./node-remove.yml
+
+# if instance's identity is not changed, you could just re-initialize instance
+# with ./pgsql.yml without re-initializing node with ./node-remove.yml
 
 #------------------------------------------------------------------------------
 # Remove load balancer
 #------------------------------------------------------------------------------
-- name: Remove service provider
+- name: Remove service
   become: yes
   hosts: all
-  serial: 1
   gather_facts: no
   tags: service
   ignore_errors: true
   tasks:
 
+    #-------------------------------
+    # Stop VIP and haproxy
+    #-------------------------------
     - name: Stop load balancer and vip-manager
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
-        - vip-manager
         - haproxy
+        - vip-manager
+
+    #-------------------------------
+    # De-Register consul service
+    # remove /etc/consul.d/   svc-haproxy.json  svc-{{ cluster }}-{{ svc.name }}.json
+    #-------------------------------
+    - name: De-register haproxy service
+      when: service_registry == 'consul'
+      file: path=/etc/consul.d/svc-haproxy.json state=absent
+
+    - name: De-register haproxy cluster service
+      when: service_registry == 'consul'
+      file: path=/etc/consul.d/{{ service_file }} state=absent
+      vars:
+        service_file: "svc-{{ pg_cluster }}-{{ item }}.json"
+      with_items: "{{ pg_services }}"
+
+    - name: De-register haproxy extra cluster service
+      when: service_registry == 'consul' and pg_services_extras is defined and len(pg_services_extras) > 0
+      file: path=/etc/consul.d/{{ service_file }} state=absent
+      vars:
+        service_file: "svc-{{ pg_cluster }}-{{ item }}.json"
+      with_items: "{{ pg_services_extras }}"
+
+    - name: Reload consul
+      when: service_registry == 'consul'
+      systemd: name=consul state=reloaded
+
 
 #------------------------------------------------------------------------------
-# Remove pg monitor
+# Remove Monitor Components
 #------------------------------------------------------------------------------
 - name: Remove monitor
   become: yes
@@ -42,6 +73,9 @@
   ignore_errors: true
   tasks:
 
+    #-------------------------------
+    # Stop pg/pgb exporter
+    #-------------------------------
     - name: Stop monitor service
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
       with_items:
@@ -51,11 +85,16 @@
     - name: Deregister exporter service
       file: path=/etc/consul.d/svc-{{ item }}.json state=absent
       with_items:
-        - haproxy
         - pg-exporter
         - pgbouncer-exporter
 
+    - name: Stop prometail service
+      when: promtail_enabled|bool
+      tags: promtail
+      systemd: name=promtail state=stopped enabled=no daemon_reload=yes
+
     - name: Reload consul
+      when: service_registry == 'consul'
       systemd: name=consul state=reloaded
 
 
@@ -65,11 +104,14 @@
 - name: Remove Postgres service
   become: yes
   hosts: all
-  serial: 1
   gather_facts: no
   tags: postgres
   ignore_errors: true
   tasks:
+
+    #--------------------------------------------
+    # Stop non-primary postgres|pgbouncer|patroni
+    #--------------------------------------------
     - name: Remove postgres replica services
       when: pg_role != 'primary'
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
@@ -86,6 +128,9 @@
         {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
         exit 0
 
+    #--------------------------------------------
+    # Stop primary postgres|pgbouncer|patroni
+    #--------------------------------------------
     - name: Remove postgres primary services
       when: pg_role == 'primary'
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
@@ -101,49 +146,20 @@
         {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
         exit 0
 
+    #--------------------------------------------
+    # De-Register consul service
+    #--------------------------------------------
     - name: Deregister postgres services
+      when: service_registry == 'consul'
       file: path=/etc/consul.d/svc-{{ item }}.json state=absent
       with_items:
         - postgres
         - pgbouncer
         - patroni
 
+    - name: Reload consul
+      when: service_registry == 'consul'
+      systemd: name=consul state=reloaded
 
-#------------------------------------------------------------------------------
-# Remove postgres service
-#------------------------------------------------------------------------------
-- name: Remove Infrastructure
-  become: yes
-  hosts: all
-  serial: 1
-  gather_facts: no
-  ignore_errors: true
-  tags: dcs
-  tasks:
-    - name: Consul leave cluster
-      command: /usr/bin/consul leave
-
-    - name: Stop consul and node_exporter
-      ignore_errors: true
-      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
-      with_items:
-        - node_exporter
-        - consul
-
-#------------------------------------------------------------------------------
-# Uninstall postgres and consul
-# -e yum_remove=true will uninstall packages
-#------------------------------------------------------------------------------
-- name: Uninstall Packages
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: packages
-  tasks:
-    - name: Uninstall postgres and consul
-      when: yum_remove is defined and yum_remove|bool
-      shell: |
-        yum remove -y consul
-        yum remove -y postgresql{{ pg_version }}*
 
 ...
