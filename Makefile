@@ -46,7 +46,8 @@ init:
 # provisioning on production
 init2:
 	./infra.yml                         # provision meta node infrastructure
-	./pgsql.yml -l pg-meta,pg-test		# provision pg-test and pg-meta
+	./node.yml  -l pg-test              # provision meta node infrastructure
+	./pgsql.yml -l pg-test		        # provision pg-test and pg-meta
 
 # recreate database cluster
 reinit:
