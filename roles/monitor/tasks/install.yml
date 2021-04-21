@@ -37,12 +37,15 @@
   tags: [exporter_install, exporter_binary_install]
   when: exporter_install == 'binary'
   block:
-    - name: Copy monitor binaries
+    - name: Copy exporter binaries
       copy: src=bin/{{ item }} dest=/usr/bin/{{ item }} owner=root mode=0755
       ignore_errors: true
       with_items:
         - node_exporter
         - pg_exporter
-        - promtail
+
+    - name: Copy promtail binary
+      copy: src=bin/promtail dest=/usr/bin/{{ item }} owner=root mode=0755
+      ignore_errors: true
 
 ...
