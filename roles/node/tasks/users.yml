@@ -71,9 +71,17 @@
     # add additional public keys
     #------------------------------------------------------------------------------
     - name: Install public keys
+      tags: node_admin_pks
       authorized_key: user={{ node_admin_username }} key="{{ item }}"
       ignore_errors: true
       with_items:
         - "{{ node_admin_pks }}"
+
+    - name: Install current public key
+      tags: node_admin_pk_current
+      when: node_admin_pk_current
+      authorized_key:
+        user: "{{ node_admin_username }}"
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
 ...
