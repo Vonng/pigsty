@@ -1,0 +1,81 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   get_pg_exporter
+# Ctime     :   2021-04-21
+# Mtime     :   2021-04-21
+# Desc      :   Get Node Exporter From Github Release
+# Path      :   bin/get_pg_exporter
+# Depend    :   curl
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+function get_pg_exporter() {
+    local tmpdir=/tmp
+    local version=latest
+    local path=${tmpdir}/pg_exporter
+    local remove=no
+
+    # parse arguments
+    while [ $# -gt 0 ]; do
+        case $1 in
+        -h|--help)
+			cat <<-'EOF'
+			NAME
+			    get_pg_exporter
+			SYNOPSIS
+			    download pg_exporter from github release page
+			    get_pg_exporter  [-v|--version=latest]              # pg_exporter version (latest by default)
+			                       [-p|--path=/tmp/pg_exporter]     # where to put pg_exporter binary
+			                       [-r|--remove]                    # force re-download and remove tarball
+			                       [-h|--help]                      # print this message
+			EXAMPLES
+			    get_pg_exporter                  # get latest pg_exporter binary to /tmp/pg_exporter
+			    get_pg_exporter  -v 0.3.2        # get specific version of pg_exporter (0.3.2)
+			    get_pg_exporter  -p /usr/bin/    # download binary to specific path `/usr/bin/`
+			    get_pg_exporter  -r              # force re-download and remove tarball after download
+			EOF
+			exit 0;;
+        -v|--version) version="$2" ; shift;;
+        -p|--path) path="$2" ; shift;;
+        -r|--remove) remove="yes" ;;
+        (--) shift; break;;
+        (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
+        (*) break;;
+        esac
+        shift
+    done
+
+	# translate latest version into specific version with github API
+	if [[ ${version} == "latest" ]]; then
+		printf "\033[0;32m[INFO] get latest version of pg_exporter \033[0m\n" >&2
+		version=$(curl --silent "https://api.github.com/repos/Vonng/pg_exporter/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+		if [[ ${version} =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+			printf "\033[0;32m[INFO] latest version of pg_exporter is v${version}\033[0m\n" >&2
+		else
+		    printf "\033[0;31m[INFO] fail to get latest pg_exporter version from github: $version \033[0m\n" >&2
+		    exit 1
+		fi
+	fi
+
+    local filename="pg_exporter_v${version}_linux-amd64"
+    local tarball="${filename}.tar.gz"
+    local url="https://github.com/Vonng/pg_exporter/releases/download/v${version}/${tarball}"
+
+    printf "\033[0;32m[INFO] get pg_exporter binary v${version} to ${tmpdir} \033[0m\n" >&2
+    if [[ ! -f ${tmpdir}/${tarball} || ${remove} == "yes" ]] ; then
+        printf "\033[0;32m[INFO] download binary ${tmpdir}/pg_exporter v${version} from ${url} to ${tmpdir} \033[0m\n" >&2
+        curl -L ${url} -o ${tmpdir}/${tarball}
+    else
+        printf "\033[0;32m[INFO] found tarball on ${tmpdir}, extract to ${tmpdir}/${filename} \033[0m\n" >&2
+    fi
+
+    tar -xf ${tmpdir}/${tarball} -C ${tmpdir}
+    mv -f "${tmpdir}/${filename}/pg_exporter" ${path}
+    rm -rf ${tmpdir:?}/${filename:?}                             # remove dir
+    [ ${remove} == "yes" ] && rm -rf ${tmpdir:?}/${tarball:?}    # remove tarball if -r|--remove specified
+    printf "\033[0;32m[INFO] ${path} \033[0m\n" >&2
+}
+
+get_pg_exporter $@
