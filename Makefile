@@ -6,24 +6,26 @@
 # Path      :   Makefile
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
+
+
+###############################################################
+# Sandbox Shortcuts
+###############################################################
+# default cmd will pull up all vm nodes and setup ssh access
 default: start
+start: up ssh sync
 
-
-###############################################################
-# Public objective
-###############################################################
-# create a new cluster
+# create a new local sandbox (assume cache exists)
 new: clean start upload init
 
-# write dns record to your own host, sudo required
-dns:
-	if ! grep --quiet "pigsty dns records" /etc/hosts ; then cat files/dns >> /etc/hosts; fi
-
-# write pigsty ssh config to ~/.ssh/pigsty_config
+# write sandbox vm ssh config [RUN ONCE]
 ssh:
-	cd vagrant && vagrant ssh-config > ~/.ssh/pigsty_config 2>/dev/null; true
-	if ! grep --quiet "pigsty_config" ~/.ssh/config ; then (echo 'Include ~/.ssh/pigsty_config' && cat ~/.ssh/config) >  ~/.ssh/config.tmp; mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config; fi
-	if ! grep --quiet "StrictHostKeyChecking=no" ~/.ssh/config ; then (echo 'StrictHostKeyChecking=no' && cat ~/.ssh/config) >  ~/.ssh/config.tmp; mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config; fi
+	bin/ssh.sh
+
+# write static dns records (sudo password required) [RUN ONCE]
+dns:
+	sudo bin/dns.sh
+
 
 # upload rpm cache to meta controller
 upload:
@@ -93,10 +95,11 @@ sync:
 	# echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo chronyc -a makestep'; true
 # show vagrant cluster status
 st: status
-start: up ssh sync
+
 stop: halt
 
-# only init partial of cluster
+# partial bootstrap
+min: meta-up     # minimal setup: one node only
 meta-up:
 	cd vagrant && vagrant up meta
 node-up:
@@ -212,22 +215,14 @@ env-prod: env-clean
 	ln -s prod.yml conf/all.yml
 
 ###############################################################
-# misc
+# project
 ###############################################################
+# generate playbook svg graph
 svg:
-	mkdir -p play || true
-	ansible-playbook-grapher infra.yml -o play/infra
-	ansible-playbook-grapher --include-role-tasks infra.yml -o play/infra-full
-	ansible-playbook-grapher pgsql.yml -o play/pgsql
-	ansible-playbook-grapher --include-role-tasks pgsql.yml -o play/pgsql-full
-	ansible-playbook-grapher sandbox.yml -o play/sandbox
-	ansible-playbook-grapher --include-role-tasks sandbox.yml -o play/sandbox-full
-	ansible-playbook-grapher pgsql-remove.yml -o play/pgsql-remove
-	ansible-playbook-grapher pgsql-monitor.yml -o play/pgsql-monitor
-	ansible-playbook-grapher pgsql-createuser.yml -o play/pgsql-createuser
-	ansible-playbook-grapher pgsql-createdb.yml -o play/pgsql-createdb
-	ansible-playbook-grapher pgsql-service.yml -o play/pgsql-service
+	bin/play-svg.sh
 
+release:
+	bin/release.sh v0.9
 
 ###############################################################
 # kubernetes management (Obsolete)

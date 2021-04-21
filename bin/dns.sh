@@ -1,0 +1,53 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   dns.sh
+# Ctime     :   2021-04-20
+# Mtime     :   2021-04-20
+# Desc      :   setup static dns for local vagrant SANDBOX
+# Note      :   run this with ROOT or SUDO !
+# Path      :   bin/dns.sh
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+function setup_dns() {
+	# run this as root
+	if [[ "$(whoami)" != "root" ]]; then
+		printf "\033[0;31m[ERROR] permission denied: run this as root \033[0m\n" >&2
+	    return 1
+	fi
+
+	if grep -q 'pigsty dns records' /etc/hosts; then
+		printf "\033[0;33m[WARN] dns records already set, skip  \033[0m\n" >&2
+		return 0
+	else
+		cat >>/etc/hosts <<-EOF
+
+		# pigsty dns records
+		10.10.10.10  meta     # sandbox meta node
+		10.10.10.11  node-1   # sandbox node node-1
+		10.10.10.12  node-2   # sandbox node node-2
+		10.10.10.13  node-3   # sandbox node node-3
+		10.10.10.2   pg-meta  # sandbox vip for pg-meta
+		10.10.10.3   pg-test  # sandbox vip for pg-test
+
+		10.10.10.10 pigsty
+		10.10.10.10 y.pigsty yum.pigsty
+		10.10.10.10 c.pigsty consul.pigsty
+		10.10.10.10 g.pigsty grafana.pigsty
+		10.10.10.10 p.pigsty prometheus.pigsty
+		10.10.10.10 a.pigsty alertmanager.pigsty
+		10.10.10.10 n.pigsty ntp.pigsty
+		10.10.10.10 h.pigsty haproxy.pigsty
+
+		EOF
+		printf "\033[0;32m[INFO] write dns records into /etc/hosts \033[0m\n" >&2
+	fi
+	return 0
+}
+
+setup_dns
