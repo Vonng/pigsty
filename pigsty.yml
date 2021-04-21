@@ -35,7 +35,7 @@ all: # top-level namespace
         meta_node: true                    # mark node as meta controller
         ansible_group_priority: 99         # meta group has top priority
       hosts:
-        10.10.10.10: {ansible_host: meta}
+        10.10.10.10:
 
     #-----------------------------
     # cluster: pg-meta
@@ -44,7 +44,7 @@ all: # top-level namespace
     pg-meta:
       # - cluster members - #
       hosts:
-        10.10.10.10: {pg_seq: 1, pg_role: primary, ansible_host: meta, pg_offline_query: true}
+        10.10.10.10: {pg_seq: 1, pg_role: primary, pg_offline_query: true}
 
       # - cluster configs - #
       vars:
@@ -137,9 +137,9 @@ all: # top-level namespace
     pg-test: # define cluster named 'pg-test'
       # - cluster members - #
       hosts:
-        10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
-        10.10.10.12: {pg_seq: 2, pg_role: replica, ansible_host: node-2}
-        10.10.10.13: {pg_seq: 3, pg_role: offline, ansible_host: node-3}
+        10.10.10.11: {pg_seq: 1, pg_role: primary}
+        10.10.10.12: {pg_seq: 2, pg_role: replica}
+        10.10.10.13: {pg_seq: 3, pg_role: offline}
 
       # - cluster configs - #
       vars:
@@ -297,7 +297,7 @@ all: # top-level namespace
     # - what to download - #
     repo_packages:
       # repo bootstrap packages
-      - epel-release nginx wget yum-utils yum createrepo                                      # bootstrap packages
+      - epel-release nginx wget yum-utils yum createrepo sshpass                              # bootstrap packages
 
       # node basic packages
       - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget unzip git tuned   # basic system util
@@ -402,14 +402,15 @@ all: # top-level namespace
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
-      # net.bridge.bridge-nf-call-iptables: 1     # example config for kubernetes
+      # net.bridge.bridge-nf-call-iptables: 1     # example kv parameters
 
     # - node user - #
     node_admin_setup: true                        # setup an default admin user ?
     node_admin_uid: 88                            # uid and gid for admin user
-    node_admin_username: admin                    # default admin user
-    node_admin_ssh_exchange: true                 # exchange ssh key among cluster ?
-    node_admin_pks:                               # public key list that will be installed
+    node_admin_username: dba                      # default admin user: dba
+    node_admin_ssh_exchange: true                 # exchange admin's ssh key among cluster ?
+    node_admin_pk_current: false                  # add current user's ~/.ssh/id_rsa.pub to admin pk
+    node_admin_pks:                               # ssh public keys to be added to admin user
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     # - node ntp - #
