@@ -2,8 +2,8 @@
 ---
 #==============================================================#
 # File      :   infra-loki.yml
-# Ctime     :   2020-04-13
-# Mtime     :   2020-07-23
+# Ctime     :   2021-04-13
+# Mtime     :   2021-04-22
 # Desc      :   install loki on meta node
 # Path      :   infra-loki.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -22,12 +22,6 @@
   hosts: meta
   gather_facts: no
   tags: loki
-
-  vars:
-
-    loki_clean: false                 # whether remove existing loki data
-    loki_data_dir: /export/loki       # default loki data dir
-
   tasks:
 
     - name: Cleanup Loki
@@ -53,7 +47,6 @@
     - name: Render loki config
       tags: loki_config
       template: src=loki.yml.j2 dest=/etc/loki.yml owner=prometheus
-
 
     - name: Register loki systemd service
       tags: loki_config
