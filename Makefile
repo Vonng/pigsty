@@ -20,12 +20,11 @@ new: clean start upload init
 
 # write sandbox vm ssh config [RUN ONCE]
 ssh:
-	bin/ssh.sh
+	bin/ssh
 
 # write static dns records (sudo password required) [RUN ONCE]
 dns:
-	sudo bin/dns.sh
-
+	sudo bin/dns
 
 # upload rpm cache to meta controller
 upload:
@@ -33,13 +32,11 @@ upload:
 	scp -r files/pkg.tgz meta:/tmp/pkg.tgz
 	ssh -t meta "sudo mkdir -p /www/pigsty/; sudo rm -rf /www/pigsty/*; sudo tar -xf /tmp/pkg.tgz --strip-component=1 -C /www/pigsty/"
 
-# cache rpm packages from meta controller
+# use local meta node make offline installation packages
 cache:
-	ssh -t meta 'sudo mkdir -p /www/pigsty/grafana;sudo tar -zcf /www/pigsty/grafana/plugins.tgz -C /var/lib/grafana/ plugins'
-	mkdir -p files/
-	ssh -t meta "sudo tar -zcf /tmp/pkg.tgz -C /www pigsty; sudo chmod a+r /tmp/pkg.tgz"
-	scp -r meta:/tmp/pkg.tgz files/pkg.tgz
-	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
+	scp bin/cache meta:/tmp/cache
+	ssh -t 'sudo bash /tmp/cache'
+	scp -f meta:/tmp/pkg.tgz files/pkg.tgz
 
 # fast provisioning on sandbox
 init:
@@ -219,10 +216,16 @@ env-prod: env-clean
 ###############################################################
 # generate playbook svg graph
 svg:
-	bin/play-svg.sh
+	bin/play_svg
 
 release:
-	bin/release.sh v0.9
+	bin/release v0.9
+
+deploy: release
+	scp files/release/v0.9/pigsty.tgz meta:~/pigsty.tgz
+	ssh meta 'rm -rf pigsty; tar -xf pigsty.tgz'
+
+
 
 ###############################################################
 # kubernetes management (Obsolete)
