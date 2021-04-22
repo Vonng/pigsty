@@ -29,12 +29,15 @@ REPO_HOME=/www
 
 REPO_DIR=${REPO_HOME}/${REPO_NAME}
 BIN_DIR=${PIGSTY_HOME}/files/bin
+[[ -f ${BIN_DIR} ]] && rm -rf ${BIN_DIR}
+mkdir -p ${BIN_DIR}
 
 CACHE_DIR=${1-${REPO_DIR}}
 TARGET_DIR=${2-${BIN_DIR}}
 
 cd ${PIGSTY_HOME}
-mkdir -p ${PIGSTY_HOME}/files/bin
+
+mkdir -p ${CACHE_DIR}
 mkdir -p ${REPO_DIR}
 
 
@@ -42,6 +45,6 @@ log_info "cache dir ${CACHE_DIR} , target dir ${TARGET_DIR}"
 
 
 cd ${PIGSTY_HOME}  # pigsty/bin
-bin/get_node_exporter -t ${CACHE_DIR}  -v 1.1.2  -p ${TARGET_DIR}
-bin/get_pg_exporter   -t ${CACHE_DIR}  -v 0.3.2  -p ${TARGET_DIR}
+bin/get_node_exporter -t ${CACHE_DIR}  -v 1.1.2  -p ${TARGET_DIR}/node_exporter
+bin/get_pg_exporter   -t ${CACHE_DIR}  -v 0.3.2  -p ${TARGET_DIR}/pg_exporter
 bin/get_loki          -t ${CACHE_DIR}  -v 2.2.1  -p ${TARGET_DIR}
