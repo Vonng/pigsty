@@ -88,8 +88,8 @@ all: # top-level namespace
             expire_at: '2030-12-31'         # 'timestamp' when this role is expired (OVERWRITTEN by expire_in)
             comment: pigsty admin user      # comment on user/role
             roles: [dbrole_admin]           # dbrole_{admin,readonly,readwrite,offline}
-            parameters:                     # additional role level parameters
-              search_path: public           # set search_path to public
+            parameters:                     # additional role level parameters with ALTER ROLE SET
+              search_path: pigsty,public    # add pigsty schema into search_path
 
         # - defining business databases - #
         pg_databases:
@@ -106,9 +106,11 @@ all: # top-level namespace
             # pgbouncer: true               # optional, add this database to pgbouncer list? true by default
             comment: pigsty meta database   # optional, comment string for database
             connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
-            # extensions:                   # optional, extension name and which schema to create
-            #  - {name: postgis, schema: public}
+            schemas: [pigsty]               # optional, create additional schema
+            extensions:                     # optional, extension name and which schema to create
+             - {name: adminpack, schema: public}
             parameters:                     # optional, extra parameters with ALTER DATABASE
+              search_path: 'pigsty,public'  # add pigsty to search_path
               log_min_duration_statement: 0 # log all action on meta database
 
         pg_default_database: meta           # default database will be used as primary monitor target
@@ -256,14 +258,14 @@ all: # top-level namespace
       - name: pgdg-common
         description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        # baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
-        baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch
+        baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+        # baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch
 
       - name: pgdg13
         description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        # baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
-        baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch
+        baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
+        # baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -297,10 +299,10 @@ all: # top-level namespace
     # - what to download - #
     repo_packages:
       # repo bootstrap packages
-      - epel-release nginx wget yum-utils yum createrepo sshpass                              # bootstrap packages
+      - epel-release nginx wget yum-utils yum createrepo sshpass unzip                        # bootstrap packages
 
       # node basic packages
-      - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget unzip git tuned   # basic system util
+      - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget git tuned         # basic system util
       - readline zlib openssl libyaml libxml2 libxslt perl-ExtUtils-Embed ca-certificates     # basic pg dependency
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet  # system utils
 
@@ -312,7 +314,7 @@ all: # top-level namespace
       # python3 dependencies
       - ansible python python-pip python-psycopg2 audit                                       # ansible & python
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul                # python3
-      - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography               # python3 patroni extra deps
+      - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography               # patroni extra deps
 
       # proxy and load balancer
       - haproxy keepalived dnsmasq                                                            # proxy and dns
@@ -326,7 +328,7 @@ all: # top-level namespace
       - postgresql13* postgis31* citus_13 timescaledb_13 # pgrouting_13                         # postgres 13 and postgis 31
       - pg_repack13 pg_squeeze13                                                                # maintenance extensions
       - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions                                      # pl extensions
+      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
       - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
       - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
       - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
@@ -335,15 +337,23 @@ all: # top-level namespace
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
     repo_url_packages:
-      # mirror in mainland china (use commented packages to install from official site)
-      - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
-      - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
-      - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
-      # github access outside mainland china
-      # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
-      # - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-      # - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+      # additional rpm packages
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
+      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
+      - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
 
+      # tar.gz and zip binary packages
+      - https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binary
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter_v0.3.2_linux-amd64.tar.gz
+      - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip           # loki binary
+      - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
+
+      # mirror in mainland china (use commented packages to install from official site)
+      # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
+      # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
+      # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
 
     #------------------------------------------------------------------------------
     # NODE PROVISION
@@ -369,7 +379,7 @@ all: # top-level namespace
 
     # - node packages - #
     node_packages:                                # common packages for all nodes
-      - wget,yum-utils,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
+      - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
       - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
       - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
       - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
@@ -379,6 +389,11 @@ all: # top-level namespace
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
       - dnsmasq,nginx,ansible,pgbadger,polysh
+
+    # build & devel packages (add to repo_packages too if you want build database & extensions from source)
+    # - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+    # - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+
 
     # - node features - #
     node_disable_numa: false                      # disable numa, important for production database, reboot required
