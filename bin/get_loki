@@ -1,0 +1,151 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   get_loki
+# Ctime     :   2021-04-21
+# Mtime     :   2021-04-21
+# Desc      :   Get Loki Stuff from Github
+# Path      :   bin/get_loki
+# Depend    :   curl unzip
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+function get_loki() {
+    local tmpdir=/tmp
+    local version=latest
+    local path=${tmpdir}/
+    local remove=no
+
+    # parse arguments
+    while [ $# -gt 0 ]; do
+        case $1 in
+        -h|--help)
+			cat <<-'EOF'
+			NAME
+			    get_loki  -- download loki, promtail, loki-canary logcli from internet
+			SYNOPSIS
+			    download loki from github release page
+			    get_loki  [-v|--version=latest]              # loki version (latest by default)
+			                       [-p|--path=/tmp/]         # where DIR path to put loki binary(s)
+			                       [-t|--tmpdir=/tmp]        # where to put tmp resource (or use cache)
+			                       [-r|--remove]             # force re-download and remove tarball
+			                       [-h|--help]               # print this message
+			EXAMPLES
+			    get_loki                  # get latest loki binary to /tmp/loki
+			    get_loki  -v 2.2.1        # get specific version of loki (2.2.1)
+			    get_loki  -p /usr/bin/    # download binary to specific path `/usr/bin/`
+			    get_loki  -r              # force re-download and remove tarball after download
+
+			EOF
+			exit 0;;
+        -v|--version) version="$2" ; shift;;
+        -p|--path) path="$2" ; shift;;
+        -t|--tmpdir) tmpdir="$2" ; shift;;
+        -r|--remove) remove="yes" ;;
+        (--) shift; break;;
+        (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
+        (*) break;;
+        esac
+        shift
+    done
+
+	# translate latest version into specific version with github API
+	if [[ ${version} == "latest" ]]; then
+		printf "\033[0;32m[INFO] get latest version of loki \033[0m\n" >&2
+		version=$(curl --silent "https://api.github.com/repos/grafana/loki/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+		if [[ ${version} =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+			printf "\033[0;32m[INFO] latest version of loki is v${version}\033[0m\n" >&2
+		else
+		    printf "\033[0;31m[INFO] fail to get latest loki version from github: $version \033[0m\n" >&2
+		    exit 1
+		fi
+	fi
+
+	###################
+	# loki
+	##################
+    local filename="loki-linux-amd64"
+    local tarball="${filename}.zip"
+    local url="https://github.com/grafana/loki/releases/download/v${version}/${tarball}"
+    printf "\033[0;32m[INFO] get loki binary v${version} to ${tmpdir} \033[0m\n" >&2
+
+    if [[ ! -f ${tmpdir}/${tarball} || ${remove} == "yes" ]] ; then
+        printf "\033[0;32m[INFO] download binary ${tmpdir}/loki v${version} from ${url} to ${tmpdir} \033[0m\n" >&2
+        curl -L ${url} -o ${tmpdir}/${tarball}
+    else
+        printf "\033[0;32m[INFO] found tarball on ${tmpdir}, extract to ${tmpdir}/${filename} \033[0m\n" >&2
+    fi
+
+    cd ${tmpdir}
+    rm -rf ${filename} && unzip ${tarball} && mv -f ${filename} ${path}/loki
+    cd -
+    [ ${remove} == "yes" ] && rm -rf ${tmpdir:?}/${tarball:?}    # remove tarball if -r|--remove specified
+
+
+	###################
+	# promtail
+	##################
+    local filename="promtail-linux-amd64"
+    local tarball="${filename}.zip"
+    local url="https://github.com/grafana/loki/releases/download/v${version}/${tarball}"
+    printf "\033[0;32m[INFO] get promtail binary v${version} to ${tmpdir} \033[0m\n" >&2
+
+    if [[ ! -f ${tmpdir}/${tarball} || ${remove} == "yes" ]] ; then
+        printf "\033[0;32m[INFO] download binary ${tmpdir}/promtail v${version} from ${url} to ${tmpdir} \033[0m\n" >&2
+        curl -L ${url} -o ${tmpdir}/${tarball}
+    else
+        printf "\033[0;32m[INFO] found tarball on ${tmpdir}, extract to ${tmpdir}/${filename} \033[0m\n" >&2
+    fi
+
+    cd ${tmpdir}
+    rm -rf ${filename} && unzip ${tarball} && mv -f ${filename} ${path}/promtail
+    cd -
+    [ ${remove} == "yes" ] && rm -rf ${tmpdir:?}/${tarball:?}    # remove tarball if -r|--remove specified
+
+
+	###################
+	# logcli
+	##################
+    local filename="logcli-linux-amd64"
+    local tarball="${filename}.zip"
+    local url="https://github.com/grafana/loki/releases/download/v${version}/${tarball}"
+    printf "\033[0;32m[INFO] get logcli binary v${version} to ${tmpdir} \033[0m\n" >&2
+
+    if [[ ! -f ${tmpdir}/${tarball} || ${remove} == "yes" ]] ; then
+        printf "\033[0;32m[INFO] download binary ${tmpdir}/logcli v${version} from ${url} to ${tmpdir} \033[0m\n" >&2
+        curl -L ${url} -o ${tmpdir}/${tarball}
+    else
+        printf "\033[0;32m[INFO] found tarball on ${tmpdir}, extract to ${tmpdir}/${filename} \033[0m\n" >&2
+    fi
+
+    cd ${tmpdir}
+    rm -rf ${filename} && unzip ${tarball} && mv -f ${filename} ${path}/logcli
+    cd -
+    [ ${remove} == "yes" ] && rm -rf ${tmpdir:?}/${tarball:?}    # remove tarball if -r|--remove specified
+
+	###################
+	# logcli
+	##################
+    local filename="loki-canary-linux-amd64"
+    local tarball="${filename}.zip"
+    local url="https://github.com/grafana/loki/releases/download/v${version}/${tarball}"
+    printf "\033[0;32m[INFO] get loki-canary binary v${version} to ${tmpdir} \033[0m\n" >&2
+
+    if [[ ! -f ${tmpdir}/${tarball} || ${remove} == "yes" ]] ; then
+        printf "\033[0;32m[INFO] download binary ${tmpdir}/loki-canary v${version} from ${url} to ${tmpdir} \033[0m\n" >&2
+        curl -L ${url} -o ${tmpdir}/${tarball}
+    else
+        printf "\033[0;32m[INFO] found tarball on ${tmpdir}, extract to ${tmpdir}/${filename} \033[0m\n" >&2
+    fi
+
+    cd ${tmpdir}
+    rm -rf ${filename} && unzip ${tarball} && mv -f ${filename} ${path}/loki-canary
+    cd -
+    [ ${remove} == "yes" ] && rm -rf ${tmpdir:?}/${tarball:?}    # remove tarball if -r|--remove specified
+
+
+    printf "\033[0;32m[INFO] ${path} \033[0m\n" >&2
+}
+
+get_loki $@

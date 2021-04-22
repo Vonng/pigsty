@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   get_bin
+# Ctime     :   2021-04-22
+# Mtime     :   2021-04-22
+# Desc      :   Get Binary Packages From Internet or Cache
+# Path      :   bin/get_bin
+# Usage     :   get_bin [cache_dir]
+# Note      :   if cache not found, will download from internet
+#               extract pkg.tgz first to get from cache
+# Depend    :   curl, unzip
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME="$(cd $(dirname ${PROG_DIR}) && pwd)"
+
+REPO_NAME=pigsty
+REPO_HOME=/www
+REPO_DIR=${REPO_HOME}/${REPO_NAME}
+CACHE_DIR=${1-${REPO_DIR}}
+
+cd ${PIGSTY_HOME}
+mkdir -p ${PIGSTY_HOME}/files/bin
+mkdir -p ${REPO_DIR}
+
+cd ${PIGSTY_HOME}  # pigsty/bin
+bin/get_node_exporter -t ${CACHE_DIR}  -v 1.1.2  -p ${PIGSTY_HOME}/files/bin/
+bin/get_pg_exporter   -t ${CACHE_DIR}  -v 0.3.2  -p ${PIGSTY_HOME}/files/bin/
+bin/get_loki          -t ${CACHE_DIR}  -v 2.2.1  -p ${PIGSTY_HOME}/files/bin/
