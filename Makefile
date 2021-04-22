@@ -7,6 +7,7 @@
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
+VERSION=0.9
 
 ###############################################################
 # Sandbox Shortcuts
@@ -28,15 +29,16 @@ dns:
 
 # upload rpm cache to meta controller
 upload:
-	ssh -t meta "sudo rm -rf /tmp/pkg.tgz"
-	scp -r files/pkg.tgz meta:/tmp/pkg.tgz
-	ssh -t meta "sudo mkdir -p /www/pigsty/; sudo rm -rf /www/pigsty/*; sudo tar -xf /tmp/pkg.tgz --strip-component=1 -C /www/pigsty/"
+	scp files/release/${VERSION}/pigsty.tgz meta:~/pigsty.tgz
+	ssh -t meta 'tar -xf pigsty.tgz'
+	scp files/release/${VERSION}/pkg.tgz meta:~/pigsty/files/pkg.tgz
 
-# use local meta node make offline installation packages
-cache:
-	scp bin/cache meta:/tmp/cache
-	ssh -t 'sudo bash /tmp/cache'
-	scp -f meta:/tmp/pkg.tgz files/pkg.tgz
+# boot will copy pigsty resources and bootstrap meta node
+boot:
+	ssh -t meta 'sudo bash ~/pigsty/bin/boot'
+	ssh -t meta 'sudo bash ~/pigsty/bin/get_bin'
+
+
 
 # fast provisioning on sandbox
 init:
@@ -135,114 +137,24 @@ lb:
 
 
 ###############################################################
-# monitoring management
-###############################################################
-mon-view:
-	open -n 'http://g.pigsty/'
-
-mon-clean:
-	rm -rf roles/grafana/files/grafana/grafana.db roles/grafana/files/grafana/dashboards
-
-mon-full: mon-clean
-	cp files/monitor/grafana-full.db roles/grafana/files/grafana/grafana.db
-
-mon-skim: mon-clean
-	cp files/monitor/grafana-skim.db roles/grafana/files/grafana/grafana.db
-
-mon-dump:
-	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
-	scp meta:/tmp/grafana.db files/monitor/grafana-full.db
-	ssh meta "sudo rm -rf /tmp/grafana.db"
-
-mon-upload:
-	scp files/monitor/grafana-full.db meta:/tmp/grafana.db
-	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
-	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
-
-mon-dump-skim:
-	ssh meta "sudo cp /var/lib/grafana/grafana.db /tmp/grafana.db; sudo chmod a+r /tmp/grafana.db"
-	scp meta:/tmp/grafana.db files/monitor/grafana-skim.db
-	ssh meta "sudo rm -rf /tmp/grafana.db"
-
-mon-upload-skim:
-	scp files/monitor/grafana-skim.db meta:/tmp/grafana.db
-	ssh meta "sudo mv /tmp/grafana.db /var/lib/grafana/grafana.db;sudo chown grafana /var/lib/grafana/grafana.db"
-	ssh meta "sudo rm -rf /etc/grafana/provisioning/dashboards/* ;sudo systemctl restart grafana-server"
-
-
-###############################################################
-# dashboards management
-###############################################################
-dashboard-dump:
-	./dashboard.yml -e action=dump
-
-dashboard-clean:
-	./dashboard.yml -e action=clean
-
-dashboard-rm-skim:
-	./dashboard.yml -e action=clean -e skim=true
-
-dashboard-install:
-	./dashboard.yml -e action=install
-
-dashboard-install-skim:
-	./dashboard.yml -e action=install -e skim=true
-
-###############################################################
-# environment management
-###############################################################
-env: env-dev
-
-env-clean:
-	rm -rf conf/all.yml
-
-env-dev: env-clean
-	ln -s dev.yml conf/all.yml
-
-env-vps: env-clean
-	ln -s vps.yml conf/all.yml
-
-env-vm: env-clean
-	ln -s vm.yml conf/all.yml
-
-env-pre: env-clean
-	ln -s pre.yml conf/all.yml
-
-env-prod: env-clean
-	ln -s prod.yml conf/all.yml
-
-###############################################################
 # project
 ###############################################################
 # generate playbook svg graph
 svg:
 	bin/play_svg
 
+# use local meta node make offline installation packages
+cache:
+	scp bin/cache meta:/tmp/cache
+	ssh meta 'sudo /tmp/cache'
+	scp meta:/tmp/pkg.tgz files/release/${VERSION}/pkg.tgz
+
 release:
-	bin/release v0.9
+	bin/release ${VERSION}
 
 deploy: release
-	scp files/release/v0.9/pigsty.tgz meta:~/pigsty.tgz
+	scp files/release/${VERSION}/pigsty.tgz meta:~/pigsty.tgz
 	ssh meta 'rm -rf pigsty; tar -xf pigsty.tgz'
 
-
-
-###############################################################
-# kubernetes management (Obsolete)
-###############################################################
-# open kubernetes dashboard
-k8s:
-	./init-k8s.yml
-
-kd:
-	open -n 'http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/'
-
-k-conf:
-	ssh meta 'sudo cat /etc/kubernetes/admin.conf' > ~/.kube/config
-
-# copy kubernetes admin token to files/admin.token
-k-token:
-	# ssh meta 'kubectl get secret $(kubectl get sa dashboard-admin-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode' | pbcopy
-	ssh meta 'kubectl get secret $(kubectl get sa dashboard-admin-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode' > files/admin.token
 
 .PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new
