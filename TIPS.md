@@ -43,6 +43,13 @@ sudo bin/get_bin               # get extra binaries to files/bin (optional)
 * init infrastructure on meta node with `infra.yml`
 * init postgres clusters on other nodes with `pgsql.yml`
  
+ 
+```bash
+# change default config ip to your node ip
+sed -ie 's/10.10.10.10/xxx.xxx.xxx.xxx/g' pigsty.yml
+```
+ 
+ 
 ```bash
 ./infra.yml                 # setup infrastructure and meta pgsql cluster pg-meta
 ./pgsql.yml -l pg-test      # create new clusters pg-test on 3 other nodes (optional)     
