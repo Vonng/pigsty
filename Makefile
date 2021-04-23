@@ -39,11 +39,11 @@ meta: upload boot
 
 # standard infra init procedure (init infra on meta)
 infra:
-	ssh meta 'cd pigsty && ansible-playbook infra.yml'
+	ssh meta 'cd pigsty && ./infra.yml'
 
 # standard pgsql init procedure (init 3-node cluster pg-test)
 pgsql:
-	ssh meta 'cd pigsty && ansible-playbook node.yml pgsql.yml -l pg-test'
+	ssh meta 'cd pigsty && ./pgsql.yml -l pg-test'
 
 # sandbox init playbook (init 4-node at one-pass, 2~3x faster than infra + pgsql)
 init: sandbox
