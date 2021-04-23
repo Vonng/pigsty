@@ -1,0 +1,54 @@
+apiVersion: 1
+
+# remove provisioned data sources
+deleteDatasources:
+  - name: meta
+    orgId: 1
+  - name: loki
+    orgId: 1
+  - name: Prometheus-PgSQL
+    orgId: 1
+
+datasources:
+
+  # Prometheus Time-Series Monitor Database
+  - name: Prometheus-PgSQL
+    type: prometheus
+    url: http://127.0.0.1:9090
+    access: proxy
+    isDefault: true
+    editable: true
+    version: 1
+    jsonData:
+      timeInterval: "2s"
+      queryTimeout: "60s"
+      tlsAuth: false
+      tlsAuthWithCACert: false
+    secureJsonData: { }
+
+  # Loki Logging Collector Database
+  - name: loki
+    type: loki
+    url: http://127.0.0.1:3100
+    access: proxy
+    editable: true
+
+  # Pigsty meta database
+  - name: meta
+    type: postgres
+    url: 127.0.0.1:5432
+    access: proxy
+    user: dbuser_grafana
+    database: meta
+    editable: true
+    jsonData: {
+      "connMaxLifetime": 14400,
+      "maxIdleConns": 10,
+      "maxOpenConns": 64,
+      "postgresVersion": 1300,
+      "sslmode": "disable",
+      "tlsAuth": false,
+      "tlsAuthWithCACert": false
+    }
+    secureJsonData:
+      password: DBUser.Grafana

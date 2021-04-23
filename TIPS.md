@@ -5,7 +5,12 @@
 * CentOS 7  (7.8 fully tested)
 * 2 Core / 2 GB at least
 * have root or sudo access
- 
+
+> you can use vagrant & virtualbox to pull up pre-defined vm nodes in minutes
+```bash 
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install vagrant virtualbox
+```
 
 ### 2. Get Pigsty Source Code
 
@@ -20,7 +25,7 @@ Download offline installation packages (centos7.8)
 > It's optional if you have internet access on meta node  
 
 ```bash
-cd ~/pigsty && bin/get_pkg
+bin/get_pkg
 ```
 
 
@@ -30,12 +35,13 @@ Install ansible on meta node from Internet (or from /tmp/pkg.tgz)
 
 ```bash
 sudo bin/boot
+sudo bin/get_bin               # get extra binaries to files/bin (optional)
 ``` 
 
 ### 4. Ready to work
 
 * init infrastructure on meta node with `infra.yml`
-* init postgres clusters on other node with `pgsql.yml`
+* init postgres clusters on other nodes with `pgsql.yml`
  
 ```bash
 ./infra.yml                 # setup infrastructure and meta pgsql cluster pg-meta

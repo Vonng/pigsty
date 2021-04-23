@@ -156,6 +156,7 @@ node-up:
 	cd vagrant && vagrant up node-1 node-2 node-3
 meta-new:
 	cd vagrant && vagrant destroy -f meta
+	cd vagrant && vagrant up meta
 node-new:
 	cd vagrant && vagrant destroy -f node-1 node-2 node-3
 	cd vagrant && vagrant up node-1 node-2 node-3
@@ -218,4 +219,4 @@ cp: release
 	ssh meta 'sudo rm -rf pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 
 
-.PHONY: default ssh dns cache init node meta infra clean up halt status suspend resume start stop down new
+.PHONY: default meta infra pgsql init download start ssh dns brew pgsql-rm sandbox upload boot pigsty.tgz pkg.tgz new min clean up halt down status suspend resume provision sync st stop meta-up node-up meta-new node-new rl ri rw ro rw2 ro2 r1 r2 r3 svg cache release cp
