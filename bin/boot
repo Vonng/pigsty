@@ -8,7 +8,7 @@ set -euo pipefail
 # Desc      :   boot meta node (use pkg.tgz and install ansible)
 # Usage     :   boot <pkg.tgz>
 # Note      :   run as root
-#               1. try unzip ./pkg.tgz as local repo first
+#               1. try unzip /tmp/pkg.tgz as local repo first
 #               2. install ansible from local repo
 #               3. try install ansible from internet if not applicable
 # Path      :   bin/boot
@@ -17,7 +17,7 @@ set -euo pipefail
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 PIGSTY_HOME="$(cd $(dirname ${PROG_DIR}) && pwd)"
-DEFAULT_PKG_PATH=${PIGSTY_HOME}/files/pkg.tgz
+DEFAULT_PKG_PATH=/tmp/pkg.tgz
 
 function log_info() {
     [[ -t 2 ]] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\033[0m\n" >&2 ||
@@ -30,7 +30,7 @@ function log_error() {
 
 
 #==============================================================#
-# Arg1      :   pkg.tgz path (./pkg.tgz)
+# Arg1      :   pkg.tgz path (/tmp/pkg.tgz)
 # Arg2      :   repo name (pigsty by default)
 # Arg3      :   repo home (/www by default)
 #==============================================================#

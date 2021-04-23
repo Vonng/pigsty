@@ -95,7 +95,7 @@ upload:
 	ssh -t meta 'sudo rm -rf ~/pigsty.tgz ~/pigsty'
 	scp files/release/v${VERSION}/pigsty.tgz meta:~/pigsty.tgz
 	ssh -t meta 'tar -xf pigsty.tgz'
-	scp files/release/v${VERSION}/pkg.tgz meta:~/pigsty/files/pkg.tgz
+	scp files/release/v${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
 
 # bootstrap meta node with pkg.tgz and extract binaries
 boot:

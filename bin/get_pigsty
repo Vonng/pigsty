@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   get_pigsty
+# Ctime     :   2021-04-22
+# Mtime     :   2021-04-23
+# Desc      :   Get Pigsty Resources
+# Path      :   bin/get_pigsty
+# Depend    :   curl
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+VERSION=${1-0.9}
+
+# download pigsty.tgz to /tmp
+printf "\033[0;32m[INFO] download pigsty.tgz v${VERSION} to /tmp \033[0m\n" >&2
+curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/v${VERSION}/pigsty.tgz -o /tmp/pigsty.tgz
+
+# backup existing pigsty dir to /tmp
+if [[ -d ${HOME}/pigsty ]]; then
+    tmppath="/tmp/pigsty-backup-$(date +%s)"
+    printf "\033[0;33m[WARN] mv ${HOME}/pigsty to ${tmppath} \033[0m\n" >&2
+    mv ${HOME}/pigsty ${tmppath}
+fi
+
+printf "\033[0;32m[INFO] extract pigsty.tgz to ${HOME}/pigsty \033[0m\n" >&2
+tar -xf /tmp/pigsty.tgz -C ${HOME}
+cd ${HOME}/pigsty
+
+
+# short version
+# curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/v${VERSION-0.9}/pigsty.tgz -o /tmp/pigsty.tgz && rm -rf ${HOME}/pigsty && tar -xf /tmp/pigsty.tgz -C ${HOME}
