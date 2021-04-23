@@ -356,15 +356,15 @@ SELECT (FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000) - 748569600000 /* ep
        23 /* 41 bit timestamp */ | ((nextval('job_id_seq') & 1023) << 12) | (random() * 4095)::INTEGER
 $func$
     LANGUAGE sql VOLATILE;
-COMMENT ON FUNCTION job_id_ts(id BIGINT) IS 'generate snowflake-like id for job';
-ALTER TABLE job ALTER COLUMN id SET DEFAULT job_id();
+COMMENT ON FUNCTION job_id() IS 'generate snowflake-like id for job';
+ALTER TABLE job ALTER COLUMN id SET DEFAULT job_id(); -- use job_id as id generator
 
 -- DROP FUNCTION IF EXISTS job_id_ts(BIGINT);
 CREATE OR REPLACE FUNCTION job_id_ts(id BIGINT) RETURNS TIMESTAMP AS
 $func$
 SELECT to_timestamp(((id >> 23) + 748569600000)::DOUBLE PRECISION / 1000)::TIMESTAMP
 $func$ LANGUAGE sql IMMUTABLE;
-COMMENT ON FUNCTION job_id_ts(id BIGINT) IS 'extract timestamp from job id';
+COMMENT ON FUNCTION job_id_ts(BIGINT) IS 'extract timestamp from job id';
 
 
 
@@ -697,7 +697,7 @@ COMMENT ON FUNCTION node_status(INET) IS 'get node status by ip';
 --------------------------------
 -- node_ins(ip text) (ins text)
 --------------------------------
-DROP FUNCTION node_ins(INET);
+DROP FUNCTION MODIFIES EXISTS node_ins(INET);
 CREATE OR REPLACE FUNCTION node_ins(_ip INET) RETURNS TEXT AS
 $$
 SELECT ins
