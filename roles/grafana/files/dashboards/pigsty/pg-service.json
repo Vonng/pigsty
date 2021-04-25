@@ -1,6 +1,6 @@
 {
     "style": "dark", 
-    "description": "PG Service Overview", 
+    "description": "PG Service", 
     "links": [
         {
             "keepTime": true, 
@@ -80,124 +80,90 @@
         "Service"
     ], 
     "editable": true, 
-    "iteration": 1607422887044, 
+    "iteration": 1619335255057, 
     "id": null, 
     "templating": {
         "list": [
             {
+                "query": {
+                    "query": "label_values(haproxy_server_check_status{}, proxy)", 
+                    "refId": "StandardVariableQuery"
+                }, 
                 "regex": "", 
-                "definition": "label_values(pg_up{}, svc)", 
-                "multi": false, 
+                "skipUrlSync": false, 
                 "hide": 0, 
-                "name": "svc", 
-                "tags": [], 
                 "allValue": null, 
-                "tagsQuery": "", 
-                "current": {}, 
-                "skipUrlSync": false, 
-                "refresh": 1, 
                 "label": "Service", 
-                "tagValuesQuery": "", 
+                "current": {}, 
+                "useTags": false, 
+                "type": "query", 
                 "sort": 1, 
+                "description": "", 
+                "tags": [], 
+                "definition": "label_values(haproxy_server_check_status{}, proxy)", 
+                "multi": false, 
+                "name": "svc", 
+                "refresh": 1, 
+                "tagValuesQuery": "", 
                 "datasource": "Prometheus-PgSQL", 
                 "error": null, 
-                "query": "label_values(pg_up{}, svc)", 
-                "includeAll": false, 
-                "type": "query", 
+                "tagsQuery": "", 
                 "options": [], 
-                "useTags": false
+                "includeAll": false
             }, 
             {
+                "query": {
+                    "query": "label_values(haproxy_server_check_status{proxy='$svc'}, cls)", 
+                    "refId": "StandardVariableQuery"
+                }, 
                 "regex": "", 
-                "definition": "label_values(pg_up{svc=\"$svc\"}, cls)", 
-                "multi": false, 
-                "hide": 2, 
-                "name": "cls", 
-                "tags": [], 
-                "allValue": null, 
-                "tagsQuery": "", 
-                "current": {}, 
                 "skipUrlSync": false, 
-                "refresh": 1, 
+                "hide": 2, 
+                "allValue": null, 
                 "label": "Cluster", 
-                "tagValuesQuery": "", 
+                "current": {}, 
+                "useTags": false, 
+                "type": "query", 
                 "sort": 1, 
+                "description": null, 
+                "tags": [], 
+                "definition": "label_values(haproxy_server_check_status{proxy='$svc'}, cls)", 
+                "multi": false, 
+                "name": "cls", 
+                "refresh": 1, 
+                "tagValuesQuery": "", 
                 "datasource": "Prometheus-PgSQL", 
                 "error": null, 
-                "query": "label_values(pg_up{svc=\"$svc\"}, cls)", 
-                "includeAll": false, 
-                "type": "query", 
+                "tagsQuery": "", 
                 "options": [], 
-                "useTags": false
+                "includeAll": false
             }, 
             {
-                "regex": "", 
-                "definition": "label_values(pg_up{svc=\"$svc\"}, role)", 
-                "multi": false, 
-                "hide": 2, 
-                "name": "role", 
-                "tags": [], 
-                "allValue": null, 
-                "tagsQuery": "", 
-                "current": {}, 
+                "query": {
+                    "query": "label_values(haproxy_server_check_status{proxy='$svc'}, proxy)", 
+                    "refId": "StandardVariableQuery"
+                }, 
+                "regex": "/$cls-(\\w+)/", 
                 "skipUrlSync": false, 
-                "refresh": 1, 
+                "hide": 2, 
+                "allValue": null, 
                 "label": "Role", 
-                "tagValuesQuery": "", 
-                "sort": 1, 
-                "datasource": "Prometheus-PgSQL", 
-                "error": null, 
-                "query": "label_values(pg_up{svc=\"$svc\"}, role)", 
-                "includeAll": false, 
-                "type": "query", 
-                "options": [], 
-                "useTags": false
-            }, 
-            {
-                "regex": "", 
-                "definition": "label_values(pg_up{svc=\"$svc\"}, ins)", 
-                "multi": false, 
-                "hide": 2, 
-                "name": "ins", 
-                "tags": [], 
-                "allValue": null, 
-                "tagsQuery": "", 
                 "current": {}, 
-                "skipUrlSync": false, 
-                "refresh": 1, 
-                "label": "Instance", 
-                "tagValuesQuery": "", 
-                "sort": 1, 
-                "datasource": "Prometheus-PgSQL", 
-                "error": null, 
-                "query": "label_values(pg_up{svc=\"$svc\"}, ins)", 
-                "includeAll": false, 
+                "useTags": false, 
                 "type": "query", 
-                "options": [], 
-                "useTags": false
-            }, 
-            {
-                "regex": "(?!^postgres$)(?!^pgbouncer$)(?!^template\\d$)(^.*$)", 
-                "definition": "label_values(pg_database_age{svc=\"$svc\"}, datname)", 
-                "multi": false, 
-                "hide": 2, 
-                "name": "datname", 
+                "sort": 1, 
+                "description": null, 
                 "tags": [], 
-                "allValue": null, 
-                "tagsQuery": "", 
-                "current": {}, 
-                "skipUrlSync": false, 
+                "definition": "label_values(haproxy_server_check_status{proxy='$svc'}, proxy)", 
+                "multi": false, 
+                "name": "role", 
                 "refresh": 1, 
-                "label": "Database", 
                 "tagValuesQuery": "", 
-                "sort": 1, 
                 "datasource": "Prometheus-PgSQL", 
                 "error": null, 
-                "query": "label_values(pg_database_age{svc=\"$svc\"}, datname)", 
-                "includeAll": false, 
-                "type": "query", 
+                "tagsQuery": "", 
                 "options": [], 
-                "useTags": false
+                "includeAll": false
             }
         ]
     }, 
@@ -225,7 +191,7 @@
         "from": "now-1h"
     }, 
     "timezone": "", 
-    "schemaVersion": 26, 
+    "schemaVersion": 27, 
     "panels": [
         {
             "title": "Overview", 
@@ -246,7 +212,6 @@
             "fieldConfig": {
                 "overrides": [], 
                 "defaults": {
-                    "mappings": [], 
                     "links": [
                         {
                             "url": "/d/pg-service?var-svc=${svc}", 
@@ -263,8 +228,7 @@
                         "mode": "absolute"
                     }, 
                     "noValue": "\u2205", 
-                    "nullValueMode": "connected", 
-                    "custom": {}, 
+                    "mappings": [], 
                     "unit": "none"
                 }
             }, 
@@ -281,7 +245,7 @@
                     "legendFormat": "${svc}"
                 }
             ], 
-            "pluginVersion": "7.3.4", 
+            "pluginVersion": "7.5.4", 
             "cacheTimeout": null, 
             "datasource": "Prometheus-PgSQL", 
             "id": 38, 
@@ -297,14 +261,15 @@
                 "graphMode": "none", 
                 "orientation": "horizontal", 
                 "textMode": "name", 
-                "colorMode": "value", 
+                "text": {}, 
                 "reduceOptions": {
                     "fields": "", 
                     "calcs": [
                         "lastNotNull"
                     ], 
                     "values": false
-                }
+                }, 
+                "colorMode": "value"
             }, 
             "maxDataPoints": 100
         }, 
@@ -336,1141 +301,12 @@
                     {
                         "matcher": {
                             "id": "byRegexp", 
-                            "options": "/Frontend|Backend/"
+                            "options": "Session"
                         }, 
                         "properties": [
                             {
                                 "id": "custom.width", 
-                                "value": 80
-                            }, 
-                            {
-                                "id": "thresholds", 
-                                "value": {
-                                    "steps": [
-                                        {
-                                            "color": "rgb(140, 140, 140)", 
-                                            "value": null
-                                        }, 
-                                        {
-                                            "color": "green", 
-                                            "value": 1
-                                        }
-                                    ], 
-                                    "mode": "absolute"
-                                }
-                            }, 
-                            {
-                                "id": "custom.displayMode", 
-                                "value": "color-text"
-                            }
-                        ]
-                    }
-                ], 
-                "defaults": {
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "mappings": [], 
-                    "custom": {
-                        "filterable": false, 
-                        "align": "center"
-                    }
-                }
-            }, 
-            "title": "", 
-            "timeShift": null, 
-            "targets": [
-                {
-                    "instant": true, 
-                    "format": "table", 
-                    "expr": "sum by (ins) (haproxy_backend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})", 
-                    "interval": "", 
-                    "legendFormat": "", 
-                    "refId": "A"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 53, 
-            "gridPos": {
-                "y": 1, 
-                "h": 6, 
-                "w": 8, 
-                "x": 8
-            }, 
-            "type": "table", 
-            "options": {
-                "sortBy": [
-                    {
-                        "displayName": "Backend", 
-                        "desc": true
-                    }
-                ], 
-                "showHeader": true
-            }, 
-            "transformations": [
-                {
-                    "id": "organize", 
-                    "options": {
-                        "renameByName": {
-                            "Value #A": "Backend", 
-                            "Value #B": "Frontend", 
-                            "Value": "Backend", 
-                            "ins": "Proxy"
-                        }, 
-                        "excludeByName": {
-                            "Time": true
-                        }, 
-                        "indexByName": {
-                            "Value #A": 3, 
-                            "Value #B": 2, 
-                            "Time": 0, 
-                            "ins": 1
-                        }
-                    }
-                }
-            ]
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "Instance"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "links", 
-                                "value": [
-                                    {
-                                        "url": "/d/pg-instance?var-ins=${__data.fields[ins]}", 
-                                        "title": "pg instance for ${__data.fields[ins]}"
-                                    }
-                                ]
-                            }, 
-                            {
-                                "id": "custom.width", 
-                                "value": null
-                            }
-                        ]
-                    }, 
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "IP"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "links", 
-                                "value": [
-                                    {
-                                        "url": "/d/node?var-ip=${__data.fields[ip]}", 
-                                        "title": "node ${__data.fields[ip]}"
-                                    }
-                                ]
-                            }
-                        ]
-                    }, 
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "Role"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "mappings", 
-                                "value": [
-                                    {
-                                        "from": "", 
-                                        "text": "replica\u26a1\ufe0f", 
-                                        "value": "0", 
-                                        "to": "", 
-                                        "type": 1, 
-                                        "id": 0
-                                    }, 
-                                    {
-                                        "from": "", 
-                                        "text": "primary\u26a1\ufe0f", 
-                                        "value": "1", 
-                                        "to": "", 
-                                        "type": 1, 
-                                        "id": 1
-                                    }, 
-                                    {
-                                        "from": "", 
-                                        "text": "replica", 
-                                        "value": "2", 
-                                        "to": "", 
-                                        "type": 1, 
-                                        "id": 2
-                                    }, 
-                                    {
-                                        "from": "", 
-                                        "text": "primary", 
-                                        "value": "3", 
-                                        "to": "", 
-                                        "type": 1, 
-                                        "id": 3
-                                    }
-                                ]
-                            }, 
-                            {
-                                "id": "thresholds", 
-                                "value": {
-                                    "steps": [
-                                        {
-                                            "color": "rgb(255, 0, 0)", 
-                                            "value": null
-                                        }, 
-                                        {
-                                            "color": "green", 
-                                            "value": 2
-                                        }, 
-                                        {
-                                            "color": "blue", 
-                                            "value": 3
-                                        }
-                                    ], 
-                                    "mode": "absolute"
-                                }
-                            }, 
-                            {
-                                "id": "custom.displayMode", 
-                                "value": "color-text"
-                            }, 
-                            {
-                                "id": "custom.width", 
-                                "value": 80
-                            }
-                        ]
-                    }
-                ], 
-                "defaults": {
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "mappings": [], 
-                    "custom": {
-                        "filterable": false, 
-                        "align": "center"
-                    }
-                }
-            }, 
-            "title": "", 
-            "timeShift": null, 
-            "targets": [
-                {
-                    "instant": true, 
-                    "format": "table", 
-                    "expr": "min by (ins,ip) (pg_status{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "legendFormat": "", 
-                    "refId": "A"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 25, 
-            "gridPos": {
-                "y": 1, 
-                "h": 6, 
-                "w": 8, 
-                "x": 16
-            }, 
-            "type": "table", 
-            "options": {
-                "sortBy": [
-                    {
-                        "displayName": "Instance", 
-                        "desc": false
-                    }
-                ], 
-                "showHeader": true
-            }, 
-            "transformations": [
-                {
-                    "id": "organize", 
-                    "options": {
-                        "renameByName": {
-                            "ip": "IP", 
-                            "Value #B": "Load", 
-                            "Time": "", 
-                            "Value": "Role", 
-                            "ins": "Instance", 
-                            "Value #A": "Role"
-                        }, 
-                        "excludeByName": {
-                            "Time": true
-                        }, 
-                        "indexByName": {
-                            "ip": 1, 
-                            "Time": 3, 
-                            "Value": 2, 
-                            "ins": 0
-                        }
-                    }
-                }
-            ]
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "mappings": [], 
-                    "links": [
-                        {
-                            "url": "/d/pg-cluster?var-cls=$cls", 
-                            "title": "Cluster Overview $cls"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-node?var-cls=${cls}", 
-                            "title": "Cluster Nodes ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-replication?var-cls=${cls}", 
-                            "title": "Cluster Replication ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-activity?var-cls=${cls}", 
-                            "title": "Cluster Activity ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-query?var-cls=${cls}", 
-                            "title": "Cluster Queries ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
-                            "title": "Cluster Session ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
-                            "title": "Cluster Session ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-persist?var-cls=${cls}", 
-                            "title": "Cluster Persist ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-stat?var-cls=${cls}", 
-                            "title": "Cluster Stat ${cls}"
-                        }
-                    ], 
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "nullValueMode": "connected", 
-                    "custom": {}, 
-                    "unit": "none"
-                }
-            }, 
-            "links": [], 
-            "title": "Cluster", 
-            "timeShift": null, 
-            "interval": null, 
-            "targets": [
-                {
-                    "expr": "1", 
-                    "interval": "", 
-                    "instant": false, 
-                    "refId": "A", 
-                    "legendFormat": "${cls}"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "cacheTimeout": null, 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 30, 
-            "gridPos": {
-                "y": 3, 
-                "h": 2, 
-                "w": 4, 
-                "x": 0
-            }, 
-            "type": "stat", 
-            "options": {
-                "justifyMode": "center", 
-                "graphMode": "none", 
-                "orientation": "horizontal", 
-                "textMode": "name", 
-                "colorMode": "value", 
-                "reduceOptions": {
-                    "fields": "", 
-                    "calcs": [
-                        "lastNotNull"
-                    ], 
-                    "values": false
-                }
-            }, 
-            "maxDataPoints": 100
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "mappings": [], 
-                    "links": [
-                        {
-                            "url": "/d/pg-instance?var-ins=${ins}", 
-                            "title": "Postgres Instance ${ins}"
-                        }, 
-                        {
-                            "url": "/d/pg-pgbouncer?var-ins=$ins", 
-                            "title": "Pgbouncer Instance ${ins}"
-                        }, 
-                        {
-                            "url": "/d/pg-proxy?var-ins=${ins}", 
-                            "title": "Haproxy Instance ${ins}"
-                        }, 
-                        {
-                            "url": "/d/pg-stat-activity?var-ins=${ins}", 
-                            "title": "Postgres Activity ${ins}"
-                        }, 
-                        {
-                            "url": "/d/pg-stat-statement?var-ins=${ins}", 
-                            "title": "Query Statement ${ins}"
-                        }, 
-                        {
-                            "url": "/d/pg-setting?var-ins=${ins}", 
-                            "title": "Postgres Settings ${ins}"
-                        }
-                    ], 
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "nullValueMode": "connected", 
-                    "custom": {}, 
-                    "unit": "none"
-                }
-            }, 
-            "links": [], 
-            "title": "Leader", 
-            "timeShift": null, 
-            "interval": null, 
-            "targets": [
-                {
-                    "expr": "1", 
-                    "interval": "", 
-                    "instant": false, 
-                    "refId": "A", 
-                    "legendFormat": "${ins}"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "cacheTimeout": null, 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 32, 
-            "gridPos": {
-                "y": 3, 
-                "h": 2, 
-                "w": 4, 
-                "x": 4
-            }, 
-            "type": "stat", 
-            "options": {
-                "justifyMode": "center", 
-                "graphMode": "none", 
-                "orientation": "horizontal", 
-                "textMode": "name", 
-                "colorMode": "value", 
-                "reduceOptions": {
-                    "fields": "", 
-                    "calcs": [
-                        "lastNotNull"
-                    ], 
-                    "values": false
-                }
-            }, 
-            "maxDataPoints": 100
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "mappings": [], 
-                    "links": [
-                        {
-                            "url": "/d/pg-cluster?var-cls=$cls", 
-                            "title": "Cluster Overview $cls"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-node?var-cls=${cls}", 
-                            "title": "Cluster Nodes ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-replication?var-cls=${cls}", 
-                            "title": "Cluster Replication ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-activity?var-cls=${cls}", 
-                            "title": "Cluster Activity ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-query?var-cls=${cls}", 
-                            "title": "Cluster Queries ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
-                            "title": "Cluster Session ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
-                            "title": "Cluster Session ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-persist?var-cls=${cls}", 
-                            "title": "Cluster Persist ${cls}"
-                        }, 
-                        {
-                            "url": "/d/pg-cluster-stat?var-cls=${cls}", 
-                            "title": "Cluster Stat ${cls}"
-                        }
-                    ], 
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "nullValueMode": "connected", 
-                    "custom": {}, 
-                    "unit": "none"
-                }
-            }, 
-            "links": [], 
-            "title": "Role", 
-            "timeShift": null, 
-            "interval": null, 
-            "targets": [
-                {
-                    "expr": "1", 
-                    "interval": "", 
-                    "instant": false, 
-                    "refId": "A", 
-                    "legendFormat": "${role}"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "cacheTimeout": null, 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 47, 
-            "gridPos": {
-                "y": 5, 
-                "h": 2, 
-                "w": 4, 
-                "x": 0
-            }, 
-            "type": "stat", 
-            "options": {
-                "justifyMode": "center", 
-                "graphMode": "none", 
-                "orientation": "horizontal", 
-                "textMode": "name", 
-                "colorMode": "value", 
-                "reduceOptions": {
-                    "fields": "", 
-                    "calcs": [
-                        "lastNotNull"
-                    ], 
-                    "values": false
-                }
-            }, 
-            "maxDataPoints": 100
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "displayName": "${cls}", 
-                    "mappings": [], 
-                    "custom": {}
-                }
-            }, 
-            "title": "Members", 
-            "timeShift": null, 
-            "targets": [
-                {
-                    "expr": "count(pg_up{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "instant": true, 
-                    "refId": "A", 
-                    "legendFormat": ""
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 16, 
-            "gridPos": {
-                "y": 5, 
-                "h": 2, 
-                "w": 4, 
-                "x": 4
-            }, 
-            "type": "stat", 
-            "options": {
-                "justifyMode": "center", 
-                "graphMode": "none", 
-                "orientation": "auto", 
-                "textMode": "value", 
-                "colorMode": "value", 
-                "reduceOptions": {
-                    "fields": "", 
-                    "calcs": [
-                        "lastNotNull"
-                    ], 
-                    "values": false
-                }
-            }
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "Mem"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "unit", 
-                                "value": "decbytes"
-                            }, 
-                            {
-                                "id": "decimals", 
-                                "value": 1
-                            }
-                        ]
-                    }, 
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "Disk"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "unit", 
-                                "value": "decbytes"
-                            }
-                        ]
-                    }, 
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "Link"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "unit", 
-                                "value": "bps"
-                            }, 
-                            {
-                                "id": "decimals", 
-                                "value": 0
-                            }
-                        ]
-                    }
-                ], 
-                "defaults": {
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "mappings": [], 
-                    "unit": "none", 
-                    "custom": {}
-                }
-            }, 
-            "title": "", 
-            "timeShift": null, 
-            "targets": [
-                {
-                    "expr": "count(node_load1{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "A", 
-                    "legendFormat": "Node"
-                }, 
-                {
-                    "expr": "count(haproxy_backend_current_sessions{proxy=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "B", 
-                    "legendFormat": "Proxy"
-                }, 
-                {
-                    "expr": "count by (svc) (pg_up{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "G", 
-                    "legendFormat": "Server"
-                }, 
-                {
-                    "expr": "count(count by (datname) (pg_database_age{svc=\"$svc\", datname!~\"template0|template1|postgres\"}))", 
-                    "interval": "", 
-                    "refId": "H", 
-                    "legendFormat": "DB"
-                }, 
-                {
-                    "expr": "sum(node:ins:cpu_count{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "C", 
-                    "legendFormat": "Core"
-                }, 
-                {
-                    "expr": "sum(node_memory_MemTotal_bytes{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "D", 
-                    "legendFormat": "Mem"
-                }, 
-                {
-                    "expr": "sum(max by (ins, mountpoint)(node_filesystem_size_bytes{svc=\"$svc\", fstype!=\"rootfs\"}))", 
-                    "interval": "", 
-                    "refId": "E", 
-                    "legendFormat": "Disk"
-                }, 
-                {
-                    "expr": "max by (cls) (node_network_speed_bytes{svc=\"$svc\"}) * 8 or on() vector(1000000000)", 
-                    "interval": "", 
-                    "refId": "F", 
-                    "legendFormat": "Link"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 23, 
-            "gridPos": {
-                "y": 7, 
-                "h": 4, 
-                "w": 8, 
-                "x": 0
-            }, 
-            "type": "stat", 
-            "options": {
-                "justifyMode": "center", 
-                "graphMode": "none", 
-                "orientation": "auto", 
-                "textMode": "value_and_name", 
-                "colorMode": "value", 
-                "reduceOptions": {
-                    "fields": "", 
-                    "calcs": [
-                        "lastNotNull"
-                    ], 
-                    "values": false
-                }
-            }, 
-            "description": ""
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "mappings": [], 
-                    "min": 0, 
-                    "max": 1, 
-                    "thresholds": {
-                        "steps": [
-                            {
-                                "color": "green", 
-                                "value": null
-                            }, 
-                            {
-                                "color": "yellow", 
-                                "value": 0.33
-                            }, 
-                            {
-                                "color": "#EF843C", 
-                                "value": 0.4
-                            }, 
-                            {
-                                "color": "red", 
-                                "value": 0.7
-                            }, 
-                            {
-                                "color": "purple", 
-                                "value": 1
-                            }, 
-                            {
-                                "color": "rgba(0, 0, 0, 0.7)", 
-                                "value": 3
-                            }
-                        ], 
-                        "mode": "absolute"
-                    }, 
-                    "noValue": "\u2205", 
-                    "custom": {}, 
-                    "decimals": 1, 
-                    "unit": "percentunit"
-                }
-            }, 
-            "title": "", 
-            "timeShift": null, 
-            "targets": [
-                {
-                    "expr": "max(pg:cls:load0{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "A", 
-                    "legendFormat": "cluster"
-                }, 
-                {
-                    "expr": "max by (role) (pg:svc:load0{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "B", 
-                    "legendFormat": "{{ role }}"
-                }, 
-                {
-                    "expr": "max by (ins) (pg:ins:load0{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "C", 
-                    "legendFormat": "{{ ins }}"
-                }
-            ], 
-            "pluginVersion": "7.3.4", 
-            "datasource": "Prometheus-PgSQL", 
-            "id": 28, 
-            "gridPos": {
-                "y": 7, 
-                "h": 4, 
-                "w": 16, 
-                "x": 8
-            }, 
-            "type": "stat", 
-            "options": {
-                "justifyMode": "auto", 
-                "graphMode": "area", 
-                "orientation": "auto", 
-                "textMode": "auto", 
-                "colorMode": "value", 
-                "reduceOptions": {
-                    "fields": "", 
-                    "calcs": [
-                        "lastNotNull"
-                    ], 
-                    "values": false
-                }
-            }
-        }, 
-        {
-            "bars": false, 
-            "timeFrom": null, 
-            "hiddenSeries": false, 
-            "thresholds": [], 
-            "spaceLength": 10, 
-            "nullPointMode": "null", 
-            "pluginVersion": "7.3.4", 
-            "renderer": "flot", 
-            "gridPos": {
-                "y": 11, 
-                "h": 6, 
-                "w": 11, 
-                "x": 0
-            }, 
-            "linewidth": 1, 
-            "steppedLine": false, 
-            "targets": [
-                {
-                    "expr": "max by (ins) (pg:ins:saturation0{svc=\"$svc\"})", 
-                    "interval": "", 
-                    "refId": "B", 
-                    "legendFormat": "{{ ins }}"
-                }
-            ], 
-            "fill": 0, 
-            "title": "", 
-            "tooltip": {
-                "sort": 2, 
-                "shared": true, 
-                "value_type": "individual"
-            }, 
-            "id": 11, 
-            "points": false, 
-            "xaxis": {
-                "buckets": null, 
-                "values": [], 
-                "mode": "time", 
-                "name": null, 
-                "show": true
-            }, 
-            "seriesOverrides": [
-                {
-                    "alias": "cluster", 
-                    "linewidth": 0, 
-                    "fill": 2
-                }
-            ], 
-            "percentage": false, 
-            "type": "graph", 
-            "dashes": false, 
-            "dashLength": 10, 
-            "stack": false, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "custom": {}
-                }
-            }, 
-            "yaxis": {
-                "align": false, 
-                "alignLevel": null
-            }, 
-            "timeShift": null, 
-            "aliasColors": {}, 
-            "lines": true, 
-            "legend": {
-                "rightSide": true, 
-                "avg": false, 
-                "show": true, 
-                "max": false, 
-                "min": false, 
-                "current": false, 
-                "values": false, 
-                "alignAsTable": false, 
-                "total": false
-            }, 
-            "yaxes": [
-                {
-                    "logBase": 1, 
-                    "format": "percentunit", 
-                    "max": "1.25", 
-                    "min": "0", 
-                    "label": "", 
-                    "show": true
-                }, 
-                {
-                    "logBase": 1, 
-                    "format": "short", 
-                    "max": null, 
-                    "min": null, 
-                    "label": null, 
-                    "show": false
-                }
-            ], 
-            "datasource": "Prometheus-PgSQL", 
-            "pointradius": 2, 
-            "timeRegions": [], 
-            "options": {
-                "alertThreshold": true
-            }, 
-            "fillGradient": 0
-        }, 
-        {
-            "bars": false, 
-            "timeFrom": null, 
-            "hiddenSeries": false, 
-            "thresholds": [], 
-            "spaceLength": 10, 
-            "nullPointMode": "null", 
-            "pluginVersion": "7.3.4", 
-            "renderer": "flot", 
-            "gridPos": {
-                "y": 11, 
-                "h": 6, 
-                "w": 13, 
-                "x": 11
-            }, 
-            "linewidth": 0, 
-            "steppedLine": true, 
-            "targets": [
-                {
-                    "expr": "ALERTS{svc=\"$svc\", alertstate=\"firing\"}", 
-                    "interval": "", 
-                    "refId": "A", 
-                    "legendFormat": "[{{ severity }}] {{alertname}} @ {{ ins }}"
-                }, 
-                {
-                    "expr": "ALERTS{svc=\"$svc\", alertstate=\"pending\"}", 
-                    "interval": "", 
-                    "hide": true, 
-                    "refId": "B", 
-                    "legendFormat": "[{{ severity }}:pending] {{alertname}} @ {{ ins }}"
-                }, 
-                {
-                    "expr": "0", 
-                    "interval": "", 
-                    "refId": "C", 
-                    "legendFormat": "Alert"
-                }
-            ], 
-            "fill": 8, 
-            "title": "", 
-            "tooltip": {
-                "sort": 2, 
-                "shared": true, 
-                "value_type": "individual"
-            }, 
-            "id": 21, 
-            "points": false, 
-            "xaxis": {
-                "buckets": null, 
-                "values": [], 
-                "mode": "time", 
-                "name": null, 
-                "show": true
-            }, 
-            "seriesOverrides": [
-                {
-                    "alias": "Alert", 
-                    "hideTooltip": true, 
-                    "legend": false
-                }
-            ], 
-            "percentage": false, 
-            "type": "graph", 
-            "dashes": false, 
-            "dashLength": 10, 
-            "stack": true, 
-            "fieldConfig": {
-                "overrides": [], 
-                "defaults": {
-                    "custom": {}
-                }
-            }, 
-            "yaxis": {
-                "align": false, 
-                "alignLevel": null
-            }, 
-            "timeShift": null, 
-            "aliasColors": {}, 
-            "lines": true, 
-            "legend": {
-                "rightSide": true, 
-                "avg": false, 
-                "sideWidth": null, 
-                "show": true, 
-                "max": false, 
-                "min": false, 
-                "current": false, 
-                "values": false, 
-                "alignAsTable": true, 
-                "total": false
-            }, 
-            "yaxes": [
-                {
-                    "logBase": 1, 
-                    "show": false, 
-                    "max": null, 
-                    "format": "short", 
-                    "label": null, 
-                    "min": "0", 
-                    "decimals": 0
-                }, 
-                {
-                    "logBase": 1, 
-                    "format": "short", 
-                    "max": null, 
-                    "min": null, 
-                    "label": null, 
-                    "show": false
-                }
-            ], 
-            "datasource": "Prometheus-PgSQL", 
-            "pointradius": 2, 
-            "timeRegions": [], 
-            "decimals": 0, 
-            "options": {
-                "alertThreshold": true
-            }, 
-            "fillGradient": 0
-        }, 
-        {
-            "title": "Session", 
-            "collapsed": false, 
-            "datasource": "Prometheus-PgSQL", 
-            "gridPos": {
-                "y": 17, 
-                "h": 1, 
-                "w": 24, 
-                "x": 0
-            }, 
-            "panels": [], 
-            "type": "row", 
-            "id": 43
-        }, 
-        {
-            "timeFrom": null, 
-            "fieldConfig": {
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName", 
-                            "options": "Proxy"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "links", 
-                                "value": [
-                                    {
-                                        "url": "/d/pg-proxy?var-ins=${__data.fields[Proxy]}", 
-                                        "title": "PG Proxy ${__data.fields[Proxy]}"
-                                    }
-                                ]
-                            }, 
-                            {
-                                "id": "custom.width", 
-                                "value": null
-                            }
-                        ]
-                    }, 
-                    {
-                        "matcher": {
-                            "id": "byRegexp", 
-                            "options": "/Frontend|Backend/"
-                        }, 
-                        "properties": [
-                            {
-                                "id": "custom.width", 
-                                "value": 80
+                                "value": 100
                             }, 
                             {
                                 "id": "thresholds", 
@@ -1525,22 +361,23 @@
                     "refId": "A"
                 }, 
                 {
-                    "instant": true, 
+                    "hide": true, 
                     "format": "table", 
                     "expr": "sum by (ins) (haproxy_frontend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})", 
                     "interval": "", 
                     "legendFormat": "", 
+                    "instant": true, 
                     "refId": "B"
                 }
             ], 
-            "pluginVersion": "7.3.4", 
+            "pluginVersion": "7.5.4", 
             "datasource": "Prometheus-PgSQL", 
-            "id": 51, 
+            "id": 53, 
             "gridPos": {
-                "y": 18, 
+                "y": 1, 
                 "h": 6, 
-                "w": 9, 
-                "x": 0
+                "w": 8, 
+                "x": 8
             }, 
             "type": "table", 
             "options": {
@@ -1565,6 +402,7 @@
                         "renameByName": {
                             "Value #A": "Backend", 
                             "Value #B": "Frontend", 
+                            "Value": "Session", 
                             "ins": "Proxy"
                         }, 
                         "excludeByName": {
@@ -1632,23 +470,46 @@
                                         "id": 1
                                     }
                                 ]
+                            }, 
+                            {
+                                "id": "custom.width", 
+                                "value": 80
                             }
                         ]
                     }, 
                     {
                         "matcher": {
                             "id": "byName", 
-                            "options": "Service"
+                            "options": "Session"
                         }, 
                         "properties": [
                             {
                                 "id": "links", 
-                                "value": [
-                                    {
-                                        "url": "/d/pg-service?var-svc=${__data.fields.Service}", 
-                                        "title": "PG Service ${__data.fields.Service}"
-                                    }
-                                ]
+                                "value": []
+                            }, 
+                            {
+                                "id": "thresholds", 
+                                "value": {
+                                    "steps": [
+                                        {
+                                            "color": "rgb(189, 189, 189)", 
+                                            "value": null
+                                        }, 
+                                        {
+                                            "color": "green", 
+                                            "value": 1
+                                        }
+                                    ], 
+                                    "mode": "absolute"
+                                }
+                            }, 
+                            {
+                                "id": "custom.displayMode", 
+                                "value": "color-text"
+                            }, 
+                            {
+                                "id": "custom.width", 
+                                "value": 80
                             }
                         ]
                     }, 
@@ -1666,6 +527,22 @@
                                         "title": "PG Instance ${__data.fields.Server}"
                                     }
                                 ]
+                            }, 
+                            {
+                                "id": "custom.width", 
+                                "value": null
+                            }
+                        ]
+                    }, 
+                    {
+                        "matcher": {
+                            "id": "byName", 
+                            "options": "Weight"
+                        }, 
+                        "properties": [
+                            {
+                                "id": "custom.width", 
+                                "value": 80
                             }
                         ]
                     }
@@ -1676,10 +553,6 @@
                             {
                                 "color": "green", 
                                 "value": null
-                            }, 
-                            {
-                                "color": "red", 
-                                "value": 80
                             }
                         ], 
                         "mode": "absolute"
@@ -1719,14 +592,14 @@
                     "refId": "C"
                 }
             ], 
-            "pluginVersion": "7.3.4", 
+            "pluginVersion": "7.5.4", 
             "datasource": "Prometheus-PgSQL", 
             "id": 45, 
             "gridPos": {
-                "y": 18, 
+                "y": 1, 
                 "h": 6, 
-                "w": 15, 
-                "x": 9
+                "w": 8, 
+                "x": 16
             }, 
             "type": "table", 
             "options": {
@@ -1746,7 +619,7 @@
                         "renameByName": {
                             "Value #A": "Traffic", 
                             "Value #B": "Weight", 
-                            "Value #C": "Current Session", 
+                            "Value #C": "Session", 
                             "proxy": "", 
                             "server": "Server"
                         }, 
@@ -1783,22 +656,658 @@
             ]
         }, 
         {
-            "bars": false, 
             "timeFrom": null, 
-            "hiddenSeries": false, 
-            "thresholds": [], 
-            "spaceLength": 10, 
-            "nullPointMode": "null", 
-            "pluginVersion": "7.3.4", 
-            "renderer": "flot", 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "links": [
+                        {
+                            "url": "/d/pg-cluster?var-cls=$cls", 
+                            "title": "Cluster Overview $cls"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-node?var-cls=${cls}", 
+                            "title": "Cluster Nodes ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-replication?var-cls=${cls}", 
+                            "title": "Cluster Replication ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-activity?var-cls=${cls}", 
+                            "title": "Cluster Activity ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-query?var-cls=${cls}", 
+                            "title": "Cluster Queries ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
+                            "title": "Cluster Session ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
+                            "title": "Cluster Session ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-persist?var-cls=${cls}", 
+                            "title": "Cluster Persist ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-stat?var-cls=${cls}", 
+                            "title": "Cluster Stat ${cls}"
+                        }
+                    ], 
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "noValue": "\u2205", 
+                    "mappings": [], 
+                    "unit": "none"
+                }
+            }, 
+            "links": [], 
+            "title": "Cluster", 
+            "timeShift": null, 
+            "interval": null, 
+            "targets": [
+                {
+                    "expr": "1", 
+                    "interval": "", 
+                    "instant": false, 
+                    "refId": "A", 
+                    "legendFormat": "${cls}"
+                }
+            ], 
+            "pluginVersion": "7.5.4", 
+            "cacheTimeout": null, 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 30, 
             "gridPos": {
-                "y": 24, 
-                "h": 7, 
-                "w": 24, 
+                "y": 3, 
+                "h": 2, 
+                "w": 4, 
                 "x": 0
             }, 
-            "linewidth": 1, 
-            "steppedLine": false, 
+            "type": "stat", 
+            "options": {
+                "justifyMode": "center", 
+                "graphMode": "none", 
+                "orientation": "horizontal", 
+                "textMode": "name", 
+                "text": {}, 
+                "reduceOptions": {
+                    "fields": "", 
+                    "calcs": [
+                        "lastNotNull"
+                    ], 
+                    "values": false
+                }, 
+                "colorMode": "value"
+            }, 
+            "maxDataPoints": 100
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "links": [
+                        {
+                            "url": "/d/pg-cluster?var-cls=$cls", 
+                            "title": "Cluster Overview $cls"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-node?var-cls=${cls}", 
+                            "title": "Cluster Nodes ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-replication?var-cls=${cls}", 
+                            "title": "Cluster Replication ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-activity?var-cls=${cls}", 
+                            "title": "Cluster Activity ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-query?var-cls=${cls}", 
+                            "title": "Cluster Queries ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
+                            "title": "Cluster Session ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-session?var-cls=${cls}", 
+                            "title": "Cluster Session ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-persist?var-cls=${cls}", 
+                            "title": "Cluster Persist ${cls}"
+                        }, 
+                        {
+                            "url": "/d/pg-cluster-stat?var-cls=${cls}", 
+                            "title": "Cluster Stat ${cls}"
+                        }
+                    ], 
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "noValue": "\u2205", 
+                    "mappings": [], 
+                    "unit": "none"
+                }
+            }, 
+            "links": [], 
+            "title": "Role", 
+            "timeShift": null, 
+            "interval": null, 
+            "targets": [
+                {
+                    "expr": "1", 
+                    "interval": "", 
+                    "instant": false, 
+                    "refId": "A", 
+                    "legendFormat": "${role}"
+                }
+            ], 
+            "pluginVersion": "7.5.4", 
+            "cacheTimeout": null, 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 47, 
+            "gridPos": {
+                "y": 3, 
+                "h": 2, 
+                "w": 4, 
+                "x": 4
+            }, 
+            "type": "stat", 
+            "options": {
+                "justifyMode": "center", 
+                "graphMode": "none", 
+                "orientation": "horizontal", 
+                "textMode": "name", 
+                "text": {}, 
+                "reduceOptions": {
+                    "fields": "", 
+                    "calcs": [
+                        "lastNotNull"
+                    ], 
+                    "values": false
+                }, 
+                "colorMode": "value"
+            }, 
+            "maxDataPoints": 100
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "displayName": "${cls}", 
+                    "mappings": []
+                }
+            }, 
+            "title": "Proxy Count", 
+            "timeShift": null, 
+            "targets": [
+                {
+                    "expr": "count(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))", 
+                    "interval": "", 
+                    "instant": true, 
+                    "refId": "A", 
+                    "legendFormat": ""
+                }
+            ], 
+            "pluginVersion": "7.5.4", 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 54, 
+            "gridPos": {
+                "y": 5, 
+                "h": 2, 
+                "w": 4, 
+                "x": 0
+            }, 
+            "type": "stat", 
+            "options": {
+                "justifyMode": "center", 
+                "graphMode": "none", 
+                "orientation": "auto", 
+                "textMode": "value", 
+                "text": {}, 
+                "reduceOptions": {
+                    "fields": "", 
+                    "calcs": [
+                        "lastNotNull"
+                    ], 
+                    "values": false
+                }, 
+                "colorMode": "value"
+            }
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "displayName": "${cls}", 
+                    "mappings": []
+                }
+            }, 
+            "title": "Server", 
+            "timeShift": null, 
+            "targets": [
+                {
+                    "expr": "max(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))", 
+                    "interval": "", 
+                    "instant": true, 
+                    "refId": "A", 
+                    "legendFormat": ""
+                }
+            ], 
+            "pluginVersion": "7.5.4", 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 16, 
+            "gridPos": {
+                "y": 5, 
+                "h": 2, 
+                "w": 4, 
+                "x": 4
+            }, 
+            "type": "stat", 
+            "options": {
+                "justifyMode": "center", 
+                "graphMode": "none", 
+                "orientation": "auto", 
+                "textMode": "value", 
+                "text": {}, 
+                "reduceOptions": {
+                    "fields": "", 
+                    "calcs": [
+                        "lastNotNull"
+                    ], 
+                    "values": false
+                }, 
+                "colorMode": "value"
+            }
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName", 
+                            "options": "Proxy"
+                        }, 
+                        "properties": [
+                            {
+                                "id": "links", 
+                                "value": [
+                                    {
+                                        "url": "/d/pg-proxy?var-ins=${__data.fields[Proxy]}", 
+                                        "title": "PG Proxy ${__data.fields[Proxy]}"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "id": "custom.width", 
+                                "value": null
+                            }
+                        ]
+                    }, 
+                    {
+                        "matcher": {
+                            "id": "byRegexp", 
+                            "options": "Session"
+                        }, 
+                        "properties": [
+                            {
+                                "id": "custom.width", 
+                                "value": 100
+                            }, 
+                            {
+                                "id": "thresholds", 
+                                "value": {
+                                    "steps": [
+                                        {
+                                            "color": "rgb(140, 140, 140)", 
+                                            "value": null
+                                        }, 
+                                        {
+                                            "color": "green", 
+                                            "value": 1
+                                        }
+                                    ], 
+                                    "mode": "absolute"
+                                }
+                            }, 
+                            {
+                                "id": "custom.displayMode", 
+                                "value": "color-text"
+                            }
+                        ]
+                    }
+                ], 
+                "defaults": {
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "noValue": "\u2205", 
+                    "mappings": [], 
+                    "custom": {
+                        "filterable": false, 
+                        "align": "center"
+                    }
+                }
+            }, 
+            "title": "Other Services", 
+            "timeShift": null, 
+            "targets": [
+                {
+                    "instant": true, 
+                    "format": "table", 
+                    "expr": "sum by (proxy) (haproxy_backend_current_sessions{cls=\"$cls\", proxy!=\"stats\"})", 
+                    "interval": "", 
+                    "legendFormat": "", 
+                    "refId": "A"
+                }
+            ], 
+            "pluginVersion": "7.5.4", 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 57, 
+            "gridPos": {
+                "y": 7, 
+                "h": 9, 
+                "w": 8, 
+                "x": 0
+            }, 
+            "type": "table", 
+            "options": {
+                "sortBy": [
+                    {
+                        "displayName": "Backend", 
+                        "desc": true
+                    }
+                ], 
+                "showHeader": true
+            }, 
+            "transformations": [
+                {
+                    "id": "seriesToColumns", 
+                    "options": {
+                        "byField": "ins"
+                    }
+                }, 
+                {
+                    "id": "organize", 
+                    "options": {
+                        "renameByName": {
+                            "Value #A": "Backend", 
+                            "Value #B": "Frontend", 
+                            "proxy": "Service", 
+                            "Value": "Session", 
+                            "ins": "Proxy"
+                        }, 
+                        "excludeByName": {
+                            "Time": true, 
+                            "Time 1": true, 
+                            "Time 2": true
+                        }, 
+                        "indexByName": {
+                            "Value #A": 3, 
+                            "Value #B": 2, 
+                            "Time": 0, 
+                            "ins": 1
+                        }
+                    }
+                }
+            ]
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "mappings": [], 
+                    "min": 0, 
+                    "color": {
+                        "mode": "palette-classic"
+                    }, 
+                    "max": 100, 
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "custom": {
+                        "drawStyle": "line", 
+                        "spanNulls": true, 
+                        "hideFrom": {
+                            "graph": false, 
+                            "legend": false, 
+                            "tooltip": false
+                        }, 
+                        "lineInterpolation": "stepBefore", 
+                        "axisLabel": "", 
+                        "axisPlacement": "auto", 
+                        "fillOpacity": 10, 
+                        "barAlignment": 0, 
+                        "scaleDistribution": {
+                            "type": "linear"
+                        }, 
+                        "pointSize": 5, 
+                        "lineWidth": 1, 
+                        "showPoints": "never", 
+                        "gradientMode": "none"
+                    }, 
+                    "unit": "percent"
+                }
+            }, 
+            "title": "Proxy Busy", 
+            "timeShift": null, 
+            "targets": [
+                {
+                    "expr": "100 - haproxy_process_idle_time_percent{cls=\"$cls\"}", 
+                    "interval": "", 
+                    "refId": "B", 
+                    "legendFormat": "{{ ins }}"
+                }
+            ], 
+            "pluginVersion": "7.4.3", 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 56, 
+            "gridPos": {
+                "y": 7, 
+                "h": 9, 
+                "w": 8, 
+                "x": 8
+            }, 
+            "type": "timeseries", 
+            "options": {
+                "graph": {}, 
+                "tooltipOptions": {
+                    "mode": "single"
+                }, 
+                "legend": {
+                    "displayMode": "table", 
+                    "calcs": [
+                        "max"
+                    ], 
+                    "placement": "right"
+                }
+            }
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "mappings": [], 
+                    "min": 0, 
+                    "color": {
+                        "mode": "palette-classic"
+                    }, 
+                    "max": 1.25, 
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }, 
+                            {
+                                "color": "red", 
+                                "value": 80
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "custom": {
+                        "drawStyle": "line", 
+                        "spanNulls": true, 
+                        "hideFrom": {
+                            "graph": false, 
+                            "legend": false, 
+                            "tooltip": false
+                        }, 
+                        "lineInterpolation": "smooth", 
+                        "axisLabel": "", 
+                        "axisPlacement": "auto", 
+                        "fillOpacity": 0, 
+                        "barAlignment": 0, 
+                        "scaleDistribution": {
+                            "type": "linear"
+                        }, 
+                        "axisSoftMin": 0, 
+                        "pointSize": 5, 
+                        "lineWidth": 1, 
+                        "showPoints": "never", 
+                        "gradientMode": "none"
+                    }, 
+                    "unit": "percentunit"
+                }
+            }, 
+            "title": "Server Busy", 
+            "timeShift": null, 
+            "targets": [
+                {
+                    "expr": "max by (ins) (pg:ins:saturation0{cls=\"$cls\"})", 
+                    "interval": "", 
+                    "refId": "B", 
+                    "legendFormat": "{{ ins }}"
+                }
+            ], 
+            "pluginVersion": "7.4.3", 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 11, 
+            "gridPos": {
+                "y": 7, 
+                "h": 9, 
+                "w": 8, 
+                "x": 16
+            }, 
+            "type": "timeseries", 
+            "options": {
+                "graph": {}, 
+                "tooltipOptions": {
+                    "mode": "single"
+                }, 
+                "legend": {
+                    "displayMode": "table", 
+                    "calcs": [
+                        "max"
+                    ], 
+                    "placement": "right"
+                }
+            }
+        }, 
+        {
+            "timeFrom": null, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {
+                    "mappings": [], 
+                    "min": 0, 
+                    "color": {
+                        "mode": "palette-classic"
+                    }, 
+                    "max": 1, 
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green", 
+                                "value": null
+                            }
+                        ], 
+                        "mode": "absolute"
+                    }, 
+                    "custom": {
+                        "drawStyle": "line", 
+                        "spanNulls": true, 
+                        "hideFrom": {
+                            "graph": false, 
+                            "legend": false, 
+                            "tooltip": false
+                        }, 
+                        "lineInterpolation": "stepBefore", 
+                        "axisLabel": "", 
+                        "axisPlacement": "auto", 
+                        "fillOpacity": 5, 
+                        "barAlignment": 0, 
+                        "scaleDistribution": {
+                            "type": "linear"
+                        }, 
+                        "pointSize": 5, 
+                        "lineWidth": 1, 
+                        "showPoints": "never", 
+                        "gradientMode": "none"
+                    }, 
+                    "decimals": 0, 
+                    "unit": "none"
+                }
+            }, 
+            "title": "Route Health", 
+            "timeShift": null, 
             "targets": [
                 {
                     "expr": "haproxy_server_status{proxy=\"$svc\"} > 0", 
@@ -1807,14 +1316,64 @@
                     "legendFormat": "{{ ins }} \u27a1\ufe0f {{ server }}"
                 }
             ], 
+            "pluginVersion": "7.4.3", 
+            "datasource": "Prometheus-PgSQL", 
+            "id": 49, 
+            "gridPos": {
+                "y": 16, 
+                "h": 9, 
+                "w": 8, 
+                "x": 0
+            }, 
+            "type": "timeseries", 
+            "options": {
+                "graph": {}, 
+                "tooltipOptions": {
+                    "mode": "single"
+                }, 
+                "legend": {
+                    "displayMode": "table", 
+                    "calcs": [
+                        "min"
+                    ], 
+                    "placement": "right"
+                }
+            }
+        }, 
+        {
+            "bars": false, 
+            "timeFrom": null, 
+            "hiddenSeries": false, 
+            "thresholds": [], 
+            "spaceLength": 10, 
+            "nullPointMode": "null", 
+            "pluginVersion": "7.5.4", 
+            "renderer": "flot", 
+            "gridPos": {
+                "y": 16, 
+                "h": 9, 
+                "w": 8, 
+                "x": 8
+            }, 
+            "linewidth": 1, 
+            "steppedLine": false, 
+            "targets": [
+                {
+                    "expr": "sum by (ins) (haproxy_frontend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})", 
+                    "interval": "", 
+                    "exemplar": true, 
+                    "refId": "A", 
+                    "legendFormat": "{{ ins }}"
+                }
+            ], 
             "fill": 1, 
-            "title": "Route Health", 
+            "title": "Sessions", 
             "tooltip": {
-                "sort": 0, 
+                "sort": 2, 
                 "shared": true, 
                 "value_type": "individual"
             }, 
-            "id": 49, 
+            "id": 59, 
             "points": false, 
             "xaxis": {
                 "buckets": null, 
@@ -1828,12 +1387,10 @@
             "type": "graph", 
             "dashes": false, 
             "dashLength": 10, 
-            "stack": false, 
+            "stack": true, 
             "fieldConfig": {
                 "overrides": [], 
-                "defaults": {
-                    "custom": {}
-                }
+                "defaults": {}
             }, 
             "yaxis": {
                 "align": false, 
@@ -1843,30 +1400,27 @@
             "aliasColors": {}, 
             "lines": true, 
             "legend": {
-                "sort": "min", 
-                "rightSide": true, 
                 "avg": false, 
-                "show": true, 
+                "min": false, 
                 "max": false, 
-                "min": true, 
+                "show": true, 
                 "current": false, 
-                "values": true, 
-                "alignAsTable": true, 
-                "total": false, 
-                "sortDesc": false
+                "values": false, 
+                "total": false
             }, 
             "yaxes": [
                 {
                     "logBase": 1, 
-                    "show": true, 
-                    "max": "1", 
-                    "format": "short", 
-                    "label": null, 
+                    "$$hashKey": "object:60", 
+                    "format": "none", 
+                    "max": null, 
                     "min": "0", 
-                    "decimals": 0
+                    "label": null, 
+                    "show": true
                 }, 
                 {
                     "logBase": 1, 
+                    "$$hashKey": "object:61", 
                     "format": "short", 
                     "max": null, 
                     "min": null, 
@@ -1874,14 +1428,109 @@
                     "show": false
                 }
             ], 
-            "datasource": "Prometheus-PgSQL", 
+            "datasource": null, 
             "pointradius": 2, 
             "timeRegions": [], 
-            "decimals": 0, 
             "options": {
                 "alertThreshold": true
             }, 
-            "fillGradient": 1
+            "fillGradient": 0
+        }, 
+        {
+            "bars": false, 
+            "timeFrom": null, 
+            "hiddenSeries": false, 
+            "thresholds": [], 
+            "spaceLength": 10, 
+            "nullPointMode": "null", 
+            "pluginVersion": "7.5.4", 
+            "renderer": "flot", 
+            "gridPos": {
+                "y": 16, 
+                "h": 9, 
+                "w": 8, 
+                "x": 16
+            }, 
+            "linewidth": 1, 
+            "steppedLine": false, 
+            "targets": [
+                {
+                    "expr": "sum by (ins) (irate(haproxy_frontend_bytes_in_total{cls=\"$cls\", proxy=\"$svc\"}[1m]) + irate(haproxy_frontend_bytes_out_total{cls=\"$cls\", proxy=\"$svc\"}[1m]))", 
+                    "interval": "", 
+                    "exemplar": true, 
+                    "refId": "A", 
+                    "legendFormat": "IN-{{ ins }}"
+                }
+            ], 
+            "fill": 1, 
+            "title": "Traffic", 
+            "tooltip": {
+                "sort": 2, 
+                "shared": true, 
+                "value_type": "individual"
+            }, 
+            "id": 60, 
+            "points": false, 
+            "xaxis": {
+                "buckets": null, 
+                "values": [], 
+                "mode": "time", 
+                "name": null, 
+                "show": true
+            }, 
+            "seriesOverrides": [], 
+            "percentage": false, 
+            "type": "graph", 
+            "dashes": false, 
+            "dashLength": 10, 
+            "stack": true, 
+            "fieldConfig": {
+                "overrides": [], 
+                "defaults": {}
+            }, 
+            "yaxis": {
+                "align": false, 
+                "alignLevel": null
+            }, 
+            "timeShift": null, 
+            "aliasColors": {}, 
+            "lines": true, 
+            "legend": {
+                "avg": false, 
+                "min": false, 
+                "max": false, 
+                "show": true, 
+                "current": false, 
+                "values": false, 
+                "total": false
+            }, 
+            "yaxes": [
+                {
+                    "logBase": 1, 
+                    "$$hashKey": "object:60", 
+                    "format": "Bps", 
+                    "max": null, 
+                    "min": "0", 
+                    "label": null, 
+                    "show": true
+                }, 
+                {
+                    "logBase": 1, 
+                    "$$hashKey": "object:61", 
+                    "format": "short", 
+                    "max": null, 
+                    "min": null, 
+                    "label": null, 
+                    "show": false
+                }
+            ], 
+            "datasource": null, 
+            "pointradius": 2, 
+            "timeRegions": [], 
+            "options": {
+                "alertThreshold": true
+            }, 
+            "fillGradient": 0
         }
     ], 
     "annotations": {

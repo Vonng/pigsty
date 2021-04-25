@@ -1,3 +1,12 @@
+#==============================================================#
+# File      :   promtail.yml
+# Ctime     :   2021-04-03
+# Mtime     :   2021-04-25
+# Desc      :   Promtail logging collector agent
+# Path      :   /etc/promtail.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
 server:
   http_listen_port: {{ promtail_port|default(9080) }}
   grpc_listen_port: 0
@@ -34,10 +43,10 @@ scrape_configs:
                 max_wait_time: 8s
                 max_lines: 8192
             - regex:
-                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+),"?(?P<user>[^"]+)?"?,"?(?P<datname>[^"]+)?"?,(?P<pid>\d+)?,"?(?P<conn>[^"]+)?"?,(?P<session_id>\w+\.\w+)?,(?P<line_num>\d+)?,"?(?P<cmdtag>[^"]+)?"?,(?P<session_start>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w+)?,(?P<vxid>[\d\/]+)?,(?P<txid>\d+)?,(?P<level>\w+)?,(?P<code>\w{5})?,.*$'
-            - labels:
-                datname:
-                level:
+                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+),.*$'
+            #   expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+),"?(?P<user>[^"]*?)?"?,"?(?P<datname>[^"]*?)?"?,(?P<pid>\d+)?,"?(?P<conn>[^"]+)?"?,(?P<session_id>\w+\.\w+)?,(?P<line_num>\d+)?,"?(?P<cmdtag>[^"]*?)?"?,(?P<session_start>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w+)?,(?P<vxid>[^"]*?)?,(?P<txid>\d+)?,(?P<level>\w+)?,(?P<code>\w{5})?,.*$'
+            # - labels: # add extra labels from fields
+            #    level:
             - timestamp:
                 source: ts
                 format: '2006-01-02 15:04:05 MST'
