@@ -43,33 +43,33 @@
 --                         ALTER DATABASE                           --
 --==================================================================--
 -- owner
-{% if 'owner' in database %}
+{% if 'owner' in database and database.owner is not none and database.owner != '' %}
 ALTER DATABASE "{{ database.name }}" OWNER TO {{ database.owner }};
 {% endif %}
 
 -- tablespace
-{% if 'tablespace' in  database %}
+{% if 'tablespace' in database and database.tablespace != '' %}
 ALTER DATABASE "{{ database.name }}" SET TABLESPACE {{ database.tablespace }};
 {% endif %}
 
 -- allow connection
-{% if 'allowconn'  in  database %}
+{% if 'allowconn' in database and database.allowconn is not none %}
 ALTER DATABASE "{{ database.name }}" ALLOW_CONNECTIONS {{ database.allowconn }};
 {% endif %}
 
 -- connection limit
-{% if 'connlimit'  in  database %}
+{% if 'connlimit' in database and database.connlimit is not none %}
 ALTER DATABASE "{{ database.name }}" CONNECTION LIMIT {{ database.connlimit }};
 {% endif %}
 
 -- parameters
-{% if 'parameters' in database %}
+{% if 'parameters' in database and database.parameters is not none %}
 {% for key, value in database.parameters.items() %}
 ALTER DATABASE "{{ database.name }}" SET {{ key }} = {{ value }};
 {% endfor %}{% endif %}
 
 -- comment
-{% if 'comment' in database %}
+{% if 'comment' in database and database.comment is not none %}
 COMMENT ON DATABASE "{{ database.name }}" IS '{{ database.comment }}';
 {% else %}
 COMMENT ON DATABASE "{{ database.name }}" IS 'business database {{ database.name }}';
@@ -79,7 +79,7 @@ COMMENT ON DATABASE "{{ database.name }}" IS 'business database {{ database.name
 --==================================================================--
 --                       REVOKE/GRANT CONNECT                       --
 --==================================================================--
-{% if 'revokeconn'  in  database and database.revokeconn == true %}
+{% if 'revokeconn' in database and database.revokeconn == true %}
 -- revoke public connect privilege
 REVOKE CONNECT ON DATABASE "{{ database.name }}" FROM PUBLIC;
 
@@ -91,7 +91,7 @@ GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_monitor_username }}";
 GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ pg_admin_username }}" WITH GRANT OPTION;
 
 -- owner have connect privilege with grant option if exists
-{% if 'owner'  in  database and database.owner != '' %}
+{% if 'owner' in  database and database.owner is not none and database.owner != '' %}
 GRANT CONNECT ON DATABASE "{{ database.name }}" TO "{{ database.owner }}" WITH GRANT OPTION;
 {% endif %}
 
@@ -117,7 +117,7 @@ GRANT CREATE ON SCHEMA public TO "dbrole_admin";
 --                          CREATE SCHEMAS                          --
 --==================================================================--
 -- create schemas
-{% if 'schemas' in database %}{% for schema_name in database.schemas %}
+{% if 'schemas' in database and database.schemas is not none and database.schemas|length > 0 %}{% for schema_name in database.schemas %}
 CREATE SCHEMA IF NOT EXISTS "{{ schema_name }}";
 {% endfor %}{% endif %}
 
@@ -126,7 +126,7 @@ CREATE SCHEMA IF NOT EXISTS "{{ schema_name }}";
 --                        CREATE EXTENSIONS                        --
 --==================================================================--
 -- create extensions
-{% if 'extensions' in database %}{% for extension in database.extensions %}
+{% if 'extensions' in database and database.extensions is not none and database.extensions|length > 0 %}{% for extension in database.extensions %}
 CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension %} WITH SCHEMA "{{ extension.schema }}"{% endif %};
 {% endfor %}{% endif %}
 

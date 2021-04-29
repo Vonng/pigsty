@@ -45,12 +45,12 @@ ALTER USER "{{ user.name }}" {% if 'login' in user and not user.login %} NOLOGIN
 ;
 
 -- password
-{% if 'password' in user %}
+{% if 'password' in user and user.password is not none %}
 ALTER USER "{{ user.name }}" PASSWORD '{{ user.password }}';
 {% endif %}
 
 -- expire
-{% if 'expire_in' in user %}
+{% if 'expire_in' in user and user.expire_in is not none %}
 -- expire at {{ '%Y-%m-%d' | strftime(('%s' | strftime() | int  + user.expire_in * 86400)|int)  }} in {{ user.expire_in }} days since {{ '%Y-%m-%d' | strftime }}
 ALTER USER "{{ user.name }}" VALID UNTIL '{{ '%Y-%m-%d' | strftime(('%s' | strftime() | int  + user.expire_in * 86400)|int)  }}';
 {% elif 'expire_at' in user %}
@@ -59,20 +59,20 @@ ALTER USER "{{ user.name }}" VALID UNTIL '{{ user.expire_at }}';
 {% endif %}
 
 -- conn limit
-{% if 'connlimit' in user %}
+{% if 'connlimit' in user and user.connlimit is not none %}
 {% if user.connlimit == -1 %} -- remove conn limit
 -- {% endif %}
 ALTER USER "{{ user.name }}" CONNECTION LIMIT {{ user.connlimit }};
 {% endif %}
 
 -- parameters
-{% if 'parameters' in user %}
+{% if 'parameters' in user and user.parameters is not none and user.parameters|length > 0 %}
 {% for key, value in user.parameters.items() %}
 ALTER USER "{{ user.name }}" SET {{ key }} = {{ value }};
 {% endfor %}{% endif %}
 
 -- comment
-{% if 'comment' in user %}
+{% if 'comment' in user and user.comment is not none %}
 COMMENT ON ROLE "{{ user.name }}" IS '{{ user.comment }}';
 {% else %}
 COMMENT ON ROLE "{{ user.name }}" IS 'business user {{ user.name }}';
@@ -82,7 +82,7 @@ COMMENT ON ROLE "{{ user.name }}" IS 'business user {{ user.name }}';
 --==================================================================--
 --                           GRANT ROLE                             --
 --==================================================================--
-{% if 'roles' in user %}
+{% if 'roles' in user and user.roles is not none and user.roles|length > 0 %}
 {% for role in user.roles %}
 GRANT "{{ role }}" TO "{{ user.name }}";
 {% endfor %}
