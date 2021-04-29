@@ -1,0 +1,24 @@
+#!/bin/env python
+
+import yaml, json, sys
+
+# note that new version of PyYAML have stupid behavior
+# while default meta node python2 interpreter does not have this issue
+d = yaml.safe_load(sys.stdin.read())
+
+if len(sys.argv) <= 1:
+    print(json.dumps(d))
+    exit(0)
+
+if len(sys.argv) > 1:
+    config_name = sys.argv[1]
+    if config_name != '' and "'" not in config_name:
+        print("""
+        SET search_path TO pigsty,public; 
+        SELECT pigsty.upsert_config($json$%s$json$, $name$%s$name$);
+        SELECT pigsty.activate_config($name$%s$name$);
+        """ % (json.dumps(d, indent=4), config_name, config_name))
+
+# Usage: load pigsty configuration file into meta database
+# cat ~/pigsty/pigsty.yml | bin/yaml2sql pigsty > /tmp/pigsty.sql
+# sudo -iu postgres psql meta -f /tmp/pigsty.sql

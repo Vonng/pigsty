@@ -15,19 +15,29 @@ set -euo pipefail
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
+#========================================#
+# Arg1: where to put cache (/tmp/pkg.tgz)
+#========================================#
 PKG_PATH=${1-/tmp/pkg.tgz}
 
+
+#========================================#
 # copy grafana plugins
+#========================================#
 echo "tar grafana plugins"
 sudo mkdir -p /www/pigsty/grafana                                             # make grafana plugin dir
 sudo tar -zcf /www/pigsty/grafana/plugins.tgz -C /var/lib/grafana/ plugins    # pack grafana plugins
 
+#========================================#
 # make tarball
+#========================================#
 echo "tar /www/pigsty into pkg.tgz"
 sudo tar -zcf /tmp/pkg.tgz -C /www pigsty                                     # /www/pigsty -> /tmp/pkg.tgz
 sudo chmod a+r /tmp/pkg.tgz                                                   # global readable
 
+#========================================#
 # move to destination location
+#========================================#
 if [[ ${PKG_PATH} != "/tmp/pkg.tgz" ]]; then
 	echo "mv pkg.tgz to ${PKG_PATH}"
     mv -f /tmp/pkg.tgz ${PKG_PATH}

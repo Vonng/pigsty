@@ -1,11 +1,12 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty Configuration Example
-# Note      :   Pigsty Sandbox Demo
+# Desc      :   Pigsty minimal configuration template
+# Note      :   replace 10.10.10.10 with your meta node ip will work
+#   sed -e 's/10.10.10.10/xxx.xxx.xxx.xxx/g' files/pigsty.yml > pigsty.yml
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-04-19
+# Mtime     :   2021-04-29
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
 
@@ -13,8 +14,6 @@
 ######################################################################
 #               Development Environment Inventory                    #
 ######################################################################
-
-
 all: # top-level namespace
 
   #==================================================================#
@@ -94,17 +93,6 @@ all: # top-level namespace
         # - defining business databases - #
         pg_databases:
           - name: meta                      # name is the only required field for a database
-            # baseline: metadb/schema.sql   # pigsty meta database baseline
-            # owner: postgres               # optional, database owner
-            # template: template1           # optional, template1 by default
-            # encoding: UTF8                # optional, UTF8 by default , must same as template database, leave blank to set to db default
-            # locale: C                     # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_collate: C                 # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_ctype: C                   # optional, C by default , must same as template database, leave blank to set to db default
-            # tablespace: pg_default        # optional, 'pg_default' is the default tablespace
-            # allowconn: true               # optional, true by default, false disable connect at all
-            # revokeconn: false             # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
-            # pgbouncer: true               # optional, add this database to pgbouncer list? true by default
             comment: pigsty meta database   # optional, comment string for database
             connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
             schemas: [pigsty]               # optional, create additional schema
@@ -115,66 +103,7 @@ all: # top-level namespace
               log_min_duration_statement: 10  # log all action on meta database
 
         pg_default_database: meta           # default database will be used as primary monitor target
-        vip_mode: l2                        # none|l2|l4, l2 vip are used in sandbox demo
-        vip_address: 10.10.10.2             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
-
-    #-----------------------------
-    # cluster: pg-test
-    #-----------------------------
-    # comment this for single-node demo environment
-
-    pg-test: # define cluster named 'pg-test'
-      # - cluster members - #
-      hosts:
-        10.10.10.11: {pg_seq: 1, pg_role: primary}
-        10.10.10.12: {pg_seq: 2, pg_role: replica}
-        10.10.10.13: {pg_seq: 3, pg_role: offline}
-
-      # - cluster configs - #
-      vars:
-        # basic settings
-        pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 13                      # define installed pgsql version
-        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-        pg_users:
-          - name: test                      # admin user for pg-test, have DDL
-            password: test
-            roles: [dbrole_admin]
-            pgbouncer: true
-            comment: default admin user for test database
-
-          - name: dbuser_test               # production rw-user
-            password: DBUser.Test
-            roles: [dbrole_readwrite]
-            pgbouncer: true
-            comment: default test user for production usage
-
-        pg_databases:                       # create a business database 'test'
-          - name: test                      # use the simplest form
-            extensions:                     # install postgis to test database
-              - {name: postgis, schema: public}
-        pg_default_database: test           # default database will be used as primary monitor target
-
-        # extra service settings
-        pg_services_extra:                  # extra services to be added
-          - name: standby                   # service name pg-meta-standby
-            src_ip: "*"
-            src_port: 5435                  # 5435 routes to sync replica
-            dst_port: postgres
-            check_url: /sync                # use /sync health check
-            selector: "[]"                  # jmespath to filter instances
-            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
-
-        # proxy settings
-        vip_mode: l2                        # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
+        vip_mode: none                      # we are not sure user have l2 network properly set
 
   #==================================================================#
   #                           Globals                                #
@@ -412,12 +341,10 @@ all: # top-level namespace
       - ip_vs_rr
       - ip_vs_wrr
       - ip_vs_sh
-      - nf_conntrack_ipv4
 
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
-    # net.bridge.bridge-nf-call-iptables: 1     # example kv parameters
 
     # - node user - #
     node_admin_setup: true                        # setup an default admin user ?
@@ -460,12 +387,6 @@ all: # top-level namespace
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
-      - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.11 node-1                        # sandbox node node-1
-      - 10.10.10.12 node-2                        # sandbox node node-2
-      - 10.10.10.13 node-3                        # sandbox node node-3
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
       - 10.10.10.10 c.pigsty consul.pigsty
@@ -525,8 +446,6 @@ all: # top-level namespace
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
-      # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
-      # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)

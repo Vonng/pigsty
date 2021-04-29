@@ -1,8 +1,8 @@
 -- ######################################################################
--- # File      :   baseline.sql
+-- # File      :   meta.sql
 -- # Desc      :   Pigsty MetaDB baseline
 -- # Ctime     :   2021-04-21
--- # Mtime     :   2021-04-22
+-- # Mtime     :   2021-04-29
 -- # Copyright (C) 2018-2021 Ruohang Feng
 -- ######################################################################
 
@@ -597,7 +597,7 @@ COMMENT ON FUNCTION activate_config(TEXT) IS 'activate config by name';
 -- generate ansible inventory from separated tables
 -- depend on instance_config view
 
-DROP FUNCTION IF EXISTS dump_config();
+DROP FUNCTION IF EXISTS dump_config() CASCADE;
 CREATE OR REPLACE FUNCTION dump_config() RETURNS JSONB AS
 $$
 SELECT (hostvars.data || allgroup.data || metagroup.data || groups.data) AS data
@@ -605,7 +605,7 @@ FROM (SELECT jsonb_build_object('_meta', jsonb_build_object('hostvars', jsonb_ob
       FROM instance_config) hostvars,
      (SELECT jsonb_build_object('all', jsonb_build_object('children', '["meta"]' || jsonb_agg(cls))) AS data
       FROM cluster) allgroup,
-     (SELECT jsonb_build_object('meta', jsonb_agg(host(ip))) AS data FROM node WHERE is_meta) metagroup,
+     (SELECT jsonb_build_object('meta', jsonb_build_object('hosts', jsonb_agg(host(ip)))) AS data FROM node WHERE is_meta) metagroup,
      (SELECT jsonb_object_agg(cls, cc.member) AS data
       FROM (SELECT cls, jsonb_build_object('hosts', jsonb_agg(host(ip))) AS member
             FROM instance i

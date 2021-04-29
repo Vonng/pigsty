@@ -28,6 +28,7 @@ mkdir -p "${DIR}"
 
 #==============================================================#
 # source code dir
+#==============================================================#
 rm -rf "${DIR}/pigsty"
 mkdir -p "${DIR}/pigsty"
 mkdir -p "${DIR}/pigsty/files/bin"
@@ -35,7 +36,7 @@ mkdir -p "${DIR}/pigsty/vagrant"
 
 
 #==============================================================#
-# copy source playbooks
+# copy resources
 #==============================================================#
 cp -r ${PIGSTY_HOME}/{README.md,LICENSE,KEYS,NOTICE,Makefile}           "${DIR}/pigsty/"                 # copy text files
 cp -r ${PIGSTY_HOME}/ansible.cfg                                        "${DIR}/pigsty/"                 # copy ansible config
@@ -46,20 +47,21 @@ cp -r ${PIGSTY_HOME}/node*.yml                                          "${DIR}/
 cp -r ${PIGSTY_HOME}/infra*.yml                                         "${DIR}/pigsty/"                 # copy infra playbooks
 cp -r ${PIGSTY_HOME}/pgsql*.yml                                         "${DIR}/pigsty/"                 # copy pgsql playbooks
 cp -r ${PIGSTY_HOME}/pigsty.yml                                         "${DIR}/pigsty/"                 # copy pigsty config
-cp -r ${PIGSTY_HOME}/files/meta.sql                                     "${DIR}/pigsty/files/meta.sql"   # copy pigsty metadb baseline
+cp -r ${PIGSTY_HOME}/files/metadb                                       "${DIR}/pigsty/files/metadb"     # copy pigsty metadb schema
+cp -r ${PIGSTY_HOME}/files/pigsty.yml                                   "${DIR}/pigsty/files/pigsty.yml" # copy pigsty single-node template
 
+
+#============================#
+# pro
+#============================#
 # handle pro resources
-# cp -r ${PIGSTY_HOME}/files/public.tgz                                 "${DIR}/pigsty/files/public.tgz" # copy pigsty pro resource
+cp -r ${PIGSTY_HOME}/files/public.tgz                                   "${DIR}/pigsty/files/public.tgz" # copy pigsty pro resource
+cd ${DIR} && tar -zcf "${DIR}/pigsty-pro.tgz" pigsty
+
+#============================#
+# standard
+#============================#
+rm -rf "${DIR}/pigsty/files/public.tgz"
 rm -rf "${DIR}/pigsty/roles/grafana/files/dashboards/pigsty-full"                                        # remove pro dashboards
-
-
-
-#==============================================================#
-# make minimal package pigsty.tgz
-#==============================================================#
 cd ${DIR} && tar -zcf "${DIR}/pigsty.tgz" pigsty
 
-
-#==============================================================#
-# copy additional binaries, cli,
-#==============================================================#

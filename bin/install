@@ -1,0 +1,89 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   install
+# Ctime     :   2021-04-29
+# Mtime     :   2021-04-29
+# Desc      :   Get latest pigsty source code to ~/pigsty
+# Path      :   https://pigsty.cc/install
+# Usage     :   /bin/bash -c "$(curl -fsSL https://pigsty.cc/install)"
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+DEFAULT_PIGSTY_HOME="${HOME}/pigsty"
+
+#==============================================================#
+# Arg1 : version (latest by default)
+# Arg2 : homedir (~/pigsty by default), must be a path end with 'pigsty'
+#==============================================================#
+PIGSTY_VERSION=${1-'latest'}
+PIGSTY_HOME=${2-${DEFAULT_PIGSTY_HOME}}
+
+#========================================#
+# build source code tarball url
+#========================================#
+PIGSTY_TGZ_URL=https://pigsty.cc/pigsty.tgz
+if [[ ${PIGSTY_VERSION} =~ ^[0-9]+\.[0-9]+ ]]; then
+    PIGSTY_TGZ_URL=https://pigsty.cc/${PIGSTY_VERSION}/pigsty.tgz
+fi
+
+#========================================#
+# download to /tmp first
+#========================================#
+printf "\033[0;32m[INFO] get pigsty ${PIGSTY_VERSION} from ${PIGSTY_TGZ_URL} to ${PIGSTY_HOME} \033[0m\n" >&2
+curl -fsSL ${PIGSTY_TGZ_URL} -o /tmp/pigsty.tgz
+
+
+#========================================#
+# backup existing pigsty to /tmp first
+#========================================#
+if [[ -d ${PIGSTY_HOME} ]]; then
+    tmpPath="/tmp/pigsty-backup-$(   date +%s)"
+    printf "\033[0;33m[WARN] mv existing ${HOME}/pigsty to ${tmpPath} \033[0m\n" >&2
+    mv -f ${PIGSTY_HOME} ${tmpPath}
+fi
+
+#========================================#
+# extract pigsty source code
+#========================================#
+PIGSTY_ROOT=$(dirname ${PIGSTY_HOME})
+if [[ ${PIGSTY_ROOT} != "${HOME}" ]]; then
+    mkdir -p ${PIGSTY_ROOT}
+fi
+tar -xf /tmp/pigsty.tgz -C ${PIGSTY_ROOT}
+cd ${PIGSTY_HOME}
+
+
+#========================================#
+# print summary
+#========================================#
+printf "\033[0;32m[INFO] cd ${PIGSTY_HOME} \033[0m\n" >&2
+# next steps
+printf "\033[0;32m "
+cat <<-'EOF'
+
+    Make sure current user have right privileges:
+       * ssh to localhost without password
+       * root, or user with nopassword sudo privileges
+
+    To make it pigsty functional, cd ~/pigsty and run following commands:
+
+    1. `make pkg` : Optional, download offline installation packages
+       * Required if this node does NOT have Internet access. scp/ftp to `/tmp/pkg.tgz`
+       * Optional if this node has Internet access. Pigsty could download all packages from upstream repos.
+
+    2. `make meta` : bootstrap meta node
+       * this will install ansible and other utils on meta node, you can just install it by yourself and skip this
+       * if `/tmp/pkg.tgz` exists, extract and install ansible from it, otherwise, install via yum by default
+       * after ansible is installed, ansible playbook infra.yml will be called
+
+EOF
+printf "\033[0;0m"
+
+
+# short version
+# curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~
+# /bin/bash -c "$(curl -fsSL https://pigsty.cc/install)"

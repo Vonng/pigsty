@@ -1,0 +1,63 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   upgrade
+# Ctime     :   2021-04-29
+# Mtime     :   2021-04-29
+# Desc      :   upgrade pigsty from pigsty.yml to meta database
+# Path      :   bin/upgrade
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME="$(cd $(dirname ${PROG_DIR}) && pwd)"
+
+#========================================#
+# write service=meta to ~/.pg_service
+#========================================#
+touch ~/.pg_service.conf
+cat > ~/.pg_service.conf <<-'EOF'
+[meta]
+host=localhost
+port=5432
+dbname=meta
+user=dbuser_pigsty
+password=DBUser.Pigsty
+EOF
+chmod 0600 ~/.pg_service.conf
+
+#========================================#
+# use meta service as destination
+#========================================#
+PIGSTY_METADB='service=meta'
+PIGSTY_CONFIG=${PIGSTY_HOME}/pigsty.yml
+PIGSTY_SCHEMA=${PIGSTY_HOME}/files/metadb/schema.sql
+PIGSTY_DATA=${PIGSTY_HOME}/files/metadb/pigsty.sql
+
+#========================================#
+# convert pigsty config into sql
+#========================================#
+cat ${PIGSTY_CONFIG} | ${PIGSTY_HOME}/bin/yaml2sql pigsty > ${PIGSTY_HOME}/files/metadb/pigsty.sql
+
+#========================================#
+# load metadb schema and data
+#========================================#
+psql service=meta -AXwtf ${PIGSTY_HOME}/files/metadb/schema.sql
+psql service=meta -AXwtf ${PIGSTY_HOME}/files/metadb/pigsty.sql
+
+#========================================#
+# load metadb schema and data
+#========================================#
+psql service=meta -AXtwc 'SELECT text FROM pigsty.inventory;' > ${PIGSTY_HOME}/files/pigsty.json
+
+#========================================#
+# replace pigsty.yml with (dbversion)
+#========================================#
+cp -f ${PIGSTY_HOME}/pigsty.yml ${PIGSTY_HOME}/pigsty.yml.bak
+cat > ${PIGSTY_HOME}/pigsty.yml <<-'EOF'
+#!/bin/bash
+psql service=meta -AXtwc 'SELECT text FROM pigsty.inventory;'
+EOF
+chmod 0755 ${PIGSTY_HOME}/pigsty.yml

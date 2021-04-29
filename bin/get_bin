@@ -18,33 +18,33 @@ PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 PIGSTY_HOME="$(cd $(dirname ${PROG_DIR}) && pwd)"
 
-
-function log_info() {
-    [[ -t 2 ]] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\033[0m\n" >&2 ||
-        printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
-}
-
+#========================================#
+# parameters
+#========================================#
 REPO_NAME=pigsty
 REPO_HOME=/www
-
 REPO_DIR=${REPO_HOME}/${REPO_NAME}
+
+#========================================#
+# make sure target bin dir exists
+#========================================#
 BIN_DIR=${PIGSTY_HOME}/files/bin
 [[ -f ${BIN_DIR} ]] && rm -rf ${BIN_DIR}
 mkdir -p ${BIN_DIR}
 
+#========================================#
+# make sure cache dir exists
+#========================================#
 CACHE_DIR=${1-${REPO_DIR}}
 TARGET_DIR=${2-${BIN_DIR}}
+printf "\033[0;32m[WARN] cache dir ${CACHE_DIR} , target dir ${TARGET_DIR} \033[0m\n" >&2
+mkdir -p ${CACHE_DIR} ${REPO_DIR}
 
-cd ${PIGSTY_HOME}
-
-mkdir -p ${CACHE_DIR}
-mkdir -p ${REPO_DIR}
-
-
-log_info "cache dir ${CACHE_DIR} , target dir ${TARGET_DIR}"
-
-
+#========================================#
+# extract or download bin
+#========================================#
 cd ${PIGSTY_HOME}  # pigsty/bin
 bin/get_node_exporter -t ${CACHE_DIR}  -v 1.1.2  -p ${TARGET_DIR}/node_exporter
 bin/get_pg_exporter   -t ${CACHE_DIR}  -v 0.3.2  -p ${TARGET_DIR}/pg_exporter
 bin/get_loki          -t ${CACHE_DIR}  -v 2.2.1  -p ${TARGET_DIR}
+chown ${TARGET_DIR}/* -Rv --reference=${TARGET_DIR}
