@@ -7,6 +7,7 @@
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
+# the latest version of pigsty is 0.9
 VERSION=0.9
 
 # make default will pull up vm nodes
@@ -31,7 +32,7 @@ install:
 # BUT if your meta node DOES NOT HAVE INTERNET ACCESS
 # You may have to copy/ftp/scp pkg.tgz & pigsty.tgz into meta node manually
 pkg:
-	bin/get_pkg
+	bin/get_pkg ${VERSION}
 
 # install ansible and init infrastructure
 meta: boot infra
@@ -77,10 +78,11 @@ deps:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	brew install vagrant virtualbox ansible
 
-# download pigsty resources (and copy to files/pkg.tgz )
+# download pigsty resources (to files/release/v*.*/{pkg,pigsty}.tgz)
 download: pkg
-	cp -f /tmp/pkg.tgz files/pkg.tgz
-	curl -fsSL https://pigsty.cc/pigsty.tgz -o files/pigsty.tgz
+	mkdir files/release/v${VERSION}/
+	cp -f /tmp/pkg.tgz files/release/v${VERSION}/pkg.tgz
+	curl -fsSL https://pigsty.cc/pigsty.tgz -o files/release/v${VERSION}/pigsty.tgz
 
 # start will pull-up node and write ssh-config
 start: up ssh sync
