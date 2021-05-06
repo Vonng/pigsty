@@ -3,10 +3,11 @@
 # File      :   pigsty.yml
 # Desc      :   Pigsty minimal configuration template
 # Note      :   replace 10.10.10.10 with your meta node ip will work
+#   bin/ipconfig <ip addr>
 #   sed -e 's/10.10.10.10/xxx.xxx.xxx.xxx/g' files/pigsty.yml > pigsty.yml
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-04-29
+# Mtime     :   2021-05-06
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
 
@@ -34,7 +35,7 @@ all: # top-level namespace
         meta_node: true                    # mark node as meta controller
         ansible_group_priority: 99         # meta group has top priority
       hosts:
-        10.10.10.10:
+        10.10.10.10: {}
 
     #-----------------------------
     # cluster: pg-meta
@@ -73,6 +74,7 @@ all: # top-level namespace
 
           # complete example of user/role definition
           - name: dbuser_pigsty             # pigsty user have admin access (DDL|DML)
+            #baseline: metadb/schema.sql    # pigsty meta database baseline
             password: DBUser.Pigsty         # example user's password, can be md5 encrypted
             login: true                     # can login, true by default (should be false for role)
             superuser: false                # is superuser? false by default
@@ -100,7 +102,6 @@ all: # top-level namespace
               - {name: adminpack, schema: pg_catalog}
             parameters:                       # optional, extra parameters with ALTER DATABASE
               search_path: 'pigsty,public'    # add pigsty to search_path
-              log_min_duration_statement: 10  # log all action on meta database
 
         pg_default_database: meta           # default database will be used as primary monitor target
         vip_mode: none                      # we are not sure user have l2 network properly set

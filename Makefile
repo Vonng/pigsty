@@ -85,7 +85,10 @@ download: pkg
 	curl -fsSL https://pigsty.cc/pigsty.tgz -o files/release/v${VERSION}/pigsty.tgz
 
 # start will pull-up node and write ssh-config
-start: up ssh sync
+start: meta-up ssh
+
+# start4 will pull-up all node and write ssh-config
+start4: up ssh
 
 # write static dns records (sudo password required) (only run on first time)
 dns:
@@ -99,13 +102,14 @@ ssh:
 copy:
 	scp files/release/v${VERSION}/pigsty.tgz meta:~/pigsty.tgz
 	scp files/release/v${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
-	# ssh -t meta 'tar -xf pigsty.tgz'
+	ssh -t meta 'tar -xf pigsty.tgz'
 
 #=============================================================#
 # vagrant management
 #=============================================================#
 # create a new local sandbox (assume cache exists)
-new: clean up
+new: clean meta-up
+new4: clean up
 min: meta-up meta infra
 clean:
 	cd vagrant && vagrant destroy -f --parallel; exit 0

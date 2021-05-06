@@ -1,11 +1,11 @@
 ---
 ######################################################################
-# File      :   pigsty.yml
-# Desc      :   Pigsty Configuration Example
-# Note      :   Pigsty Sandbox Demo
+# File      :   pigsty-4node.yml
+# Desc      :   Pigsty Example Configuration for 4-node vagrant sandbox
+# Note      :   Pigsty Sandbox Demo (4 node)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-04-19
+# Mtime     :   2021-05-06
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
 
@@ -35,7 +35,7 @@ all: # top-level namespace
         meta_node: true                    # mark node as meta controller
         ansible_group_priority: 99         # meta group has top priority
       hosts:
-        10.10.10.10: {}
+        10.10.10.10:
 
     #-----------------------------
     # cluster: pg-meta
@@ -112,6 +112,7 @@ all: # top-level namespace
               - {name: adminpack, schema: pg_catalog}
             parameters:                       # optional, extra parameters with ALTER DATABASE
               search_path: 'pigsty,public'    # add pigsty to search_path
+              log_min_duration_statement: 10  # log all action on meta database
 
         pg_default_database: meta           # default database will be used as primary monitor target
         vip_mode: l2                        # none|l2|l4, l2 vip are used in sandbox demo
@@ -125,54 +126,54 @@ all: # top-level namespace
     #-----------------------------
     # uncomment this for complete 4-node sandbox demo environment
 
-    #pg-test: # define cluster named 'pg-test'
-    #  # - cluster members - #
-    #  hosts:
-    #    10.10.10.11: {pg_seq: 1, pg_role: primary}
-    #    10.10.10.12: {pg_seq: 2, pg_role: replica}
-    #    10.10.10.13: {pg_seq: 3, pg_role: offline}
-    #
-    #  # - cluster configs - #
-    #  vars:
-    #    # basic settings
-    #    pg_cluster: pg-test                 # define actual cluster name
-    #    pg_version: 13                      # define installed pgsql version
-    #    node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-    #    pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-    #    pg_users:
-    #      - name: test                      # admin user for pg-test, have DDL
-    #        password: test
-    #        roles: [dbrole_admin]
-    #        pgbouncer: true
-    #        comment: default admin user for test database
-    #
-    #      - name: dbuser_test               # production rw-user
-    #        password: DBUser.Test
-    #        roles: [dbrole_readwrite]
-    #        pgbouncer: true
-    #        comment: default test user for production usage
-    #
-    #    pg_databases:                       # create a business database 'test'
-    #      - name: test                      # use the simplest form
-    #        extensions:                     # install postgis to test database
-    #          - {name: postgis, schema: public}
-    #    pg_default_database: test           # default database will be used as primary monitor target
-    #
-    #    # extra service settings
-    #    pg_services_extra:                  # extra services to be added
-    #      - name: standby                   # service name pg-meta-standby
-    #        src_ip: "*"
-    #        src_port: 5435                  # 5435 routes to sync replica
-    #        dst_port: postgres
-    #        check_url: /sync                # use /sync health check
-    #        selector: "[]"                  # jmespath to filter instances
-    #        selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
-    #
-    #    # proxy settings
-    #    vip_mode: l2                        # enable/disable vip (require members in same LAN)
-    #    vip_address: 10.10.10.3             # virtual ip address
-    #    vip_cidrmask: 8                     # cidr network mask length
-    #    vip_interface: eth1                 # interface to add virtual ip
+    pg-test: # define cluster named 'pg-test'
+      # - cluster members - #
+      hosts:
+        10.10.10.11: {pg_seq: 1, pg_role: primary}
+        10.10.10.12: {pg_seq: 2, pg_role: replica}
+        10.10.10.13: {pg_seq: 3, pg_role: offline}
+
+      # - cluster configs - #
+      vars:
+        # basic settings
+        pg_cluster: pg-test                 # define actual cluster name
+        pg_version: 13                      # define installed pgsql version
+        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
+        pg_users:
+          - name: test                      # admin user for pg-test, have DDL
+            password: test
+            roles: [dbrole_admin]
+            pgbouncer: true
+            comment: default admin user for test database
+
+          - name: dbuser_test               # production rw-user
+            password: DBUser.Test
+            roles: [dbrole_readwrite]
+            pgbouncer: true
+            comment: default test user for production usage
+
+        pg_databases:                       # create a business database 'test'
+          - name: test                      # use the simplest form
+            extensions:                     # install postgis to test database
+              - {name: postgis, schema: public}
+        pg_default_database: test           # default database will be used as primary monitor target
+
+        # extra service settings
+        pg_services_extra:                  # extra services to be added
+          - name: standby                   # service name pg-meta-standby
+            src_ip: "*"
+            src_port: 5435                  # 5435 routes to sync replica
+            dst_port: postgres
+            check_url: /sync                # use /sync health check
+            selector: "[]"                  # jmespath to filter instances
+            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
+
+        # proxy settings
+        vip_mode: l2                        # enable/disable vip (require members in same LAN)
+        vip_address: 10.10.10.3             # virtual ip address
+        vip_cidrmask: 8                     # cidr network mask length
+        vip_interface: eth1                 # interface to add virtual ip
 
 
   #==================================================================#
