@@ -1,17 +1,43 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2019-04-13
-# Mtime     :   2021-04-29
+# Mtime     :   2021-05-18
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
-
-# the latest version of pigsty is 0.9
 VERSION=0.9
 
-# make default will pull up vm nodes
-default: up
+
+###############################################################
+#                       INSTALLATION                          #
+###############################################################
+# HOW TO INSTALL PIGSTY ?
+# Run with sudo user on CentOS 7.x node
+#
+# (1). DOWNLOAD
+#      curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
+#
+# (2). CONFIGURE
+#      ./configure
+#
+# (3). INSTALL
+#      make install
+#
+#==============================================================#
+# make install will use ./infra.yml to setup infra on meta node
+install: infra
+###############################################################
+# print above commands (in case you forgot)
+tip:
+	@echo 'curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~; cd ~/pigsty'
+	@echo ./configure
+	@echo make install
+###############################################################
+
+
+
+
 
 ###############################################################
 #               META NODE BOOTSTRAP COMMAND                   #
@@ -73,6 +99,9 @@ upgrade:
 #=============================================================#
 # PREPAREDNESS
 #=============================================================#
+# make default will pull up vm nodes
+default: up
+
 # install macos sandbox software dependencies
 deps:
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -103,6 +132,9 @@ copy:
 	scp files/release/v${VERSION}/pigsty.tgz meta:~/pigsty.tgz
 	scp files/release/v${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
 	ssh -t meta 'tar -xf pigsty.tgz'
+copys:
+	scp files/release/v${VERSION}/pigsty.tgz meta:~/pigsty.tgz
+	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz'
 
 #=============================================================#
 # vagrant management
@@ -188,6 +220,14 @@ r3:
 #=============================================================#
 # project misc
 #=============================================================#
+pf:
+	scp -r roles/grafana/files/dashboards/pigsty-full meta:/tmp/pigsty-full
+	ssh meta 'sudo rm -rf /var/lib/grafana/dashboards/dashboards/pigsty-full'
+	ssh meta 'sudo cp -r /tmp/pigsty-full /var/lib/grafana/dashboards/dashboards/pigsty-full'
+
+copy-pro:
+	scp files/release/v${VERSION}/pigsty-pro.tgz meta:~/pigsty-pro.tgz
+	ssh -t meta 'tar -xf pigsty.tgz'
 
 # generate playbook svg graph
 svg:
@@ -205,8 +245,8 @@ release:
 publish:
 	bin/publish ${VERSION}
 
-# print quick-start tips
-tip:
-	cat bin/install | tail -n1
+tc:
+	scp configure meta:~/pigsty/configure
+	ssh meta "bash /home/vagrant/pigsty/configure -i 10.10.10.10 -d"
 
 .PHONY: default install pkg meta boot infra deps download start dns ssh copy new min clean up halt down status suspend resume provision sync st stop meta-up node-up meta-new node-new rl ri rw ro rw2 ro2 r1 r2 r3 svg cache release pub cp

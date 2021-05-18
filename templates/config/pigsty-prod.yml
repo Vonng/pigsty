@@ -1,17 +1,14 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty Configuration (Default Setup)
+# Desc      :   Pigsty Configuration (Default OLTP Template)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-05-18
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
+# Just a DESENSITIZATION config example for real production environment
 
-
-######################################################################
-#               Development Environment Inventory                    #
-######################################################################
 all: # top-level namespace
 
   #==================================================================#
@@ -32,24 +29,27 @@ all: # top-level namespace
         meta_node: true                    # mark node as meta controller
         ansible_group_priority: 99         # meta group has top priority
       hosts:
-        10.10.10.10: {}
+        10.190.200.88:
+        10.190.200.87:
+        10.190.200.86:
 
     #-----------------------------
     # cluster: pg-meta
     #-----------------------------
-    # pg-meta is a single-node pgsql cluster deployed on meta node (10.10.10.10)
+    # pg-meta is a single-node pgsql cluster deployed on meta node (10.190.200.88)
     pg-meta:
       # - cluster members - #
       hosts:
-        10.10.10.10: {pg_seq: 1, pg_role: primary, pg_offline_query: true}
+        10.190.200.88: {pg_seq: 1, pg_role: primary}
+        10.190.200.87: {pg_seq: 2, pg_role: replica}
+        10.190.200.86: {pg_seq: 3, pg_role: replica, pg_offline_query: true}
 
       # - cluster configs - #
       vars:
         pg_cluster: pg-meta                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
-        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-        patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
+        node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: oltp.yml                   # tune pgsql into oltp|olap|crit|tiny mode
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_lc_ctype: en_US.UTF8             # enabled pg_trgm i18n char support
 
@@ -72,17 +72,7 @@ all: # top-level namespace
           # complete example of user/role definition
           - name: dbuser_pigsty             # pigsty user have admin access (DDL|DML)
             password: DBUser.Pigsty         # example user's password, can be md5 encrypted
-            login: true                     # can login, true by default (should be false for role)
-            superuser: false                # is superuser? false by default
-            createdb: false                 # can create database? false by default
-            createrole: false               # can create role? false by default
-            inherit: true                   # can this role use inherited privileges?
-            replication: false              # can this role do replication? false by default
-            bypassrls: false                # can this role bypass row level security? false by default
             pgbouncer: true                 # add this user to pgbouncer? false by default (true for production user)
-            connlimit: -1                   # connection limit, -1 disable limit
-            expire_in: 3650                 # now + n days when this role is expired (OVERWRITE expire_at)
-            expire_at: '2030-12-31'         # 'timestamp' when this role is expired (OVERWRITTEN by expire_in)
             comment: pigsty admin user      # comment on user/role
             roles: [dbrole_admin]           # dbrole_{admin,readonly,readwrite,offline}
             parameters:                     # additional role level parameters with ALTER ROLE SET
@@ -91,85 +81,97 @@ all: # top-level namespace
         # - defining business databases - #
         pg_databases:
           - name: meta                      # name is the only required field for a database
-            # baseline: metadb/schema.sql   # pigsty meta database baseline
-            # owner: postgres               # optional, database owner
-            # template: template1           # optional, template1 by default
-            # encoding: UTF8                # optional, UTF8 by default , must same as template database, leave blank to set to db default
-            # locale: C                     # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_collate: C                 # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_ctype: C                   # optional, C by default , must same as template database, leave blank to set to db default
-            # tablespace: pg_default        # optional, 'pg_default' is the default tablespace
-            # allowconn: true               # optional, true by default, false disable connect at all
-            # revokeconn: false             # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
-            # pgbouncer: true               # optional, add this database to pgbouncer list? true by default
             comment: pigsty meta database   # optional, comment string for database
-            connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
             schemas: [pigsty]               # optional, create additional schema
             extensions:                     # optional, extension name and which schema to create
               - {name: adminpack, schema: pg_catalog}
-            parameters:                       # optional, extra parameters with ALTER DATABASE
-              search_path: 'pigsty,public'    # add pigsty to search_path
+            parameters:                     # optional, extra parameters with ALTER DATABASE
+              search_path: 'pigsty,public'  # add pigsty to search_path
 
         pg_default_database: meta           # default database will be used as primary monitor target
-        vip_mode: l2                        # none|l2|l4, l2 vip are used in sandbox demo
-        vip_address: 10.10.10.2             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
+        vip_mode: none                      # I dont't know if your network allows vip
 
 
-    #-----------------------------
-    # cluster: pg-test
-    #-----------------------------
-    # uncomment this for complete 4-node sandbox demo environment
+    #--------------------------------------------------------------#
+    # pg-log-tt                                                    #
+    #--------------------------------------------------------------#
+    pg-log-tt:
+      hosts:
+        10.190.200.90: {pg_seq: 1, pg_role: primary}
+        10.190.200.91: {pg_seq: 2, pg_role: replica}
+      vars:
+        pg_cluster: pg-log-tt
+        pg_version: 13
+        node_tune: olap
+        pg_conf: olap.yml
+        pg_users:
+          - {name: dbuser_log, password: DBUser.Log , pgbouncer: true, roles: [dbrole_readwrite]}
+        pg_databases:
+          - {name: log , owner: dbuser_log ,schemas: [log], parameters: {search_path: 'log,public,monitor' }}
+        pg_default_database: log
+        vip_address: 10.190.222.10
 
-    #pg-test: # define cluster named 'pg-test'
-    #  # - cluster members - #
-    #  hosts:
-    #    10.10.10.11: {pg_seq: 1, pg_role: primary}
-    #    10.10.10.12: {pg_seq: 2, pg_role: replica}
-    #    10.10.10.13: {pg_seq: 3, pg_role: offline}
-    #
-    #  # - cluster configs - #
-    #  vars:
-    #    # basic settings
-    #    pg_cluster: pg-test                 # define actual cluster name
-    #    pg_version: 13                      # define installed pgsql version
-    #    node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-    #    pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-    #    pg_users:
-    #      - name: test                      # admin user for pg-test, have DDL
-    #        password: test
-    #        roles: [dbrole_admin]
-    #        pgbouncer: true
-    #        comment: default admin user for test database
-    #
-    #      - name: dbuser_test               # production rw-user
-    #        password: DBUser.Test
-    #        roles: [dbrole_readwrite]
-    #        pgbouncer: true
-    #        comment: default test user for production usage
-    #
-    #    pg_databases:                       # create a business database 'test'
-    #      - name: test                      # use the simplest form
-    #        extensions:                     # install postgis to test database
-    #          - {name: postgis, schema: public}
-    #    pg_default_database: test           # default database will be used as primary monitor target
-    #
-    #    # extra service settings
-    #    pg_services_extra:                  # extra services to be added
-    #      - name: standby                   # service name pg-meta-standby
-    #        src_ip: "*"
-    #        src_port: 5435                  # 5435 routes to sync replica
-    #        dst_port: postgres
-    #        check_url: /sync                # use /sync health check
-    #        selector: "[]"                  # jmespath to filter instances
-    #        selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
-    #
-    #    # proxy settings
-    #    vip_mode: l2                        # enable/disable vip (require members in same LAN)
-    #    vip_address: 10.10.10.3             # virtual ip address
-    #    vip_cidrmask: 8                     # cidr network mask length
-    #    vip_interface: eth1                 # interface to add virtual ip
+    #--------------------------------------------------------------#
+    # pg-infra                                                     #
+    #--------------------------------------------------------------#
+    pg-infra:
+      hosts:
+        10.189.55.45: { pg_seq: 1, pg_role: primary }
+        10.189.55.46: { pg_seq: 2, pg_role: replica , pg_offline_query: true }
+      vars:
+        pg_cluster: pg-infra
+        pg_version: 13
+        pg_default_database: ehr
+        pgbouncer_poolmode: session         # use session pooling
+        pg_hba_rules_extra:
+          - title: reject biz readonly user on primary
+            role: primary
+            rules:
+              - host    all               dbuser_biz_readonly  10.0.0.0/8        reject
+
+          - title: allow biz global user direct access
+            role: common
+            rules:
+              - host    all               +dbrole_biz_connect  10.0.0.0/8        md5
+
+          - title: allow confluence jira gitlab eazybi direct access
+            role: common
+            rules:
+              - host    confluence dbuser_confluence   10.0.0.0/8        md5
+              - host    jira       dbuser_jira         10.0.0.0/8        md5
+              - host    gitlab     dbuser_gitlab       10.0.0.0/8        md5
+              - host    eazybi     dbuser_eazybi       10.0.0.0/8        md5
+
+        pg_users:
+          - { name: dbp_a, password: "md53c4bc163143df3a0ad2abcdef6ab057", pgbouncer: false, roles: [ dbrole_offline ] ,expire_at: '2022-03-10' ,connlimit: 4 }  # personal users
+          - { name: dbrole_biz_connect, login: false, pgbouncer: false , comment: default connect role for biz series database }                                 # a special biz
+          - { name: dbuser_biz, password: "hell.screen", pgbouncer: false, roles: [ dbrole_admin ] ,comment: biz global admin}
+          - { name: dbuser_biz_readwrite, password: "Tre.xs.N0.Sp00n", pgbouncer: false, roles: [ dbrole_readwrite,dbrole_biz_connect ] , comment: biz global rw user }
+          - { name: dbuser_biz_readonly, password: "Gr-ed.Is.bad", pgbouncer: false, roles: [ dbrole_readonly,dbrole_biz_connect ] , comment: biz global ro user }
+          - { name: dbuser_gitlab, password: foooofdffoooo , pgbouncer: true, roles: [ dbrole_readwrite ] }
+          - { name: dbuser_confluence, password: barrrrrrr , pgbouncer: true, roles: [ dbrole_admin ] }
+          - { name: dbuser_jira, password: jaaaaaaaaaaaadf , pgbouncer: true, roles: [ dbrole_admin ] }
+        pg_databases:
+          - { name: biz, revokeconn: true, owner: dbuser_biz ,connlimit: 100 }
+          - { name: biz-monitor, revokeconn: true, owner: dbuser_biz_monitor ,connlimit: 100 }
+          - { name: gitlab , revokeconn: true, owner: dbuser_gitlab, connlimit: 100 }
+          - { name: confluence , revokeconn: true, owner: dbuser_confluence , connlimit: 100 }
+          - { name: jira , revokeconn: true, owner: dbuser_jira , connlimit: 100 }
+          - { name: eazybi , revokeconn: true, owner: dbuser_eazybi , connlimit: 100 }
+          - { name: hermes , revokeconn: true, owner: dbuser_hermes , parameters: { search_path: "yay,public" }, connlimit: 100 }
+        vip_address: 10.190.222.11
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   #==================================================================#
@@ -189,7 +191,6 @@ all: # top-level namespace
       # http_proxy: ''
       # https_proxy: ''
       # all_proxy: ''
-
 
     #------------------------------------------------------------------------------
     # REPO PROVISION
@@ -285,8 +286,8 @@ all: # top-level namespace
         enabled: no
         gpgcheck: no
         baseurl:
-        - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
-        - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                     # official
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
+          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                     # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -294,7 +295,6 @@ all: # top-level namespace
         baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
           - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
           - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/
-
 
       - name: centos-sclo-rh
         description: CentOS-$releasever - SCLo rh
@@ -394,10 +394,10 @@ all: # top-level namespace
 
     # - node dns - #
     node_dns_hosts: # static dns records in /etc/hosts
-      - 10.10.10.10 yum.pigsty
-    node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
+      - 10.190.200.88 yum.pigsty
+    node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
-      - 10.10.10.10
+      - 10.190.200.88
     node_dns_options:                             # dns resolv options
       - options single-request-reopen timeout:1 rotate
       - domain service.consul
@@ -420,10 +420,8 @@ all: # top-level namespace
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
       - dnsmasq,nginx,ansible,pgbadger,polysh,python-psycopg2
-
-    # build & devel packages (add to repo_packages too if you want build database & extensions from source)
-    # - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-    # - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+      - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
+      - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
 
 
     # - node features - #
@@ -438,13 +436,13 @@ all: # top-level namespace
     node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
     # - node tuned - #
-    node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
+    node_tune: oltp                               # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
     # net.bridge.bridge-nf-call-iptables: 1     # example kv parameters
 
     # - node user - #
     node_admin_setup: true                        # setup an default admin user ?
-    node_admin_uid: 88                            # uid and gid for admin user
+    node_admin_uid: 1688                          # uid and gid for admin user
     node_admin_username: dba                      # default admin user: dba
     node_admin_ssh_exchange: true                 # exchange admin's ssh key among cluster ?
     node_admin_pk_current: false                  # add current user's ~/.ssh/id_rsa.pub to admin pk
@@ -459,7 +457,7 @@ all: # top-level namespace
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-      - server 10.10.10.10 iburst
+      - server 10.190.200.88 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
 
 
@@ -485,37 +483,34 @@ all: # top-level namespace
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
-      - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.11 node-1                        # sandbox node node-1
-      - 10.10.10.12 node-2                        # sandbox node node-2
-      - 10.10.10.13 node-3                        # sandbox node node-3
-      - 10.10.10.10 pigsty
-      - 10.10.10.10 y.pigsty yum.pigsty
-      - 10.10.10.10 c.pigsty consul.pigsty
-      - 10.10.10.10 g.pigsty grafana.pigsty
-      - 10.10.10.10 p.pigsty prometheus.pigsty
-      - 10.10.10.10 a.pigsty alertmanager.pigsty
-      - 10.10.10.10 n.pigsty ntp.pigsty
-      - 10.10.10.10 h.pigsty haproxy.pigsty
+      - 10.190.200.88 meta-1
+      - 10.190.200.87 meta-2
+      - 10.190.200.86 meta-3
+      - 10.190.200.88 pigsty
+      - 10.190.200.88 y.pigsty yum.pigsty
+      - 10.190.200.88 c.pigsty consul.pigsty
+      - 10.190.200.88 g.pigsty grafana.pigsty
+      - 10.190.200.88 p.pigsty prometheus.pigsty
+      - 10.190.200.88 a.pigsty alertmanager.pigsty
+      - 10.190.200.88 n.pigsty ntp.pigsty
+      - 10.190.200.88 h.pigsty haproxy.pigsty
 
     # - prometheus - #
-    prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=30d'
+    prometheus_data_dir: /export/prometheus/data  # prometheus data dir
+    prometheus_options: '--storage.tsdb.retention=90d'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: consul                  # service discovery method: static|consul|etcd
-    prometheus_scrape_interval: 5s                # global scrape & evaluation interval
-    prometheus_scrape_timeout: 4s                 # scrape timeout
-    prometheus_sd_interval: 5s                    # service discovery refresh interval
+    prometheus_scrape_interval: 15s               # global scrape & evaluation interval
+    prometheus_scrape_timeout: 14s                # scrape timeout
+    prometheus_sd_interval: 10s                   # service discovery refresh interval
 
     # - grafana - #
-    grafana_url: http://admin:admin@10.10.10.10:3000 # grafana url
-    grafana_admin_password: admin                    # default grafana admin user password
-    grafana_plugin: install                          # none|install|reinstall
-    grafana_cache: /www/pigsty/grafana/plugins.tgz   # path to grafana plugins tarball
-    grafana_customize: false                         # customize grafana resources
-    grafana_plugins: # default grafana plugins list
+    grafana_url: http://admin:admin@10.190.200.88:3000 # grafana url
+    grafana_admin_password: admin                      # default grafana admin user password
+    grafana_plugin: install                            # none|install|reinstall
+    grafana_cache: /www/pigsty/grafana/plugins.tgz     # path to grafana plugins tarball
+    grafana_customize: false                           # customize grafana resources
+    grafana_plugins:                                   # default grafana plugins list
       - redis-datasource
       - simpod-json-datasource
       - fifemon-graphql-datasource
@@ -539,7 +534,7 @@ all: # top-level namespace
 
     # - loki - #
     loki_clean: false                 # whether remove existing loki data
-    loki_data_dir: /data/loki         # default loki data dir
+    loki_data_dir: /export/loki       # default loki data dir
 
 
     #------------------------------------------------------------------------------
@@ -549,13 +544,11 @@ all: # top-level namespace
     dcs_type: consul                              # consul | etcd | both
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
-      meta-1: 10.10.10.10                         # you could use existing dcs cluster
-      # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
-      # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
+      meta-1: 10.190.200.88                       # you could use existing dcs cluster
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
-    consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
-    etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
+    consul_data_dir: /export/consul               # consul data dir (/var/lib/consul by default)
+    etcd_data_dir: /export/etcd                   # etcd data dir (/var/lib/consul by default)
 
 
     #------------------------------------------------------------------------------
@@ -589,7 +582,6 @@ all: # top-level namespace
       # - pg_fkpart${version}  pg_jobmon${version}  pg_partman${version}  pg_prioritize_${version}  pg_track_settings${version}  pgaudit15_${version}
       # - pgcryptokey${version}  pgexportdoc${version}  pgimportdoc${version}  pgmemcache-${version}  pgmp${version}  pgq-${version}  pgquarrel pgrouting_${version}
       # - pguint${version}  pguri${version}  prefix${version}   safeupdate_${version}  semver${version}   table_version${version}  tdigest${version}
-
 
 
     #------------------------------------------------------------------------------
@@ -635,7 +627,7 @@ all: # top-level namespace
     pg_namespace: /pg                             # top level key namespace in dcs
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
-    pg_conf: tiny.yml                             # user provided patroni config template path
+    pg_conf: oltp.yml                             # user provided patroni config template path
 
     # - flags - #
     pg_backup: false                              # store base backup on this node
@@ -773,7 +765,7 @@ all: # top-level namespace
       - title: allow meta node password access
         role: common
         rules:
-          - host    all     all                         10.10.10.10/32      md5
+          - host    all     all                         10.190.200.88/32      md5
 
       - title: allow intranet admin password access
         role: common
@@ -838,7 +830,7 @@ all: # top-level namespace
     node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
 
     # - pg exporter - #
-    pg_exporter_config: pg_exporter-demo.yaml     # default config files for pg_exporter
+    pg_exporter_config: pg_exporter.yaml          # default config files for pg_exporter
     pg_exporter_enabled: true                     # setup pg_exporter on instance
     pg_exporter_port: 9630                        # default port for pg exporter
     pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
@@ -853,7 +845,7 @@ all: # top-level namespace
     promtail_clean: false                         # remove promtail status file? false by default
     promtail_port: 9080                           # default listen address for promtail
     promtail_status_file: /tmp/promtail-status.yml
-    promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
+    promtail_send_url: http://10.190.200.88:3100/loki/api/v1/push  # loki url to receive logs
 
     #------------------------------------------------------------------------------
     # SERVICE PROVISION
@@ -910,10 +902,10 @@ all: # top-level namespace
     haproxy_reload: true                          # reload haproxy after config
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: admin                 # default haproxy admin password
+    haproxy_admin_password: HAProxy.Admin         # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 3h                    # client side connection timeout
-    haproxy_server_timeout: 3h                    # server side connection timeout
+    haproxy_client_timeout: 24h                   # client side connection timeout
+    haproxy_server_timeout: 24h                   # server side connection timeout
 
     # - vip - #
     vip_mode: none                                # none | l2 | l4

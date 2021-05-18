@@ -1,12 +1,13 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty Configuration (Default Setup)
+# Desc      :   Pigsty Configuration (Default OLTP Template)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-05-18
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
+# Here 10.10.10.10 is a placeholder
 
 
 ######################################################################
@@ -47,9 +48,8 @@ all: # top-level namespace
       vars:
         pg_cluster: pg-meta                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
-        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-        patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
+        node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: oltp.yml                   # tune pgsql into oltp|olap|crit|tiny mode
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_lc_ctype: en_US.UTF8             # enabled pg_trgm i18n char support
 
@@ -72,17 +72,7 @@ all: # top-level namespace
           # complete example of user/role definition
           - name: dbuser_pigsty             # pigsty user have admin access (DDL|DML)
             password: DBUser.Pigsty         # example user's password, can be md5 encrypted
-            login: true                     # can login, true by default (should be false for role)
-            superuser: false                # is superuser? false by default
-            createdb: false                 # can create database? false by default
-            createrole: false               # can create role? false by default
-            inherit: true                   # can this role use inherited privileges?
-            replication: false              # can this role do replication? false by default
-            bypassrls: false                # can this role bypass row level security? false by default
             pgbouncer: true                 # add this user to pgbouncer? false by default (true for production user)
-            connlimit: -1                   # connection limit, -1 disable limit
-            expire_in: 3650                 # now + n days when this role is expired (OVERWRITE expire_at)
-            expire_at: '2030-12-31'         # 'timestamp' when this role is expired (OVERWRITTEN by expire_in)
             comment: pigsty admin user      # comment on user/role
             roles: [dbrole_admin]           # dbrole_{admin,readonly,readwrite,offline}
             parameters:                     # additional role level parameters with ALTER ROLE SET
@@ -91,85 +81,15 @@ all: # top-level namespace
         # - defining business databases - #
         pg_databases:
           - name: meta                      # name is the only required field for a database
-            # baseline: metadb/schema.sql   # pigsty meta database baseline
-            # owner: postgres               # optional, database owner
-            # template: template1           # optional, template1 by default
-            # encoding: UTF8                # optional, UTF8 by default , must same as template database, leave blank to set to db default
-            # locale: C                     # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_collate: C                 # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_ctype: C                   # optional, C by default , must same as template database, leave blank to set to db default
-            # tablespace: pg_default        # optional, 'pg_default' is the default tablespace
-            # allowconn: true               # optional, true by default, false disable connect at all
-            # revokeconn: false             # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
-            # pgbouncer: true               # optional, add this database to pgbouncer list? true by default
             comment: pigsty meta database   # optional, comment string for database
-            connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
             schemas: [pigsty]               # optional, create additional schema
             extensions:                     # optional, extension name and which schema to create
               - {name: adminpack, schema: pg_catalog}
-            parameters:                       # optional, extra parameters with ALTER DATABASE
-              search_path: 'pigsty,public'    # add pigsty to search_path
+            parameters:                     # optional, extra parameters with ALTER DATABASE
+              search_path: 'pigsty,public'  # add pigsty to search_path
 
         pg_default_database: meta           # default database will be used as primary monitor target
-        vip_mode: l2                        # none|l2|l4, l2 vip are used in sandbox demo
-        vip_address: 10.10.10.2             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
-
-    #-----------------------------
-    # cluster: pg-test
-    #-----------------------------
-    # uncomment this for complete 4-node sandbox demo environment
-
-    #pg-test: # define cluster named 'pg-test'
-    #  # - cluster members - #
-    #  hosts:
-    #    10.10.10.11: {pg_seq: 1, pg_role: primary}
-    #    10.10.10.12: {pg_seq: 2, pg_role: replica}
-    #    10.10.10.13: {pg_seq: 3, pg_role: offline}
-    #
-    #  # - cluster configs - #
-    #  vars:
-    #    # basic settings
-    #    pg_cluster: pg-test                 # define actual cluster name
-    #    pg_version: 13                      # define installed pgsql version
-    #    node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-    #    pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-    #    pg_users:
-    #      - name: test                      # admin user for pg-test, have DDL
-    #        password: test
-    #        roles: [dbrole_admin]
-    #        pgbouncer: true
-    #        comment: default admin user for test database
-    #
-    #      - name: dbuser_test               # production rw-user
-    #        password: DBUser.Test
-    #        roles: [dbrole_readwrite]
-    #        pgbouncer: true
-    #        comment: default test user for production usage
-    #
-    #    pg_databases:                       # create a business database 'test'
-    #      - name: test                      # use the simplest form
-    #        extensions:                     # install postgis to test database
-    #          - {name: postgis, schema: public}
-    #    pg_default_database: test           # default database will be used as primary monitor target
-    #
-    #    # extra service settings
-    #    pg_services_extra:                  # extra services to be added
-    #      - name: standby                   # service name pg-meta-standby
-    #        src_ip: "*"
-    #        src_port: 5435                  # 5435 routes to sync replica
-    #        dst_port: postgres
-    #        check_url: /sync                # use /sync health check
-    #        selector: "[]"                  # jmespath to filter instances
-    #        selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
-    #
-    #    # proxy settings
-    #    vip_mode: l2                        # enable/disable vip (require members in same LAN)
-    #    vip_address: 10.10.10.3             # virtual ip address
-    #    vip_cidrmask: 8                     # cidr network mask length
-    #    vip_interface: eth1                 # interface to add virtual ip
+        vip_mode: none                      # I dont't know if your network allows vip
 
 
   #==================================================================#
@@ -189,7 +109,6 @@ all: # top-level namespace
       # http_proxy: ''
       # https_proxy: ''
       # all_proxy: ''
-
 
     #------------------------------------------------------------------------------
     # REPO PROVISION
@@ -285,8 +204,8 @@ all: # top-level namespace
         enabled: no
         gpgcheck: no
         baseurl:
-        - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
-        - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                     # official
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
+          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                     # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -294,7 +213,6 @@ all: # top-level namespace
         baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
           - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
           - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/
-
 
       - name: centos-sclo-rh
         description: CentOS-$releasever - SCLo rh
@@ -395,7 +313,7 @@ all: # top-level namespace
     # - node dns - #
     node_dns_hosts: # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
-    node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
+    node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
     node_dns_options:                             # dns resolv options
@@ -485,12 +403,7 @@ all: # top-level namespace
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.11 node-1                        # sandbox node node-1
-      - 10.10.10.12 node-2                        # sandbox node node-2
-      - 10.10.10.13 node-3                        # sandbox node node-3
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
       - 10.10.10.10 c.pigsty consul.pigsty
@@ -550,8 +463,6 @@ all: # top-level namespace
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
-      # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
-      # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)

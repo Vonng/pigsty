@@ -14,7 +14,17 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 >
 > The final 1.0 GA version will be released near June~July 2021
 
+## Quick Start
 
+Prepare a CentOS 7.x meta node with root or sudo access.  
+
+```bash
+curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~; cd ~/pigsty  # DOWNLOAD
+./configure    # CONFIGURE (interactive wizard)
+make install   # INSTALL infrasturcture on meta node
+```
+
+And you will have everything ready. Check documentation for more information. 
 
 ## Highlights
 
@@ -28,23 +38,13 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 
 
 
-## Quick Start
+## Get Node
 
-Prepare a CentOS 7.x meta node with **ssh** & **root** access.  
+Consider running pigsty sandbox demo with virtualbox & vagrant.
 
-```bash
-curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty # src code
-bin/ipconfig <node_local_ipv4_address>                                       # ipconfig
-make pkg                                                                     # download
-make meta                                                                    # launch
-```
+<details>
+<summary>Run pigsty on your laptop</summary>
 
-Check documentation for more information.
-
-
-
-> ## Get Node
->
 > The easiest way to get a node is using cloud-services. But if you wish to run pigsty on your laptop. You can either create CentOS 7.8 vm nodes with software such as vmware, parallel desktop, virtualbox manually. Or just leave it to [vagrant](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile).  For MacOS users, these makefile shortcuts will setup a vm node (ip: 10.10.10.10) on your Mac host using [virtualbox](https://www.virtualbox.org/wiki/Downloads). After that everything is same as [Quick Start](#quick-start).
 >
 > ```bash
@@ -57,6 +57,8 @@ Check documentation for more information.
 > ```
 >
 > Verified Environment:: MacOS 11, Vagrant 2.2.14, Virtualbox 6.1.16
+
+</details>
 
 
 

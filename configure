@@ -1,0 +1,526 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   configure
+# Ctime     :   2021-05-17
+# Mtime     :   2021-05-17
+# Desc      :   configure pigsty before install it
+# Usage     :   ./configure -i -m -n
+# Note      :   run as admin user (nopass sudo & ssh)
+# Path      :   configure
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+
+#==============================================================#
+# marcos
+#==============================================================#
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME="${PROG_DIR}"
+PIGSTY_VERSION=0.9
+REPO_NAME=pigsty
+REPO_HOME=/www
+REPO_DIR=${REPO_HOME}/${REPO_NAME}
+BIN_DIR=${PIGSTY_HOME}/files/bin
+
+#==============================================================#
+# args
+#  -i  --ip  <ip addr>    : set local primary ip address
+#  -m  --mode             : mode, (tiny|oltp|...|demo|demo4), tiny by default
+#  -n  --non-interactive  : flag, run as non-interactive mode
+#==============================================================#
+INTERACTIVE=true                  # run configure with interactive mode
+PRIMARY_IP=""                     # primary IP address (intranet, do not use public IP)
+MODE=""                           # default install mode (tiny|oltp|...|demo|demo4)
+PRO_MODE=false                    # install pigsty pro extra resources ?
+DEFAULT_PKG_PATH=/tmp/pkg.tgz     # default offline installation pkg path
+DOWNLOAD_PKG=false                # whether to download pkg.tgz if not exists ?
+DEFAULT_PKG_URL=http://pigsty-1304147732.cos.accelerate.myqcloud.com/v${PIGSTY_VERSION}/pkg.tgz
+
+
+#==============================================================#
+# color log util
+#==============================================================#
+__CN='\033[0m'    # no color
+__CB='\033[0;30m' # black
+__CR='\033[0;31m' # red
+__CG='\033[0;32m' # green
+__CY='\033[0;33m' # yellow
+__CB='\033[0;34m' # blue
+__CM='\033[0;35m' # magenta
+__CC='\033[0;36m' # cyan
+__CW='\033[0;37m' # white
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}"; }
+ipv4_regexp='(([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
+#==============================================================#
+
+
+#----------------------------------------------#
+# kernel
+#----------------------------------------------#
+function check_kernel(){
+    local kernel_name=$(uname -s)
+    if [[ "${kernel_name}" == "Linux" ]]; then
+        log_info "kernel = ${kernel_name}"
+        return 0
+    else
+        log_error "kernel = ${kernel_name}, not supported, Linux only"
+        exit 1
+    fi
+}
+
+#----------------------------------------------#
+# machine
+#----------------------------------------------#
+function check_machine(){
+    local machine_name=$(uname -m)
+    if [[ "${machine_name}" == "x86_64" ]]; then
+        log_info "machine = ${machine_name}"
+        return 0
+    else
+        log_error "machine = ${machine_name}, not supported, x86_64 only"
+        exit 2
+    fi
+}
+
+#----------------------------------------------#
+# os release (Linux|Darwin etc..)
+#----------------------------------------------#
+function check_release(){
+    if [[ ! -f /etc/redhat-release ]]; then
+        log_error "release = unknown, /etc/redhat-release not exists"
+        exit 3
+    fi
+    local full=`cat /etc/redhat-release | tr -dc '0-9.'`
+    local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
+    local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
+    local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
+    if [[ ${major} != "7" ]]; then
+        log_error "release = ${full} , only 7 is supported"
+        exit 4
+    fi
+    if [[ ${minor} == "8" ]]; then
+        log_info "release = ${full} , perfect"
+    else
+        log_warn "release = ${full} , it's fine. But beware that 'pkg.tgz' are made under 7.8"
+        log_hint "HINT: If something goes wrong with minor version. Consider bootstrap via Internet without pkg.tgz."
+    fi
+    return 0
+}
+
+#----------------------------------------------#
+# sudo
+#----------------------------------------------#
+function can_nopass_sudo(){
+    local current_user=$(whoami)
+    if [[ "${current_user}" == "root" ]]; then
+        return 0
+    fi
+    if sudo -n ls >/dev/null 2>/dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+function check_sudo(){
+    local current_user=$(whoami)
+    if can_nopass_sudo; then
+        log_info "sudo = ${current_user} ok"
+    else
+        log_error "sudo = ${current_user} missing nopasswd"
+        log_warn "fix nopass sudo for '${current_user}' with sudo:"
+        log_hint "echo '%%${current_user} ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/${current_user}"
+        exit 5
+    fi
+}
+
+#----------------------------------------------#
+# ssh
+#----------------------------------------------#
+# One MUST have nopass to localhost with same user
+# configure can fix that for you (via ssh-keygen)
+
+function can_nopass_ssh(){
+    local current_user=$(whoami)
+    local user=${1-${current_user}}
+    local ipaddr=${2-'127.0.0.1'}
+    if ssh -o "StrictHostKeyChecking no" ${user}@${ipaddr} 'ls' 1>/dev/null 2>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function fix_nopass_ssh(){
+    [[ ! -d ~/.ssh ]] && mkdir -p ~/.ssh && chmod 0700 ~/.ssh;                      # make sure ssh dir exists
+    [[ ! -f ~/.ssh/id_rsa ]] && ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N '' # gen ssh key if not exists
+    touch ~/.ssh/authorized_keys && chmod 0700 ~/.ssh/{authorized_keys,id_rsa}
+    local publicKey=$(cat ~/.ssh/id_rsa.pub 2>/dev/null)
+    if ! grep -q "${publicKey}" ~/.ssh/authorized_keys; then
+        cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    fi
+    return $(can_nopass_ssh)
+}
+
+function check_ssh(){
+    if can_nopass_ssh ; then
+        log_info "ssh = $(whoami)@127.0.0.1 ok"
+        return 0
+    fi
+    if fix_nopass_ssh; then
+        log_warn "ssh = $(whoami)@127.0.0.1 fixed"
+        return 0
+    else
+        log_error "ssh = $(whoami)@127.0.0.1 failed"
+        exit 6
+    fi
+}
+
+
+#----------------------------------------------#
+# primary ip
+#----------------------------------------------#
+# One MUST configure a local primary IP address
+# local primary ip are fetched in following order
+# 1. if ip is given via -i|--ip , just use it
+# 2. if only one ip is detected, just use it
+# 3. if multiple ip detected, ask user for it  (interactive mode)
+# 4. if -n|non-interactive is set, abort on error
+#----------------------------------------------#
+function is_valid_ip(){
+    if [[ "$1" =~ (([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]) ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function get_ip_count(){
+    echo $(hostname --all-ip-addresses 2>/dev/null | wc -w)
+}
+
+function list_ipaddr(){
+    local ipList=$(hostname --all-ip-addresses)
+    local i=0
+    for ip in $ipList
+    do
+        i=$((i+1))
+        local ipDetail=$(ip addr 2>/dev/null | grep "inet ${ip}")
+        printf "    (${__CC}${i}${__CN}) ${__CR}${ip}${__CN}\t${__CY}${ipDetail}${__CN}\n"
+    done
+}
+
+
+
+function check_ipaddr(){
+    local primary_ip=${1-${PRIMARY_IP}}
+    local interactive=${2-${INTERACTIVE}}
+    # if ip is given, check it
+    if [[ ! -z "${primary_ip}" ]]; then
+        if is_valid_ip ${primary_ip}; then
+            log_info "primary_ip = ${primary_ip} (from argument)"
+            PRIMARY_IP=${primary_ip}
+            return 0
+        else
+            log_error "primary_ip = ${primary_ip} invalid (from argument)"
+            exit 7
+        fi
+    fi
+
+    local ipCount=$(get_ip_count)
+    if ((ipCount<=1)); then
+        log_error "primary_ip = probe failed"
+        exit 8
+    fi
+    if ((ipCount==1)); then
+        log_info "primary_ip = $(hostname --all-ip-addresses) (from probe)"
+        PRIMARY_IP=$(hostname --all-ip-addresses)
+        return 0
+    fi
+
+    # multiple IP detected
+    log_warn "Multiple IP address candidates found:"
+    list_ipaddr
+
+    # special case: demo fixed ip (10.10.10.10), we will choose it directly without asking!
+    if  [[ $(hostname --all-ip-addresses) == *'10.10.10.10'* ]]; then
+    	log_info "primary_ip = 10.10.10.10 (from demo)"
+    	PRIMARY_IP="10.10.10.10"
+    	return 0
+    fi
+
+    # ask for input if in interactive mode, abort on non-interactive mode
+    if [[ ${interactive} != "true" ]]; then
+        log_error "primary_ip = dilemma abort"
+        log_hint "HINT: specify ip with -i|--ip , or disable non-interactive mode"
+        exit 9
+    fi
+
+    log_input "INPUT primary_ip address (e.g 10.10.10.10):"
+    read -r
+    local primary_ip=${REPLY}
+    if is_valid_ip ${primary_ip}; then
+        log_info "primary_ip = ${primary_ip} (from input)"
+        PRIMARY_IP=${primary_ip}
+        return 0
+    else
+        log_error "primary_ip = ${primary_ip} invalid (from input)"
+        exit 9
+    fi
+}
+
+#----------------------------------------------#
+# check admin
+#----------------------------------------------#
+# check whether current user have nopass ssh
+# access to primary ip with sudo privilege set
+
+function check_admin(){
+    local primary_ip=${1-${PRIMARY_IP}}
+    local current_user=$(whoami)
+    if ssh -o "StrictHostKeyChecking no" ${primary_ip} 'sudo ls' 1>/dev/null 2>/dev/null; then
+        log_info "admin = ${current_user}@${primary_ip} ok"
+    else
+        log_error "admin = ${current_user}@${primary_ip} failed"
+        log_hint "check ${current_user} in sudoer, @${primary_ip} is ssh accessible"
+        exit 10
+    fi
+}
+
+
+#----------------------------------------------#
+# check deployment mode
+#----------------------------------------------#
+function check_mode(){
+    local mode=${1-${MODE}}
+    local primary_ip=${2-${PRIMARY_IP}}
+    # if mode is explicitly set, just use it
+    if [[ ! -z "${mode}" ]]; then
+        log_info "mode = ${mode} (manually set)"
+        return 0
+    fi
+
+    if [[ "$(whoami)" == "vagrant" ]]; then
+        log_info "mode = demo (vagrant demo)"
+        MODE=demo
+        return 0
+    fi
+    # otherwise, infer from cpu count (<8 tiny, >=8 oltp)
+    if (($(getconf _NPROCESSORS_ONLN)>=8)); then
+        MODE=oltp
+        log_info "mode = oltp (infer from cpu core >= 8)"
+    else
+        MODE=tiny
+        log_info "mode = tiny (infer from cpu core < 8)"
+    fi
+}
+
+#----------------------------------------------#
+# generate config
+#----------------------------------------------#
+function check_config(){
+    local primary_ip=${1-${PRIMARY_IP}}
+    local mode=${2-${MODE}}
+    local pigsty_home=${3-${PIGSTY_HOME}}
+    local sed_cmd="s/10.10.10.10/${primary_ip}/g"
+    local config_src=${pigsty_home}/templates/config/pigsty-${mode}.yml
+    local config_dst=${pigsty_home}/pigsty.yml
+
+    if [[ ! -f ${config_src} ]]; then
+    	log_error "config mode = ${mode} not exists"
+		exit 11
+    fi
+    sed -e ${sed_cmd} ${config_src} > ${config_dst}
+    log_info "config = ${mode}@${primary_ip}"
+}
+
+#----------------------------------------------#
+# check pkg.tgz exists (optionally download)
+#----------------------------------------------#
+function check_pkg(){
+    local pkg_url=${1-${DEFAULT_PKG_URL}}    # default download url
+    local pkg_path=${2-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
+    local download_pkg=${3-${DOWNLOAD_PKG}}  # flag: if set, skip interactive asking
+    local interactive=${4-${INTERACTIVE}}    # bool: if false, do not ask
+
+    if [[ -f ${pkg_path} ]]; then
+        # TODO: checksum validate (but we will use 1GB sanity size check instead)
+        if (($(stat -c%s ${pkg_path})>1073741824)); then
+            log_info "cache = ${pkg_path} exists"
+            return 0
+        else
+            log_warn "cache = ${pkg_path} exists but invalid"
+            rm -rf ${pkg_path}
+        fi
+    fi
+    # ask for confirmation if in interactive mode (and download is not specified)
+    if [[ ${download_pkg} == "false" && ${interactive} == "true" ]]; then
+        log_input "Cache /tmp/pkg.tgz not exists, download? (y/n):"
+        read -r
+        local reply=$(echo "$REPLY" | tr '[:upper:]' '[:lower:]')
+        case "${reply}" in
+            y|yes|ok|true|aye|on) download_pkg=true ;;
+        esac
+    fi
+    if [[ ${download_pkg} == "false" ]]; then
+        log_warn "cache = missing and skip download"
+    else
+        log_info "cache = download from internet"
+        curl -fSL "${pkg_url}" -o "${pkg_path}"
+        return $?
+    fi
+    return 0
+}
+
+#----------------------------------------------#
+# check repo
+#----------------------------------------------#
+# assume user can sudo (pass check_sudo)
+function check_repo(){
+    local pkg_path=${1-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
+    local repo_dir=${2-${REPO_DIR}}          # default repo directory: /www/pigsty
+    local repo_home=$(dirname ${repo_dir})
+    local repo_name=$(basename ${repo_dir})
+    if [[ -f ${repo_dir}/repo_complete ]]; then
+        log_info "repo = ${repo_dir} ok"
+        return 0
+    fi
+    if [[ ! -f ${pkg_path} ]]; then
+        log_warn "repo = skip (${pkg_path} not exists)"
+        return 0
+    fi
+    sudo mkdir -p ${repo_home}
+    if [[ -d ${repo_dir} ]]; then
+        log_warn "repo = invalid, remove"
+        sudo rm -rf ${repo_dir}
+    fi
+    log_info "repo = extract from ${pkg_path}"
+    sudo tar -xf ${pkg_path} -C ${repo_home}  # extract to /www/pigsty
+}
+
+
+#----------------------------------------------#
+# check local file repo
+#----------------------------------------------#
+function check_repo_file(){
+    local repo_name=${1-${REPO_NAME}}
+    local repo_home=${2-${REPO_HOME}}
+    local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
+    if [[ ! -f ${repo_home}/${repo_name}/repo_complete ]]; then
+        log_warn "repo file = skip due to repo not exists"
+        return 0
+    else
+        log_info "repo file = ${repo_file}"
+    fi
+    sudo mkdir -p /etc/yum.repos.d/backup
+    sudo mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ 2> /dev/null || true
+    cat > /tmp/pigsty-local.repo  <<-EOF
+[${repo_name}-local]
+name=${repo_name} local \$releasever - \$basearch
+baseurl=file://${repo_home}/${repo_name}/
+enabled=1
+gpgcheck=0
+EOF
+    sudo cp -f /tmp/pigsty-local.repo ${repo_file}
+    sudo yum clean all -q
+    sudo yum makecache -q
+}
+
+#----------------------------------------------#
+# check bin files
+#----------------------------------------------#
+function check_bin(){
+    local pigsty_home=${1-${PIGSTY_HOME}}
+    local repo_dir=${2-${REPO_DIR}}
+    local target_dir="${pigsty_home:?}/files/bin"
+    if [[ -f ${repo_dir}/repo_complete ]]; then
+        log_info "bin : extract from ${repo_dir}"
+    else
+        log_info "bin : download from internet"
+    fi
+    mkdir -p ${target_dir}
+    sudo ${PIGSTY_HOME}/bin/get_node_exporter -t ${repo_dir}  -v 1.1.2  -p ${target_dir}/node_exporter
+    sudo ${PIGSTY_HOME}/bin/get_pg_exporter   -t ${repo_dir}  -v 0.3.2  -p ${target_dir}/pg_exporter
+    sudo ${PIGSTY_HOME}/bin/get_loki          -t ${repo_dir}  -v 2.2.1  -p ${target_dir}
+    sudo chown ${pigsty_home}/files -Rv --reference=${pigsty_home} 2>/dev/null 1>/dev/null
+}
+
+
+
+#----------------------------------------------#
+# check utils
+#----------------------------------------------#
+# install ansible sshpass unzip wget yum , etc...
+function check_utils(){
+    local repo_name=${1-${REPO_NAME}}
+    local repo_home=${2-${REPO_HOME}}
+    local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
+    # use local file repo if available
+    if [[ -f ${repo_file} ]]; then
+        log_info "utils = install from local file repo"
+        sudo yum install -q -y createrepo sshpass wget yum yum-utils ansible >/dev/null
+    else
+        log_warn "utils = install from default yum repo"
+        sudo yum install -q -y createrepo sshpass wget yum yum-utils epel-release  >/dev/null
+        sudo yum install -q -y ansible  >/dev/null
+    fi
+    # check ansible is installed
+    if command -v ansible-playbook >/dev/null ; then
+        log_info "ansible : $(ansible --version | head -n1)"
+    else
+        log_error "ansible : not found"
+        exit 20
+    fi
+}
+
+#========================================#
+# main
+#========================================#
+function main(){
+    # arg parsing
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -h|--help)
+                echo './configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode {tiny|oltp}]'
+                exit 0;;
+            -i|--ip) PRIMARY_IP="$2" ; shift;;
+            -m|--mode) MODE="$2"     ; shift;;
+            -n|--non-interactive) INTERACTIVE=false ;;
+            -d|--download) DOWNLOAD_PKG=true ;;
+            (--) shift; break;;
+            (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
+            (*) break;;
+        esac
+        shift
+    done
+
+
+    log_hint "configure pigsty begin\n"
+    # check
+    check_kernel     # kernel        = Linux
+    check_machine    # machine       = x86_64
+    check_release    # release       = CentOS 7.x
+    check_sudo       # current_user  = NOPASSWD sudo
+    check_ssh        # current_user  = NOPASSWD ssh
+    check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
+    check_admin      # check current_user@primary_ip nopass ssh sudo
+    check_mode       # check machine spec to determine node mode (tiny|oltp|olap|crit)
+    check_config     # generate config according to primary_ip and mode
+
+    # prepare
+    check_pkg        # check offline installation package exists       (INTERACTIVE: ask for download)
+    check_repo       # create repo from pkg.tgz if exists
+    check_repo_file  # create local file repo file if repo exists
+    check_bin >/dev/null 2>/dev/null      # check special bin files in pigsty/bin
+    check_utils      # check ansible sshpass and other utils installed
+
+    log_hint "configure pigsty end. Use 'make install' to proceed\n"
+}
+
+main $@

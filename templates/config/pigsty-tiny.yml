@@ -1,20 +1,18 @@
 ---
 ######################################################################
-# File      :   pigsty-4node.yml
-# Desc      :   Pigsty Example Configuration for 4-node vagrant sandbox
-# Note      :   Pigsty Sandbox Demo (4 node)
+# File      :   pigsty.yml
+# Desc      :   Pigsty Configuration (Default Tiny Template)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-05-06
+# Mtime     :   2021-05-18
 # Copyright (C) 2018-2021 Ruohang Feng
 ######################################################################
+# Here 10.10.10.10 is a placeholder
 
 
 ######################################################################
 #               Development Environment Inventory                    #
 ######################################################################
-
-
 all: # top-level namespace
 
   #==================================================================#
@@ -35,7 +33,7 @@ all: # top-level namespace
         meta_node: true                    # mark node as meta controller
         ansible_group_priority: 99         # meta group has top priority
       hosts:
-        10.10.10.10:
+        10.10.10.10: {}
 
     #-----------------------------
     # cluster: pg-meta
@@ -52,7 +50,6 @@ all: # top-level namespace
         pg_version: 13                      # define installed pgsql version
         node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
         pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-        patroni_mode: pause                 # enter maintenance mode, {default|pause|remove}
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_lc_ctype: en_US.UTF8             # enabled pg_trgm i18n char support
 
@@ -75,17 +72,7 @@ all: # top-level namespace
           # complete example of user/role definition
           - name: dbuser_pigsty             # pigsty user have admin access (DDL|DML)
             password: DBUser.Pigsty         # example user's password, can be md5 encrypted
-            login: true                     # can login, true by default (should be false for role)
-            superuser: false                # is superuser? false by default
-            createdb: false                 # can create database? false by default
-            createrole: false               # can create role? false by default
-            inherit: true                   # can this role use inherited privileges?
-            replication: false              # can this role do replication? false by default
-            bypassrls: false                # can this role bypass row level security? false by default
             pgbouncer: true                 # add this user to pgbouncer? false by default (true for production user)
-            connlimit: -1                   # connection limit, -1 disable limit
-            expire_in: 3650                 # now + n days when this role is expired (OVERWRITE expire_at)
-            expire_at: '2030-12-31'         # 'timestamp' when this role is expired (OVERWRITTEN by expire_in)
             comment: pigsty admin user      # comment on user/role
             roles: [dbrole_admin]           # dbrole_{admin,readonly,readwrite,offline}
             parameters:                     # additional role level parameters with ALTER ROLE SET
@@ -94,86 +81,15 @@ all: # top-level namespace
         # - defining business databases - #
         pg_databases:
           - name: meta                      # name is the only required field for a database
-            # baseline: metadb/schema.sql   # pigsty meta database baseline
-            # owner: postgres               # optional, database owner
-            # template: template1           # optional, template1 by default
-            # encoding: UTF8                # optional, UTF8 by default , must same as template database, leave blank to set to db default
-            # locale: C                     # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_collate: C                 # optional, C by default , must same as template database, leave blank to set to db default
-            # lc_ctype: C                   # optional, C by default , must same as template database, leave blank to set to db default
-            # tablespace: pg_default        # optional, 'pg_default' is the default tablespace
-            # allowconn: true               # optional, true by default, false disable connect at all
-            # revokeconn: false             # optional, false by default, true revoke connect from public # (only default user and owner have connect privilege on database)
-            # pgbouncer: true               # optional, add this database to pgbouncer list? true by default
             comment: pigsty meta database   # optional, comment string for database
-            connlimit: -1                   # optional, connection limit, -1 or none disable limit (default)
             schemas: [pigsty]               # optional, create additional schema
             extensions:                     # optional, extension name and which schema to create
               - {name: adminpack, schema: pg_catalog}
-            parameters:                       # optional, extra parameters with ALTER DATABASE
-              search_path: 'pigsty,public'    # add pigsty to search_path
-              log_min_duration_statement: 10  # log all action on meta database
+            parameters:                     # optional, extra parameters with ALTER DATABASE
+              search_path: 'pigsty,public'  # add pigsty to search_path
 
         pg_default_database: meta           # default database will be used as primary monitor target
-        vip_mode: l2                        # none|l2|l4, l2 vip are used in sandbox demo
-        vip_address: 10.10.10.2             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
-
-    #-----------------------------
-    # cluster: pg-test
-    #-----------------------------
-    # uncomment this for complete 4-node sandbox demo environment
-
-    pg-test: # define cluster named 'pg-test'
-      # - cluster members - #
-      hosts:
-        10.10.10.11: {pg_seq: 1, pg_role: primary}
-        10.10.10.12: {pg_seq: 2, pg_role: replica}
-        10.10.10.13: {pg_seq: 3, pg_role: offline}
-
-      # - cluster configs - #
-      vars:
-        # basic settings
-        pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 13                      # define installed pgsql version
-        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-        pg_users:
-          - name: test                      # admin user for pg-test, have DDL
-            password: test
-            roles: [dbrole_admin]
-            pgbouncer: true
-            comment: default admin user for test database
-
-          - name: dbuser_test               # production rw-user
-            password: DBUser.Test
-            roles: [dbrole_readwrite]
-            pgbouncer: true
-            comment: default test user for production usage
-
-        pg_databases:                       # create a business database 'test'
-          - name: test                      # use the simplest form
-            extensions:                     # install postgis to test database
-              - {name: postgis, schema: public}
-        pg_default_database: test           # default database will be used as primary monitor target
-
-        # extra service settings
-        pg_services_extra:                  # extra services to be added
-          - name: standby                   # service name pg-meta-standby
-            src_ip: "*"
-            src_port: 5435                  # 5435 routes to sync replica
-            dst_port: postgres
-            check_url: /sync                # use /sync health check
-            selector: "[]"                  # jmespath to filter instances
-            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
-
-        # proxy settings
-        vip_mode: l2                        # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3             # virtual ip address
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
+        vip_mode: none                      # I dont't know if your network allows vip
 
 
   #==================================================================#
@@ -189,11 +105,10 @@ all: # top-level namespace
     # ansible_user: vagrant                       # admin user with ssh access and sudo privilege
 
     proxy_env: # global proxy env when downloading packages
-      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.aliyuncs.com,mirrors.tuna.tsinghua.edu.cn,mirrors.zju.edu.cn,*.myqcloud.com"
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com"
       # http_proxy: ''
       # https_proxy: ''
       # all_proxy: ''
-
 
     #------------------------------------------------------------------------------
     # REPO PROVISION
@@ -212,70 +127,99 @@ all: # top-level namespace
     # - where to download - #
     repo_upstreams:
       - name: base
-        description: CentOS-$releasever - Base - Aliyun Mirror
+        description: CentOS-$releasever - Base
+        gpgcheck: no
         baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/ # tuna
           - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
           - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
-          - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
-        gpgcheck: no
-        failovermethod: priority
+          - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/    # aliyun
+          - http://mirror.centos.org/centos/$releasever/os/$basearch/             # official
 
       - name: updates
-        description: CentOS-$releasever - Updates - Aliyun Mirror
+        description: CentOS-$releasever - Updates
+        gpgcheck: no
         baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/ # tuna
           - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
           - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
-          - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/
-        gpgcheck: no
-        failovermethod: priority
+          - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/    # aliyun
+          - http://mirror.centos.org/centos/$releasever/updates/$basearch/             # official
 
       - name: extras
-        description: CentOS-$releasever - Extras - Aliyun Mirror
+        description: CentOS-$releasever - Extras
         baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/ # tuna
           - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
           - http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/
-          - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/
+          - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/    # aliyun
+          - http://mirror.centos.org/centos/$releasever/extras/$basearch/             # official
         gpgcheck: no
-        failovermethod: priority
 
       - name: epel
-        description: CentOS $releasever - EPEL - Aliyun Mirror
-        baseurl: http://mirrors.aliyun.com/epel/$releasever/$basearch
+        description: CentOS $releasever - epel
         gpgcheck: no
-        failovermethod: priority
+        baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch   # tuna
+          - http://mirrors.aliyun.com/epel/$releasever/$basearch              # aliyun
+          - http://download.fedoraproject.org/pub/epel/$releasever/$basearch  # official
 
       - name: grafana
-        description: Grafana - TsingHua Mirror
+        description: Grafana
+        enabled: no
         gpgcheck: no
-        baseurl: https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
+        baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
+          - https://packages.grafana.com/oss/rpm                    # official
+
+      - name: grafana-beta
+        description: Grafana Beta
+        enabled: yes
+        gpgcheck: no
+        baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm-beta/    # tuna mirror
+          - https://packages.grafana.com/oss/rpm-beta                     # official BETA!
 
       - name: prometheus
         description: Prometheus and exporters
         gpgcheck: no
-        baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
+        baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch # no other mirrors, quite slow
 
-      # consider using ZJU PostgreSQL mirror in mainland china
       - name: pgdg-common
         description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
-        # baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch
+        baseurl:
+          - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
+          - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
 
       - name: pgdg13
         description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
-        # baseurl: http://mirrors.zju.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch
+        baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
+          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
+
+      - name: pgdg14-beta
+        description: PostgreSQL 14 beta for RHEL/CentOS $releasever - $basearch
+        enabled: no
+        gpgcheck: no
+        baseurl:
+        - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
+        - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                     # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
         gpgcheck: no
-        mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-sclo
+        baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
+          - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
+          - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/
 
       - name: centos-sclo-rh
         description: CentOS-$releasever - SCLo rh
         gpgcheck: no
-        mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
+        baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
+          - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/
+          - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/rh/
 
       - name: nginx
         description: Nginx Official Yum Repo
@@ -295,6 +239,7 @@ all: # top-level namespace
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
+
 
     # - what to download - #
     repo_packages:
@@ -336,6 +281,10 @@ all: # top-level namespace
       - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
+      # build & devel packages (optional)
+      - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
+      - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
+
     repo_url_packages:
       # additional rpm packages
       - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
@@ -364,7 +313,7 @@ all: # top-level namespace
     # - node dns - #
     node_dns_hosts: # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
-    node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
+    node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
     node_dns_options:                             # dns resolv options
@@ -388,7 +337,7 @@ all: # top-level namespace
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-      - dnsmasq,nginx,ansible,pgbadger,polysh
+      - dnsmasq,nginx,ansible,pgbadger,polysh,python-psycopg2
 
     # build & devel packages (add to repo_packages too if you want build database & extensions from source)
     # - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
@@ -404,15 +353,7 @@ all: # top-level namespace
     node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
 
     # - node kernel modules - #
-    node_kernel_modules:
-      - softdog
-      - br_netfilter
-      - ip_vs
-      - ip_vs_rr
-      - ip_vs_rr
-      - ip_vs_wrr
-      - ip_vs_sh
-      - nf_conntrack_ipv4
+    node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
@@ -437,6 +378,7 @@ all: # top-level namespace
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
       - server 10.10.10.10 iburst
+      - server ntp.tuna.tsinghua.edu.cn iburst
 
 
     #------------------------------------------------------------------------------
@@ -457,15 +399,11 @@ all: # top-level namespace
       - { name: prometheus,    host: p.pigsty, url: "127.0.0.1:9090" }
       - { name: alertmanager,  host: a.pigsty, url: "127.0.0.1:9093" }
       - { name: haproxy,       host: h.pigsty, url: "127.0.0.1:9091" }
+      - { name: server,        host: s.pigsty, url: "127.0.0.1:9633" }
 
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.11 node-1                        # sandbox node node-1
-      - 10.10.10.12 node-2                        # sandbox node node-2
-      - 10.10.10.13 node-3                        # sandbox node node-3
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
       - 10.10.10.10 c.pigsty consul.pigsty
@@ -476,7 +414,7 @@ all: # top-level namespace
       - 10.10.10.10 h.pigsty haproxy.pigsty
 
     # - prometheus - #
-    prometheus_data_dir: /export/prometheus/data  # prometheus data dir
+    prometheus_data_dir: /data/prometheus/data    # prometheus data dir
     prometheus_options: '--storage.tsdb.retention=30d'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: consul                  # service discovery method: static|consul|etcd
@@ -514,7 +452,7 @@ all: # top-level namespace
 
     # - loki - #
     loki_clean: false                 # whether remove existing loki data
-    loki_data_dir: /export/loki       # default loki data dir
+    loki_data_dir: /data/loki         # default loki data dir
 
 
     #------------------------------------------------------------------------------
@@ -525,8 +463,6 @@ all: # top-level namespace
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
-      # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
-      # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
@@ -592,15 +528,14 @@ all: # top-level namespace
 
     # - storage - #
     pg_data: /pg/data                             # postgres data directory
-    pg_fs_main: /export                           # data disk mount point     /pg -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
-    pg_fs_bkup: /var/backups                      # backup disk mount point   /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
+    pg_fs_main: /data                             # data disk mount point     /pg -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
+    pg_fs_bkup: /data/backups                     # backup disk mount point   /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
 
     # - connection - #
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' by default (all ipv4 addr)
     pg_port: 5432                                 # postgres port (5432 by default)
     pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
     # pg_upstream:                                # [OPTIONAL] specify replication upstream (set on primary transform cluster into a standby cluster)
-
 
     # - patroni - #
     # patroni_mode, available options: default|pause|remove
