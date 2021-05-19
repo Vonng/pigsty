@@ -528,6 +528,19 @@ copy-cf:
 	scp configure meta:~/pigsty/configure
 	ssh meta "bash /home/vagrant/pigsty/configure -i 10.10.10.10"
 
+# debug grafana-echarts plugins
+copy-gf:
+	ssh meta "sudo rm -rf /var/lib/grafana/plugins/grafana-echarts/dist /tmp/dist"
+	scp -r ~/dev/grafana-echarts/dist meta:/tmp/dist
+	ssh meta "sudo mv /tmp/dist /var/lib/grafana/plugins/grafana-echarts/dist"
+	ssh meta "sudo systemctl restart grafana-server"
+
+# debug datalets
+copy-dl:
+	ssh meta "sudo rm -rf datalets"
+	scp -r ~/dev/datalets meta:~/datalets
+
+
 ###############################################################
 
 

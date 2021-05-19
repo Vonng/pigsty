@@ -1,7 +1,8 @@
 ---
 ######################################################################
-# File      :   pigsty.yml
-# Desc      :   Pigsty Configuration (Default Setup)
+# File      :   pigsty-demo.yml
+# Desc      :   Pigsty config for single-node vagrant sandbox demo
+# Note      :   Pigsty Sandbox Demo (single node, default)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-05-18
@@ -10,8 +11,14 @@
 
 
 ######################################################################
-#               Development Environment Inventory                    #
+#                          Vagrant Nodes                             #
+#====================================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)              #
+# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
+# vip :  10.10.10.2   --->  pg-meta (10.10.10.10)                    #
 ######################################################################
+
+
 all: # top-level namespace
 
   #==================================================================#
@@ -117,61 +124,6 @@ all: # top-level namespace
         vip_interface: eth1                 # interface to add virtual ip
 
 
-    #-----------------------------
-    # cluster: pg-test
-    #-----------------------------
-    # uncomment this for complete 4-node sandbox demo environment
-
-    #pg-test: # define cluster named 'pg-test'
-    #  # - cluster members - #
-    #  hosts:
-    #    10.10.10.11: {pg_seq: 1, pg_role: primary}
-    #    10.10.10.12: {pg_seq: 2, pg_role: replica}
-    #    10.10.10.13: {pg_seq: 3, pg_role: offline}
-    #
-    #  # - cluster configs - #
-    #  vars:
-    #    # basic settings
-    #    pg_cluster: pg-test                 # define actual cluster name
-    #    pg_version: 13                      # define installed pgsql version
-    #    node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
-    #    pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
-    #    pg_users:
-    #      - name: test                      # admin user for pg-test, have DDL
-    #        password: test
-    #        roles: [dbrole_admin]
-    #        pgbouncer: true
-    #        comment: default admin user for test database
-    #
-    #      - name: dbuser_test               # production rw-user
-    #        password: DBUser.Test
-    #        roles: [dbrole_readwrite]
-    #        pgbouncer: true
-    #        comment: default test user for production usage
-    #
-    #    pg_databases:                       # create a business database 'test'
-    #      - name: test                      # use the simplest form
-    #        extensions:                     # install postgis to test database
-    #          - {name: postgis, schema: public}
-    #    pg_default_database: test           # default database will be used as primary monitor target
-    #
-    #    # extra service settings
-    #    pg_services_extra:                  # extra services to be added
-    #      - name: standby                   # service name pg-meta-standby
-    #        src_ip: "*"
-    #        src_port: 5435                  # 5435 routes to sync replica
-    #        dst_port: postgres
-    #        check_url: /sync                # use /sync health check
-    #        selector: "[]"                  # jmespath to filter instances
-    #        selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service
-    #
-    #    # proxy settings
-    #    vip_mode: l2                        # enable/disable vip (require members in same LAN)
-    #    vip_address: 10.10.10.3             # virtual ip address
-    #    vip_cidrmask: 8                     # cidr network mask length
-    #    vip_interface: eth1                 # interface to add virtual ip
-
-
   #==================================================================#
   #                           Globals                                #
   #==================================================================#
@@ -247,7 +199,7 @@ all: # top-level namespace
 
       - name: grafana
         description: Grafana
-        enabled: no
+        enabled: yes
         gpgcheck: no
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
@@ -255,7 +207,7 @@ all: # top-level namespace
 
       - name: grafana-beta
         description: Grafana Beta
-        enabled: yes
+        enabled: no
         gpgcheck: no
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm-beta/    # tuna mirror
@@ -285,8 +237,8 @@ all: # top-level namespace
         enabled: no
         gpgcheck: no
         baseurl:
-        - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
-        - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                     # official
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
+          - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -393,7 +345,7 @@ all: # top-level namespace
     # nodename:                                   # if defined, node's hostname will be overwritten
 
     # - node dns - #
-    node_dns_hosts: # static dns records in /etc/hosts
+    node_dns_hosts:                               # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -486,11 +438,7 @@ all: # top-level namespace
     # - nameserver - #
     dns_records: # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.11 node-1                        # sandbox node node-1
-      - 10.10.10.12 node-2                        # sandbox node node-2
-      - 10.10.10.13 node-3                        # sandbox node node-3
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
       - 10.10.10.10 c.pigsty consul.pigsty
@@ -513,7 +461,7 @@ all: # top-level namespace
     grafana_url: http://admin:admin@10.10.10.10:3000 # grafana url
     grafana_admin_password: admin                    # default grafana admin user password
     grafana_plugin: install                          # none|install|reinstall
-    grafana_cache: /www/pigsty/grafana/plugins.tgz   # path to grafana plugins tarball
+    grafana_cache: /www/pigsty/plugins.tgz           # path to grafana plugins tarball
     grafana_customize: false                         # customize grafana resources
     grafana_plugins: # default grafana plugins list
       - redis-datasource
