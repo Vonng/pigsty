@@ -132,14 +132,6 @@ c: configure
 conf:
 	./configure --ip ${IP} --mode ${MODE} --download
 
-# use default demo (1 node) config template
-demo:
-	./configure --ip 10.10.10.10 --mode demo
-
-# use full demo (4 node) config template
-demo4:
-	./configure --ip 10.10.10.10 --mode demo4
-
 ###############################################################
 
 
@@ -325,7 +317,7 @@ pg-db:
 #  (1). make deps    (once) Install MacOS deps with homebrew
 #  (2). make dns     (once) Write static DNS
 #  (3). make start   (once) Pull-up vm nodes and setup ssh access
-#  (4). make meta           Boot meta node same as Quick-Start
+#  (4). make demo           Boot meta node same as Quick-Start
 #=============================================================#
 
 #------------------------------#
@@ -354,19 +346,21 @@ ssh:               # add node ssh config to your ~/.ssh/config
 	bin/ssh
 
 #------------------------------#
-# meta
+# demo
 #------------------------------#
 # tips: (make fetch & make upload will accelerate next vm bootstrap)
 
 # ssh meta and run standard install procedure same as Quick-Start
-meta:
+demo:
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo --non-interactive --download'
-	ssh meta 'cd /home/vagrant/pigsty; make install'
+	ssh meta 'cd ~/pigsty; make install'
 
 # 4-node version
-meta4:
+demo4:
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo4 --non-interactive --download'
-	ssh meta 'cd /home/vagrant/pigsty; make install'
+	ssh meta 'cd ~/pigsty; make install'
+	ssh meta 'cd ~/pigsty; ./pgsql.yml -l pg-test'
+
 
 #==============================================================#
 #                       VM Management                          #
@@ -407,7 +401,7 @@ dw4:
 	cd vagrant && vagrant halt
 del4:
 	cd vagrant && vagrant destroy -f
-new4: del up
+new4: del4 up4
 s4:  # sync time
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
 
@@ -576,6 +570,17 @@ publish-beta:
 svg:
 	bin/play_svg
 
+# make cache from meta node and put into release dir
+release-pkg:
+	mkdir -p files/release/v${VERSION}/
+	ssh meta '~/pigsty/bin/cache'
+	scp meta:/tmp/pkg.tgz files/release/v${VERSION}/pkg.tgz
+
+# make pkg cache from meta node
+cache-pkg:
+	ssh meta '~/pigsty/bin/cache'
+	scp meta:/tmp/pkg.tgz files/pkg.tgz
+
 ###############################################################
 
 
@@ -595,13 +600,13 @@ svg:
         pgsql-business pgsql-monitor pgsql-service pgsql-promtail \
         node-remove dcs-remove pgsql-remove \
         pg-user pg-db \
-        deps dns start start4 ssh fetch upload \
+        deps dns start start4 ssh \
         up dw del new s up-test dw-test del-test new-test s-test \
         up4 dw4 del4 new4 s4 \
         st status suspend resume \
         rl ri rw ro rw2 ro2 r1 r2 r3 \
-        copy copy-all copy-src copy-pro copy-pkg copy-ui copy-fui copy-cf \
+        fetch upload copy copy-all copy-src copy-pro copy-pkg copy-ui copy-fui copy-cf \
         r release p publish pb publish-beta \
-        svg
+        svg release-pkg cache-pkg
 
 ###############################################################

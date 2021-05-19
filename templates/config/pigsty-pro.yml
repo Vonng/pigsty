@@ -1,7 +1,7 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty Configuration (Default OLTP Template)
+# Desc      :   Pigsty Configuration (Default Tiny Template)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-05-18
@@ -48,8 +48,8 @@ all: # top-level namespace
       vars:
         pg_cluster: pg-meta                 # define actual cluster name
         pg_version: 13                      # define installed pgsql version
-        node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: oltp.yml                   # tune pgsql into oltp|olap|crit|tiny mode
+        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_lc_ctype: en_US.UTF8             # enabled pg_trgm i18n char support
 
@@ -204,8 +204,8 @@ all: # top-level namespace
         enabled: no
         gpgcheck: no
         baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
-          - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
+        - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
+        - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -427,7 +427,7 @@ all: # top-level namespace
     grafana_admin_password: admin                    # default grafana admin user password
     grafana_plugin: install                          # none|install|reinstall
     grafana_cache: /www/pigsty/grafana/plugins.tgz   # path to grafana plugins tarball
-    grafana_customize: false                         # customize grafana resources
+    grafana_customize: true                          # customize grafana resources
     grafana_plugins: # default grafana plugins list
       - redis-datasource
       - simpod-json-datasource

@@ -150,7 +150,7 @@ function can_nopass_ssh(){
     local current_user=$(whoami)
     local user=${1-${current_user}}
     local ipaddr=${2-'127.0.0.1'}
-    if ssh -o "StrictHostKeyChecking no" ${user}@${ipaddr} 'ls' 1>/dev/null 2>/dev/null; then
+    if ssh -oBatchMode=yes -o "StrictHostKeyChecking no" ${user}@${ipaddr} 'ls' 1>/dev/null 2>/dev/null; then
         return 0
     else
         return 1
@@ -234,13 +234,13 @@ function check_ipaddr(){
     fi
 
     local ipCount=$(get_ip_count)
-    if ((ipCount<=1)); then
+    if ((ipCount<1)); then
         log_error "primary_ip = probe failed"
         exit 8
     fi
     if ((ipCount==1)); then
         log_info "primary_ip = $(hostname --all-ip-addresses) (from probe)"
-        PRIMARY_IP=$(hostname --all-ip-addresses)
+        PRIMARY_IP=$(hostname --all-ip-addresses | egrep -o '(([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
         return 0
     fi
 

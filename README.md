@@ -14,17 +14,27 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 >
 > The final 1.0 GA version will be released near June~July 2021
 
+
+
 ## Quick Start
 
-Prepare a CentOS 7.x meta node with root or sudo access.  
+Run on a fresh CentOS 7 node to install pigsty (user must have nopass sudo privilege)  
 
 ```bash
 curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~; cd ~/pigsty  # DOWNLOAD
-./configure    # CONFIGURE (interactive wizard)
+make config    # CONFIGURE (interactive wizard)
 make install   # INSTALL infrasturcture on meta node
 ```
 
-And you will have everything ready. Check documentation for more information. 
+Run on your **Mac** to get CentOS 7.8 nodes on your laptop (Pigsty Demo Env),
+
+```bash
+make deps   # Install MacOS deps with homebrew
+make dns    # Write static DNS
+make start  # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
+make demo   # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
+```
+
 
 ## Highlights
 
@@ -35,30 +45,6 @@ And you will have everything ready. Check documentation for more information.
 * [Offline Installation](#offline-installation) without Internet access. Fast and reliable.
 * Infrastructure as Code. Fully configurable and customizable. 
 * Based on PostgreSQL 13 and Patroni 2. Verified in proudction environment (CentOS 7, 200+nodes)
-
-
-
-## Get Node
-
-Consider running pigsty sandbox demo with virtualbox & vagrant.
-
-<details>
-<summary>Run pigsty on your laptop</summary>
-
-> The easiest way to get a node is using cloud-services. But if you wish to run pigsty on your laptop. You can either create CentOS 7.8 vm nodes with software such as vmware, parallel desktop, virtualbox manually. Or just leave it to [vagrant](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile).  For MacOS users, these makefile shortcuts will setup a vm node (ip: 10.10.10.10) on your Mac host using [virtualbox](https://www.virtualbox.org/wiki/Downloads). After that everything is same as [Quick Start](#quick-start).
->
-> ```bash
-> cd /tmp && git clone git@github.com:Vonng/pigsty.git && cd pigsty
-> make deps        # Install MacOS deps with homebrew: vagrant virtualbox ansible
-> make download    # Download packages to files/release/v*.*/{pkg,pigsty}.tgz
-> make start       # launch vagrant vm nodes based on vagrant/Vagrantfile
-> make dns         # write static DNS record to your host (sudo required)
-> make copy        # copy pigsty resource to vagrant meta vm  node
-> ```
->
-> Verified Environment:: MacOS 11, Vagrant 2.2.14, Virtualbox 6.1.16
-
-</details>
 
 
 

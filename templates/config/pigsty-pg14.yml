@@ -1,7 +1,7 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty Configuration (Default OLTP Template)
+# Desc      :   Pigsty Configuration (Default Tiny Template)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-05-18
@@ -47,9 +47,9 @@ all: # top-level namespace
       # - cluster configs - #
       vars:
         pg_cluster: pg-meta                 # define actual cluster name
-        pg_version: 13                      # define installed pgsql version
-        node_tune: oltp                     # tune node into oltp|olap|crit|tiny mode
-        pg_conf: oltp.yml                   # tune pgsql into oltp|olap|crit|tiny mode
+        pg_version: 14                      # define installed pgsql version
+        node_tune: tiny                     # tune node into oltp|olap|crit|tiny mode
+        pg_conf: tiny.yml                   # tune pgsql into oltp|olap|crit|tiny mode
         patroni_watchdog_mode: off          # disable watchdog (require|automatic|off)
         pg_lc_ctype: en_US.UTF8             # enabled pg_trgm i18n char support
 
@@ -166,7 +166,7 @@ all: # top-level namespace
 
       - name: grafana
         description: Grafana
-        enabled: yes
+        enabled: no
         gpgcheck: no
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
@@ -174,7 +174,7 @@ all: # top-level namespace
 
       - name: grafana-beta
         description: Grafana Beta
-        enabled: no
+        enabled: yes
         gpgcheck: no
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm-beta/    # tuna mirror
@@ -194,6 +194,7 @@ all: # top-level namespace
 
       - name: pgdg13
         description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+        enabled: no
         gpgcheck: no
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
@@ -201,7 +202,7 @@ all: # top-level namespace
 
       - name: pgdg14-beta
         description: PostgreSQL 14 beta for RHEL/CentOS $releasever - $basearch
-        enabled: no
+        enabled: yes
         gpgcheck: no
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
@@ -269,17 +270,20 @@ all: # top-level namespace
       - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel                # other common utils
       - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
 
+      # postgres 14 packages
+      - postgresql14*
+
       # postgres 13 packages
-      - postgresql13* postgis31* citus_13 timescaledb_13 # pgrouting_13                         # postgres 13 and postgis 31
-      - pg_repack13 pg_squeeze13                                                                # maintenance extensions
-      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
-      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
-      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
-      - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
-      - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
-      - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
-      - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
+      # - postgresql13* postgis31* citus_13 timescaledb_13 # pgrouting_13                         # postgres 13 and postgis 31
+      # - pg_repack13 pg_squeeze13                                                                # maintenance extensions
+      # - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
+      # - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
+      # - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
+      # - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
+      # - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
+      # - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
+      # - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
+      # - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
@@ -427,7 +431,7 @@ all: # top-level namespace
     grafana_admin_password: admin                    # default grafana admin user password
     grafana_plugin: install                          # none|install|reinstall
     grafana_cache: /www/pigsty/grafana/plugins.tgz   # path to grafana plugins tarball
-    grafana_customize: false                         # customize grafana resources
+    grafana_customize: true                          # customize grafana resources
     grafana_plugins: # default grafana plugins list
       - redis-datasource
       - simpod-json-datasource
@@ -480,20 +484,20 @@ all: # top-level namespace
     pg_dbsu_ssh_exchange: false                   # exchange ssh key among same cluster
 
     # - postgres packages - #
-    pg_version: 13                                # default postgresql version
+    pg_version: 14                                # default postgresql version
     pgdg_repo: false                              # use official pgdg yum repo (disable if you have local mirror)
     pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir
-    pg_packages:
+    pg_packages:                                  # 14 is under beta now
       - postgresql${pg_version}*
-      - postgis31_${pg_version}*
-      - pgbouncer patroni pg_exporter pgbadger
-      - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
-      - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
-      - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
+      # - postgis31_${pg_version}*
+      # - pgbouncer patroni pg_exporter pgbadger
+      # - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
+      # - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
+      # - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
 
-    pg_extensions:
-      - pg_repack${pg_version} pg_qualstats${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version}
+    pg_extensions: []
+      # - pg_repack${pg_version} pg_qualstats${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version}
       # - ogr_fdw${pg_version} mysql_fdw_${pg_version} redis_fdw_${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version}
       # - count_distinct${version}  ddlx_${version}  geoip${version}  orafce${version}                                   # popular features
       # - hypopg_${version}  ip4r${version}  jsquery_${version}  logerrors_${version}  periods_${version}  pg_auto_failover_${version}  pg_catcheck${version}
