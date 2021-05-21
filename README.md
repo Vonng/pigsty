@@ -35,6 +35,7 @@ make start  # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
 make demo   # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
 ```
 
+Check [**Quick Start**](https://pigsty.cc/zh/docs/quick-start/) for more information.
 
 ## Highlights
 
