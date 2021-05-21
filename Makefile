@@ -352,11 +352,13 @@ ssh:               # add node ssh config to your ~/.ssh/config
 
 # ssh meta and run standard install procedure same as Quick-Start
 demo:
+	ssh meta "curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~"
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo --non-interactive --download'
 	ssh meta 'cd ~/pigsty; make install'
 
 # 4-node version
 demo4:
+	ssh meta "curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~"
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo4 --non-interactive --download'
 	ssh meta 'cd ~/pigsty; make install'
 	ssh meta 'cd ~/pigsty; ./pgsql.yml -l pg-test'
@@ -383,7 +385,7 @@ s:  # sync time
 # pg-test nodes (node-{1,2,3})
 #------------------------------#
 up-test:
-	cd vagrant && vagrant up node-1 node-2 node-3a
+	cd vagrant && vagrant up node-1 node-2 node-3
 dw-test:
 	cd vagrant && vagrant halt node-1 node-2 node-3
 del-test:
@@ -470,6 +472,12 @@ r3:
 ###############################################################
 #                       7. Develop                            #
 ###############################################################
+
+#------------------------------#
+# datalets
+#------------------------------#
+datalets:
+	cd ~ && git clone https://github.com/Vonng/datalets
 
 #------------------------------#
 # resource
