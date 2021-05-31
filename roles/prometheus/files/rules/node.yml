@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   node.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2020-12-03
+# Mtime     :   2021-05-30
 # Desc      :   Record and alert rules for node exporter
 # Path      :   /etc/prometheus/rules/node.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -17,86 +17,132 @@ groups:
       #==============================================================#
       #                         Aliveness                            #
       #==============================================================#
-      # TODO: change this to your node exporter port
+      # TODO: change this to your node exporter port  (9100 by default)
       - record: node_exporter_up
-        expr: up{instance=~".*:9099"}
+        expr: min by (cls,ins) (up{instance=~".*:9100"})
+
+      # TODO: change this yo your haproxy exporter port (9101 by default)
+      - record: haproxy_exporter_up
+        expr: min by (cls,ins) (up{instance=~".*:9101"})
+
+      # seconds since node bootstrap
       - record: node:uptime
-        expr: time() - node_boot_time_seconds{}
+        expr: time() - min by (cls,ins) (node_boot_time_seconds{})
 
 
       #==============================================================#
       #                             CPU                              #
       #==============================================================#
-      # cpu mode time ratio
-      - record: node:cpu:cpu_mode
-        expr: irate(node_cpu_seconds_total{}[1m])
-      - record: node:ins:cpu_mode
-        expr: sum without (cpu) (node:cpu:cpu_mode)
-      - record: node:cls:cpu_mode
-        expr: sum by (cls, mode) (node:ins:cpu_mode)
 
-      # cpu schedule time-slices
+      #--------------------------------#
+      #           CPU Usage            #
+      #--------------------------------#
+
+      # cpu mode time ratio
+      - record: node:cpu:cpu_idle
+        expr: sum by (cls,ins,cpu) (irate(node_cpu_seconds_total{mode="idle"}[1m]))
+      - record: node:cpu:cpu_time
+        expr: sum by (cls,ins,cpu) (irate(node_cpu_seconds_total{}[1m]))
+
+      # instance cpu usage , cluster cpu usage
+      - record: node:cpu:cpu_usage
+        expr: 1 - node:cpu:cpu_idle / node:cpu:cpu_time
+      - record: node:ins:cpu_usage
+        expr: avg by (cls, ins) (node:cpu:cpu_usage)
+      - record: node:cls:cpu_usage
+        expr: avg by (cls) (node:cpu:cpu_usage)
+
+      # cpu usage rate1m
+      - record: node:cpu:cpu_usage_1m
+        expr: avg_over_time(node:cpu:cpu_usage[1m])
+      - record: node:ins:cpu_usage_1m
+        expr: avg_over_time(node:ins:cpu_usage[1m])
+      - record: node:cls:cpu_usage_1m
+        expr: avg_over_time(node:cls:cpu_usage[1m])
+
+      # cpu usage rate5m
+      - record: node:cpu:cpu_usage_5m
+        expr: avg_over_time(node:cpu:cpu_usage[5m])
+      - record: node:ins:cpu_usage_5m
+        expr: avg_over_time(node:ins:cpu_usage[5m])
+      - record: node:cls:cpu_usage_5m
+        expr: avg_over_time(node:cls:cpu_usage[5m])
+
+      # cpu usage rate15m
+      - record: node:cpu:cpu_usage_15m
+        expr: avg_over_time(node:cpu:cpu_usage[15m])
+      - record: node:ins:cpu_usage_15m
+        expr: avg_over_time(node:ins:cpu_usage[15m])
+      - record: node:cls:cpu_usage_15m
+        expr: avg_over_time(node:cls:cpu_usage[15m])
+
+
+      #--------------------------------#
+      #           CPU Count            #
+      #--------------------------------#
+      # cpu count
+      - record: node:ins:cpu_count
+        expr: count by (cls,ins) (node:cpu:cpu_usage)
+      - record: node:cls:cpu_count
+        expr: count by (cls) (node:cpu:cpu_usage)
+
+
+      #--------------------------------#
+      #         CPU Time-slice         #
+      #--------------------------------#
+      # cpu schedule time-slices by (cpu,ins,cls)
       - record: node:cpu:sched_timeslices
-        expr: irate(node_schedstat_timeslices_total{}[1m])
+        expr: sum by (cls,ins,cpu) (irate(node_schedstat_timeslices_total{}[1m]))
       - record: node:ins:sched_timeslices
-        expr: sum without (cpu) (node:cpu:sched_timeslices)
+        expr: sum by (ins) (node:cpu:sched_timeslices)
       - record: node:cls:sched_timeslicesa
         expr: sum by (cls) (node:ins:sched_timeslices)
 
-      # cpu count
-      - record: node:ins:cpu_count
-        expr: count without (cpu) (node:cpu:cpu_usage)
-      - record: node:cls:cpu_count
-        expr: sum by (cls) (node:ins:cpu_count)
-
-      # cpu usage
-      - record: node:cpu:cpu_usage
-        expr: 1 - sum without (mode) (node:cpu:cpu_mode{mode="idle"})
-      - record: node:ins:cpu_usage
-        expr: sum without (cpu) (node:cpu:cpu_usage) / node:ins:cpu_count
-      - record: node:cls:cpu_usage
-        expr: sum by (cls) (node:ins:cpu_usage * node:ins:cpu_count) / sum by (cls) (node:ins:cpu_count)
-
-      # cpu usage avg5m
-      - record: node:cpu:cpu_usage_avg5m
-        expr: avg_over_time(node:cpu:cpu_usage[5m])
-      - record: node:ins:cpu_usage_avg5m
-        expr: avg_over_time(node:ins:cpu_usage[5m])
-      - record: node:cls:cpu_usage_avg5m
-        expr: avg_over_time(node:cls:cpu_usage[5m])
 
       #==============================================================#
       #                            Memory                            #
       #==============================================================#
-      # mem usage
+      # application memory usage
       - record: node:ins:mem_app
-        expr: node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes - node_memory_Slab_bytes - node_memory_PageTables_bytes - node_memory_SwapCached_bytes
+        expr: max by (cls,ins) (node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes - node_memory_Slab_bytes - node_memory_PageTables_bytes - node_memory_SwapCached_bytes)
+
+      # free memory
       - record: node:ins:mem_free
-        expr: node_memory_MemFree_bytes{} + node_memory_Cached_bytes{}
+        expr: max by (cls,ins) (node_memory_MemFree_bytes + node_memory_Cached_bytes)
+
+      # memory usage by instance (application mem)
       - record: node:ins:mem_usage
-        expr: node:ins:mem_app / node_memory_MemTotal_bytes
+        expr: node:ins:mem_app / on(cls,ins) node_memory_MemTotal_bytes
+
+      # memory usage by cluster (application mem)
       - record: node:cls:mem_usage
         expr: sum by (cls) (node:ins:mem_app) / sum by (cls) (node_memory_MemTotal_bytes)
+
+      # swap memory usage by instance
       - record: node:ins:swap_usage
-        expr: 1 - node_memory_SwapFree_bytes{} / node_memory_SwapTotal_bytes{}
+        expr: 1 - min by (cls,ins) (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)
 
 
       #==============================================================#
       #                            Disk                              #
       #==============================================================#
+
+      #--------------------------------#
+      #           Disk IOPS            #
+      #--------------------------------#
       # disk read iops
       - record: node:dev:disk_read_iops
-        expr: irate(node_disk_reads_completed_total{device=~"[a-zA-Z-_]+"}[1m])
+        expr: sum by (cls,ins,device) (irate(node_disk_reads_completed_total{device=~"[a-zA-Z-_]+"}[1m]))
       - record: node:ins:disk_read_iops
-        expr: sum without (device) (node:dev:disk_read_iops)
+        expr: sum by (cls,ins) (node:dev:disk_read_iops)
       - record: node:cls:disk_read_iops
         expr: sum by (cls) (node:ins:disk_read_iops)
 
       # disk write iops
       - record: node:dev:disk_write_iops
-        expr: irate(node_disk_writes_completed_total{device=~"[a-zA-Z-_]+"}[1m])
+        expr: sum by (cls,ins,device) (irate(node_disk_writes_completed_total{device=~"[a-zA-Z-_]+"}[1m]))
       - record: node:ins:disk_write_iops
-        expr: sum without (device) (node:dev:disk_write_iops)
+        expr: sum by (cls,ins) (node:dev:disk_write_iops)
       - record: node:cls:disk_write_iops
         expr: sum by (cls) (node:ins:disk_write_iops)
 
@@ -108,19 +154,22 @@ groups:
       - record: node:cls:disk_iops
         expr: node:cls:disk_read_iops + node:cls:disk_write_iops
 
+      #--------------------------------#
+      #         Disk Bandwidth         #
+      #--------------------------------#
       # read bandwidth (rate1m)
       - record: node:dev:disk_read_rate
-        expr: rate(node_disk_read_bytes_total{device=~"[a-zA-Z-_]+"}[1m])
+        expr: sum by (cls,ins,device) (irate(node_disk_read_bytes_total{device=~"[a-zA-Z-_]+"}[1m]))
       - record: node:ins:disk_read_rate
-        expr: sum without (device) (node:dev:disk_read_rate)
+        expr: sum by (cls,ins) (node:dev:disk_read_rate)
       - record: node:cls:disk_read_rate
         expr: sum by (cls) (node:ins:disk_read_rate)
 
       # write bandwidth (rate1m)
       - record: node:dev:disk_write_rate
-        expr: rate(node_disk_written_bytes_total{device=~"[a-zA-Z-_]+"}[1m])
+        expr: sum by (cls,ins,device) (irate(node_disk_written_bytes_total{device=~"[a-zA-Z-_]+"}[1m]))
       - record: node:ins:disk_write_rate
-        expr: sum without (device) (node:dev:disk_write_rate)
+        expr: sum by (cls,ins) (node:dev:disk_write_rate)
       - record: node:cls:disk_write_rate
         expr: sum by (cls) (node:ins:disk_write_rate)
 
@@ -132,11 +181,14 @@ groups:
       - record: node:cls:disk_io_rate
         expr: node:cls:disk_read_rate + node:cls:disk_write_rate
 
+      #--------------------------------#
+      #           Disk Time            #
+      #--------------------------------#
       # read/write total time
       - record: node:dev:disk_read_time
-        expr: rate(node_disk_read_time_seconds_total{device=~"[a-zA-Z-_]+"}[1m])
+        expr: sum by (cls,ins,device) (irate(node_disk_read_time_seconds_total{device=~"[a-zA-Z-_]+"}[1m]))
       - record: node:dev:disk_write_time
-        expr: rate(node_disk_read_time_seconds_total{device=~"[a-zA-Z-_]+"}[1m])
+        expr: sum by (cls,ins,device) (irate(node_disk_read_time_seconds_total{device=~"[a-zA-Z-_]+"}[1m]))
 
       # read/write response time
       - record: node:dev:disk_read_rt
@@ -152,17 +204,17 @@ groups:
       #==============================================================#
       # transmit bandwidth (out)
       - record: node:dev:network_tx
-        expr: irate(node_network_transmit_bytes_total{}[1m])
+        expr: sum by (cls,ins,device) (irate(node_network_transmit_bytes_total{}[1m]))
       - record: node:ins:network_tx
-        expr: sum without (device) (node:dev:network_tx{device!~"lo|bond.*"})
+        expr: sum by (cls,ins) (node:dev:network_tx{device!~"lo|bond.*"})
       - record: node:cls:network_tx
         expr: sum by (cls) (node:ins:network_tx)
 
       # receive bandwidth (in)
       - record: node:dev:network_rx
-        expr: irate(node_network_receive_bytes_total{}[1m])
+        expr: sum by (cls,ins,device) (irate(node_network_receive_bytes_total{}[1m]))
       - record: node:ins:network_rx
-        expr: sum without (device) (node:dev:network_rx{device!~"lo|bond.*"})
+        expr: sum by (cls,ins) (node:dev:network_rx{device!~"lo|bond.*"})
       - record: node:cls:network_rx
         expr: sum by (cls) (node:ins:network_rx)
 
@@ -180,35 +232,70 @@ groups:
       #==============================================================#
       # normalized load
       - record: node:ins:stdload1
-        expr: node_load1 / node:ins:cpu_count
+        expr: node_load1 / on(cls,ins) node:ins:cpu_count
       - record: node:ins:stdload5
-        expr: node_load5 / node:ins:cpu_count
+        expr: node_load5 / on(cls,ins) node:ins:cpu_count
       - record: node:ins:stdload15
-        expr: node_load15 / node:ins:cpu_count
+        expr: node_load15 / on(cls,ins) node:ins:cpu_count
 
-      # process
+      # process fork
       - record: node:ins:forks
-        expr: irate(node_forks_total[1m])
-      # interrupt & context switch
-      - record: node:ins:intrrupt
-        expr: irate(node_intr_total[1m])
+        expr: sum by (cls, ins) (irate(node_forks_total[1m]))
+
+      # interrupt rate
+      - record: node:ins:interupt
+        expr: sum by (cls,ins) (irate(node_intr_total[1m]))
+
+      # context switch
       - record: node:ins:ctx_switch
-        expr: irate(node_context_switches_total{}[1m])
+        expr: sum by (cls,ins) (irate(node_context_switches_total{}[1m]))
+
+      #--------------------------------#
+      #        Node Saturation         #
+      #--------------------------------#
+      #==============================================================#
+      #                      Node Saturation                         #
+      #==============================================================#
+      # max value of pg:ins:load or pgbouncer:ins:load
+      # pg saturation of instance level 1,5,15
+      - record: node:ins:saturation1
+        expr: max by (cls,ins)(node:ins:stdload1 or node:ins:cpu_usage_1m)
+      - record: node:ins:saturation5
+        expr: max by (cls,ins)(node:ins:stdload5 or node:ins:cpu_usage_5m)
+      - record: node:ins:saturation15
+        expr: max by (cls,ins)(node:ins:stdload15 or node:ins:cpu_usage_15m)
+
+      # pg saturation of cluster level 1,5,15
+      - record: node:cls:saturation1
+        expr: max by (cls) (node:cls:load1 or node:cls:cpu_usage_1m)
+      - record: node:cls:saturation5
+        expr: max by (cls) (node:cls:load5 or node:cls:cpu_usage_5m)
+      - record: node:cls:saturation15
+        expr: max by (cls) (node:cls:load15 or node:cls:cpu_usage_15m)
 
 
       #==============================================================#
       #                              VM                              #
       #==============================================================#
+      # page fault (mem page missing)
       - record: node:ins:pagefault
-        expr: irate(node_vmstat_pgfault[1m])
+        expr: sum by (cls,ins) (irate(node_vmstat_pgfault[1m]))
+
+      # page in (disk to mem)
       - record: node:ins:pagein
-        expr: irate(node_vmstat_pgpgin[1m])
+        expr: sum by (cls,ins) (irate(node_vmstat_pgpgin[1m]))
+
+      # page out (mem to disk)
       - record: node:ins:pageout
-        expr: irate(node_vmstat_pgpgout[1m])
+        expr: sum by (cls,ins) (irate(node_vmstat_pgpgout[1m]))
+
+      # page swap in (swap disk to mem)
       - record: node:ins:swapin
-        expr: irate(node_vmstat_pswpin[1m])
+        expr: sum by (cls,ins) (irate(node_vmstat_pswpin[1m]))
+
+      # page swap out (swap mem to disk)
       - record: node:ins:swapout
-        expr: irate(node_vmstat_pswpout[1m])
+        expr: sum by (cls,ins) (irate(node_vmstat_pswpout[1m]))
 
 
       #==============================================================#
@@ -216,30 +303,31 @@ groups:
       #==============================================================#
       # filesystem space usage
       - record: node:fs:free_bytes
-        expr: max without(device, fstype) (node_filesystem_free_bytes{fstype!~"(n|root|tmp)fs.*"})
+        expr: max by(cls,ins,mountpoint) (node_filesystem_free_bytes{fstype!~"(n|root|tmp)fs.*"})
       - record: node:fs:avail_bytes
-        expr: max without(device, fstype) (node_filesystem_avail_bytes{fstype!~"(n|root|tmp)fs.*"})
+        expr: max by(cls,ins,mountpoint) (node_filesystem_avail_bytes{fstype!~"(n|root|tmp)fs.*"})
       - record: node:fs:size_bytes
-        expr: max without(device, fstype) (node_filesystem_size_bytes{fstype!~"(n|root|tmp)fs.*"})
+        expr: max by(cls,ins,mountpoint) (node_filesystem_size_bytes{fstype!~"(n|root|tmp)fs.*"})
       - record: node:fs:space_usage
         expr: 1 - (node:fs:avail_bytes{} / node:fs:size_bytes{})
       - record: node:fs:free_inode
-        expr: max without(device, fstype) (node_filesystem_files_free{fstype!~"(n|root|tmp)fs.*"})
+        expr: max by(cls,ins,mountpoint)  (node_filesystem_files_free{fstype!~"(n|root|tmp)fs.*"})
       - record: node:fs:total_inode
-        expr: max without(device, fstype) (node_filesystem_files{fstype!~"(n|root|tmp)fs.*"})
+        expr: max by(cls,ins,mountpoint)  (node_filesystem_files{fstype!~"(n|root|tmp)fs.*"})
 
       # space delta and prediction
       - record: node:fs:space_deriv_1h
-        expr: 0 - deriv(node_filesystem_avail_bytes{}[1h])
+        expr: sum by (cls,ins,device,mountpoint)(deriv(node_filesystem_avail_bytes{}[1h]))
       - record: node:fs:space_exhaust
-        expr: (node_filesystem_avail_bytes{} / node:fs:space_deriv_1h{}) > 0
+        expr: (sum by (cls,ins,device,mountpoint)(node_filesystem_avail_bytes) / - node:fs:space_deriv_1h) > 0
 
       # fs inode usage
       - record: node:fs:inode_usage
         expr: 1 - (node:fs:free_inode / node:fs:total_inode)
+
       # file descriptor usage
       - record: node:ins:fd_usage
-        expr: node_filefd_allocated / node_filefd_maximum
+        expr: max by (cls,ins) (node_filefd_allocated / node_filefd_maximum)
 
 
       #==============================================================#
@@ -247,19 +335,24 @@ groups:
       #==============================================================#
       # tcp segments (rate1m)
       - record: node:ins:tcp_insegs
-        expr: rate(node_netstat_Tcp_InSegs{}[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_InSegs{}[1m]))
+
       - record: node:ins:tcp_outsegs
-        expr: rate(node_netstat_Tcp_OutSegs{}[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_OutSegs{}[1m]))
+
       - record: node:ins:tcp_retranssegs
-        expr: rate(node_netstat_Tcp_RetransSegs{}[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_RetransSegs{}[1m]))
+
       - record: node:ins:tcp_segs
         expr: node:ins:tcp_insegs + node:ins:tcp_outsegs
+
       # retransmit
       - record: node:ins:tcp_retrans_rate
         expr: node:ins:tcp_retranssegs / node:ins:tcp_outsegs
+
       # overflow
       - record: node:ins:tcp_overflow_rate
-        expr: rate(node_netstat_TcpExt_ListenOverflows[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_TcpExt_ListenOverflows[1m]))
 
 
       #==============================================================#
@@ -267,26 +360,42 @@ groups:
       #==============================================================#
       # tcp open (rate1m)
       - record: node:ins:tcp_passive_opens
-        expr: rate(node_netstat_Tcp_PassiveOpens[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_PassiveOpens[1m]))
+
       - record: node:ins:tcp_active_opens
-        expr: rate(node_netstat_Tcp_ActiveOpens[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_ActiveOpens[1m]))
+
       # tcp close
       - record: node:ins:tcp_attempt_fails
-        expr: rate(node_netstat_Tcp_AttemptFails[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_AttemptFails[1m]))
+
       - record: node:ins:tcp_estab_resets
-        expr: rate(node_netstat_Tcp_EstabResets[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_Tcp_EstabResets[1m]))
+
       # tcp drop
       - record: node:ins:tcp_overflow
-        expr: rate(node_netstat_TcpExt_ListenOverflows[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_TcpExt_ListenOverflows[1m]))
+
       - record: node:ins:tcp_dropped
-        expr: rate(node_netstat_TcpExt_ListenDrops[1m])
+        expr: sum by (cls,ins) (rate(node_netstat_TcpExt_ListenDrops[1m]))
 
 
       #==============================================================#
       #                             NTP                              #
       #==============================================================#
+      - record: node:cls:ntp_offset_max
+        expr: max by (cls)(node_ntp_offset_seconds)
+
+      - record: node:cls:ntp_offset_min
+        expr: min by (cls)(node_ntp_offset_seconds)
+
       - record: node:cls:ntp_offset_range
         expr: max by (cls)(node_ntp_offset_seconds) - min by (cls)(node_ntp_offset_seconds)
+
+
+
+
+
 
 
   ################################################################
