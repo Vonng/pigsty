@@ -10,9 +10,8 @@ It can be used both for large-scale pg clusters management in real-world prod-en
 
 Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**https://pigsty.cc/en/**](https://pigsty.cc/en/)   | 中文站点：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
 
-> The latest version of pigsty is [v0.9](https://github.com/Vonng/pigsty/releases/tag/v0.9.0).
+> The latest version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
 >
-> The final 1.0 GA version will be released near June~July 2021
 
 
 

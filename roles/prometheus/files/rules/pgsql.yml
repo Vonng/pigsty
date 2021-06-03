@@ -16,6 +16,12 @@ groups:
   - name: pgsql-rules
     rules:
 
+      ################################################################
+      #                     Miscellaneous                            #
+      ################################################################
+      # pg_instance holds (ins,ip) map to (ins,ip,cls)
+      - record: pg_instance
+        expr: max by (cls,ins,ip) (label_replace(pg_in_recovery{job="pg"}, "ip", "$1", "instance", "(.+)\\:\\d+"))
 
       ################################################################
       #                        Postgres                              #
@@ -57,6 +63,15 @@ groups:
       # Leader among cluster, multiple record means brain split
       - record: pg:cls:leader
         expr: max by (cls,ins,ip) (pg_is_leader == 1)
+
+      # all wal sender among cluster (cls,appname,usename,address,pid,sync_state)
+      - record: pg:cls:sender
+        expr: max by (cls,ins,appname,usename,address,pid) (pg_repl_sync_state)
+
+      # all wal receiver among cluster (cls,appname,sender_host,sender_port,slot_name,state,tli)
+      - record: pg:cls:receiver
+        expr: max by (cls,appname,sender_host,sender_port,slot_name,state) (label_replace(pg_recv_flush_tli, "appname" , "$1",  "ins", "(.*)" ))
+
 
 
       #==============================================================#
@@ -150,6 +165,7 @@ groups:
       # replication slot retained bytes of single instance
       - record: pg:ins:slot_retained_bytes
         expr: max by (ins) (pg_slot_retained_bytes)
+
       - record: pg:cls:slot_retained_bytes
         expr: max by (cls) (pg:ins:slot_retained_bytes)
 
@@ -162,19 +178,9 @@ groups:
       #--------------------------------#
       #        Commit/Rollback         #
       #--------------------------------#
-      # # xact_commit is realtime xact commit rate of last 2 data points
-      # - record: pg:db:xact_commit
-      #   expr: irate(pg_db_xact_commit{datname!~'template\\d'}[1m])
-      # - record: pg:ins:xact_commit
-      #   expr: sum without(datname) (pg:db:xact_commit)
-      # - record: pg:cls:xact_commit
-      #   expr: sum by(cls) (pg:ins:xact_commit)
-      # - record: pg:all:xact_commit
-      #   expr: sum(pg:cls:xact_commit)
-
       # xact_commit_rate1m is xact_commit rate of last 1m
       - record: pg:db:xact_commit_rate1m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[1m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_commit[1m]))
       - record: pg:ins:xact_commit_rate1m
         expr: sum without(datname) (pg:db:xact_commit_rate1m)
       - record: pg:cls:xact_commit_rate1m
@@ -184,7 +190,7 @@ groups:
 
       # xact_commit_rate5m is xact_commit rate of last 5m
       - record: pg:db:xact_commit_rate5m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[5m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_commit[5m]))
       - record: pg:ins:xact_commit_rate5m
         expr: sum without(datname) (pg:db:xact_commit_rate5m)
       - record: pg:cls:xact_commit_rate5m
@@ -194,7 +200,7 @@ groups:
 
       # xact_commit_rate15m is xact_commit rate of last 15m
       - record: pg:db:xact_commit_rate15m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[15m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_commit[15m]))
       - record: pg:ins:xact_commit_rate15m
         expr: sum without(datname) (pg:db:xact_commit_rate15m)
       - record: pg:cls:xact_commit_rate15m
@@ -202,19 +208,9 @@ groups:
       - record: pg:all:xact_commit_rate15m
         expr: sum(pg:cls:xact_commit_rate15m)
 
-      # xact_rollback is realtime xact rollback rate of last 2 data points
-      # - record: pg:db:xact_rollback
-      #   expr: irate(pg_db_xact_commit{datname!~'template\\d'}[1m])
-      # - record: pg:ins:xact_rollback
-      #   expr: sum without(datname) (pg:db:xact_rollback)
-      # - record: pg:cls:xact_rollback
-      #   expr: sum by(cls) (pg:ins:xact_rollback)
-      # - record: pg:all:xact_rollback
-      #   expr: sum(pg:cls:xact_rollback)
-
       # xact_rollback_rate1m is xact_rollback rate of last 1m
       - record: pg:db:xact_rollback_rate1m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[1m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_rollback[1m]))
       - record: pg:ins:xact_rollback_rate1m
         expr: sum without(datname) (pg:db:xact_rollback_rate1m)
       - record: pg:cls:xact_rollback_rate1m
@@ -224,7 +220,7 @@ groups:
 
       # xact_rollback_rate5m is xact_rollback rate of last 5m
       - record: pg:db:xact_rollback_rate5m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[5m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_rollback[5m]))
       - record: pg:ins:xact_rollback_rate5m
         expr: sum without(datname) (pg:db:xact_rollback_rate5m)
       - record: pg:cls:xact_rollback_rate5m
@@ -234,7 +230,7 @@ groups:
 
       # xact_rollback_rate15m is xact_rollback rate of last 15m
       - record: pg:db:xact_rollback_rate15m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[15m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_rollback[15m]))
       - record: pg:ins:xact_rollback_rate15m
         expr: sum without(datname) (pg:db:xact_rollback_rate15m)
       - record: pg:cls:xact_rollback_rate15m
@@ -242,19 +238,9 @@ groups:
       - record: pg:all:xact_rollback_rate15m
         expr: sum(pg:cls:xact_rollback_rate15m)
 
-      # # xact_total is realtime xact (commit+rollback) rate of last 2 data points
-      # - record: pg:db:xact_total
-      #   expr: rate(pg_db_xact_commit{datname!~'template\\d'}[1m])
-      # - record: pg:ins:xact_total
-      #   expr: sum without(datname) (pg:db:xact_total)
-      # - record: pg:cls:xact_total
-      #   expr: sum by(cls) (pg:ins:xact_total)
-      # - record: pg:all:xact_total
-      #   expr: sum(pg:cls:xact_total)
-
       # xact_total_rate1m is xact_total rate of last 1m
       - record: pg:db:xact_total_rate1m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[1m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_total[1m]))
       - record: pg:ins:xact_total_rate1m
         expr: sum without(datname) (pg:db:xact_total_rate1m)
       - record: pg:cls:xact_total_rate1m
@@ -264,7 +250,7 @@ groups:
 
       # xact_total_rate5m is xact_total rate of last 5m
       - record: pg:db:xact_total_rate5m
-        expr: rate(pg_db_xact_commit{datname!~'emplate\\d'}[5m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_total[5m]))
       - record: pg:ins:xact_total_rate5m
         expr: sum without(datname) (pg:db:xact_total_rate5m)
       - record: pg:cls:xact_total_rate5m
@@ -274,7 +260,7 @@ groups:
 
       # xact_total_rate15m is xact_total rate of last 15m
       - record: pg:db:xact_total_rate15m
-        expr: rate(pg_db_xact_commit{datname!~'template\\d'}[15m])
+        expr: max by (cls,ins,datname) (rate(pg_db_xact_total[15m]))
       - record: pg:ins:xact_total_rate15m
         expr: sum without(datname) (pg:db:xact_total_rate15m)
       - record: pg:cls:xact_total_rate15m
@@ -298,23 +284,23 @@ groups:
       #--------------------------------#
       # lock count by mode
       - record: pg:db:locks
-        expr: pg_lock_count
+        expr: sum by (cls,ins,datname,mode) (pg_lock_count)
       - record: pg:ins:locks
-        expr: sum without(datname) (pg:db:locks)
+        expr: sum by (cls,ins,mode) (pg:db:locks)
       - record: pg:cls:locks
-        expr: sum by (cls, mode) (pg:ins:locks)
+        expr: sum by (cls,mode) (pg:ins:locks)
 
       # total lock count
       - record: pg:db:lock_count
-        expr: sum without (mode) (pg_lock_count)
+        expr: sum without (mode) (pg:db:locks)
       - record: pg:ins:lock_count
-        expr: sum without(datname) (pg:db:lock_count)
+        expr: sum without(mode) (pg:ins:locks)
       - record: pg:cls:lock_count
-        expr: sum by (cls) (pg:ins:lock_count)
+        expr: sum without(mode) (pg:cls:locks)
 
       # read category lock
       - record: pg:db:rlock
-        expr: sum without (mode) (pg_lock_count{mode="AccessShareLock"})
+        expr: sum without (mode) (pg:db:locks{mode="AccessShareLock"})
       - record: pg:ins:rlock
         expr: sum without(datname) (pg:db:rlock)
       - record: pg:cls:rlock
@@ -322,7 +308,7 @@ groups:
 
       # write category lock (insert|update|delete)
       - record: pg:db:wlock
-        expr: sum without (mode) (pg_lock_count{mode=~"RowShareLock|RowExclusiveLock"})
+        expr: sum without (mode) (pg:db:locks{mode=~"RowShareLock|RowExclusiveLock"})
       - record: pg:ins:wlock
         expr: sum without(datname) (pg:db:wlock)
       - record: pg:cls:wlock
@@ -330,7 +316,7 @@ groups:
         
       # exclusive category lock
       - record: pg:db:xlock
-        expr: sum without (mode) (pg_lock_count{mode!~"AccessShareLock|RowShareLock|RowExclusiveLock"})
+        expr: sum without (mode) (pg:db:locks{mode!~"AccessShareLock|RowShareLock|RowExclusiveLock"})
         # ALTERNATIVE: expr: sum without (mode) (pg_lock_count{mode=~"AccessExclusiveLock|ExclusiveLock|ShareRowExclusiveLock|ShareLock|ShareUpdateExclusiveLock"})
       - record: pg:ins:xlock
         expr: sum without(datname) (pg:db:xlock)
@@ -427,11 +413,11 @@ groups:
       # - record: pg:cls:load0
       #   expr: sum by (cls) (irate(pgbouncer_stat_total_xact_time{}[1m])) / on (cls) node:cls:cpu_count{} / 1000000
       - record: pg:cls:load1
-        expr: sum by (cls) (pg:ins:xact_time_rate1m)  / on (cls) node:cls:cpu_count
+        expr: pg:cls:active_time_rate1m / node:cls:cpu_count
       - record: pg:cls:load5
-        expr: sum by (cls) (pg:ins:xact_time_rate5m)  / on (cls) node:cls:cpu_count
+        expr: pg:cls:active_time_rate5m / node:cls:cpu_count
       - record: pg:cls:load15
-        expr: sum by (cls) (pg:ins:xact_time_rate15m)  / on (cls) node:cls:cpu_count
+        expr: pg:cls:active_time_rate15m / node:cls:cpu_count
 
 
 
@@ -468,20 +454,25 @@ groups:
       #              Age               #
       #--------------------------------#
       # pg db age of different level
-      - record: pg:ins:age
-        expr: max without (datname) (pg_db_age{datname!~"template[0-9]"})
-      - record: pg:cls:age
-        expr: max by (cls) (pg:ins:age)
-      - record: pg:all:age
-        expr: max(pg:cls:age)
+      - record: pg:db:age
+        expr: max by (cls,ins,datname) (pg_db_age)
 
       # age derive in last 1h
       - record: pg:db:age_deriv_1h
-        expr: deriv(pg_db_age{}[1h])
+        expr: max by (cls,ins,datname) (deriv(pg_db_age{}[1h]))
 
       # age exhaust time in seconds (according to last1h)
       - record: pg:db:age_exhaust
-        expr: (2147483648 - pg_db_age{}) / pg:db:age_deriv_1h
+        expr: (2147483648 - pg:db:age{}) / pg:db:age_deriv_1h
+
+      - record: pg:ins:age
+        expr: max by (cls,ins) (pg:db:age{datname!~"template[0-9]"})
+
+      - record: pg:cls:age
+        expr: max by (cls) (pg:ins:age)
+
+      - record: pg:all:age
+        expr: max(pg:cls:age)
 
 
       #--------------------------------#
@@ -489,7 +480,7 @@ groups:
       #--------------------------------#
       # tup fetched are 1m rate of tuple been accessed
       - record: pg:db:tup_fetched
-        expr: rate(pg_db_tup_fetched[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_tup_fetched[1m]))
       - record: pg:ins:tup_fetched
         expr: sum without(datname) (pg:db:tup_fetched)
       - record: pg:cls:tup_fetched
@@ -499,7 +490,7 @@ groups:
 
       # tup returned are 1m rate of tuple been returned
       - record: pg:db:tup_returned
-        expr: rate(pg_db_tup_returned[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_tup_returned[1m]))
       - record: pg:ins:tup_returned
         expr: sum without(datname) (pg:db:tup_returned)
       - record: pg:cls:tup_returned
@@ -509,7 +500,7 @@ groups:
 
       # inserted
       - record: pg:db:tup_inserted
-        expr: rate(pg_db_tup_inserted[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_tup_inserted[1m]))
       - record: pg:ins:tup_inserted
         expr: sum without(datname) (pg:db:tup_inserted)
       - record: pg:cls:tup_inserted
@@ -519,7 +510,7 @@ groups:
 
       # updated
       - record: pg:db:tup_updated
-        expr: rate(pg_db_tup_updated[1m])
+        expr: sum by (cls,ins,datname) (pg:db:tup_updated)
       - record: pg:ins:tup_updated
         expr: sum without(datname) (pg:db:tup_updated)
       - record: pg:cls:tup_updated
@@ -529,7 +520,7 @@ groups:
 
       # deleted
       - record: pg:db:tup_deleted
-        expr: rate(pg_db_tup_deleted[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_tup_deleted[1m]))
       - record: pg:ins:tup_deleted
         expr: sum without(datname) (pg:db:tup_deleted)
       - record: pg:cls:tup_deleted
@@ -539,7 +530,7 @@ groups:
 
       # modified
       - record: pg:db:tup_modified
-        expr: rate(pg_db_tup_modified[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_tup_modified[1m]))
       - record: pg:ins:tup_modified
         expr: sum without(datname) (pg:db:tup_modified)
       - record: pg:cls:tup_modified
@@ -558,15 +549,15 @@ groups:
       #--------------------------------#
       # temp file generated in last 1m in bytes
       - record: pg:db:temp_bytes
-        expr: rate(pg_db_temp_bytes{}[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_temp_bytes{}[1m]))
       - record: pg:ins:temp_bytes
-        expr: sum without(datname) (pg:db:temp_bytes)
+        expr: sum by (cls,ins) (pg:db:temp_bytes)
       - record: pg:cls:temp_bytes
         expr: sum by (cls) (pg:ins:temp_bytes)
 
       # temp file count generated in last 1m
       - record: pg:db:temp_files
-        expr: increase(pg_db_temp_files{}[1m])
+        expr: sum by (cls,ins,datname) (increase(pg_db_temp_files{}[1m]))
       - record: pg:ins:temp_files
         expr: sum without(datname) (pg:db:temp_files)
       - record: pg:cls:temp_files
@@ -578,27 +569,27 @@ groups:
       #--------------------------------#
       # database size
       - record: pg:db:db_size
-        expr: pg_size_bytes{datname!~"wal|log"}
+        expr: sum by (cls,ins,datname) (pg_size_bytes{datname!~"wal|log"})
       - record: pg:ins:db_size
-        expr: sum without(datname) (pg:db:db_size)
+        expr: sum by (cls,ins) (pg:db:db_size)
       - record: pg:cls:db_size
-        expr: sum by(cls) (pg:ins:db_size)
+        expr: sum by (cls) (pg:ins:db_size)
 
       # wal size
       - record: pg:ins:wal_size
-        expr: pg_size_bytes{datname="wal"}
+        expr: sum by (cls,ins) (pg_size_bytes{datname="wal"})
       - record: pg:cls:wal_size
         expr: sum by (cls) (pg:ins:wal_size)
 
       # log size
       - record: pg:ins:log_size
-        expr: pg_size_bytes{datname="log"}
+        expr: sum by (cls,ins) (pg_size_bytes{datname="log"})
       - record: pg:cls:log_size
         expr: sum by (cls) (pg:ins:log_size)
 
       # all size
       - record: pg:ins:file_size
-        expr: sum without(datname) (pg_size_bytes)
+        expr: sum by (cls,ins) (pg_size_bytes)
       - record: pg:cls:file_size
         expr: sum by (cls) (pg:ins:file_size)
 
@@ -608,46 +599,48 @@ groups:
       #--------------------------------#
       # blocks read in last 1m
       - record: pg:db:blks_read_1m
-        expr: increase(pg_db_blks_read{}[1m])
+        expr: sum by (cls,ins,datname) (increase(pg_db_blks_read[1m]))
 
       # blocks hit in last 1m
       - record: pg:db:blks_hit_1m
-        expr: increase(pg_db_blks_hit{}[1m])
+        expr: sum by (cls,ins,datname) (increase(pg_db_blks_hit[1m]))
 
       # blocks access (hit + read) in last 1m
       - record: pg:db:blks_access_1m
-        expr: increase(pg_db_blks_access{}[1m])
+        expr: sum by (cls,ins,datname) (increase(pg_db_blks_access[1m]))
 
       # blocks hit rate in (1m)
       - record: pg:db:buffer_hit_rate
         expr: pg:db:blks_hit_1m / pg:db:blks_access_1m
+
       - record: pg:ins:hit_rate
-        expr: sum without(datname) (pg:db:blks_hit_1m) / sum without(datname) (pg:db:blks_access_1m)
+        expr: sum by (cls,ins) (pg:db:blks_hit_1m) / sum by (cls,ins) (pg:db:blks_access_1m)
 
       # block read time spent
       - record: pg:db:read_time_usage
-        expr: rate(pg_db_blk_read_time[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_blk_read_time[1m]))
 
       # block write time spent
       - record: pg:db:write_time_usage
-        expr: rate(pg_db_blk_write_time[1m])
+        expr: sum by (cls,ins,datname) (rate(pg_db_blk_write_time[1m]))
 
       # block io (read + write) time spent
       - record: pg:db:io_time_usage
         expr: pg:db:read_time_usage + pg:db:write_time_usage
+
 
       #--------------------------------#
       #         Shared Buffer          #
       #--------------------------------#
       # buffer flushed by checkpoint (good)
       - record: pg:ins:buf_flush_checkpoint
-        expr: rate(pg_bgwriter_buffers_checkpoint{}[1m])
+        expr: sum by (cls,ins) (rate(pg_bgwriter_buffers_checkpoint[1m]))
       - record: pg:cls:buf_flush_checkpoint
         expr: sum by (cls) (pg:ins:buf_flush_checkpoint)
 
       # buffer flushed by backend (bad)
       - record: pg:ins:buf_flush_backend
-        expr: rate(pg_bgwriter_buffers_backend{}[1m])
+        expr: sum by (cls,ins) (rate(pg_bgwriter_buffers_backend[1m]))
       - record: pg:cls:buf_flush_backend
         expr: sum by (cls) (pg:ins:buf_flush_backend)
 
@@ -659,7 +652,7 @@ groups:
 
       # buffer allocated
       - record: pg:ins:buf_alloc
-        expr: rate(pg_bgwriter_buffers_alloc{}[1m])
+        expr: sum by (cls,ins) (rate(pg_bgwriter_buffers_alloc{}[1m]))
       - record: pg:cls:buf_alloc
         expr: sum by (cls) (pg:ins:buf_alloc)
 
@@ -670,27 +663,27 @@ groups:
       # checkpoint stats
       # True(1) if scheduled checkpoint occurs on last 1 minute
       - record: pg:ins:ckpt_timed
-        expr: increase(pg_bgwriter_checkpoints_timed{}[1m])
+        expr: sum by (cls,ins) (increase(pg_bgwriter_checkpoints_timed{}[1m]))
 
       # True(1) if requested checkpoint occurs on last 1 minute
       - record: pg:ins:ckpt_req
-        expr: increase(pg_bgwriter_checkpoints_req{}[1m])
+        expr: sum by (cls,ins) (increase(pg_bgwriter_checkpoints_req{}[1m]))
 
       # Number of checkpoint happened in last 1 hour
-      - record: pg:cls:ckpt_1h
-        expr: increase(pg_bgwriter_checkpoints_timed[1h]) + increase(pg_bgwriter_checkpoints_req[1h])
+      - record: pg:ins:ckpt_1h
+        expr: sum by (cls,ins) (increase(pg_bgwriter_checkpoints_timed[1h]) + increase(pg_bgwriter_checkpoints_req[1h]))
 
       # current timeline
       - record: pg:ins:timeline
-        expr: pg_checkpoint_tli
+        expr: max by (cls,ins) (pg_checkpoint_tli)
 
       # 1m wal rate of single instance
       - record: pg:ins:lsn_rate
-        expr: rate(pg_lsn[1m])
+        expr: max by (cls,ins) (rate(pg_lsn[1m]))
 
       # 1m wal rate of a cluster
       - record: pg:cls:lsn_rate
-        expr: max by (cls) (pg:ins:lsn_rate and pg_in_recovery == 0)
+        expr: max by (cls) (pg:ins:lsn_rate * on(cls,ins) (1 -pg_in_recovery))
 
       # 1m wal rate of entire environment
       - record: pg:all:lsn_rate
@@ -702,38 +695,23 @@ groups:
       #==============================================================#
       # table scan
       - record: pg:table:scan
-        expr: rate(pg_table_tbl_scan[1m])
+        expr: sum by (cls,ins,datname,relname) (rate(pg_table_tbl_scan[1m]))
 
       # index scan
       - record: pg:index:scan
-        expr: rate(pg_index_idx_scan{}[1m])
+        expr: sum by (cls,ins,datname,idxname,relname) (rate(pg_index_idx_scan{}[1m]))
 
       # query exec time rate (exec time per sec), in seconds
       - record: pg:query:exec_time_rate1m
-        expr: rate(pg_query_exec_time[1m]) / 1000
+        expr: sum by (cls,ins,datname,query) (rate(pg_query_exec_time[1m])) / 1000
 
       # query call rate during last 1m
       - record: pg:query:call
-        expr: rate(pg_query_calls[1m])
+        expr: sum by (cls,ins,datname,query) (rate(pg_query_calls[1m]))
 
       # query response time during last 1m
       - record: pg:query:rt
         expr: pg:query:exec_time_rate1m / pg:query:call
-
-      # time series of inner-database objects are numerous, it's wise
-      # to calculate only when needed
-      # func access
-      # - record: pg:func:call
-      #   expr: rate(pg_func_calls{}[1m])
-      # - record: pg:func:rt
-      #   expr: rate(pg_func_total_time{}[1m]) / pg:func:call
-
-      # table access
-      # - record: pg:table:idx_scan
-      #   expr: rate(pg_table_idx_scan[1m])
-      # - record: pg:table:seq_scan
-      #   expr: rate(pg_table_seq_scan[1m])
-
 
 
 
@@ -1004,47 +982,47 @@ groups:
 
 
       # xact_rt is xact_time / xact of last two data point
-      - record: pgbouncer:db:xact_rt
-        expr: pgbouncer:db:xact_time / pgbouncer:db:xact
-      - record: pgbouncer:ins:xact_rt
-        expr: pgbouncer:ins:xact_time / pgbouncer:ins:xact
-      - record: pgbouncer:cls:xact_rt
-        expr: pgbouncer:cls:xact_time / pgbouncer:cls:xact
-      - record: pgbouncer:all:xact_rt
-        expr: pgbouncer:all:xact_time / pgbouncer:all:xact
+      # - record: pgbouncer:db:xact_rt
+      #   expr: pgbouncer:db:xact_time / pgbouncer:db:xact
+      # - record: pgbouncer:ins:xact_rt
+      #   expr: pgbouncer:ins:xact_time / pgbouncer:ins:xact
+      # - record: pgbouncer:cls:xact_rt
+      #   expr: pgbouncer:cls:xact_time / pgbouncer:cls:xact
+      # - record: pgbouncer:all:xact_rt
+      #   expr: pgbouncer:all:xact_time / pgbouncer:all:xact
 
 
       # xact_rt_1m is xact_rate1m / sum_rate1m of last 1m
       - record: pgbouncer:db:xact_rt_1m
-        expr: pgbouncer:db:xact_rate1m / pgbouncer:db:sum_rate1m
+        expr: pgbouncer:db:xact_time_rate1m / pgbouncer:db:xact_rate1m
       - record: pgbouncer:ins:xact_rt_1m
-        expr: pgbouncer:ins:xact_rate1m / pgbouncer:ins:sum_rate1m
+        expr: pgbouncer:ins:xact_time_rate1m / pgbouncer:ins:xact_rate1m
       - record: pgbouncer:cls:xact_rt_1m
-        expr: pgbouncer:cls:xact_rate1m / pgbouncer:cls:sum_rate1m
+        expr: pgbouncer:cls:xact_time_rate1m / pgbouncer:cls:xact_rate1m
       - record: pgbouncer:all:xact_rt_1m
-        expr: pgbouncer:all:xact_rate1m / pgbouncer:all:sum_rate1m
+        expr: pgbouncer:all:xact_time_rate1m / pgbouncer:all:xact_rate1m
 
 
       # xact_rt_5m is xact_rate5m / sum_rate5m of last 5m
       - record: pgbouncer:db:xact_rt_5m
-        expr: pgbouncer:db:xact_rate5m / pgbouncer:db:sum_rate5m
+        expr: pgbouncer:db:xact_time_rate5m / pgbouncer:db:xact_rate5m
       - record: pgbouncer:ins:xact_rt_5m
-        expr: pgbouncer:ins:xact_rate5m / pgbouncer:ins:sum_rate5m
+        expr: pgbouncer:ins:xact_time_rate5m / pgbouncer:ins:xact_rate5m
       - record: pgbouncer:cls:xact_rt_5m
-        expr: pgbouncer:cls:xact_rate5m / pgbouncer:cls:sum_rate5m
+        expr: pgbouncer:cls:xact_time_rate5m / pgbouncer:cls:xact_rate5m
       - record: pgbouncer:all:xact_rt_5m
-        expr: pgbouncer:all:xact_rate5m / pgbouncer:all:sum_rate5m
+        expr: pgbouncer:all:xact_time_rate5m / pgbouncer:all:xact_rate5m
 
 
       # xact_rt_15m is xact_rate15m / sum_rate15m of last 15m
       - record: pgbouncer:db:xact_rt_15m
-        expr: pgbouncer:db:xact_rate15m / pgbouncer:db:sum_rate15m
+        expr: pgbouncer:db:xact_time_rate15m / pgbouncer:db:xact_rate15m
       - record: pgbouncer:ins:xact_rt_15m
-        expr: pgbouncer:ins:xact_rate15m / pgbouncer:ins:sum_rate15m
+        expr: pgbouncer:ins:xact_time_rate15m / pgbouncer:ins:xact_rate15m
       - record: pgbouncer:cls:xact_rt_15m
-        expr: pgbouncer:cls:xact_rate15m / pgbouncer:cls:sum_rate15m
+        expr: pgbouncer:cls:xact_time_rate15m / pgbouncer:cls:xact_rate15m
       - record: pgbouncer:all:xact_rt_15m
-        expr: pgbouncer:all:xact_rate15m / pgbouncer:all:sum_rate15m
+        expr: pgbouncer:all:xact_time_rate15m / pgbouncer:all:xact_rate15m
 
 
 
@@ -1140,47 +1118,47 @@ groups:
 
 
       # query_rt is query_time / query of last two data point
-      - record: pgbouncer:db:query_rt
-        expr: pgbouncer:db:query_time / pgbouncer:db:query
-      - record: pgbouncer:ins:query_rt
-        expr: pgbouncer:ins:query_time / pgbouncer:ins:query
-      - record: pgbouncer:cls:query_rt
-        expr: pgbouncer:cls:query_time / pgbouncer:cls:query
-      - record: pgbouncer:all:query_rt
-        expr: pgbouncer:all:query_time / pgbouncer:all:query
+      # - record: pgbouncer:db:query_rt
+      #   expr: pgbouncer:db:query_time / pgbouncer:db:query
+      # - record: pgbouncer:ins:query_rt
+      #   expr: pgbouncer:ins:query_time / pgbouncer:ins:query
+      # - record: pgbouncer:cls:query_rt
+      #   expr: pgbouncer:cls:query_time / pgbouncer:cls:query
+      # - record: pgbouncer:all:query_rt
+      #   expr: pgbouncer:all:query_time / pgbouncer:all:query
 
 
       # query_rt_1m is query_rate1m / sum_rate1m of last 1m
       - record: pgbouncer:db:query_rt_1m
-        expr: pgbouncer:db:query_rate1m / pgbouncer:db:sum_rate1m
+        expr: pgbouncer:db:query_time_rate1m / pgbouncer:db:query_rate1m
       - record: pgbouncer:ins:query_rt_1m
-        expr: pgbouncer:ins:query_rate1m / pgbouncer:ins:sum_rate1m
+        expr: pgbouncer:ins:query_time_rate1m / pgbouncer:ins:query_rate1m
       - record: pgbouncer:cls:query_rt_1m
-        expr: pgbouncer:cls:query_rate1m / pgbouncer:cls:sum_rate1m
+        expr: pgbouncer:cls:query_time_rate1m / pgbouncer:cls:query_rate1m
       - record: pgbouncer:all:query_rt_1m
-        expr: pgbouncer:all:query_rate1m / pgbouncer:all:sum_rate1m
+        expr: pgbouncer:all:query_time_rate1m / pgbouncer:all:query_rate1m
 
 
       # query_rt_5m is query_rate5m / sum_rate5m of last 5m
       - record: pgbouncer:db:query_rt_5m
-        expr: pgbouncer:db:query_rate5m / pgbouncer:db:sum_rate5m
+        expr: pgbouncer:db:query_time_rate5m / pgbouncer:db:query_rate5m
       - record: pgbouncer:ins:query_rt_5m
-        expr: pgbouncer:ins:query_rate5m / pgbouncer:ins:sum_rate5m
+        expr: pgbouncer:ins:query_time_rate5m / pgbouncer:ins:query_rate5m
       - record: pgbouncer:cls:query_rt_5m
-        expr: pgbouncer:cls:query_rate5m / pgbouncer:cls:sum_rate5m
+        expr: pgbouncer:cls:query_time_rate5m / pgbouncer:cls:query_rate5m
       - record: pgbouncer:all:query_rt_5m
-        expr: pgbouncer:all:query_rate5m / pgbouncer:all:sum_rate5m
+        expr: pgbouncer:all:query_time_rate5m / pgbouncer:all:query_rate5m
 
 
       # query_rt_15m is query_rate15m / sum_rate15m of last 15m
       - record: pgbouncer:db:query_rt_15m
-        expr: pgbouncer:db:query_rate15m / pgbouncer:db:sum_rate15m
+        expr: pgbouncer:db:query_time_rate15m / pgbouncer:db:query_rate15m
       - record: pgbouncer:ins:query_rt_15m
-        expr: pgbouncer:ins:query_rate15m / pgbouncer:ins:sum_rate15m
+        expr: pgbouncer:ins:query_time_rate15m/ pgbouncer:ins:query_rate15m
       - record: pgbouncer:cls:query_rt_15m
-        expr: pgbouncer:cls:query_rate15m / pgbouncer:cls:sum_rate15m
+        expr: pgbouncer:cls:query_time_rate15m / pgbouncer:cls:query_rate15m
       - record: pgbouncer:all:query_rt_15m
-        expr: pgbouncer:all:query_rate15m / pgbouncer:all:sum_rate15m
+        expr: pgbouncer:all:query_time_rate15m / pgbouncer:all:query_rate15m
 
 
       #--------------------------------#
