@@ -1,9 +1,10 @@
+-- Manual setup for monitor user & extensions & schema
 
 --==================================================================--
 --                           CREATE USER                            --
 --==================================================================--
 CREATE USER "dbuser_monitor" ;
-ALTER USER "dbuser_monitor" CONNECTION LIMIT 16;
+ALTER USER "dbuser_monitor" CONNECTION LIMIT 64;
 ALTER ROLE "dbuser_monitor" PASSWORD 'DBUser.Monitor';
 COMMENT ON ROLE "dbuser_monitor" IS 'system monitor user';
 
