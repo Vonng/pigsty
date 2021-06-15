@@ -1,28 +1,22 @@
+
+#--------------------------------------------------------------#
+# Provision grafana with grafana API
+#--------------------------------------------------------------#
 ---
-- name: Update grafana default preferences
+- name: Update grafana default organization
+  ignore_errors: true
   shell: |
     #!/bin/bash
 
-    # grafana api endpoint
-    GRAFANA_API="{{ grafana_url }}/api"
+    # https://grafana.com/docs/grafana/latest/http_api/
+    GRAFANA_ENDPOINT="{{ grafana_endpoint }}"          # http://localhost:3000
+    GRAFANA_USERNAME="{{ grafana_admin_username }}"    # admin
+    GRAFANA_PASSWORD="{{ grafana_admin_password }}"    # admin
 
-    # use 'light' as default theme
-    GRAFANA_THEME="light"
-
-    # use 'Home' as default dashboard
-    GRAFANA_HOME="HOME"
-
-    # get home dashboard id by name
-    GRAFANA_HOME_ID=$(curl -s ${GRAFANA_API}/search?query=${GRAFANA_HOME} | jq '.[0].id')
-
-    # # build new preference:  {"theme":"dark","homeDashboardId":2}
-    GRAFANA_PREF='{"theme":"'${GRAFANA_THEME}'","homeDashboardId":'${GRAFANA_HOME_ID}'}'
-
-    # star home dashboards
-    curl -X POST ${GRAFANA_API}/user/stars/dashboard/${GRAFANA_HOME_ID}
-
-    # update preference
-    curl -X PUT -s ${GRAFANA_API}/org/preferences -H "Content-Type: application/json" --data ${GRAFANA_PREF}
-    curl -X PUT -s ${GRAFANA_API}/user/preferences -H "Content-Type: application/json" --data ${GRAFANA_PREF}
+    # update organization with grafana api
+    curl -X PUT "${GRAFANA_ENDPOINT}/api/orgs/1"       \
+         -u "${GRAFANA_USERNAME}:${GRAFANA_PASSWORD}"  \
+         -H 'Content-Type: application/json'           \
+         -d '{"name": "Pigsty"}'
 
 ...

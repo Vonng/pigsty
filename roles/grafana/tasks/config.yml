@@ -2,22 +2,42 @@
 #--------------------------------------------------------------#
 # Config grafana
 #--------------------------------------------------------------#
-- name: Copy /etc/grafana/grafana.ini
-  copy: src=grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
 
-- name: Remove grafana provision dir
-  file: path=/etc/grafana/provisioning state=absent
+#---------------------------#
+# Cleanup existing config   #
+#---------------------------#
+- name: Remove grafana provisioning config
+  file: path={{ item }} state=absent
+  with_items:
+    - /etc/grafana/provisioning/dashboards/pigsty.yml
+    - /etc/grafana/provisioning/datasources/pigsty.yml
 
-- name: Copy provisioning content
-  copy: src=provisioning/ dest=/etc/grafana/provisioning/ owner=grafana group=grafana
+- name: Remake grafana resource dir
+  file: path={{ item }} state=directory owner=grafana group=root mode=0775
+  with_items:
+    - /etc/dashboards/
+    - /etc/grafana/
+    - /etc/grafana/provisioning/dashboards
+    - /etc/grafana/provisioning/datasources
 
-- name: Copy pigsty dashboards
-  copy: src=dashboards/ dest=/var/lib/grafana/dashboards owner=grafana group=grafana
 
-- name: Copy pigsty logo image
-  copy: src=pigsty.svg dest=/usr/share/grafana/public/img/pigsty.svg
+#---------------------------#
+# Templating new config     #
+#---------------------------#
+- name: Templating /etc/grafana/grafana.ini
+  template: src=grafana.ini dest=/etc/grafana/grafana.ini owner=grafana group=grafana
 
-- name: Copy pigsty icon svg
-  copy: src=logo.svg dest=/usr/share/grafana/public/img/grafana_icon.svg
+- name: Templating datasources provisioning config
+  template: src=datasources-pigsty.yml dest=/etc/grafana/provisioning/datasources/pigsty.yml owner=grafana group=grafana
+
+- name: Templating dashboards provisioning config
+  template: src=dashboards-pigsty.yml dest=/etc/grafana/provisioning/dashboards/pigsty.yml owner=grafana group=grafana
+
+
+#---------------------------#
+# Copy home dashboard       #
+#---------------------------#
+- name: Copy pigsty home dashboard
+  copy: src=home.json dest=/etc/dashboards/home.json owner=grafana
 
 ...

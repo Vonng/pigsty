@@ -1,17 +1,19 @@
 #--------------------------------------------------------------#
-# if cache not exists, download from official site
+# HOTFIX: Use this in case of Great-Fire-Wall Failure          #
+# Download plugin cache from OFFICIAL SITE instead of internet #
 #--------------------------------------------------------------#
-- name: Make sure grafana cache dir exists
-  file: path={{ grafana_cache | dirname }} state=directory
-
-- name: Check grafana plugin cache exists
-  stat: path={{ grafana_cache }}
-  register: grafana_plugins_cache
-
-- name: Download grafana plugin cache if not exists
-  ignore_errors: true
-  when: not grafana_plugins_cache.stat.exists and grafana_plugin == 'install'
-  get_url: url='http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/plugins.tgz' dest={{ grafana_cache }}
+# - name: Make sure grafana cache dir exists
+#   file: path={{ grafana_cache | dirname }} state=directory
+#
+# - name: Check grafana plugin cache exists
+#   stat: path={{ grafana_cache }}
+#   register: grafana_plugins_cache
+#
+# - name: Download grafana plugin cache if not exists
+#   ignore_errors: true
+#   when: not grafana_plugins_cache.stat.exists and grafana_plugin == 'install'
+#   get_url: url='http://pigsty-1304147732.cos.accelerate.myqcloud.com/latest/plugins.tgz' dest={{ grafana_cache }}
+#--------------------------------------------------------------#
 
 
 #--------------------------------------------------------------#
@@ -30,17 +32,21 @@
 
 
 #--------------------------------------------------------------#
-# download plugins from web if 1. cache not exists, 2. reinstall mode
+# download plugins from internet if
+#   1. cache not exists
+#   2. grafana_plugin = install     (default)
+#      if grafana_plugin != install , skip plugin download
 #--------------------------------------------------------------#
-- name: Download grafana plugins from web
-  when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'reinstall'
+- name: Download grafana plugins via internet
+  when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'install'
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
   grafana_plugin: name={{ item }}
   with_items: "{{ grafana_plugins  }}"
 
-- name: Download grafana plugins from git
-  when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'reinstall'
+
+- name: Download grafana plugins via git
+  when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'install'
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
   git:

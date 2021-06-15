@@ -1,0 +1,71 @@
+# install default datasource to grafana
+
+apiVersion: 1
+
+# remove provisioned data sources
+deleteDatasources:
+  - { name: Prometheus       , orgId: 1 }
+  - { name: Prometheus-PgSQL , orgId: 1 }
+  - { name: Meta             , orgId: 1 }
+  - { name: Loki             , orgId: 1 }
+
+
+# install following data sources
+datasources:
+
+  # Pigsty Monitor Database (Prometheus)
+  - name: Prometheus
+    type: prometheus
+    url: http://127.0.0.1:9090
+    access: proxy
+    isDefault: true
+    editable: true
+    version: 1
+    jsonData:
+      timeInterval: "2s"
+      queryTimeout: "60s"
+      tlsAuth: false
+      tlsAuthWithCACert: false
+    secureJsonData: {}
+
+  # Prometheus Alias Mirror (Prometheus)
+  # Used by monitor application 'pgsql'
+  - name: Prometheus-PgSQL
+    type: prometheus
+    url: http://127.0.0.1:9090
+    access: proxy
+    editable: true
+    version: 1
+    jsonData:
+      timeInterval: "2s"
+      queryTimeout: "60s"
+      tlsAuth: false
+      tlsAuthWithCACert: false
+    secureJsonData: {}
+
+  # Pigsty Meta Database (PostgreSQL)
+  - name: Meta
+    type: postgres
+    url: 127.0.0.1:5432
+    access: proxy
+    user: dbuser_view
+    database: meta
+    editable: true
+    jsonData: {
+      "connMaxLifetime": 14400,
+      "maxIdleConns": 10,
+      "maxOpenConns": 64,
+      "postgresVersion": 1300,
+      "sslmode": "disable",
+      "tlsAuth": false,
+      "tlsAuthWithCACert": false
+    }
+    secureJsonData:
+      password: DBUser.Viewer
+
+  # Pigsty Logging Database (Loki) , optional
+  - name: Loki
+    type: loki
+    url: http://127.0.0.1:3100
+    access: proxy
+    editable: true

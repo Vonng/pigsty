@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Install Grafana
 #------------------------------------------------------------------------------
-- name: Make sure grafana is installed
+- name: Make sure grafana installed
   tags: grafana_install
   package: name=grafana state=present
 
@@ -15,7 +15,7 @@
   systemd: name=grafana-server state=stopped enabled=yes daemon_reload=yes
 
 #------------------------------------------------------------------------------
-# Install Plugins
+# Plugins Installation
 #------------------------------------------------------------------------------
 - import_tasks: plugins.yml
   tags: grafana_plugins
@@ -27,29 +27,15 @@
   tags: grafana_config
 
 #------------------------------------------------------------------------------
-# Customize Grafana
-#------------------------------------------------------------------------------
-- import_tasks: customize.yml
-  tags: grafana_customize
-  when: grafana_customize
-
-#------------------------------------------------------------------------------
 # Launch Grafana
 #------------------------------------------------------------------------------
-- name: Launch Grafana
+- import_tasks: launch.yml
   tags: grafana_launch
-  block:
-    - name: Launch grafana service
-      systemd: name=grafana-server state=restarted enabled=yes daemon_reload=yes
-
-    - name: Wait for grafana online
-      wait_for: host=localhost port=3000 state=started
 
 #------------------------------------------------------------------------------
 # Register Pigsty
 #------------------------------------------------------------------------------
 - import_tasks: register.yml
-  when: service_registry == 'consul'
   tags: grafana_register
 
 #------------------------------------------------------------------------------

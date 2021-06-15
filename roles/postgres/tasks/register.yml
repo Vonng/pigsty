@@ -21,6 +21,8 @@
     - name: Reload postgres consul service
       systemd: name=consul state=reloaded
 
+
+
 #------------------------------------------------------------------------------
 # register postgres to grafana datasource
 #------------------------------------------------------------------------------
@@ -33,7 +35,22 @@
 
     - name: Register datasource to grafana
       shell: |
-        curl -X DELETE -H 'Content-Type: application/json' {{ grafana_url }}/api/datasources/name/{{ pg_instance }}
-        curl -X POST -H 'Content-Type: application/json' {{ grafana_url }}/api/datasources -d @/pg/tmp/datasource.json
+        #!/bin/bash
+
+        # https://grafana.com/docs/grafana/latest/http_api/
+        GRAFANA_ENDPOINT="{{ grafana_endpoint }}"          # http://localhost:3000
+        GRAFANA_USERNAME="{{ grafana_admin_username }}"    # admin
+        GRAFANA_PASSWORD="{{ grafana_admin_password }}"    # admin
+
+        # delete existing datasource with same name
+        curl -X DELETE "${GRAFANA_ENDPOINT}/api/datasources/name/{{ pg_instance }}" \
+        -u "${GRAFANA_USERNAME}:${GRAFANA_PASSWORD}"  \
+        -H 'Content-Type: application/json'
+
+        # create new datasource
+        curl -X POST "${GRAFANA_ENDPOINT}/api/datasources/" \
+        -u "${GRAFANA_USERNAME}:${GRAFANA_PASSWORD}"  \
+        -H 'Content-Type: application/json'           \
+        -d @/pg/tmp/datasource.json
 
 ...
