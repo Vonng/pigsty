@@ -1,31 +1,60 @@
-# leader key to watch
-key: "{{ pg_namespace }}/{{ pg_cluster }}/leader"
+# config for vip-manager by Cybertec Schönig & Schönig GmbH
 
-# member name
-nodename: "{{ pg_cluster }}-{{ pg_seq }}"
+# time (in milliseconds) after which vip-manager wakes up and checks if it needs to register or release ip addresses.
+interval: 1000
 
-# interface to which the virtual ip will be added
-iface: {{ vip_interface }}
+# the etcd or consul key which vip-manager will regularly poll.
+trigger-key: "{{ pg_namespace }}/{{ pg_cluster }}/leader"
+
+# if the value of the above key matches the trigger-value (often the hostname of this host), vip-manager will try to add the virtual ip address to the interface specified in Iface
+trigger-value: "{{ pg_cluster }}-{{ pg_seq }}"
 
 # the virtual ip address to manage
-ip: {{ vip_address  }}
+ip: {{ vip_address }}
 
 # netmask for the virtual ip
-mask:  {{ vip_cidrmask }}
+netmask: {{ vip_cidrmask }}
 
-# use ip add to control ip address
-hosting_type: basic
+#interface to which the virtual ip will be added
+interface: {{ vip_interface }}
 
-# dcs connection information
-endpoint_type: consul
-endpoints:
-  - http://127.0.0.1:8500
+# how the virtual ip should be managed. we currently support "ip addr add/remove" through shell commands or the Hetzner api
+# possible values: basic, or hetzner.
+hosting-type: basic
 
-# how often things should be retried and how long to wait between retries
-retry_num: 2
 
-# retry after milliseconds
-retry_after: 250
+# dcs
+dcs-type: {{ dcs_type|default('consul') }}
 
-# milliseconds after which vip-manager wakes up and checks
-interval: 1000
+# a list that contains all DCS endpoints to which vip-manager could talk.
+dcs-endpoints:
+  - http://127.0.0.1:8500        # consul
+  # - http://127.0.0.1:2379      # etcd
+
+
+  # A single list-item is also fine.
+  # consul will always only use the first entry from this list.
+  # For consul, you'll obviously need to change the port to 8500. Unless you're using a different one. Maybe you're a rebel and are running consul on port 2379? Just to confuse people? Why would you do that? Oh, I get it.
+
+
+# etcd specific
+etcd-user: "patroni"
+etcd-password: "Julian's secret password"
+# when etcd-ca-file is specified, TLS connections to the etcd endpoints will be used.
+etcd-ca-file: "/path/to/etcd/trusted/ca/file"
+# when etcd-cert-file and etcd-key-file are specified, we will authenticate at the etcd endpoints using this certificate and key.
+etcd-cert-file: "/path/to/etcd/client/cert/file"
+etcd-key-file: "/path/to/etcd/client/key/file"
+
+# consul specific
+# don't worry about parameter with a prefix that doesn't match the endpoint_type. You can write anything there, I won't even look at it.
+consul-token: "Julian's secret token"
+
+# how often things should be retried and how long to wait between retries. (currently only affects arpClient)
+retry-num: 2
+
+# in milliseconds
+retry-after: 250
+
+# verbose logs (currently only supported for hetzner)
+verbose: false
