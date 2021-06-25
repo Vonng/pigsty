@@ -14,36 +14,36 @@
 #                     Alert Rule Format                        #
 ################################################################
 # Level: three alert levels
-#   0 : fatal  System failure needs immediate intervene   call  (e.g down) 1m
-#   1 : error  Anomalies could lead to failure soon       sms   (e.g high) 1m
-#   2 : event  Warning events that need attention         mail             5m
-
+#   0 : critical  System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : warning   Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : info      Warning events that need attention         mail             5m
 
 # - alert: InfraDown                      <------- CamelCase Alert Name
 #   expr: infra_up < 1                    <------- Expression
 #   for: 1m                               <------- Duration Threshold
 #        ^------- (omit) : Trigger immediately
 #   labels:
-#     rank: 'P0'
-#     severity: fatal
-#     category: infra
-#   annotations:
-#     summary: "[Fatal] InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+#     level: 0                            <------- numeric expression of severity 0,1,2
+#     severity: fatal                     <------- alert severity: fatal,error,event
+#     category: infra                     <------- category: infra, node, pgsql, redis, ...
+#   annotations:                          <------- short & detailed information about context
+#     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
 #     description: |
 #       infra_up[instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
 #       http://g.pigsty/d/pgsql-alert?viewPanel=32
-
+################################################################
 
 
 groups:
 
-  ################################################################
-  #                     Infrastructure Alert                     #
-  ################################################################
   # infra-alert depends on metrics defined in infra.yml
 
   - name: infra-alert
     rules:
+
+      ################################################################
+      #                     Infrastructure Alert                     #
+      ################################################################
 
       #==============================================================#
       #                       Infra Aliveness                        #
@@ -52,9 +52,9 @@ groups:
       - alert: InfraDown
         expr: infra_up < 1
         for: 1m
-        labels: { level: 0, severity: fatal, category: infra }
+        labels: { level: 0, severity: critical, category: infra }
         annotations:
-          summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+          summary: "CRIT InfraDown {{ $labels.type }}@{{ $labels.instance }}"
           description: |
             infra_up[type={{ $labels.type }}, instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
             http://g.pigsty/d/pgsql-alert?viewPanel=32
@@ -68,213 +68,213 @@ groups:
       - alert: AgentDown
         expr: agent_up < 1
         for: 1m
-        labels: { level: 0, severity: fatal, category: infra }
+        labels: { level: 0, severity: critical, category: infra }
         annotations:
-          summary: 'FATAL AgentDown ({{ $labels.ins }}@{{ $labels.instance }})'
+          summary: 'CRIT AgentDown {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
             agent_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
             http://g.pigsty/d/pgsql-alert?viewPanel=22
 
 
       #==============================================================#
-      #                   Node : CPU & Schedule                      #
+      #                         Prometheus                           #
+      #==============================================================#
+      # TODO
+
+      #==============================================================#
+      #                           Grafana                            #
+      #==============================================================#
+      # TODO
+
+      #==============================================================#
+      #                           Consul                             #
+      #==============================================================#
+      # TODO
+
+      #==============================================================#
+      #                            Etcd                              #
+      #==============================================================#
+      # TODO
+
+
+
+      ################################################################
+      #                          Node Alert                          #
+      ################################################################
+      # https://awesome-prometheus-alerts.grep.to/rules
+
+      #==============================================================#
+      #                          Node : CPU                          #
       #==============================================================#
       # cpu usage high : 1m avg cpu usage > 70% for 3m
       - alert: NodeCpuHigh
         expr: node:cpu:cpu_usage_1m > 0.70
-        for: 3m
-        labels: { level: 1, severity: error, category: node }
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: 'ERROR NodeCpuHigh {{ $labels.ins }}'
+          summary: 'WARN NodeCpuHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:ins:cpu_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 70%
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
 
+      # OPTIONAL: one core high
+      # OPTIONAL: throttled
+      # OPTIONAL: frequency
+      # OPTIONAL: steal
+
+      #==============================================================#
+      #                       Node : Schedule                        #
+      #==============================================================#
       # node load high : 1m avg standard load > 70% for 3m
       - alert: NodeLoadHigh
         expr: node:ins:stdload1 > 0.70
-        for: 3m
-        labels: { level: 1, severity: error, category: node }
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: 'ERROR NodeLoadHigh {{ $labels.ins }} {{ $value  | printf "%.2f" }}'
+          summary: 'WARN NodeLoadHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:ins:stdload5[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 100%
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
 
 
       #==============================================================#
-      #                   Node : Memory & Swap                       #
+      #                        Node : Memory                         #
       #==============================================================#
-      # application memory usage > 70% for 3m triggers a P1 alert
-      - alert: NodeMemoryHigh
-        expr: node:ins:mem_usage > 0.70
-        for: 5m
-        labels:
-          severity: P1
-          category: node
+      # available memory < 10%
+      - alert: NodeOutOfMem
+        expr: node:ins:mem_avail < 0.10
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: "[P1] NodeMemoryHigh: {{ $labels.ins }}"
+          summary: 'WARN NodeOutOfMem {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:ins:mem_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 70%
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
+            node:ins:mem_avail[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} < 10%
 
-      # swap usage > 1% for 3m
-      - alert: NodeMemorySwap
-        expr: node:ins:swap_usage > bool 0 and node:ins:swap_usage > 0.01
-        for: 5m
-        labels:
-          severity: P1
-          category: node
+      # OPTIONAL: EDAC Errors
+
+      #==============================================================#
+      #                        Node : Swap                           #
+      #==============================================================#
+      # swap usage > 1%
+      - alert: NodeMemSwapped
+        expr: node:ins:swap_usage > 0.01
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: "[P1] NodeMemorySwap: {{ $labels.ins }}"
+          summary: 'WARN NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:ins:swap_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1%
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
-
 
       #==============================================================#
-      #                  Node : Disk & Filesystem                    #
+      #                     Node : File System                       #
       #==============================================================#
 
-      # main fs readonly triggers an IMMEDIATE P0 alert (UNABLE TO WRITE)
-      - alert: NodeFsReadOnly
-        expr: node_filesystem_readonly{fstype!~"(n|root|tmp)fs.*"} == 1
-        labels:
-          severity: P0
-          category: node
-        annotations:
-          summary: "[P0] NodeFsReadOnly: {{ $labels.ins }}@{{ $labels.ip }} {{ $labels.device }}@{{ $labels.mountpoint }}"
-          description: |
-            node_filesystem_readonly{ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}, mountpoint={{ $labels.mountpoint }} } == 1
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
-
-
-      # main fs usage > 90% for 1m triggers P1 alert
-      - alert: NodeFsSpaceFull
+      # filesystem usage > 90%
+      - alert: NodeSpaceFull
         expr: node:fs:space_usage > 0.90
-        for: 5m
-        labels:
-          severity: P1
-          category: node
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: "[P1] NodeFsSpaceFull: {{ $labels.ins }} @ {{ $labels.mountpoint }}"
+          summary: 'WARN NodeDiskFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:fs:space_usage[ins={{ $labels.ins }}, mountpoint={{ $labels.mountpoint }}] = {{ $value  | printf "%.2f" }} > 90%
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
+            node:fs:space_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
 
-
-      # main fs inode usage > 90% for 1m triggers P1 alert
-      - alert: NodeFsInodeFull
+      # inode usage > 90%
+      - alert: NodeFilesFull
         expr: node:fs:inode_usage > 0.90
         for: 1m
-        labels:
-          severity: P1
-          category: node
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: "[P1] NodeFsInodeFull: {{ $labels.ins }}"
+          summary: 'WARN NodeFilesFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:ins:mem_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 70%
-            http://g.pigsty/d/pgsql-alert?viewPanel=22
+            node:fs:inode_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
 
-
-
-      # fd usage > 90% for 1m triggers P1 alert
-      - alert: NODE_FD_FULL
+      # file descriptor usage > 90%
+      - alert: NodeFdFull
         expr: node:fs:fd_usage > 0.90
         for: 1m
-        labels:
-          severity: P1
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: "P1 Node File Descriptor Full: {{ $labels.ins }} {{ $labels.ip }}"
+          summary: 'WARN NodeFdFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:fs:fd_usage[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value  | printf "%.2f" }} > 90%
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=58&fullscreen&var-ip={{ $labels.ip }}
+            node:fs:fd_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
 
-
-      # ssd read latency > 32ms for 3m (except long-read)
-      - alert: NODE_READ_LATENCY_HIGH
-        expr: node:dev:disk_read_rt  < 10000 and node:dev:disk_read_rt  > 0.032
-        for: 3m
-        labels:
-          severity: P2
-        annotations:
-          summary: "P2 Node Read Latency High: {{ $labels.ins }} {{ $labels.ip }}"
-          description: |
-            node:dev:disk_read_rt[ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}] = {{ $value  | printf "%.2f" }} > 32ms
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=29&fullscreen&var-ip={{ $labels.ip }}
-
-      # ssd write latency > 16ms for 3m
-      - alert: NODE_WRITE_LATENCY_HIGH
-        expr: node:dev:disk_write_rt  < 10000 and node:dev:disk_write_rt  > 0.016
-        for: 3m
-        labels:
-          severity: P2
-        annotations:
-          summary: "P2 Node Write Latency High: {{ $labels.ins }} {{ $labels.ip }}"
-          description: |
-            node:dev:disk_write_rt[ins={{ $labels.ins }}, ip={{ $labels.ip }}, device={{ $labels.device }}] = {{ $value  | printf "%.2f" }} > 16ms
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=29&fullscreen&var-ip={{ $labels.ip }}
-
-
-
-
-
+      # OPTIONAL: space predict 1d
+      # OPTIONAL: filesystem read-only
+      # OPTIONAL: fast release on disk space
 
       #==============================================================#
-      #                      Network & TCP                           #
+      #                          Node : Disk                         #
       #==============================================================#
-      # node tcp listen overflow > 2 for 3m
-      - alert: NODE_TCP_LISTEN_OVERFLOW
-        expr: node:ins:tcp_overflow_rate > 2
-        for: 3m
-        labels:
-          severity: P1
-        annotations:
-          summary: "P1 Node TCP Listen Overflow: {{ $labels.ins }} {{ $labels.ip }}"
-          description: |
-            node:ins:tcp_overflow_rate[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value  | printf "%.2f" }} > 2
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=55&fullscreen&var-ip={{ $labels.ip }}
-
-      # node tcp retrans > 32 per sec for 3m
-      - alert: NODE_TCP_RETRANS_HIGH
-        expr: node:ins:tcp_retranssegs > 32
-        for: 3m
-        labels:
-          severity: P2
-        annotations:
-          summary: "P2 Node TCP Retrans High: {{ $labels.ins }} {{ $labels.ip }}"
-          description: |
-            node:ins:tcp_retranssegs[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value  | printf "%.2f" }} > 32
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=52&fullscreen&var-ip={{ $labels.ip }}
-
-      # node tcp conn > 32768 for 1m
-      - alert: NODE_TCP_CONN_HIGH
-        expr: node_netstat_Tcp_CurrEstab > 32768
-        for: 3m
-        labels:
-          severity: P2
-        annotations:
-          summary: "P2 Node TCP Connection High: {{ $labels.ins }} {{ $labels.ip }}"
-          description: |
-            node_netstat_Tcp_CurrEstab[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value  | printf "%.2f" }} > 32768
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=54&fullscreen&var-ip={{ $labels.ip }}
-
-
-
-      #==============================================================#
-      #                          Misc                                #
-      #==============================================================#
-      # node ntp offset > 1s for 1m
-      - alert: NODE_NTP_OFFSET_HIGH
-        expr: abs(node_ntp_offset_seconds) > 1
+      # read latency > 32ms (typical on pci-e ssd: 100µs)
+      - alert: NodeDiskSlow
+        expr: node:dev:disk_read_rt_1m > 0.032 or node:dev:disk_write_rt_1m > 0.032
         for: 1m
-        labels:
-          severity: P1
+        labels: { level: 1, severity: warning, category: node }
         annotations:
-          summary: "P1 Node NTP Offset High: {{ $labels.ins }} {{ $labels.ip }}"
+          summary: 'WARN NodeReadSlow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |
-            node_ntp_offset_seconds[ins={{ $labels.ins }}, ip={{ $labels.ip }}] = {{ $value  | printf "%.2f" }} > 32768
-            http://g.pigsty/d/node?&from=now-10m&to=now&viewPanel=70&fullscreen&var-ip={{ $labels.ip }}
+            node:dev:disk_read_rt_1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 32ms
+
+      # OPTIONAL: raid card failure
+      # OPTIONAL: read/write traffic high
+      # OPTIONAL: read/write latency high
+
+      #==============================================================#
+      #                        Node : Network                        #
+      #==============================================================#
+      # OPTIONAL: unusual network traffic
+      # OPTIONAL: interface saturation high
+
+      #==============================================================#
+      #                        Node : Protocol                       #
+      #==============================================================#
+
+      # node:ins:tcp_overflow_rate > 1
+      - alert: NodeListenOverflow
+        expr: node:ins:tcp_overflow_rate > 1
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
+        annotations:
+          summary: 'WARN NodeListenOverflow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:tcp_overflow_rate[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1
+
+      # node:ins:tcp_retrans_ratio1m > 1e-5
+      - alert: NodeRetransHigh
+        expr: node:ins:tcp_retrans_ratio1m > 1e-5
+        for: 1m
+        labels: { level: 2, severity: info, category: node }
+        annotations:
+          summary: 'INFO NodeRetransHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
+          description: |
+            node:ins:tcp_retrans_ratio1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 1e-5
+
+      # OPTIONAL: tcp conn high
+      # OPTIONAL: udp traffic high
+      # OPTIONAL: conn track
+
+
+      #==============================================================#
+      #                          Node : Time                         #
+      #==============================================================#
+      # node_ntp_sanity < 1
+      - alert: NodeNtpInsane
+        expr: node_ntp_sanity < 1 or node_timex_sync_status < 1
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
+        annotations:
+          summary: 'WARN NodeNtpInsane {{ $labels.ins }}@{{ $labels.instance }}'
+          description: |
+            node_ntp_sanity[ins={{ $labels.ins }}] = {{ $value }} < 1
+
+      # time offset > 50ms
+      - alert: NodeClockSkew
+        expr: abs(node_timex_offset_seconds) > 0.050
+        for: 1m
+        labels: { level: 1, severity: warning, category: node }
+        annotations:
+          summary: 'WARN NodeClockSkew {{ $labels.ins }}@{{ $labels.instance }}'
+          description: |
+            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 50ms
 
 
 
