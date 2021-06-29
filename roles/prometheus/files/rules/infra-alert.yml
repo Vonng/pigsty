@@ -2,35 +2,33 @@
 #==============================================================#
 # File      :   infra-alert.yml
 # Ctime     :   2021-06-23
-# Mtime     :   2021-06-23
+# Mtime     :   2021-06-28
 # Desc      :   Infrastructure Alerting Rules
 # Path      :   /etc/prometheus/rules/infra-alert.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
 
-
 ################################################################
 #                     Alert Rule Format                        #
 ################################################################
 # Level: three alert levels
-#   0 : critical  System failure needs immediate intervene   call  (e.g down) 1m
-#   1 : warning   Anomalies could lead to failure soon       sms   (e.g high) 1m
-#   2 : info      Warning events that need attention         mail             5m
+#   0 : crit  System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : warn  Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : info  Warning events that need attention         mail             5m
 
-# - alert: InfraDown                      <------- CamelCase Alert Name
-#   expr: infra_up < 1                    <------- Expression
-#   for: 1m                               <------- Duration Threshold
+# - alert: InfraDown        <------- CamelCase Alert Name
+#   expr: infra_up < 1      <------- Expression
+#   for: 1m                 <------- Duration Threshold
 #        ^------- (omit) : Trigger immediately
 #   labels:
-#     level: 0                            <------- numeric expression of severity 0,1,2
-#     severity: fatal                     <------- alert severity: fatal,error,event
-#     category: infra                     <------- category: infra, node, pgsql, redis, ...
-#   annotations:                          <------- short & detailed information about context
+#     level: 0              <------- numeric expression of severity 0,1,2
+#     severity: crit        <------- alert severity: fatal,error,event
+#     category: infra       <------- category: infra, node, pgsql, redis, ...
+#   annotations:            <------- short & detailed information about context
 #     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
 #     description: |
 #       infra_up[instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
-#       http://g.pigsty/d/pgsql-alert?viewPanel=32
 ################################################################
 
 
@@ -52,7 +50,7 @@ groups:
       - alert: InfraDown
         expr: infra_up < 1
         for: 1m
-        labels: { level: 0, severity: critical, category: infra }
+        labels: { level: 0, severity: crit, category: infra }
         annotations:
           summary: "CRIT InfraDown {{ $labels.type }}@{{ $labels.instance }}"
           description: |
@@ -68,7 +66,7 @@ groups:
       - alert: AgentDown
         expr: agent_up < 1
         for: 1m
-        labels: { level: 0, severity: critical, category: infra }
+        labels: { level: 0, severity: crit, category: infra }
         annotations:
           summary: 'CRIT AgentDown {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
@@ -110,7 +108,7 @@ groups:
       - alert: NodeCpuHigh
         expr: node:cpu:cpu_usage_1m > 0.70
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeCpuHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -128,7 +126,7 @@ groups:
       - alert: NodeLoadHigh
         expr: node:ins:stdload1 > 0.70
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeLoadHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -142,7 +140,7 @@ groups:
       - alert: NodeOutOfMem
         expr: node:ins:mem_avail < 0.10
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeOutOfMem {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -157,7 +155,7 @@ groups:
       - alert: NodeMemSwapped
         expr: node:ins:swap_usage > 0.01
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -171,7 +169,7 @@ groups:
       - alert: NodeSpaceFull
         expr: node:fs:space_usage > 0.90
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeDiskFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -181,7 +179,7 @@ groups:
       - alert: NodeFilesFull
         expr: node:fs:inode_usage > 0.90
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeFilesFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -191,7 +189,7 @@ groups:
       - alert: NodeFdFull
         expr: node:fs:fd_usage > 0.90
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeFdFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
@@ -208,7 +206,7 @@ groups:
       - alert: NodeDiskSlow
         expr: node:dev:disk_read_rt_1m > 0.032 or node:dev:disk_write_rt_1m > 0.032
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeReadSlow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |
@@ -232,15 +230,15 @@ groups:
       - alert: NodeListenOverflow
         expr: node:ins:tcp_overflow_rate > 1
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeListenOverflow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:ins:tcp_overflow_rate[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1
 
-      # node:ins:tcp_retrans_ratio1m > 1e-5
+      # node:ins:tcp_retrans_ratio1m > 1e-4
       - alert: NodeRetransHigh
-        expr: node:ins:tcp_retrans_ratio1m > 1e-5
+        expr: node:ins:tcp_retrans_ratio1m > 1e-4
         for: 1m
         labels: { level: 2, severity: info, category: node }
         annotations:
@@ -260,7 +258,7 @@ groups:
       - alert: NodeNtpInsane
         expr: node_ntp_sanity < 1 or node_timex_sync_status < 1
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeNtpInsane {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
@@ -270,7 +268,7 @@ groups:
       - alert: NodeClockSkew
         expr: abs(node_timex_offset_seconds) > 0.050
         for: 1m
-        labels: { level: 1, severity: warning, category: node }
+        labels: { level: 1, severity: warn, category: node }
         annotations:
           summary: 'WARN NodeClockSkew {{ $labels.ins }}@{{ $labels.instance }}'
           description: |

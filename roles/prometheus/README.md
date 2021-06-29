@@ -1,21 +1,63 @@
 # Prometheus (ansible role)
 
-* Location: node0 (meta)
+* Location: meta node
 * Binary Path: `/bin/prometheus`
 * Data Directory: `/var/lib/prometheus/data`
 * Config Directory: `/etc/prometheus`
 
-## TL;DR
 
-How to reload prometheus configuration
+## FHS
+
 
 ```bash
-ssh node0
-sudo su
-cd /etc/prometheus
+#------------------------------------------------------------------------------
+# FHS
+#------------------------------------------------------------------------------
+# /etc/prometheus/
+#  ^-----prometheus.yml              # prometheus main config file
+#  ^-----alertmanager.yml            # alertmanger main config file
+#  ^-----infrastructure.yml          # infrastructure targets definition
+#  ^-----@bin                        # util scripts: check,reload,status,new
+#  ^-----@rules                      # record & alerting rules definition
+#            ^-----@infra-rules      # infrastructure metrics definition
+#            ^-----@infra-alert      # infrastructure alert definition
+#            ^-----@pgsql-rules      # database metrics definition
+#            ^-----@infra-alert      # database alert definition
+#  ^-----@targets                    # file based service discovery targets definition
+#            ^-----@infra            # infra static targets definition
+#            ^-----@pgsql            # pgsql static targets definition
+#            ^-----@redis (n/a)      # redis static targets definition (not exists for now)
+#
+# /data/prometheus                   # prometheus data home
+#            ^-----@data             # prometheus data dir(wal,lock,etc...)
+#------------------------------------------------------------------------------
+```
 
+
+
+## TL;DR
+
+**How to reload prometheus configuration**
+
+```bash
+ssh meta
+sudo su && cd /etc/prometheus
 bin/check
 bin/reload
+```
+
+**How to destroy existing prometheus**
+
+from meta node with ansible playbook
+
+```bash
+./infra.yml --tags=prometheus
+```
+
+manually
+
+```bash
+bin/new
 ```
 
 ## Files
@@ -32,23 +74,21 @@ bin/reload
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Install prometheus and alertmanager		  TAGS: [prometheus_install]
-Wipe out prometheus config dir			  TAGS: [prometheus_clean]
-Wipe out existing prometheus data		  TAGS: [prometheus_clean]
-Recreate prometheus data dir			  TAGS: [prometheus_config]
-Copy /etc/prometheus configs			  TAGS: [prometheus_config]
-Copy /etc/prometheus opts				  TAGS: [prometheus_config]
-Overwrite prometheus scrape_interval	  TAGS: [prometheus_config]
-Overwrite prometheus evaluation_interval  TAGS: [prometheus_config]
-Overwrite prometheus scrape_timeout		  TAGS: [prometheus_config]
-Overwrite prometheus pg metrics path	  TAGS: [prometheus_config]
-Launch prometheus service				  TAGS: [prometheus_launch]
-Launch alertmanager service				  TAGS: [prometheus_launch]
-Wait for prometheus online				  TAGS: [prometheus_launch]
-Wait for alertmanager online			  TAGS: [prometheus_launch]
-Copy prometheus service definition		  TAGS: [prometheus_register]
-Copy alertmanager service definition	  TAGS: [prometheus_register]
-Reload consul to register prometheus	  TAGS: [prometheus_register]
+postgres : Check necessary variables exists	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Fetch variables via pg_cluster	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Set cluster basic facts for hosts	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Assert cluster primary singleton	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Setup cluster primary ip address	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Setup repl upstream for primary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Setup repl upstream for replicas	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+postgres : Debug print instance summary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
+monitor : Register pg-exporter consul service	TAGS: [exporter_register, monitor, pg_exporter_register, pgsql]
+monitor : Reload pg-exporter consul service	TAGS: [exporter_register, monitor, pg_exporter_register, pgsql]
+monitor : Register pgb-exporter consul service	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
+monitor : Reload pgb-exporter consul service	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
+monitor : Register node-exporter service to consul	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
+monitor : Reload node-exporter consul service	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
+service : Copy haproxy exporter definition	TAGS: [exporter_register, haproxy, haproxy_exporter_register, haproxy_register, pgsql, service]
 ```
 
 ### Default variables
@@ -62,8 +102,9 @@ Reload consul to register prometheus	  TAGS: [prometheus_register]
 #------------------------------------------------------------------------------
 prometheus_data_dir: /var/lib/prometheus/data # prometheus data dir
 prometheus_options: '--storage.tsdb.retention=30d'
+# extra cli-args, refer https://prometheus.io/docs/prometheus/latest/disabled_features/
 prometheus_reload: false                      # reload prometheus instead of recreate it
-prometheus_sd_method: consul                  # service discovery method: static|consul|etcd
+prometheus_sd_method: static                  # service discovery method: static|consul|etcd
 prometheus_scrape_interval: 15s               # global scrape & evaluation interval
 prometheus_scrape_timeout: 5s                 # scrape timeout
 prometheus_sd_interval: 5s                    # service discovery refresh interval

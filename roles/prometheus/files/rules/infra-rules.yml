@@ -1,13 +1,12 @@
 ---
 #==============================================================#
-# File      :   infra.yml
+# File      :   infra-rules.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2021-06-23
+# Mtime     :   2021-06-28
 # Desc      :   Infrastructure Record Rules (Monitor,Node,Haproxy)
-# Path      :   /etc/prometheus/rules/misc.yml
+# Path      :   /etc/prometheus/rules/infra-rules.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
-
 
 ################################################################
 #                Derived Metrics Definition                    #
@@ -18,27 +17,14 @@
 # <namespace>:<level>:<metrics_name>_<modifier>
 #--------------------------------------------------------------#
 # Metrics Hierarchy
-#
-#   env                                -->    environment    +{job}
-#   ^--> cls                           -->    cluster        +{cls,job}
-#        ^--> ins                      -->    instance       +{ins,cls,job} +{instance,etc...}
-#             |
-#             |                             ==PGSQL ONLY===
-#             ^---- datname            -->    database       +{datname}
-#             |          ^---- pool    -->    pool           +{datname, user}
-#             |          ^---- table   -->                   +{datname, relname}
-#             |          ^---- index   -->                   +{datname, relname, idxname}
-#             |          ^---- query   -->                   +{datname, query}
-#             |
-#             |                             ==NODE ONLY==
-#             ^---- cpu                -->    cpu            +{cpu}
-#             ^---- dev                -->    disk/interface +{dev}
-#             ^---- fs                 -->    filesystem     +{mountpoint, device, fstype}
-#
+#   env                  -->  environment    +{job}
+#   ^--> cls             -->  cluster        +{job,cls}
+#        ^--> ins        -->  instance       +{job,cls,ins}  +{instance,etc...}
+#             ^---- cpu  -->  cpu            +{cpu}  +{cpu,mode}
+#             ^---- dev  -->  disk           +{device}
+#             ^---- dev  -->  interface      +{device}
+#             ^---- fs   -->  filesystem     +{device, mountpoint, fstype}
 #--------------------------------------------------------------#
-
-
-
 
 groups:
 
@@ -96,7 +82,6 @@ groups:
         expr: time() - haproxy_process_start_time_seconds
 
 
-
       ################################################################
       #                         Membership                           #
       ################################################################
@@ -108,7 +93,6 @@ groups:
             label_replace(node_uname_info, "id", "$1", "instance", "(.+)\\:\\d+") OR
             label_replace(node_uname_info, "id", "$1", "ins", "(.+)")
           )
-
 
 
 
@@ -163,9 +147,9 @@ groups:
       - record: node:ins:cpu_usage
         expr: avg without (cpu) (node:cpu:usage)
       - record: node:cls:cpu_usage
-        expr: avg by (cls, job) (node:cpu:cpu_usage)
+        expr: avg by (cls, job) (node:cpu:usage)
       - record: node:env:cpu_usage
-        expr: avg by (job) (node:cpu:cpu_usage)
+        expr: sum by (job) (node:cls:cpu_usage * node:cls:cpu_count) / sum by (job) (node:cls:cpu_count)
 
       #--------------------------------#
       # CPU Usage (realtime|1m|5m|15m) #
@@ -467,6 +451,14 @@ groups:
       # filesystem space usage ( 1 - avail/total )
       - record: node:fs:space_usage
         expr: 1 - node:fs:avail_bytes / node:fs:size_bytes
+
+      # max space usage of a instance
+      - record: node:ins:space_usage_max
+        expr: max without (device, fstype, mountpoint) (node:fs:space_usage)
+
+      # max space usage of a cluster
+      - record: node:cls:space_usage_max
+        expr: max by (job, cls) (node:ins:space_usage_max)
 
       # space delta and prediction
       - record: node:fs:space_deriv1h

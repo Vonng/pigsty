@@ -33,9 +33,9 @@
 # Globals
 #------------------------------------------------------------------------------
 global:
-  scrape_interval: {{ prometheus_scrape_interval }}
-  evaluation_interval: {{ prometheus_scrape_interval }}
-  scrape_timeout: {{ prometheus_scrape_timeout }}
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  scrape_timeout: 8s
 
 
 #------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets: # [ 127.0.0.1:9093 ]
-            - {{ nginx_upstream | json_query('[?name==`alertmanager`].url') | first }}
+            - 127.0.0.1:9093
       scheme: http
       timeout: 10s
       api_version: v1
@@ -58,40 +58,7 @@ rule_files:
   - rules/*.yml
 
 
-{% if prometheus_sd_method == 'static' %}
-#------------------------------------------------------------------------------
-# Targets (Static File Service Discovery)
-#------------------------------------------------------------------------------
-# https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config
-scrape_configs:
 
-  #------------------------------------------------------------------------------
-  # job: infra (self monitoring)
-  # targets: grafana | prometheus | altermanager | nginx | etc...
-  # labels: [type, instance]
-  # path: targets/infra/*.yml
-  #------------------------------------------------------------------------------
-  - job_name: infra
-    metrics_path: /metrics
-    file_sd_configs:
-      - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/infra/*.yml ]
-
-  #------------------------------------------------------------------------------
-  # job: pgsql (database monitoring)
-  # node_exporter | pg_exporter | pgbouncer_exporter | haproxy(exporter)
-  # labels: [cls, ins, instance]
-  # path: targets/pgsql/*.yml
-  #------------------------------------------------------------------------------
-  - job_name: pgsql
-    metrics_path: {{ export_metrics_path }}
-    file_sd_configs:
-      - refresh_interval: {{ prometheus_sd_interval }}
-        files: [ targets/pgsql/*.yml ]
-
-{% endif %}
-
-{% if prometheus_sd_method == 'consul' %}
 #------------------------------------------------------------------------------
 # Targets (Consul Service Discovery)
 #------------------------------------------------------------------------------
@@ -108,7 +75,7 @@ scrape_configs:
     metrics_path: /metrics
     consul_sd_configs:
       - server: 127.0.0.1:8500
-        refresh_interval: {{ prometheus_sd_interval }}
+        refresh_interval: 10s
         tags:
           - infra
           - exporter
@@ -119,6 +86,11 @@ scrape_configs:
         action: replace
         target_label: type
 
+      # relabel meta.instance -> ins  (unique instance identifier prefixed with cls)
+      - source_labels: [ __meta_consul_service_metadata_instance ]
+        action: replace
+        target_label: ins
+
 
   #------------------------------------------------------------------------------
   # job: pgsql (database monitoring)
@@ -127,10 +99,10 @@ scrape_configs:
   # selector: tags @> [ pgsql, exporter ]
   #------------------------------------------------------------------------------
   - job_name: pgsql
-    metrics_path: {{ export_metrics_path }}
+    metrics_path: /metrics
     consul_sd_configs:
       - server: 127.0.0.1:8500
-        refresh_interval: {{ prometheus_sd_interval }}
+        refresh_interval: 10s
         tags:
           - pgsql
           - exporter
@@ -145,5 +117,3 @@ scrape_configs:
       - source_labels: [ __meta_consul_service_metadata_instance ]
         action: replace
         target_label: ins
-
-{% endif %}

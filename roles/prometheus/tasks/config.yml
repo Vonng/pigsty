@@ -4,29 +4,54 @@
 #------------------------------------------------------------------------------
 - name: Setup prometheus and alertmanager
   block:
-    - name: Create postgres directory structure
+
+
+    #------------------------------------------------------------------------------
+    # FHS
+    #------------------------------------------------------------------------------
+    # /etc/prometheus/
+    #  ^-----prometheus.yml              # prometheus main config file
+    #  ^-----alertmanager.yml            # alertmanger main config file
+    #  ^-----infrastructure.yml          # infrastructure targets definition
+    #  ^-----@bin                        # util scripts: check,reload,status,new
+    #  ^-----@rules                      # record & alerting rules definition
+    #            ^-----@infra-rules      # infrastructure metrics definition
+    #            ^-----@infra-alert      # infrastructure alert definition
+    #            ^-----@pgsql-rules      # database metrics definition
+    #            ^-----@infra-alert      # database alert definition
+    #  ^-----@targets                    # file based service discovery targets definition
+    #            ^-----@infra            # infra static targets definition
+    #            ^-----@pgsql            # pgsql static targets definition
+    #            ^-----@redis (n/a)      # redis static targets definition (not exists for now)
+    #
+    #------------------------------------------------------------------------------
+    - name: Create prometheus directories
       file: path={{ item }} state=directory owner=prometheus group=prometheus mode=700
       with_items:
         - /etc/prometheus
         - /etc/prometheus/bin
         - /etc/prometheus/rules
         - /etc/prometheus/targets
+        - /etc/prometheus/targets/infra
+        - /etc/prometheus/targets/pgsql
         - "{{ prometheus_data_dir }}"
 
     # - bin scripts - #
     - name: Copy prometheus bin scripts
       copy: src=bin/ dest=/etc/prometheus/bin/ owner=prometheus mode=0755
 
-    # - pre-process & alerting rules - #
-    - name: Copy prometheus rules scripts
+    # - copy rules - #
+    - name: Copy prometheus rules
+      tags: prometheus_rules
       copy: src=rules/ dest=/etc/prometheus/rules/ owner=prometheus mode=0755
 
-    # - main config - #
-    - name: Copy altermanager config
-      copy: src=alertmanager.yml dest=/etc/prometheus/alertmanager.yml owner=prometheus mode=0644
-
+    # - prometheus config - #
     - name: Render prometheus config
       template: src=prometheus.yml.j2 dest=/etc/prometheus/prometheus.yml owner=prometheus mode=0644
+
+    # - alertmanager config - #
+    - name: Render altermanager config
+      template: src=alertmanager.yml.j2 dest=/etc/prometheus/alertmanager.yml owner=prometheus mode=0644
 
     # - overwrite opts - #
     - name: Config /etc/prometheus opts
