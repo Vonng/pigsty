@@ -3,30 +3,42 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2021-05-21
-# Desc      :   configure pigsty before install it
-# Usage     :   ./configure -i -m -n
+# Mtime     :   2021-06-29
+# Desc      :   configure pigsty
+# Usage     :   ./configure [imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
 # Path      :   configure
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#==============================================================#
+# Usage
+#==============================================================#
+# ./configure
+#     [-i|--ip <ip>]
+#     [-m|--mode <mode>]
+#     [-d|--download]
+#     [-n|--non-interactive]
 #==============================================================#
 
 
 #==============================================================#
 # const
 #==============================================================#
-PIGSTY_VERSION=0.9
+# pigsty version string
+PIGSTY_VERSION=v0.10.0-alpha1
+
 # where to download pkg.tgz ?
-DEFAULT_PKG_URL=http://pigsty-1304147732.file.myqcloud.com/v${PIGSTY_VERSION}/pkg.tgz
+DEFAULT_PKG_URL=http://pigsty-1304147732.file.myqcloud.com/${PIGSTY_VERSION}/pkg.tgz
 # other mirrors:
-# Global CDN: http://pigsty-1304147732.file.myqcloud.com/v${PIGSTY_VERSION}/pkg.tgz
+# Global CDN: http://pigsty-1304147732.file.myqcloud.com/${PIGSTY_VERSION}/pkg.tgz
 # Github: https://github.com/Vonng/pigsty/releases/download/v0.9.1/pkg.tgz
-# OSS: http://pigsty-1304147732.cos.accelerate.myqcloud.com/v${PIGSTY_VERSION}/pkg.tgz
+# OSS: http://pigsty-1304147732.cos.accelerate.myqcloud.com/${PIGSTY_VERSION}/pkg.tgz
 # Official Latest: http://pigsty.cc/pkg.tgz
 
 
 #==============================================================#
-# marcos
+# environment
 #==============================================================#
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
@@ -49,8 +61,6 @@ MODE=""                           # default install mode (tiny|oltp|...|demo|dem
 PRO_MODE=false                    # install pigsty pro extra resources ?
 DEFAULT_PKG_PATH=/tmp/pkg.tgz     # default offline installation pkg path
 DOWNLOAD_PKG=false                # whether to download pkg.tgz if not exists ?
-
-
 
 
 #==============================================================#
@@ -343,7 +353,7 @@ function check_config(){
     local mode=${2-${MODE}}
     local pigsty_home=${3-${PIGSTY_HOME}}
     local sed_cmd="s/10.10.10.10/${primary_ip}/g"
-    local config_src=${pigsty_home}/files/config/pigsty-${mode}.yml
+    local config_src=${pigsty_home}/files/conf/pigsty-${mode}.yml
     local config_dst=${pigsty_home}/pigsty.yml
 
     if [[ ! -f ${config_src} ]]; then
@@ -515,7 +525,7 @@ function main(){
     done
 
 
-    log_hint "configure pigsty begin\n"
+    log_hint "configure pigsty ${VERSION} begin\n"
     # check
     check_kernel     # kernel        = Linux
     check_machine    # machine       = x86_64
@@ -534,7 +544,7 @@ function main(){
     check_bin >/dev/null 2>/dev/null      # check special bin files in pigsty/bin
     check_utils      # check ansible sshpass and other utils installed
 
-    log_hint "configure pigsty end. Use 'make install' to proceed\n"
+    log_hint "configure pigsty done. Use 'make install' to proceed\n"
 }
 
 main $@
