@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   pgsql-alert.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2021-06-28
+# Mtime     :   2021-06-29
 # Desc      :   Alerting rules for postgres
 # Path      :   /etc/prometheus/rules/pgsql-alert.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -12,22 +12,22 @@
 #                     Alert Rule Format                        #
 ################################################################
 # Level: three alert levels
-#   0 : critical  System failure needs immediate intervene   call  (e.g down) 1m
-#   1 : warning   Anomalies could lead to failure soon       sms   (e.g high) 1m
-#   2 : info      Warning events that need attention         mail             5m
+#   0 : CRIT System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : WARN Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : INFO Warning events that need attention         mail             5m
 
-# - alert: InfraDown        <------- CamelCase Alert Name
-#   expr: infra_up < 1      <------- Expression
+# - alert: PostgresDown     <------- CamelCase Alert Name
+#   expr: pg_up < 1         <------- Expression
 #   for: 1m                 <------- Duration Threshold
 #        ^------- (omit) : Trigger immediately
 #   labels:
 #     level: 0              <------- numeric expression of severity 0,1,2
-#     severity: fatal       <------- alert severity: fatal,error,event
-#     category: infra       <------- category: infra, node, pgsql, redis, ...
+#     severity: CRIT        <------- alert severity: fatal,error,event
+#     category: pgsql       <------- category: infra, node, pgsql, redis, ...
 #   annotations:            <------- short & detailed information about context
 #     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
 #     description: |
-#       infra_up[instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
+#       pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
 ################################################################
 
 groups:
@@ -46,7 +46,7 @@ groups:
       - alert: PostgresDown
         expr: pg_up < 1
         for: 1m
-        labels: { level: 0, severity: crit, category: pgsql }
+        labels: { level: 0, severity: CRIT, category: pgsql }
         annotations:
           summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
@@ -58,7 +58,7 @@ groups:
       - alert: PgbouncerDown
         expr: pgbouncer_up < 1
         for: 1m
-        labels: { level: 0, severity: crit, category: pgsql }
+        labels: { level: 0, severity: CRIT, category: pgsql }
         annotations:
           summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
@@ -69,7 +69,7 @@ groups:
       - alert: PostgresRestart
         expr: pg_uptime < 300
         for: 1m
-        labels: { level: 1, severity: warn, category: pgsql }
+        labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PostgresRestart {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
@@ -84,7 +84,7 @@ groups:
       - alert: PostgresPartition
         expr: pg:cls:partition != 1
         for: 1m
-        labels: { level: 0, severity: crit, category: pgsql }
+        labels: { level: 0, severity: CRIT, category: pgsql }
         annotations:
           summary: "CRIT PostgresPartition {{ $labels.ins }}@{{ $labels.instance }} {{ $value }}"
           description: |
@@ -101,7 +101,7 @@ groups:
       - alert: PostgresPressureHigh
         expr: ins:pressure1 > 0.70
         for: 1m
-        labels: { level: 1, severity: warn, category: pgsql }
+        labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PostgresPressureHigh: {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
@@ -111,11 +111,11 @@ groups:
       #==============================================================#
       #                         Replication                          #
       #==============================================================#
-      # replication break for 1m triggers a P1 alert (warn: heal in 5m)
+      # replication break for 1m triggers a P1 alert (WARN: heal in 5m)
       - alert: PostgresReplicationBreak
         expr: delta(pg_downstream_count{state="streaming"}[5m]) < 0
         for: 1m
-        labels: { level: 1, severity: warn, category: pgsql }
+        labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PostgresReplicationBreak: {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
@@ -126,7 +126,7 @@ groups:
       - alert: PostgresReplicationLag
         expr: pg:ins:lag_bytes > 1048576 or pg:ins:lag_seconds > 1
         for: 1m
-        labels: { level: 1, severity: warn, category: pgsql }
+        labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PostgresReplicationLag: {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
@@ -142,7 +142,7 @@ groups:
       - alert: PostgresXidWarpAround
         expr: pg:db:age > 0.80
         for: 1m
-        labels: { level: 0, severity: crit, category: pgsql }
+        labels: { level: 0, severity: CRIT, category: pgsql }
         annotations:
           summary: "CRIT PostgresXidWarpAround: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
           description: |
@@ -152,7 +152,7 @@ groups:
       - alert: PgbouncerClientQueue
         expr: pgbouncer:db:waiting_clients > 1
         for: 1m
-        labels: { level: 0, severity: crit, category: pgsql }
+        labels: { level: 0, severity: CRIT, category: pgsql }
         annotations:
           summary: "CRIT PgbouncerClientQueue: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
           description: |
@@ -162,7 +162,7 @@ groups:
       - alert: PgbouncerQuerySlow
         expr: pgbouncer:db:query_rt_1m > 0.016
         for: 3m
-        labels: { level: 1, severity: warn, category: pgsql }
+        labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PgbouncerQuerySlow: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
           description: |
@@ -172,7 +172,7 @@ groups:
       - alert: PostgresConnUsageHigh
         expr: pg:db:conn_usage > 0.70
         for: 3m
-        labels: { level: 1, severity: warn, category: pgsql }
+        labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PostgresConnUsageHigh: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
           description: |
@@ -182,7 +182,7 @@ groups:
       - alert: PostgresIdleInXact
         expr: pg:db:ixact_backends > 1
         for: 3m
-        labels: { level: 2, severity: info, category: pgsql }
+        labels: { level: 2, severity: INFO, category: pgsql }
         annotations:
           summary: "Info PostgresIdleInXact: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
           description: |

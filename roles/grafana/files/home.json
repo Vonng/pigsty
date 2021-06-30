@@ -24,7 +24,7 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": true,
-      "title": "Prometheus",
+      "title": "Metric",
       "tooltip": "Pigsty Prometheus",
       "type": "link",
       "url": "http://p.pigsty"
@@ -36,7 +36,7 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": true,
-      "title": "Alertmanager",
+      "title": "Alert",
       "tooltip": "Pigsty Alertmanager @ http://a.pigsty",
       "type": "link",
       "url": "http://a.pigsty"
@@ -97,9 +97,21 @@
       "tags": [],
       "targetBlank": false,
       "title": "PGSQL",
-      "tooltip": "PGSQL Home Dashboard",
+      "tooltip": "PGSQL Overview Dashboard",
       "type": "link",
-      "url": "/d/pgsql-cluster"
+      "url": "/d/pgsql-overview"
+    },
+    {
+      "asDropdown": false,
+      "icon": "question",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Search",
+      "tooltip": "Search dashboards",
+      "type": "link",
+      "url": "/?search=open"
     }
   ],
   "panels": [
@@ -116,7 +128,7 @@
         "content": "<iframe style=\"width: 100%; height: 100%\" src=\"https://pigsty.cc/en/\">\n",
         "mode": "html"
       },
-      "pluginVersion": "8.0.1",
+      "pluginVersion": "8.0.3",
       "transparent": true,
       "type": "text"
     },
@@ -139,22 +151,51 @@
         "showStarred": true,
         "tags": []
       },
-      "pluginVersion": "8.0.1",
+      "pluginVersion": "8.0.3",
       "title": "Dashboards",
       "type": "dashlist"
     },
     {
       "datasource": null,
+      "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "fillOpacity": 70,
-            "lineWidth": 0
+            "axisLabel": "",
+            "axisPlacement": "hidden",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 98,
+            "gradientMode": "none",
+            "hideFrom": {
+              "graph": false,
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
+          "decimals": 0,
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -163,26 +204,58 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 20
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Alert"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 16,
         "x": 0,
         "y": 18
       },
-      "id": 6,
+      "id": 12,
       "options": {
-        "alignValue": "center",
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right"
         },
-        "mergeValues": true,
-        "rowHeight": 0.9,
-        "showValue": "never",
         "tooltip": {
           "mode": "single"
         }
@@ -190,14 +263,29 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "ALERTS",
+          "expr": "ALERTS{alertstate=\"firing\"}",
           "interval": "",
-          "legendFormat": "{{ alertname }}",
+          "legendFormat": "[{{ severity }}⚡️] {{alertname}}  @ {{ ins }}",
           "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "ALERTS{alertstate=\"pending\"}",
+          "hide": true,
+          "interval": "",
+          "legendFormat": "[{{ severity }}⏰] {{alertname}} @ {{ cls }}",
+          "refId": "B"
+        },
+        {
+          "exemplar": true,
+          "expr": "0",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Alert",
+          "refId": "C"
         }
       ],
-      "title": "Prometheus Alerts",
-      "type": "state-timeline"
+      "type": "timeseries"
     },
     {
       "datasource": null,
@@ -209,7 +297,7 @@
           "links": [
             {
               "title": "${__field.labels.instance}",
-              "url": "${__field.labels.instance}"
+              "url": "/d/pgsql-alert"
             }
           ],
           "mappings": [],
@@ -238,10 +326,77 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 8,
         "x": 16,
         "y": 18
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "valueSize": 6
+        },
+        "textMode": "name"
+      },
+      "pluginVersion": "8.0.3",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "up{job=\"infra\"}",
+          "interval": "",
+          "legendFormat": "{{ type }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Infrastructure Status",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [
+            {
+              "title": "${__field.labels.instance}",
+              "url": "/d/pgsql-alert"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 24
       },
       "id": 4,
       "options": {
@@ -251,7 +406,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -261,13 +416,13 @@
         },
         "textMode": "none"
       },
-      "pluginVersion": "8.0.1",
+      "pluginVersion": "8.0.3",
       "targets": [
         {
           "exemplar": true,
-          "expr": "up",
+          "expr": "up{job!=\"infra\"}",
           "interval": "",
-          "legendFormat": "{{ instance }}",
+          "legendFormat": "{{ ins }}@{{ instance }}",
           "refId": "A"
         }
       ],
@@ -290,5 +445,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "home",
-  "version": 1
+  "version": 2
 }
