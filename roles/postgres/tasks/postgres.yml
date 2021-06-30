@@ -109,19 +109,11 @@
         src: postgres.service.j2
         dest: /usr/lib/systemd/system/postgres.service
 
-
     # add consul dependency for patroni
-    - name: Drop-In consul dependency for patroni
-      when: dcs_type == 'consul'
-      copy:
+    - name: Drop-In systemd config for patroni
+      template:
+        src: patroni.dependency.j2
         dest: /etc/systemd/system/patroni.service.d/dependency.conf
-        content: |
-          [Unit]
-          After=consul.service
-          Requires=consul.service
-          [Service]
-          TimeoutStopSec=120s
-        mode: 0644
 
 
 #------------------------------------------------------------------------------
