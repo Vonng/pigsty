@@ -1,0 +1,30 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   infra-pgcat.yml
+# Ctime     :   2021-06-29
+# Mtime     :   2021-06-29
+# Desc      :   update pgcat datasource on grafana
+# Path      :   infra-pgcat.yml
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+- name: Load PGCAT Datasource
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: pgcat
+  vars:
+
+    #ins_filter: "[]"                                            # all instance
+    #ins_filter: "[? pg_role == `primary` ]"                     # primary instance only
+    #ins_filter: "[? pg_role == `offline` || pg_offline_query ]" # offline instance only
+    max_connection: 8
+    pg_monitor_username: dbuser
+
+  tasks:
+    - name: Generate postgres datasource for grafana
+      template: src=pg-datasource.yml.j2 dest=/etc/grafana/provisioning/datasources/pgcat.yml
+
+
+...

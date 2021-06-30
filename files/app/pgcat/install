@@ -1,0 +1,69 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   install
+# Ctime     :   2021-06-29
+# Mtime     :   2021-06-29
+# Desc      :   install pgsql monitoring system
+# Path      :   app/pgsql/install
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+
+#==============================================================#
+## HOW TO WRITE PIGSTY APP INSTALL SCRIPT ?
+# pigsty app is application that runs under CERTAIN pigsty env:
+#
+#   * access to cmdb        (pg-meta.meta)
+#   * access to grafana     (127.0.0.1:3000)
+#   * access to pigsty home
+#   * access to ssh & root & python runtime
+#
+# Environment information are passing via ENVIRONMENT VARIABLES
+# e.g :
+#     PIGSTY_HOME (~/pigsty by default, adding new playbooks)
+#     METADB_URL  (service=meta by default, execute database ddl)
+#     GRAFANA_ENDPOINT, GRAFANA_USERNAME, GRAFANA_PASSWORD
+#                 (grafana admin API, manipulate user interface)
+#
+# App FHS & Conventions
+# <app>
+#   ^---> README.md   # documentation (required)
+#   ^---> install     # auto install scripts (required)
+#   ^---> Makefile    # manual install shortcuts
+#   ^---> dashboards  # dashboards json definition that will be copied to /etc/dashboards
+#   ^---> playbooks   # playbooks that will be added to pigsty home
+#   ^---> databases   # database schema & data and other resources
+#==============================================================#
+
+
+#==============================================================#
+# environment
+#==============================================================#
+APP_DIR="$(cd $(dirname $0) && pwd)"
+APP_NAME="$(basename ${APP_DIR})"
+PIGSTY_HOME=${PIGSTY_HOME-"${HOME}/pigsty"}
+METADB_URL=${METADB_URL-"service=meta"}
+GRAFANA_ENDPOINT=${GRAFANA_ENDPOINT-'http://127.0.0.1:3000'}
+GRAFANA_USERNAME=${GRAFANA_USERNAME-'admin'}
+GRAFANA_PASSWORD=${GRAFANA_PASSWORD-'pigsty'}
+GRAFANA_DASHBOARD_DIR=${GRAFANA_DASHBOARD_DIR-'/etc/dashboards'}
+
+#==============================================================#
+# Static Provision                                            #
+#==============================================================#
+# static provision will copy dashboards/* to /etc/dashboards/*
+sudo -n mkdir -p ${GRAFANA_DASHBOARD_DIR}/pgsql
+sudo -n cp -rf ${APP_DIR}/dashboards/pgsql/* ${GRAFANA_DASHBOARD_DIR}/pgsql/*
+exit 0
+
+#==============================================================#
+# Dynamic Provision
+#==============================================================#
+# curl -X PUT "${GRAFANA_ENDPOINT}/api/orgs/1"       \
+# 	   -u "${GRAFANA_USERNAME}:${GRAFANA_PASSWORD}"  \
+# 	   -H 'Content-Type: application/json'           \
+# 	   -d '{"name": "Pigsty"}'
+# example
+# curl -X PUT "http://127.0.0.1:3000/api/orgs/1" -u "admin:pigsty" \
+#     -H 'Content-Type: application/json'

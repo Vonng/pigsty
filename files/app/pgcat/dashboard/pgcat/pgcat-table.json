@@ -1,0 +1,2544 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "PostgreSQL Catalog Explorer",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1625035633150,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "PG",
+                "Overview"
+            ],
+            "title": "Overview",
+            "type": "dashboards"
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "PG",
+                "Cluster"
+            ],
+            "title": "Cluster",
+            "type": "dashboards"
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "PG",
+                "Service"
+            ],
+            "title": "Service",
+            "type": "dashboards"
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "PG",
+                "Instance"
+            ],
+            "targetBlank": false,
+            "title": "Instance",
+            "type": "dashboards"
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "PG",
+                "Database"
+            ],
+            "title": "Database",
+            "type": "dashboards"
+        }
+    ],
+    "panels": [
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 24,
+            "panels": [],
+            "title": "Catalog",
+            "type": "row"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 0,
+                "y": 1
+            },
+            "id": 33,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "/.*/",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relnamespace::RegNamespace FROM pg_class WHERE relname = '$relname';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Namespace / Schema",
+            "type": "stat"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "links": [
+                        {
+                            "title": "Table Metrics for ${relname}",
+                            "url": "/d/pg-table-metrics?var-ins=${ins}&var-datname${datname}&var-relname=${relname}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 12,
+                "x": 6,
+                "y": 1
+            },
+            "id": 32,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "/.*/",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT '$relname'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Relation",
+            "type": "stat"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [
+                        {
+                            "options": {
+                                "I": {
+                                    "text": "(I) Partition Index"
+                                },
+                                "c": {
+                                    "text": "(c) Compose Type"
+                                },
+                                "f": {
+                                    "text": "(f) Foreign Table"
+                                },
+                                "i": {
+                                    "text": "(i) Index"
+                                },
+                                "m": {
+                                    "text": "(m) Materialized View"
+                                },
+                                "p": {
+                                    "text": "(p) Partition Table"
+                                },
+                                "r": {
+                                    "text": "(r) Table"
+                                },
+                                "t": {
+                                    "text": "(t) Toast"
+                                },
+                                "v": {
+                                    "text": "(v) View"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 18,
+                "y": 1
+            },
+            "id": 34,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "/.*/",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relkind FROM pg_class WHERE relname = '$relname';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Relation Kind",
+            "type": "stat"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Bloat Ratio"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 0.2
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 0.4
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 0.6
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 0.8
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Dead Ratio"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#EAB839",
+                                            "value": 0.2
+                                        },
+                                        {
+                                            "color": "#EF843C",
+                                            "value": 0.4
+                                        },
+                                        {
+                                            "color": "#E24D42",
+                                            "value": 0.6
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 0.8
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Size"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "decbytes"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Age"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "light-green",
+                                            "value": 20000000
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 60000000
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 200000000
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 600000000
+                                        },
+                                        {
+                                            "color": "rgb(0, 0, 0)",
+                                            "value": 1500000000
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 24,
+                "x": 0,
+                "y": 4
+            },
+            "id": 45,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT *\nFROM (\n         SELECT relpages ::BIGINT,\n                (relpages * 8192::REAL)    AS relsize,\n                reltuples ::REAL,\n                age(relfrozenxid) ::BIGINT AS age\n         FROM pg_class c\n         WHERE relname = '${relname}'\n         LIMIT 1) a,\n     (\n         SELECT n_live_tup AS live_tup,\n                n_dead_tup AS dead_tup,\n                CASE WHEN (n_live_tup + n_dead_tup) > 0 THEN n_dead_tup::NUMERIC / (n_live_tup + n_dead_tup) ELSE 0 END AS dead_ratio\n         FROM pg_stat_user_tables\n         WHERE relname = '$relname' LIMIT 1\n     ) b;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT ratio AS \"Bloat Ratio\" FROM monitor.pg_table_bloat WHERE relname = '$relname'",
+                    "refId": "B",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "age": 3,
+                            "dead_tup": 5,
+                            "live_tup": 4,
+                            "relpages": 2,
+                            "relsize": 0,
+                            "reltuples": 1
+                        },
+                        "renameByName": {
+                            "age": "Age",
+                            "dead_ratio": "Dead Ratio",
+                            "dead_tup": "Dead Tuple",
+                            "live_tup": "Live Tuple",
+                            "relpages": "Page",
+                            "relsize": "Size",
+                            "reltuples": "Rows"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": ""
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 6,
+                "x": 0,
+                "y": 8
+            },
+            "id": 29,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT  oid             ,\n        relnamespace    ,\n        reltype         ,\n        reloftype       ,\n        relowner        ,\n        relam           ,\n        relfilenode     ,\n        reltablespace   ,\n        reltoastrelid   \nFROM pg_class c\nWHERE relname = '${relname}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "key": "标识符名称",
+                            "oid": "Relation OID",
+                            "relam": "Access Method ID",
+                            "relfilenode": "Rel Filenode",
+                            "relnamespace": "Schema OID",
+                            "reloftype": "Comptype OID",
+                            "relowner": "Owner OID",
+                            "reltablespace": "Tablespace OID",
+                            "reltoastrelid": "Toast Table OID",
+                            "reltype": "Reltype OID",
+                            "value": "取值"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Identifier",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-text",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "FALSE"
+                                },
+                                "1": {
+                                    "text": "TRUE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 6,
+                "x": 6,
+                "y": 8
+            },
+            "id": 10,
+            "links": [],
+            "options": {
+                "showHeader": true
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relhasindex     :: INTEGER,\n   relispartition      :: INTEGER,\n   relisshared         :: INTEGER,\n   relhasrules         :: INTEGER,\n   relhastriggers      :: INTEGER,\n   relhassubclass      :: INTEGER,\n   relrowsecurity      :: INTEGER,\n   relforcerowsecurity :: INTEGER,\n   relispopulated      :: INTEGER\nFROM pg_class c\nWHERE relname = '${relname}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "key": "属性名称",
+                            "relforcerowsecurity": "Force RLS",
+                            "relhasindex": "Has Index",
+                            "relhasrules": "Has Rule",
+                            "relhassubclass": "Has Subclass",
+                            "relhastriggers": "Has Trigger",
+                            "relispartition": "Is Partitioned",
+                            "relispopulated": "Is Populated",
+                            "relisshared": "Is Shared",
+                            "relrowsecurity": "Row level security",
+                            "reltemporary": "临时表",
+                            "relunlogged": "不记入WAL",
+                            "value": "属性取值"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "last"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Features",
+                            "Last": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "标识符类型"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": null
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "属性名称"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 194
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 6,
+                "x": 12,
+                "y": 8
+            },
+            "id": 30,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relpages ::BIGINT,\n       (relpages * 8192::REAL) AS relsize,  \n       reltuples ::REAL,\n       relallvisible ::BIGINT,\n       relnatts ::BIGINT,\n       relchecks ::BIGINT,\n       relfrozenxid,\n       age(relfrozenxid) ::BIGINT AS age,\n       relminmxid\nFROM pg_class c\nWHERE relname = '${relname}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "age": "Age",
+                            "key": "标识符名称",
+                            "oid": "关系ID",
+                            "relallvisible": "Rel All Visible",
+                            "relam": "访问方法ID",
+                            "relchecks": "Checks",
+                            "relfilenode": "表文件节点",
+                            "relforcerowsecurity": "强制行级安全",
+                            "relfrozenxid": "Fronzen XID",
+                            "relhasindex": "拥有索引",
+                            "relhasrules": "带有规则",
+                            "relhassubclass": "拥有子类",
+                            "relhastriggers": "带触发器",
+                            "relispopulated": "已被填充",
+                            "relisshared": "跨库共享",
+                            "relminmxid": "Min XID",
+                            "relnamespace": "模式ID",
+                            "relnatts": "Columns",
+                            "reloftype": "复合类型ID",
+                            "relowner": "表属主ID",
+                            "relpages": "Rel Pages",
+                            "relrowsecurity": "行级安全",
+                            "relsize": "Rel Bytes",
+                            "reltablespace": "表空间ID",
+                            "reltoastrelid": "TOAST表ID",
+                            "reltuples": "Rel Tuples",
+                            "reltype": "行类型ID",
+                            "value": "取值"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "last"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Field",
+                            "Last": "Value",
+                            "Last (not null)": "取值"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-text",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "FALSE"
+                                },
+                                "1": {
+                                    "text": "TRUE"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 18,
+                "y": 8
+            },
+            "id": 37,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT \n   CASE relpersistence WHEN 'u' THEN 1 ELSE 0 END AS relunlogged,\n   CASE relpersistence WHEN 't' THEN 1 ELSE 0 END AS reltemporary\nFROM pg_class c\nWHERE relname = '${relname}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "acl": "ACL",
+                            "age": "表年龄",
+                            "key": "标识符名称",
+                            "oid": "关系ID",
+                            "opt": "表参数/选项",
+                            "relallvisible": "可见页数",
+                            "relam": "访问方法ID",
+                            "relchecks": "CHECK约束数量",
+                            "relfilenode": "表文件节点",
+                            "relforcerowsecurity": "强制行级安全",
+                            "relfrozenxid": "冻结事务ID",
+                            "relhasindex": "拥有索引",
+                            "relhasrules": "带有规则",
+                            "relhassubclass": "拥有子类",
+                            "relhastriggers": "带触发器",
+                            "relispopulated": "已被填充",
+                            "relisshared": "跨库共享",
+                            "relminmxid": "二阶段事务ID",
+                            "relnamespace": "模式ID",
+                            "relnatts": "列数",
+                            "reloftype": "复合类型ID",
+                            "relowner": "表属主ID",
+                            "relpages": "页面数量",
+                            "relrowsecurity": "行级安全",
+                            "reltablespace": "表空间ID",
+                            "reltemporary": "Temporary",
+                            "reltoastrelid": "TOAST表ID",
+                            "reltuples": "元组数量",
+                            "reltype": "行类型ID",
+                            "relunlogged": "Unlogged",
+                            "value": "取值"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "last"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Persist Feature",
+                            "Last": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "标识符类型"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": null
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "属性名称"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 194
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 18,
+                "y": 11
+            },
+            "id": 36,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT unnest(relacl) AS acl\nFROM pg_class c\nWHERE relname = '${relname}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "acl": "ACL",
+                            "age": "表年龄",
+                            "key": "标识符名称",
+                            "oid": "关系ID",
+                            "relallvisible": "可见页数",
+                            "relam": "访问方法ID",
+                            "relchecks": "CHECK约束数量",
+                            "relfilenode": "表文件节点",
+                            "relforcerowsecurity": "强制行级安全",
+                            "relfrozenxid": "冻结事务ID",
+                            "relhasindex": "拥有索引",
+                            "relhasrules": "带有规则",
+                            "relhassubclass": "拥有子类",
+                            "relhastriggers": "带触发器",
+                            "relispopulated": "已被填充",
+                            "relisshared": "跨库共享",
+                            "relminmxid": "二阶段事务ID",
+                            "relnamespace": "模式ID",
+                            "relnatts": "列数",
+                            "reloftype": "复合类型ID",
+                            "relowner": "表属主ID",
+                            "relpages": "页面数量",
+                            "relrowsecurity": "行级安全",
+                            "reltablespace": "表空间ID",
+                            "reltoastrelid": "TOAST表ID",
+                            "reltuples": "元组数量",
+                            "reltype": "行类型ID",
+                            "value": "取值"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "标识符类型"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": null
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "属性名称"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 194
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 6,
+                "x": 18,
+                "y": 16
+            },
+            "id": 35,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT unnest(reloptions) AS opt\nFROM pg_class c\nWHERE relname = '${relname}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "acl": "ACL",
+                            "age": "表年龄",
+                            "key": "标识符名称",
+                            "oid": "关系ID",
+                            "opt": "Options",
+                            "relallvisible": "可见页数",
+                            "relam": "访问方法ID",
+                            "relchecks": "CHECK约束数量",
+                            "relfilenode": "表文件节点",
+                            "relforcerowsecurity": "强制行级安全",
+                            "relfrozenxid": "冻结事务ID",
+                            "relhasindex": "拥有索引",
+                            "relhasrules": "带有规则",
+                            "relhassubclass": "拥有子类",
+                            "relhastriggers": "带触发器",
+                            "relispopulated": "已被填充",
+                            "relisshared": "跨库共享",
+                            "relminmxid": "二阶段事务ID",
+                            "relnamespace": "模式ID",
+                            "relnatts": "列数",
+                            "reloftype": "复合类型ID",
+                            "relowner": "表属主ID",
+                            "relpages": "页面数量",
+                            "relrowsecurity": "行级安全",
+                            "reltablespace": "表空间ID",
+                            "reltoastrelid": "TOAST表ID",
+                            "reltuples": "元组数量",
+                            "reltype": "行类型ID",
+                            "value": "取值"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 0,
+                "y": 18
+            },
+            "id": 11,
+            "links": [],
+            "options": {
+                "showHeader": true
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT seq_scan,\n       seq_tup_read,\n       idx_scan,\n       idx_tup_fetch,\n       n_tup_ins,\n       n_tup_upd,\n       n_tup_del,\n       n_tup_hot_upd\nFROM pg_stat_user_tables\nWHERE relname = '$relname' LIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "analyze_count": true,
+                            "autoanalyze_count": true,
+                            "autovacuum_count": true,
+                            "last_analyze": true,
+                            "last_autoanalyze": true,
+                            "last_autovacuum": true,
+                            "last_vacuum": true,
+                            "n_ins_since_vacuum": true,
+                            "n_mod_since_analyze": true,
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true,
+                            "vacuum_count": true
+                        },
+                        "indexByName": {
+                            "analyze_count": 21,
+                            "autoanalyze_count": 22,
+                            "autovacuum_count": 20,
+                            "idx_scan": 7,
+                            "idx_tup_fetch": 8,
+                            "last_analyze": 17,
+                            "last_autoanalyze": 18,
+                            "last_autovacuum": 16,
+                            "last_vacuum": 15,
+                            "n_dead_tup": 1,
+                            "n_ins_since_vacuum": 14,
+                            "n_live_tup": 0,
+                            "n_mod_since_analyze": 13,
+                            "n_tup_del": 10,
+                            "n_tup_hot_upd": 12,
+                            "n_tup_ins": 9,
+                            "n_tup_upd": 11,
+                            "relid": 2,
+                            "relname": 4,
+                            "schemaname": 3,
+                            "seq_scan": 5,
+                            "seq_tup_read": 6,
+                            "vacuum_count": 19
+                        },
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Index Scan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Insert Since Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Seq Scan",
+                            "seq_tup_read": "Seq Scan Tuples",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Tuple",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 6,
+                "y": 18
+            },
+            "id": 40,
+            "links": [],
+            "options": {
+                "showHeader": true
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT vacuum_count + autovacuum_count                   AS vacuum_total,\n       vacuum_count,\n       to_char(last_vacuum, 'YYYY-MM-DD HH24:MI:SS')     AS last_vacuum,\n       date_trunc('second', now() - last_vacuum)         AS since_last_vacuum,\n       autovacuum_count,\n       to_char(last_autovacuum, 'YYYY-MM-DD HH24:MI:SS') AS last_autovacuum,\n       date_trunc('second', now() - last_autovacuum)     AS since_last_autovacuum,\n       n_ins_since_vacuum\nFROM pg_stat_user_tables\nWHERE relname = '$relname'\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "idx_scan": true,
+                            "idx_tup_fetch": true,
+                            "n_dead_tup": true,
+                            "n_live_tup": true,
+                            "n_tup_del": true,
+                            "n_tup_hot_upd": true,
+                            "n_tup_ins": true,
+                            "n_tup_upd": true,
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true,
+                            "seq_scan": true,
+                            "seq_tup_read": true
+                        },
+                        "indexByName": {
+                            "autovacuum_count": 4,
+                            "last_autovacuum": 5,
+                            "last_vacuum": 2,
+                            "n_ins_since_vacuum": 7,
+                            "since_last_autovacuum": 6,
+                            "since_last_vacuum": 3,
+                            "vacuum_count": 1,
+                            "vacuum_total": 0
+                        },
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Inserts since Last Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "since_last_autovacuum": "Since Last AutoVacuum",
+                            "since_last_vacuum": "Since Last Vacuum",
+                            "vacuum_count": "Vacuum Count",
+                            "vacuum_total": "Vacuums",
+                            "value": "Value"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Vacuum",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Analyze"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 12,
+                "y": 18
+            },
+            "id": 41,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT analyze_count + autoanalyze_count                   AS analyze_total,\n       analyze_count,\n       to_char(last_analyze, 'YYYY-MM-DD HH24:MI:SS')     AS last_analyze,\n       date_trunc('second', now() - last_analyze)         AS since_last_analyze,\n       autoanalyze_count,\n       to_char(last_autoanalyze, 'YYYY-MM-DD HH24:MI:SS') AS last_autoanalyze,\n       date_trunc('second', now() - last_autoanalyze)     AS since_last_autoanalyze,\n       n_mod_since_analyze\nFROM pg_stat_user_tables\nWHERE relname = '$relname'\nLIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "idx_scan": true,
+                            "idx_tup_fetch": true,
+                            "n_dead_tup": true,
+                            "n_live_tup": true,
+                            "n_tup_del": true,
+                            "n_tup_hot_upd": true,
+                            "n_tup_ins": true,
+                            "n_tup_upd": true,
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true,
+                            "seq_scan": true,
+                            "seq_tup_read": true
+                        },
+                        "indexByName": {
+                            "analyze_count": 1,
+                            "analyze_total": 0,
+                            "autoanalyze_count": 4,
+                            "last_analyze": 2,
+                            "last_autoanalyze": 5,
+                            "n_mod_since_analyze": 7,
+                            "since_last_analyze": 3,
+                            "since_last_autoanalyze": 6
+                        },
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "analyze_total": "Analyzes",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Inserts since Last Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "since_last_analyze": "Last Analyze Elapse",
+                            "since_last_autoanalyze": "Last AutoAnalyze Elapse",
+                            "since_last_autovacuum": "Last AutoVacuum Elapse",
+                            "since_last_vacuum": "Last Vacuum Elapse",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Analyze",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 18,
+                "y": 18
+            },
+            "id": 39,
+            "links": [],
+            "options": {
+                "showHeader": true
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM pg_statio_user_tables WHERE relname = '$relname'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "heap_blks_hit": "Heap Blocks Hit",
+                            "heap_blks_read": "Heap Blocks Read",
+                            "idx_blks_hit": "Index Blocks Hit",
+                            "idx_blks_read": "Index Blocks Read",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Insert Since Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "tidx_blks_hit": "Toast Index Blocks Hit",
+                            "tidx_blks_read": "Toast Index Blocks Read",
+                            "toast_blks_hit": "Toast Blocks Hit",
+                            "toast_blks_read": "Toast Blocks Read",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Blocks I/O",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 27
+            },
+            "id": 38,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Seq"
+                    }
+                ]
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT s.attname,\n       a.attnum,\n       a.attstorage,\n       a.attalign,\n       attnotnull,\n       s.null_frac,\n       s.avg_width,\n       s.n_distinct,\n       s.correlation\nFROM pg_attribute a LEFT JOIN pg_stats s  \nON s.attname = a.attname \nWHERE tablename = '$relname' AND a.attrelid IN (SELECT oid FROM pg_class WHERE relname = '$relname')\nORDER BY attnum;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Attributes",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "attalign": 3,
+                            "attname": 1,
+                            "attnotnull": 4,
+                            "attnum": 0,
+                            "attstorage": 2,
+                            "avg_width": 6,
+                            "correlation": 8,
+                            "n_distinct": 7,
+                            "null_frac": 5
+                        },
+                        "renameByName": {
+                            "attalign": "Align",
+                            "attname": "Name",
+                            "attnotnull": "NOT NULL",
+                            "attnum": "Seq",
+                            "attstorage": "Storage",
+                            "avg_width": "Avg Width",
+                            "correlation": "Correlation",
+                            "n_distinct": "N Distinct",
+                            "null_frac": "Null Frac"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 85
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Index ID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Schema"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Table"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Relation detail for ${__data.fields.Table}",
+                                        "url": "/d/pg-table-metrics?$var-ins=${ins}&$var-datname=${datname}&$var-relname=${__data.fields.Table}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Index"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Index detail ${__data.fields.Index}",
+                                        "url": "/d/pg-table-catalog?$var-ins=${ins}&$var-datname=${datname}&$var-relname=${__data.fields.Index}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Scan"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Tup Read"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Tup Fetch"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 24,
+                "x": 0,
+                "y": 35
+            },
+            "id": 13,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM pg_stat_user_indexes WHERE relname = '${relname}';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Indexes",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "relname": true
+                        },
+                        "indexByName": {
+                            "idx_scan": 5,
+                            "idx_tup_fetch": 7,
+                            "idx_tup_read": 6,
+                            "indexrelid": 3,
+                            "indexrelname": 1,
+                            "relid": 4,
+                            "relname": 2,
+                            "schemaname": 0
+                        },
+                        "renameByName": {
+                            "idx_scan": "Scan",
+                            "idx_tup_fetch": "Tup Fetch",
+                            "idx_tup_read": "Tup Read",
+                            "indexrelid": "Index ID",
+                            "indexrelname": "Index",
+                            "relid": "Table ID",
+                            "relname": "Table",
+                            "schemaname": "Schema"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$ins",
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 40
+            },
+            "id": 22,
+            "options": {
+                "colorField": "relname",
+                "sizeField": "size",
+                "textField": "relname",
+                "tiling": "treemapSquarify"
+            },
+            "pluginVersion": "7.1.0",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT relname, pg_table_size(oid) AS size FROM pg_class WHERE relname ~ '$relname';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Relation Size",
+            "type": "marcusolsson-treemap-panel"
+        }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 30,
+    "style": "light",
+    "tags": [
+        "PGCAT",
+        "Table"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": true,
+                    "text": "pg-meta-meta",
+                    "value": "pg-meta-meta"
+                },
+                "description": null,
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Instance",
+                "multi": false,
+                "name": "ins",
+                "options": [],
+                "query": "postgres",
+                "queryValue": "",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "allValue": null,
+                "current": {
+                    "selected": false,
+                    "text": "cluster",
+                    "value": "cluster"
+                },
+                "datasource": "$ins",
+                "definition": "SELECT relname FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace\nWHERE nspname NOT IN ('pg_catalog', 'monitor', 'information_schema') AND relkind = 'r';",
+                "description": null,
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Relation",
+                "multi": false,
+                "name": "relname",
+                "options": [],
+                "query": "SELECT relname FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace\nWHERE nspname NOT IN ('pg_catalog', 'monitor', 'information_schema') AND relkind = 'r';",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {
+                    "selected": false,
+                    "text": "meta",
+                    "value": "meta"
+                },
+                "datasource": "$ins",
+                "definition": "SELECT current_database();",
+                "description": null,
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Instance",
+                "multi": false,
+                "name": "datname",
+                "options": [],
+                "query": "SELECT current_database();",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "2s",
+            "3s",
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ],
+        "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+        ]
+    },
+    "timezone": "",
+    "title": "PGCAT Table",
+    "uid": "pgcat-table",
+    "version": 2
+}
