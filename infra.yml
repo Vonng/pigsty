@@ -3,17 +3,17 @@
 #==============================================================#
 # File      :   infra.yml
 # Ctime     :   2020-04-13
-# Mtime     :   2021-04-22
+# Mtime     :   2021-06-29
 # Desc      :   init infrastructure on meta nodes
 # Path      :   infra.yml
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 
-#------------------------------------------------------------------------------
-# init local yum repo (only run on meta nodes)
-#------------------------------------------------------------------------------
-- name: Init local repo
+#==============================================================#
+# init local yum repo on meta node to accelerate
+#==============================================================#
+- name: Init Repo
   become: yes
   hosts: meta
   gather_facts: no
@@ -21,11 +21,10 @@
   roles:
     - repo
 
-
-#------------------------------------------------------------------------------
-# provision nodes
-#------------------------------------------------------------------------------
-- name: Provision Node
+#==============================================================#
+# init meta nodes just as common nodes
+#==============================================================#
+- name: Init Node
   become: yes
   hosts: meta
   gather_facts: no
@@ -33,11 +32,10 @@
   roles:
     - node
 
-
-#------------------------------------------------------------------------------
-# init meta service (only run on meta nodes)
-#------------------------------------------------------------------------------
-- name: Init meta service
+#==============================================================#
+# init infra service on meta node
+#==============================================================#
+- name: Init Infra
   become: yes
   hosts: meta
   gather_facts: no
@@ -58,10 +56,10 @@
     - role: grafana
       tags: grafana
 
-
-#------------------------------------------------------------------------------
-# init dcs on nodes
-#------------------------------------------------------------------------------
+#==============================================================#
+# launch consul or etcd SERVER on meta nodes
+#==============================================================#
+# if external dcs_servers are specified, only DCS Client will be installed
 - name: Init dcs
   become: yes
   hosts: meta
@@ -70,17 +68,10 @@
     - role: consul
       tags: dcs
 
-
-
-
-#------------------------------------------------------------------------------
-# meta node database (optional)
-#------------------------------------------------------------------------------
-# this play will create database clusters on meta nodes.
-# it's good to reuse meta node as normal database nodes too
-# but it's always better to leave it be.
-#------------------------------------------------------------------------------
-- name: Pgsql Initialization
+#==============================================================#
+# init `pg-meta` postgres cluster on meta nodes (used as default database)
+#==============================================================#
+- name: Init MetaDB
   become: yes
   hosts: meta
   gather_facts: no
@@ -95,5 +86,79 @@
     - role: service                         # init haproxy
       tags: [ service ]
 
+#==============================================================#
+# Setup environment for admin user
+#==============================================================#
+- name: Setup Environment
+  become: no
+  hosts: meta
+  gather_facts: no
+  tags: environ
+  tasks:
+    - name: Write default user credential to pgpass
+      lineinfile: dest=~/.pgpass state=present create=yes mode=0600 line={{ item }}
+      with_items:
+        - "*:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}"
+        - "*:*:*:{{ pg_monitor_username }}:{{ pg_monitor_password }}"
+        - "*:*:*:{{ pg_admin_username }}:{{ pg_admin_password }}"
+
+    - name: Write default meta service to pg_service
+      copy:
+        dest: ~/.pg_service.conf
+        mode: '0600'
+        content: |
+          [meta]
+          host=127.0.0.1
+          port=5432
+          dbname=meta
+          user={{ pg_admin_username }}
+          password={{ pg_admin_password }}
+
+    - name: Set environment for admin user
+      copy:
+        dest: ~/.pigsty
+        mode: 0700
+        content: |
+          # set default database for postgres
+          export PGUSER={{ pg_admin_username }}
+          export PGSERVICE="meta"
+
+          # passing environ for application
+          export PIGSTY_HOME="${HOME}/pigsty"
+          export METADB_URL="service=meta"
+          export GRAFANA_ENDPOINT={{ grafana_endpoint }}
+          export GRAFANA_USERNAME={{ grafana_admin_username }}
+          export GRAFANA_PASSWORD={{ grafana_admin_password }}
+          export GRAFANA_DASHBOARD_DIR=/etc/dashboards
+
+    - name: Enable environment for admin user
+      lineinfile:
+        dest: ~/.bashrc
+        state: present
+        create: yes
+        mode: 0644
+        line: '[ -f ~/.pigsty ] && . ~/.pigsty'
+
+
+
+#==============================================================#
+# init core application : pgsql (monitoring dashboards)
+#==============================================================#
+- name: Init App
+  hosts: meta
+  gather_facts: no
+  tags: app
+  tasks:
+    - name: Sync application resources
+      synchronize: src=app/ dest=~/app
+
+    - name: Check pgsql install script
+      stat: path=~/app/pgsql/install
+      register: check_result
+
+    - name: Install pgsql application
+      when: not check_result.failed
+      become: yes
+      command: bash {{ check_result.stat.path }}
 
 ...
