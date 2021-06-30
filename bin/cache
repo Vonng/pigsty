@@ -4,42 +4,75 @@ set -euo pipefail
 #==============================================================#
 # File      :   cache
 # Ctime     :   2021-04-22
-# Mtime     :   2021-04-22
-# Desc      :   make offline cache packages on initialized meta node
+# Mtime     :   2021-06-29
+# Desc      :   make offline cache packages on INITIALIZED meta node
 # Note      :   run as root
 # Usage     :   bin/cache [pkg_path]
 # Path      :   bin/cache
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
+
+#========================================#
+# detect environment
+#========================================#
 PROG_NAME="$(basename $0))"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#========================================#
+# log_utils
+#========================================#
+__CN='\033[0m'    # no color
+__CB='\033[0;30m' # black
+__CR='\033[0;31m' # red
+__CG='\033[0;32m' # green
+__CY='\033[0;33m' # yellow
+__CB='\033[0;34m' # blue
+__CM='\033[0;35m' # magenta
+__CC='\033[0;36m' # cyan
+__CW='\033[0;37m' # white
+function log_info()  { printf "[${__CG}INFO${__CN}] ${__CG}$*${__CN}\n"; }
+function log_warn()  { printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n"; }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n"; }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_hint()  { printf "${__CB}$*${__CN}"; }
 
 #========================================#
 # Arg1: where to put cache (/tmp/pkg.tgz)
 #========================================#
 PKG_PATH=${1-/tmp/pkg.tgz}
+REPO_DIR=${2-/www/pigsty}
+
+#========================================#
+# Check repo dir not empty
+#========================================#
+sudo mkdir -p ${REPO_DIR}
+if [ -z "$(ls -A ${REPO_DIR})" ]; then
+    log_error "empty repo dir ${REPO_DIR}"
+    log_hint "init meta node without pkg will download packages to ${REPO_DIR}"
+    exit 1
+else
+   log_info "repo dir = /www/pigsty"
+fi
 
 
 #========================================#
-# copy grafana plugins
+# Check grafana plugins
 #========================================#
-echo "tar grafana plugins"
-sudo mkdir -p /www/pigsty/                                             # make grafana plugin dir
-sudo tar -zcf /www/pigsty/plugins.tgz -C /var/lib/grafana/ plugins    # pack grafana plugins
+if [ -z "$(ls -A /var/lib/grafana/plugins)" ]; then
+   log_warn "grafana plugins not found, skip"
+else
+   log_info "grafana plugins found, archiving to ${REPO_DIR}/plugins.tgz"
+   sudo tar -zcf ${REPO_DIR}/plugins.tgz -C /var/lib/grafana/ plugins  # pack grafana plugins
+fi
 
 #========================================#
 # make tarball
 #========================================#
-echo "tar /www/pigsty into pkg.tgz"
+log_info "make tarball to ${PKG_PATH}"
 sudo tar -zcf /tmp/pkg.tgz -C /www pigsty                                     # /www/pigsty -> /tmp/pkg.tgz
 sudo chmod a+r /tmp/pkg.tgz                                                   # global readable
-
-#========================================#
-# move to destination location
-#========================================#
 if [[ ${PKG_PATH} != "/tmp/pkg.tgz" ]]; then
-	echo "mv pkg.tgz to ${PKG_PATH}"
     mv -f /tmp/pkg.tgz ${PKG_PATH}
 fi
-ls -alh ${PKG_PATH}
+log_hint $(ls -alh ${PKG_PATH})

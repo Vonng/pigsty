@@ -1,17 +1,19 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2019-04-13
-# Mtime     :   2021-05-18
+# Mtime     :   2021-06-29
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
-# pigsty version (0.9 by default)
-VERSION?=0.9
+# pigsty version
+VERSION?=v0.10.0-alpha1
+
 # pigsty cluster (meta by default)
 CLS?=meta
-# pigsty release (pigsty.tgz , pigsty-beta.tgz , pigsty-pro.tgz)
+
+# pigsty release (pigsty.tgz)
 SRC?=pigsty.tgz
 
 ###############################################################
@@ -92,23 +94,11 @@ bin:
 #------------------------------#
 # source code                  #
 #------------------------------#
+# official: https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz
+
 # get latest stable version to ~/pigsty
 src:
 	curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
-
-# get latest beta version to ~/pigsty
-beta:
-	curl -fsSL https://pigsty.cc/pigsty-beta.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
-
-# get latest pro version to ~/pigsty
-pro:
-	curl -fsSL https://pigsty.cc/pigsty-pro.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
-
-# get latest specific major version from github release page
-# `VER=v0.9.1 make gh` (use full qualified version name)
-ver:
-    curl -fsSL https://github.com/Vonng/pigsty/releases/download/${VER}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
-
 ###############################################################
 
 
@@ -378,7 +368,8 @@ dw:
 del:
 	cd vagrant && vagrant destroy -f meta
 new: del up
-s:  # sync time
+s:sync
+sync:  # sync time
 	ssh meta 'sudo ntpdate -u pool.ntp.org'; true
 
 #------------------------------#
@@ -391,7 +382,8 @@ dw-test:
 del-test:
 	cd vagrant && vagrant destroy -f node-1 node-2 node-3
 new-test: del-test up-test
-s-test:  # sync time
+s-test: sync-test
+sync-test:  # sync time
 	echo node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
 
 #------------------------------#
@@ -404,7 +396,8 @@ dw4:
 del4:
 	cd vagrant && vagrant destroy -f
 new4: del4 up4
-s4:  # sync time
+s4: sync4
+sync4:  # sync time
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
 
 #------------------------------#
@@ -483,17 +476,23 @@ datalets:
 # resource
 #------------------------------#
 # fetch pigsty resources from internet to your own host
-# (to files/release/v*.*/{pkg,pigsty}.tgz)
+# (to dist/*.*/{pkg,pigsty}.tgz)
 fetch: pkg
-	mkdir files/release/v${VERSION}/
-	cp -f /tmp/pkg.tgz "files/release/v${VERSION}/pkg.tgz"
-	curl -fsSL https://pigsty.cc/pigsty.tgz -o "files/release/v${VERSION}/pigsty.tgz"
+	mkdir dist/${VERSION}/
+	cp -f /tmp/pkg.tgz "dist/${VERSION}/pkg.tgz"
+	curl -fsSL https://pigsty.cc/pigsty.tgz -o "dist/latest/pigsty.tgz"
 
 # upload pigsty resource from your own host to vm
 upload:
-	scp "files/release/v${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
+	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	scp "files/release/v${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
+	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
+
+ul: upload-latest
+upload-latest: release-latest
+	scp "dist/latest/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
+	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	scp "dist/latest/pkg.tgz" meta:/tmp/pkg.tgz
 
 #------------------------------#
 # copy
@@ -506,30 +505,12 @@ copy-all: copy-src copy-pkg
 
 # copy pigsty source code
 copy-src:
-	scp files/release/v${VERSION}/pigsty.tgz meta:~/pigsty.tgz
+	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-
-# copy pigsty pro source code
-copy-pro:
-	scp files/release/v${VERSION}/pigsty-pro.tgz meta:~/pigsty-pro.tgz
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty-pro.tgz; rm -rf pigsty-pro.tgz'
 
 # copy pkg.tgz to vm node
 copy-pkg:
-	scp files/release/v${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
-
-# copy all dashboards in local directory
-copy-ui:
-	ssh meta 'sudo rm -rf /tmp/dashboards'
-	scp -r roles/grafana/files/dashboards meta:/tmp/dashboards
-	ssh meta 'sudo rm -rf /var/lib/grafana/dashboards/; sudo cp -r /tmp/dashboards /var/lib/grafana/dashboards/dashboards'
-
-# copy full version ui json
-copy-fui:
-	ssh meta 'sudo rm -rf /tmp/pigsty-full'
-	scp -r roles/grafana/files/dashboards/pigsty-full meta:/tmp/pigsty-full
-	ssh meta 'sudo rm -rf /var/lib/grafana/dashboards/dashboards/pigsty-full'
-	ssh meta 'sudo cp -r /tmp/pigsty-full /var/lib/grafana/dashboards/dashboards/pigsty-full'
+	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
 
 # copy and test configure
 copy-cf:
@@ -543,12 +524,6 @@ copy-gf:
 	ssh meta "sudo mv /tmp/dist /var/lib/grafana/plugins/grafana-echarts/dist"
 	ssh meta "sudo systemctl restart grafana-server"
 
-# debug datalets
-copy-dl:
-	ssh meta "sudo rm -rf datalets"
-	scp -r ~/dev/datalets meta:~/datalets
-
-
 ###############################################################
 
 
@@ -561,10 +536,19 @@ copy-dl:
 ###############################################################
 #                       8. Release                            #
 ###############################################################
+# make latest release
+r: release-latest
+release-latest:
+	bin/release latest
+
 # release source code tarball
-r: release
 release:
 	bin/release ${VERSION}
+
+# release-pkg will make cache and copy to dist dir
+rp: release-pkg
+release-pkg: cache
+	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg.tgz
 
 # publish will publish pigsty to pigsty.cc
 p: release publish
@@ -575,6 +559,11 @@ publish:
 pb: release publish-beta
 publish-beta:
 	bin/publish ${VERSION} beta
+
+# create pkg.tgz on initialized meta node
+cache:
+	scp bin/cache meta:/tmp/cache
+	ssh meta "sudo bash /tmp/cache"
 
 ###############################################################
 
@@ -589,18 +578,15 @@ publish-beta:
 ###############################################################
 # generate playbook svg graph
 svg:
-	bin/play_svg
+	bin/svg
 
-# make cache from meta node and put into release dir
-release-pkg:
-	mkdir -p files/release/v${VERSION}/
-	ssh meta '~/pigsty/bin/cache'
-	scp meta:/tmp/pkg.tgz files/release/v${VERSION}/pkg.tgz
+# (re)install application pgsql
+app-pgsql:
+	./infra-app.yml -e app=pgsql
 
-# make pkg cache from meta node
-cache-pkg:
-	ssh meta '~/pigsty/bin/cache'
-	scp meta:/tmp/pkg.tgz files/pkg.tgz
+# (re)install application cmdb
+app-cmdb:
+	./infra-app.yml -e app=cmdb
 
 ###############################################################
 
@@ -622,12 +608,12 @@ cache-pkg:
         node-remove dcs-remove pgsql-remove \
         pg-user pg-db \
         deps dns start start4 ssh \
-        up dw del new s up-test dw-test del-test new-test s-test \
+        up dw del new s up-test dw-test del-test new-test s-test sync sync-test sync4\
         up4 dw4 del4 new4 s4 \
         st status suspend resume \
         rl ri rw ro rw2 ro2 r1 r2 r3 \
         fetch upload copy copy-all copy-src copy-pro copy-pkg copy-ui copy-fui copy-cf \
-        r release p publish pb publish-beta \
-        svg release-pkg cache-pkg
+        r release rp release-pkg p publish pb publish-beta \
+        svg app-pgsql app-cmdb
 
 ###############################################################

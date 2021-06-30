@@ -1,12 +1,12 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty configuration example
+# Desc      :   Pigsty example configuration
 # Note      :   Sandbox demo configuration (1-node or 4-node)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-06-15
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
 
@@ -107,9 +107,9 @@ all: # top-level namespace
               - {name: adminpack, schema: pg_catalog}    # install adminpack to pg_catalog and install postgis to public
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
-          # define an additional database named grafana (required if `grafana_database = postgres`)
-          - { name: grafana, owner: dbuser_grafana , revokeconn: true , comment: grafana primary database }
-
+          # define an additional database named grafana & prometheus (optional)
+          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -134,10 +134,12 @@ all: # top-level namespace
             roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
             parameters:                     # optional, role level parameters with `ALTER ROLE SET`
               search_path: pigsty,public    # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
-
-          # define additional busin
-          - {name: dbuser_grafana , password: DBUser.Grafana ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+
+          # define additional business users for prometheus & grafana (optional)
+          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+
 
         #---------------
         # service                           # Defining Extra Service (Optional)
@@ -208,14 +210,14 @@ all: # top-level namespace
         10.10.10.13: {pg_seq: 3, pg_role: offline}
       vars:
         pg_cluster: pg-test                 # define actual cluster name
+        pg_version: 14                      # test postgresql 14 with pg-test cluster
+        pg_extensions: []                   # PostgreSQL 14 does not have available 3rd extensions
         pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
         pg_databases: [{ name: test}]       # create a database and user named 'test'
         vip_mode: l2                        # enable/disable vip (require members in same LAN)
         vip_address: 10.10.10.3             # virtual ip address for this cluster
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
-
-
 
 
 
@@ -229,21 +231,23 @@ all: # top-level namespace
     #------------------------------------------------------------------------------
     # CONNECTION PARAMETERS
     #------------------------------------------------------------------------------
-    # this section defines connection parameters
+    # this section defines connection parameters (How to perform ssh sudo on nodes)
 
     # ansible_user: vagrant                       # admin user with ssh access and sudo privilege
+    # ansible_password: <remote ssh pass>         # admin user's ssh password (sshpass required, not recommended)
+    # ansible_become_pass: <remote sudo password> # admin user's sudo password (security breach, not recommended)
 
-    proxy_env: # global proxy env when downloading packages
+    proxy_env:                                    # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com"
-      # http_proxy: ''
-      # https_proxy: ''
-      # all_proxy: ''
+      # http_proxy:                               # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # https_proxy:                              # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # all_proxy:                                # set your proxy here: e.g http://user:pass@proxy.xxx.com
 
 
     #------------------------------------------------------------------------------
     # REPO PROVISION
     #------------------------------------------------------------------------------
-    # this section defines how to build a local repo
+    # this section describes pigsty local yum repo
 
     # - repo basic - #
     repo_enabled: true                            # build local yum repo on meta nodes?
@@ -468,7 +472,7 @@ all: # top-level namespace
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-      - dnsmasq,nginx,ansible,pgbadger,polysh,python-psycopg2
+      - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
       - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
 
@@ -523,12 +527,14 @@ all: # top-level namespace
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
                                                   # some service can only be accessed via correct domain name (e.g consul)
       - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
+      - { name: repo,          host: r.pigsty,    url: "127.0.0.1:80" }     # pigsty yum repo (80)
       - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
       - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
       - { name: prometheus,    host: p.pigsty,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
       - { name: alertmanager,  host: a.pigsty,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
       - { name: haproxy,       host: h.pigsty,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
       - { name: server,        host: s.pigsty,    url: "127.0.0.1:9633" }   # pigsty server gui (9093)
+
 
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
@@ -699,7 +705,7 @@ all: # top-level namespace
       - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
       - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }  # production read-write role
       - { name: dbrole_offline , login: false , comment: role for restricted read-only access (offline instance) }        # restricted-read-only role
-      - { name: dbrole_admin , login: false , roles: [pg_monitor, dbrole_readonly] , comment: role for object creation }  # production DDL change role
+      - { name: dbrole_admin , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation }  # production DDL change role
 
       # default users
       - { name: postgres , superuser: true , comment: system superuser }                             # system dbsu, name is designated by `pg_dbsu`
