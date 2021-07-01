@@ -1278,19 +1278,19 @@ groups:
 
       # instance level pressure
       - record: ins:pressure1
-        expr: max without (instance) (node:ins:cpu_usage_1m > ignoring(instance) pg:ins:saturation1 or pg:ins:saturation1)
+        expr: clamp_min(max without (instance) (node:ins:cpu_usage_1m > ignoring(instance) pg:ins:saturation1 or pg:ins:saturation1), 0)
       - record: ins:pressure5
-        expr: max without (instance) (node:ins:cpu_usage_5m > ignoring(instance) pg:ins:saturation5 or pg:ins:saturation5)
+        expr: clamp_min(max without (instance) (node:ins:cpu_usage_5m > ignoring(instance) pg:ins:saturation5 or pg:ins:saturation5), 0)
       - record: ins:pressure15
-        expr: max without (instance) (node:ins:cpu_usage_15m > ignoring(instance) pg:ins:saturation15 or pg:ins:saturation15)
+        expr: clamp_min(max without (instance) (node:ins:cpu_usage_15m > ignoring(instance) pg:ins:saturation15 or pg:ins:saturation15), 0)
 
       # cluster level pressure
       - record: cls:pressure1
-        expr: node:cls:cpu_usage_1m > pg:cls:saturation1 or pg:cls:saturation1
+        expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_1m > pg:cls:saturation1 or pg:cls:saturation1), 0)
       - record: cls:pressure5
-        expr: node:cls:cpu_usage_5m > pg:cls:saturation5 or pg:cls:saturation5
+        expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_5m > pg:cls:saturation5 or pg:cls:saturation5), 0)
       - record: cls:pressure15
-        expr: node:cls:cpu_usage_15m > pg:cls:saturation15 or pg:cls:saturation15
+        expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_15m > pg:cls:saturation15 or pg:cls:saturation15), 0)
 
 
 ...
