@@ -424,32 +424,49 @@ resume:
 ###############################################################
 #                       6. Testing                            #
 ###############################################################
+# shortcuts for demo testing
+
+# run pgbench on meta database
+ri:
+	pgbench -is10 postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta
+rc:
+	psql -AXtw postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
+rw:
+	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta; done
+ro:
+	while true; do pgbench -nv -P1 -c8 --rate=256 -T10 postgres://dbuser_meta:DBUser.Meta@pg-meta:5434/meta; done
+
+# run tests on pg-test cluster (3-node on sandbox demo)
 # list pg-test clusters
-rl:
+test-list:
 	ssh -t node-1 "sudo -iu postgres patronictl -c /pg/bin/patroni.yml list -W"
 
-# init pgbench with factor 10
-ri:
-	ssh -t node-1 'sudo -iu postgres pgbench test -is10'
+# pgbench init, read, write
+test-init:
+	pgbench -is10  postgres://test:test@pg-test:5436/test
 
-# pgbench small read-write / read-only traffic (rw=50TPS, ro=1000TPS)
-rw:
-	while true; do pgbench -nv -P1 -c2 --rate=50 -T10 postgres://test:test@pg-test:5433/test; done
-ro:
-	while true; do pgbench -nv -P1 -c4 --select-only --rate=1000 -T10 postgres://test:test@pg-test:5434/test; done
+# pgbench cleanup
+test-clean:
+	psql -AXtw postgres://test:test@pg-test:5433/test -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
 
-# pgbench read-write / read-only traffic (conn x 10, no TPS limit)
-rw2:
-	while true; do pgbench -nv -P1 -c20 -T10 postgres://test:test@pg-test:5433/test; done
-ro2:
-	while true; do pgbench -nv -P1 -c80 -T10 --select-only postgres://test:test@pg-test:5434/test; done
+# pgbench small read-write / read-only traffic (rw=64TPS, ro=512QPS)
+test-rw:
+	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://test:test@pg-test:5433/test; done
+test-ro:
+	while true; do pgbench -nv -P1 -c8 --select-only --rate=512 -T10 postgres://test:test@pg-test:5434/test; done
+
+# pgbench read-write / read-only traffic (maximum speed)
+test-rw2:
+	while true; do pgbench -nv -P1 -c16 -T10 postgres://test:test@pg-test:5433/test; done
+test-ro2:
+	while true; do pgbench -nv -P1 -c64 -T10 --select-only postgres://test:test@pg-test:5434/test; done
 
 # reboot node 1,2,3
-r1:
+test-rb1:
 	ssh -t node-1 "sudo reboot"
-r2:
+test-rb2:
 	ssh -t node-2 "sudo reboot"
-r3:
+test-rb3:
 	ssh -t node-3 "sudo reboot"
 
 ###############################################################
