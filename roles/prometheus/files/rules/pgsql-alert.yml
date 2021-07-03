@@ -86,9 +86,9 @@ groups:
         for: 1m
         labels: { level: 0, severity: CRIT, category: pgsql }
         annotations:
-          summary: "CRIT PostgresPartition {{ $labels.ins }}@{{ $labels.instance }} {{ $value }}"
+          summary: "CRIT PostgresPartition {{ $labels.cls }}@{{ $labels.job }} {{ $value }}"
           description: |
-            pgbouncer_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} != 1
+            pg:cls:partition[cls={{ $labels.cls }}, job={{ $labels.job }}] = {{ $value }} != 1
 
       # OPTIONAL: promotion
       # OPTIONAL: timeline diverge
@@ -113,13 +113,13 @@ groups:
       #==============================================================#
       # replication break for 1m triggers a P1 alert (WARN: heal in 5m)
       - alert: PostgresReplicationBreak
-        expr: delta(pg_downstream_count{state="streaming"}[5m]) < 0
-        for: 1m
+        expr: changes(pg_downstream_count{state="streaming"}[5m]) > 0
+        # for: 1m
         labels: { level: 1, severity: WARN, category: pgsql }
         annotations:
           summary: "WARN PostgresReplicationBreak: {{ $labels.ins }}@{{ $labels.instance }}"
           description: |
-            delta(pg_downstream_count{ins={{ $labels.ins }}, instance={{ $labels.instance }}, state="streaming"}[5m]) < 0
+            changes(pg_downstream_count{ins={{ $labels.ins }}, instance={{ $labels.instance }}, state="streaming"}[5m]) > 0
 
 
       # replication lag bytes > 1MiB or lag seconds > 1s

@@ -106,7 +106,7 @@ groups:
       #==============================================================#
       # cpu usage high : 1m avg cpu usage > 70% for 3m
       - alert: NodeCpuHigh
-        expr: node:cpu:cpu_usage_1m > 0.70
+        expr: node:ins:cpu_usage_1m > 0.70
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
@@ -122,15 +122,15 @@ groups:
       #==============================================================#
       #                       Node : Schedule                        #
       #==============================================================#
-      # node load high : 1m avg standard load > 70% for 3m
+      # node load high : 1m avg standard load > 100% for 3m
       - alert: NodeLoadHigh
-        expr: node:ins:stdload1 > 0.70
+        expr: node:ins:stdload1 > 1
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeLoadHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:ins:stdload5[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 100%
+            node:ins:stdload1[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 100%
 
 
       #==============================================================#
@@ -154,10 +154,10 @@ groups:
       # swap usage > 1%
       - alert: NodeMemSwapped
         expr: node:ins:swap_usage > 0.01
-        for: 1m
-        labels: { level: 1, severity: WARN, category: node }
+        for: 5m
+        labels: { level: 2, severity: INFO, category: node }
         annotations:
-          summary: 'WARN NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          summary: 'INFO NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:ins:swap_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1%
 
@@ -166,34 +166,34 @@ groups:
       #==============================================================#
 
       # filesystem usage > 90%
-      - alert: NodeSpaceFull
+      - alert: NodeFsSpaceFull
         expr: node:fs:space_usage > 0.90
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: 'WARN NodeDiskFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          summary: 'WARN NodeFsSpaceFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:fs:space_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
 
       # inode usage > 90%
-      - alert: NodeFilesFull
+      - alert: NodeFsFilesFull
         expr: node:fs:inode_usage > 0.90
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: 'WARN NodeFilesFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          summary: 'WARN NodeFsFilesFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
             node:fs:inode_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
 
       # file descriptor usage > 90%
       - alert: NodeFdFull
-        expr: node:fs:fd_usage > 0.90
+        expr: node:ins:fd_usage > 0.90
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
           summary: 'WARN NodeFdFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:fs:fd_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
+            node:ins:fd_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
 
       # OPTIONAL: space predict 1d
       # OPTIONAL: filesystem read-only
@@ -226,25 +226,25 @@ groups:
       #                        Node : Protocol                       #
       #==============================================================#
 
-      # node:ins:tcp_overflow_rate > 1
-      - alert: NodeListenOverflow
-        expr: node:ins:tcp_overflow_rate > 1
+      # rate(node:ins:tcp_error[1m]) > 1
+      - alert: NodeTcpErrHigh
+        expr: rate(node:ins:tcp_error[1m]) > 1
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: 'WARN NodeListenOverflow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          summary: 'WARN NodeTcpErrHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
           description: |
-            node:ins:tcp_overflow_rate[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1
+            rate(node:ins:tcp_error{ins={{ $labels.ins }}}[1m]) = {{ $value  | printf "%.2f" }} > 1
 
       # node:ins:tcp_retrans_ratio1m > 1e-4
-      - alert: NodeRetransHigh
-        expr: node:ins:tcp_retrans_ratio1m > 1e-4
+      - alert: NodeTcpRetransHigh
+        expr: node:ins:tcp_retrans_ratio1m > 1e-2
         for: 1m
-        labels: { level: 2, severity: INFO, category: node }
+        labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: 'INFO NodeRetransHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
+          summary: 'INFO NodeTcpRetransHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
           description: |
-            node:ins:tcp_retrans_ratio1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 1e-5
+            node:ins:tcp_retrans_ratio1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 1%
 
       # OPTIONAL: tcp conn high
       # OPTIONAL: udp traffic high
@@ -255,12 +255,12 @@ groups:
       #                          Node : Time                         #
       #==============================================================#
       # node_ntp_sanity < 1
-      - alert: NodeNtpInsane
+      - alert: NodeNtpSanity
         expr: node_ntp_sanity < 1 or node_timex_sync_status < 1
         for: 1m
         labels: { level: 1, severity: WARN, category: node }
         annotations:
-          summary: 'WARN NodeNtpInsane {{ $labels.ins }}@{{ $labels.instance }}'
+          summary: 'WARN NodeNtpSanity {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
             node_ntp_sanity[ins={{ $labels.ins }}] = {{ $value }} < 1
 
