@@ -3,12 +3,23 @@
 #==============================================================#
 # File      :   infra.yml
 # Ctime     :   2020-04-13
-# Mtime     :   2021-06-29
+# Mtime     :   2021-07-05
 # Desc      :   init infrastructure on meta nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
+
+#==============================================================#
+# init pigsty meta node environment (dir,ssh,pgpass,env)
+#==============================================================#
+- name: Init Environment
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: environ
+  roles:
+    - environ
 
 #==============================================================#
 # init local yum repo on meta node to accelerate
@@ -39,7 +50,7 @@
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta
+  tags: infra
   roles:
     - role: ca
       tags: ca
@@ -64,9 +75,11 @@
   become: yes
   hosts: meta
   gather_facts: no
+  tags: [infra, dcs ]
   roles:
     - role: consul
-      tags: dcs
+      tags: [ consul ]
+
 
 #==============================================================#
 # init `pg-meta` postgres cluster on meta nodes (used as default database)
@@ -85,59 +98,6 @@
 
     - role: service                         # init haproxy
       tags: [ service ]
-
-#==============================================================#
-# Setup environment for admin user
-#==============================================================#
-- name: Setup Environment
-  become: no
-  hosts: meta
-  gather_facts: no
-  tags: environ
-  tasks:
-    - name: Write default user credential to pgpass
-      lineinfile: dest=~/.pgpass state=present create=yes mode=0600 line={{ item }}
-      with_items:
-        - "*:*:*:{{ pg_replication_username }}:{{ pg_replication_password }}"
-        - "*:*:*:{{ pg_monitor_username }}:{{ pg_monitor_password }}"
-        - "*:*:*:{{ pg_admin_username }}:{{ pg_admin_password }}"
-
-    - name: Write default meta service to pg_service
-      copy:
-        dest: ~/.pg_service.conf
-        mode: '0600'
-        content: |
-          [meta]
-          host=127.0.0.1
-          port=5432
-          dbname=meta
-          user={{ pg_admin_username }}
-          password={{ pg_admin_password }}
-
-    - name: Set environment for admin user
-      copy:
-        dest: ~/.pigsty
-        mode: 0700
-        content: |
-          # set default database for postgres
-          export PGUSER={{ pg_admin_username }}
-          export PGSERVICE="meta"
-
-          # passing environ for application
-          export PIGSTY_HOME="${HOME}/pigsty"
-          export METADB_URL="service=meta"
-          export GRAFANA_ENDPOINT={{ grafana_endpoint }}
-          export GRAFANA_USERNAME={{ grafana_admin_username }}
-          export GRAFANA_PASSWORD={{ grafana_admin_password }}
-          export GRAFANA_DASHBOARD_DIR=/etc/dashboards
-
-    - name: Enable environment for admin user
-      lineinfile:
-        dest: ~/.bashrc
-        state: present
-        create: yes
-        mode: 0644
-        line: '[ -f ~/.pigsty ] && . ~/.pigsty'
 
 
 

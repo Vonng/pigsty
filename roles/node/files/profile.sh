@@ -1,4 +1,13 @@
-#!/bin/env bash
+#!/bin/bash
+
+#==============================================================#
+# File      :   profile.sh
+# Ctime     :   2021-05-17
+# Mtime     :   2021-07-05
+# Desc      :   pigsty node profile
+# Path      :   /etc/profile.d/profile.sh
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
 
 #==============================================================#
 # Environment
@@ -161,20 +170,20 @@ function tx() {
 		tar -x -
 	fi
 }
-function log_debug() {
-	[[ -t 2 ]] && printf "\033[0;34m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][DEBUG] $*\033[0m\n" >&2 ||
-		printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][DEBUG] $*\n" >&2
-}
-function log_info() {
-	[[ -t 2 ]] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\033[0m\n" >&2 ||
-		printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
-}
-function log_warn() {
-	[[ -t 2 ]] && printf "\033[0;33m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][WARN] $*\033[0m\n" >&2 ||
-		printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
-}
-function log_error() {
-	[[ -t 2 ]] && printf "\033[0;31m[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][ERROR] $*\033[0m\n" >&2 ||
-		printf "[$(date "+%Y-%m-%d %H:%M:%S")][$HOSTNAME][INFO] $*\n" >&2
-}
+# log & color util
+__CN='\033[0m'    # no color
+__CB='\033[0;30m' # black
+__CR='\033[0;31m' # red
+__CG='\033[0;32m' # green
+__CY='\033[0;33m' # yellow
+__CB='\033[0;34m' # blue
+__CM='\033[0;35m' # magenta
+__CC='\033[0;36m' # cyan
+__CW='\033[0;37m' # white
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}"; }
 #==============================================================#
