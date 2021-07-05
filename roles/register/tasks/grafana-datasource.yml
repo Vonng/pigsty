@@ -1,0 +1,75 @@
+---
+#--------------------------------------------------------------#
+# Register Haproxy Service
+#--------------------------------------------------------------#
+- name: Register pgsql datasources to grafana
+  ignore_errors: true
+  block:
+
+    #--------------------------------------------------------------#
+    # mkdir meta:/etc/pigsty/datasources/{{ pg_cluster }}
+    #--------------------------------------------------------------#
+    - name: Create cluster dir under meta node datasource dir
+      tags: register_grafana_render
+      delegate_to: meta
+      run_once: true
+      file:
+        path: "/etc/pigsty/datasources/{{ pg_cluster }}"
+        state: directory
+        mode: '0755'
+
+    #--------------------------------------------------------------#
+    # render meta:/etc/pigsty/datasources/{{ pg_cluster }}/{{ pg_instance }}.{{ datname }}.json
+    #--------------------------------------------------------------#
+    - name: Render datasource definition on meta node
+      tags: register_grafana_render
+      delegate_to: meta
+      copy:
+        dest: "/etc/pigsty/datasources/{{ pg_cluster }}/{{ dsname }}.json"
+        content: |
+          {
+            "type": "postgres",
+            "access": "proxy",
+            "name": "{{ dsname }}",
+            "url": "{{ inventory_hostname }}:{{ pg_port }}",
+            "user": "{{ pg_monitor_username }}",
+            "password": "{{ pg_monitor_password }}",
+            "database": "{{ datname }}",
+            "typeLogoUrl": "",
+            "basicAuth": false,
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "withCredentials": false,
+            "isDefault": false,
+            "jsonData": {
+              "connMaxLifetime": 3600,
+              "maxIdleConns": 1,
+              "maxOpenConns": 8,
+              "postgresVersion": {{ pg_version }}00,
+              "sslmode": "disable",
+              "tlsAuth": false,
+              "tlsAuthWithCACert": false
+            }
+          }
+        mode: 0600
+      vars:
+        datname: "{{ item.name }}"
+        dsname: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
+      with_items: "{{ pg_databases }}"
+
+
+    #--------------------------------------------------------------#
+    # Invoke grafana datasource API
+    #--------------------------------------------------------------#
+    - name: Load grafana datasource on meta node
+      tags: register_grafana_load
+      delegate_to: meta
+      shell: |
+        curl -X DELETE "{{ grafana_endpoint }}/api/datasources/name/{{ dsname }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
+        curl -X POST   "{{ grafana_endpoint }}/api/datasources/" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ pg_cluster }}/{{ dsname }}.json || true
+      vars:
+        datname: "{{ item.name }}"
+        dsname: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
+      with_items: "{{ pg_databases }}"
+
+...

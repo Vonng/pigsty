@@ -1,0 +1,31 @@
+---
+#--------------------------------------------------------------#
+# Register targets for Prometheus (Static File Service Discovery)
+#--------------------------------------------------------------#
+# DELEGATE TO ADMIN META NODE !!!
+# WRITE TARGETS TO META PIGSTY_TARGETS_DIR
+
+- name: Register targets for prometheus statif-file-sd
+  block:
+
+    # /etc/prometheus/targets/pgsql/{{ pg_cluster }}.yml
+    - name: Create prometheus monitoring target files
+      tags: register_prometheus_targets
+      delegate_to: meta
+      become: yes
+      run_once: true     # assume playbook are execute among one single cluster
+      copy:
+        dest: /etc/pigsty/targets/{{ pg_cluster }}.yml
+        content: |
+          {% set target_list = hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
+          {% for target in target_list %}
+          #======> {{ target.pg_cluster }}-{{ target.pg_seq }} [{{ target.pg_role }}] @ {{ target.inventory_hostname }}
+          - labels: { cls: {{ target.pg_cluster }}, ins: {{ target.pg_cluster }}-{{ target.pg_seq }} }
+            targets: [{{ target.inventory_hostname }}:{{ target.pg_exporter_port }}{% if target.node_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.node_exporter_port }}{% endif %}{% if target.pgbouncer_exporter_enabled %}, {{ target.inventory_hostname }}:{{ target.pgbouncer_exporter_port }}{% endif %}{% if target.haproxy_enabled %}, {{ target.inventory_hostname }}:{{ target.haproxy_exporter_port }}{% endif %}]
+
+          {% endfor %}
+
+      vars:
+        cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
+
+...
