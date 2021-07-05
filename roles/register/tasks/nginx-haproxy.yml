@@ -7,13 +7,13 @@
 #------------------------------------------------------------------------------
 # add upstream server definition on /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}.conf
 #------------------------------------------------------------------------------
-- name: Register haproxy upstream
+- name: Register haproxy upstream in cluster mode
   tags: register_haproxy_upstream
   delegate_to: meta
   become: yes
   run_once: true     # assume playbook are execute among one single cluster
   copy:
-    dest: /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}.conf
+    dest: /etc/nginx/conf.d/haproxy/upstream-{{ cluster_name }}.conf
     content: |
       {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
       {% if host.haproxy_enabled %}
@@ -23,6 +23,7 @@
       {% endif %}
       {% endfor %}
   vars:
+    cluster_name: "{{ pg_cluster }}"
     cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
 
 #------------------------------------------------------------------------------
@@ -34,7 +35,7 @@
   become: yes
   run_once: true     # assume playbook are execute among one single cluster
   copy:
-    dest: /etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}.conf
+    dest: /etc/nginx/conf.d/haproxy/location-{{ cluster_name }}.conf
     content: |
       {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
       {% if host.haproxy_enabled %}
@@ -45,6 +46,7 @@
       {% endif %}
       {% endfor %}
   vars:
+    cluster_name: "{{ pg_cluster }}"
     cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
 
 
@@ -57,7 +59,7 @@
   become: yes
   run_once: true     # assume playbook are execute among one single cluster
   copy:
-    dest: "{{ repo_home }}/haproxy-{{ pg_cluster }}.html"
+    dest: "{{ repo_home }}/haproxy-{{ cluster_name }}.html"
     content: |
       <html lang="en"><head><title>Pigsty HAProxy</title></head><br>
       <body><h1>PIGSTY HAPROXY INDEX for Cluster {{ item }}</h1><div><ul>
@@ -71,13 +73,38 @@
 
       </ul></div></body></html>
   vars:
+    cluster_name: "{{ pg_cluster }}"
     cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']"
   with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
 
 
 #------------------------------------------------------------------------------
-# update global index page
+# Update Homepage (global index)
 #------------------------------------------------------------------------------
-# TODO: WILL NOT UPDATE GLOBAL INDEX HERE
+- name: Render haproxy admin homepage
+  tags: register_haproxy_global
+  copy:
+    dest: "{{ repo_home }}/haproxy/index.html"
+    delegate_to: meta
+    become: yes
+    content: |
+      <html lang="en"><head><title>Pigsty HAProxy Index</title></head><br>
+      <body><h1>PIGSTY GLOBAL HAPROXY INDEX</h1><div><ul>
+      {% for cluster in hostvars|json_query('*.pg_cluster')|sort|unique %}
+      <li><a href="/{{ cluster }}.html"><h2>{{ cluster }}</h2></a>
+      {% endfor %}
+      </ul></div></body></html>
+
+#------------------------------------------------------------------------------
+# Reload Nginx (Not suitable here)
+#------------------------------------------------------------------------------
+# - name: Reload nginx
+#   tags: register_haproxy_reload
+#   block:
+#     - name: Reload meta nginx service
+#       systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
+#
+#     - name: Wait for nginx reload complete
+#       wait_for: host=127.0.0.1 port=80 state=started timeout=10
 
 ...
