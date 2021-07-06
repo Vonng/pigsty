@@ -1,0 +1,15 @@
+---
+#--------------------------------------------------------------#
+# Remove postgres datasource from Grafana
+#--------------------------------------------------------------#
+- name: Remove grafana datasource on meta node
+  become: yes
+  ignore_errors: yes
+  delegate_to: meta
+  shell: |
+    curl -X DELETE "{{ grafana_endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
+  vars:
+    datname: "{{ item.name }}"
+    insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
+  with_items: "{{ pg_databases }}"
+...

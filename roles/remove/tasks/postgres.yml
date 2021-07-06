@@ -1,0 +1,121 @@
+---
+#------------------------------------------------------------------------------
+# Detect Leadership
+#------------------------------------------------------------------------------
+# since cluster may switchover/failover, it's important to detect actual role first
+- name: Detect real leadership
+  block:
+    - name: Get actuall pg_role
+      shell: /pg/bin/pg-role
+      register: pg_role_result
+
+    - name: Get pg_role from result
+      set_fact:
+        pg_role_detected: pg_role_result.stdout
+
+    # TODO: Raise a notice if pg_role != pg_role_detected
+    - name: Set pg_role if applicable
+      when: pg_role_detected == 'primary' or pg_role_detected == 'replica'
+      set_fact:
+        pg_role: "{{ pg_role_detected }}"
+
+
+#------------------------------------------------------------------------------
+# Remove Follower
+#------------------------------------------------------------------------------
+# remove followers first to avoid unnecessary failover, especially when removing entire cluster
+- name: Remove follower postgres
+  become: yes
+  ignore_errors: yes
+  when: pg_role != 'primary'
+  block:
+
+    #---------------------------------------------
+    # Deregister Service
+    #---------------------------------------------
+    - name: Remove postgres service from consul
+      tags: consul_registry
+      when: service_registry == 'consul'
+      file:
+        path: /etc/consul.d/svc-postgres.json
+        state: absent
+
+    - name: Remove patroni service from consul
+      tags: consul_registry
+      when: service_registry == 'consul'
+      file:
+        path: /etc/consul.d/svc-patroni.json
+        state: absent
+
+    - name: Reload consul to dereigster postgres & patroni
+      when: service_registry == 'consul'
+      systemd: name=consul state=reloaded
+
+    #---------------------------------------------
+    # Stop Service
+    #---------------------------------------------
+    - name: Stop and disable patroni service
+      systemd: name=patroni state=stopped enabled=no daemon_reload=yes
+
+    - name: Stop and disable postgres service
+      systemd: name=postgres state=stopped enabled=no daemon_reload=yes
+
+    # in case of maintenance mode
+    - name: Force follower postgres shutdown
+      become_user: "{{ pg_dbsu }}"
+      when: pg_role != 'primary'
+      shell: |
+        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
+
+
+#------------------------------------------------------------------------------
+# Remove Leader
+#------------------------------------------------------------------------------
+- name: Remove leader postgres
+  become: yes
+  ignore_errors: yes
+  when: pg_role == 'primary'
+  block:
+
+    #---------------------------------------------
+    # Deregister Service
+    #---------------------------------------------
+    - name: Remove postgres service from consul
+      tags: consul_registry
+      when: service_registry == 'consul'
+      file:
+        path: /etc/consul.d/svc-postgres.json
+        state: absent
+
+    - name: Remove patroni service from consul
+      tags: consul_registry
+      when: service_registry == 'consul'
+      file:
+        path: /etc/consul.d/svc-patroni.json
+        state: absent
+
+    - name: Reload consul to dereigster postgres & patroni
+      when: service_registry == 'consul'
+      systemd: name=consul state=reloaded
+
+    #---------------------------------------------
+    # Stop Service
+    #---------------------------------------------
+    - name: Stop and disable patroni primary service
+      systemd: name=patroni state=stopped enabled=no daemon_reload=yes
+
+    - name: Stop and disable postgres primary service
+      systemd: name=postgres state=stopped enabled=no daemon_reload=yes
+
+    # in case of maintenance mode
+    - name: Force leader postgres shutdown
+      become_user: "{{ pg_dbsu }}"
+      when: pg_role != 'primary'
+      shell: |
+        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
+
+    # when cleanup primary, remove pgsql cluster meta data
+    - name: Remove consul metadata about pgsql cluster
+      shell: |
+        consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}
+...

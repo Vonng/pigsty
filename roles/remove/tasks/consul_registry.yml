@@ -1,0 +1,119 @@
+---
+#--------------------------------------------------------------#
+# Remove Postgres
+#--------------------------------------------------------------#
+- name: Remove postgres service from consul
+  tags: [ remove_consul_postgres , postgres , pgsql ]
+  template:
+    src: svc-postgres.json.j2
+    dest: /etc/consul.d/svc-postgres.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Remove Patroni
+#--------------------------------------------------------------#
+- name: Remove patroni service from consul
+  tags: [ remove_consul_patroni , postgres , pgsql ]
+  # when: patroni_mode != 'remove'
+  template:
+    src: svc-patroni.json.j2
+    dest: /etc/consul.d/svc-patroni.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Remove Pgbouncer
+#--------------------------------------------------------------#
+- name: Remove pgbouncer service from consul
+  tags: [ remove_consul_pgbouncer , pgbouncer , pgsql ]
+  template:
+    src: svc-pgbouncer.json.j2
+    dest: /etc/consul.d/svc-pgbouncer.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+
+#--------------------------------------------------------------#
+# Remove Node Exporter
+#--------------------------------------------------------------#
+- name: Remove node-exporter service from consul
+  tags: [ remove_consul_node_exporter , node_exporter , monitor ]
+  # when: node_exporter_enabled|bool
+  template:
+    src: svc-node-exporter.json.j2
+    dest: /etc/consul.d/svc-node-exporter.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Remove Pg Exporter
+#--------------------------------------------------------------#
+- name: Remove pg_exporter service from consul
+  tags: [ remove_consul_pg_exporter , pg_exporter , monitor ]
+  # when: pg_exporter_enabled|bool
+  template:
+    src: svc-pg-exporter.json.j2
+    dest: /etc/consul.d/svc-pg-exporter.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+
+#--------------------------------------------------------------#
+# Remove Pgbouncer Exporter
+#--------------------------------------------------------------#
+- name: Remove pgbouncer_exporter service from consul
+  tags: [ remove_consul_pgbouncer_exporter , pgbouncer_exporter , monitor ]
+  # when: pgbouncer_exporter_enabled|bool
+  template:
+    src: svc-pgbouncer-exporter.json.j2
+    dest: /etc/consul.d/svc-pgbouncer-exporter.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Remove HAProxy (Exporter)
+#--------------------------------------------------------------#
+- name: Remove haproxy (exporter) service from consul
+  tags: [ remove_consul_haproxy_exporter , haproxy, service ]
+  # when: haproxy_enabled|bool
+  template:
+    src: svc-haproxy.json.j2
+    dest: /etc/consul.d/svc-haproxy.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+
+#--------------------------------------------------------------#
+# Remove Cluster Service
+#--------------------------------------------------------------#
+# Remove consul exposed cluster service (primary|replica|offline|default)
+- name: Remove cluster service from consul
+  tags:  [ remove_consul_cluster_service , haproxy , service ]
+  # when: haproxy_enabled|bool
+  template:
+    src: svc-cluster-role.json.j2
+    dest: /etc/consul.d/svc-{{ pg_cluster }}-{{ service.name }}.json
+    owner: consul
+    group: postgres
+    mode: 0660
+  vars:
+    service: "{{ item }}"
+  with_items: "{{ pg_services + pg_services_extra }}"
+
+
+#--------------------------------------------------------------#
+# Reload Consul
+#--------------------------------------------------------------#
+- name: Reload consul to finish Remove
+  tags: remove_consul_reload
+  systemd: name=consul state=reloaded
+
+...
