@@ -3,73 +3,19 @@
 #==============================================================#
 # File      :   pgsql-promtail.yml
 # Ctime     :   2021-04-07
-# Mtime     :   2021-04-22
+# Mtime     :   2021-07-06
 # Desc      :   install and launch promtail on target nodes
 # Path      :   pgsql-promtail.yml
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
-
-#------------------------------------------------------------------------------
-# Launch promtail on node
-# promtail should run as root since it may require /var/log/message
-#------------------------------------------------------------------------------
-- name: Init promtail service
+#---------------------------------------------------------------
+- name: Promtail Init   # init promtail on common database nodes
   become: yes
   hosts: all
   gather_facts: no
-  tags: promtail
-  tasks:
-
-    - name: Stop promtail if exists
-      tags: promtail_clean
-      when: promtail_clean
-      ignore_errors: true
-      systemd: name=promtail state=stopped enabled=yes daemon_reload=yes
-
-    - name: Cleanup promtail
-      tags: promtail_clean
-      when: promtail_clean
-      file: path={{ promtail_status_file }} state=absent
-
-    # IMPORTANT: run files/download-loki.sh before running this
-    - name: Copy promtail binaries to /usr/bin
-      tags: promtail_install
-      copy: src=bin/{{ item }} dest=/usr/bin/{{ item }} mode=755
-      with_items:
-        - promtail
-
-    - name: Render promtail config
-      tags: promtail_config
-      template: src=promtail.yml.j2 dest=/etc/promtail.yml owner=root
-
-    - name: Register promtail systemd service
-      tags: promtail_config
-      copy:
-        dest: /usr/lib/systemd/system/promtail.service
-        content: |
-          # /usr/lib/systemd/system/promtail.service
-          [Unit]
-          Description=Promtail Log Agent
-          Documentation=https://grafana.com/docs/loki/latest/clients/promtail/
-          After=network.target
-
-          [Service]
-          User=root
-          ExecStart=/usr/bin/promtail -config.file=/etc/promtail.yml
-          ExecReload=/bin/kill -HUP $MAINPID
-          Restart=always
-          RestartSec=5s
-          LimitNOFILE=65536
-
-          [Install]
-          WantedBy=multi-user.target
-
-    - name: Launch promtail
-      systemd: name=promtail state=restarted enabled=yes daemon_reload=yes
-
-    - name: Wait for promtail online
-      wait_for: host=127.0.0.1 port={{ promtail_port }} state=started timeout=20
-
-
+  roles:
+    - role: promtail
+      tags: promtail
+#---------------------------------------------------------------
 ...

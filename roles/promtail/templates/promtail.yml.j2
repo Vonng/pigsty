@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   promtail.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2021-04-25
+# Mtime     :   2021-07-06
 # Desc      :   Promtail logging collector agent
 # Path      :   /etc/promtail.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -15,9 +15,9 @@ positions:
   filename: {{ promtail_status_file }}
 
 clients:
-  - url: {{ promtail_send_url }}
+  - url:   {{ promtail_send_url }}
     external_labels:
-      ip: {{ inventory_hostname }}
+      ip:  {{ inventory_hostname }}
       cls: {{ pg_cluster }}
       ins: {{ pg_cluster }}-{{ pg_seq }}
 
@@ -31,7 +31,8 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: postgres
+          src: postgres
+          job: pgsql
           __path__: /pg/data/log/*.csv
 
     pipeline_stages:
@@ -59,7 +60,8 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: pgbouncer
+          src: pgbouncer
+          job: pgsql
           __path__: /var/log/pgbouncer/pgbouncer.log
 
     pipeline_stages:
@@ -87,7 +89,8 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: patroni
+          src: patroni
+          job: pgsql
           __path__: /pg/log/patroni.log
 
     pipeline_stages:

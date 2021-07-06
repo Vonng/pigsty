@@ -1,0 +1,48 @@
+---
+#------------------------------------------------------------------------------
+# Install
+#------------------------------------------------------------------------------
+# install promtail via copy binary
+# the binary MUST be put into files/bin directory before running this playbook
+# you can download promtail and related binaries with bin/get_loki
+- name: Install promtail binary
+  tags: promtail_install
+  copy: src=bin/promtail dest=/usr/bin/promtail owner=root mode=0755
+  with_items:
+    - promtail
+
+#------------------------------------------------------------------------------
+# Cleanup
+#------------------------------------------------------------------------------
+- name: Cleanup promtail
+  tags: promtail_clean
+  when: promtail_clean|bool
+  file: path={{ promtail_status_file }} state=absent
+
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+- name: Config promtail
+  tags: promtail_config
+  block:
+    - name: Render promtail config
+      template: src=promtail.yml.j2 dest=/etc/promtail.yml
+
+    - name: Copy promtail systemd service
+      copy:
+        src: promtail.service
+        dest: /usr/lib/systemd/system/promtail.service
+
+#------------------------------------------------------------------------------
+# Launch
+#------------------------------------------------------------------------------
+- name: Launch promtail
+  tags: promtail_launch
+  block:
+    - name: Launch promtail
+      systemd: name=promtail state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for promtail online
+      wait_for: host=127.0.0.1 port={{ promtail_port }} state=started timeout=20
+
+...
