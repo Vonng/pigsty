@@ -2,8 +2,12 @@
 
 ## 2020-07-06
 
+* Use v1.0.0-alpha1 instead. Since the change are significant, it is not appropriate to use v0.10. 
 * Remove the crud haproxy index pages, using grafana table & data links instead 
 * At last register by instance may be the easiest way to implement and manage
+* Add new role `loki`
+* Add new role `promtail`
+* Register datasource when create new database with `pgsql-createdb.yml`
 
 
 ## 2020-07-05
@@ -15,7 +19,9 @@
 
 ## 2020-07-04
 
-* Milestone of Pigsty
+* Milestone chart of Pigsty
+
+![](../img/milestone.svg)
 
 
 ## 2020-06-30

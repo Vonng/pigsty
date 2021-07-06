@@ -1,19 +1,16 @@
-# Pigsty -- PostgreSQL in Graphic Style
+# Pigsty -- Battery-Included Open Source PostgreSQL Distribution
 
 > [PIGSTY](http://pigsty.cc): Postgres in Graphic STYle
 
-[Pigsty](https://pigsty.cc/zh/) delivers the **BEST** open source **monitoring** solution for PostgreSQL. Along with the **easiest provisioning** solution for large scale proudction-grade database clusters. 
+[Pigsty](https://pigsty.cc/zh/) is an open-source, battery-included PostgreSQL Distribution.
 
-It can be used both for large-scale pg clusters management in real-world prod-env, and for launching battery-included single pg instance for dev & demo purpose in a simple and fast way.
+It delivers the **BEST** open source **monitoring** solution for PostgreSQL. Along with the **easiest provisioning** solution for large scale proudction-grade database clusters. 
+
+It can be used both for large-scale pg clusters management in real-world prod-env, and for launching battery-included single pgsql sandbox for dev & data analysis & demo purpose in a simple and fast way.
 
 ![](img/logo.svg)
 
 Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**https://pigsty.cc/en/**](https://pigsty.cc/en/)   | 中文站点：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
-
-> The latest version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
->
-
-
 
 ## Quick Start
 
@@ -35,6 +32,20 @@ make demo   # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 ```
 
 Check [**Quick Start**](https://pigsty.cc/zh/docs/quick-start/) for more information.
+
+
+
+## Roadmap
+
+> The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
+>
+> Current master is @ **v1.0.0-alpha1**
+
+![](/Volumes/Data/pigsty/milestone.svg)
+
+## 
+
+
 
 ## Highlights
 

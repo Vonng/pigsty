@@ -10,8 +10,9 @@ Pigsty可以用于大规模生产数据库的监控部署与管理；也可以�
 
  [**官方网站**](https://pigsty.cc/en/  ) 提供了关于Pigsty的详细信息：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
 
-> 最新的Pigsty版本为[v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
+> 最新的Pigsty稳定版本为[v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
 >
+> master目前位于 v1.0.0-alpha1，仍处于开发阶段。
 
 
 
