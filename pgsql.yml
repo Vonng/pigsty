@@ -3,45 +3,79 @@
 #==============================================================#
 # File      :   pgsql.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2021-04-22
-# Desc      :   initialize pigsty cluster
+# Mtime     :   2021-07-06
+# Desc      :   init postgres cluster/instance
 # Path      :   pgsql.yml
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 
-#------------------------------------------------------------------------------
-# init pgsql clusters
-#------------------------------------------------------------------------------
-# pgsql init assume that target nodes have already been initialized with `node.yml`
-# if you just want re-init instance with same identity, ./pgsql.yml is sufficient
+#==============================================================#
+# Playbook : Init PGSQL Cluster/Instance
+#==============================================================#
+#  Init cluster `pg-test`
+#     pgsql.yml -l pg-test
+#
+#  Init instance (10.10.10.13) among cluster `pg-test`
+#     pgsql.yml -l 10.10.10.13
+#
+#  Re-init postgres instance only on node 10.10.10.13
+#     pgsql.yml -l10.10.10.13 --tags=postgres
+#
+#  Re-deploy monitor component
+#     pgsql.yml --tags=monitor
+#
+#  Replace exporter with new binary version
+#     pgsql.yml --tags=monitor -e exporter_install=binary
+#
+#  Refresh (haproxy) services
+#     pgsql.yml --tags=service
+#
+#  Refresh HBA rules
+#     pgsql.yml --tags=pg_hba
+#
+#  Register cluster/instance to infrastructure
+#     pgsql.yml --tags=register             # register all
+#     pgsql.yml --tags=register_consul      # service discovery
+#     pgsql.yml --tags=register_prometheus  # monitor target
+#     pgsql.yml --tags=register_grafana     # pgsql datasource
+#     pgsql.yml --tags=register_nginx       # haproxy admin page
+#==============================================================#
 
 
-- name: Pgsql Init
+#---------------------------------------------------------------
+- name: Infra Init      # init infra on common database node
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: infra
+  roles:
+
+    - role: node       # init common database node
+      tags: node
+
+    - role: consul     # init dcs:consul clients
+      tags: [ dcs , consul ]
+
+#---------------------------------------------------------------
+- name: Pgsql Init      # init postgres cluster/instance
   become: yes
   hosts: all
   gather_facts: no
   tags: pgsql
   roles:
 
-    - role: node                            # init node
-      tags: [ infra, node ]
+    - role: postgres   # init postgres pgbouncer patroni
+      tags: postgres
 
-    - role: consul                          # init consul
-      tags: [ infra, dcs ]
+    - role: monitor    # init monitor exporters
+      tags: monitor
 
-    - role: postgres                        # init postgres
-      tags: [postgres]
+    - role: service    # init service , lb , vip
+      tags: service
 
-    - role: monitor                         # init monitor system
-      tags: [monitor]
+    - role: register   # register cluster/instance to infra
+      tags: register
 
-    - role: service                         # init service
-      tags: [service]
-
-    - role: register                        # register pgsql
-      tags: [register]
-
-
-
+#---------------------------------------------------------------
 ...

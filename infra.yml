@@ -9,119 +9,68 @@
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
-
-#==============================================================#
-# init pigsty meta node environment (dir,ssh,pgpass,env)
-#==============================================================#
-- name: Init Environment
-  become: yes
-  hosts: meta
-  gather_facts: no
-  tags: environ
-  roles:
-    - environ
-
-#==============================================================#
-# init local yum repo on meta node to accelerate
-#==============================================================#
-- name: Init Repo
-  become: yes
-  hosts: meta
-  gather_facts: no
-  tags: repo
-  roles:
-    - repo
-
-#==============================================================#
-# init meta nodes just as common nodes
-#==============================================================#
-- name: Init Node
-  become: yes
-  hosts: meta
-  gather_facts: no
-  tags: node
-  roles:
-    - node
-
-#==============================================================#
-# init infra service on meta node
-#==============================================================#
-- name: Init Infra
+#---------------------------------------------------------------
+- name: Infra Init      # init infra on meta node
   become: yes
   hosts: meta
   gather_facts: no
   tags: infra
   roles:
-    - role: ca
+
+    - role: environ     # init postgres pgbouncer patroni
+      tags: environ
+
+    - role: repo        # init local yum repo on meta node
+      tags: repo
+
+    - role: node        # init meta node
+      tags: node
+
+    - role: consul      # init dcs:consul (servers)
+      tags: [ dcs , consul ]
+
+    - role: ca          # init certification infrastructure
       tags: ca
 
-    - role: nameserver
+    - role: nameserver  # init dns nameserver
       tags: nameserver
 
-    - role: nginx
+    - role: nginx       # init nginx
       tags: nginx
 
-    - role: prometheus
+    - role: prometheus  # init prometheus
       tags: prometheus
 
-    - role: grafana
+    - role: grafana     # init grafana
       tags: grafana
 
-#==============================================================#
-# launch consul or etcd SERVER on meta nodes
-#==============================================================#
-# if external dcs_servers are specified, only DCS Client will be installed
-- name: Init dcs
+#---------------------------------------------------------------
+  tasks:                # init dashboards
+    - name: Dashboards Init
+      tags: dashboard
+      synchronize:
+        src: app/pgsql/dashboards/pgsql
+        dest: /etc/pigsty/dashboards/pgsql
+
+#---------------------------------------------------------------
+- name: Pgsql Init      # init pgsql-cmdb on meta nodes
   become: yes
   hosts: meta
   gather_facts: no
-  tags: [infra, dcs ]
+  tags: pgsql
   roles:
-    - role: consul
-      tags: [ consul ]
 
+    - role: postgres   # init postgres pgbouncer patroni
+      tags: postgres
 
-#==============================================================#
-# init `pg-meta` postgres cluster on meta nodes (used as default database)
-#==============================================================#
-- name: Init MetaDB
-  become: yes
-  hosts: meta
-  gather_facts: no
-  tags: [ pgsql ]
-  roles:
-    - role: postgres                        # init postgres
-      tags: [ postgres ]
+    - role: monitor    # init monitor exporters
+      tags: monitor
 
-    - role: monitor                         # init monitor system
-      tags: [ monitor ]
+    - role: service    # init service , lb , vip
+      tags: service
 
-    - role: service                         # init haproxy
-      tags: [ service ]
+    - role: register   # register cluster/instance to infra
+      tags: register
 
-    - role: register                        # register cmdb
-      tags: [ register ]
-
-
-#==============================================================#
-# init core application : pgsql (monitoring dashboards)
-#==============================================================#
-- name: Init App
-  hosts: meta
-  gather_facts: no
-  tags: app
-  tasks:
-    - name: Sync application resources
-      synchronize: src=app/ dest=~/app
-
-    - name: Check pgsql install script
-      stat: path=~/app/pgsql/install
-      register: check_result
-
-    - name: Install pgsql application
-      when: not check_result.failed
-      become: yes
-      command: bash {{ check_result.stat.path }}
-
-
+#---------------------------------------------------------------
 ...
