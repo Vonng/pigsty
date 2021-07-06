@@ -1,0 +1,50 @@
+#------------------------------------------------------------------------------
+# Install
+#------------------------------------------------------------------------------
+# install loki via copy binary
+# the binary MUST be put into files/bin directory before running this playbook
+# you can download loki related binaries with bin/get_loki
+- name: Copy loki binaries to /usr/bin
+  tags: loki_install
+  copy: src=bin/{{ item }} dest=/usr/bin/{{ item }} mode=755
+  with_items:
+    - loki
+    - logcli
+    - loki-canary
+
+#------------------------------------------------------------------------------
+# Cleanup
+#------------------------------------------------------------------------------
+- name: Cleanup loki
+  tags: loki_clean
+  when: loki_clean|bool
+  file: path={{ loki_data_dir }} state=absent
+
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+- name: Config loki
+  tags: loki_config
+  block:
+
+    - name: Render loki config
+      template: src=loki.yml.j2 dest=/etc/loki.yml owner=prometheus
+
+    - name: Copy loki systemd service
+      copy:
+        src: loki.service
+        dest: /usr/lib/systemd/system/loki.service
+
+#------------------------------------------------------------------------------
+# Launch
+#------------------------------------------------------------------------------
+- name: Launch loki
+  tags: loki_launch
+  block:
+    - name: Launch Loki
+      systemd: name=loki state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for loki online
+      wait_for: host=127.0.0.1 port=3100 state=started timeout=20
+
+...

@@ -3,77 +3,20 @@
 #==============================================================#
 # File      :   infra-loki.yml
 # Ctime     :   2021-04-13
-# Mtime     :   2021-04-22
+# Mtime     :   2021-07-06
 # Desc      :   install loki on meta node
 # Path      :   infra-loki.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
-
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------
 # LOKI is still an experimental feature for pigsty
-#------------------------------------------------------------------------------
-
-#------------------------------------------------------------------------------
-# Launch loki on meta node
-#------------------------------------------------------------------------------
-- name: Init loki service on meta node
+- name: Loki Init         # init loki on meta node
   become: yes
   hosts: meta
   gather_facts: no
-  tags: loki
-  tasks:
-
-    - name: Cleanup Loki
-      tags: loki_clean
-      when: loki_clean
-      file: path={{ loki_data_dir }} state=absent
-
-    - name: Create loki data dir
-      tags: loki_install
-      file: path={{ item }} state=directory owner=prometheus mode=0750
-      with_items:
-        - "{{ loki_data_dir }}"
-
-    # IMPORTANT: run files/download-loki.sh before running this
-    - name: Copy loki binaries to /usr/bin
-      tags: loki_install
-      copy: src=bin/{{ item }} dest=/usr/bin/{{ item }} mode=755
-      with_items:
-        - loki
-        - logcli
-        - loki-canary
-
-    - name: Render loki config
-      tags: loki_config
-      template: src=loki.yml.j2 dest=/etc/loki.yml owner=prometheus
-
-    - name: Register loki systemd service
-      tags: loki_config
-      copy:
-        dest: /usr/lib/systemd/system/loki.service
-        content: |
-          [Unit]
-          Description=The Loki Logging Service
-          Documentation=https://grafana.com/docs/loki/latest/
-          After=network.target
-
-          [Service]
-          User=prometheus
-          ExecStart=/usr/bin/loki -config.file=/etc/loki.yml
-          ExecReload=/bin/kill -HUP $MAINPID
-          Restart=always
-          RestartSec=5s
-          LimitNOFILE=65536
-
-          [Install]
-          WantedBy=multi-user.target
-
-    - name: Launch Loki
-      systemd: name=loki state=restarted enabled=yes daemon_reload=yes
-
-    - name: Wait for loki online
-      wait_for: host=127.0.0.1 port=3100 state=started timeout=20
-
-
+  roles:
+    - role: loki
+      tags: loki
+#---------------------------------------------------------------
 ...
