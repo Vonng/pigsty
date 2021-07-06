@@ -1,0 +1,17 @@
+---
+
+#--------------------------------------------------------------#
+# Register PGSQL Target to Prometheus
+#--------------------------------------------------------------#
+# /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
+- name: Register pgsql instance as prometheus target
+  delegate_to: meta
+  become: yes
+  copy:
+    dest: /etc/pigsty/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+    content: |
+      # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
+      - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }} }
+        targets: [{{ inventory_hostname }}:{{ pg_exporter_port }}{% if node_exporter_enabled %}, {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}{% if pgbouncer_exporter_enabled %}, {{ inventory_hostname }}:{{ pgbouncer_exporter_port }}{% endif %}{% if haproxy_enabled %}, {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}]
+
+...

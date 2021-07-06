@@ -1,44 +1,55 @@
 ---
-#--------------------------------------------------------------#
-# Register PostgreSQL Cluster/Instance to Infrastructure
-#--------------------------------------------------------------#
+################################################################
+# Runs on normal node
+################################################################
 
 #--------------------------------------------------------------#
-# consul registry
+# register service to dcs
 #--------------------------------------------------------------#
-- import_tasks: consul-service.yml
+# runs on target node
+- import_tasks: consul.yml
   tags: register_consul
   when: service_registry == 'consul'
 
-#--------------------------------------------------------------#
-# etcd registry
-#--------------------------------------------------------------#
-# TODO ETCD Register
+# TODO: etcd service registry
 
+################################################################
+# Runs on meta node
+################################################################
 
 #--------------------------------------------------------------#
-# prometheus static-file-sd monitoring targets
+# register exporter targets to prometheus
 #--------------------------------------------------------------#
-- import_tasks: prometheus-target.yml
+- import_tasks: prometheus.yml
   tags: register_prometheus
 
 
 #--------------------------------------------------------------#
-# grafana postgres data source
+# register pgsql datasource to grafana
 #--------------------------------------------------------------#
-- import_tasks: grafana-datasource.yml
+- import_tasks: grafana.yml
   tags: register_grafana
 
 
 #--------------------------------------------------------------#
-# nginx haproxy admin page
+# register haproxy to nginx
 #--------------------------------------------------------------#
-- import_tasks: nginx-haproxy.yml
+- import_tasks: nginx.yml
   tags: register_nginx
 
+
 #--------------------------------------------------------------#
-# cmdb records
+# TODO: CMDB Register (if cmdb is used instead of inventory file)
 #--------------------------------------------------------------#
-# TODO: CMDB Register
+# - import_tasks: cmdb.yml
+#   tags: register_cmdb
+
+#--------------------------------------------------------------#
+# TODO: DNS Register (apply for DNS name)
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+# TODO: CA Register (apply for Certification)
+#--------------------------------------------------------------#
 
 ...

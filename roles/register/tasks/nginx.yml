@@ -1,0 +1,33 @@
+---
+#------------------------------------------------------------------------------
+# Register HAProxy to Nginx
+#------------------------------------------------------------------------------
+- name: Register haproxy instance to nginx
+  when: haproxy_enabled|bool
+  delegate_to: meta
+  become: yes
+  block:
+    # /etc/nginx/conf.d/haproxy/upstream-{{ pg_instance }}.conf
+    - name: Register haproxy upstream to nginx
+      copy:
+        dest: /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}-{{ pg_seq }}.conf
+        content: |
+          upstream {{ pg_cluster }}-{{ pg_seq }} {
+              server {{ inventory_hostname }}:{{ haproxy_exporter_port }} max_fails=0;
+          }
+
+    # /etc/nginx/conf.d/haproxy/location-{{ pg_instance }}.conf
+    - name: Register haproxy url location to nginx
+      copy:
+        dest: /etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}-{{ pg_seq }}.conf
+        content: |
+          location ^~/{{ pg_cluster }}-{{ pg_seq }}/ {
+              proxy_pass http://{{ pg_cluster }}-{{ pg_seq }};
+              proxy_connect_timeout 1;
+          }
+
+    # reload meta node nginx (maybe not appropriate here)
+    - name: Reload nginx to finish haproxy register
+      systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
+
+...

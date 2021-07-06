@@ -1,0 +1,119 @@
+---
+#--------------------------------------------------------------#
+# Register Postgres
+#--------------------------------------------------------------#
+- name: Register postgres service to consul
+  tags: [ register_consul_postgres , postgres ]
+  template:
+    src: svc-postgres.json.j2
+    dest: /etc/consul.d/svc-postgres.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Register Patroni
+#--------------------------------------------------------------#
+- name: Register patroni service to consul
+  tags: [ register_consul_patroni , postgres ]
+  when: patroni_mode != 'remove'
+  template:
+    src: svc-patroni.json.j2
+    dest: /etc/consul.d/svc-patroni.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Register Pgbouncer
+#--------------------------------------------------------------#
+- name: Register pgbouncer service to consul
+  tags: [ register_consul_pgbouncer , pgbouncer ]
+  template:
+    src: svc-pgbouncer.json.j2
+    dest: /etc/consul.d/svc-pgbouncer.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+
+#--------------------------------------------------------------#
+# Register Node Exporter
+#--------------------------------------------------------------#
+- name: Register node-exporter service to consul
+  tags: [ register_consul_node_exporter , node_exporter ]
+  when: node_exporter_enabled|bool
+  template:
+    src: svc-node-exporter.json.j2
+    dest: /etc/consul.d/svc-node-exporter.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Register Pg Exporter
+#--------------------------------------------------------------#
+- name: Register pg_exporter service to consul
+  tags: [ register_consul_pg_exporter , pg_exporter ]
+  when: pg_exporter_enabled|bool
+  template:
+    src: svc-pg-exporter.json.j2
+    dest: /etc/consul.d/svc-pg-exporter.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+
+#--------------------------------------------------------------#
+# Register Pgbouncer Exporter
+#--------------------------------------------------------------#
+- name: Register pgbouncer_exporter service to consul
+  tags: [ register_consul_pgbouncer_exporter , pgbouncer_exporter ]
+  when: pgbouncer_exporter_enabled|bool
+  template:
+    src: svc-pgbouncer-exporter.json.j2
+    dest: /etc/consul.d/svc-pgbouncer-exporter.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+#--------------------------------------------------------------#
+# Register HAProxy (Exporter)
+#--------------------------------------------------------------#
+- name: Register haproxy (exporter) service to consul
+  tags: [ register_consul_haproxy_exporter , haproxy ]
+  when: haproxy_enabled|bool
+  template:
+    src: svc-haproxy.json.j2
+    dest: /etc/consul.d/svc-haproxy.json
+    owner: consul
+    group: postgres
+    mode: 0660
+
+
+#--------------------------------------------------------------#
+# Register Cluster Service
+#--------------------------------------------------------------#
+# register consul exposed cluster service (primary|replica|offline|default)
+- name: Register cluster service to consul
+  tags:  [ register_consul_cluster_service , haproxy ]
+  when: haproxy_enabled|bool
+  template:
+    src: svc-cluster-role.json.j2
+    dest: /etc/consul.d/svc-{{ pg_cluster }}-{{ service.name }}.json
+    owner: consul
+    group: postgres
+    mode: 0660
+  vars:
+    service: "{{ item }}"
+  with_items: "{{ pg_services + pg_services_extra }}"
+
+
+#--------------------------------------------------------------#
+# Reload Consul
+#--------------------------------------------------------------#
+- name: Reload consul to finish register
+  tags: register_consul_reload
+  systemd: name=consul state=reloaded
+
+...
