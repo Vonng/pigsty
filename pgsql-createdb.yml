@@ -3,44 +3,46 @@
 #==============================================================#
 # File      :   pgsql-createdb.yml
 # Ctime     :   2021-02-27
-# Mtime     :   2021-02-27
-# Desc      :   create database on running cluster
+# Mtime     :   2021-07-06
+# Desc      :   create database on existing cluster
 # Deps      :   templates/pg-db.sql
 # Path      :   pgsql-createdb.yml
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
-
+#==============================================================#
+# How to create new database on existing postgres cluster ?    #
+#==============================================================#
+#  1.  Define new database in inventory (cmdb or config)
+#      `all.children.<pg_cluster>.vars.pg_databases[i]`
+#  2.  Execute this playbook on target cluster with arg pg_database
+#      `pgsql-createdb.yml -l <pg_cluster> -e pg_database=<database.name>
+#
+#  This playbook will:
+#   1. create database sql definition on `/pg/tmp/pg-db-{{ database.name }}.sql`
+#   2. execute database creation/update sql on cluster leader instance
+#   3. update /etc/pgbouncer/database.txt and reload pgbouncer if necessary
+#   4. register database to grafana instance
 #=============================================================================#
-# How to create database ?
-#   1. define database in your configuration file! <cluster>.vars.pg_databases
-#   2. execute this playbook with pg_database set to your new database.name
-#   3. run playbook on target cluster
-# It essentially does:
-#   1. create sql file in /pg/tmp/pg-db-{{ database.name }}.sql
-#   2. create database on primary instance with that sql
-#   3. if {{ database.pgbouncer }}, add to all cluster members and reload
-#=============================================================================#
-
-- name: Create Database In Cluster
+- name: Create new postgres database
   become: yes
   hosts: all
   gather_facts: no
   vars:
 
-    ##################################################################################
-    # IMPORTANT: Change this or use cli-arg to specify target database in inventory  #
-    ##################################################################################
-    pg_database: test
+    # TODO (IMPORTANT): OVERWRITE THIS WITH CLI-ARG: `-e pg_database=<database.name>`
+    pg_database: meta           # database NAME that will be created on target cluster
+    register_datasource: true   # register newly created database to grafana ?
 
   tasks:
     #------------------------------------------------------------------------------
-    # pre-flight check: validate pg_database and database definition
+    # Preflight Check: validate pg_database and database definition
     # ------------------------------------------------------------------------------
     - name: Preflight
+      tags: preflight
+      connection: local
       block:
-        - name: Check parameter pg_database
-          connection: local
+        - name: Validate pg_database
           assert:
             that:
               - pg_database is defined
@@ -49,15 +51,10 @@
             fail_msg: variable 'pg_database' should be specified to create target database
 
         - name: Fetch database definition
-          connection: local
           set_fact:
             pg_database_definition={{ pg_databases | json_query(pg_database_definition_query) }}
           vars:
             pg_database_definition_query: "[?name=='{{ pg_database }}'] | [0]"
-
-        # print database definition
-        - debug:
-            msg: "{{ pg_database_definition }}"
 
         - name: Check database definition
           assert:
@@ -68,22 +65,74 @@
               - pg_database_definition != {}
             fail_msg: database definition for {{ pg_database }} should exists in pg_databases
 
+        - debug:
+            msg: "{{ pg_database_definition }}"
+
     #------------------------------------------------------------------------------
-    # Create database on cluster primary and add pgbouncer entry to cluster members
+    # Create database on cluster leader (inventory pg_role == 'primary')
     #------------------------------------------------------------------------------
     # create database according to database definition
     - include_tasks: roles/postgres/tasks/createdb.yml
-      vars:
-        database: "{{ pg_database_definition }}"
-
+      tags: createdb
+      vars: { database: "{{ pg_database_definition }}" }
 
     #------------------------------------------------------------------------------
-    # Pgbouncer Reload (entire cluster)
+    # Reload Pgbouncer if Necessary (among entire cluster)
     #------------------------------------------------------------------------------
     - name: Reload pgbouncer to add database
       when: pg_database_definition.pgbouncer is not defined or pg_database_definition.pgbouncer|bool
-      tags: pgbouncer_reload
+      tags: reload
       systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
+    #------------------------------------------------------------------------------
+    # Create datasource on grafana
+    #------------------------------------------------------------------------------
+    - name: Render datasource definition on meta node
+      tags: datasource
+      delegate_to: meta
+      when: register_datasource|bool
+      copy:
+        dest: "/etc/pigsty/datasources/{{ insdb }}.json"
+        content: |
+          {
+            "type": "postgres",
+            "access": "proxy",
+            "name": "{{ insdb }}",
+            "url": "{{ inventory_hostname }}:{{ pg_port }}",
+            "user": "{{ pg_monitor_username }}",
+            "password": "{{ pg_monitor_password }}",
+            "database": "{{ datname }}",
+            "typeLogoUrl": "",
+            "basicAuth": false,
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "withCredentials": false,
+            "isDefault": false,
+            "jsonData": {
+              "connMaxLifetime": 3600,
+              "maxIdleConns": 1,
+              "maxOpenConns": 8,
+              "postgresVersion": {{ pg_version }}00,
+              "sslmode": "disable",
+              "tlsAuth": false,
+              "tlsAuthWithCACert": false
+            }
+          }
+        mode: 0600
+      vars:
+        datname: "{{ pg_database }}"
+        insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ pg_database }}"
+
+    - name: Load grafana datasource on meta node
+      tags: datasource
+      delegate_to: meta
+      when: register_datasource|bool
+      shell: |
+        curl -X DELETE "{{ grafana_endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
+        curl -X POST   "{{ grafana_endpoint }}/api/datasources/" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ insdb }}.json || true
+      vars:
+        datname: "{{ pg_database }}"
+        insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
 
 
 ...
