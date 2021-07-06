@@ -41,7 +41,7 @@ Check [**Quick Start**](https://pigsty.cc/zh/docs/quick-start/) for more informa
 >
 > Current master is @ **v1.0.0-alpha1**
 
-![](/Volumes/Data/pigsty/milestone.svg)
+![](img/milestone.svg)
 
 ## 
 
