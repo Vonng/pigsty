@@ -24,23 +24,4 @@
       ignore_errors: true
       wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started  timeout=10
 
-
-#------------------------------------------------------------------------------
-# Register pg_exporter
-#------------------------------------------------------------------------------
-- name: Setup pg_exporter
-  tags: [exporter_register, pg_exporter_register]
-  when: service_registry == 'consul'
-  block:
-
-    - name: Register pg-exporter consul service
-      template:
-        src: svc-pg-exporter.json.j2
-        dest: /etc/consul.d/svc-pg-exporter.json
-        owner: consul
-        group: postgres
-        mode: 0660
-
-    - name: Reload pg-exporter consul service
-      systemd: name=consul state=reloaded
 ...

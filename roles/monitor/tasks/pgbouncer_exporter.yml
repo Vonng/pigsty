@@ -18,23 +18,4 @@
       ignore_errors: true
       wait_for: host=127.0.0.1 port={{ pgbouncer_exporter_port }} state=started timeout=10
 
-
-#------------------------------------------------------------------------------
-# Register pgbouncer_exporter
-#------------------------------------------------------------------------------
-# currently only consul registry is implemented
-- name: Setup pgbouncer_exporter
-  tags: [exporter_register, node_exporter_register]
-  when: service_registry == 'consul'
-  block:
-    - name: Register pgb-exporter consul service
-      template:
-        src: svc-pgbouncer-exporter.json.j2
-        dest: /etc/consul.d/svc-pgbouncer-exporter.json
-        owner: consul
-        group: postgres
-        mode: 0660
-
-    - name: Reload pgb-exporter consul service
-      systemd: name=consul state=reloaded
 ...

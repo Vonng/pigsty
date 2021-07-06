@@ -16,25 +16,4 @@
 
     - name: Wait for node_exporter online
       wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
-
-
-#------------------------------------------------------------------------------
-# Register node_exporter
-#------------------------------------------------------------------------------
-# currently only consul registry is implemented
-- name: Register node_exporter
-  tags: [exporter_register, node_exporter_register]
-  when: service_registry == 'consul'
-  block:
-    - name: Register node-exporter service to consul
-      template:
-        src: svc-node-exporter.json.j2
-        dest: /etc/consul.d/svc-node-exporter.json
-        owner: consul
-        group: postgres
-        mode: 0660
-
-    - name: Reload node-exporter consul service
-      systemd: name=consul state=reloaded
-
 ...
