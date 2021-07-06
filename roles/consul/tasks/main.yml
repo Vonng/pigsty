@@ -91,13 +91,13 @@
         dcs_role=server
 
     # for dcs agents, use nodename if defined first
-    - name: Get dcs node name from var
+    - name: Get dcs node name from var nodename
       when: (dcs_nodename is not defined or dcs_nodename == '') and nodename is defined
       connection: local
       set_fact: dcs_nodename={{ nodename }}
 
     # for dcs agents, if pg_hostname is true, use pg_cluster and pg_seq if defined
-    - name: Get dcs node name from var
+    - name: Get dcs node name from pgsql ins name
       when: (dcs_nodename is not defined or dcs_nodename == '') and pg_nodename is defined and pg_nodename|bool and pg_cluster is defined and pg_seq is defined
       connection: local
       set_fact: dcs_nodename="{{ pg_cluster }}-{{ pg_seq }}"

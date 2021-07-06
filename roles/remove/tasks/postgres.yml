@@ -33,31 +33,31 @@
     #---------------------------------------------
     # Deregister Service
     #---------------------------------------------
-    - name: Remove postgres service from consul
+    - name: Remove follower postgres service from consul
       tags: consul_registry
       when: service_registry == 'consul'
       file:
         path: /etc/consul.d/svc-postgres.json
         state: absent
 
-    - name: Remove patroni service from consul
+    - name: Remove follower patroni service from consul
       tags: consul_registry
       when: service_registry == 'consul'
       file:
         path: /etc/consul.d/svc-patroni.json
         state: absent
 
-    - name: Reload consul to dereigster postgres & patroni
+    - name: Reload follower consul to dereigster postgres & patroni
       when: service_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: Stop and disable patroni service
+    - name: Stop and disable follower patroni service
       systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
-    - name: Stop and disable postgres service
+    - name: Stop and disable follower postgres service
       systemd: name=postgres state=stopped enabled=no daemon_reload=yes
 
     # in case of maintenance mode
@@ -80,31 +80,31 @@
     #---------------------------------------------
     # Deregister Service
     #---------------------------------------------
-    - name: Remove postgres service from consul
+    - name: Remove leader postgres service from consul
       tags: consul_registry
       when: service_registry == 'consul'
       file:
         path: /etc/consul.d/svc-postgres.json
         state: absent
 
-    - name: Remove patroni service from consul
+    - name: Remove leader patroni service from consul
       tags: consul_registry
       when: service_registry == 'consul'
       file:
         path: /etc/consul.d/svc-patroni.json
         state: absent
 
-    - name: Reload consul to dereigster postgres & patroni
+    - name: Reload leader consul to dereigster postgres & patroni
       when: service_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: Stop and disable patroni primary service
+    - name: Stop and disable leader patroni service
       systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
-    - name: Stop and disable postgres primary service
+    - name: Stop and disable leader postgres service
       systemd: name=postgres state=stopped enabled=no daemon_reload=yes
 
     # in case of maintenance mode

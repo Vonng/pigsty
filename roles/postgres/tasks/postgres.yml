@@ -142,7 +142,7 @@
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
-    - name: Check replication connectivity to primary
+    - name: Check replication connectivity on primary
       become_user: "{{ pg_dbsu }}"
       environment:
         PGPASSWORD: "{{ pg_replication_password }}"
@@ -275,7 +275,7 @@
       when: pg_role == 'primary'
       systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 
-    - name: Launch raw postgres on primary
+    - name: Launch raw postgres on replicas
       when: pg_role != 'primary'
       systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 

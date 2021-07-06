@@ -74,21 +74,24 @@ bin/new
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-postgres : Check necessary variables exists	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Fetch variables via pg_cluster	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Set cluster basic facts for hosts	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Assert cluster primary singleton	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Setup cluster primary ip address	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Setup repl upstream for primary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Setup repl upstream for replicas	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-postgres : Debug print instance summary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-monitor : Register pg-exporter consul service	TAGS: [exporter_register, monitor, pg_exporter_register, pgsql]
-monitor : Reload pg-exporter consul service	TAGS: [exporter_register, monitor, pg_exporter_register, pgsql]
-monitor : Register pgb-exporter consul service	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
-monitor : Reload pgb-exporter consul service	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
-monitor : Register node-exporter service to consul	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
-monitor : Reload node-exporter consul service	TAGS: [exporter_register, monitor, node_exporter_register, pgsql]
-service : Copy haproxy exporter definition	TAGS: [exporter_register, haproxy, haproxy_exporter_register, haproxy_register, pgsql, service]
+Install prometheus and alertmanager	TAGS: [infra, prometheus]
+Wipe out prometheus config dir	TAGS: [infra, prometheus, prometheus_clean]
+Wipe out existing prometheus data	TAGS: [infra, prometheus, prometheus_clean]
+Create prometheus directories	TAGS: [infra, prometheus, prometheus_config]
+Copy prometheus bin scripts	TAGS: [infra, prometheus, prometheus_config]
+Copy prometheus rules	TAGS: [infra, prometheus, prometheus_config, prometheus_rules]
+Render prometheus config	TAGS: [infra, prometheus, prometheus_config]
+Render altermanager config	TAGS: [infra, prometheus, prometheus_config]
+Config /etc/prometheus opts	TAGS: [infra, prometheus, prometheus_config]
+Launch prometheus service	TAGS: [infra, prometheus, prometheus_launch]
+Wait for prometheus online	TAGS: [infra, prometheus, prometheus_launch]
+Launch alertmanager service	TAGS: [infra, prometheus, prometheus_launch]
+Wait for alertmanager online	TAGS: [infra, prometheus, prometheus_launch]
+Render infra file-sd targets targets for prometheus	TAGS: [infra, prometheus, prometheus_infra_targets]
+Reload prometheus service	TAGS: [infra, prometheus, prometheus_reload]
+Copy prometheus service definition	TAGS: [infra, prometheus, prometheus_register]
+Copy alertmanager service definition	TAGS: [infra, prometheus, prometheus_register]
+Reload consul to register prometheus	TAGS: [infra, prometheus, prometheus_register]
 ```
 
 ### Default variables
@@ -96,18 +99,17 @@ service : Copy haproxy exporter definition	TAGS: [exporter_register, haproxy, ha
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
----
 #------------------------------------------------------------------------------
 # Prometheus
 #------------------------------------------------------------------------------
-prometheus_data_dir: /var/lib/prometheus/data # prometheus data dir
+# - prometheus - #
+prometheus_data_dir: /data/prometheus/data    # prometheus data dir
 prometheus_options: '--storage.tsdb.retention=30d'
-# extra cli-args, refer https://prometheus.io/docs/prometheus/latest/disabled_features/
 prometheus_reload: false                      # reload prometheus instead of recreate it
 prometheus_sd_method: static                  # service discovery method: static|consul|etcd
-prometheus_scrape_interval: 15s               # global scrape & evaluation interval
-prometheus_scrape_timeout: 5s                 # scrape timeout
-prometheus_sd_interval: 5s                    # service discovery refresh interval
+prometheus_scrape_interval: 10s               # global scrape & evaluation interval
+prometheus_scrape_timeout: 8s                 # scrape timeout
+prometheus_sd_interval: 10s                   # service discovery refresh interval
 
 # reference
 export_metrics_path: /metrics                 # default metrics path (only for job 'pg')
@@ -116,5 +118,4 @@ pg_exporter_port: 9630                        # default port for pg exporter
 pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
 haproxy_exporter_port: 9101                   # default admin/exporter port
 service_registry: consul                      # none | consul | etcd | both
-...
 ```

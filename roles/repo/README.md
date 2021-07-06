@@ -6,25 +6,25 @@ This role will bootstrap a local yum repo and download rpm packages
 Tasks:
 
 ```yaml
-tasks:
-  repo : Create local repo directory		TAGS: [repo, repo_dir]
-  repo : Backup & remove existing repos		TAGS: [repo, repo_upstream]
-  repo : Add required upstream repos		TAGS: [repo, repo_upstream]
-  repo : Check repo pkgs cache exists		TAGS: [repo, repo_prepare]
-  repo : Set fact whether repo_exists		TAGS: [repo, repo_prepare]
-  repo : Move upstream repo to backup		TAGS: [repo, repo_prepare]
-  repo : Add local file system repos		TAGS: [repo, repo_prepare]
-  repo : Remake yum cache if not exists		TAGS: [repo, repo_prepare]
-  repo : Install repo bootstrap packages	TAGS: [repo, repo_boot]
-  repo : Render repo nginx server files		TAGS: [repo, repo_nginx]
-  repo : Disable selinux for repo server	TAGS: [repo, repo_nginx]
-  repo : Launch repo nginx server			TAGS: [repo, repo_nginx]
-  repo : Waits repo server online			TAGS: [repo, repo_nginx]
-  repo : Download web url packages			TAGS: [repo, repo_download]
-  repo : Download repo packages				TAGS: [repo, repo_download]
-  repo : Download repo pkg deps				TAGS: [repo, repo_download]
-  repo : Create local repo index			TAGS: [repo, repo_download]
-  repo : Mark repo cache as valid			TAGS: [repo, repo_download]
+Create local repo directory	TAGS: [infra, repo, repo_dir]
+Backup & remove existing repos	TAGS: [infra, repo, repo_upstream]
+Add required upstream repos	TAGS: [infra, repo, repo_upstream]
+Check repo pkgs cache exists	TAGS: [infra, repo, repo_prepare]
+Set fact whether repo_exists	TAGS: [infra, repo, repo_prepare]
+Move upstream repo to backup	TAGS: [infra, repo, repo_prepare]
+Add local file system repos	TAGS: [infra, repo, repo_prepare]
+Remake yum cache if not exists	TAGS: [infra, repo, repo_prepare]
+Install repo bootstrap packages	TAGS: [infra, repo, repo_boot]
+Render repo nginx server files	TAGS: [infra, repo, repo_nginx]
+Disable selinux for repo server	TAGS: [infra, repo, repo_nginx]
+Launch repo nginx server	TAGS: [infra, repo, repo_nginx]
+Waits repo server online	TAGS: [infra, repo, repo_nginx]
+Download web url packages	TAGS: [infra, repo, repo_download]
+Download repo packages	TAGS: [infra, repo, repo_download]
+Download repo pkg deps	TAGS: [infra, repo, repo_download]
+Create local repo index	TAGS: [infra, repo, repo_download]
+Copy bootstrap scripts	TAGS: [infra, repo, repo_download, repo_script]
+Mark repo cache as valid	TAGS: [infra, repo, repo_download]
 ```
 
 Related variables:
@@ -50,79 +50,91 @@ repo_exist: false
 repo_remove: true                             # remove existing repos
 repo_upstreams:                               # additional repos to be installed before downloading
   - name: base
-    description: CentOS-$releasever - Base - Aliyun Mirror
+    description: CentOS-$releasever - Base
+    gpgcheck: no
     baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/ # tuna
       - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
       - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
-      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
-    gpgcheck: no
-    failovermethod: priority
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/    # aliyun
+      - http://mirror.centos.org/centos/$releasever/os/$basearch/             # official
 
   - name: updates
-    description: CentOS-$releasever - Updates - Aliyun Mirror
+    description: CentOS-$releasever - Updates
+    gpgcheck: no
     baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/ # tuna
       - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
       - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
-      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/
-    gpgcheck: no
-    failovermethod: priority
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/    # aliyun
+      - http://mirror.centos.org/centos/$releasever/updates/$basearch/             # official
 
   - name: extras
-    description: CentOS-$releasever - Extras - Aliyun Mirror
+    description: CentOS-$releasever - Extras
     baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/ # tuna
       - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
       - http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/
-      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/
+      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/    # aliyun
+      - http://mirror.centos.org/centos/$releasever/extras/$basearch/             # official
     gpgcheck: no
-    failovermethod: priority
 
   - name: epel
-    description: CentOS $releasever - EPEL - Aliyun Mirror
-    baseurl: http://mirrors.aliyun.com/epel/$releasever/$basearch
+    description: CentOS $releasever - epel
     gpgcheck: no
-    failovermethod: priority
-
-  - name: docker
-    description: Docker - Aliyun Mirror
-    gpgcheck: no
-    baseurl: https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable
-
-  - name: kubernetes
-    description: Kubernetes - Aliyun Mirror
-    gpgcheck: no
-    baseurl: https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+    baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch   # tuna
+      - http://mirrors.aliyun.com/epel/$releasever/$basearch              # aliyun
+      - http://download.fedoraproject.org/pub/epel/$releasever/$basearch  # official
 
   - name: grafana
-    description: Grafana - TsingHua Mirror
+    description: Grafana
+    enabled: yes
     gpgcheck: no
-    baseurl: https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
+    baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
+      - https://packages.grafana.com/oss/rpm                    # official
 
   - name: prometheus
     description: Prometheus and exporters
     gpgcheck: no
-    baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
+    baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch # no other mirrors, quite slow
 
   - name: pgdg-common
     description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
     gpgcheck: no
-    baseurl: https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+    baseurl:
+      - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
+      - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
 
   - name: pgdg13
-    description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch - Updates testing
+    description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
     gpgcheck: no
-    baseurl: https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch
+    baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
+      - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
+
+  - name: pgdg14-beta
+    description: PostgreSQL 14 beta for RHEL/CentOS $releasever - $basearch
+    enabled: yes
+    gpgcheck: no
+    baseurl:
+      - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
+      - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
 
   - name: centos-sclo
     description: CentOS-$releasever - SCLo
     gpgcheck: no
-    # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/sclo/
-    mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-sclo
+    baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
+      - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
+      - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/
 
   - name: centos-sclo-rh
     description: CentOS-$releasever - SCLo rh
     gpgcheck: no
-    # baseurl: http://mirror.centos.org/centos/7/sclo/$basearch/rh/
-    mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
+    baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
+      - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/
+      - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/rh/
 
   - name: nginx
     description: Nginx Official Yum Repo
@@ -136,19 +148,21 @@ repo_upstreams:                               # additional repos to be installed
     gpgcheck: no
     baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
 
+  # for latest consul & kubernetes
   - name: harbottle
-    description: Copr repo for harbottle
+    description: Copr repo for main owned by harbottle
     skip_if_unavailable: true
     gpgcheck: no
-    baseurl: https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
+    baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
 
-# - repo packages- #
+
+# - what to download - #
 repo_packages:
   # repo bootstrap packages
-  - epel-release nginx wget yum-utils yum createrepo                                      # bootstrap packages
+  - epel-release nginx wget yum-utils yum createrepo sshpass unzip                        # bootstrap packages
 
   # node basic packages
-  - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget unzip git tuned   # basic system util
+  - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget git tuned         # basic system util
   - readline zlib openssl libyaml libxml2 libxslt perl-ExtUtils-Embed ca-certificates     # basic pg dependency
   - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet  # system utils
 
@@ -158,23 +172,23 @@ repo_packages:
   - consul consul_exporter consul-template etcd                                           # dcs
 
   # python3 dependencies
-  - ansible python python-pip python-psycopg2                                             # ansible & python
+  - ansible python python-pip python-psycopg2 audit                                       # ansible & python
   - python3 python3-psycopg2 python36-requests python3-etcd python3-consul                # python3
-  - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography               # python3 patroni extra deps
+  - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography               # patroni extra deps
 
   # proxy and load balancer
   - haproxy keepalived dnsmasq                                                            # proxy and dns
 
   # postgres common Packages
-  - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity               # major components
-  - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel                # other common utils
+  - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity             # major components
+  - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel              # other common utils
   - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
 
   # postgres 13 packages
-  - postgresql13* postgis31* citus_13 pgrouting_13                                          # postgres 13 and postgis 31
-  - pg_repack13 pg_squeeze13                                                                # maintenance extensions
+  - postgresql13*                                                                          # postgresql 13 kernel
+  - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
   - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-  - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions                                      # pl extensions
+  - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
   - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
   - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
   - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
@@ -182,15 +196,27 @@ repo_packages:
   - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
   - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
-  # Postgres 12 Packages
-  # - postgresql12* postgis30_12* timescaledb_12 citus_12 pglogical_12                    # postgres 12 basic
-  # - pg_qualstats12 pg_cron_12 pg_repack12 pg_squeeze12 pg_stat_kcache12 wal2json12 pgpool-II-12 pgpool-II-12-extensions python3-psycopg2 python2-psycopg2
-  # - ddlx_12 bgw_replstatus12 count_distinct12 extra_window_functions_12 geoip12 hll_12 hypopg_12 ip4r12 jsquery_12 multicorn12 osm_fdw12 mysql_fdw_12 ogr_fdw12 mongo_fdw12 hdfs_fdw_12 cstore_fdw_12 wal2mongo12 orafce12 pagila12 pam-pgsql12 passwordcheck_cracklib12 periods_12 pg_auto_failover_12 pg_bulkload12 pg_catcheck12 pg_comparator12 pg_filedump12 pg_fkpart12 pg_jobmon12 pg_partman12 pg_pathman12 pg_track_settings12 pg_wait_sampling_12 pgagent_12 pgaudit14_12 pgauditlogtofile-12 pgbconsole12 pgcryptokey12 pgexportdoc12 pgfincore12 pgimportdoc12 pgmemcache-12 pgmp12 pgq-12 pgrouting_12 pgtap12 plpgsql_check_12 plr12 plsh12 postgresql_anonymizer12 postgresql-unit12 powa_12 prefix12 repmgr12 safeupdate_12 semver12 slony1-12 sqlite_fdw12 sslutils_12 system_stats_12 table_version12 topn_12
+  # build & devel packages (optional)
+  - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
+  - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
 
 repo_url_packages:
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.3.1/pg_exporter-0.3.1-1.el7.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-  - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter-0.4.0-1.el7.x86_64.rpm        # pg_exporter rpm
+  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
+  - https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binaries
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter_v0.4.0_linux-amd64.tar.gz
+  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
 
+  # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
+  # - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
+  # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter_v0.3.2_linux-amd64.tar.gz
+
+  # mirror in mainland china (use commented packages to install from official site)
+  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
+  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
+  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
 ...
 ```

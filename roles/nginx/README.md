@@ -11,18 +11,23 @@
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Make sure nginx package installed	      TAGS: [nginx]
-Copy nginx upstream conf			      TAGS: [nginx]
-Update default nginx index page		      TAGS: [nginx]
-Restart meta nginx service			      TAGS: [nginx]
-Wait for nginx service online		      TAGS: [nginx]
-Make sure nginx exporter installed	      TAGS: [nginx_exporter]
-Config nginx_exporter options		      TAGS: [nginx_exporter]
-Restart nginx_exporter service		      TAGS: [nginx_exporter]
-Wait for nginx exporter online		      TAGS: [nginx_exporter]
-Register cosnul nginx service		      TAGS: [nginx_register]
-Register consul nginx-exporter service    TAGS: [nginx_register]
-Reload consul					          TAGS: [nginx_register]
+Make sure nginx installed	TAGS: [infra, nginx, nginx_install]
+Create nginx config directory	TAGS: [infra, nginx, nginx_content]
+Create local html directory	TAGS: [infra, nginx, nginx_content]
+Update default nginx index page	TAGS: [infra, nginx, nginx_content]
+Copy nginx default config	TAGS: [infra, nginx, nginx_config]
+Copy nginx upstream conf	TAGS: [infra, nginx, nginx_config]
+Create nginx haproxy config dir	TAGS: [infra, nginx, nginx_haproxy]
+Create haproxy proxy server config	TAGS: [infra, nginx, nginx_haproxy, nginx_haproxy_config]
+Restart meta nginx service	TAGS: [infra, nginx, nginx_restart]
+Wait for nginx service online	TAGS: [infra, nginx, nginx_restart]
+Make sure nginx exporter installed	TAGS: [infra, nginx, nginx_exporter]
+Config nginx_exporter options	TAGS: [infra, nginx, nginx_exporter]
+Restart nginx_exporter service	TAGS: [infra, nginx, nginx_exporter]
+Wait for nginx exporter online	TAGS: [infra, nginx, nginx_exporter]
+Register cosnul nginx service	TAGS: [infra, nginx, nginx_register]
+Register consul nginx-exporter service	TAGS: [infra, nginx, nginx_register]
+Reload consul	TAGS: [infra, nginx, nginx_register]
 ```
 
 ### Default variables
@@ -30,7 +35,6 @@ Reload consul					          TAGS: [nginx_register]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
----
 # - domain names - #
 nginx_upstream:
   - { name: home,          host: pigsty,   url: "127.0.0.1:3000"}
@@ -45,6 +49,4 @@ repo_home: /www                               # default repo dir location
 repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
 repo_port: 80                                 # repo server listen address, must same as repo_address!
 service_registry: consul                      # none | consul | etcd | both
-...
-
 ```

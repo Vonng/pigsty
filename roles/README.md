@@ -2,8 +2,12 @@
 
 Ansible roles:
 
-* [repo](repo/)
+* [environ](environ/)
 
+  Setup meta node environment
+
+* [repo](repo/)
+  
   Create local yum repo
   
 * [node](node/)
@@ -16,12 +20,8 @@ Ansible roles:
 
 * [etcd](etcd/)
 
-  Install etcd server and write etcd client config 
-
-* [cloud](cloud/)
-
-  Install cloud native packages (not used yet) 
-
+  Install etcd server and write etcd client config  
+  
 * [ca](ca/)
 
   Create certificate infrastructure
@@ -46,6 +46,25 @@ Ansible roles:
     
   Install and provision postgres monitoring system
 
-* [proxy](proxy/)
+* [service](service/)
     
   Install and launch proxy for postgres
+
+* [register](register/)
+
+  Register cluster/instance to infrastructure
+
+* [remove](remove/)
+
+  Remove pgsql cluster/instance
+
+
+## Optional Roles
+
+* [loki](loki/)
+
+  Setup loki (the logging database) on meta node
+
+* [promtail](promtail/)
+
+  Setup promtail (the logging collector) on common node

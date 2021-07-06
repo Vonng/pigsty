@@ -1,10 +1,10 @@
-# DCS (ansible role)
+# etcd (ansible role)
 
-This role will provision dcs (consul or etcd)
+This role will provision dcs:etcd
 
-* install etcd or consul according to `dcs_type` (consul by default)
-* cleaning existing dcs instance
-* create fresh new dcs instance
+* install etcd according to `dcs_type` (etcd)
+* cleaning existing etcd instance
+* create fresh new etcd instance
 
 
 ### Tasks
@@ -12,18 +12,6 @@ This role will provision dcs (consul or etcd)
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-tasks:
-    dcs : Check consul service not running		TAGS: [consul_purge, infra, infra_consul]
-    dcs : Purge existing consul instance		TAGS: [consul_purge, infra, infra_consul]
-    dcs : Set default consul node name			TAGS: [consul_setup, infra, infra_consul]
-    dcs : Get hostname as consul node name		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Set consul node name to hostname		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Copy /etc/consul.d/consul.json		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Copy consul server service unit		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Launch consul server service first	TAGS: [consul_setup, infra, infra_consul]
-    dcs : Copy consul agent service unit		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Launch consul agent service first		TAGS: [consul_setup, infra, infra_consul]
-    dcs : Wait for consul service online		TAGS: [consul_setup, infra, infra_consul]
 ```
 
 ### Default variables
@@ -31,9 +19,11 @@ tasks:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
-dcs_type:    consul                               # default dcs server type: consul
-dcs_servers: []                                   # default dcs servers
-dcs_purge: false                                  # force remove existing server
-# dcs_check_interval: 15s                         # default service check interval (not used)
-# dcs_check_timeout:  3s                          # default service check timeout  (not used)
+dcs_type: etcd                    # consul | etcd | both
+dcs_name: pigsty                  # etcd initial cluster token
+dcs_servers: {}                   # dcs name:ip dict (e.g: pg-meta-1: 10.10.10.10)
+dcs_exists_action: skip           # skip|abort|clean if dcs server already exists
+
+# default value for inner variable
+etcd_exists: false
 ```

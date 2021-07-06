@@ -11,39 +11,23 @@ This role will install monitor component on target hosts
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-tasks:
-  postgres : Check necessary variables exists	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Fetch variables via pg_cluster	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Set cluster basic facts for hosts	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Assert cluster primary singleton	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Setup cluster primary ip address	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Setup repl upstream for primary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Setup repl upstream for replicas	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  postgres : Debug print instance summary	TAGS: [always, pg_preflight, pgsql, postgres, preflight]
-  monitor : Install exporter yum repo	TAGS: [exporter_install, exporter_yum_install, monitor, pgsql]
-  monitor : Install node_exporter and pg_exporter	TAGS: [exporter_install, exporter_yum_install, monitor, pgsql]
-  monitor : Copy node_exporter binary	TAGS: [exporter_binary_install, exporter_install, monitor, pgsql]
-  monitor : Copy pg_exporter binary	TAGS: [exporter_binary_install, exporter_install, monitor, pgsql]
-  monitor : Create /etc/pg_exporter conf dir	TAGS: [monitor, pg_exporter, pgsql]
-  monitor : Copy default pg_exporter.yaml	TAGS: [monitor, pg_exporter, pgsql]
-  monitor : Config /etc/default/pg_exporter	TAGS: [monitor, pg_exporter, pgsql]
-  monitor : Config pg_exporter service unit	TAGS: [monitor, pg_exporter, pgsql]
-  monitor : Launch pg_exporter systemd service	TAGS: [monitor, pg_exporter, pgsql]
-  monitor : Wait for pg_exporter service online	TAGS: [monitor, pg_exporter, pgsql]
-  monitor : Register pg-exporter consul service	TAGS: [monitor, pg_exporter_register, pgsql]
-  monitor : Reload pg-exporter consul service	TAGS: [monitor, pg_exporter_register, pgsql]
-  monitor : Config pgbouncer_exporter opts	TAGS: [monitor, pgbouncer_exporter, pgsql]
-  monitor : Config pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, pgsql]
-  monitor : Launch pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, pgsql]
-  monitor : Wait for pgbouncer_exporter online	TAGS: [monitor, pgbouncer_exporter, pgsql]
-  monitor : Register pgb-exporter consul service	TAGS: [monitor, node_exporter_register, pgsql]
-  monitor : Reload pgb-exporter consul service	TAGS: [monitor, node_exporter_register, pgsql]
-  monitor : Copy node_exporter systemd service	TAGS: [monitor, node_exporter, pgsql]
-  monitor : Config default node_exporter options	TAGS: [monitor, node_exporter, pgsql]
-  monitor : Launch node_exporter service unit	TAGS: [monitor, node_exporter, pgsql]
-  monitor : Wait for node_exporter online	TAGS: [monitor, node_exporter, pgsql]
-  monitor : Register node-exporter service to consul	TAGS: [monitor, node_exporter_register, pgsql]
-  monitor : Reload node-exporter consul service	TAGS: [monitor, node_exporter_register, pgsql]
+Install exporter yum repo	TAGS: [exporter_install, exporter_yum_install, monitor, pgsql]
+Install node_exporter and pg_exporter	TAGS: [exporter_install, exporter_yum_install, monitor, pgsql]
+Copy exporter binaries	TAGS: [exporter_binary_install, exporter_install, monitor, pgsql]
+Create /etc/pg_exporter conf dir	TAGS: [monitor, pg_exporter, pgsql]
+Copy default pg_exporter.yaml	TAGS: [monitor, pg_exporter, pgsql]
+Config /etc/default/pg_exporter	TAGS: [monitor, pg_exporter, pgsql]
+Config pg_exporter service unit	TAGS: [monitor, pg_exporter, pgsql]
+Launch pg_exporter systemd service	TAGS: [monitor, pg_exporter, pgsql]
+Wait for pg_exporter service online	TAGS: [monitor, pg_exporter, pgsql]
+Config pgbouncer_exporter opts	TAGS: [monitor, pgbouncer_exporter, pgsql]
+Config pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, pgsql]
+Launch pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, pgsql]
+Wait for pgbouncer_exporter online	TAGS: [monitor, pgbouncer_exporter, pgsql]
+Copy node_exporter systemd service	TAGS: [monitor, node_exporter, pgsql]
+Config default node_exporter options	TAGS: [monitor, node_exporter, pgsql]
+Launch node_exporter service unit	TAGS: [monitor, node_exporter, pgsql]
+Wait for node_exporter online	TAGS: [monitor, node_exporter, pgsql]
 ```
 
 ### Default variables
@@ -51,7 +35,6 @@ tasks:
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
----
 #------------------------------------------------------------------------------
 # MONITOR PROVISION
 #------------------------------------------------------------------------------
@@ -72,20 +55,23 @@ pg_exporter_config: pg_exporter-demo.yaml     # default config files for pg_expo
 pg_exporter_enabled: true                     # setup pg_exporter on instance
 pg_exporter_port: 9630                        # default port for pg exporter
 pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
+pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
+pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+pg_exporter_include_database: ''                             # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
+pg_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
 
 # - pgbouncer exporter - #
 pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
 pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
 pgbouncer_exporter_url: ''                    # optional, if not set, generate from reference parameters
+pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
 
 # - postgres variables reference - #
 pg_dbsu: postgres
-pg_port: 5432                                 # postgres port (5432 by default)
-pgbouncer_port: 6432                          # pgbouncer port (6432 by default)
-pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
-pg_default_database: postgres                 # default database will be used as primary monitor target
-pg_monitor_username: dbuser_monitor           # system monitor username, for postgres and pgbouncer
-pg_monitor_password: DBUser.Monitor           # system monitor user's password
-service_registry: consul                      # none | consul | etcd | both
-...
+pg_port: 5432
+pgbouncer_port: 6432
+pg_localhost: /var/run/postgresql
+pg_monitor_username: dbuser_monitor
+pg_monitor_password: DBUser.Monitor
+service_registry: consul
 ```

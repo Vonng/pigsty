@@ -63,3 +63,25 @@ fi
 ```
 
 ## Setup cmdb
+
+
+
+
+### Tasks
+
+[tasks/main.yml](tasks/main.yml)
+
+```yaml
+Create pigsty application dir on admin home	TAGS: [environ, environ_dirs, infra]
+Create pigsty resource dirs on /etc/pigsty	TAGS: [environ, environ_dirs, infra]
+Get current username	TAGS: [environ, environ_ssh, infra]
+Create admin user ssh key pair if not exists	TAGS: [environ, environ_ssh, infra]
+Write default user credential to pgpass	TAGS: [environ, environ_pgpass, infra]
+Write default meta service to pg_service	TAGS: [environ, environ_pgpass, infra]
+Set environment for admin user	TAGS: [environ, environ_vars, infra]
+Enable environment for admin user	TAGS: [environ, environ_vars, infra]
+```
+
+### Default variables
+
+no default variables (references only)
