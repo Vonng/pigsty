@@ -3,130 +3,30 @@
 # Config Nginx proxy for haproxy index
 #------------------------------------------------------------------------------
 #   Main     Config :    /etc/nginx/conf.d/haproxy.conf
-#   Upstream Config :    /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}.conf
-#   Location Config :    /etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}.conf
-#   Cluster  Index  :    {{ repo_home }}/haproxy/{{ pg_cluster }}.html
-#   HomePage        :    {{ repo_home }}/haproxy/index.html
+#   Upstream Config :    /etc/nginx/conf.d/haproxy/upstream-{{ pg_instance }}.conf#   Location Config :    /etc/nginx/conf.d/haproxy/location-{{ pg_instance }}.conf
 
 
 #------------------------------------------------------------------------------
 # Nginx Haproxy Main Config
 #------------------------------------------------------------------------------
-- name: Templating /etc/nginx/haproxy.conf
-  tags: [nginx_haproxy_config ]
-  copy:
-    dest: /etc/nginx/conf.d/haproxy.conf
-    content: |
-      # haproxy instance definition
-      include /etc/nginx/conf.d/haproxy/upstream-*.conf;
-      # nginx proxy for haproxy admin
-      server {
-          listen       80;
-          server_name  {{ nginx_upstream | json_query('[?name==`haproxy`].host') | first }};
-          include /etc/nginx/conf.d/haproxy/location-*.conf;
-          location / {
-              root        {{ repo_home }}/haproxy;
-              index       index.html;
-          }
-      }
-
-
-#=============================================================================#
-# Per Cluster Config
-#=============================================================================#
-- name: Config haproxy index per cluster content
-  tags: [ nginx_haproxy_cluster, haindex ]
-  block:
-    #------------------------------------------------------------------------------
-    # Nginx Haproxy Sub Config (upstream) (per cluster)
-    #------------------------------------------------------------------------------
-    # nginx config for haproxy upstream definition (per cluster)
-    - name: Render haproxy upstream in cluster mode
-      copy:
-        dest: /etc/nginx/conf.d/haproxy/upstream-{{ cluster_name }}.conf
-        content: |
-          {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
-          {% if host.haproxy_enabled %}
-          upstream {{ host.pg_cluster }}-{{ host.pg_seq }} {
-              server {{ host.inventory_hostname }}:{{ host.haproxy_exporter_port }} max_fails=0;
-          }
-          {% endif %}
-          {% endfor %}
-      vars:
-        cluster_name: "{{ item }}"
-        cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
-      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
-
-
-    #------------------------------------------------------------------------------
-    # Nginx Haproxy Sub Config (location) (per cluster)
-    #------------------------------------------------------------------------------
-    # nginx config for haproxy location definition (per cluster)
-    - name: Render haproxy location in cluster mode
-      copy:
-        dest: /etc/nginx/conf.d/haproxy/location-{{ cluster_name }}.conf
-        content: |
-          {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
-          {% if host.haproxy_enabled %}
-              location ^~/{{ host.pg_cluster }}-{{ host.pg_seq }}/ {
-                  proxy_pass http://{{ host.pg_cluster }}-{{ host.pg_seq }};
-                  proxy_connect_timeout 2;
-              }
-          {% endif %}
-          {% endfor %}
-      vars:
-        cluster_name: "{{ item }}"
-        cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
-      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
-
-
-    #------------------------------------------------------------------------------
-    # Nginx Haproxy Cluster Index Page (per cluster)
-    #------------------------------------------------------------------------------
-    # index page of cluster level
-    - name: Render haproxy cluster index page
-      copy:
-        dest: "{{ repo_home }}/haproxy/{{ cluster_name }}.html"
-        content: |
-          <html lang="en"><head><title>Pigsty HAProxy</title></head><br>
-          <body><h1>PIGSTY HAPROXY INDEX for Cluster {{ item }}</h1><div><ul>
-
-          {% for host in hostvars|json_query(cluster_query)|sort(attribute='pg_seq') %}
-          {% if host.haproxy_enabled %}
-          <li><a href="/{{ host.pg_cluster }}-{{ host.pg_seq }}/"><h2>  {{ host.pg_cluster }}-{{ host.pg_seq }} </h2></a>
-          <code>http://{{ host.inventory_hostname }}:{{ host.haproxy_exporter_port }}  Cluster: {{ host.pg_cluster }} Role: {{ host.pg_role }})</code></li>
-          {% endif %}
-          {% endfor %}
-
-          </ul></div></body></html>
-      vars:
-        cluster_name: "{{ item }}"
-        cluster_query: "[@.*][0][?pg_cluster=='{{ item }}']"
-      with_items: "{{ hostvars|json_query('*.pg_cluster')|sort|unique }}"    # distinct cluster names
-
-
-#=============================================================================#
-# Global Config
-#=============================================================================#
-- name: Config haproxy index global content
-  tags: [ nginx_haproxy_global , haindex ]
+- name: Create haproxy config for nginx
   block:
 
-    #------------------------------------------------------------------------------
-    # Homepage
-    #------------------------------------------------------------------------------
-    - name: Render haproxy admin homepage
+    # create /etc/nginx/conf.d/haproxy
+    - name: Create nginx haproxy config dir
+      file: path=/etc/nginx/conf.d/haproxy state=directory
+
+    # create  /etc/nginx/conf.d/haproxy.conf
+    - name: Create haproxy proxy server config
+      tags: nginx_haproxy_config
       copy:
-        dest: "{{ repo_home }}/haproxy/index.html"
+        dest: /etc/nginx/conf.d/haproxy.conf
         content: |
-          <html lang="en"><head><title>Pigsty HAProxy Index</title></head><br>
-          <body><h1>PIGSTY GLOBAL HAPROXY INDEX</h1><div><ul>
-          {% for cluster in hostvars|json_query('*.pg_cluster')|sort|unique %}
-          <li><a href="/{{ cluster }}.html"><h2>{{ cluster }}</h2></a>
-          {% endfor %}
-          </ul></div></body></html>
-
-
-
+          include /etc/nginx/conf.d/haproxy/upstream-*.conf;
+          server {
+              listen       80;
+              server_name  {{ nginx_upstream | json_query('[?name==`haproxy`].host') | first }};
+              include /etc/nginx/conf.d/haproxy/location-*.conf;
+          }
 
 ...

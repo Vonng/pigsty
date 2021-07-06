@@ -1,5 +1,23 @@
 # Dev Log
 
+## 2020-07-06
+
+* Remove the crud haproxy index pages, using grafana table & data links instead 
+* At last register by instance may be the easiest way to implement and manage
+
+
+## 2020-07-05
+
+* Extract a new role named `register` to handler all interaction between pgsql & infra.
+* Extract a new role named `envrion` to setup meta node environment including: ssh, metadb, env vars, etc... 
+* Dashboard tags now have hierarchy:  `Pigsty` is the top tier, Application name `PGSQL` `PGLOG` is second tier 
+  * `Overview`, `Cluster`, `Instance`,`Database` are filter with `Pigsty` and `<Level>` tags. which means the nav-link can cross multiple applications
+
+## 2020-07-04
+
+* Milestone of Pigsty
+
+
 ## 2020-06-30
 
 * Rough implementation on v0.10.0-alpha1
