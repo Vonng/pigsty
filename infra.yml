@@ -3,10 +3,43 @@
 #==============================================================#
 # File      :   infra.yml
 # Ctime     :   2020-04-13
-# Mtime     :   2021-07-06
+# Mtime     :   2021-07-07
 # Desc      :   init infrastructure on meta nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#==============================================================#
+# Playbook : Init Meta Node
+#==============================================================#
+#  Init infra on meta nodes (special group 'meta')
+#     infra.yml
+#
+#  Setup environment on meta node (dir, ssh, pgpass, env)
+#     infra.yml -t environ
+#
+#  Setup local yum repo
+#     infra.yml -t repo
+#
+#  Setup prometheus
+#     infra.yml -t prometheus
+#
+#  Setup grafana
+#     infra.yml -t grafana
+#
+#  Setup nginx
+#     infra.yml -t nginx
+#
+#  Setup cmdb on meta nodes
+#     infra.yml -t pgsql
+#
+#  Sync dashboards baseline to grafana
+#     infra.yml -t dashboard
+#
+#  Upgrade grafana with postgres as primary database
+#     infra.yml -t grafana -e grafana_database=postgres
+#     ssh meta rm -rf /etc/grafana/provisioning/dashboards/pigsty.yml
+#
 #==============================================================#
 
 #---------------------------------------------------------------
@@ -49,8 +82,8 @@
     - name: Dashboards Init
       tags: dashboard
       synchronize:
-        src: app/pgsql/dashboards/pgsql
-        dest: /etc/pigsty/dashboards/pgsql
+        src: dashboards
+        dest: /etc/pigsty/dashboards
 
 #---------------------------------------------------------------
 - name: Pgsql Init      # init pgsql-cmdb on meta nodes

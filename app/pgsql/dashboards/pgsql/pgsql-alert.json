@@ -1,0 +1,4422 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "PostgreSQL Alerts",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Overview"
+            ],
+            "targetBlank": false,
+            "title": "Overview",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Cluster"
+            ],
+            "targetBlank": false,
+            "title": "Cluster",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Instance"
+            ],
+            "targetBlank": false,
+            "title": "Instance",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Database"
+            ],
+            "targetBlank": false,
+            "title": "Database",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        }
+    ],
+    "panels": [
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 7,
+            "panels": [],
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "purple",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 5,
+                "x": 0,
+                "y": 1
+            },
+            "id": 3,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"firing\"}) or on() vector(0)",
+                    "interval": "",
+                    "legendFormat": "Firing",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"pending\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Pending",
+                    "refId": "B"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 98,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 20
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alert"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 19,
+                "x": 5,
+                "y": 1
+            },
+            "id": 2,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "ALERTS{alertstate=\"firing\"}",
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}\u26a1\ufe0f] {{alertname}}  @ {{ cls }}",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "ALERTS{alertstate=\"pending\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}} @ {{ cls }}",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "0",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Alert",
+                    "refId": "C"
+                }
+            ],
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 18,
+                "w": 6,
+                "x": 0,
+                "y": 8
+            },
+            "id": 13,
+            "options": {
+                "alertName": "",
+                "dashboardAlerts": false,
+                "dashboardTitle": "",
+                "folderId": null,
+                "maxItems": 20,
+                "showOptions": "current",
+                "sortOrder": 1,
+                "stateFilter": {
+                    "alerting": true,
+                    "execution_error": true,
+                    "no_data": true,
+                    "ok": true,
+                    "paused": true,
+                    "pending": true
+                },
+                "tags": []
+            },
+            "pluginVersion": "8.0.3",
+            "title": "Alert",
+            "type": "alertlist"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 18,
+                "w": 18,
+                "x": 6,
+                "y": 8
+            },
+            "id": 14,
+            "options": {
+                "alertName": "",
+                "dashboardAlerts": false,
+                "dashboardTitle": "",
+                "folderId": null,
+                "maxItems": 20,
+                "showOptions": "changes",
+                "sortOrder": 5,
+                "stateFilter": {
+                    "alerting": false,
+                    "execution_error": false,
+                    "no_data": false,
+                    "ok": false,
+                    "paused": false,
+                    "pending": false
+                },
+                "tags": []
+            },
+            "pluginVersion": "8.0.3",
+            "title": "Alert History",
+            "type": "alertlist"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 26
+            },
+            "id": 20,
+            "panels": [],
+            "title": "INFRA: Aliveness",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "infra",
+                    "level": "0",
+                    "severity": "CRIT"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.5
+                            ],
+                            "type": "lt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "infra_up[type={{ $labels.type }}, instance={{ $labels.instance }}] = {{ $value  | printf \"%.2f\" }} < 1",
+                "name": "InfraDown",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Infrastructure Aliveness (Including Node & Haproxy)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisWidth": -3,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "max": 1.2,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.5
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 27
+            },
+            "id": 32,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "infra:ins:up{job=\"infra\"}",
+                    "interval": "",
+                    "legendFormat": "{{ type }}@{{ instance }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "lt",
+                    "value": 0.5,
+                    "visible": true
+                }
+            ],
+            "title": "InfraDown",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "infra",
+                    "level": "0",
+                    "severity": "CRIT"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.5
+                            ],
+                            "type": "lt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "agent_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value  | printf \"%.2f\" }} < 1",
+                "name": "AgentDown",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Agent Aliveness (node_exporter, pg_exporter, pgbouncer_exporter, haproxy_exporter)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisWidth": -3,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "max": 1.2,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.5
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 27
+            },
+            "id": 22,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "up{job!=\"infra\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}@{{ instance }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "lt",
+                    "value": 0.5,
+                    "visible": true
+                }
+            ],
+            "title": "AgentDown",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 35
+            },
+            "id": 16,
+            "panels": [],
+            "title": "NODE : CPU",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.7
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "node:ins:cpu_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 70%",
+                "name": "NodeCpuHigh",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 36
+            },
+            "id": 18,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:ins:cpu_usage_1m",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.7,
+                    "visible": true
+                }
+            ],
+            "title": "NodeCpuHigh",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 44
+            },
+            "id": 53,
+            "panels": [],
+            "title": "NODE: Schedule",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                1
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "node:ins:stdload1[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 100%",
+                "name": "NodeLoadHigh",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Standard Load (divide by cpu count) > 100%",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMax": 1,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 45
+            },
+            "id": 11,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:ins:stdload1",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 1,
+                    "visible": true
+                }
+            ],
+            "title": "NodeLoadHigh",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 53
+            },
+            "id": 40,
+            "panels": [],
+            "title": "NODE: Memory",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.1
+                            ],
+                            "type": "lt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "node:ins:mem_avail[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} < 10%",
+                "name": "NodeOutOfMem",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Available memory < 10%",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "purple",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.15
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.2
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 54
+            },
+            "id": 56,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:ins:mem_avail",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "lt",
+                    "value": 0.1,
+                    "visible": true
+                }
+            ],
+            "title": "NodeOutOfMem",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 62
+            },
+            "id": 55,
+            "panels": [],
+            "title": "NODE: Swap",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "2",
+                    "severity": "INFO"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.01
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "5m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "5m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "node:ins:swap_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 1%",
+                "name": "NodeMemSwapped",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Available memory < 10%",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.0001
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.01
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 63
+            },
+            "id": 57,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:ins:swap_usage",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.01,
+                    "visible": true
+                }
+            ],
+            "title": "NodeMemSwapped",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "description": "",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 71
+            },
+            "id": 27,
+            "panels": [],
+            "title": "NODE : Disk",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.032
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "node:dev:disk_read_rt_1m[ins={{ $labels.ins }}] = {{ $value  | printf \"%.6f\" }} > 32ms",
+                "name": "NodeDiskSlow",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Disk read/write avg latency > 32ms",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.001
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.008
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.032
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.128
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 72
+            },
+            "id": 60,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max by (ins,device) (node:dev:disk_write_rt_1m > node:dev:disk_read_rt_1m or node:dev:disk_read_rt_1m)",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.032,
+                    "visible": true
+                }
+            ],
+            "title": "NodeDiskSlow",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 80
+            },
+            "id": 29,
+            "panels": [],
+            "title": "NODE : Filesystem",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.9
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "node:fs:space_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 90%",
+                "name": "NodeFsFull",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMax": 1,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 3,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.99
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 81
+            },
+            "id": 23,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:fs:space_usage",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}:{{ mountpoint }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.9,
+                    "visible": true
+                }
+            ],
+            "title": "NodeFsFull",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [
+                        {
+                            "options": {
+                                "-1": {
+                                    "index": 1,
+                                    "text": "+Inf"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 0,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "max": 3200000,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            },
+                            {
+                                "color": "purple",
+                                "value": 3600
+                            },
+                            {
+                                "color": "orange",
+                                "value": 86400
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 604800
+                            },
+                            {
+                                "color": "green",
+                                "value": 126230400
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 89
+            },
+            "id": 78,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:fs:space_exhaust{}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}:{{ mountpoint }}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "NodeFsExhaust",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.9
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "node:fs:inode_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 90%",
+                "name": "NodeFsFilesFull",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMax": 1,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 3,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.99
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 96
+            },
+            "id": 58,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:fs:inode_usage",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}:{{ mountpoint }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.9,
+                    "visible": true
+                }
+            ],
+            "title": "NodeFsFilesFull",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.9
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "node:ins:fd_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 90%",
+                "name": "NodeFdFull",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMax": 1,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 3,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.99
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 103
+            },
+            "id": 59,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:ins:fd_usage",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.9,
+                    "visible": true
+                }
+            ],
+            "title": "NodeFdFull",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 110
+            },
+            "id": 62,
+            "panels": [],
+            "title": "Node: Network",
+            "type": "row"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 111
+            },
+            "id": 64,
+            "panels": [],
+            "title": "Node: Protocol",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                1
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "rate(node:ins:tcp_error{ins={{ $labels.ins }}}[1m]) = {{ $value  | printf \"%.2f\" }} > 1",
+                "name": "NodeTcpErrHigh",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "TCP Error Rate > 1 / s",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    "unit": "cps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 112
+            },
+            "id": 71,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "rate(node:ins:tcp_error[1m])",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 1,
+                    "visible": true
+                }
+            ],
+            "title": "NodeTcpErrHigh",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMax": 1,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "log": 10,
+                            "type": "log"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1e-06
+                            },
+                            {
+                                "color": "super-light-green",
+                                "value": 1e-05
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.0001
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.001
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.01
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.1
+                            }
+                        ]
+                    },
+                    "unit": "sci"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 119
+            },
+            "id": 70,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "node:ins:tcp_retrans_ratio1m",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "NodeTcpRetransHigh",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 128
+            },
+            "id": 25,
+            "panels": [],
+            "title": "NODE : NTP",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "description": "Check ntp protocol / clock sanity",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 1.1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.5
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 129
+            },
+            "id": 75,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "min without() (node_ntp_sanity or node_timex_sync_status)",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "NodeNtpSanity",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "node",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.05
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf \"%.6f\" }} > 50ms",
+                "name": "NodeClockSkew",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Clock time offset alert > 50ms",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "log": 2,
+                            "type": "log"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.001
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.01
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.05
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            },
+                            {
+                                "color": "purple",
+                                "value": 60
+                            },
+                            {
+                                "color": "text",
+                                "value": 600
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 136
+            },
+            "id": 74,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "abs(node_timex_offset_seconds)",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.05,
+                    "visible": true
+                }
+            ],
+            "title": "NodeClockSkew",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 143
+            },
+            "id": 51,
+            "panels": [],
+            "title": "PGSQL: Aliveness",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "0",
+                    "severity": "CRIT"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                -0.5
+                            ],
+                            "type": "lt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1",
+                "name": "PostgresDown",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Postgres Database Service Aliveness",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisWidth": -3,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "max": 1.2,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.5
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 144
+            },
+            "id": 9,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg_up",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "lt",
+                    "value": -0.5,
+                    "visible": true
+                }
+            ],
+            "title": "PostgresDown",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "0",
+                    "severity": "CRIT"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.5
+                            ],
+                            "type": "lt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "pgbouncer_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1",
+                "name": "PgbouncerDown",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Pgbouncer Connection Pooler Aliveness",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisWidth": -3,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "max": 1.2,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.5
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 144
+            },
+            "id": 21,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg_up",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "lt",
+                    "value": 0.5,
+                    "visible": true
+                }
+            ],
+            "title": "PgbouncerDown",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 152
+            },
+            "id": 31,
+            "panels": [],
+            "title": "PGSQL : Replication",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "0",
+                    "severity": "CRIT"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                1
+                            ],
+                            "type": "lt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "pg:cls:partition[cls={{ $labels.cls }}, job={{ $labels.job }}] = {{ $value }} != 1",
+                "name": "PostgresPartition",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Number of leader of a postgres partition",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "left",
+                        "axisSoftMax": 2.5,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 3,
+                        "pointSize": 2,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "always",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 1.5
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 153
+            },
+            "id": 73,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:cls:partition",
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "lt",
+                    "value": 1,
+                    "visible": true
+                }
+            ],
+            "title": "PostgresPartition",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "max"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "changes(pg_downstream_count{ins={{ $labels.ins }}, instance={{ $labels.instance }}, state=\"streaming\"}[5m]) > 0",
+                "name": "PostgresReplicationBreak",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Number of replication streaming slave change",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "left",
+                        "axisSoftMax": 2,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 3,
+                        "pointSize": 2,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "always",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.5
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 161
+            },
+            "id": 87,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "changes(pg_downstream_count{state=\"streaming\"}[5m])",
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0,
+                    "visible": true
+                }
+            ],
+            "title": "PostgresReplicationBreak",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                1048576
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "5m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "pg:ins:lag_bytes[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf \"%.0f\" }} > 1048576 or",
+                "name": "PostgresReplicationLag",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Replication for ${ins}",
+                            "url": "/d/pgsql-replication?var-ins=${ins}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1000
+                            },
+                            {
+                                "color": "orange",
+                                "value": 100000
+                            },
+                            {
+                                "color": "red",
+                                "value": 1000000
+                            },
+                            {
+                                "color": "purple",
+                                "value": 10000000
+                            },
+                            {
+                                "color": "text",
+                                "value": 100000000
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 170
+            },
+            "id": 86,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:ins:lag_bytes",
+                    "interval": "",
+                    "legendFormat": "Lag (B)",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 1048576,
+                    "visible": true
+                }
+            ],
+            "title": "PostgresReplicationLag",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 16
+                            },
+                            {
+                                "color": "text",
+                                "value": 64
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 179
+            },
+            "id": 84,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:ins:lag_seconds",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "PostgresReplicationLagSeconds",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 187
+            },
+            "id": 38,
+            "panels": [],
+            "title": "PGSQL : Activity",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.7
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "ins:pressure1[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf \"%.3f\" }} > 0.70",
+                "name": "PostgresPressureHigh",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Postgres & Pgbouncer load index: Active Time / Available Time",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 11,
+                "w": 24,
+                "x": 0,
+                "y": 188
+            },
+            "id": 43,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "ins:pressure1",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.7,
+                    "visible": true
+                }
+            ],
+            "title": "PostgresPressureHigh",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "0",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.016
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "pgbouncer:db:query_rt_1m[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf \"%.3f\" }} > 0.016",
+                "name": "PgbouncerQuerySlow",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query for ${ins}",
+                            "url": "/d/pgsql-query?var-ins=${ins}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 199
+            },
+            "id": 91,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:db:query_rt_1m",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}:{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.016,
+                    "visible": true
+                }
+            ],
+            "title": "PgbouncerQuerySlow",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 208
+            },
+            "id": 36,
+            "panels": [],
+            "title": "PGSQL : Session",
+            "type": "row"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "0",
+                    "severity": "CRIT"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                1
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "max"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "1m",
+                "frequency": "15s",
+                "handler": 1,
+                "message": "pgbouncer:db:waiting_clients[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf \"%.0f\" }} > 1",
+                "name": "PgbouncerClientQueue",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Node for ${ins}",
+                            "url": "/d/pgsql-node?var-ins=${ins}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 3.5
+                            },
+                            {
+                                "color": "purple",
+                                "value": 7.5
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 209
+            },
+            "id": 89,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:db:waiting_clients",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}:{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 1,
+                    "visible": true
+                }
+            ],
+            "title": "PgbouncerClientQueue",
+            "type": "timeseries"
+        },
+        {
+            "alert": {
+                "alertRuleTags": {
+                    "category": "pgsql",
+                    "level": "1",
+                    "severity": "WARN"
+                },
+                "conditions": [
+                    {
+                        "evaluator": {
+                            "params": [
+                                0.7
+                            ],
+                            "type": "gt"
+                        },
+                        "operator": {
+                            "type": "and"
+                        },
+                        "query": {
+                            "params": [
+                                "A",
+                                "1m",
+                                "now"
+                            ]
+                        },
+                        "reducer": {
+                            "params": [],
+                            "type": "avg"
+                        },
+                        "type": "query"
+                    }
+                ],
+                "executionErrorState": "alerting",
+                "for": "3m",
+                "frequency": "1m",
+                "handler": 1,
+                "message": "pg:db:conn_usage[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf \"%.3f\" }} > 0.70",
+                "name": "PostgresConnUsageHigh",
+                "noDataState": "no_data",
+                "notifications": []
+            },
+            "datasource": null,
+            "description": "Database connection Usage",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 11,
+                "w": 24,
+                "x": 0,
+                "y": 219
+            },
+            "id": 76,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:db:conn_usage{datname!~\"postgres|template0|template1\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}.{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [
+                {
+                    "colorMode": "critical",
+                    "op": "gt",
+                    "value": 0.7,
+                    "visible": true
+                }
+            ],
+            "title": "PostgresConnUsageHigh",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "Idle in Transaction\n",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 11,
+                "w": 24,
+                "x": 0,
+                "y": 230
+            },
+            "id": 79,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:db:ixact_backends{datname!~\"postgres|template0|template1\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}.{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "PostgresIdleInXact",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 241
+            },
+            "id": 34,
+            "panels": [],
+            "title": "PGSQL : Persist",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query for ${ins}",
+                            "url": "/d/pgsql-query?var-ins=${ins}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "percentage",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 2
+                            },
+                            {
+                                "color": "orange",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 30
+                            },
+                            {
+                                "color": "purple",
+                                "value": 90
+                            },
+                            {
+                                "color": "text",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 242
+            },
+            "id": 82,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:cls:age",
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Age",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 30,
+    "style": "light",
+    "tags": [
+        "Pigsty",
+        "PGSQL",
+        "Overview",
+        "Alert"
+    ],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "1s",
+            "2s",
+            "3s",
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ]
+    },
+    "timezone": "",
+    "title": "PGSQL Alert",
+    "uid": "pgsql-alert",
+    "version": 42
+}

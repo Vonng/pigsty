@@ -99,18 +99,18 @@ alias cnode="consul catalog nodes -detailed"
 alias csvc="consul catalog services --tags"
 alias cst="systemctl status consul"
 alias cm="consul members"
-# find node
+# find node: fd <search>
 function fd() {
   local filter=${1-'pg'}
   consul catalog nodes | awk '{printf("%-20s\t%-20s\n",$1,$3)}' | grep ${filter} | sort
 }
-# go to instance
+# go to instance:  gg <instance>
 function gg() {
   local filter=${1-'pg'}
   local ip=$(consul catalog nodes | grep ${filter} | head -n1 | awk '{print $3}')
   ssh ${ip}
 }
-# goto cluster master
+# goto cluster master: gm <cluster>
 function gm() {
   local cluster=${1-'pg-meta'}
   local filter="(ServiceMeta.cluster ==  \"${cluster}\" and ServiceMeta.role == \"primary\")"
@@ -147,9 +147,8 @@ alias map="xargs -n1"
 alias gst="git status"
 alias gci="git commit"
 alias gp="git pull"
-alias gpu="git push origin master"
-alias yaml2json='ruby -ryaml -rjson -e "puts JSON.pretty_generate(YAML.load(STDIN.read))"'
-alias json2yaml='ruby -ryaml -rjson -e "puts YAML.dump(JSON.parse(STDIN.read))"'
+alias yaml2json='python -c "import yaml,json,sys; json.dump(yaml.safe_load(sys.stdin.read()), sys.stdout, indent=4)"'
+alias json2yaml='python -c "import yaml,json,sys; yaml.safe_dump(json.load(sys.stdin), sys.stdout, indent=4)"'
 alias urlenc='python -c "import sys, urllib as ul; print(ul.quote(sys.argv[1]));"'
 alias urldec='python -c "import sys, urllib as ul; print(ul.unquote(sys.argv[1]));"'
 alias b64enc='python -c "import sys,base64 as b;print(b.b64encode(sys.argv[1]));"'

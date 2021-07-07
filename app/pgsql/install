@@ -16,7 +16,7 @@
 #
 #   * access to cmdb        (pg-meta.meta)
 #   * access to grafana     (127.0.0.1:3000)
-#   * access to pigsty home
+#   * access to pigsty home (~/pigsty)
 #   * access to ssh & root & python runtime
 #
 # Environment information are passing via ENVIRONMENT VARIABLES
@@ -34,6 +34,16 @@
 #   ^---> dashboards  # dashboards json definition that will be copied to /etc/dashboards
 #   ^---> playbooks   # playbooks that will be added to pigsty home
 #   ^---> databases   # database schema & data and other resources
+#
+# Available Environment
+# METADB_URL="service=meta"
+# GRAFANA_ENDPOINT=http://10.10.10.10:3000
+# GRAFANA_USERNAME=admin
+# GRAFANA_PASSWORD=pigsty
+# PIGSTY_HOME="${HOME}/pigsty"
+# PIGSTY_DASHBOARD_DIR=/etc/pigsty/dashboards
+# PIGSTY_DATASOURCE_DIR=/etc/pigsty/datasource
+# PIGSTY_PLAYBOOK_DIR=/etc/pigsty/playbooks
 #==============================================================#
 
 
@@ -47,14 +57,14 @@ METADB_URL=${METADB_URL-"service=meta"}
 GRAFANA_ENDPOINT=${GRAFANA_ENDPOINT-'http://127.0.0.1:3000'}
 GRAFANA_USERNAME=${GRAFANA_USERNAME-'admin'}
 GRAFANA_PASSWORD=${GRAFANA_PASSWORD-'pigsty'}
-GRAFANA_DASHBOARD_DIR=${GRAFANA_DASHBOARD_DIR-'/etc/dashboards'}
+PIGSTY_DASHBOARD_DIR=${PIGSTY_DASHBOARD_DIR-'/etc/dashboards'}
 
 #==============================================================#
 # Static Provision                                            #
 #==============================================================#
 # static provision will copy dashboards/* to /etc/dashboards/*
-sudo mkdir -p ${GRAFANA_DASHBOARD_DIR}/pgsql
-sudo cp -rf ${APP_DIR}/dashboards/pgsql/* "${GRAFANA_DASHBOARD_DIR}/pgsql/"
+sudo mkdir -p ${PIGSTY_DASHBOARD_DIR}/pgsql
+sudo cp -rf ${APP_DIR}/dashboards/pgsql/* "${PIGSTY_DASHBOARD_DIR}/pgsql/"
 exit 0
 
 #==============================================================#

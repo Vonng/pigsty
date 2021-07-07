@@ -5,7 +5,7 @@
 # Note      :   Sandbox demo configuration (4-node)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-06
+# Mtime     :   2021-07-07
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -149,9 +149,7 @@ all: # top-level namespace
             rules:                                          # required, rule content: array of hba string
               - local   grafana         dbuser_grafana                          md5
               - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.0.0.0/8          reject
-              - host    grafana         dbuser_grafana      172.16.0.0/12       reject
-              - host    grafana         dbuser_grafana      192.168.0.0/16      reject
+              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
         vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
@@ -706,7 +704,7 @@ all: # top-level namespace
       - GRANT SELECT                        ON SEQUENCES TO dbrole_offline
       - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_offline
       - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
-      - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
+      - GRANT USAGE, UPDATE                 ON SEQUENCES TO dbrole_readwrite
       - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
 
@@ -715,15 +713,15 @@ all: # top-level namespace
 
     # - extension - #
     pg_default_extensions:                        # default extensions to be created
-      - { name: 'pg_stat_statements',  schema: 'monitor' }
-      - { name: 'pgstattuple',         schema: 'monitor' }
-      - { name: 'pg_qualstats',        schema: 'monitor' }
-      - { name: 'pg_buffercache',      schema: 'monitor' }
-      - { name: 'pageinspect',         schema: 'monitor' }
-      - { name: 'pg_prewarm',          schema: 'monitor' }
-      - { name: 'pg_visibility',       schema: 'monitor' }
-      - { name: 'pg_freespacemap',     schema: 'monitor' }
-      - { name: 'pg_repack',           schema: 'monitor' }
+      - { name: 'pg_stat_statements', schema: 'monitor' }
+      - { name: 'pgstattuple',        schema: 'monitor' }
+      - { name: 'pg_qualstats',       schema: 'monitor' }
+      - { name: 'pg_buffercache',     schema: 'monitor' }
+      - { name: 'pageinspect',        schema: 'monitor' }
+      - { name: 'pg_prewarm',         schema: 'monitor' }
+      - { name: 'pg_visibility',      schema: 'monitor' }
+      - { name: 'pg_freespacemap',    schema: 'monitor' }
+      - { name: 'pg_repack',          schema: 'monitor' }
       - name: postgres_fdw
       - name: file_fdw
       - name: btree_gist
@@ -898,3 +896,4 @@ all: # top-level namespace
     # dns_selector: '[]'                          # if dns_mode == vip, filter instances been resolved
 
 ...
+

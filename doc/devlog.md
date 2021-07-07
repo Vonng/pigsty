@@ -1,5 +1,13 @@
 # Dev Log
 
+
+## 2020-07-07
+
+* Add baidu netdisk download for mainland China
+  百度云盘 链接: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw 提取码: 8su9
+
+
+
 ## 2020-07-06
 
 * Use v1.0.0-alpha1 instead. Since the change are significant, it is not appropriate to use v0.10. 
