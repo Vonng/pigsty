@@ -1,16 +1,22 @@
-# Pigsty -- Battery-Included Open Source PostgreSQL Distribution
+# Pigsty -- Open Source PostgreSQL Distribution
 
 > [PIGSTY](http://pigsty.cc): Postgres in Graphic STYle
 
 [Pigsty](https://pigsty.cc/zh/) is an open-source, battery-included PostgreSQL Distribution.
 
-It delivers the **BEST** open source **monitoring** solution for PostgreSQL. Along with the **easiest provisioning** solution for large scale proudction-grade database clusters. 
+It delivers the **BEST** open source **monitoring** solution for PostgreSQL. Along with the **easiest provisioning** solution for large scale production-grade database clusters. 
 
 It can be used both for large-scale pg clusters management in real-world prod-env, and for launching battery-included single pgsql sandbox for dev & data analysis & demo purpose in a simple and fast way.
 
 ![](img/logo.svg)
 
-Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**https://pigsty.cc/en/**](https://pigsty.cc/en/)   | 中文站点：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
+Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**https://pigsty.cc/en/**](https://pigsty.cc/en/)   | CN中文站点：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
+
+> The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
+>
+> Current master is @ **v1.0.0-alpha1**
+
+
 
 ## Quick Start
 
@@ -32,18 +38,6 @@ make demo   # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 ```
 
 Check [**Quick Start**](https://pigsty.cc/zh/docs/quick-start/) for more information.
-
-
-
-## Roadmap
-
-> The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
->
-> Current master is @ **v1.0.0-alpha1**
-
-![](img/milestone.svg)
-
-## 
 
 
 
@@ -278,6 +272,22 @@ Pigsty can also use static file discovery for prometheus, which would eliminate 
 
 
 
+### GUI Tools
+
+Pigsty have a simple [cli/gui](cli/gui) tool which provide an easier interface for beginers.
+
+![](img/gui-cli-config.jpg)
+
+
+
+### Visualization Support
+
+Pigsty can be used for data analysis and visualization.
+
+![](img/datalets.jpg)
+
+
+
 ###  Offline Installation
 
 Pigsty supports offline installation. It is especially useful for environment that has no Internet access.
@@ -294,7 +304,7 @@ Pigsty comes with a local Yum repo that includes all required packages and its d
 **System Requirement**
 
 * CentOS 7 / Red Hat 7 / Oracle Linux 7
-* CentOS 7.6/7.8 is highly recommend (Fully tested under minimal installation)
+* CentOS 7.8.2003 x86_64 is highly recommend (fully tested under production)
 
 **Minimal setup**
 
@@ -314,10 +324,6 @@ Pigsty comes with a local Yum repo that includes all required packages and its d
 </details>
 
 
-
-## Support
-
-[Business Support](https://pigsty.cc/en/docs/business/) for pigsty is available.
 
 ## About
 
