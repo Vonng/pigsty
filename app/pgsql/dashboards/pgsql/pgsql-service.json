@@ -12,12 +12,12 @@
             }
         ]
     },
-    "description": "Postgres Service",
+    "description": "Postgres Cluster Service",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625453481375,
+    "iteration": 1625718404488,
     "links": [
         {
             "asDropdown": true,
@@ -139,7 +139,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -270,7 +270,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 70
+                                "value": 60
                             },
                             {
                                 "id": "mappings",
@@ -329,7 +329,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -440,10 +440,6 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.width",
-                                "value": 120
-                            },
-                            {
                                 "id": "mappings",
                                 "value": [
                                     {
@@ -487,70 +483,6 @@
                             {
                                 "id": "custom.width",
                                 "value": 70
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Busy"
-                        },
-                        "properties": [
-                            {
-                                "id": "min",
-                                "value": 0
-                            },
-                            {
-                                "id": "max",
-                                "value": 1
-                            },
-                            {
-                                "id": "unit",
-                                "value": "percentunit"
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "gradient-gauge"
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 162
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "blue",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "green",
-                                            "value": 0.1
-                                        },
-                                        {
-                                            "color": "yellow",
-                                            "value": 0.3
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 0.5
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 0.7
-                                        },
-                                        {
-                                            "color": "purple",
-                                            "value": 0.9
-                                        },
-                                        {
-                                            "color": "text",
-                                            "value": 1
-                                        }
-                                    ]
-                                }
                             }
                         ]
                     },
@@ -603,7 +535,85 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 70
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Admin"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 135
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "HAProxy Admin Page for ${__data.fields.Proxy}",
+                                        "url": "http://h.pigsty/${__data.fields.Proxy}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Load"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 0.3
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 0.7
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 0.9
+                                        },
+                                        {
+                                            "color": "text",
+                                            "value": 0.99
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
                             }
                         ]
                     }
@@ -611,7 +621,7 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
+                "w": 12,
                 "x": 12,
                 "y": 1
             },
@@ -625,11 +635,11 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (ins) (haproxy_backend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
+                    "expr": "sum without (proxy) (haproxy_backend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -646,6 +656,16 @@
                     "interval": "",
                     "legendFormat": "",
                     "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (ins) (haproxy:ins:usage{cls=\"$cls\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "C"
                 }
             ],
             "transformations": [
@@ -661,25 +681,352 @@
                         "excludeByName": {
                             "Time": true,
                             "Time 1": true,
-                            "Time 2": true
+                            "Time 2": true,
+                            "Time 3": true,
+                            "cls": true,
+                            "job": true
                         },
                         "indexByName": {
-                            "Time 1": 3,
-                            "Time 2": 4,
-                            "Value #A": 2,
-                            "Value #B": 1,
-                            "ins": 0
+                            "Time 1": 5,
+                            "Time 2": 6,
+                            "Time 3": 9,
+                            "Value #A": 3,
+                            "Value #B": 2,
+                            "Value #C": 4,
+                            "cls": 7,
+                            "ins": 0,
+                            "instance": 1,
+                            "job": 8
                         },
                         "renameByName": {
                             "Value": "Session",
                             "Value #A": "Session",
                             "Value #B": "Route",
-                            "ins": "Proxy"
+                            "Value #C": "Load",
+                            "ins": "Proxy",
+                            "instance": "Admin"
                         }
                     }
                 }
             ],
             "type": "table"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Cluster for ${cls}",
+                            "url": "/d/pgsql-cluster?var-cls=${cls}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 3,
+                "x": 0,
+                "y": 3
+            },
+            "id": 64,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Cluster",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${cls}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Role is service identifier among cluster. e.g primary, replica, standby, offline, delayed, etc....",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 3,
+                "x": 3,
+                "y": 3
+            },
+            "id": 66,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Role",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${role}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Number of haproxy instance among this cluster that provide service for ${svc}",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "unknown"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "blue",
+                                "value": 1
+                            },
+                            {
+                                "color": "green",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 3,
+                "x": 0,
+                "y": 5
+            },
+            "id": 68,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "count(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Proxy",
+            "transformations": [],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Number of postgres instance among this cluster that provide service ${svc}",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "unknown"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "blue",
+                                "value": 1
+                            },
+                            {
+                                "color": "green",
+                                "value": 2
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 3,
+                "x": 3,
+                "y": 5
+            },
+            "id": 69,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Server",
+            "transformations": [],
+            "type": "stat"
         },
         {
             "datasource": "Prometheus-PgSQL",
@@ -764,7 +1111,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": 60
                             },
                             {
                                 "id": "custom.displayMode",
@@ -862,7 +1209,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": 61
                             },
                             {
                                 "id": "thresholds",
@@ -907,8 +1254,8 @@
             "gridPos": {
                 "h": 6,
                 "w": 6,
-                "x": 18,
-                "y": 1
+                "x": 0,
+                "y": 7
             },
             "id": 45,
             "options": {
@@ -920,7 +1267,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -1003,321 +1350,365 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
-            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster for ${cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${cls}"
-                        }
-                    ],
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto"
+                    },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "green",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${__data.fields.Server}",
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Server}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "number"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "blue",
+                                                "index": 1,
+                                                "text": "\u23fb"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "No Route"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "green",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*-primary/"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "super-light-blue",
+                                                "index": 1,
+                                                "text": "Candidate"
+                                            },
+                                            "1": {
+                                                "color": "orange",
+                                                "index": 2,
+                                                "text": "Primary"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "No Route"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*-offline/"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "blue",
+                                                "index": 1,
+                                                "text": "\u23fb"
+                                            },
+                                            "1": {
+                                                "color": "yellow",
+                                                "index": 2,
+                                                "text": "Offline"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "No Route"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*-default/"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "super-light-blue",
+                                                "index": 1,
+                                                "text": "Candidate"
+                                            },
+                                            "1": {
+                                                "color": "super-light-orange",
+                                                "index": 2,
+                                                "text": "Default"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "No Route"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*-standby/"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "blue",
+                                                "index": 1,
+                                                "text": "\u23fb"
+                                            },
+                                            "1": {
+                                                "color": "super-light-orange",
+                                                "index": 2,
+                                                "text": "Standby"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "No Route"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*-replica/"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "blue",
+                                                "index": 1,
+                                                "text": "\u23fb"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 2,
+                                                "text": "Replica"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "No Route"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 0,
-                "y": 3
+                "h": 6,
+                "w": 18,
+                "x": 6,
+                "y": 7
             },
-            "id": 64,
+            "id": 79,
             "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Server"
+                    }
+                ]
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "1",
-                    "format": "table",
+                    "expr": "max without(ins,instance) (haproxy_server_status{cls=\"$cls\"})",
+                    "format": "time_series",
                     "instant": true,
                     "interval": "",
                     "legendFormat": "",
-                    "queryType": "measurements",
                     "refId": "A"
                 }
             ],
-            "title": "Cluster",
             "transformations": [
+                {
+                    "id": "labelsToFields",
+                    "options": {
+                        "valueLabel": "proxy"
+                    }
+                },
                 {
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "Time": true
+                            "Time": true,
+                            "cls": true,
+                            "ins": true,
+                            "instance": true,
+                            "ip": true,
+                            "job": true
                         },
                         "indexByName": {},
                         "renameByName": {
-                            "Time": "",
-                            "Value": "${cls}"
+                            "proxy": "",
+                            "server": "Server"
                         }
                     }
                 }
             ],
-            "type": "stat"
+            "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
-            "description": "Role is service identifier among cluster. e.g primary, replica, standby, offline, delayed, etc....",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
+            "collapsed": false,
+            "datasource": null,
             "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 3
-            },
-            "id": 66,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "8.0.3",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Role",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${role}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
-            "description": "Number of haproxy instance among this cluster that provide service for ${svc}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "unknown"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "blue",
-                                "value": 1
-                            },
-                            {
-                                "color": "green",
-                                "value": 2
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
+                "h": 1,
+                "w": 24,
                 "x": 0,
-                "y": 5
+                "y": 13
             },
-            "id": 68,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "8.0.3",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "count(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Proxy",
-            "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
-            "description": "Number of postgres instance among this cluster that provide service ${svc}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "unknown"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "blue",
-                                "value": 1
-                            },
-                            {
-                                "color": "green",
-                                "value": 2
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 3,
-                "x": 3,
-                "y": 5
-            },
-            "id": 69,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value"
-            },
-            "pluginVersion": "8.0.3",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "max(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Server",
-            "transformations": [],
-            "type": "stat"
+            "id": 81,
+            "panels": [],
+            "repeat": "svc",
+            "title": "Service ${svc}",
+            "type": "row"
         },
         {
             "datasource": "Prometheus-PgSQL",
@@ -1375,7 +1766,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 7
+                "y": 14
             },
             "id": 49,
             "options": {
@@ -1466,7 +1857,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 7
+                "y": 14
             },
             "id": 75,
             "options": {
@@ -1552,7 +1943,7 @@
                 "h": 7,
                 "w": 6,
                 "x": 0,
-                "y": 15
+                "y": 22
             },
             "id": 56,
             "options": {
@@ -1571,7 +1962,8 @@
             "pluginVersion": "7.4.3",
             "targets": [
                 {
-                    "expr": "100 - haproxy_process_idle_time_percent{cls=\"$cls\"}",
+                    "exemplar": true,
+                    "expr": "haproxy:ins:usage{cls=\"$cls\"}",
                     "interval": "",
                     "legendFormat": "{{ ins }}",
                     "refId": "B"
@@ -1641,7 +2033,7 @@
                 "h": 7,
                 "w": 6,
                 "x": 6,
-                "y": 15
+                "y": 22
             },
             "id": 59,
             "options": {
@@ -1732,7 +2124,7 @@
                 "h": 7,
                 "w": 6,
                 "x": 12,
-                "y": 15
+                "y": 22
             },
             "id": 11,
             "options": {
@@ -1823,7 +2215,7 @@
                 "h": 7,
                 "w": 6,
                 "x": 18,
-                "y": 15
+                "y": 22
             },
             "id": 74,
             "options": {
@@ -1865,7 +2257,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 29
             },
             "hiddenSeries": false,
             "id": 60,
@@ -1885,7 +2277,7 @@
                 "alertThreshold": true
             },
             "percentage": false,
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "pointradius": 2,
             "points": false,
             "renderer": "flot",
@@ -1958,7 +2350,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 29
             },
             "hiddenSeries": false,
             "id": 77,
@@ -1978,7 +2370,7 @@
                 "alertThreshold": true
             },
             "percentage": false,
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "pointradius": 2,
             "points": false,
             "renderer": "flot",
@@ -2153,5 +2545,6 @@
     "timezone": "",
     "title": "PGSQL Service",
     "uid": "pgsql-service",
-    "version": 2
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

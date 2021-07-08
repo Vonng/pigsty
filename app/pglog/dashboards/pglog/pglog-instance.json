@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 1,
     "id": null,
-    "iteration": 1625627651432,
+    "iteration": 1625733857544,
     "links": [
         {
             "asDropdown": true,
@@ -81,6 +81,66 @@
         }
     ],
     "panels": [
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 17,
+            "panels": [],
+            "title": "README",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 4,
+                "w": 11,
+                "x": 0,
+                "y": 1
+            },
+            "id": 15,
+            "options": {
+                "content": "PGLOG requires **extra setup** to work, since logging system are optional.\n\n```bash\n./infra-loki.yml      # install loki on meta node\n./pgsql-promtail.yml  # deploy log agent on pgsql node\n```",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.0.4",
+            "transparent": true,
+            "type": "text"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 4,
+                "w": 10,
+                "x": 14,
+                "y": 1
+            },
+            "id": 18,
+            "options": {
+                "content": "Select pgsql instance via `Instance`\n\nSelect log type (postgres|pgbouncer|patroni) by `Source`\n\nSearch keyword in logs with `Search` textbox.",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.0.4",
+            "transparent": true,
+            "type": "text"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 5
+            },
+            "id": 11,
+            "title": "Log Metrics",
+            "type": "row"
+        },
         {
             "datasource": "Loki",
             "fieldConfig": {
@@ -228,7 +288,7 @@
                 "h": 8,
                 "w": 8,
                 "x": 0,
-                "y": 0
+                "y": 6
             },
             "id": 9,
             "interval": "1s",
@@ -248,7 +308,7 @@
             "pluginVersion": "8.0.0-beta2",
             "targets": [
                 {
-                    "expr": "sum(count_over_time(({ins=\"$ins\", job=\"$job\"})[$__interval]))",
+                    "expr": "sum(count_over_time(({ins=\"$ins\", src=\"$src\"})[$__interval]))",
                     "legendFormat": "logs per $__interval",
                     "refId": "A"
                 }
@@ -420,7 +480,7 @@
                 "h": 8,
                 "w": 8,
                 "x": 8,
-                "y": 0
+                "y": 6
             },
             "id": 8,
             "interval": "1s",
@@ -440,7 +500,7 @@
             "pluginVersion": "8.0.0-beta2",
             "targets": [
                 {
-                    "expr": "sum(count_over_time(({ins=\"$ins\", job=\"$job\"} |~ \"ERROR|FATAL|PANIC\")[$__interval]))",
+                    "expr": "sum(count_over_time(({ins=\"$ins\", src=\"$src\"} |~ \"ERROR|FATAL|PANIC\")[$__interval]))",
                     "legendFormat": "errs per $__interval",
                     "refId": "A"
                 }
@@ -597,7 +657,7 @@
                 "h": 8,
                 "w": 8,
                 "x": 16,
-                "y": 0
+                "y": 6
             },
             "id": 7,
             "interval": "1s",
@@ -617,7 +677,7 @@
             "pluginVersion": "8.0.0-beta2",
             "targets": [
                 {
-                    "expr": "sum(count_over_time(({ins=\"$ins\", job=\"$job\"} |~ \"$search\")[$__interval]))",
+                    "expr": "sum(count_over_time(({ins=\"$ins\", src=\"$src\"} |~ \"$search\")[$__interval]))",
                     "legendFormat": "logs per $__interval",
                     "refId": "A"
                 }
@@ -628,12 +688,26 @@
             "type": "timeseries"
         },
         {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 14
+            },
+            "id": 13,
+            "panels": [],
+            "title": "Log Entries",
+            "type": "row"
+        },
+        {
             "datasource": "Loki",
             "gridPos": {
                 "h": 18,
                 "w": 24,
                 "x": 0,
-                "y": 8
+                "y": 15
             },
             "id": 2,
             "options": {
@@ -647,7 +721,7 @@
             "pluginVersion": "7.5.4",
             "targets": [
                 {
-                    "expr": "{ins=\"$ins\", job=\"$job\"} |~ \"$search\"",
+                    "expr": "{ins=\"$ins\", src=\"$src\"} |~ \"$search\"",
                     "instant": false,
                     "range": true,
                     "refId": "A"
@@ -675,24 +749,7 @@
                 "datasource": "Loki",
                 "definition": "label_values(ins)",
                 "description": null,
-                "error": {
-                    "config": {
-                        "headers": {
-                            "X-Grafana-Org-Id": 1
-                        },
-                        "hideFromInspector": true,
-                        "retry": 0,
-                        "url": "api/datasources/proxy/4/loki/api/v1/label/ins/values?start=1625606051406000000&end=1625627651406000000"
-                    },
-                    "data": {
-                        "error": "Bad Gateway",
-                        "message": "Bad Gateway",
-                        "response": ""
-                    },
-                    "message": "Bad Gateway",
-                    "status": 502,
-                    "statusText": "Bad Gateway"
-                },
+                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Instance",
@@ -713,33 +770,16 @@
                 "allValue": ".*",
                 "current": {},
                 "datasource": "Loki",
-                "definition": "label_values({ins=\"$ins\"},job)",
+                "definition": "label_values({ins=\"$ins\"}, src)",
                 "description": null,
-                "error": {
-                    "config": {
-                        "headers": {
-                            "X-Grafana-Org-Id": 1
-                        },
-                        "hideFromInspector": true,
-                        "retry": 0,
-                        "url": "api/datasources/proxy/4/loki/api/v1/label/job/values?start=1625606051417000000&end=1625627651417000000"
-                    },
-                    "data": {
-                        "error": "Bad Gateway",
-                        "message": "Bad Gateway",
-                        "response": ""
-                    },
-                    "message": "Bad Gateway",
-                    "status": 502,
-                    "statusText": "Bad Gateway"
-                },
+                "error": null,
                 "hide": 0,
                 "includeAll": false,
-                "label": "Log Type",
+                "label": "Source",
                 "multi": false,
-                "name": "job",
+                "name": "src",
                 "options": [],
-                "query": "label_values({ins=\"$ins\"},job)",
+                "query": "label_values({ins=\"$ins\"}, src)",
                 "refresh": 2,
                 "regex": "",
                 "skipUrlSync": false,
@@ -770,12 +810,13 @@
         ]
     },
     "time": {
-        "from": "now-6h",
+        "from": "now-1h",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "PGLOG Instance",
     "uid": "pglog-instance",
-    "version": 2
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }
