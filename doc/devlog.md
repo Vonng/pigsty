@@ -1,11 +1,16 @@
 # Dev Log
 
+## 2020-07-07
+
+* use [acpgh].pigsty as placeholder, passing `nginx_upstream` via environ, replace http host when provisioning dashboards
+
 
 ## 2020-07-07
 
 * Add baidu netdisk download for mainland China
   百度云盘 链接: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw 提取码: 8su9
-
+* Grafana static provision have some down-sides: root privileges / can't update home dashboard. I wonder if we could switch to API provisioning instead.
+* Use pure python for grafana provisioning `grafana.py`
 
 
 ## 2020-07-06

@@ -505,6 +505,13 @@ upload:
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
 
+ut: upload-test
+upload-test: release
+	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
+	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
+	ssh -t meta "cd pigsty && ./configure -m demo4"
+
 ul: upload-latest
 upload-latest: release-latest
 	scp "dist/latest/pigsty.tgz" meta:/home/vagrant/pigsty.tgz

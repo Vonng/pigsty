@@ -15,11 +15,10 @@
 - name: Remake grafana resource dir
   file: path={{ item }} state=directory owner=grafana group=root mode=0775
   with_items:
-    - /etc/dashboards/
     - /etc/grafana/
+    - /etc/dashboards                              # default dashboards dir
     - /etc/grafana/provisioning/dashboards
     - /etc/grafana/provisioning/datasources
-
 
 #---------------------------#
 # Templating new config     #
@@ -32,12 +31,5 @@
 
 - name: Templating dashboards provisioning config
   template: src=dashboards-pigsty.yml dest=/etc/grafana/provisioning/dashboards/pigsty.yml owner=grafana group=grafana
-
-
-#---------------------------#
-# Copy home dashboard       #
-#---------------------------#
-- name: Copy pigsty home dashboard
-  copy: src=home.json dest=/etc/pigsty/dashboards/home.json owner=grafana
 
 ...
