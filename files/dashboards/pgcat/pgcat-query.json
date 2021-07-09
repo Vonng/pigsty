@@ -1,0 +1,2501 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "PostgreSQL Catalog Explorer for Query",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1625831574671,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Overview"
+            ],
+            "targetBlank": false,
+            "title": "Overview",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Cluster"
+            ],
+            "targetBlank": false,
+            "title": "Cluster",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Instance"
+            ],
+            "targetBlank": false,
+            "title": "Instance",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "Database"
+            ],
+            "targetBlank": false,
+            "title": "Database",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        }
+    ],
+    "panels": [
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "ins = ${ins}, used as unique instance identifier. Formed as {{ cls }}-{{ seq }}. ",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Instance for ${ins}",
+                            "url": "/d/pgsql-instance?var-ins=${ins}&var-cls=${cls}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "id": 76,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Instance",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Value": "${ins}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Database name",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Database for ${datname}",
+                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${datname}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 4,
+                "y": 0
+            },
+            "id": 48,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Database",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${datname}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Query identifier generated from plan",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query for ${query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-datname=${datname}&var-query=${query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 11,
+                "x": 8,
+                "y": 0
+            },
+            "id": 50,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Query Identifier",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${query}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "${dsn}",
+            "description": "Users list that runs this query",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 5,
+                "x": 19,
+                "y": 0
+            },
+            "id": 63,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT array_agg(u.usename)::TEXT\nFROM monitor.pg_stat_statements s LEFT OUTER JOIN pg_user u ON s.userid = u.usesysid\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Users",
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 12,
+                "w": 14,
+                "x": 0,
+                "y": 2
+            },
+            "id": 57,
+            "options": {
+                "content": "```sql\n${qs}\n```",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "",
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Query String",
+            "type": "text"
+        },
+        {
+            "datasource": "$dsn",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": ""
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Exec Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "custom.width"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 5,
+                "x": 14,
+                "y": 2
+            },
+            "id": 67,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' ORDER BY calls DESC LIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "blk_read_time": true,
+                            "blk_write_time": true,
+                            "calls": true,
+                            "dbid": true,
+                            "local_blks_dirtied": true,
+                            "local_blks_hit": true,
+                            "local_blks_read": true,
+                            "local_blks_written": true,
+                            "max_exec_time": false,
+                            "max_plan_time": true,
+                            "mean_exec_time": false,
+                            "mean_plan_time": true,
+                            "min_exec_time": false,
+                            "min_plan_time": true,
+                            "plans": true,
+                            "query": true,
+                            "queryid": true,
+                            "rows": true,
+                            "shared_blks_dirtied": true,
+                            "shared_blks_hit": true,
+                            "shared_blks_read": true,
+                            "shared_blks_written": true,
+                            "stddev_exec_time": false,
+                            "stddev_plan_time": true,
+                            "temp_blks_read": true,
+                            "temp_blks_written": true,
+                            "toplevel": true,
+                            "total_exec_time": false,
+                            "total_plan_time": true,
+                            "usename": true,
+                            "userid": true,
+                            "wal_bytes": true,
+                            "wal_fpi": true,
+                            "wal_records": true
+                        },
+                        "indexByName": {
+                            "blk_read_time": 28,
+                            "blk_write_time": 29,
+                            "calls": 11,
+                            "dbid": 1,
+                            "local_blks_dirtied": 24,
+                            "local_blks_hit": 22,
+                            "local_blks_read": 23,
+                            "local_blks_written": 25,
+                            "max_exec_time": 15,
+                            "max_plan_time": 8,
+                            "mean_exec_time": 12,
+                            "mean_plan_time": 9,
+                            "min_exec_time": 14,
+                            "min_plan_time": 7,
+                            "plans": 5,
+                            "query": 4,
+                            "queryid": 3,
+                            "rows": 17,
+                            "shared_blks_dirtied": 20,
+                            "shared_blks_hit": 18,
+                            "shared_blks_read": 19,
+                            "shared_blks_written": 21,
+                            "stddev_exec_time": 13,
+                            "stddev_plan_time": 10,
+                            "temp_blks_read": 26,
+                            "temp_blks_written": 27,
+                            "toplevel": 2,
+                            "total_exec_time": 16,
+                            "total_plan_time": 6,
+                            "usename": 33,
+                            "userid": 0,
+                            "wal_bytes": 32,
+                            "wal_fpi": 31,
+                            "wal_records": 30
+                        },
+                        "renameByName": {
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "max_exec_time": "max",
+                            "mean_exec_time": "\u00b5",
+                            "min_exec_time": "min",
+                            "oid": "Relation OID",
+                            "relam": "Access Method ID",
+                            "relfilenode": "Rel Filenode",
+                            "relnamespace": "Schema OID",
+                            "reloftype": "Comptype OID",
+                            "relowner": "Owner OID",
+                            "reltablespace": "Tablespace OID",
+                            "reltoastrelid": "Toast Table OID",
+                            "reltype": "Reltype OID",
+                            "stddev_exec_time": "\u03c3",
+                            "total_exec_time": "sum",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Exec Time",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$dsn",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": ""
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Metric"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 18,
+                "w": 5,
+                "x": 19,
+                "y": 2
+            },
+            "id": 74,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' ORDER BY calls DESC LIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "blk_read_time": false,
+                            "blk_write_time": false,
+                            "calls": false,
+                            "dbid": true,
+                            "local_blks_dirtied": false,
+                            "local_blks_hit": false,
+                            "local_blks_read": false,
+                            "local_blks_written": false,
+                            "max_exec_time": true,
+                            "max_plan_time": true,
+                            "mean_exec_time": true,
+                            "mean_plan_time": true,
+                            "min_exec_time": true,
+                            "min_plan_time": true,
+                            "plans": false,
+                            "query": true,
+                            "queryid": true,
+                            "rows": false,
+                            "shared_blks_dirtied": false,
+                            "shared_blks_hit": false,
+                            "shared_blks_read": false,
+                            "shared_blks_written": false,
+                            "stddev_exec_time": true,
+                            "stddev_plan_time": true,
+                            "temp_blks_read": false,
+                            "temp_blks_written": false,
+                            "toplevel": true,
+                            "total_exec_time": true,
+                            "total_plan_time": true,
+                            "usename": true,
+                            "userid": true,
+                            "wal_bytes": false,
+                            "wal_fpi": false,
+                            "wal_records": false
+                        },
+                        "indexByName": {
+                            "blk_read_time": 28,
+                            "blk_write_time": 29,
+                            "calls": 11,
+                            "dbid": 1,
+                            "local_blks_dirtied": 24,
+                            "local_blks_hit": 22,
+                            "local_blks_read": 23,
+                            "local_blks_written": 25,
+                            "max_exec_time": 15,
+                            "max_plan_time": 9,
+                            "mean_exec_time": 12,
+                            "mean_plan_time": 6,
+                            "min_exec_time": 14,
+                            "min_plan_time": 8,
+                            "plans": 5,
+                            "query": 4,
+                            "queryid": 3,
+                            "rows": 17,
+                            "shared_blks_dirtied": 20,
+                            "shared_blks_hit": 18,
+                            "shared_blks_read": 19,
+                            "shared_blks_written": 21,
+                            "stddev_exec_time": 13,
+                            "stddev_plan_time": 7,
+                            "temp_blks_read": 26,
+                            "temp_blks_written": 27,
+                            "toplevel": 2,
+                            "total_exec_time": 16,
+                            "total_plan_time": 10,
+                            "usename": 33,
+                            "userid": 0,
+                            "wal_bytes": 32,
+                            "wal_fpi": 31,
+                            "wal_records": 30
+                        },
+                        "renameByName": {
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "max_exec_time": "",
+                            "max_plan_time": "",
+                            "mean_exec_time": "",
+                            "mean_plan_time": "",
+                            "min_exec_time": "",
+                            "min_plan_time": "",
+                            "oid": "Relation OID",
+                            "relam": "Access Method ID",
+                            "relfilenode": "Rel Filenode",
+                            "relnamespace": "Schema OID",
+                            "reloftype": "Comptype OID",
+                            "relowner": "Owner OID",
+                            "reltablespace": "Tablespace OID",
+                            "reltoastrelid": "Toast Table OID",
+                            "reltype": "Reltype OID",
+                            "stddev_exec_time": "",
+                            "stddev_plan_time": "",
+                            "total_exec_time": "",
+                            "total_plan_time": "",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Metric",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "$dsn",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": ""
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "orange",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Exec Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Plan Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 95
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 5,
+                "x": 14,
+                "y": 8
+            },
+            "id": 69,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' ORDER BY calls DESC LIMIT 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "blk_read_time": true,
+                            "blk_write_time": true,
+                            "calls": true,
+                            "dbid": true,
+                            "local_blks_dirtied": true,
+                            "local_blks_hit": true,
+                            "local_blks_read": true,
+                            "local_blks_written": true,
+                            "max_exec_time": true,
+                            "max_plan_time": false,
+                            "mean_exec_time": true,
+                            "mean_plan_time": false,
+                            "min_exec_time": true,
+                            "min_plan_time": false,
+                            "plans": true,
+                            "query": true,
+                            "queryid": true,
+                            "rows": true,
+                            "shared_blks_dirtied": true,
+                            "shared_blks_hit": true,
+                            "shared_blks_read": true,
+                            "shared_blks_written": true,
+                            "stddev_exec_time": true,
+                            "stddev_plan_time": false,
+                            "temp_blks_read": true,
+                            "temp_blks_written": true,
+                            "toplevel": true,
+                            "total_exec_time": true,
+                            "total_plan_time": false,
+                            "usename": true,
+                            "userid": true,
+                            "wal_bytes": true,
+                            "wal_fpi": true,
+                            "wal_records": true
+                        },
+                        "indexByName": {
+                            "blk_read_time": 28,
+                            "blk_write_time": 29,
+                            "calls": 11,
+                            "dbid": 1,
+                            "local_blks_dirtied": 24,
+                            "local_blks_hit": 22,
+                            "local_blks_read": 23,
+                            "local_blks_written": 25,
+                            "max_exec_time": 15,
+                            "max_plan_time": 9,
+                            "mean_exec_time": 12,
+                            "mean_plan_time": 6,
+                            "min_exec_time": 14,
+                            "min_plan_time": 8,
+                            "plans": 5,
+                            "query": 4,
+                            "queryid": 3,
+                            "rows": 17,
+                            "shared_blks_dirtied": 20,
+                            "shared_blks_hit": 18,
+                            "shared_blks_read": 19,
+                            "shared_blks_written": 21,
+                            "stddev_exec_time": 13,
+                            "stddev_plan_time": 7,
+                            "temp_blks_read": 26,
+                            "temp_blks_written": 27,
+                            "toplevel": 2,
+                            "total_exec_time": 16,
+                            "total_plan_time": 10,
+                            "usename": 33,
+                            "userid": 0,
+                            "wal_bytes": 32,
+                            "wal_fpi": 31,
+                            "wal_records": 30
+                        },
+                        "renameByName": {
+                            "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
+                            "max_exec_time": "max",
+                            "max_plan_time": "max",
+                            "mean_exec_time": "\u00b5",
+                            "mean_plan_time": "\u00b5",
+                            "min_exec_time": "min",
+                            "min_plan_time": "min",
+                            "oid": "Relation OID",
+                            "relam": "Access Method ID",
+                            "relfilenode": "Rel Filenode",
+                            "relnamespace": "Schema OID",
+                            "reloftype": "Comptype OID",
+                            "relowner": "Owner OID",
+                            "reltablespace": "Tablespace OID",
+                            "reltoastrelid": "Toast Table OID",
+                            "reltype": "Reltype OID",
+                            "stddev_exec_time": "\u03c3",
+                            "stddev_plan_time": "\u03c3",
+                            "total_exec_time": "sum",
+                            "total_plan_time": "sum",
+                            "value": "\u53d6\u503c"
+                        }
+                    }
+                },
+                {
+                    "id": "reduce",
+                    "options": {
+                        "reducers": [
+                            "lastNotNull"
+                        ]
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Field": "Plan Time",
+                            "Last (not null)": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "15m"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 20
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "5m"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-orange",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "1m"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-green",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.showPoints",
+                                "value": "always"
+                            },
+                            {
+                                "id": "custom.pointSize",
+                                "value": 3
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 10,
+                "x": 0,
+                "y": 14
+            },
+            "id": 78,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0-beta2",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}",
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "1m",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "rate(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m])",
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "5m",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "rate(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "15m",
+                    "refId": "C"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "QPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "15m"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 20
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "5m"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-orange",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "1m"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-purple",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.showPoints",
+                                "value": "always"
+                            },
+                            {
+                                "id": "custom.pointSize",
+                                "value": 3
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 9,
+                "x": 10,
+                "y": 14
+            },
+            "id": 80,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0-beta2",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[1m]) / increase(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[1m])",
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "1m",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m]) / increase(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[5m])",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "5m",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) / increase(pg_query_calls{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "15m",
+                    "refId": "C"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "RT",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "${dsn}",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "${__data.fields.SQL}",
+                                        "url": "/d/pgsql-query?var-ins=${ins}&var-datname=${datname}&var-query=${__data.fields.Query}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 180
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "auto"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PG Database ${__data.fields.Database}",
+                                        "url": "/d/pg-database?var-ins=${ins}&var-datname=${__data.fields.Database}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "User"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*_time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "super-light-blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "blue",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "light-green",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 10
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 100
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1000
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 60000
+                                        },
+                                        {
+                                            "color": "rgb(80, 6, 94)",
+                                            "value": 600000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*_blks_.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "calls"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/wal_.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "wal_bytes"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "decbytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TOP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "yellow",
+                                                "index": 0,
+                                                "text": "F"
+                                            },
+                                            "true": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "T"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "plans"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 57
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "id": 61,
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "mean_exec_time"
+                    }
+                ]
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT s.*, u.usename\nFROM monitor.pg_stat_statements s LEFT OUTER JOIN pg_user u ON s.userid = u.usesysid\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Statements Stat for ${query}",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "dbid": true,
+                            "local_blks_dirtied": true,
+                            "local_blks_hit": true,
+                            "local_blks_read": true,
+                            "local_blks_written": true,
+                            "max_plan_time": false,
+                            "mean_plan_time": false,
+                            "min_plan_time": false,
+                            "plans": false,
+                            "qid": true,
+                            "query": true,
+                            "queryid": true,
+                            "shared_blks_dirtied": false,
+                            "shared_blks_hit": false,
+                            "shared_blks_read": false,
+                            "shared_blks_written": false,
+                            "stddev_exec_time": false,
+                            "stddev_plan_time": false,
+                            "temp_blks_read": true,
+                            "temp_blks_written": true,
+                            "total_plan_time": false,
+                            "userid": true
+                        },
+                        "indexByName": {
+                            "blk_read_time": 28,
+                            "blk_write_time": 29,
+                            "calls": 5,
+                            "dbid": 2,
+                            "local_blks_dirtied": 24,
+                            "local_blks_hit": 22,
+                            "local_blks_read": 23,
+                            "local_blks_written": 25,
+                            "max_exec_time": 15,
+                            "max_plan_time": 10,
+                            "mean_exec_time": 16,
+                            "mean_plan_time": 11,
+                            "min_exec_time": 14,
+                            "min_plan_time": 9,
+                            "plans": 7,
+                            "query": 4,
+                            "queryid": 0,
+                            "rows": 6,
+                            "shared_blks_dirtied": 20,
+                            "shared_blks_hit": 18,
+                            "shared_blks_read": 19,
+                            "shared_blks_written": 21,
+                            "stddev_exec_time": 17,
+                            "stddev_plan_time": 12,
+                            "temp_blks_read": 26,
+                            "temp_blks_written": 27,
+                            "toplevel": 33,
+                            "total_exec_time": 13,
+                            "total_plan_time": 8,
+                            "usename": 3,
+                            "userid": 1,
+                            "wal_bytes": 32,
+                            "wal_fpi": 31,
+                            "wal_records": 30
+                        },
+                        "renameByName": {
+                            "calls": "",
+                            "datname": "Database",
+                            "dbid": "DB",
+                            "plans": "",
+                            "qid": "Query",
+                            "query": "SQL",
+                            "queryid": "",
+                            "toplevel": "TOP",
+                            "total_plan_time": "",
+                            "usename": "User",
+                            "userid": ""
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 24
+            },
+            "id": 55,
+            "panels": [],
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "datasource": "${dsn}",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "${__data.fields.SQL}",
+                                        "url": "/d/pgcat-query?var-dsn=${ins}.${datname}&var-query=${__data.fields.Query}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 180
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "auto"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "User"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 64
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*_time/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "ms"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": ""
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "semi-dark-green",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 8
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 60000
+                                        },
+                                        {
+                                            "color": "rgb(80, 6, 94)",
+                                            "value": 600000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*_blks_.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "calls"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "rows"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/wal_.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "wal_bytes"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "decbytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TOP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "yellow",
+                                                "index": 0,
+                                                "text": "F"
+                                            },
+                                            "true": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "T"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 14,
+                "w": 24,
+                "x": 0,
+                "y": 25
+            },
+            "id": 53,
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "calls"
+                    }
+                ]
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT queryid::TEXT AS qid, *\nFROM monitor.pg_stat_statements s\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND\nuserid != 10 LIMIT 10;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Statements",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "dbid": true,
+                            "local_blks_dirtied": true,
+                            "local_blks_hit": true,
+                            "local_blks_read": true,
+                            "local_blks_written": true,
+                            "max_plan_time": true,
+                            "mean_plan_time": true,
+                            "min_plan_time": true,
+                            "plans": true,
+                            "queryid": true,
+                            "shared_blks_dirtied": true,
+                            "shared_blks_hit": true,
+                            "shared_blks_read": true,
+                            "shared_blks_written": true,
+                            "stddev_exec_time": true,
+                            "stddev_plan_time": true,
+                            "temp_blks_read": true,
+                            "temp_blks_written": true,
+                            "total_plan_time": true,
+                            "userid": true
+                        },
+                        "indexByName": {
+                            "blk_read_time": 29,
+                            "blk_write_time": 30,
+                            "calls": 6,
+                            "datname": 1,
+                            "dbid": 3,
+                            "local_blks_dirtied": 25,
+                            "local_blks_hit": 23,
+                            "local_blks_read": 24,
+                            "local_blks_written": 26,
+                            "max_exec_time": 16,
+                            "max_plan_time": 11,
+                            "mean_exec_time": 17,
+                            "mean_plan_time": 12,
+                            "min_exec_time": 15,
+                            "min_plan_time": 10,
+                            "plans": 8,
+                            "qid": 0,
+                            "query": 5,
+                            "queryid": 4,
+                            "rows": 7,
+                            "shared_blks_dirtied": 21,
+                            "shared_blks_hit": 19,
+                            "shared_blks_read": 20,
+                            "shared_blks_written": 22,
+                            "stddev_exec_time": 18,
+                            "stddev_plan_time": 13,
+                            "temp_blks_read": 27,
+                            "temp_blks_written": 28,
+                            "total_exec_time": 14,
+                            "total_plan_time": 9,
+                            "userid": 2,
+                            "wal_bytes": 33,
+                            "wal_fpi": 32,
+                            "wal_records": 31
+                        },
+                        "renameByName": {
+                            "calls": "",
+                            "datname": "Database",
+                            "dbid": "DB",
+                            "plans": "",
+                            "qid": "Query",
+                            "query": "SQL",
+                            "queryid": "",
+                            "toplevel": "TOP",
+                            "total_plan_time": "",
+                            "userid": "User"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "refresh": "",
+    "schemaVersion": 30,
+    "style": "light",
+    "tags": [
+        "Pigsty",
+        "PGCAT",
+        "Database",
+        "Query"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {},
+                "description": "Database Instance",
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Data Source",
+                "multi": false,
+                "name": "dsn",
+                "options": [],
+                "query": "postgres",
+                "queryValue": "",
+                "refresh": 1,
+                "regex": "/.*\\..*/",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT '${dsn}';",
+                "description": "Instance",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Instance",
+                "multi": false,
+                "name": "ins",
+                "options": [],
+                "query": "SELECT '${dsn}';",
+                "refresh": 2,
+                "regex": "/(\\S+)\\.\\S+/",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "$dsn",
+                "definition": "SELECT '${dsn}';",
+                "description": "Database name of this table",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Database",
+                "multi": false,
+                "name": "datname",
+                "options": [],
+                "query": "SELECT '${dsn}';",
+                "refresh": 1,
+                "regex": "/\\S+\\.(\\S+)/",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "$dsn",
+                "definition": "SELECT distinct queryid::TEXT FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND userid != 10 LIMIT 1000;",
+                "description": "Query Identifier",
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Query",
+                "multi": false,
+                "name": "query",
+                "options": [],
+                "query": "SELECT distinct queryid::TEXT FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND userid != 10 LIMIT 1000;",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "$dsn",
+                "definition": "SELECT query FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' LIMIT 1;",
+                "description": "Query SQL Content",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "",
+                "multi": false,
+                "name": "qs",
+                "options": [],
+                "query": "SELECT query FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' LIMIT 1;",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "2s",
+            "3s",
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ],
+        "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+        ]
+    },
+    "timezone": "",
+    "title": "PGCAT Query",
+    "uid": "pgcat-query",
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
+}

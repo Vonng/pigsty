@@ -1,8 +1,21 @@
 # Dev Log
 
-## 2020-07-07
+
+## 2020-07-09
+
+* now comes to the juice part, monitoring dashboard designing
+* add links between pgcat & pgsql, e.g table level dashboard
+* add a pgcat-query dashboard which aims at pg_stat_statements view
+* add alertmanager links on alert timeline panel
+* add links to graph, so user can click graphic element and jump to corresponding dashboard
+* finish pgsql-queries, and back port to pgsql query
+
+
+
+## 2020-07-08
 
 * use [acpgh].pigsty as placeholder, passing `nginx_upstream` via environ, replace http host when provisioning dashboards
+* add pgsql-queries dashboard which runs on instance level, focusing on instance pgbouncer queries and rt, table qps, query qps, etc...
 
 
 ## 2020-07-07
