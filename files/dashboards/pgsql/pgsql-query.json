@@ -12,13 +12,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PGSQL Query Dashboard",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625724923730,
+    "iteration": 1625814347344,
     "links": [
         {
             "asDropdown": true,
@@ -735,6 +734,7 @@
         },
         {
             "datasource": null,
+            "description": "Time spent on executing statements  during last 1 hour",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -747,7 +747,14 @@
                             "viz": false
                         }
                     },
-                    "mappings": []
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "unit": "short"
                 },
                 "overrides": []
             },
@@ -757,7 +764,7 @@
                 "x": 12,
                 "y": 14
             },
-            "id": 321,
+            "id": 340,
             "options": {
                 "legend": {
                     "displayMode": "table",
@@ -778,16 +785,20 @@
                     "mode": "single"
                 }
             },
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
                     "expr": "rate(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "{{ query }}",
                     "refId": "A"
                 }
             ],
-            "title": "Statement Time Spent in Last 1h",
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Statement Time Spent 1h",
             "type": "piechart"
         },
         {
@@ -1568,17 +1579,17 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}  OFFSET 450s",
+                    "expr": "avg_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) + 3 * stddev_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
                     "interval": "",
-                    "legendFormat": "QPS",
-                    "refId": "A"
+                    "legendFormat": "+3\u03c3",
+                    "refId": "E"
                 },
                 {
                     "exemplar": true,
-                    "expr": "avg_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "expr": "avg_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) - 3 * stddev_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
                     "interval": "",
-                    "legendFormat": "\u00b5",
-                    "refId": "B"
+                    "legendFormat": "-3\u03c3",
+                    "refId": "F"
                 },
                 {
                     "exemplar": true,
@@ -1596,17 +1607,17 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "avg_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) + 3 * stddev_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "expr": "avg_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
                     "interval": "",
-                    "legendFormat": "+3\u03c3",
-                    "refId": "E"
+                    "legendFormat": "\u00b5",
+                    "refId": "B"
                 },
                 {
                     "exemplar": true,
-                    "expr": "avg_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) - 3 * stddev_over_time(pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}  OFFSET 450s",
                     "interval": "",
-                    "legendFormat": "-3\u03c3",
-                    "refId": "F"
+                    "legendFormat": "QPS",
+                    "refId": "A"
                 }
             ],
             "timeFrom": null,
@@ -3126,5 +3137,6 @@
     "timezone": "",
     "title": "PGSQL Query",
     "uid": "pgsql-query",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }
