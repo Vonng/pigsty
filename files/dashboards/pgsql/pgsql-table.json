@@ -12,13 +12,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Single Table Dashboard",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625454118874,
+    "iteration": 1625820426053,
     "links": [
         {
             "asDropdown": true,
@@ -104,7 +103,12 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [],
+                    "links": [
+                        {
+                            "title": "PGCAT Table for table ${relname}",
+                            "url": "/d/pgcat-table?var-dsn=${ins}.${datname}&var-relname=${relname}"
+                        }
+                    ],
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
@@ -140,7 +144,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -225,7 +229,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -490,7 +494,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -613,7 +617,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -691,7 +695,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -769,7 +773,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -869,7 +873,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -942,7 +946,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -1013,7 +1017,6 @@
         },
         {
             "datasource": "Prometheus-PgSQL",
-            "description": "Scan on all tables on this database",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1024,21 +1027,21 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 82,
-                        "gradientMode": "hue",
+                        "fillOpacity": 50,
+                        "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
-                        "lineInterpolation": "smooth",
+                        "lineInterpolation": "linear",
                         "lineWidth": 0,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -1047,6 +1050,12 @@
                             "mode": "off"
                         }
                     },
+                    "links": [
+                        {
+                            "title": "PGSQL TABLE for ${__field.labels.relname}",
+                            "url": "/d/pgsql-table?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-relname=${__field.labels.relname}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -1058,56 +1067,9 @@
                             }
                         ]
                     },
-                    "unit": "short"
+                    "unit": "qps"
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Index"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineInterpolation",
-                                "value": "smooth"
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "blue",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Sequential"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineInterpolation",
-                                "value": "linear"
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 1
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "orange",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 6,
@@ -1115,27 +1077,28 @@
                 "x": 12,
                 "y": 7
             },
-            "id": 81,
+            "id": 83,
             "options": {
                 "legend": {
                     "calcs": [
                         "max"
                     ],
-                    "displayMode": "table",
-                    "placement": "right"
+                    "displayMode": "hidden",
+                    "placement": "bottom"
                 },
                 "tooltip": {
                     "mode": "single"
                 }
             },
-            "pluginVersion": "8.0.1",
+            "pluginVersion": "8.0.0",
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "pg:table:scan_rate1m{ins=\"$ins\", datname=\"$datname\"} > 0",
+                    "expr": "pg:table:scan_rate1m{ins=\"$ins\", datname=\"$datname\"}",
                     "interval": "",
+                    "intervalFactor": 2,
                     "legendFormat": "{{ relname }}",
-                    "refId": "A"
+                    "refId": "B"
                 }
             ],
             "timeFrom": null,
@@ -1184,7 +1147,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -1322,7 +1285,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -1444,7 +1407,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1590,7 +1553,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1750,7 +1713,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -1895,7 +1858,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2037,7 +2000,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2628,7 +2591,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2883,7 +2846,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -3012,7 +2975,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -3141,7 +3104,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -3270,7 +3233,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -3446,7 +3409,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -3488,7 +3451,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -3975,7 +3938,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -4062,7 +4025,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -4148,7 +4111,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -4234,7 +4197,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -4611,5 +4574,6 @@
     "timezone": "",
     "title": "PGSQL Table",
     "uid": "pgsql-table",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

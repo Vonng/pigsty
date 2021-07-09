@@ -12,13 +12,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Database Overview",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625724526376,
+    "iteration": 1625820853601,
     "links": [
         {
             "asDropdown": true,
@@ -2087,7 +2086,6 @@
         },
         {
             "datasource": "Prometheus-PgSQL",
-            "description": "Scan on all tables on this database",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2098,21 +2096,21 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 82,
-                        "gradientMode": "hue",
+                        "fillOpacity": 50,
+                        "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
-                        "lineInterpolation": "smooth",
+                        "lineInterpolation": "linear",
                         "lineWidth": 0,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -2121,6 +2119,12 @@
                             "mode": "off"
                         }
                     },
+                    "links": [
+                        {
+                            "title": "PGSQL TABLE for ${__field.labels.relname}",
+                            "url": "/d/pgsql-table?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-relname=${__field.labels.relname}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -2132,56 +2136,9 @@
                             }
                         ]
                     },
-                    "unit": "short"
+                    "unit": "qps"
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Index"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineInterpolation",
-                                "value": "smooth"
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "blue",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Sequential"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineInterpolation",
-                                "value": "linear"
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 1
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "orange",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 6,
@@ -2189,27 +2146,28 @@
                 "x": 6,
                 "y": 14
             },
-            "id": 104,
+            "id": 108,
             "options": {
                 "legend": {
                     "calcs": [
                         "max"
                     ],
-                    "displayMode": "table",
-                    "placement": "right"
+                    "displayMode": "hidden",
+                    "placement": "bottom"
                 },
                 "tooltip": {
                     "mode": "single"
                 }
             },
-            "pluginVersion": "8.0.1",
+            "pluginVersion": "8.0.0",
             "targets": [
                 {
                     "exemplar": true,
                     "expr": "pg:table:scan_rate1m{ins=\"$ins\", datname=\"$datname\"}",
                     "interval": "",
+                    "intervalFactor": 2,
                     "legendFormat": "{{ relname }}",
-                    "refId": "A"
+                    "refId": "B"
                 }
             ],
             "timeFrom": null,
@@ -2229,7 +2187,7 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 0,
+                        "fillOpacity": 40,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -2237,21 +2195,27 @@
                             "viz": false
                         },
                         "lineInterpolation": "linear",
-                        "lineWidth": 1,
+                        "lineWidth": 0,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
-                            "mode": "none"
+                            "mode": "normal"
                         },
                         "thresholdsStyle": {
                             "mode": "off"
                         }
                     },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -2260,14 +2224,10 @@
                             {
                                 "color": "green",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
-                    "unit": "ops"
+                    "unit": "qps"
                 },
                 "overrides": []
             },
@@ -2277,17 +2237,17 @@
                 "x": 16,
                 "y": 14
             },
-            "id": 106,
+            "id": 110,
             "options": {
                 "legend": {
                     "calcs": [
                         "max"
                     ],
-                    "displayMode": "table",
-                    "placement": "right"
+                    "displayMode": "hidden",
+                    "placement": "bottom"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "single"
                 }
             },
             "pluginVersion": "8.0.0",
@@ -2303,7 +2263,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Query Call",
+            "title": "Query QPS",
             "type": "timeseries"
         },
         {
@@ -4572,5 +4532,6 @@
     "timezone": "",
     "title": "PGSQL Database",
     "uid": "pgsql-database",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

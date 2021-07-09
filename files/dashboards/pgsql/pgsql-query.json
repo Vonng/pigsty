@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625814347344,
+    "iteration": 1625817553214,
     "links": [
         {
             "asDropdown": true,
@@ -92,97 +92,8 @@
             },
             "id": 289,
             "panels": [],
-            "title": "Queries",
+            "title": "Overview",
             "type": "row"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "ops"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 0,
-                "y": 1
-            },
-            "id": 141,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "pluginVersion": "8.0.0",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\"}",
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ query }}",
-                    "refId": "B"
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Query Call",
-            "type": "timeseries"
         },
         {
             "datasource": "Prometheus-PgSQL",
@@ -442,9 +353,9 @@
                 ]
             },
             "gridPos": {
-                "h": 13,
+                "h": 14,
                 "w": 12,
-                "x": 12,
+                "x": 0,
                 "y": 1
             },
             "id": 317,
@@ -555,6 +466,236 @@
             "type": "table"
         },
         {
+            "datasource": null,
+            "description": "Time spent on executing statements  during last 1 hour",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 1
+            },
+            "id": 340,
+            "options": {
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "values": [
+                        "percent"
+                    ]
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "rate(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ query }}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Statement Time Spent 1h",
+            "type": "piechart"
+        },
+        {
+            "datasource": null,
+            "description": "number of statement call in last 1 hour",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 8
+            },
+            "id": 342,
+            "options": {
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right",
+                    "values": [
+                        "percent",
+                        "value"
+                    ]
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "increase(pg_query_calls{ins=\"$ins\"}[1h])",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ query }}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Statement Call 1h",
+            "type": "piechart"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 15
+            },
+            "id": 345,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\"}",
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ query }}",
+                    "refId": "B"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Query Call",
+            "type": "timeseries"
+        },
+        {
             "datasource": "Prometheus-PgSQL",
             "fieldConfig": {
                 "defaults": {
@@ -580,7 +721,7 @@
                             "type": "linear"
                         },
                         "showPoints": "always",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -589,6 +730,12 @@
                             "mode": "off"
                         }
                     },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -597,10 +744,6 @@
                             {
                                 "color": "green",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     },
@@ -611,10 +754,10 @@
             "gridPos": {
                 "h": 7,
                 "w": 12,
-                "x": 0,
-                "y": 7
+                "x": 12,
+                "y": 15
             },
-            "id": 146,
+            "id": 348,
             "options": {
                 "legend": {
                     "calcs": [
@@ -655,6 +798,97 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
+                        "fillOpacity": 50,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 22
+            },
+            "id": 346,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\"}",
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ query }}",
+                    "refId": "B"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Query Call (Stacked)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
                         "fillOpacity": 40,
                         "gradientMode": "none",
                         "hideFrom": {
@@ -669,7 +903,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -678,6 +912,12 @@
                             "mode": "off"
                         }
                     },
+                    "links": [
+                        {
+                            "title": "PGSQL Query for ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -700,10 +940,10 @@
             "gridPos": {
                 "h": 7,
                 "w": 12,
-                "x": 0,
-                "y": 14
+                "x": 12,
+                "y": 22
             },
-            "id": 147,
+            "id": 351,
             "options": {
                 "legend": {
                     "calcs": [
@@ -729,77 +969,8 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Statement Time Spend per Second",
+            "title": "Statement Time Spent rate1m",
             "type": "timeseries"
-        },
-        {
-            "datasource": null,
-            "description": "Time spent on executing statements  during last 1 hour",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Query ${__field.labels.query}",
-                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                        }
-                    ],
-                    "mappings": [],
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 12,
-                "y": 14
-            },
-            "id": 340,
-            "options": {
-                "legend": {
-                    "displayMode": "table",
-                    "placement": "right",
-                    "values": [
-                        "percent"
-                    ]
-                },
-                "pieType": "pie",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "tooltip": {
-                    "mode": "single"
-                }
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "rate(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "{{ query }}",
-                    "refId": "A"
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Statement Time Spent 1h",
-            "type": "piechart"
         },
         {
             "collapsed": false,
@@ -808,15 +979,16 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 21
+                "y": 29
             },
             "id": 291,
             "panels": [],
-            "title": "Detail",
+            "title": "Query: ${query}",
             "type": "row"
         },
         {
             "datasource": "Prometheus-PgSQL",
+            "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -842,7 +1014,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -882,7 +1054,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "super-light-blue",
                                     "mode": "fixed"
                                 }
                             }
@@ -901,7 +1073,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "yellow",
+                                    "fixedColor": "super-light-orange",
                                     "mode": "fixed"
                                 }
                             }
@@ -916,7 +1088,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "super-light-green",
                                     "mode": "fixed"
                                 }
                             },
@@ -937,12 +1109,12 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 10,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 30
             },
-            "id": 329,
+            "id": 353,
             "options": {
                 "legend": {
                     "calcs": [
@@ -952,7 +1124,7 @@
                         "last"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "bottom"
                 },
                 "tooltip": {
                     "mode": "multi"
@@ -992,6 +1164,7 @@
         },
         {
             "datasource": "Prometheus-PgSQL",
+            "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1037,7 +1210,7 @@
                             }
                         ]
                     },
-                    "unit": "ms"
+                    "unit": "s"
                 },
                 "overrides": [
                     {
@@ -1057,7 +1230,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "orange",
+                                    "fixedColor": "super-light-blue",
                                     "mode": "fixed"
                                 }
                             }
@@ -1076,7 +1249,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "yellow",
+                                    "fixedColor": "super-light-orange",
                                     "mode": "fixed"
                                 }
                             }
@@ -1091,7 +1264,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "purple",
+                                    "fixedColor": "super-light-purple",
                                     "mode": "fixed"
                                 }
                             },
@@ -1112,12 +1285,12 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 30
             },
-            "id": 330,
+            "id": 355,
             "options": {
                 "legend": {
                     "calcs": [
@@ -1127,7 +1300,7 @@
                         "last"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "bottom"
                 },
                 "tooltip": {
                     "mode": "multi"
@@ -1194,7 +1367,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1243,7 +1416,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 0,
-                "y": 29
+                "y": 40
             },
             "id": 324,
             "options": {
@@ -1298,7 +1471,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1347,7 +1520,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 12,
-                "y": 29
+                "y": 40
             },
             "id": 325,
             "options": {
@@ -1396,12 +1569,12 @@
                         },
                         "lineInterpolation": "linear",
                         "lineWidth": 0,
-                        "pointSize": 5,
+                        "pointSize": 3,
                         "scaleDistribution": {
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1432,7 +1605,7 @@
                         "properties": [
                             {
                                 "id": "custom.lineWidth",
-                                "value": 2
+                                "value": 1
                             },
                             {
                                 "id": "custom.pointSize",
@@ -1453,7 +1626,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "green",
+                                    "fixedColor": "rgba(50, 117, 217, 0.4)",
                                     "mode": "fixed"
                                 }
                             }
@@ -1472,17 +1645,21 @@
                             {
                                 "id": "custom.lineStyle",
                                 "value": {
-                                    "fill": "solid"
+                                    "dash": [
+                                        15,
+                                        10
+                                    ],
+                                    "fill": "dash"
                                 }
                             },
                             {
                                 "id": "custom.lineWidth",
-                                "value": 3
+                                "value": 2
                             },
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "text",
                                     "mode": "fixed"
                                 }
                             }
@@ -1562,7 +1739,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 0,
-                "y": 34
+                "y": 45
             },
             "id": 285,
             "options": {
@@ -1652,7 +1829,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -1699,12 +1876,12 @@
                             },
                             {
                                 "id": "custom.pointSize",
-                                "value": 3
+                                "value": 2
                             },
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "super-light-red",
+                                    "fixedColor": "rgba(50, 117, 217, 0.8)",
                                     "mode": "fixed"
                                 }
                             }
@@ -1723,17 +1900,17 @@
                             {
                                 "id": "custom.lineStyle",
                                 "value": {
-                                    "fill": "solid"
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
                                 }
-                            },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 3
                             },
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "orange",
+                                    "fixedColor": "text",
                                     "mode": "fixed"
                                 }
                             }
@@ -1813,7 +1990,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 12,
-                "y": 34
+                "y": 45
             },
             "id": 326,
             "options": {
@@ -1830,17 +2007,17 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}  OFFSET 450s",
+                    "expr": "avg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) - 3 * stddev_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
                     "interval": "",
-                    "legendFormat": "RT",
-                    "refId": "A"
+                    "legendFormat": "-3\u03c3",
+                    "refId": "F"
                 },
                 {
                     "exemplar": true,
-                    "expr": "avg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "expr": "avg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) + 3 * stddev_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
                     "interval": "",
-                    "legendFormat": "\u00b5",
-                    "refId": "B"
+                    "legendFormat": "+3\u03c3",
+                    "refId": "E"
                 },
                 {
                     "exemplar": true,
@@ -1858,17 +2035,17 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "avg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) + 3 * stddev_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "expr": "avg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
                     "interval": "",
-                    "legendFormat": "+3\u03c3",
-                    "refId": "E"
+                    "legendFormat": "\u00b5",
+                    "refId": "B"
                 },
                 {
                     "exemplar": true,
-                    "expr": "avg_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m]) - 3 * stddev_over_time(pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}[15m])",
+                    "expr": "pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\", query=\"$query\"}  OFFSET 450s",
                     "interval": "",
-                    "legendFormat": "-3\u03c3",
-                    "refId": "F"
+                    "legendFormat": "RT",
+                    "refId": "A"
                 }
             ],
             "timeFrom": null,
@@ -1903,7 +2080,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2001,7 +2178,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 50
+                "y": 61
             },
             "id": 334,
             "options": {
@@ -2081,7 +2258,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2178,7 +2355,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 50
+                "y": 61
             },
             "id": 332,
             "options": {
@@ -2257,7 +2434,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2355,7 +2532,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 57
+                "y": 68
             },
             "id": 336,
             "options": {
@@ -2435,7 +2612,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2532,7 +2709,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 57
+                "y": 68
             },
             "id": 337,
             "options": {
@@ -2611,7 +2788,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2709,7 +2886,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 64
+                "y": 75
             },
             "id": 338,
             "options": {
@@ -2788,7 +2965,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": true,
+                        "spanNulls": false,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -2886,7 +3063,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 64
+                "y": 75
             },
             "id": 333,
             "options": {
@@ -2939,7 +3116,7 @@
             "type": "timeseries"
         }
     ],
-    "refresh": "1m",
+    "refresh": false,
     "schemaVersion": 30,
     "style": "light",
     "tags": [
