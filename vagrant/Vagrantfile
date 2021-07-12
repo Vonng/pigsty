@@ -28,6 +28,7 @@ Vagrant.configure("2") do |config|
                     "--nictype1", "virtio", "--nictype2", "virtio",
                     "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                 ]
+            v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
         end
         meta.vm.provision "shell", path: "provision.sh"
     end
@@ -44,8 +45,10 @@ Vagrant.configure("2") do |config|
                         "modifyvm", :id,
                         "--memory", 2048, "--cpus", "1",
                         "--nictype1", "virtio", "--nictype2", "virtio",
-                        "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
+                        "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on",
+
                     ]
+                v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
             end
             node.vm.provision "shell", path: "provision.sh"
         end
