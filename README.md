@@ -20,24 +20,24 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 
 ## Quick Start
 
-Run on a fresh CentOS 7 node to install pigsty (user must have nopass sudo privilege)  
+Run on a fresh CentOS 7 node to install pigsty (nopass sudo required)  
 
 ```bash
-curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~; cd ~/pigsty  # DOWNLOAD
+cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/latest/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
 make config    # CONFIGURE (interactive wizard)
-make install   # INSTALL infrasturcture on meta node
+make install   # INSTALL infrastructure on meta node
 ```
 
-Run on your **Mac** to get CentOS 7.8 nodes on your laptop (Pigsty Demo Env),
+Or, run on your **Mac** to launch vagrant + virtualbox sandbox
 
 ```bash
-make deps   # Install MacOS deps with homebrew
-make dns    # Write static DNS
-make start  # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
-make demo   # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
+make deps      # Install MacOS deps with homebrew
+make dns       # Write static DNS
+make start     # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
+make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
 ```
 
-Check [**Quick Start**](https://pigsty.cc/zh/docs/quick-start/) for more information.
+Check [**Quick Start**](https://pigsty.cc/en/docs/quick-start/) for more information.
 
 
 

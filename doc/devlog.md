@@ -1,4 +1,4 @@
-# Dev Log
+# Development Log
 
 ## 2021-07-12
 
@@ -27,7 +27,7 @@
 ## 2021-07-07
 
 * Add baidu netdisk download for mainland China
-  百度云盘 链接: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw 提取码: 8su9
+  https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw 8su9
 * Grafana static provision have some down-sides: root privileges / can't update home dashboard. I wonder if we could switch to API provisioning instead.
 * Use pure python for grafana provisioning `grafana.py`
 
@@ -51,9 +51,7 @@
 
 ## 2021-07-04
 
-* Milestone chart of Pigsty
-
-![](../img/milestone.svg)
+* [Milestone](milestone.md) chart of Pigsty
 
 
 ## 2021-06-30
