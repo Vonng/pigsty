@@ -12,7 +12,6 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Alerts",
     "editable": true,
     "gnetId": null,
@@ -90,9 +89,9 @@
                 "x": 0,
                 "y": 0
             },
-            "id": 7,
+            "id": 96,
             "panels": [],
-            "title": "Overview",
+            "title": "Alert: Prometheus",
             "type": "row"
         },
         {
@@ -104,6 +103,13 @@
                         "mode": "thresholds"
                     },
                     "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Alertmanager",
+                            "url": "http://a.pigsty/#/alerts"
+                        }
+                    ],
                     "mappings": [],
                     "max": 1,
                     "min": 0,
@@ -138,7 +144,7 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 5,
+                "w": 2,
                 "x": 0,
                 "y": 1
             },
@@ -158,7 +164,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -180,7 +186,89 @@
         },
         {
             "datasource": null,
-            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "purple",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 4,
+                "x": 2,
+                "y": 1
+            },
+            "id": 97,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"firing\"}) by (alertname, severity)",
+                    "interval": "",
+                    "legendFormat": "{{ alertname }}",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -189,6 +277,7 @@
                     "custom": {
                         "axisLabel": "",
                         "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
                         "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
@@ -217,6 +306,22 @@
                         }
                     },
                     "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
+                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}&viewPanel=78"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -228,39 +333,18 @@
                             }
                         ]
                     },
-                    "unit": "percentunit"
+                    "unit": "none"
                 },
                 "overrides": [
                     {
                         "matcher": {
                             "id": "byFrameRefID",
-                            "options": "B"
+                            "options": "A"
                         },
                         "properties": [
                             {
                                 "id": "custom.fillOpacity",
-                                "value": 20
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Alert"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
+                                "value": 66
                             }
                         ]
                     }
@@ -268,47 +352,485 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 19,
-                "x": 5,
+                "w": 18,
+                "x": 6,
                 "y": 1
             },
-            "id": 2,
+            "id": 93,
             "options": {
                 "legend": {
-                    "calcs": [],
+                    "calcs": [
+                        "last"
+                    ],
                     "displayMode": "table",
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "ALERTS{alertstate=\"firing\"}",
+                    "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
                     "interval": "",
-                    "legendFormat": "[{{ severity }}\u26a1\ufe0f] {{alertname}}  @ {{ cls }}",
+                    "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
                     "refId": "A"
                 },
                 {
                     "exemplar": true,
-                    "expr": "ALERTS{alertstate=\"pending\"}",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}} @ {{ cls }}",
-                    "refId": "B"
-                },
-                {
-                    "exemplar": true,
                     "expr": "0",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
                     "legendFormat": "Alert",
                     "refId": "C"
                 }
             ],
+            "title": "Firing Alerts",
             "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "max": -4,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alert"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 180
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "AlertInfo for ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                                        "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "State"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "firing": {
+                                                "color": "light-red",
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            },
+                                            "pending": {
+                                                "color": "light-orange",
+                                                "index": 1,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Level"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "P0"
+                                            },
+                                            "1": {
+                                                "color": "orange",
+                                                "index": 1,
+                                                "text": "P1"
+                                            },
+                                            "2": {
+                                                "color": "yellow",
+                                                "index": 2,
+                                                "text": "P2"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Severity"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "CRIT": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "Critical \u26a1\ufe0f"
+                                            },
+                                            "INFO": {
+                                                "color": "light-yellow",
+                                                "index": 2,
+                                                "text": "Info \u2139\ufe0f"
+                                            },
+                                            "WARN": {
+                                                "color": "super-light-orange",
+                                                "index": 1,
+                                                "text": "Warning \u26a0\ufe0f"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Category"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "infra": {
+                                                "color": "orange",
+                                                "index": 2,
+                                                "text": "INFRA"
+                                            },
+                                            "node": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "NODE"
+                                            },
+                                            "pgsql": {
+                                                "color": "light-blue",
+                                                "index": 0,
+                                                "text": "PGSQL"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Ins"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 98
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Active"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 66
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Severity"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster for ${cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${__data.fields.Instance}",
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 79
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Database for ${__data.fields.Database} on ${__data.fields.Instance}",
+                                        "url": "/d/pgsql-database?var-ins=${__data.fields.Instance}&var-datname=${__data.fields.Database}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Silence"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Silence ${__data.fields.Alert} on Cluster ${__data.fields.Cluster}",
+                                        "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "silence"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Agent"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 126
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 24,
+                "x": 0,
+                "y": 8
+            },
+            "id": 94,
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Level"
+                    }
+                ]
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "ALERTS",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Active Alerts",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Value": false,
+                            "__name__": true,
+                            "job": true
+                        },
+                        "indexByName": {
+                            "Time": 10,
+                            "Value": 9,
+                            "__name__": 12,
+                            "alertname": 0,
+                            "alertstate": 1,
+                            "category": 4,
+                            "cls": 5,
+                            "datname": 7,
+                            "ins": 6,
+                            "instance": 8,
+                            "job": 11,
+                            "level": 2,
+                            "severity": 3
+                        },
+                        "renameByName": {
+                            "Value": "Silence",
+                            "alertname": "Alert",
+                            "alertstate": "State",
+                            "category": "Category",
+                            "cls": "Cluster",
+                            "datname": "Database",
+                            "ins": "Instance",
+                            "instance": "Agent",
+                            "job": "",
+                            "level": "Level",
+                            "severity": "Severity"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 21
+            },
+            "id": 7,
+            "panels": [],
+            "title": "Alert (Grafana)",
+            "type": "row"
         },
         {
             "datasource": null,
@@ -316,7 +838,7 @@
                 "h": 18,
                 "w": 6,
                 "x": 0,
-                "y": 8
+                "y": 22
             },
             "id": 13,
             "options": {
@@ -337,7 +859,7 @@
                 },
                 "tags": []
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "title": "Alert",
             "type": "alertlist"
         },
@@ -347,7 +869,7 @@
                 "h": 18,
                 "w": 18,
                 "x": 6,
-                "y": 8
+                "y": 22
             },
             "id": 14,
             "options": {
@@ -368,7 +890,7 @@
                 },
                 "tags": []
             },
-            "pluginVersion": "8.0.3",
+            "pluginVersion": "8.0.4",
             "title": "Alert History",
             "type": "alertlist"
         },
@@ -379,7 +901,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 26
+                "y": 40
             },
             "id": 20,
             "panels": [],
@@ -487,7 +1009,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 27
+                "y": 41
             },
             "id": 32,
             "options": {
@@ -623,7 +1145,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 27
+                "y": 41
             },
             "id": 22,
             "options": {
@@ -665,7 +1187,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 35
+                "y": 49
             },
             "id": 16,
             "panels": [],
@@ -793,7 +1315,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 36
+                "y": 50
             },
             "id": 18,
             "options": {
@@ -835,7 +1357,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 44
+                "y": 58
             },
             "id": 53,
             "panels": [],
@@ -963,7 +1485,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 45
+                "y": 59
             },
             "id": 11,
             "options": {
@@ -1005,7 +1527,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 53
+                "y": 67
             },
             "id": 40,
             "panels": [],
@@ -1121,7 +1643,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 54
+                "y": 68
             },
             "id": 56,
             "options": {
@@ -1163,7 +1685,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 62
+                "y": 76
             },
             "id": 55,
             "panels": [],
@@ -1278,7 +1800,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 63
+                "y": 77
             },
             "id": 57,
             "options": {
@@ -1321,7 +1843,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 71
+                "y": 85
             },
             "id": 27,
             "panels": [],
@@ -1444,7 +1966,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 72
+                "y": 86
             },
             "id": 60,
             "options": {
@@ -1486,7 +2008,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 80
+                "y": 94
             },
             "id": 29,
             "panels": [],
@@ -1614,7 +2136,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 81
+                "y": 95
             },
             "id": 23,
             "options": {
@@ -1741,7 +2263,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 89
+                "y": 103
             },
             "id": 78,
             "options": {
@@ -1892,7 +2414,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 96
+                "y": 110
             },
             "id": 58,
             "options": {
@@ -2048,7 +2570,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 103
+                "y": 117
             },
             "id": 59,
             "options": {
@@ -2090,7 +2612,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 110
+                "y": 124
             },
             "id": 62,
             "panels": [],
@@ -2104,7 +2626,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 111
+                "y": 125
             },
             "id": 64,
             "panels": [],
@@ -2217,7 +2739,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 112
+                "y": 126
             },
             "id": 71,
             "options": {
@@ -2333,7 +2855,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 119
+                "y": 133
             },
             "id": 70,
             "options": {
@@ -2367,7 +2889,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 128
+                "y": 142
             },
             "id": 25,
             "panels": [],
@@ -2434,7 +2956,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 129
+                "y": 143
             },
             "id": 75,
             "options": {
@@ -2580,7 +3102,7 @@
                 "h": 7,
                 "w": 24,
                 "x": 0,
-                "y": 136
+                "y": 150
             },
             "id": 74,
             "options": {
@@ -2622,7 +3144,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 143
+                "y": 157
             },
             "id": 51,
             "panels": [],
@@ -2730,7 +3252,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 144
+                "y": 158
             },
             "id": 9,
             "options": {
@@ -2866,7 +3388,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 144
+                "y": 158
             },
             "id": 21,
             "options": {
@@ -2908,7 +3430,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 152
+                "y": 166
             },
             "id": 31,
             "panels": [],
@@ -3019,7 +3541,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 153
+                "y": 167
             },
             "id": 73,
             "options": {
@@ -3156,7 +3678,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 161
+                "y": 175
             },
             "id": 87,
             "options": {
@@ -3322,7 +3844,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 170
+                "y": 184
             },
             "id": 86,
             "options": {
@@ -3446,7 +3968,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 179
+                "y": 193
             },
             "id": 84,
             "options": {
@@ -3481,7 +4003,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 187
+                "y": 201
             },
             "id": 38,
             "panels": [],
@@ -3610,7 +4132,7 @@
                 "h": 11,
                 "w": 24,
                 "x": 0,
-                "y": 188
+                "y": 202
             },
             "id": 43,
             "options": {
@@ -3779,7 +4301,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 199
+                "y": 213
             },
             "id": 91,
             "options": {
@@ -3822,7 +4344,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 208
+                "y": 222
             },
             "id": 36,
             "panels": [],
@@ -3962,7 +4484,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 209
+                "y": 223
             },
             "id": 89,
             "options": {
@@ -4120,7 +4642,7 @@
                 "h": 11,
                 "w": 24,
                 "x": 0,
-                "y": 219
+                "y": 233
             },
             "id": 76,
             "options": {
@@ -4220,7 +4742,7 @@
                 "h": 11,
                 "w": 24,
                 "x": 0,
-                "y": 230
+                "y": 244
             },
             "id": 79,
             "options": {
@@ -4254,7 +4776,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 241
+                "y": 255
             },
             "id": 34,
             "panels": [],
@@ -4354,7 +4876,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 242
+                "y": 256
             },
             "id": 82,
             "options": {
@@ -4383,7 +4905,7 @@
             "type": "timeseries"
         }
     ],
-    "refresh": "1m",
+    "refresh": false,
     "schemaVersion": 30,
     "style": "light",
     "tags": [
@@ -4419,5 +4941,6 @@
     "timezone": "",
     "title": "PGSQL Alert",
     "uid": "pgsql-alert",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

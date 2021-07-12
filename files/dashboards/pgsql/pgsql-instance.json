@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625820984134,
+    "iteration": 1626069526870,
     "links": [
         {
             "asDropdown": true,
@@ -2580,6 +2580,7 @@
                     "custom": {
                         "axisLabel": "",
                         "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
                         "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
@@ -2608,6 +2609,26 @@
                         }
                     },
                     "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Instance ${ins}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bins%3D%22${ins}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${ins}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bins%3D%22${ins}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
+                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}"
+                        },
+                        {
+                            "title": "PGSQL Node for ${__field.labels.ins}",
+                            "url": "/d/pgsql-node?var-ins=${__field.labels.ins}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -2619,9 +2640,35 @@
                             }
                         ]
                     },
-                    "unit": "percentunit"
+                    "unit": "none"
                 },
                 "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
                     {
                         "matcher": {
                             "id": "byFrameRefID",
@@ -2630,28 +2677,29 @@
                         "properties": [
                             {
                                 "id": "custom.fillOpacity",
-                                "value": 20
+                                "value": 25
                             },
                             {
                                 "id": "color",
                                 "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.6)",
                                     "mode": "fixed"
                                 }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Alert"
-                        },
-                        "properties": [
+                            },
                             {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -2663,15 +2711,17 @@
                 "x": 9,
                 "y": 19
             },
-            "id": 52,
+            "id": 54,
             "options": {
                 "legend": {
-                    "calcs": [],
+                    "calcs": [
+                        "last"
+                    ],
                     "displayMode": "table",
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "targets": [
@@ -2679,12 +2729,12 @@
                     "exemplar": true,
                     "expr": "ALERTS{ins=\"$ins\", alertstate=\"firing\"}",
                     "interval": "",
-                    "legendFormat": "[{{ severity }}\u26a1\ufe0f] {{alertname}}",
+                    "legendFormat": "[{{ severity }}\ud83d\udd25] {{alertname}}",
                     "refId": "A"
                 },
                 {
                     "exemplar": true,
-                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"pending\"}",
+                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"pending\"} ",
                     "hide": false,
                     "interval": "",
                     "legendFormat": "[{{ severity }}\u23f0] {{alertname}}",
@@ -2693,7 +2743,7 @@
                 {
                     "exemplar": true,
                     "expr": "0",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
                     "legendFormat": "Alert",
                     "refId": "C"

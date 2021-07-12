@@ -12,13 +12,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PGSQL Node Instance Dashboard",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625726172750,
+    "iteration": 1626069568932,
     "links": [
         {
             "asDropdown": true,
@@ -3421,6 +3420,7 @@
                     "custom": {
                         "axisLabel": "",
                         "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
                         "axisSoftMin": 0,
                         "barAlignment": 0,
                         "drawStyle": "line",
@@ -3449,6 +3449,26 @@
                         }
                     },
                     "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Instance ${ins}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bins%3D%22${ins}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${ins}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bins%3D%22${ins}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
+                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}"
+                        },
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.ins}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                        }
+                    ],
                     "mappings": [],
                     "min": 0,
                     "thresholds": {
@@ -3460,9 +3480,35 @@
                             }
                         ]
                     },
-                    "unit": "percentunit"
+                    "unit": "none"
                 },
                 "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
                     {
                         "matcher": {
                             "id": "byFrameRefID",
@@ -3471,28 +3517,29 @@
                         "properties": [
                             {
                                 "id": "custom.fillOpacity",
-                                "value": 20
+                                "value": 25
                             },
                             {
                                 "id": "color",
                                 "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.6)",
                                     "mode": "fixed"
                                 }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Alert"
-                        },
-                        "properties": [
+                            },
                             {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -3504,37 +3551,39 @@
                 "x": 12,
                 "y": 13
             },
-            "id": 218,
+            "id": 227,
             "options": {
                 "legend": {
-                    "calcs": [],
+                    "calcs": [
+                        "last"
+                    ],
                     "displayMode": "table",
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "multi"
                 }
             },
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "ALERTS{cls=\"$cls\", alertstate=\"firing\", category=\"node\"}",
+                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"firing\", category=\"node\"}",
                     "interval": "",
-                    "legendFormat": "[{{ severity }}\u26a1\ufe0f] {{alertname}}  @ {{ ins }}",
+                    "legendFormat": "[{{ severity }}\ud83d\udd25] {{alertname}}",
                     "refId": "A"
                 },
                 {
                     "exemplar": true,
-                    "expr": "ALERTS{cls=\"$cls\", alertstate=\"pending\", category=\"node\"}",
+                    "expr": "ALERTS{ins=\"$ins\", alertstate=\"pending\", category=\"node\"} ",
                     "hide": false,
                     "interval": "",
-                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}} @ {{ ins }}",
+                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}}",
                     "refId": "B"
                 },
                 {
                     "exemplar": true,
                     "expr": "0",
-                    "hide": false,
+                    "hide": true,
                     "interval": "",
                     "legendFormat": "Alert",
                     "refId": "C"
@@ -12201,5 +12250,6 @@
     "timezone": "",
     "title": "PGSQL Node",
     "uid": "pgsql-node",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

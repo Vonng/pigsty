@@ -522,6 +522,29 @@
                 "x": 12,
                 "y": 0
             },
+            "id": 10,
+            "options": {
+                "folderId": null,
+                "maxItems": 50,
+                "query": "",
+                "showHeadings": false,
+                "showRecentlyViewed": false,
+                "showSearch": true,
+                "showStarred": false,
+                "tags": []
+            },
+            "pluginVersion": "8.0.4",
+            "title": "Dashboards",
+            "type": "dashlist"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 20,
+                "w": 6,
+                "x": 18,
+                "y": 0
+            },
             "id": 26,
             "options": {
                 "alertName": "",
@@ -544,29 +567,6 @@
             "pluginVersion": "8.0.4",
             "title": "Grafana Alerts",
             "type": "alertlist"
-        },
-        {
-            "datasource": null,
-            "gridPos": {
-                "h": 20,
-                "w": 6,
-                "x": 18,
-                "y": 0
-            },
-            "id": 10,
-            "options": {
-                "folderId": null,
-                "maxItems": 50,
-                "query": "",
-                "showHeadings": false,
-                "showRecentlyViewed": false,
-                "showSearch": true,
-                "showStarred": false,
-                "tags": []
-            },
-            "pluginVersion": "8.0.4",
-            "title": "Dashboards",
-            "type": "dashlist"
         },
         {
             "datasource": "Prometheus",
@@ -773,6 +773,19 @@
                         {
                             "title": "PGSQL Instance for ${__field.labels.ins}",
                             "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                        },
+                        {
+                            "title": "PGSQL Node for ${__field.labels.ins}",
+                            "url": "/d/pgsql-node?var-id=${__field.labels.ins}"
+                        },
+                        {
+                            "title": "PGSQL Proxy for ${__field.labels.ins}",
+                            "url": "/d/pgsql-proxy?var-ins=${__field.labels.ins}"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Alert Info for ${__field.labels.ins}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bins%3D%22${__field.labels.ins}%22%7D"
                         }
                     ],
                     "mappings": [],
@@ -945,270 +958,6 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster ${__field.labels.cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "-1": {
-                                    "color": "gray",
-                                    "index": 1,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "No Data"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.3
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.7
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "text",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 8,
-                "x": 0,
-                "y": 20
-            },
-            "id": 38,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single"
-                }
-            },
-            "pluginVersion": "8.0.0",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "ins:pressure1{}",
-                    "interval": "",
-                    "legendFormat": "{{ ins }}",
-                    "refId": "A"
-                }
-            ],
-            "type": "timeseries"
-        },
-        {
-            "datasource": null,
-            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "hidden",
-                        "axisSoftMin": 0,
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 98,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepBefore",
-                        "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 20
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Alert"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 10,
-                "x": 8,
-                "y": 20
-            },
-            "id": 12,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single"
-                }
-            },
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "ALERTS{alertstate=\"firing\"}",
-                    "interval": "",
-                    "legendFormat": "[{{ severity }}\u26a1\ufe0f] {{alertname}}  @ {{ ins }}",
-                    "refId": "A"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "ALERTS{alertstate=\"pending\"}",
-                    "hide": true,
-                    "interval": "",
-                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}} @ {{ cls }}",
-                    "refId": "B"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "0",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "Alert",
-                    "refId": "C"
-                }
-            ],
-            "type": "timeseries"
-        },
-        {
             "datasource": null,
             "description": "",
             "fieldConfig": {
@@ -1217,6 +966,13 @@
                         "mode": "thresholds"
                     },
                     "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Alertmanager",
+                            "url": "http://a.pigsty/#/alerts"
+                        }
+                    ],
                     "mappings": [],
                     "max": 1,
                     "min": 0,
@@ -1251,11 +1007,11 @@
             },
             "gridPos": {
                 "h": 7,
-                "w": 6,
-                "x": 18,
+                "w": 2,
+                "x": 0,
                 "y": 20
             },
-            "id": 32,
+            "id": 45,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -1290,6 +1046,211 @@
                 }
             ],
             "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "purple",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 4,
+                "x": 2,
+                "y": 20
+            },
+            "id": 47,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"firing\"}) by (alertname, severity)",
+                    "interval": "",
+                    "legendFormat": "{{ alertname }}",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 98,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
+                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}&viewPanel=78"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 18,
+                "x": 6,
+                "y": 20
+            },
+            "id": 43,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "0",
+                    "hide": true,
+                    "interval": "",
+                    "legendFormat": "Alert",
+                    "refId": "C"
+                }
+            ],
+            "title": "Firing Alerts",
+            "type": "timeseries"
         }
     ],
     "refresh": false,
