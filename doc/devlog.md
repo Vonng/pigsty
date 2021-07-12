@@ -1,7 +1,13 @@
 # Dev Log
 
+## 2021-07-12
 
-## 2020-07-09
+* alert panel now links to alertmanager
+* add click-able data-link to most graph
+* release pg_exporter v0.4.0 (remove beta)
+* adjust home & overview & cluster & instance layout
+
+## 2021-07-09
 
 * now comes to the juice part, monitoring dashboard designing
 * add links between pgcat & pgsql, e.g table level dashboard
@@ -12,13 +18,13 @@
 
 
 
-## 2020-07-08
+## 2021-07-08
 
 * use [acpgh].pigsty as placeholder, passing `nginx_upstream` via environ, replace http host when provisioning dashboards
 * add pgsql-queries dashboard which runs on instance level, focusing on instance pgbouncer queries and rt, table qps, query qps, etc...
 
 
-## 2020-07-07
+## 2021-07-07
 
 * Add baidu netdisk download for mainland China
   百度云盘 链接: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw 提取码: 8su9
@@ -26,7 +32,7 @@
 * Use pure python for grafana provisioning `grafana.py`
 
 
-## 2020-07-06
+## 2021-07-06
 
 * Use v1.0.0-alpha1 instead. Since the change are significant, it is not appropriate to use v0.10. 
 * Remove the crud haproxy index pages, using grafana table & data links instead 
@@ -36,21 +42,21 @@
 * Register datasource when create new database with `pgsql-createdb.yml`
 
 
-## 2020-07-05
+## 2021-07-05
 
 * Extract a new role named `register` to handler all interaction between pgsql & infra.
 * Extract a new role named `envrion` to setup meta node environment including: ssh, metadb, env vars, etc... 
 * Dashboard tags now have hierarchy:  `Pigsty` is the top tier, Application name `PGSQL` `PGLOG` is second tier 
   * `Overview`, `Cluster`, `Instance`,`Database` are filter with `Pigsty` and `<Level>` tags. which means the nav-link can cross multiple applications
 
-## 2020-07-04
+## 2021-07-04
 
 * Milestone chart of Pigsty
 
 ![](../img/milestone.svg)
 
 
-## 2020-06-30
+## 2021-06-30
 
 * Rough implementation on v0.10.0-alpha1
 * Setup environment for admin user (pgpass, pg_service, env vars,)
@@ -59,7 +65,7 @@
 * [Milestone](./milestone.md) planning.
 
 
-## 2020-06-29
+## 2021-06-29
 
 * Remake release system
 * Have a draft on application installation standard
@@ -68,21 +74,21 @@
 * remove grafana plugins, since lot's of them were covered in grafana 8.0
 
 
-## 2020-06-28
+## 2021-06-28
 
 * Remake alerting rules 
 
 
-## 2020-06-25
+## 2021-06-25
 
 * Remake infra-rules and pgsql-rules
 
-## 2020-06-23
+## 2021-06-23
 
 * Remake PGSQL node
 
 
-## 2020-06-10
+## 2021-06-10
 
 It's time to have an overhaul on monitoring system, which includes:
 * Upgrade `pg_exporter` to 0.4.0 , re-write metric definition and add support for PostgreSQL 14  
@@ -91,6 +97,6 @@ It's time to have an overhaul on monitoring system, which includes:
 * Redesign entire monitoring system to use new label system and embrace Grafana 8.0
 * Using grafana 8.0 new features
 
-## 2020-06-01
+## 2021-06-01
 
 Well it's good to write some dev logs.

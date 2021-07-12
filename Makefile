@@ -44,8 +44,7 @@ install:
 	./infra.yml -l ${CLS}
 ###############################################################
 # curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
-# curl -fsSL https://pigsty.cc/pigsty-beta.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
-# curl -fsSL https://pigsty.cc/pigsty-pro.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
+
 
 
 
@@ -153,9 +152,6 @@ pgsql:
 # install additional logging components
 logging: loki pgsql-promtail
 
-# upgrade to pg-meta dynamic inventory
-upgrade:
-	bin/upgrade
 
 #==============================================================#
 #                      Infra Sub Tasks                         #
@@ -177,13 +173,6 @@ repo-upstream:
 repo-download:
 	rm -rf /www/pigsty/repo_complete
 	./infra.yml -l ${CLS} --tags=repo_download
-
-#------------------------------#
-# nginx
-#------------------------------#
-# update haproxy admin proxy
-haproxy:
-	./infra.yml -l ${CLS} --tags=nginx_haproxy,nginx_restart
 
 #------------------------------#
 # prometheus
@@ -208,11 +197,28 @@ loki:
 	./infra-loki.yml -l ${CLS}
 
 
-
 #==============================================================#
 #                      PGSQL Sub Tasks                         #
 #==============================================================#
 # shortcuts for manage pgsql clusters
+
+#------------------------------#
+# register
+#------------------------------#
+# register all haproxy index proxy to meta nginx
+ha: haproxy-index
+haproxy-index:
+	./pgsql.yml -t register_nginx
+
+# register all pgsql datasource to meta grafana
+gf: grafana-datasource
+grafana-datasource:
+	./pgsql.yml -t register_grafana
+
+# register all monitoring targets to meta prometheus
+pmdst: prometheus-target
+prometheus-target:
+	./pgsql.yml -t register_prometheus
 
 #------------------------------#
 # construction
@@ -249,6 +255,10 @@ pgsql-monitor:
 pgsql-service:
 	./pgsql.yml -l ${CLS} --tags=service
 
+# init register
+pgsql-register:
+	./pgsql.yml -l ${CLS} --tags=register
+
 # install promtail (logging agent)
 pgsql-promtail:
 	./pgsql-promtail.yml -l ${CLS} --tags=service
@@ -257,14 +267,6 @@ pgsql-promtail:
 #------------------------------#
 # destruction
 #------------------------------#
-# remove pgsql node
-node-remove:
-	./node-remove.yml -l ${CLS}
-
-# remove dcs service
-dcs-remove:
-	./node-remove.yml -l ${CLS} --tags=dcs
-
 # remove postgres service
 pgsql-remove:
 	./pgsql-remove.yml -l ${CLS}
@@ -349,7 +351,7 @@ demo:
 # 4-node version
 demo4:
 	ssh meta "curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~"
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo4 --non-interactive --download'
+	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m default --non-interactive --download'
 	ssh meta 'cd ~/pigsty; make install'
 	ssh meta 'cd ~/pigsty; ./pgsql.yml -l pg-test'
 
@@ -484,12 +486,6 @@ test-rb3:
 ###############################################################
 
 #------------------------------#
-# datalets
-#------------------------------#
-datalets:
-	cd ~ && git clone https://github.com/Vonng/datalets
-
-#------------------------------#
 # resource
 #------------------------------#
 # fetch pigsty resources from internet to your own host
@@ -510,7 +506,7 @@ upload-test: release
 	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
-	ssh -t meta "cd pigsty && ./configure -m demo4"
+	ssh -t meta "cd pigsty && ./configure -m default"
 
 ul: upload-latest
 upload-latest: release-latest
@@ -536,18 +532,6 @@ copy-src:
 copy-pkg:
 	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
 
-# copy and test configure
-copy-cf:
-	scp configure meta:~/pigsty/configure
-	ssh meta "bash /home/vagrant/pigsty/configure -i 10.10.10.10"
-
-# debug grafana-echarts plugins
-copy-gf:
-	ssh meta "sudo rm -rf /var/lib/grafana/plugins/grafana-echarts/dist /tmp/dist"
-	scp -r ~/dev/grafana-echarts/dist meta:/tmp/dist
-	ssh meta "sudo mv /tmp/dist /var/lib/grafana/plugins/grafana-echarts/dist"
-	ssh meta "sudo systemctl restart grafana-server"
-
 ###############################################################
 
 
@@ -560,12 +544,8 @@ copy-gf:
 ###############################################################
 #                       8. Release                            #
 ###############################################################
-# make latest release
-r: release-latest
-release-latest:
-	bin/release latest
-
-# release source code tarball
+# make release
+r: release
 release:
 	bin/release ${VERSION}
 
@@ -604,14 +584,6 @@ cache:
 svg:
 	bin/svg
 
-# (re)install application pgsql
-app-pgsql:
-	./infra-app.yml -e app=pgsql
-
-# (re)install application cmdb
-app-cmdb:
-	./infra-app.yml -e app=cmdb
-
 ###############################################################
 
 
@@ -624,20 +596,22 @@ app-cmdb:
 ###############################################################
 .PHONY: default tip all download config install \
         pkg bin src beta pro ver \
-        c conf demo demo4 \
-        infra pgsql logging upgrade \
-        repo repo-upstream repo haproxy prometheus refresh grafana loki \
+        c conf \
+        infra pgsql logging \
+        repo repo-upstream repo prometheus grafana loki \
+        ha haproxy-index gf grafana-datasource pm prometheus-target \
         pgsql-init pgsql-node pgsql-dcs pgsql-postgres pgsql-pgbouncer \
-        pgsql-business pgsql-monitor pgsql-service pgsql-promtail \
-        node-remove dcs-remove pgsql-remove \
+        pgsql-business pgsql-monitor pgsql-service pgsql-register pgsql-promtail \
+        pgsql-remove \
         pg-user pg-db \
-        deps dns start start4 ssh \
-        up dw del new s up-test dw-test del-test new-test s-test sync sync-test sync4\
-        up4 dw4 del4 new4 s4 \
+        deps dns start start4 ssh demo demo4 \
+        up dw del new s sync up-test dw-test del-test new-test s-test sync sync-test \
+        up4 dw4 del4 new4 s4 sync4 \
         st status suspend resume \
-        rl ri rw ro rw2 ro2 r1 r2 r3 \
-        fetch upload copy copy-all copy-src copy-pro copy-pkg copy-ui copy-fui copy-cf \
-        r release rp release-pkg p publish pb publish-beta \
-        svg app-pgsql app-cmdb
+        ri rc rw ro test-list test-init test-clean test-rw test-ro test-rw2 test-ro2 test-rb1 test-rb2 test-rb3 \
+        fetch upload ut upload-test ul upload-latest \
+        copy copy-all copy-src copy-pkg \
+        r releast rp release-pkg p publish pb publish-beta cache \
+        svg
 
 ###############################################################

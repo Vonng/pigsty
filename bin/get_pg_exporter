@@ -4,11 +4,31 @@ set -euo pipefail
 #==============================================================#
 # File      :   get_pg_exporter
 # Ctime     :   2021-04-21
-# Mtime     :   2021-04-21
+# Mtime     :   2021-07-12
 # Desc      :   Get Node Exporter From Github Release
 # Path      :   bin/get_pg_exporter
 # Depend    :   curl
 # Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#==============================================================#
+# color log util
+#==============================================================#
+__CN='\033[0m'    # no color
+__CB='\033[0;30m' # black
+__CR='\033[0;31m' # red
+__CG='\033[0;32m' # green
+__CY='\033[0;33m' # yellow
+__CB='\033[0;34m' # blue
+__CM='\033[0;35m' # magenta
+__CC='\033[0;36m' # cyan
+__CW='\033[0;37m' # white
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 #==============================================================#
 
 function get_pg_exporter() {
@@ -33,7 +53,7 @@ function get_pg_exporter() {
 			                       [-h|--help]                      # print this message
 			EXAMPLES
 			    get_pg_exporter                  # get latest pg_exporter binary to /tmp/pg_exporter
-			    get_pg_exporter  -v 0.4.0        # get specific version of pg_exporter (0.3.2)
+			    get_pg_exporter  -v 0.4.0        # get specific version of pg_exporter (0.4.0)
 			    get_pg_exporter  -p /usr/bin/    # download binary to specific path `/usr/bin/`
 			    get_pg_exporter  -r              # force re-download and remove tarball after download
 			EOF
@@ -43,7 +63,7 @@ function get_pg_exporter() {
         -t|--tmpdir) tmpdir="$2" ; shift;;
         -r|--remove) remove="yes" ;;
         (--) shift; break;;
-        (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
+        (-*) log_error "$0: error - unrecognized option $1"; exit 1;;
         (*) break;;
         esac
         shift
@@ -51,12 +71,12 @@ function get_pg_exporter() {
 
 	# translate latest version into specific version with github API
 	if [[ ${version} == "latest" ]]; then
-		printf "\033[0;32m[INFO] get latest version of pg_exporter \033[0m\n" >&2
+		log_info "get latest version of pg_exporter"
 		version=$(curl --silent "https://api.github.com/repos/Vonng/pg_exporter/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
 		if [[ ${version} =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-			printf "\033[0;32m[INFO] latest version of pg_exporter is v${version}\033[0m\n" >&2
+			log_info "latest version of pg_exporter is v${version}"
 		else
-		    printf "\033[0;31m[INFO] fail to get latest pg_exporter version from github: $version \033[0m\n" >&2
+		    log_error "fail to get latest pg_exporter version from github: $version"
 		    exit 1
 		fi
 	fi
@@ -65,19 +85,17 @@ function get_pg_exporter() {
     local tarball="${filename}.tar.gz"
     local url="https://github.com/Vonng/pg_exporter/releases/download/v${version}/${tarball}"
 
-    printf "\033[0;32m[INFO] get pg_exporter binary v${version} to ${tmpdir} \033[0m\n" >&2
     if [[ ! -f ${tmpdir}/${tarball} || ${remove} == "yes" ]] ; then
-        printf "\033[0;32m[INFO] download binary ${tmpdir}/pg_exporter v${version} from ${url} to ${tmpdir} \033[0m\n" >&2
+        log_info "download pg_exporter v${version} from ${url} to ${tmpdir}"
         curl -L ${url} -o ${tmpdir}/${tarball}
     else
-        printf "\033[0;32m[INFO] found tarball on ${tmpdir}, extract to ${tmpdir}/${filename} \033[0m\n" >&2
+        log_hint "found pg_exporter on ${tmpdir}, extract to ${path}"
     fi
 
     tar -xf ${tmpdir}/${tarball} -C ${tmpdir}
     mv -f "${tmpdir}/${filename}/pg_exporter" ${path}
     rm -rf ${tmpdir:?}/${filename:?}                             # remove dir
     [ ${remove} == "yes" ] && rm -rf ${tmpdir:?}/${tarball:?}    # remove tarball if -r|--remove specified
-    printf "\033[0;32m[INFO] ${path} \033[0m\n" >&2
 }
 
 get_pg_exporter $@

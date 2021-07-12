@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2021-06-29
+# Mtime     :   2021-07-12
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
@@ -274,9 +274,9 @@ function check_ipaddr(){
 
     # special case: demo fixed ip (10.10.10.10), we will choose it directly without asking!
     if  [[ $(hostname --all-ip-addresses) == *'10.10.10.10'* ]]; then
-    	log_info "primary_ip = 10.10.10.10 (from demo)"
-    	PRIMARY_IP="10.10.10.10"
-    	return 0
+        log_info "primary_ip = 10.10.10.10 (from demo)"
+        PRIMARY_IP="10.10.10.10"
+        return 0
     fi
 
     # ask for input if in interactive mode, abort on non-interactive mode
@@ -286,7 +286,7 @@ function check_ipaddr(){
         exit 9
     fi
 
-    log_input "INPUT primary_ip address (e.g 10.10.10.10):"
+    log_input "INPUT primary_ip address (of current meta node, e.g 10.10.10.10):"
     read -r
     local primary_ip=${REPLY}
     if is_valid_ip ${primary_ip}; then
@@ -357,8 +357,8 @@ function check_config(){
     local config_dst=${pigsty_home}/pigsty.yml
 
     if [[ ! -f ${config_src} ]]; then
-    	log_error "config mode = ${mode} not exists"
-		exit 11
+        log_error "config mode = ${mode} not exists"
+        exit 11
     fi
     sed -e ${sed_cmd} ${config_src} > ${config_dst}
     log_info "config = ${mode}@${primary_ip}"
@@ -470,7 +470,7 @@ function check_bin(){
     fi
     mkdir -p ${target_dir}
     sudo ${pigsty_home}/bin/get_node_exporter -t ${repo_dir}  -v 1.1.2  -p ${target_dir}/node_exporter
-    sudo ${pigsty_home}/bin/get_pg_exporter   -t ${repo_dir}  -v 0.3.2  -p ${target_dir}/pg_exporter
+    sudo ${pigsty_home}/bin/get_pg_exporter   -t ${repo_dir}  -v 0.4.0  -p ${target_dir}/pg_exporter
     sudo ${pigsty_home}/bin/get_loki          -t ${repo_dir}  -v 2.2.1  -p ${target_dir}
     sudo chown ${pigsty_home}/files -Rv --reference=${pigsty_home} 2>/dev/null 1>/dev/null
 }
@@ -488,10 +488,10 @@ function check_utils(){
     # use local file repo if available
     if [[ -f ${repo_file} ]]; then
         log_info "utils = install from local file repo"
-        sudo yum install -q -y createrepo sshpass wget yum yum-utils ansible >/dev/null
+        sudo yum install -q -y createrepo sshpass wget yum yum-utils ansible unzip >/dev/null
     else
         log_warn "utils = install from default yum repo"
-        sudo yum install -q -y createrepo sshpass wget yum yum-utils epel-release  >/dev/null
+        sudo yum install -q -y createrepo sshpass wget yum yum-utils epel-release unzip >/dev/null
         sudo yum install -q -y ansible  >/dev/null
     fi
     # check ansible is installed
@@ -541,8 +541,8 @@ function main(){
     check_pkg        # check offline installation package exists       (INTERACTIVE: ask for download)
     check_repo       # create repo from pkg.tgz if exists
     check_repo_file  # create local file repo file if repo exists
-    check_bin >/dev/null 2>/dev/null      # check special bin files in pigsty/bin
     check_utils      # check ansible sshpass and other utils installed
+    check_bin        # check special bin files in pigsty/bin (loki,exporter) (require utils installed)
 
     log_hint "configure pigsty done. Use 'make install' to proceed\n"
 }
