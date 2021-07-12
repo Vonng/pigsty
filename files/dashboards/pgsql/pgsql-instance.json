@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626069526870,
+    "iteration": 1626074332454,
     "links": [
         {
             "asDropdown": true,
@@ -274,7 +274,7 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "PGSQL Instance for ${__data.fields.Instance}",
+                                        "title": "PGSQL Instance ${__data.fields.Instance}",
                                         "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
                                     }
                                 ]
@@ -295,7 +295,7 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "PGSQL Node ${__data.fields.IP}",
+                                        "title": "PGSQL Node for ${__data.fields.IP}",
                                         "url": "/d/pgsql-node?var-id=${__data.fields.IP}"
                                     }
                                 ]
@@ -310,7 +310,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 120
+                                "value": 70
                             },
                             {
                                 "id": "mappings",
@@ -344,7 +344,7 @@
                             },
                             {
                                 "id": "custom.displayMode",
-                                "value": "color-background"
+                                "value": "color-background-solid"
                             },
                             {
                                 "id": "links",
@@ -379,7 +379,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 200
+                                "value": 140
                             },
                             {
                                 "id": "thresholds",
@@ -423,11 +423,11 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 11,
+                "w": 12,
                 "x": 6,
                 "y": 0
             },
-            "id": 2,
+            "id": 60,
             "options": {
                 "showHeader": true,
                 "sortBy": [
@@ -441,7 +441,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "min by (ins,ip) (pg:ins:status{cls=\"$cls\"})",
+                    "expr": "pg:ins:status{cls=\"$cls\"}",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -450,7 +450,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "max by (ins) (pg:ins:pressure1{cls=\"$cls\"})",
+                    "expr": "ins:pressure1{cls=\"$cls\"}",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -459,7 +459,6 @@
                     "refId": "B"
                 }
             ],
-            "title": "Cluster",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -479,10 +478,15 @@
                             "__name__": true,
                             "__name__ 1": true,
                             "__name__ 2": true,
+                            "cls": true,
                             "cls 1": true,
                             "cls 2": true,
                             "instance": true,
-                            "job": true
+                            "instance 1": true,
+                            "instance 2": true,
+                            "job": true,
+                            "job 1": true,
+                            "job 2": true
                         },
                         "indexByName": {
                             "Time 1": 4,
@@ -539,14 +543,9 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "orange",
                                                 "index": 0,
-                                                "text": "Off"
-                                            },
-                                            "1": {
-                                                "color": "green",
-                                                "index": 1,
-                                                "text": "On"
+                                                "text": "\u23fb"
                                             }
                                         },
                                         "type": "value"
@@ -559,7 +558,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 40
+                                "value": 36
                             }
                         ]
                     },
@@ -577,6 +576,9 @@
                                         "url": "/d/pgsql-service?var-svc=${__data.fields.Service}"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "custom.width"
                             }
                         ]
                     }
@@ -584,13 +586,13 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 4,
-                "x": 17,
+                "w": 6,
+                "x": 18,
                 "y": 0
             },
-            "id": 4,
+            "id": 58,
             "options": {
-                "showHeader": false,
+                "showHeader": true,
                 "sortBy": [
                     {
                         "desc": false,
@@ -610,7 +612,6 @@
                     "refId": "A"
                 }
             ],
-            "title": "Service",
             "transformations": [
                 {
                     "id": "organize",
@@ -623,104 +624,6 @@
                         "renameByName": {
                             "Value": "\u23fb",
                             "proxy": "Service"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
-            "description": "Database list of current instance ${ins}",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Database"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Database ${__data.fields.Database} on instance ${ins}",
-                                        "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${__data.fields.Database}"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 3,
-                "x": 21,
-                "y": 0
-            },
-            "id": 6,
-            "options": {
-                "showHeader": false,
-                "sortBy": [
-                    {
-                        "desc": true,
-                        "displayName": "Database"
-                    }
-                ]
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "max by (datname) (pg_db_xact_commit{ins=\"$ins\", datname!~\"template\\\\d\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Database",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true,
-                            "Value": true
-                        },
-                        "indexByName": {
-                            "Time": 1,
-                            "Value": 2,
-                            "datname": 0
-                        },
-                        "renameByName": {
-                            "Value": "Size",
-                            "datname": "Database"
                         }
                     }
                 }
@@ -1122,6 +1025,727 @@
             "type": "table"
         },
         {
+            "datasource": null,
+            "description": "Database of this cluster ${cls}",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster Database ${__data.fields.Database}",
+                                        "url": "/d/pgsql-database?var-cls=${cls}&var-ins=${ins}&var-datname=${__data.fields.Database}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "postgres": {
+                                                "color": "blue",
+                                                "index": 2
+                                            },
+                                            "template0": {
+                                                "color": "orange",
+                                                "index": 0
+                                            },
+                                            "template1": {
+                                                "color": "yellow",
+                                                "index": 1
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "auto"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "text",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Size"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "unit",
+                                "value": "decbytes"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 1000000000
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1000000000000
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 10000000000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Age"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 60000000
+                                        },
+                                        {
+                                            "color": "#EAB839",
+                                            "value": 200000000
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 600000000
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1000000000
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 2000000000
+                                        },
+                                        {
+                                            "color": "text",
+                                            "value": 2137483647
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TPS"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 30000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 50
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "orange",
+                                                "index": 1,
+                                                "text": "Template0"
+                                            },
+                                            "1": {
+                                                "color": "red",
+                                                "index": 2,
+                                                "text": "RejectConn"
+                                            },
+                                            "2": {
+                                                "color": "blue",
+                                                "index": 3,
+                                                "text": "Template"
+                                            },
+                                            "3": {
+                                                "color": "green",
+                                                "index": 4,
+                                                "text": "Normal"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background-solid"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Session"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "#EAB839",
+                                            "value": 20
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 40
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 80
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 100
+                                        },
+                                        {
+                                            "color": "text",
+                                            "value": 400
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ConnLimit"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 85
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "color"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "color": "blue",
+                                                "index": 1,
+                                                "text": "NO LIMIT"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 0,
+                                            "result": {
+                                                "color": "orange",
+                                                "index": 2
+                                            },
+                                            "to": 99999999
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/PG CONN|PGB CONN/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percentunit"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 0.1
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 0.3
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 0.5
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 0.7
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 0.9
+                                        },
+                                        {
+                                            "color": "text",
+                                            "value": 0.99
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Disabled|Paused/"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 0.5
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "False"
+                                            },
+                                            "1": {
+                                                "color": "red",
+                                                "index": 2,
+                                                "text": "True"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 18,
+                "x": 6,
+                "y": 6
+            },
+            "id": 56,
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Size"
+                    }
+                ]
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum by (datname) (pg_size_bytes{ins=\"$ins\", datname!~\"wal|log\"})",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Age",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (datname) (pg:db:age{ins=\"$ins\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Commit",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (datname) (1 - pg_db_is_template{ins=\"$ins\"} + pg_db_allow_conn{ins=\"$primary\"} * 2)",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Status",
+                    "refId": "C"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum by (datname) (pg_activity_count{ins=\"$ins\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Session",
+                    "refId": "D"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum by (datname) (pg:db:xact_commit_rate1m{ins=\"$ins\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "TPS",
+                    "refId": "E"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (datname) (pg_db_conn_limit{ins=\"$ins\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Conn Limit",
+                    "refId": "F"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (datname) (pgbouncer:db:conn_usage{ins=\"$ins\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Pool Usage",
+                    "refId": "G"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (datname) (pg:db:conn_usage{ins=\"$ins\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "PG Conn Usage",
+                    "refId": "H"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum by (datname) (pgbouncer_database_disabled{ins=\"$ins\", datname!=\"pgbouncer\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Disabled",
+                    "refId": "I"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum by (datname) (pgbouncer_database_paused{ins=\"$ins\", datname!=\"pgbouncer\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Paused",
+                    "refId": "J"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "datname"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time 1": true,
+                            "Time 10": true,
+                            "Time 2": true,
+                            "Time 3": true,
+                            "Time 4": true,
+                            "Time 5": true,
+                            "Time 6": true,
+                            "Time 7": true,
+                            "Time 8": true,
+                            "Time 9": true
+                        },
+                        "indexByName": {
+                            "Time 1": 11,
+                            "Time 10": 20,
+                            "Time 2": 12,
+                            "Time 3": 13,
+                            "Time 4": 14,
+                            "Time 5": 15,
+                            "Time 6": 16,
+                            "Time 7": 17,
+                            "Time 8": 18,
+                            "Time 9": 19,
+                            "Value #A": 1,
+                            "Value #B": 2,
+                            "Value #C": 7,
+                            "Value #D": 6,
+                            "Value #E": 3,
+                            "Value #F": 5,
+                            "Value #G": 4,
+                            "Value #H": 8,
+                            "Value #I": 9,
+                            "Value #J": 10,
+                            "datname": 0
+                        },
+                        "renameByName": {
+                            "Time 1": "",
+                            "Time 7": "",
+                            "Value #A": "Size",
+                            "Value #B": "Age",
+                            "Value #C": "Status",
+                            "Value #D": "Session",
+                            "Value #E": "TPS",
+                            "Value #F": "ConnLimit",
+                            "Value #G": "PG CONN",
+                            "Value #H": "PGB CONN",
+                            "Value #I": "Disabled",
+                            "Value #J": "Paused",
+                            "datname": "Database",
+                            "host": "Target",
+                            "real_datname": "Datname"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
             "datasource": "Prometheus-PgSQL",
             "description": "Aliveness of major components on instance ${ins}\nuptime of node and database. aliveness of postgres, pgbouncer, node and haproxy",
             "fieldConfig": {
@@ -1205,10 +1829,10 @@
                 ]
             },
             "gridPos": {
-                "h": 4,
+                "h": 3,
                 "w": 9,
                 "x": 6,
-                "y": 6
+                "y": 11
             },
             "id": 17,
             "options": {
@@ -1225,7 +1849,7 @@
                 },
                 "text": {
                     "titleSize": 14,
-                    "valueSize": 16
+                    "valueSize": 12
                 },
                 "textMode": "value_and_name"
             },
@@ -1488,10 +2112,10 @@
                 ]
             },
             "gridPos": {
-                "h": 4,
+                "h": 3,
                 "w": 9,
                 "x": 15,
-                "y": 6
+                "y": 11
             },
             "id": 31,
             "options": {
@@ -1576,564 +2200,6 @@
             ],
             "title": "Replication",
             "transformations": [],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 32
-                            },
-                            {
-                                "color": "orange",
-                                "value": 32000
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 6,
-                "y": 10
-            },
-            "id": 46,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 32
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pg:ins:xact_commit_rate1m{ins=\"$ins\"}",
-                    "interval": "",
-                    "legendFormat": "Commit",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Queries for ${ins}",
-                            "url": "/d/pgsql-queries?var-ins=${ins}&viewPanel=66"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "noValue": "\u2205",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "orange",
-                                "value": 32000
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 9,
-                "y": 10
-            },
-            "id": 47,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 32
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pgbouncer:ins:query_rate1m{ins=\"$ins\"}",
-                    "interval": "",
-                    "legendFormat": "QPS",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Queries for ${ins}",
-                            "url": "/d/pgsql-queries?var-ins=${ins}&viewPanel=68"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 4
-                            },
-                            {
-                                "color": "purple",
-                                "value": 8
-                            },
-                            {
-                                "color": "text",
-                                "value": 16
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 12,
-                "y": 10
-            },
-            "id": 45,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 32
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pgbouncer:ins:xact_rt_1m{ins=\"$ins\"}",
-                    "interval": "",
-                    "legendFormat": "RT",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 4
-                            },
-                            {
-                                "color": "purple",
-                                "value": 8
-                            },
-                            {
-                                "color": "text",
-                                "value": 16
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 15,
-                "y": 10
-            },
-            "id": 44,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 32
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pgbouncer:ins:waiting_clients{ins=\"$ins\"}",
-                    "interval": "",
-                    "legendFormat": "Queue",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Replication for Cluster ${cls}",
-                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=74"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "orange",
-                                "value": 1
-                            },
-                            {
-                                "color": "red",
-                                "value": 4
-                            },
-                            {
-                                "color": "purple",
-                                "value": 16
-                            },
-                            {
-                                "color": "text",
-                                "value": 64
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 18,
-                "y": 10
-            },
-            "id": 48,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 32
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "max by (cls,ins)(pg_repl_replay_lag{ins=\"$ins\"} or pg:ins:lag_seconds{ins=\"$ins\"} or pg_lag{ins=\"$ins\"})",
-                    "interval": "",
-                    "legendFormat": "Lag",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL FS Space Usage for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}&viewPanel=199"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "max": 1,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.8
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.95
-                            },
-                            {
-                                "color": "text",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 3,
-                "x": 21,
-                "y": 10
-            },
-            "id": 49,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 16,
-                    "valueSize": 32
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "max(node:fs:space_usage{ins=\"$ins\"})",
-                    "interval": "",
-                    "legendFormat": "Space",
-                    "refId": "A"
-                }
-            ],
             "type": "stat"
         },
         {
@@ -2231,7 +2297,7 @@
                 ]
             },
             "gridPos": {
-                "h": 10,
+                "h": 12,
                 "w": 6,
                 "x": 0,
                 "y": 14
@@ -2284,6 +2350,564 @@
                     "interval": "",
                     "legendFormat": "Haproxy",
                     "refId": "D"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query for ${ins}",
+                            "url": "/d/pgsql-query?var-ins=${ins}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 32
+                            },
+                            {
+                                "color": "orange",
+                                "value": 32000
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 6,
+                "y": 14
+            },
+            "id": 46,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:ins:xact_commit_rate1m{ins=\"$ins\"}",
+                    "interval": "",
+                    "legendFormat": "Commit",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Queries for ${ins}",
+                            "url": "/d/pgsql-queries?var-ins=${ins}&viewPanel=66"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 32000
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 9,
+                "y": 14
+            },
+            "id": 47,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:ins:query_rate1m{ins=\"$ins\"}",
+                    "interval": "",
+                    "legendFormat": "QPS",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Queries for ${ins}",
+                            "url": "/d/pgsql-queries?var-ins=${ins}&viewPanel=68"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 12,
+                "y": 14
+            },
+            "id": 45,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:ins:xact_rt_1m{ins=\"$ins\"}",
+                    "interval": "",
+                    "legendFormat": "RT",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Node for ${ins}",
+                            "url": "/d/pgsql-node?var-ins=${ins}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 15,
+                "y": 14
+            },
+            "id": 44,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:ins:waiting_clients{ins=\"$ins\"}",
+                    "interval": "",
+                    "legendFormat": "Queue",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Replication for Cluster ${cls}",
+                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=74"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 16
+                            },
+                            {
+                                "color": "text",
+                                "value": 64
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 18,
+                "y": 14
+            },
+            "id": 48,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max by (cls,ins)(pg_repl_replay_lag{ins=\"$ins\"} or pg:ins:lag_seconds{ins=\"$ins\"} or pg_lag{ins=\"$ins\"})",
+                    "interval": "",
+                    "legendFormat": "Lag",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL FS Space Usage for ${ins}",
+                            "url": "/d/pgsql-node?var-ins=${ins}&viewPanel=199"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 21,
+                "y": 14
+            },
+            "id": 49,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max(node:fs:space_usage{ins=\"$ins\"})",
+                    "interval": "",
+                    "legendFormat": "Space",
+                    "refId": "A"
                 }
             ],
             "type": "stat"
@@ -2352,10 +2976,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 5,
+                "h": 4,
                 "w": 3,
                 "x": 6,
-                "y": 14
+                "y": 18
             },
             "id": 40,
             "options": {
@@ -2450,10 +3074,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 5,
+                "h": 4,
                 "w": 15,
                 "x": 9,
-                "y": 14
+                "y": 18
             },
             "id": 38,
             "options": {
@@ -2536,10 +3160,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 5,
+                "h": 4,
                 "w": 3,
                 "x": 6,
-                "y": 19
+                "y": 22
             },
             "id": 34,
             "options": {
@@ -2549,7 +3173,7 @@
                 "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [
-                        "lastNotNull"
+                        "last"
                     ],
                     "fields": "",
                     "values": false
@@ -2706,10 +3330,10 @@
                 ]
             },
             "gridPos": {
-                "h": 5,
+                "h": 4,
                 "w": 15,
                 "x": 9,
-                "y": 19
+                "y": 22
             },
             "id": 54,
             "options": {

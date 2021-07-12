@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626069400629,
+    "iteration": 1626075501955,
     "links": [
         {
             "asDropdown": true,
@@ -1434,7 +1434,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 50
+                                "value": 60
                             },
                             {
                                 "id": "color",
@@ -1741,6 +1741,30 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Disabled"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 76
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Paused"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 76
+                            }
+                        ]
                     }
                 ]
             },
@@ -1764,7 +1788,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (datname) (pg_size_bytes{ins=\"$primary\", datname!~\"wal|log\"})",
+                    "expr": "sum by (datname) (pg_size_bytes{cls=\"$cls\", datname!~\"wal|log\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -1773,7 +1797,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "max by (datname) (pg:db:age{ins=\"$primary\"})",
+                    "expr": "max by (datname) (pg:db:age{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1793,7 +1817,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "sum by (datname) (pg_activity_count{ins=\"$primary\"})",
+                    "expr": "sum by (datname) (pg_activity_count{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1803,7 +1827,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "sum by (datname) (pg:db:xact_commit_rate1m{ins=\"$primary\"})",
+                    "expr": "sum by (datname) (pg:db:xact_commit_rate1m{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1823,7 +1847,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "max by (datname) (pgbouncer:db:conn_usage{ins=\"$primary\"})",
+                    "expr": "max by (datname) (pgbouncer:db:conn_usage{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1833,7 +1857,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "max by (datname) (pg:db:conn_usage{ins=\"$primary\"})",
+                    "expr": "max by (datname) (pg:db:conn_usage{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1843,7 +1867,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "sum by (datname) (pgbouncer_database_disabled{ins=\"$primary\", datname!=\"pgbouncer\"})",
+                    "expr": "max by (datname) (pgbouncer_database_disabled{ins=\"$primary\", datname!=\"pgbouncer\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1853,7 +1877,7 @@
                 },
                 {
                     "exemplar": true,
-                    "expr": "sum by (datname) (pgbouncer_database_paused{ins=\"$primary\", datname!=\"pgbouncer\"})",
+                    "expr": "max by (datname) (pgbouncer_database_paused{ins=\"$primary\", datname!=\"pgbouncer\"})",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -1882,7 +1906,9 @@
                             "Time 6": true,
                             "Time 7": true,
                             "Time 8": true,
-                            "Time 9": true
+                            "Time 9": true,
+                            "Value #G": true,
+                            "Value #H": true
                         },
                         "indexByName": {
                             "Time 1": 11,
@@ -2684,6 +2710,14 @@
             "targets": [
                 {
                     "exemplar": true,
+                    "expr": "cls:pressure1{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "cluster",
+                    "refId": "C"
+                },
+                {
+                    "exemplar": true,
                     "expr": "ins:pressure1{cls=\"$cls\", ins=\"$primary\"}",
                     "interval": "",
                     "legendFormat": "{{ ins }} \u2b50\ufe0f",
@@ -2696,14 +2730,6 @@
                     "interval": "",
                     "legendFormat": "{{ ins }}",
                     "refId": "B"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "cls:pressure1{cls=\"$cls\"}",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "cluster",
-                    "refId": "C"
                 }
             ],
             "type": "timeseries"
