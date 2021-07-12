@@ -36,16 +36,7 @@ Two things needs to be downloaded:
 * `pkg.tgz`: download and put to `/tmp/pkg.tgz`.
 
 ```bash
-curl -fsSL https://github.com/Vonng/pigsty/releases/download/latest/pigsty.tgz -o ~/pigsty.tgz
-curl -fSL  https://github.com/Vonng/pigsty/releases/download/latest/pkg.tgz    -o /tmp/pkg.tgz 
+VERSION=v1.0.0-alpha2    # replace to specific pigsty version
+curl -fsSL https://github.com/Vonng/pigsty/releases/download/${version}/pigsty.tgz -o ~/pigsty.tgz
+curl -fSL  https://github.com/Vonng/pigsty/releases/download/${version}/pkg.tgz    -o /tmp/pkg.tgz 
 ```
-
-If you want to install a specific version, replace `latest` with specific version string:
-
-```bash
-VERSION=v1.0.0-alpha1
-curl -fsSL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz -o ~/pigsty.tgz
-curl -fSL  https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz    -o /tmp/pkg.tgz
-```
-
-

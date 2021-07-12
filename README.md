@@ -14,7 +14,7 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 
 > The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
 >
-> Current master is @ **v1.0.0-alpha1**
+> Current master is @ **v1.0.0-alpha2**
 
 
 
@@ -23,7 +23,8 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 Run on a fresh CentOS 7 node to install pigsty (nopass sudo required)  
 
 ```bash
-cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/latest/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
+VERSION=v1.0.0-alpha2
+cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
 make config    # CONFIGURE (interactive wizard)
 make install   # INSTALL infrastructure on meta node
 ```
@@ -37,7 +38,7 @@ make start     # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
 make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
 ```
 
-Check [**Quick Start**](https://pigsty.cc/en/docs/quick-start/) for more information.
+Check [doc/quick-start](doc/quick-start.md) for more information.
 
 
 
@@ -323,6 +324,10 @@ Pigsty comes with a local Yum repo that includes all required packages and its d
 
 </details>
 
+
+## Contribution
+
+Check [doc/contribution.md](doc/contribution.md) for more information.
 
 
 ## About
