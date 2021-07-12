@@ -1,11 +1,11 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 1 node demo configuration
-# Note      :   Sandbox demo configuration (1-node)
+# Desc      :   Pigsty config for 1-node sandbox demo
+# Note      :   pigsty-default 4-node full sandbox demo config
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-01
+# Mtime     :   2021-07-12
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -16,18 +16,6 @@
 # admin user : vagrant  (nopass ssh & sudo already set)              #
 # 1 node  meta    :    10.10.10.10  --->  pg-meta-1 (2 Core | 4GB)   #
 # 1 vip   pg-meta :    10.10.10.2   --->  pg-meta   (10.10.10.10)    #
-#====================================================================#
-#                        Sandbox (4-node)                            #
-#====================================================================#
-# admin user : vagrant  (nopass ssh & sudo already set)              #
-# 1.  meta     :    10.10.10.10     (2 Core | 4GB)    pg-meta        #
-# 2.  node-1(x):    10.10.10.10     (1 Core | 1GB)    pg-test-1      #
-# 3.  node-2(x):    10.10.10.10     (1 Core | 1GB)    pg-test-2      #
-# 4.  node-3(x):    10.10.10.10     (1 Core | 1GB)    pg-test-3      #
-# (replace these ip if your 4-node env have different ip addr)       #
-# VIP:                                                               #
-#     pg-meta    --->  10.10.10.2 ---> 10.10.10.10                   #
-#     pg-test(x) --->  10.10.10.3 ---> 10.10.10.1{1,2,3}             #
 ######################################################################
 
 
@@ -132,8 +120,8 @@ all: # top-level namespace
             expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
             comment: pigsty admin user      # optional, comment string for this user/role
             roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
-            parameters:                     # optional, role level parameters with `ALTER ROLE SET`
-              search_path: pigsty,public    # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
+            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
@@ -149,9 +137,7 @@ all: # top-level namespace
             rules:                                          # required, rule content: array of hba string
               - local   grafana         dbuser_grafana                          md5
               - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.0.0.0/8          reject
-              - host    grafana         dbuser_grafana      172.16.0.0/12       reject
-              - host    grafana         dbuser_grafana      192.168.0.0/16      reject
+              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
         vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
@@ -160,12 +146,12 @@ all: # top-level namespace
 
 
 
-    #----------------------------------#
-    # cluster: pg-test (4-node demo)   #
-    #----------------------------------#
-    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
-    # Uncomment these to use 4-node version demo
-
+#    #----------------------------------#
+#    # cluster: pg-test (4-node demo)   #
+#    #----------------------------------#
+#    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+#    # Uncomment these to use 4-node version demo
+#
 #    pg-test:                                # define the new 3-node cluster pg-test
 #      hosts:
 #
@@ -175,11 +161,7 @@ all: # top-level namespace
 #
 #      vars:
 #        pg_cluster: pg-test                 # define actual cluster name
-#        pg_version: 14                      # test postgresql 14 with pg-test cluster
-#        pg_packages:                        # overwrite postgres packages to be installed
-#          - postgresql14* pgbouncer patroni pg_exporter pgbadger patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
-#          - python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
-#        pg_extensions: []                   # PostgreSQL 14 does not have available 3rd extensions
+#        pg_version: 13                      # test postgresql 13 with pg-test cluster
 #        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
 #        pg_databases: [{ name: test}]       # create a database and user named 'test'
 #        vip_mode: l2                        # enable/disable vip (require members in same LAN)
@@ -293,14 +275,6 @@ all: # top-level namespace
           - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
           - https://packages.grafana.com/oss/rpm                    # official
 
-      - name: grafana-beta
-        description: Grafana Beta
-        enabled: no
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm-beta/    # tuna mirror
-          - https://packages.grafana.com/oss/rpm-beta                     # official BETA!
-
       - name: prometheus
         description: Prometheus and exporters
         gpgcheck: no
@@ -319,14 +293,6 @@ all: # top-level namespace
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
           - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
-
-      - name: pgdg14-beta
-        description: PostgreSQL 14 beta for RHEL/CentOS $releasever - $basearch
-        enabled: yes
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
-          - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -392,7 +358,6 @@ all: # top-level namespace
 
       # postgres 13 packages
       - postgresql13*                                                                          # postgresql 13 kernel
-      - postgresql14*                                                                          # postgresql 14 kernel (beta)
       - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
       - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
       - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
@@ -408,33 +373,30 @@ all: # top-level namespace
       - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter-0.4.0-1.el7.x86_64.rpm        # pg_exporter rpm
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
       - https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binaries
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter_v0.4.0_linux-amd64.tar.gz
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
       - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
-
-      # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
-      # - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-      # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter_v0.3.2_linux-amd64.tar.gz
-
-      # mirror in mainland china (use commented packages to install from official site)
-      # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
-      # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
-      # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
 
     #------------------------------------------------------------------------------
     # NODE PROVISION
     #------------------------------------------------------------------------------
     # this section defines how to provision nodes
     # nodename:                                   # if defined, node's hostname will be overwritten
+    # meta_node: false                            # node with meta_node will be marked as admin node
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
+      - 10.10.10.10 meta   pg-meta-1
+      - 10.10.10.11 node-1 pg-test-1
+      - 10.10.10.12 node-2 pg-test-2
+      - 10.10.10.13 node-2 pg-test-3
+
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
@@ -484,7 +446,7 @@ all: # top-level namespace
     node_admin_uid: 88                            # uid and gid for this admin user
     node_admin_username: dba                      # name of this admin user, dba by default
     node_admin_ssh_exchange: true                 # exchange admin ssh key among each pgsql cluster ?
-    node_admin_pk_current: false                  # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
+    node_admin_pk_current: true                   # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
     node_admin_pks:                               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
@@ -514,7 +476,6 @@ all: # top-level namespace
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
       # some service can only be accessed via correct domain name (e.g consul)
       - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
-      - { name: repo,          host: r.pigsty,    url: "127.0.0.1:80" }     # pigsty yum repo (80)
       - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
       - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
       - { name: prometheus,    host: p.pigsty,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
@@ -558,8 +519,8 @@ all: # top-level namespace
     grafana_git_plugins: []                       # plugins that will be downloaded via git
 
     # - loki - #
-    loki_clean: false                 # whether remove existing loki data
-    loki_data_dir: /data/loki         # default loki data dir
+    loki_clean: false                             # whether remove existing loki data
+    loki_data_dir: /data/loki                     # default loki data dir
 
     #------------------------------------------------------------------------------
     # DCS PROVISION
@@ -642,7 +603,7 @@ all: # top-level namespace
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
     pg_port: 5432                                 # postgres port, 5432 by default
     pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
-      # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
+    # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
     # Set on primary instance will transform this cluster into a standby cluster
     # - patroni - #
     # patroni_mode, available options: default|pause|remove
@@ -713,7 +674,7 @@ all: # top-level namespace
       - GRANT SELECT                        ON SEQUENCES TO dbrole_offline
       - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_offline
       - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
-      - GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
+      - GRANT USAGE, UPDATE                 ON SEQUENCES TO dbrole_readwrite
       - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
 
@@ -722,15 +683,15 @@ all: # top-level namespace
 
     # - extension - #
     pg_default_extensions:                        # default extensions to be created
-      - { name: 'pg_stat_statements',  schema: 'monitor' }
-      - { name: 'pgstattuple',         schema: 'monitor' }
-      - { name: 'pg_qualstats',        schema: 'monitor' }
-      - { name: 'pg_buffercache',      schema: 'monitor' }
-      - { name: 'pageinspect',         schema: 'monitor' }
-      - { name: 'pg_prewarm',          schema: 'monitor' }
-      - { name: 'pg_visibility',       schema: 'monitor' }
-      - { name: 'pg_freespacemap',     schema: 'monitor' }
-      - { name: 'pg_repack',           schema: 'monitor' }
+      - { name: 'pg_stat_statements', schema: 'monitor' }
+      - { name: 'pgstattuple',        schema: 'monitor' }
+      - { name: 'pg_qualstats',       schema: 'monitor' }
+      - { name: 'pg_buffercache',     schema: 'monitor' }
+      - { name: 'pageinspect',        schema: 'monitor' }
+      - { name: 'pg_prewarm',         schema: 'monitor' }
+      - { name: 'pg_visibility',      schema: 'monitor' }
+      - { name: 'pg_freespacemap',    schema: 'monitor' }
+      - { name: 'pg_repack',          schema: 'monitor' }
       - name: postgres_fdw
       - name: file_fdw
       - name: btree_gist
@@ -905,3 +866,4 @@ all: # top-level namespace
     # dns_selector: '[]'                          # if dns_mode == vip, filter instances been resolved
 
 ...
+
