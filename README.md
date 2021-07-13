@@ -24,7 +24,7 @@ Run on a fresh CentOS 7 node to install pigsty (nopass sudo required)
 
 ```bash
 VERSION=v1.0.0-alpha2
-cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
+cd ~ && curl -SLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
 make config    # CONFIGURE (interactive wizard)
 make install   # INSTALL infrastructure on meta node
 ```

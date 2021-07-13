@@ -1,5 +1,15 @@
 # Development Log
 
+## 2021-07-13
+
+* Release pigsty v1.0.0-alpha2
+* Fix systemd-devel deps failure on VPC.
+* remove core apps
+* refactor cmdb application, use pg_datbases.meta.baseline to provisioning cmdb schema
+* add `load_config` to parse and activate config from config file
+* Integrate pglog schema into `pigsty` schema
+* Update files/conf
+
 ## 2021-07-12
 
 * alert panel now links to alertmanager

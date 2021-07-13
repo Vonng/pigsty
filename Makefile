@@ -344,14 +344,14 @@ ssh:               # add node ssh config to your ~/.ssh/config
 
 # ssh meta and run standard install procedure same as Quick-Start
 demo:
-	ssh meta "curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~"
+	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty"
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo --non-interactive --download'
 	ssh meta 'cd ~/pigsty; make install'
 
 # 4-node version
 demo4:
-	ssh meta "curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~"
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m default --non-interactive --download'
+	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty"
+	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 -m demo4 --non-interactive --download'
 	ssh meta 'cd ~/pigsty; make install'
 	ssh meta 'cd ~/pigsty; ./pgsql.yml -l pg-test'
 
@@ -506,7 +506,7 @@ upload-test: release
 	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
-	ssh -t meta "cd pigsty && ./configure -m default"
+	ssh -t meta "cd pigsty && ./configure -m demo4"
 
 ul: upload-latest
 upload-latest: release-latest

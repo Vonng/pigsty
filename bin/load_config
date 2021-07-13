@@ -30,7 +30,7 @@ CONFIG_PATH=${2-${PIGSTY_CONFIG}}   # default config path is ~/pigsty/pigsty.yml
 
 DATA_FILE="/tmp/${CONFIG_NAME}.sql"
 INVENTORY_FILENAME="cmdb-${CONFIG_NAME}.sh"
-PIGSTY_INVENTORY=${PIGSTY_HOME}/${INVENTORY_FILENAME}
+PIGSTY_INVENTORY=${PIGSTY_HOME}/inventory.sh
 ANSIBLE_CONFIG=${PIGSTY_HOME}/ansible.cfg
 
 
@@ -89,13 +89,10 @@ psql service=meta -AXtwc 'SELECT text FROM pigsty.inventory;'
 EOF
 chmod 0755 ${PIGSTY_INVENTORY}
 
-log_info "generate cmdb dynamic inventory to ${PIGSTY_INVENTORY}"
+log_info "generate cmdb dynamic inventory to inventory.sh"
 psql ${METADB_URL} -wc 'SELECT name, is_active, ctime, mtime FROM pigsty.config;'
 
-log_info "update ansible.cfg set inventory = ${INVENTORY_FILENAME}"
-
-SED_CMD="s/inventory.*/inventory = ${INVENTORY_FILENAME}/g"
-log_info "sed command: ${SED_CMD}"
-
+log_info "update ansible.cfg set inventory = inventory.sh"
+SED_CMD="s/inventory.*/inventory = inventory.sh/g"
 sed -ie "${SED_CMD}" ${ANSIBLE_CONFIG}
 rm -rf "${ANSIBLE_CONFIG}e"
