@@ -430,13 +430,13 @@ resume:
 
 # run pgbench on meta database
 ri:
-	pgbench -is10 postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta
+	pgbench -is10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta
 rc:
-	psql -AXtw postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
+	psql -AXtw postgres://dbuser_meta:DBUser.Meta@meta:5433/meta -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
 rw:
-	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta; done
+	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
 ro:
-	while true; do pgbench -nv -P1 -c8 --rate=256 -T10 postgres://dbuser_meta:DBUser.Meta@pg-meta:5434/meta; done
+	while true; do pgbench -nv -P1 -c8 --rate=256 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
 
 # run tests on pg-test cluster (3-node on sandbox demo)
 # list pg-test clusters
@@ -444,11 +444,11 @@ test-list:
 	ssh -t node-1 "sudo -iu postgres patronictl -c /pg/bin/patroni.yml list -W"
 
 # pgbench init, read, write
-test-init:
+test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
 
 # pgbench cleanup
-test-clean:
+test-rc:
 	psql -AXtw postgres://test:test@pg-test:5433/test -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
 
 # pgbench small read-write / read-only traffic (rw=64TPS, ro=512QPS)
@@ -608,7 +608,7 @@ svg:
         up dw del new s sync up-test dw-test del-test new-test s-test sync sync-test \
         up4 dw4 del4 new4 s4 sync4 \
         st status suspend resume \
-        ri rc rw ro test-list test-init test-clean test-rw test-ro test-rw2 test-ro2 test-rb1 test-rb2 test-rb3 \
+        ri rc rw ro test-list test-ri test-rc test-rw test-ro test-rw2 test-ro2 test-rb1 test-rb2 test-rb3 \
         fetch upload ut upload-test ul upload-latest \
         copy copy-all copy-src copy-pkg \
         r releast rp release-pkg p publish pb publish-beta cache \

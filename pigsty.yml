@@ -1,11 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty example configuration
-# Note      :   pigsty-default 4-node full sandbox demo config
+# Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-12
+# Mtime     :   2021-07-13
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -21,9 +20,9 @@
 #====================================================================#
 # admin user : vagrant  (nopass ssh & sudo already set)              #
 # 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
-# 2.  node-1  :    10.10.10.10     (1 Core | 1GB)    pg-test-1       #
-# 3.  node-2  :    10.10.10.10     (1 Core | 1GB)    pg-test-2       #
-# 4.  node-3  :    10.10.10.10     (1 Core | 1GB)    pg-test-3       #
+# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
+# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
+# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
 # (replace these ip if your 4-node env have different ip addr)       #
 # VIP:                                                               #
 #     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
@@ -89,7 +88,7 @@ all: # top-level namespace
         pg_databases:                       # define business databases on this cluster, array of database definition
           # define the default `meta` database
           - name: meta                      # required, `name` is the only mandatory field of a database definition
-            # baseline: meta/schema.sql     # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
             # owner: postgres               # optional, database owner, postgres by default
             # template: template1           # optional, which template to use, template1 by default
             # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
@@ -371,10 +370,10 @@ all: # top-level namespace
       # postgres 13 packages
       - postgresql13*                                                                          # postgresql 13 kernel
       - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
-      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
-      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
-      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
+      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
+      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
+      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13            # FDW extensions
+      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                   # MISC extensions
       - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
       - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
       - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
@@ -382,7 +381,8 @@ all: # top-level namespace
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-      - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
+      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
+      # - openldap-devel pam-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
@@ -499,6 +499,7 @@ all: # top-level namespace
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty

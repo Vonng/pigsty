@@ -1,11 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty config for 1-node sandbox demo
-# Note      :   pigsty-default 4-node full sandbox demo config
+# Desc      :   Pigsty 1-node demo (configure sandbox default)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-12
+# Mtime     :   2021-07-13
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -77,7 +76,7 @@ all: # top-level namespace
         pg_databases:                       # define business databases on this cluster, array of database definition
           # define the default `meta` database
           - name: meta                      # required, `name` is the only mandatory field of a database definition
-            # baseline: meta/schema.sql     # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
             # owner: postgres               # optional, database owner, postgres by default
             # template: template1           # optional, which template to use, template1 by default
             # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
@@ -146,48 +145,48 @@ all: # top-level namespace
 
 
 
-#    #----------------------------------#
-#    # cluster: pg-test (4-node demo)   #
-#    #----------------------------------#
-#    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
-#    # Uncomment these to use 4-node version demo
-#
-#    pg-test:                                # define the new 3-node cluster pg-test
-#      hosts:
-#
-#        10.10.10.11: {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
-#        10.10.10.12: {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
-#        10.10.10.13: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
-#
-#      vars:
-#        pg_cluster: pg-test                 # define actual cluster name
-#        pg_version: 13                      # test postgresql 13 with pg-test cluster
-#        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
-#        pg_databases: [{ name: test}]       # create a database and user named 'test'
-#        vip_mode: l2                        # enable/disable vip (require members in same LAN)
-#        vip_address: 10.10.10.3             # virtual ip address for this cluster
-#        vip_cidrmask: 8                     # cidr network mask length
-#        vip_interface: eth1                 # interface to add virtual ip
-#
-#        #---------------
-#        # service                           # Defining Extra Service (Optional)
-#        #---------------
-#        pg_services_extra:                  # extra services in addition to pg_services, array of service definition
-#          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-#          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-#            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-#            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
-#            dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-#            check_method: http              # optional, health check method: http is the only available method for now
-#            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-#            check_url: /read-only?lag=0     # optional, health check url path, / by default
-#            check_code: 200                 # optional, health check expected http code, 200 by default
-#            selector: "[]"                  # required, JMESPath to filter inventory ()
-#            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-#            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-#              maxconn: 3000                 # optional, max allowed front-end connection
-#              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-#              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+    #----------------------------------#
+    # cluster: pg-test (4-node demo)   #
+    #----------------------------------#
+    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+    # Uncomment these to use 4-node version demo
+
+  #    pg-test:                                # define the new 3-node cluster pg-test
+  #      hosts:
+  #
+  #        10.10.10.11: {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
+  #        10.10.10.12: {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
+  #        10.10.10.13: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
+  #
+  #      vars:
+  #        pg_cluster: pg-test                 # define actual cluster name
+  #        pg_version: 13                      # test postgresql 13 with pg-test cluster
+  #        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
+  #        pg_databases: [{ name: test}]       # create a database and user named 'test'
+  #        vip_mode: l2                        # enable/disable vip (require members in same LAN)
+  #        vip_address: 10.10.10.3             # virtual ip address for this cluster
+  #        vip_cidrmask: 8                     # cidr network mask length
+  #        vip_interface: eth1                 # interface to add virtual ip
+  #
+  #        #---------------
+  #        # service                           # Defining Extra Service (Optional)
+  #        #---------------
+  #        pg_services_extra:                  # extra services in addition to pg_services, array of service definition
+  #          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
+  #          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+  #            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
+  #            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
+  #            dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+  #            check_method: http              # optional, health check method: http is the only available method for now
+  #            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
+  #            check_url: /read-only?lag=0     # optional, health check url path, / by default
+  #            check_code: 200                 # optional, health check expected http code, 200 by default
+  #            selector: "[]"                  # required, JMESPath to filter inventory ()
+  #            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
+  #            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
+  #              maxconn: 3000                 # optional, max allowed front-end connection
+  #              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+  #              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
 
@@ -359,10 +358,10 @@ all: # top-level namespace
       # postgres 13 packages
       - postgresql13*                                                                          # postgresql 13 kernel
       - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
-      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
-      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
-      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
+      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
+      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
+      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13            # FDW extensions
+      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                   # MISC extensions
       - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
       - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
       - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
@@ -370,7 +369,8 @@ all: # top-level namespace
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-      - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
+      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
+      # - openldap-devel pam-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
@@ -393,9 +393,9 @@ all: # top-level namespace
     node_dns_hosts:                               # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
       - 10.10.10.10 meta   pg-meta-1
-      - 10.10.10.11 node-1 pg-test-1
-      - 10.10.10.12 node-2 pg-test-2
-      - 10.10.10.13 node-2 pg-test-3
+      # - 10.10.10.11 node-1 pg-test-1
+      # - 10.10.10.12 node-2 pg-test-2
+      # - 10.10.10.13 node-2 pg-test-3
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -487,6 +487,7 @@ all: # top-level namespace
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty

@@ -4,11 +4,11 @@ This directory (`files/conf`) contains pigsty configuration templates, Which wil
 
 Config templates are named as `pigsty-<mode>.yml`.  `<mode>` can be designated using `./configure -m <mode>`
 
-There are several DEFAULT modes
+There are several built-in config modes:
 
-### **default** 
+### **demo4 (default)** 
 
-[pigsty-default.yml](pigsty-default.yml) : 4-node sandbox demo configuration file
+[pigsty-demo4.yml](pigsty-demo4.yml) : 4-node sandbox demo configuration file
 
 which have a one-node cluster `pg-meta` on `10.10.10.10`, and a 3-node cluster `pg-test` on `10.10.10.11(node-1)` , `10.10.10.12(node-2)`, `10.10.10.13(node-3)`
 
@@ -18,7 +18,7 @@ If not configured, this is the default configuration file.
 
 [pigsty-demo.yml](pigsty-demo.yml) : 1-node sandbox demo configuration file
 
-Remove the 3-node cluster `pg-test` based on [default](#default) config.
+Remove the 3-node cluster `pg-test` based on [demo4](#demo4) config.
 
 This will be used if current user = vagrant (which means under demo environment) during **configure**
 
@@ -40,7 +40,11 @@ This config is used for testing PG14 new features.
 
 Use this if you are installing pigsty on your own node/vm. 
 
-Forked from [demo](#demo) config with dns nameserver & vip disabled, because your network condition is not determined.
+Forked from [demo](#demo) config with some modification:
+  * dns nameserver disabled, because you may have pre-configured DNS settings 
+  * vip disabled, because your network condition is not determined.
+  * `dcs_exists_action: abort`: from `clean` to `abort` to avoid accidentally destroy dcs server
+  * `pg_exists_action: abort`: from `clean` to `abort` to avoid accidentally destroy postgres
 
 Will automatically be chosen during configure when:
   * current os user name != vagrant (which means it's not demo env)
@@ -61,8 +65,8 @@ Will automatically be chosen during configure when:
 
 
 ```
-[default]    
-    ↓  configure
+ [demo4]   (home default)   
+    ↓        configure
     ↓--------------------------↓
     ↓                          ↓
     ↓ reduce to 1-node         ↓ use pg14
