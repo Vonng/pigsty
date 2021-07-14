@@ -532,6 +532,11 @@ copy-src:
 copy-pkg:
 	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
 
+# dump grafana dashboards
+dd: dashboard-dump
+dashboard-dump:
+	cd files/dashboards && ./grafana.py dump
+
 ###############################################################
 
 
