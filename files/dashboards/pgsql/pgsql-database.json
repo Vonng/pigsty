@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626228127272,
+    "iteration": 1626230442234,
     "links": [
         {
             "asDropdown": true,
@@ -1996,8 +1996,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
+                            "title": "PGSQL Session: iXact for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=${ins}&viewPanel=107"
                         }
                     ],
                     "mappings": [
@@ -2276,8 +2276,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
+                            "title": "PGSQL Session : Backends for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=${ins}&viewPanel=103"
                         }
                     ],
                     "mappings": [
@@ -2370,6 +2370,206 @@
         },
         {
             "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Session : PG Conn Usage for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=$ins&viewPanel=113"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 2,
+                "y": 17
+            },
+            "id": 93,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg:db:conn_usage{ins=\"$ins\", datname=\"$datname\"}",
+                    "interval": "",
+                    "legendFormat": "PG Conn",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Session : PGB Conn Usage for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=$ins&viewPanel=114"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 4,
+                "y": 17
+            },
+            "id": 111,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:db:conn_usage{ins=\"$ins\", datname=\"$datname\"}",
+                    "interval": "",
+                    "legendFormat": "PGB Conn",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2435,8 +2635,8 @@
             "gridPos": {
                 "h": 3,
                 "w": 2,
-                "x": 2,
-                "y": 17
+                "x": 0,
+                "y": 20
             },
             "id": 63,
             "options": {
@@ -2479,8 +2679,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
+                            "title": "PGSQL Node: Disk Space for ${ins}",
+                            "url": "/d/pgsql-node?var-ins=${ins}&viewPanel=199"
                         }
                     ],
                     "mappings": [
@@ -2525,8 +2725,8 @@
             "gridPos": {
                 "h": 3,
                 "w": 2,
-                "x": 4,
-                "y": 17
+                "x": 2,
+                "y": 20
             },
             "id": 49,
             "options": {
@@ -2554,200 +2754,6 @@
                     "expr": "sum(pg_size_bytes{ins=\"$ins\", datname=\"$datname\"})",
                     "interval": "",
                     "legendFormat": "Size",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 1,
-                    "links": [
-                        {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "\u2205",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.8
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.95
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.99
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.999
-                            },
-                            {
-                                "color": "dark-green",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 2,
-                "x": 0,
-                "y": 20
-            },
-            "id": 86,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "mean"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 12,
-                    "valueSize": 18
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pg:db:blks_hit_ratio1m{ins=\"$ins\", datname=\"$datname\"}",
-                    "interval": "",
-                    "legendFormat": "HitRate",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 1,
-                    "links": [
-                        {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "\u2205",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 100
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 100000
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 2,
-                "x": 2,
-                "y": 20
-            },
-            "id": 87,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "mean"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 12,
-                    "valueSize": 18
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pg:db:tup_fetched_rate1m{ins=\"$ins\", datname=\"$datname\"}",
-                    "interval": "",
-                    "legendFormat": "Tup Access",
                     "refId": "A"
                 }
             ],
@@ -3542,8 +3548,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
+                            "title": "PGSQL Session : Pool Servers for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=$ins&viewPanel=140"
                         }
                     ],
                     "mappings": [
@@ -3644,8 +3650,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
+                            "title": "PGSQL Session : Pool Clients for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=$ins&viewPanel=141"
                         }
                     ],
                     "mappings": [
@@ -3722,6 +3728,7 @@
         },
         {
             "datasource": null,
+            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3729,8 +3736,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Instance Load for ${ins}",
-                            "url": "/d/pgsql-instance-overview?var-ins=${ins}"
+                            "title": "PGSQL Session : Pool Queuing for ${ins}.${datname}",
+                            "url": "/d/pgsql-session?var-ins=$ins&viewPanel=126"
                         }
                     ],
                     "mappings": [
@@ -3746,40 +3753,37 @@
                             "type": "special"
                         }
                     ],
+                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "green",
                                 "value": null
                             },
                             {
-                                "color": "green",
-                                "value": 0.1
-                            },
-                            {
                                 "color": "yellow",
-                                "value": 0.3
+                                "value": 1
                             },
                             {
                                 "color": "orange",
-                                "value": 0.5
+                                "value": 2
                             },
                             {
                                 "color": "red",
-                                "value": 0.7
+                                "value": 4
                             },
                             {
                                 "color": "purple",
-                                "value": 0.9
+                                "value": 8
                             },
                             {
                                 "color": "text",
-                                "value": 1
+                                "value": 16
                             }
                         ]
                     },
-                    "unit": "percentunit"
+                    "unit": "none"
                 },
                 "overrides": []
             },
@@ -3789,7 +3793,7 @@
                 "x": 4,
                 "y": 23
             },
-            "id": 93,
+            "id": 44,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -3812,9 +3816,9 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(pgbouncer_database_current_connections{ins=\"$ins\", datname=\"$datname\"}) / sum(pgbouncer_database_max_connections{ins=\"$ins\", datname=\"$datname\"})",
+                    "expr": "sum by (cls) (pgbouncer_pool_waiting_clients{ins=\"$ins\", datname=\"$datname\"})",
                     "interval": "",
-                    "legendFormat": "Conn Usage",
+                    "legendFormat": "Queue",
                     "refId": "A"
                 }
             ],
@@ -4010,8 +4014,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
+                            "title": "PGSQL Pgbouncer for ${ins}",
+                            "url": "/d/pgsql-query?var-ins=${ins}"
                         }
                     ],
                     "mappings": [
@@ -4032,32 +4036,28 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "blue",
                                 "value": null
                             },
                             {
+                                "color": "green",
+                                "value": 1000
+                            },
+                            {
                                 "color": "yellow",
-                                "value": 1
+                                "value": 64000000
                             },
                             {
                                 "color": "orange",
-                                "value": 2
+                                "value": 100000000
                             },
                             {
                                 "color": "red",
-                                "value": 4
-                            },
-                            {
-                                "color": "purple",
-                                "value": 8
-                            },
-                            {
-                                "color": "text",
-                                "value": 16
+                                "value": 300000000
                             }
                         ]
                     },
-                    "unit": "none"
+                    "unit": "Bps"
                 },
                 "overrides": []
             },
@@ -4067,7 +4067,7 @@
                 "x": 4,
                 "y": 26
             },
-            "id": 44,
+            "id": 91,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -4090,9 +4090,9 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (cls) (pgbouncer_pool_waiting_clients{ins=\"$ins\", datname=\"$datname\"})",
+                    "expr": "sum(pgbouncer:db:rx_rate1m{ins=\"$ins\", datname=\"$datname\"}) + sum(pgbouncer:db:tx_rate1m{ins=\"$ins\", datname=\"$datname\"})",
                     "interval": "",
-                    "legendFormat": "Queue",
+                    "legendFormat": "Traffic",
                     "refId": "A"
                 }
             ],
@@ -4287,12 +4287,8 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Pgbouncer for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
-                        }
-                    ],
+                    "decimals": 1,
+                    "links": [],
                     "mappings": [
                         {
                             "options": {
@@ -4306,33 +4302,43 @@
                             "type": "special"
                         }
                     ],
+                    "max": 1,
                     "min": 0,
+                    "noValue": "\u2205",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "text",
                                 "value": null
                             },
                             {
-                                "color": "green",
-                                "value": 1000
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 64000000
-                            },
-                            {
-                                "color": "orange",
-                                "value": 100000000
+                                "color": "purple",
+                                "value": 0.8
                             },
                             {
                                 "color": "red",
-                                "value": 300000000
+                                "value": 0.9
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.99
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.999
+                            },
+                            {
+                                "color": "dark-green",
+                                "value": 1
                             }
                         ]
                     },
-                    "unit": "Bps"
+                    "unit": "percentunit"
                 },
                 "overrides": []
             },
@@ -4342,7 +4348,7 @@
                 "x": 4,
                 "y": 29
             },
-            "id": 91,
+            "id": 86,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
@@ -4350,7 +4356,7 @@
                 "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [
-                        "lastNotNull"
+                        "mean"
                     ],
                     "fields": "",
                     "values": false
@@ -4365,9 +4371,9 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum(pgbouncer:db:rx_rate1m{ins=\"$ins\", datname=\"$datname\"}) + sum(pgbouncer:db:tx_rate1m{ins=\"$ins\", datname=\"$datname\"})",
+                    "expr": "pg:db:blks_hit_ratio1m{ins=\"$ins\", datname=\"$datname\"}",
                     "interval": "",
-                    "legendFormat": "Traffic",
+                    "legendFormat": "HitRate",
                     "refId": "A"
                 }
             ],
