@@ -9,16 +9,24 @@
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
                 "type": "dashboard"
+            },
+            {
+                "datasource": null,
+                "enable": false,
+                "expr": "increase(pg_table_autovacuum_count{ins=\"$ins\", datname=\"$datname\", relname=\"$relname\"}[1m])",
+                "iconColor": "red",
+                "name": "Vacuum",
+                "step": "1m",
+                "titleFormat": "Vacuum"
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Single Table Dashboard",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625820426053,
+    "iteration": 1626264213227,
     "links": [
         {
             "asDropdown": true,
@@ -145,7 +153,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -230,7 +238,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -350,6 +358,22 @@
                             {
                                 "id": "custom.displayMode",
                                 "value": "color-text"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -406,6 +430,22 @@
                             {
                                 "id": "custom.displayMode",
                                 "value": "color-text"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -485,7 +525,7 @@
                 "x": 12,
                 "y": 1
             },
-            "id": 66,
+            "id": 85,
             "options": {
                 "showHeader": true,
                 "sortBy": [
@@ -495,11 +535,11 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (relname) (pg:table:scan{ins=\"$ins\", datname=\"$datname\"})",
+                    "expr": "sum by (relname) (pg:table:scan_rate1m{ins=\"$ins\", datname=\"$datname\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "",
@@ -527,7 +567,6 @@
                     "refId": "C"
                 }
             ],
-            "title": "Tables",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -618,7 +657,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -696,7 +735,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -774,7 +813,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -874,7 +913,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -947,7 +986,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -1012,6 +1051,14 @@
                     "interval": "",
                     "legendFormat": "Seq Scan",
                     "refId": "H"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "rate(pg_table_idx_scan{ins=\"$ins\", datname=\"$datname\", relname=\"$relname\"}[5m])",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Idx Scan",
+                    "refId": "I"
                 }
             ],
             "type": "stat"
@@ -3410,7 +3457,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -4377,7 +4424,7 @@
             "type": "state-timeline"
         }
     ],
-    "refresh": "1m",
+    "refresh": false,
     "schemaVersion": 30,
     "style": "light",
     "tags": [
@@ -4575,5 +4622,6 @@
     "timezone": "",
     "title": "PGSQL Table",
     "uid": "pgsql-table",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }
