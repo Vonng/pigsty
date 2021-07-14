@@ -535,7 +535,7 @@ copy-pkg:
 # dump grafana dashboards
 dd: dashboard-dump
 dashboard-dump:
-	cd files/dashboards && ./grafana.py dump
+	cd files/ui && ./grafana.py dump
 
 ###############################################################
 
