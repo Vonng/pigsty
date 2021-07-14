@@ -13,17 +13,19 @@
             {
                 "datasource": "Prometheus-PgSQL",
                 "enable": true,
-                "expr": "increase(pg_bgwriter_checkpoints_timed[15s])",
+                "expr": "increase(pg_bgwriter_checkpoints_timed{ins=\"$ins\"}[15s]) > 0",
                 "iconColor": "blue",
                 "name": "Checkpoint Scheduled",
+                "step": "1m",
                 "titleFormat": "Checkpoint Scheduled"
             },
             {
                 "datasource": null,
                 "enable": true,
-                "expr": "increase(pg_bgwriter_checkpoints_req[15s])",
+                "expr": "increase(pg_bgwriter_checkpoints_req{ins=\"$ins\"}[1m])",
                 "iconColor": "red",
                 "name": "Checkpoint Requested",
+                "step": "1m",
                 "titleFormat": "Requested",
                 "useValueForTime": false
             }
@@ -34,7 +36,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626255067828,
+    "iteration": 1626257043095,
     "links": [
         {
             "asDropdown": true,
@@ -270,6 +272,7 @@
                 {
                     "exemplar": true,
                     "expr": "pg_checkpoint_tli{ins=\"$ins\"}",
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "Timeline",
                     "refId": "A"
@@ -278,6 +281,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_prev_tli{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "Prev TLI",
                     "refId": "B"
@@ -286,6 +290,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_elapse{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "Last Checkpoint",
                     "refId": "C"
@@ -294,6 +299,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_next_xid_epoch{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "Next Xid Epoch",
                     "refId": "D"
@@ -302,6 +308,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_next_xid_epoch{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "NextXidEpoch",
                     "refId": "E"
@@ -318,6 +325,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_next_oid{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "Next OID",
                     "refId": "G"
@@ -326,6 +334,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_next_multixact_id{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "NextMultiXactID",
                     "refId": "H"
@@ -334,6 +343,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_next_multi_offset{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "NextMultiOffset",
                     "refId": "I"
@@ -342,6 +352,7 @@
                     "exemplar": true,
                     "expr": "pg_checkpoint_oldest_xid{ins=\"$ins\"}",
                     "hide": false,
+                    "instant": true,
                     "interval": "",
                     "legendFormat": "Oldest XID",
                     "refId": "J"
@@ -615,358 +626,6 @@
                 "x": 0,
                 "y": 15
             },
-            "id": 163,
-            "panels": [],
-            "title": "Datafile",
-            "type": "row"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 35,
-                        "gradientMode": "hue",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Database for ${__field.labels.datname}",
-                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${__field.labels.datname}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 16
-            },
-            "id": 160,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pg_size_bytes{ins=\"$ins\", datname!~\"(log|wal)\"}",
-                    "interval": "",
-                    "legendFormat": "{{ datname }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "PG Database Size",
-            "type": "timeseries"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 35,
-                        "gradientMode": "hue",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 16
-            },
-            "id": 161,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pg_size_bytes{ins=\"$ins\", datname=~\"(log|wal)\"}",
-                    "interval": "",
-                    "legendFormat": "{{ datname }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "WAL & Log Size",
-            "type": "timeseries"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 6,
-                        "gradientMode": "hue",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Database for ${__field.labels.datname}",
-                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${__field.labels.datname}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 24
-            },
-            "id": 190,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "delta(pg_size_bytes{ins=\"$ins\", datname!~\"(log|wal)\"}[10m])",
-                    "interval": "",
-                    "legendFormat": "{{ datname }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "Database Size Delta 10m",
-            "type": "timeseries"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 6,
-                        "gradientMode": "hue",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 24
-            },
-            "id": 192,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "delta(pg_size_bytes{ins=\"$ins\", datname=\"wal\"}[10m])",
-                    "interval": "",
-                    "legendFormat": "WAL",
-                    "refId": "A"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "delta(pg_size_bytes{ins=\"$ins\", datname=\"log\"}[10m])",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "LOG",
-                    "refId": "B"
-                }
-            ],
-            "title": "Database Size Delta 10m",
-            "type": "timeseries"
-        },
-        {
-            "collapsed": false,
-            "datasource": null,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 32
-            },
             "id": 167,
             "panels": [],
             "title": "BGWriter",
@@ -1071,7 +730,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 33
+                "y": 16
             },
             "id": 168,
             "options": {
@@ -1229,7 +888,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 33
+                "y": 16
             },
             "id": 169,
             "options": {
@@ -1254,6 +913,358 @@
                 }
             ],
             "title": "Buffer Alloc",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 24
+            },
+            "id": 163,
+            "panels": [],
+            "title": "Datafile",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 35,
+                        "gradientMode": "hue",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Database for ${__field.labels.datname}",
+                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${__field.labels.datname}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 25
+            },
+            "id": 160,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg_size_bytes{ins=\"$ins\", datname!~\"(log|wal)\"}",
+                    "interval": "",
+                    "legendFormat": "{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "PG Database Size",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 35,
+                        "gradientMode": "hue",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 25
+            },
+            "id": 161,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg_size_bytes{ins=\"$ins\", datname=~\"(log|wal)\"}",
+                    "interval": "",
+                    "legendFormat": "{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "WAL & Log Size",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 6,
+                        "gradientMode": "hue",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Database for ${__field.labels.datname}",
+                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${__field.labels.datname}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 33
+            },
+            "id": 190,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "delta(pg_size_bytes{ins=\"$ins\", datname!~\"(log|wal)\"}[10m])",
+                    "interval": "",
+                    "legendFormat": "{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Database Size Delta 10m",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 6,
+                        "gradientMode": "hue",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 33
+            },
+            "id": 192,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "delta(pg_size_bytes{ins=\"$ins\", datname=\"wal\"}[10m])",
+                    "interval": "",
+                    "legendFormat": "WAL",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "delta(pg_size_bytes{ins=\"$ins\", datname=\"log\"}[10m])",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "LOG",
+                    "refId": "B"
+                }
+            ],
+            "title": "Database Size Delta 10m",
             "type": "timeseries"
         },
         {
@@ -2795,7 +2806,7 @@
                 ]
             },
             "gridPos": {
-                "h": 5,
+                "h": 4,
                 "w": 24,
                 "x": 0,
                 "y": 80
@@ -2935,7 +2946,6 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Disk iostat",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -3093,7 +3103,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 0,
-                "y": 85
+                "y": 84
             },
             "id": 204,
             "options": {
@@ -3209,7 +3219,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 12,
-                "y": 85
+                "y": 84
             },
             "id": 202,
             "options": {
@@ -3525,10 +3535,10 @@
                 ]
             },
             "gridPos": {
-                "h": 5,
+                "h": 4,
                 "w": 24,
                 "x": 0,
-                "y": 91
+                "y": 90
             },
             "id": 196,
             "options": {
@@ -3775,7 +3785,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 0,
-                "y": 96
+                "y": 94
             },
             "id": 198,
             "options": {
@@ -3898,7 +3908,7 @@
                 "h": 6,
                 "w": 12,
                 "x": 12,
-                "y": 96
+                "y": 94
             },
             "id": 200,
             "options": {

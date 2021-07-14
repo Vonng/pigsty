@@ -344,17 +344,17 @@ groups:
       # read category lock
       - record: pg:db:rlock_count
         expr: sum without (mode) (pg_lock_count{mode="AccessShareLock"})
-      - record: pg:ins:rlock
+      - record: pg:ins:rlock_count
         expr: sum without(datname) (pg:db:rlock_count)
-      - record: pg:cls:rlock
+      - record: pg:cls:rlock_count
         expr: sum by (job, cls) (pg:ins:rlock_count)
 
       # write category lock (insert|update|delete)
       - record: pg:db:wlock_count
         expr: sum without (mode) (pg_lock_count{mode=~"RowShareLock|RowExclusiveLock"})
-      - record: pg:ins:wlock
+      - record: pg:ins:wlock_count
         expr: sum without(datname) (pg:db:wlock_count)
-      - record: pg:cls:wlock
+      - record: pg:cls:wlock_count
         expr: sum by (job, cls) (pg:ins:wlock)
         
       # exclusive category lock
