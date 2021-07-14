@@ -710,15 +710,20 @@ groups:
       - record: pg:cls:buf_flush_backend_rate1m
         expr: sum by (job, cls) (pg:ins:buf_flush_backend_rate1m)
 
+      - record: pg:ins:buf_clean_rate1m
+        expr: rate(pg_bgwriter_buffers_clean[1m])
+      - record: pg:cls:buf_clean_rate1m
+        expr: sum by (job, cls) (pg:ins:buf_clean_rate1m)
+
       # buffer flushed (checkpoint + backend) ins,cls,env
-      - record: pg:ins:buf_flush_rate1m
-        expr: pg:ins:buf_flush_backend + pg:ins:buf_flush_checkpoint
-      - record: pg:cls:buf_flush_rate1m
+      - record: pg:ins:buf_write_rate1m
+        expr: pg:ins:buf_flush_backend + pg:ins:buf_flush_checkpoint + pg:ins:buf_clean_rate1m
+      - record: pg:cls:buf_write_rate1m
         expr: sum by (job, cls) (pg:ins:buf_flush_rate1m)
 
       # buffer allocated
       - record: pg:ins:buf_alloc_rate1m
-        expr: rate(pg_bgwriter_buffers_alloc{}[1m])
+        expr: rate(pg_bgwriter_buffers_alloc[1m])
       - record: pg:cls:buf_alloc_rate1m
         expr: sum by (job, cls) (pg:ins:buf_alloc_rate1m)
 
