@@ -1029,9 +1029,12 @@ COMMENT ON FUNCTION pigsty.update_global_var(TEXT,JSONB) IS 'upsert single globa
 
 
 --===========================================================--
---                          log                             --
+--                          pglog                            --
 --===========================================================--
-CREATE TYPE pigsty.log_level AS ENUM (
+DROP SCHEMA IF EXISTS pglog CASCADE;
+CREATE SCHEMA pglog;
+
+CREATE TYPE pglog.level AS ENUM (
     'LOG',
     'INFO',
     'NOTICE',
@@ -1041,10 +1044,11 @@ CREATE TYPE pigsty.log_level AS ENUM (
     'PANIC',
     'DEBUG'
     );
+COMMENT
+    ON TYPE pglog.level IS 'PostgreSQL Log Level';
 
-COMMENT ON TYPE pigsty.log_level IS 'PostgreSQL Log Level';
 
-CREATE TYPE pigsty.cmd_tag AS ENUM (
+CREATE TYPE pglog.cmd_tag AS ENUM (
     -- ps display
     '',
     'initializing',
@@ -1251,9 +1255,10 @@ CREATE TYPE pigsty.cmd_tag AS ENUM (
     'UPDATE',
     'VACUUM'
     );
-COMMENT ON TYPE pigsty.cmd_tag IS 'PostgreSQL Log Command Tag';
+COMMENT
+    ON TYPE pglog.cmd_tag IS 'PostgreSQL Log Command Tag';
 
-CREATE TYPE pigsty.err_code AS ENUM (
+CREATE TYPE pglog.code AS ENUM (
     -- Class 00 - Successful Completion
     '00000', -- 'successful_completion',
     -- Class 01 - Warning
@@ -1530,41 +1535,41 @@ CREATE TYPE pigsty.err_code AS ENUM (
     'XX001', -- 'data_corrupted',
     'XX002' -- 'index_corrupted',
     );
-COMMENT ON TYPE pigsty.err_code IS 'PostgreSQL Error Code';
+COMMENT
+    ON TYPE pglog.code IS 'PostgreSQL Log SQL State Code';
 
--- csvlog sample table
--- DROP TABLE pigsty.csvlog;
-CREATE TABLE IF NOT EXISTS pigsty.csvlog
+DROP TABLE IF EXISTS pglog.sample;
+CREATE TABLE pglog.sample
 (
-    ts       TIMESTAMPTZ,      -- ts
-    username TEXT,             -- usename
-    datname  TEXT,             -- datname
-    pid      integer,          -- process_id
-    conn     TEXT,             -- connect_from
-    sid      TEXT,             -- session id
-    sln      bigint,           -- session line number
-    cmd_tag  pigsty.cmd_tag,   -- command tag
-    stime    TIMESTAMP,        -- session start time
-    vxid     TEXT,             -- virtual transaction id
-    txid     bigint,           -- transaction id
-    level    pigsty.log_level, -- log level
-    code     pigsty.err_code,  -- sql state code
-    msg      TEXT,             -- message
+    ts       TIMESTAMPTZ, -- ts
+    username TEXT,        -- usename
+    datname  TEXT,        -- datname
+    pid      INTEGER,     -- process_id
+    conn     TEXT,        -- connect_from
+    sid      TEXT,        -- session id
+    sln      bigint,      -- session line number
+    cmd_tag  TEXT,        -- command tag
+    stime    TIMESTAMPTZ, -- session start time
+    vxid     TEXT,        -- virtual transaction id
+    txid     bigint,      -- transaction id
+    level    pglog.level, -- log level
+    code     pglog.code,  -- sql state code
+    msg      TEXT,        -- message
     detail   TEXT,
     hint     TEXT,
-    iq       TEXT,             -- internal query
-    iqp      INTEGER,          -- internal query position
+    iq       TEXT,        -- internal query
+    iqp      INTEGER,     -- internal query position
     context  TEXT,
-    q        TEXT,             -- query
-    qp       INTEGER,          -- query position
-    location TEXT,             -- location
-    appname  TEXT,             -- application name
-    backend  TEXT              -- backend_type
+    q        TEXT,        -- query
+    qp       INTEGER,     -- query position
+    location TEXT,        -- location
+    appname  TEXT,        -- application name
+    backend  TEXT,         -- backend_type (new field in PG13)
+    PRIMARY KEY (sid, sln)
 );
-CREATE INDEX ON pigsty.csvlog (ts);
-CREATE INDEX ON pigsty.csvlog (username);
-CREATE INDEX ON pigsty.csvlog (datname);
-CREATE INDEX ON pigsty.csvlog (code);
-CREATE INDEX ON pigsty.csvlog (level);
-CREATE INDEX ON pigsty.csvlog (sid, sln);
-
+CREATE INDEX ON pglog.sample (ts);
+CREATE INDEX ON pglog.sample (username);
+CREATE INDEX ON pglog.sample (datname);
+CREATE INDEX ON pglog.sample (code);
+CREATE INDEX ON pglog.sample (level);
+COMMENT ON TABLE pglog.sample IS 'PostgreSQL CSVLOG sample for Pigsty PGLOG analysis';

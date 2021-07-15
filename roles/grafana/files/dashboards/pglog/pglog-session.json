@@ -18,7 +18,7 @@
                 "hide": false,
                 "iconColor": "red",
                 "name": "Event",
-                "rawQuery": "SELECT extract(epoch from ts) AS time,  msg as text, '' AS tags FROM pigsty.csvlog WHERE sid = '$sid'",
+                "rawQuery": "SELECT extract(epoch from ts) AS time,  msg as text, concat_ws(',', level, code, cmd_tag) AS tags FROM ${log} WHERE sid = '$sid'",
                 "step": "60s",
                 "tagKeys": "severity",
                 "textFormat": "ins",
@@ -32,8 +32,32 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626246381936,
+    "iteration": 1626353292010,
     "links": [
+        {
+            "asDropdown": false,
+            "icon": "bolt",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Auto Zoom",
+            "tooltip": "Adjust Time Range to Session Log Events",
+            "type": "link",
+            "url": "/d/pglog-session?var-sid=${sid}&from=${ts_begin}&to=${ts_end}"
+        },
+        {
+            "asDropdown": false,
+            "icon": "info",
+            "includeVars": false,
+            "keepTime": true,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Overview",
+            "tooltip": "",
+            "type": "link",
+            "url": "/d/pglog-analysis"
+        },
         {
             "asDropdown": true,
             "icon": "external link",
@@ -75,7 +99,7 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "bars",
-                        "fillOpacity": 100,
+                        "fillOpacity": 60,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -83,7 +107,7 @@
                             "viz": false
                         },
                         "lineInterpolation": "linear",
-                        "lineWidth": 1,
+                        "lineWidth": 0,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
@@ -163,13 +187,13 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 5,
                 "w": 18,
                 "x": 0,
                 "y": 1
             },
             "id": 25,
-            "interval": null,
+            "interval": "1s",
             "options": {
                 "legend": {
                     "calcs": [
@@ -189,7 +213,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       level AS metric, count(*) AS value \nFROM pigsty.csvlog\nWHERE $__timeFilter(ts)\nGROUP BY 1, 2\nORDER BY 1, 2;",
+                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       level AS metric, count(*) AS value \nFROM ${log}\nWHERE $__timeFilter(ts)\nGROUP BY 1, 2\nORDER BY 1, 2;",
                     "refId": "A",
                     "select": [
                         [
@@ -213,7 +237,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Log Events by Level",
+            "title": "Log Events (All)",
             "type": "timeseries"
         },
         {
@@ -257,6 +281,10 @@
                                         "url": "/d/pglog-session?var-sid=${__data.fields.Session}"
                                     }
                                 ]
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
                             }
                         ]
                     },
@@ -295,11 +323,55 @@
                                 "value": "color-background"
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Error"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background-solid"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 10,
                 "w": 6,
                 "x": 18,
                 "y": 1
@@ -311,7 +383,7 @@
                 "sortBy": [
                     {
                         "desc": true,
-                        "displayName": "Count"
+                        "displayName": "Error"
                     }
                 ]
             },
@@ -322,7 +394,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT sid, count(*) AS count\nFROM pigsty.csvlog\nWHERE $__timeFilter(ts)\nGROUP BY sid ORDER BY 1;",
+                    "rawSql": "SELECT sid, count(*) AS count, count(*) FILTER ( WHERE code != '00000' ) AS error\nFROM ${log}\nWHERE $__timeFilter(ts)\nGROUP BY sid ORDER BY 1;",
                     "refId": "A",
                     "select": [
                         [
@@ -355,12 +427,166 @@
                         "renameByName": {
                             "app": "App",
                             "count": "Count",
+                            "error": "Error",
                             "sid": "Session"
                         }
                     }
                 }
             ],
             "type": "table"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 60,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ERROR"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "FATAL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "purple",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "LOG"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 18,
+                "x": 0,
+                "y": 6
+            },
+            "id": 30,
+            "interval": "1s",
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "sum"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       level AS metric, count(*) AS value \nFROM ${log}\nWHERE $__timeFilter(ts) AND sid = '$sid'\nGROUP BY 1, 2\nORDER BY 1, 2;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Log Events (Current Session)",
+            "type": "timeseries"
         },
         {
             "datasource": "Meta",
@@ -475,7 +701,7 @@
                 "h": 3,
                 "w": 24,
                 "x": 0,
-                "y": 9
+                "y": 11
             },
             "id": 11,
             "options": {
@@ -502,7 +728,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT * FROM pigsty.csvlog WHERE sid = '${sid}' LIMIT 1;",
+                    "rawSql": "SELECT * FROM ${log} WHERE sid = '${sid}' LIMIT 1;",
                     "refId": "A",
                     "select": [
                         [
@@ -530,6 +756,7 @@
                     "options": {
                         "excludeByName": {
                             "appname": false,
+                            "backend": false,
                             "cmd_tag": true,
                             "code": true,
                             "conn": false,
@@ -547,7 +774,7 @@
                             "qp": true,
                             "sid": false,
                             "sln": true,
-                            "stime": true,
+                            "stime": false,
                             "ts": true,
                             "txid": true,
                             "username": false,
@@ -1031,7 +1258,7 @@
                 "h": 17,
                 "w": 24,
                 "x": 0,
-                "y": 12
+                "y": 14
             },
             "id": 29,
             "options": {
@@ -1050,7 +1277,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT * FROM pigsty.csvlog WHERE sid = '${sid}'",
+                    "rawSql": "SELECT * FROM ${log} WHERE sid = '${sid}'",
                     "refId": "A",
                     "select": [
                         [
@@ -1078,8 +1305,10 @@
                     "id": "organize",
                     "options": {
                         "excludeByName": {
+                            "backend": true,
                             "conn": true,
                             "datname": true,
+                            "location": false,
                             "pid": true,
                             "sid": true,
                             "stime": true,
@@ -1087,11 +1316,12 @@
                         },
                         "indexByName": {
                             "appname": 13,
+                            "backend": 23,
                             "cmd_tag": 7,
                             "code": 12,
-                            "conn": 4,
+                            "conn": 5,
                             "context": 19,
-                            "datname": 2,
+                            "datname": 3,
                             "detail": 15,
                             "hint": 16,
                             "iq": 17,
@@ -1099,15 +1329,15 @@
                             "level": 11,
                             "location": 22,
                             "msg": 14,
-                            "pid": 3,
+                            "pid": 4,
                             "q": 20,
                             "qp": 21,
-                            "sid": 5,
-                            "sln": 6,
+                            "sid": 6,
+                            "sln": 0,
                             "stime": 8,
-                            "ts": 0,
+                            "ts": 1,
                             "txid": 10,
-                            "username": 1,
+                            "username": 2,
                             "vxid": 9
                         },
                         "renameByName": {
@@ -1147,10 +1377,21 @@
     "style": "dark",
     "tags": [
         "Pigsty",
-        "PGLOG"
+        "PGLOG",
+        "Analysis"
     ],
     "templating": {
         "list": [
+            {
+                "description": "Schema qualified csv log table",
+                "error": null,
+                "hide": 2,
+                "label": "Log Table",
+                "name": "log",
+                "query": "pglog.sample",
+                "skipUrlSync": false,
+                "type": "constant"
+            },
             {
                 "current": {},
                 "description": "Session ID from log sample",
@@ -1161,19 +1402,59 @@
                 "options": [
                     {
                         "selected": false,
-                        "text": "60ed3cce.2014a",
-                        "value": "60ed3cce.2014a"
+                        "text": "60f01952.988",
+                        "value": "60f01952.988"
                     }
                 ],
-                "query": "60ed3cce.2014a",
+                "query": "60f01952.988",
                 "skipUrlSync": false,
                 "type": "textbox"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT min(ts) - '5s'::INTERVAL FROM ${log} WHERE sid = '$sid';",
+                "description": "First log timestamp of this session",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Time Begin",
+                "multi": false,
+                "name": "ts_begin",
+                "options": [],
+                "query": "SELECT min(ts) - '5s'::INTERVAL FROM ${log} WHERE sid = '$sid';",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT max(ts) + '5s'::INTERVAL FROM ${log} WHERE sid = '$sid';",
+                "description": "Last log timestamp of this session",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Time End",
+                "multi": false,
+                "name": "ts_end",
+                "options": [],
+                "query": "SELECT max(ts) + '5s'::INTERVAL FROM ${log} WHERE sid = '$sid';",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
             }
         ]
     },
     "time": {
-        "from": "2021-07-13T12:42:38.661Z",
-        "to": "2021-07-13T15:12:20.128Z"
+        "from": "now-3h",
+        "to": "now"
     },
     "timepicker": {},
     "timezone": "",
