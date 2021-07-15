@@ -14,7 +14,7 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 
 > The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
 >
-> Current master is @ **v1.0.0-alpha2**
+> Current master is @ **v1.0.0-beta1**
 
 
 
@@ -23,7 +23,7 @@ Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**htt
 Run on a fresh CentOS 7 node to install pigsty (nopass sudo required)  
 
 ```bash
-VERSION=v1.0.0-alpha2
+VERSION=v1.0.0-beta1
 cd ~ && curl -SLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
 make config    # CONFIGURE (interactive wizard)
 make install   # INSTALL infrastructure on meta node

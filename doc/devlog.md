@@ -11,6 +11,7 @@
 * change default timezone from Asia/ShangHai to Asia/Hong_kong
 * add `pg_shared_libraries` to customize extensions
 * install citus, timescaledb by default
+* prepare for v1.0.0-beta1
  
 
 ## 2021-07-14

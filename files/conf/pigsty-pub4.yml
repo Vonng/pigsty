@@ -321,7 +321,7 @@ all: # top-level namespace
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
       - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
-      # - openldap-devel pam-devel systemd-devel tcl-devel python-devel
+      - openldap-devel pam-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
@@ -374,7 +374,8 @@ all: # top-level namespace
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
       - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-      - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+      - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel,tcl-devel
+      # - pam-devel,openldap-devel,systemd-devel,python-devel
 
     # - node features - #
     node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -402,7 +403,7 @@ all: # top-level namespace
 
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
-    node_ntp_config: none                         # config ntp service? false will leave it with system default
+    node_ntp_config: true                         # config ntp service? false will leave it with system default
     node_timezone: Asia/Hong_Kong                 # default node timezone
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
@@ -463,7 +464,7 @@ all: # top-level namespace
     grafana_admin_password: pigsty                # default grafana admin password
     grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
     # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
-    grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@172.21.0.11:5436/grafana
+    grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
     grafana_plugin: install                       # none|install, none will skip plugin installation
     grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
     grafana_plugins: []                           # plugins that will be downloaded via grafana-cli
@@ -535,7 +536,7 @@ all: # top-level namespace
     # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
 
     # - identity option -#
-    pg_hostname: false                            # overwrite node hostname with pg instance name
+    pg_hostname: true                             # overwrite node hostname with pg instance name
     pg_nodename: true                             # overwrite consul nodename with pg instance name
 
     # - retention - #
