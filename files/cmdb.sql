@@ -1536,7 +1536,7 @@ COMMENT ON TYPE pigsty.err_code IS 'PostgreSQL Error Code';
 -- DROP TABLE pigsty.csvlog;
 CREATE TABLE IF NOT EXISTS pigsty.csvlog
 (
-    ts       TIMESTAMP,        -- ts
+    ts       TIMESTAMPTZ,      -- ts
     username TEXT,             -- usename
     datname  TEXT,             -- datname
     pid      integer,          -- process_id
