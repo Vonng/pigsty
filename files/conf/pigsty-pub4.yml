@@ -1,12 +1,25 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 1-prod-node (configure for node with core >= 8)
+# Desc      :   Pigsty 4-node demo (public host on g.pigsty.cc)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2021-07-15
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
+
+
+######################################################################
+#                     Public Demo (4-node)                           #
+######################################################################
+# admin user : root  (nopass ssh & sudo already set)                 #
+# 1.  meta    :    172.21.0.11    (2 Core | 4GB)    pg-meta          #
+# 2.  node-1  :    172.21.0.3     (1 Core | 1GB)    pg-test-1        #
+# 3.  node-2  :    172.21.0.4     (1 Core | 1GB)    pg-test-2        #
+# 4.  node-3  :    172.21.0.16    (1 Core | 1GB)    pg-test-3        #
+# VIP: Not Available                                                 #
+######################################################################
+
 
 all: # top-level namespace
 
@@ -28,18 +41,18 @@ all: # top-level namespace
         meta_node: true                    # and set their ansible_group_priority to 99
         ansible_group_priority: 99         # which will overwrite other group definition
       hosts:                               # add meta nodes here
-        10.10.10.10: {}                    # 10.10.10.10 is the default meta node
+        172.21.0.11: {}                    # 172.21.0.11 is the default meta node
 
 
     #----------------------------------#
     # cluster: pg-meta (on meta node)  #
     #----------------------------------#
-    # pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
+    # pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (172.21.0.11)
     # if you have multiple n meta nodes, consider deploying pg-meta as n-node cluster too
 
     pg-meta:                                # required, ansible group name , pgsql cluster name. should be unique among environment
       hosts:                                # `<cluster>.hosts` holds instances definition of this cluster
-        10.10.10.10:                        # INSTANCE-LEVEL CONFIG: ip address is the key. values are instance level config entries (dict)
+        172.21.0.11:                        # INSTANCE-LEVEL CONFIG: ip address is the key. values are instance level config entries (dict)
           pg_seq: 1                         # required, unique identity parameter (+integer) among pg_cluster
           pg_role: primary                  # required, pg_role is mandatory identity parameter, primary|replica|offline|delayed
           pg_offline_query: true            # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
@@ -54,8 +67,8 @@ all: # top-level namespace
         # optional                          # all configuration below are OPTIONAL for a pgsql cluster (Overwrite global default)
         #---------------
         pg_version: 13                      # pgsql version to be installed (use global version if missing)
-        node_tune: oltp                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
-        pg_conf: oltp.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
+        node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
+        pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
         patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}
         patroni_watchdog_mode: off          # disable patroni watchdog on meta node        {off|require|automatic}
         pg_lc_ctype: en_US.UTF8             # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
@@ -84,10 +97,6 @@ all: # top-level namespace
               - {name: adminpack, schema: pg_catalog}    # install adminpack to pg_catalog and install postgis to public
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
-          # define an additional database named grafana & prometheus (optional)
-          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
-
         #---------------
         # biz users                         # Defining Business Users (Optional)
         #---------------
@@ -113,25 +122,24 @@ all: # top-level namespace
             # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
-          # define additional business users for prometheus & grafana (optional)
-          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
 
-        #---------------
-        # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
-        #---------------
-        # pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
-        #   - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
-        #     role: common                                    # required, which roles will be applied? ('common' applies to all roles)
-        #     rules:                                          # required, rule content: array of hba string
-        #       - local   grafana         dbuser_grafana                          md5
-        #       - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-        #       - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+    #----------------------------------#
+    # cluster: pg-test (4-node demo)   #
+    #----------------------------------#
+    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+    # Uncomment these to use 4-node version demo
 
-        # vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
-        # vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
-        # vip_cidrmask: 8                     # cidr network mask length
-        # vip_interface: eth1                 # interface to add virtual ip
+    pg-test:                                # define the new 3-node cluster pg-test
+      hosts:
+        172.21.0.3:  {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
+        172.21.0.4:  {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
+        172.21.0.16: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
+      vars:
+        pg_cluster: pg-test                 # define actual cluster name
+        pg_version: 13                      # test postgresql 13 with pg-test cluster
+        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
+        pg_databases: [{ name: test}]       # create a database and user named 'test'
+
 
 
   #==================================================================#
@@ -163,7 +171,7 @@ all: # top-level namespace
     # - repo basic - #
     repo_enabled: true                            # build local yum repo on meta nodes?
     repo_name: pigsty                             # local repo name
-    repo_address: yum.pigsty                      # repo external address (ip:port or url)
+    repo_address: yum.pigsty.cc                   # repo external address (ip:port or url)
     repo_port: 80                                 # listen address, must same as repo_address
     repo_home: /www                               # default repo dir location
     repo_rebuild: false                           # force re-download packages
@@ -334,15 +342,15 @@ all: # top-level namespace
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
-      - 10.10.10.10 yum.pigsty
-      - 10.10.10.10 meta   pg-meta-1
-      # - 10.10.10.11 node-1 pg-test-1
-      # - 10.10.10.12 node-2 pg-test-2
-      # - 10.10.10.13 node-2 pg-test-3
+      - 172.21.0.11 yum.pigsty yum.pigsty.cc
+      - 172.21.0.11 meta  pg-meta-1
+      - 172.21.0.3 node-1 pg-test-1
+      - 172.21.0.4 node-2 pg-test-2
+      - 172.21.0.16 node-2 pg-test-3
 
     node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
-      - 10.10.10.10
+      - 172.21.0.11
     node_dns_options:                             # dns resolv options
       - options single-request-reopen timeout:1 rotate
       - domain service.consul
@@ -380,7 +388,7 @@ all: # top-level namespace
     node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
     # - node tuned - #
-    node_tune: oltp                               # install and activate tuned profile: none|oltp|olap|crit|tiny
+    node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
     # net.bridge.bridge-nf-call-iptables: 1       # example sysctl parameters
 
@@ -394,13 +402,13 @@ all: # top-level namespace
 
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
-    node_ntp_config: true                         # config ntp service? false will leave it with system default
+    node_ntp_config: none                         # config ntp service? false will leave it with system default
     node_timezone: Asia/Hong_Kong                 # default node timezone
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-      - server 10.10.10.10 iburst
+      - server 172.21.0.11 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
 
 
@@ -417,27 +425,28 @@ all: # top-level namespace
     # - nginx - #
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
       # some service can only be accessed via correct domain name (e.g consul)
-      - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
-      - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
-      - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
-      - { name: prometheus,    host: p.pigsty,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
-      - { name: alertmanager,  host: a.pigsty,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
-      - { name: haproxy,       host: h.pigsty,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
-      - { name: server,        host: s.pigsty,    url: "127.0.0.1:9633" }   # pigsty server gui (9093)
+      - { name: home,          host: pigsty.cc,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
+      - { name: consul,        host: c.pigsty.cc,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
+      - { name: grafana,       host: g.pigsty.cc,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
+      - { name: prometheus,    host: p.pigsty.cc,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
+      - { name: alertmanager,  host: a.pigsty.cc,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
+      - { name: haproxy,       host: h.pigsty.cc,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
+      - { name: server,        host: s.pigsty.cc,    url: "127.0.0.1:9633" }   # pigsty server gui (9093)
 
 
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.10 pigsty
-      - 10.10.10.10 y.pigsty yum.pigsty
-      - 10.10.10.10 c.pigsty consul.pigsty
-      - 10.10.10.10 g.pigsty grafana.pigsty
-      - 10.10.10.10 p.pigsty prometheus.pigsty
-      - 10.10.10.10 a.pigsty alertmanager.pigsty
-      - 10.10.10.10 n.pigsty ntp.pigsty
-      - 10.10.10.10 h.pigsty haproxy.pigsty
+      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
+      - 172.21.0.11 meta-1                        # sandbox node meta-1 (node-0)
+      - 172.21.0.11 pigsty
+      - 172.21.0.11 y.pigsty yum.pigsty
+      - 172.21.0.11 c.pigsty consul.pigsty
+      - 172.21.0.11 g.pigsty grafana.pigsty
+      - 172.21.0.11 p.pigsty prometheus.pigsty
+      - 172.21.0.11 a.pigsty alertmanager.pigsty
+      - 172.21.0.11 n.pigsty ntp.pigsty
+      - 172.21.0.11 h.pigsty haproxy.pigsty
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
@@ -449,12 +458,12 @@ all: # top-level namespace
     prometheus_sd_interval: 10s                   # service discovery refresh interval
 
     # - grafana - #
-    grafana_endpoint: http://10.10.10.10:3000     # grafana endpoint url
+    grafana_endpoint: http://172.21.0.11:3000     # grafana endpoint url
     grafana_admin_username: admin                 # default grafana admin username
     grafana_admin_password: pigsty                # default grafana admin password
     grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
     # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
-    grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@10.10.10.10:5436/grafana
+    grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@172.21.0.11:5436/grafana
     grafana_plugin: install                       # none|install, none will skip plugin installation
     grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
     grafana_plugins: []                           # plugins that will be downloaded via grafana-cli
@@ -471,9 +480,9 @@ all: # top-level namespace
     dcs_type: consul                              # consul | etcd | both
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
-      meta-1: 10.10.10.10                         # you could use existing dcs cluster
-      # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
-      # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
+      meta-1: 172.21.0.11                         # you could use existing dcs cluster
+      # meta-2: 172.21.0.3                       # host which have their IP listed here will be init as server
+      # meta-3: 172.21.0.4                       # 3 or 5 dcs nodes are recommend for production environment
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
@@ -547,7 +556,7 @@ all: # top-level namespace
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
     pg_port: 5432                                 # postgres port, 5432 by default
     pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
-    # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
+      # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
     # Set on primary instance will transform this cluster into a standby cluster
     # - patroni - #
     # patroni_mode, available options: default|pause|remove
@@ -559,7 +568,7 @@ all: # top-level namespace
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
 
-    pg_conf: oltp.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
+    pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
     # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
     # extension shared libraries to be added
     pg_shared_libraries: 'citus, timescaledb, pg_stat_statements, auto_explain'
@@ -654,7 +663,7 @@ all: # top-level namespace
       - title: allow meta node password access
         role: common
         rules:
-          - host    all     all                         10.10.10.10/32      md5
+          - host    all     all                         172.21.0.11/32      md5
 
       - title: allow intranet admin password access
         role: common
@@ -739,7 +748,7 @@ all: # top-level namespace
     promtail_clean: false                         # remove promtail status file? false by default
     promtail_port: 9080                           # default listen address for promtail
     promtail_status_file: /tmp/promtail-status.yml
-    promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
+    promtail_send_url: http://172.21.0.11:3100/loki/api/v1/push  # loki url to receive logs
 
     #------------------------------------------------------------------------------
     # SERVICE PROVISION

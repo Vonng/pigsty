@@ -1,10 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 4-node pg14 demo
+# Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-13
+# Mtime     :   2021-07-15
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -107,8 +107,8 @@ all: # top-level namespace
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
           # define an additional database named grafana & prometheus (optional)
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -136,19 +136,19 @@ all: # top-level namespace
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
-          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
 
         #---------------
         # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
         #---------------
-        pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
-          - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
-            role: common                                    # required, which roles will be applied? ('common' applies to all roles)
-            rules:                                          # required, rule content: array of hba string
-              - local   grafana         dbuser_grafana                          md5
-              - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+        # pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+        #   - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+        #     role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+        #     rules:                                          # required, rule content: array of hba string
+        #       - local   grafana         dbuser_grafana                          md5
+        #       - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+        #       - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
         vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
@@ -172,11 +172,11 @@ all: # top-level namespace
 
       vars:
         pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 14                      # test postgresql 13 with pg-test cluster
+        pg_version: 14                      # test postgresql 14 with pg-test cluster
         pg_packages:                        # overwrite postgres packages to be installed
           - postgresql14* pgbouncer patroni pg_exporter pgbadger patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
           - python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
-        pg_extensions: []                   # PostgreSQL 14 does not have available 3rd extensions
+        pg_extensions: []
         pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
         pg_databases: [{ name: test}]       # create a database and user named 'test'
         vip_mode: l2                        # enable/disable vip (require members in same LAN)
@@ -381,7 +381,7 @@ all: # top-level namespace
 
       # postgres 13 packages
       - postgresql13*                                                                          # postgresql 13 kernel
-      - postgresql14*                                                                          # postgresql 13 kernel
+      - postgresql14*                                                                          # postgresql 14 kernel
       - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
       - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
       - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
@@ -478,7 +478,7 @@ all: # top-level namespace
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_config: true                         # config ntp service? false will leave it with system default
-    node_timezone: Asia/Shanghai                  # default node timezone
+    node_timezone: Asia/Hong_Kong                 # default node timezone
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
@@ -525,7 +525,7 @@ all: # top-level namespace
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=30d'
+    prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
     prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -582,6 +582,8 @@ all: # top-level namespace
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*                  # postgresql kernel packages
       - postgis31_${pg_version}*                  # postgis
+      - citus_${pg_version}                       # citus
+      - timescaledb_${pg_version}                 # timescaledb
       - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
@@ -617,7 +619,7 @@ all: # top-level namespace
     #  - clean: remove existing cluster (dangerous)
     #  - skip: end current play for this host
     # pg_exists: false                            # auxiliary flag variable (DO NOT SET THIS)
-    pg_exists_action: clean                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
+    pg_exists_action: abort                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
     pg_disable_purge: false                       # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
 
     # - storage - #
@@ -640,8 +642,11 @@ all: # top-level namespace
     pg_namespace: /pg                             # top level key namespace in dcs
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
+
     pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
     # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
+    # extension shared libraries to be added
+    pg_shared_libraries: 'pg_stat_statements, auto_explain'
 
     # - flags - #
     pg_backup: false                              # store base backup on this node          (instance level, TBD)
@@ -875,10 +880,10 @@ all: # top-level namespace
     haproxy_reload: true                          # reload haproxy after config
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: admin                 # default haproxy admin password
+    haproxy_admin_password: pigsty                # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 12h                    # client side connection timeout
-    haproxy_server_timeout: 12h                    # server side connection timeout
+    haproxy_client_timeout: 12h                   # client side connection timeout
+    haproxy_server_timeout: 12h                   # server side connection timeout
 
     # - vip - #
     vip_mode: none                                # none | l2 | l4

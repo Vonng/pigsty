@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-13
+# Mtime     :   2021-07-15
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -512,7 +512,7 @@ all: # top-level namespace
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=30d'
+    prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
     prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -569,6 +569,8 @@ all: # top-level namespace
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*                  # postgresql kernel packages
       - postgis31_${pg_version}*                  # postgis
+      - citus_${pg_version}                       # citus
+      - timescaledb_${pg_version}                 # timescaledb
       - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
@@ -865,10 +867,10 @@ all: # top-level namespace
     haproxy_reload: true                          # reload haproxy after config
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: admin                 # default haproxy admin password
+    haproxy_admin_password: pigsty                # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 12h                    # client side connection timeout
-    haproxy_server_timeout: 12h                    # server side connection timeout
+    haproxy_client_timeout: 12h                   # client side connection timeout
+    haproxy_server_timeout: 12h                   # server side connection timeout
 
     # - vip - #
     vip_mode: none                                # none | l2 | l4

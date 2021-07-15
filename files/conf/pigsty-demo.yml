@@ -1,10 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 1-node demo (configure sandbox default)
+# Desc      :   Pigsty 1-node demo (default config after sandbox configure)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-13
+# Mtime     :   2021-07-15
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -95,8 +95,8 @@ all: # top-level namespace
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
           # define an additional database named grafana & prometheus (optional)
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -124,19 +124,19 @@ all: # top-level namespace
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
-          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
 
         #---------------
         # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
         #---------------
-        pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
-          - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
-            role: common                                    # required, which roles will be applied? ('common' applies to all roles)
-            rules:                                          # required, rule content: array of hba string
-              - local   grafana         dbuser_grafana                          md5
-              - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+        # pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+        #   - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+        #     role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+        #     rules:                                          # required, rule content: array of hba string
+        #       - local   grafana         dbuser_grafana                          md5
+        #       - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+        #       - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
         vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
@@ -151,42 +151,42 @@ all: # top-level namespace
     # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
     # Uncomment these to use 4-node version demo
 
-  #    pg-test:                                # define the new 3-node cluster pg-test
-  #      hosts:
-  #
-  #        10.10.10.11: {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
-  #        10.10.10.12: {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
-  #        10.10.10.13: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
-  #
-  #      vars:
-  #        pg_cluster: pg-test                 # define actual cluster name
-  #        pg_version: 13                      # test postgresql 13 with pg-test cluster
-  #        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
-  #        pg_databases: [{ name: test}]       # create a database and user named 'test'
-  #        vip_mode: l2                        # enable/disable vip (require members in same LAN)
-  #        vip_address: 10.10.10.3             # virtual ip address for this cluster
-  #        vip_cidrmask: 8                     # cidr network mask length
-  #        vip_interface: eth1                 # interface to add virtual ip
-  #
-  #        #---------------
-  #        # service                           # Defining Extra Service (Optional)
-  #        #---------------
-  #        pg_services_extra:                  # extra services in addition to pg_services, array of service definition
-  #          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-  #          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-  #            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-  #            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
-  #            dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-  #            check_method: http              # optional, health check method: http is the only available method for now
-  #            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-  #            check_url: /read-only?lag=0     # optional, health check url path, / by default
-  #            check_code: 200                 # optional, health check expected http code, 200 by default
-  #            selector: "[]"                  # required, JMESPath to filter inventory ()
-  #            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-  #            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-  #              maxconn: 3000                 # optional, max allowed front-end connection
-  #              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-  #              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+#    pg-test:                                # define the new 3-node cluster pg-test
+#      hosts:
+#
+#        10.10.10.11: {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
+#        10.10.10.12: {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
+#        10.10.10.13: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
+#
+#      vars:
+#        pg_cluster: pg-test                 # define actual cluster name
+#        pg_version: 13                      # test postgresql 13 with pg-test cluster
+#        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
+#        pg_databases: [{ name: test}]       # create a database and user named 'test'
+#        vip_mode: l2                        # enable/disable vip (require members in same LAN)
+#        vip_address: 10.10.10.3             # virtual ip address for this cluster
+#        vip_cidrmask: 8                     # cidr network mask length
+#        vip_interface: eth1                 # interface to add virtual ip
+#
+#        #---------------
+#        # service                           # Defining Extra Service (Optional)
+#        #---------------
+#        pg_services_extra:                  # extra services in addition to pg_services, array of service definition
+#          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
+#          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+#            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
+#            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
+#            dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+#            check_method: http              # optional, health check method: http is the only available method for now
+#            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
+#            check_url: /read-only?lag=0     # optional, health check url path, / by default
+#            check_code: 200                 # optional, health check expected http code, 200 by default
+#            selector: "[]"                  # required, JMESPath to filter inventory ()
+#            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
+#            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
+#              maxconn: 3000                 # optional, max allowed front-end connection
+#              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+#              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
 
@@ -453,7 +453,7 @@ all: # top-level namespace
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_config: true                         # config ntp service? false will leave it with system default
-    node_timezone: Asia/Shanghai                  # default node timezone
+    node_timezone: Asia/Hong_Kong                 # default node timezone
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
@@ -487,7 +487,7 @@ all: # top-level namespace
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
+      # - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
@@ -500,7 +500,7 @@ all: # top-level namespace
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=30d'
+    prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
     prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -557,6 +557,8 @@ all: # top-level namespace
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*                  # postgresql kernel packages
       - postgis31_${pg_version}*                  # postgis
+      - citus_${pg_version}                       # citus
+      - timescaledb_${pg_version}                 # timescaledb
       - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
@@ -592,7 +594,7 @@ all: # top-level namespace
     #  - clean: remove existing cluster (dangerous)
     #  - skip: end current play for this host
     # pg_exists: false                            # auxiliary flag variable (DO NOT SET THIS)
-    pg_exists_action: clean                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
+    pg_exists_action: abort                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
     pg_disable_purge: false                       # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
 
     # - storage - #
@@ -615,8 +617,11 @@ all: # top-level namespace
     pg_namespace: /pg                             # top level key namespace in dcs
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
+
     pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
     # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
+    # extension shared libraries to be added
+    pg_shared_libraries: 'citus, timescaledb, pg_stat_statements, auto_explain'
 
     # - flags - #
     pg_backup: false                              # store base backup on this node          (instance level, TBD)
@@ -850,10 +855,10 @@ all: # top-level namespace
     haproxy_reload: true                          # reload haproxy after config
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: admin                 # default haproxy admin password
+    haproxy_admin_password: pigsty                # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 12h                    # client side connection timeout
-    haproxy_server_timeout: 12h                    # server side connection timeout
+    haproxy_client_timeout: 12h                   # client side connection timeout
+    haproxy_server_timeout: 12h                   # server side connection timeout
 
     # - vip - #
     vip_mode: none                                # none | l2 | l4

@@ -4,19 +4,9 @@
 # Desc      :   Pigsty 1-tiny-node (configure for node with core < 8)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-13
+# Mtime     :   2021-07-15
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
-
-
-######################################################################
-#                        Sandbox (1-node)                            #
-#====================================================================#
-# admin user : vagrant  (nopass ssh & sudo already set)              #
-# 1 node  meta    :    10.10.10.10  --->  pg-meta-1 (2 Core | 4GB)   #
-# 1 vip   pg-meta :    10.10.10.2   --->  pg-meta   (10.10.10.10)    #
-######################################################################
-
 
 all: # top-level namespace
 
@@ -95,8 +85,8 @@ all: # top-level namespace
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
           # define an additional database named grafana & prometheus (optional)
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -124,21 +114,24 @@ all: # top-level namespace
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
-          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
 
         #---------------
         # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
         #---------------
-        pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
-          - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
-            role: common                                    # required, which roles will be applied? ('common' applies to all roles)
-            rules:                                          # required, rule content: array of hba string
-              - local   grafana         dbuser_grafana                          md5
-              - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+        # pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+        #   - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+        #     role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+        #     rules:                                          # required, rule content: array of hba string
+        #       - local   grafana         dbuser_grafana                          md5
+        #       - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+        #       - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
-
+        # vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
+        # vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
+        # vip_cidrmask: 8                     # cidr network mask length
+        # vip_interface: eth1                 # interface to add virtual ip
 
 
   #==================================================================#
@@ -402,7 +395,7 @@ all: # top-level namespace
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_config: true                         # config ntp service? false will leave it with system default
-    node_timezone: Asia/Shanghai                  # default node timezone
+    node_timezone: Asia/Hong_Kong                 # default node timezone
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
@@ -435,7 +428,7 @@ all: # top-level namespace
 
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
-      - 10.10.10.10 pg-meta                       # sandbox vip for pg-meta
+      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
@@ -448,7 +441,7 @@ all: # top-level namespace
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=30d'
+    prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
     prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -481,7 +474,7 @@ all: # top-level namespace
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
       # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
       # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
-    dcs_exists_action: abort                      # abort|skip|clean if dcs server already exists
+    dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
@@ -505,6 +498,8 @@ all: # top-level namespace
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*                  # postgresql kernel packages
       - postgis31_${pg_version}*                  # postgis
+      - citus_${pg_version}                       # citus
+      - timescaledb_${pg_version}                 # timescaledb
       - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
@@ -563,8 +558,11 @@ all: # top-level namespace
     pg_namespace: /pg                             # top level key namespace in dcs
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
+
     pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
     # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
+    # extension shared libraries to be added
+    pg_shared_libraries: 'citus, timescaledb, pg_stat_statements, auto_explain'
 
     # - flags - #
     pg_backup: false                              # store base backup on this node          (instance level, TBD)
@@ -798,10 +796,10 @@ all: # top-level namespace
     haproxy_reload: true                          # reload haproxy after config
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: admin                 # default haproxy admin password
+    haproxy_admin_password: pigsty                # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 12h                    # client side connection timeout
-    haproxy_server_timeout: 12h                    # server side connection timeout
+    haproxy_client_timeout: 12h                   # client side connection timeout
+    haproxy_server_timeout: 12h                   # server side connection timeout
 
     # - vip - #
     vip_mode: none                                # none | l2 | l4

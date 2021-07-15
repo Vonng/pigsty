@@ -67,11 +67,11 @@ Will automatically be chosen during configure when:
 ```
  [demo4]   (home default)   
     ↓        configure
-    ↓--------------------------↓
-    ↓                          ↓
-    ↓ reduce to 1-node         ↓ use pg14
-    ↓                          ↓
-  [demo]                     [pg14]
+    ↓--------------------------↓--------------------------↓
+    ↓                          ↓                          ↓ 
+    ↓ reduce to 1-node         ↓ use pg14                 ↓ 
+    ↓                          ↓                          ↓ 
+  [demo]                     [pg14]                     [pub4]
     ↓
     ↓ disable vip & dns
     ↓
