@@ -1,5 +1,25 @@
 # Development Log
 
+
+## 2021-07-15
+
+* remove `grafana` & `prometheus` database definition in config file
+  instead, change grafana primary database to postgres will be a tutorial for get start with pigsty
+* build & fix dashboard data links
+* add `bin/load_log` script for `pglog` application
+
+
+## 2021-07-14
+
+* add pgsql-xacts dashboard 
+* add pgsql-persist dashboard
+* add pgsql-tables dashboard
+* add pglog-analysis dashboard
+* add pglog-session dashboard
+* add softlinks in files dir to dashboards
+
+
+
 ## 2021-07-13
 
 * Release pigsty v1.0.0-alpha2
