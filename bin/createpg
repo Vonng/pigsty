@@ -2,13 +2,13 @@
 set -euo pipefail
 
 #==============================================================#
-# File      :   bin/createdb
+# File      :   bin/createpg
 # Ctime     :   2021-07-15
 # Mtime     :   2021-07-15
-# Desc      :   Wrapper of pgsql-createdb playbook
-# Usage     :   bin/createdb <cluster> <dbname>
-# Path      :   bin/createdb
-# Depend    :   pigsty playbook pgsql-createdb.yml
+# Desc      :   Wrapper of pgsql playbook
+# Usage     :   bin/createpg <cluster> [...tasks]
+# Path      :   bin/createpg
+# Depend    :   pigsty playbook pgsql.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
@@ -44,25 +44,25 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 #==============================================================#
 # parameters
 #==============================================================#
-PG_CLUSTER=${1}
-PG_DATABASE=${2}
+PG_CLUSTER=${1-''}
+shift;
+PG_TASKS="$@"
 
-if [[ -z "${PG_CLUSTER}" ]]; then
+if [[ "${PG_CLUSTER}" == "" ]]; then
 	log_error "pg_cluster is empty"
-	log_hint "bin/createdb <pg_cluster> <pg_database>    # define database in pg_databases first"
+	log_hint "bin/createpg <pg_cluster> <pg_cluster>    # define cluster in pg_clusters first"
 	exit 1
 fi
 
-if [[ -z "${PG_DATABASE}" ]]; then
-	log_error "pg_database is empty"
-	log_hint "bin/createdb <pg_cluster> <pg_database>    # define database in pg_databases first"
-	exit 2
+PLAYBOOK_TAGS=""
+if [[ ! -z "${PG_TASKS}" ]]; then
+    PLAYBOOK_TAGS="-t $@"
 fi
 #==============================================================#
 
 
 #==============================================================#
-echo "create database ${PG_DATABASE} on cluster ${PG_CLUSTER}"
+log_info "init pgsql ${PG_CLUSTER} with: ${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql-createdb.yml -l ${PG_CLUSTER} -e pg_database=${PG_DATABASE}
+${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
