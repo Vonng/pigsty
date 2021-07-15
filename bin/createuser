@@ -1,0 +1,68 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   createuser
+# Ctime     :   2021-07-15
+# Mtime     :   2021-07-15
+# Desc      :   Wrapper of pgsql-createuser playbook
+# Usage     :   bin/createuser <cluster> <username>
+# Path      :   bin/createuser
+# Depend    :   pigsty playbooks
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#==============================================================#
+# environment
+#==============================================================#
+APP_NAME="$(basename $0))"
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=$(cd $(dirname ${APP_DIR}) && pwd)
+
+
+#==============================================================#
+# log util
+#==============================================================#
+__CN='\033[0m'    # no color
+__CB='\033[0;30m' # black
+__CR='\033[0;31m' # red
+__CG='\033[0;32m' # green
+__CY='\033[0;33m' # yellow
+__CB='\033[0;34m' # blue
+__CM='\033[0;35m' # magenta
+__CC='\033[0;36m' # cyan
+__CW='\033[0;37m' # white
+function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
+function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint()  { printf "${__CB}$*${__CN}\n"; }
+#==============================================================#
+
+
+#==============================================================#
+# parameters
+#==============================================================#
+PG_CLUSTER=${1}
+PG_USER=${2}
+
+if [[ -z "${PG_CLUSTER}" ]]; then
+	log_error "pg_cluster is empty"
+	log_hint "bin/createuser <pg_cluster> <pg_user>    # define user in pg_users first"
+	exit 1
+fi
+
+if [[ -z "${PG_USER}" ]]; then
+	log_error "pg_user is empty"
+	log_hint "bin/createuser <pg_cluster> <pg_user>    # define user in pg_users first"
+	exit 2
+fi
+#==============================================================#
+
+
+#==============================================================#
+echo "create user ${PG_USER} on cluster ${PG_CLUSTER}"
+#==============================================================#
+cd ${PIGSTY_HOME} >/dev/null
+${PIGSTY_HOME}/pgsql-createuser.yml -l ${PG_CLUSTER} -e pg_user=${PG_USER}
