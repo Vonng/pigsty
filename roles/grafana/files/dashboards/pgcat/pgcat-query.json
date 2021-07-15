@@ -12,13 +12,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Catalog Explorer for Query",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625831574671,
+    "iteration": 1626324155372,
     "links": [
         {
             "asDropdown": true,
@@ -84,6 +83,86 @@
     "panels": [
         {
             "datasource": "Prometheus-PgSQL",
+            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Cluster for ${cls}",
+                            "url": "/d/pgsql-cluster?var-cls=${cls}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "id": 82,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Cluster",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${cls}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
             "description": "ins = ${ins}, used as unique instance identifier. Formed as {{ cls }}-{{ seq }}. ",
             "fieldConfig": {
                 "defaults": {
@@ -111,8 +190,8 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 4,
-                "x": 0,
+                "w": 6,
+                "x": 4,
                 "y": 0
             },
             "id": 76,
@@ -131,7 +210,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -190,7 +269,7 @@
             "gridPos": {
                 "h": 2,
                 "w": 4,
-                "x": 4,
+                "x": 10,
                 "y": 0
             },
             "id": 48,
@@ -209,7 +288,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -269,8 +348,8 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 11,
-                "x": 8,
+                "w": 10,
+                "x": 14,
                 "y": 0
             },
             "id": 50,
@@ -289,7 +368,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -321,6 +400,32 @@
             "type": "stat"
         },
         {
+            "datasource": null,
+            "gridPos": {
+                "h": 14,
+                "w": 14,
+                "x": 0,
+                "y": 2
+            },
+            "id": 57,
+            "options": {
+                "content": "```sql\n${qs}\n```",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "",
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Query String",
+            "type": "text"
+        },
+        {
             "datasource": "${dsn}",
             "description": "Users list that runs this query",
             "fieldConfig": {
@@ -333,7 +438,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "text",
+                                "color": "rgba(128, 128, 128, 1)",
                                 "value": null
                             }
                         ]
@@ -343,9 +448,9 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 5,
-                "x": 19,
-                "y": 0
+                "w": 10,
+                "x": 14,
+                "y": 2
             },
             "id": 63,
             "options": {
@@ -363,7 +468,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "format": "table",
@@ -394,32 +499,6 @@
             ],
             "title": "Users",
             "type": "stat"
-        },
-        {
-            "datasource": null,
-            "gridPos": {
-                "h": 12,
-                "w": 14,
-                "x": 0,
-                "y": 2
-            },
-            "id": 57,
-            "options": {
-                "content": "```sql\n${qs}\n```",
-                "mode": "markdown"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "",
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Query String",
-            "type": "text"
         },
         {
             "datasource": "$dsn",
@@ -516,7 +595,7 @@
                 "h": 6,
                 "w": 5,
                 "x": 14,
-                "y": 2
+                "y": 4
             },
             "id": 67,
             "links": [],
@@ -524,7 +603,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "format": "table",
@@ -721,7 +800,7 @@
                 "h": 18,
                 "w": 5,
                 "x": 19,
-                "y": 2
+                "y": 4
             },
             "id": 74,
             "links": [],
@@ -729,7 +808,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "format": "table",
@@ -987,7 +1066,7 @@
                 "h": 6,
                 "w": 5,
                 "x": 14,
-                "y": 8
+                "y": 10
             },
             "id": 69,
             "links": [],
@@ -995,7 +1074,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "format": "table",
@@ -1275,7 +1354,7 @@
                 "h": 6,
                 "w": 10,
                 "x": 0,
-                "y": 14
+                "y": 16
             },
             "id": 78,
             "options": {
@@ -1446,7 +1525,7 @@
                 "h": 6,
                 "w": 9,
                 "x": 10,
-                "y": 14
+                "y": 16
             },
             "id": 80,
             "options": {
@@ -1801,7 +1880,7 @@
                 "h": 4,
                 "w": 24,
                 "x": 0,
-                "y": 20
+                "y": 22
             },
             "id": 61,
             "options": {
@@ -1813,7 +1892,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "format": "table",
@@ -1934,7 +2013,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 24
+                "y": 26
             },
             "id": 55,
             "panels": [],
@@ -2217,7 +2296,7 @@
                 "h": 14,
                 "w": 24,
                 "x": 0,
-                "y": 25
+                "y": 27
             },
             "id": 53,
             "options": {
@@ -2229,7 +2308,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "format": "table",
@@ -2460,6 +2539,29 @@
                 "tagsQuery": "",
                 "type": "query",
                 "useTags": false
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT '${dsn}';",
+                "description": "Cluster identifier",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Cluster",
+                "multi": false,
+                "name": "cls",
+                "options": [],
+                "query": "SELECT '${dsn}';",
+                "refresh": 2,
+                "regex": "/(\\S+)-\\d+\\.\\S+/",
+                "skipUrlSync": false,
+                "sort": 1,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
             }
         ]
     },
@@ -2497,5 +2599,6 @@
     "timezone": "",
     "title": "PGCAT Query",
     "uid": "pgcat-query",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

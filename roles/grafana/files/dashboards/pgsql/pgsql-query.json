@@ -12,13 +12,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PGSQL Query Dashboard",
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625831554921,
+    "iteration": 1626324005387,
     "links": [
         {
             "asDropdown": true,
@@ -84,6 +83,86 @@
     "panels": [
         {
             "datasource": "Prometheus-PgSQL",
+            "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Cluster for ${cls}",
+                            "url": "/d/pgsql-cluster?var-cls=${cls}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "id": 373,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Cluster",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${cls}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
             "description": "ins = ${ins}, used as unique instance identifier. Formed as {{ cls }}-{{ seq }}. ",
             "fieldConfig": {
                 "defaults": {
@@ -112,7 +191,7 @@
             "gridPos": {
                 "h": 2,
                 "w": 4,
-                "x": 0,
+                "x": 4,
                 "y": 0
             },
             "id": 357,
@@ -131,7 +210,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -190,7 +269,7 @@
             "gridPos": {
                 "h": 2,
                 "w": 4,
-                "x": 4,
+                "x": 8,
                 "y": 0
             },
             "id": 359,
@@ -209,7 +288,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -269,8 +348,8 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 16,
-                "x": 8,
+                "w": 12,
+                "x": 12,
                 "y": 0
             },
             "id": 361,
@@ -289,7 +368,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -593,7 +672,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.0.5",
             "targets": [
                 {
                     "exemplar": true,
@@ -760,13 +839,261 @@
             "type": "piechart"
         },
         {
+            "datasource": "Prometheus-PgSQL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 60,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.stacking",
+                                "value": {
+                                    "group": "A",
+                                    "mode": "none"
+                                }
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgba(109, 109, 109, 1)",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 9
+            },
+            "id": 369,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:db:query_rate1m{ins=\"$ins\", datname=\"$datname\"}",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "Database",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\"}",
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ query }}",
+                    "refId": "B"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Query QPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "always",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 40
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 9
+            },
+            "id": 371,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:ins:query_rt_1m{ins=\"$ins\"}",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "Database",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "pg:query:rt_1m{ins=\"$ins\"}",
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ query }}",
+                    "refId": "B"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Statement RT",
+            "type": "timeseries"
+        },
+        {
             "collapsed": false,
             "datasource": "Prometheus-PgSQL",
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 9
+                "y": 16
             },
             "id": 291,
             "panels": [],
@@ -899,7 +1226,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 0,
-                "y": 10
+                "y": 17
             },
             "id": 353,
             "options": {
@@ -1075,7 +1402,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 10
+                "y": 17
             },
             "id": 355,
             "options": {
@@ -1203,7 +1530,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 0,
-                "y": 20
+                "y": 27
             },
             "id": 324,
             "options": {
@@ -1307,7 +1634,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 12,
-                "y": 20
+                "y": 27
             },
             "id": 325,
             "options": {
@@ -1526,7 +1853,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 0,
-                "y": 25
+                "y": 32
             },
             "id": 285,
             "options": {
@@ -1777,7 +2104,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 12,
-                "y": 25
+                "y": 32
             },
             "id": 326,
             "options": {
@@ -1965,7 +2292,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 41
+                "y": 48
             },
             "id": 334,
             "options": {
@@ -2142,7 +2469,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 41
+                "y": 48
             },
             "id": 332,
             "options": {
@@ -2319,7 +2646,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 48
+                "y": 55
             },
             "id": 336,
             "options": {
@@ -2496,7 +2823,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 48
+                "y": 55
             },
             "id": 337,
             "options": {
@@ -2673,7 +3000,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 55
+                "y": 62
             },
             "id": 338,
             "options": {
@@ -2850,7 +3177,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 55
+                "y": 62
             },
             "id": 333,
             "options": {
@@ -2909,7 +3236,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 62
+                "y": 69
             },
             "id": 289,
             "panels": [
@@ -3993,5 +4320,6 @@
     "timezone": "",
     "title": "PGSQL Query",
     "uid": "pgsql-query",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }
