@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626229509800,
+    "iteration": 1626333592329,
     "links": [
         {
             "asDropdown": true,
@@ -2059,7 +2059,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 80
+                                "value": null
                             },
                             {
                                 "id": "mappings",
@@ -2348,12 +2348,7 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Node for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
                     "max": 1.1,
                     "min": 0,
@@ -2405,6 +2400,57 @@
                                     {
                                         "title": "PGSQL Proxy for ${cls}",
                                         "url": "/d/pgsql-service?var-cls=${cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Node"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Node for ${primary}",
+                                        "url": "/d/pgsql-node?var-ins=${primary}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Postgres"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${cls} Leader",
+                                        "url": "/d/pgsql-instance?var-ins=${primary}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pgbouncer"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Queries for ${primary}",
+                                        "url": "/d/pgsql-queries?var-ins=${primary}"
                                     }
                                 ]
                             }
@@ -3096,8 +3142,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
+                            "title": "PGSQL Xacts : Commits for ${cls}",
+                            "url": "/d/pgsql-xacts?var-ins=${primary}&viewPanel=98"
                         }
                     ],
                     "mappings": [
@@ -3182,8 +3228,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
+                            "title": "PGSQL Xacts : Rollback for ${primary}",
+                            "url": "/d/pgsql-xacts?var-ins=${primary}&viewPanel=99"
                         }
                     ],
                     "mappings": [
@@ -3272,8 +3318,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
+                            "title": "PGSQL Queries : QPS for ${cls}",
+                            "url": "/d/pgsql-queries?var-ins=${primary}&viewPanel=81"
                         }
                     ],
                     "mappings": [
@@ -3311,88 +3357,6 @@
                 "h": 3,
                 "w": 2,
                 "x": 4,
-                "y": 25
-            },
-            "id": 60,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 12,
-                    "valueSize": 18
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.0.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "pgbouncer:cls:xact_rate1m{cls=\"$cls\"}",
-                    "interval": "",
-                    "legendFormat": "TPS",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Queries : QPS for ${cls}",
-                            "url": "/d/pgsql-queries?var-ins=${primary}&viewPanel=66"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "\u2205"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "orange",
-                                "value": 32000
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 2,
-                "x": 6,
                 "y": 25
             },
             "id": 47,
@@ -3436,8 +3400,90 @@
                     },
                     "links": [
                         {
+                            "title": "PGSQL Xacts : Rollbacks for ${cls}",
+                            "url": "/d/pgsql-xacts?var-ins=${primary}&viewPanel=81"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 30000
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 6,
+                "y": 25
+            },
+            "id": 60,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pgbouncer:cls:xact_rate1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "TPS",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
                             "title": "PGSQL Queries for Cluster ${cls}",
-                            "url": "/d/pgsql-queries?var-ins=${primary}&viewPanel=68"
+                            "url": "/d/pgsql-queries?var-ins=${primary}&viewPanel=102"
                         }
                     ],
                     "mappings": [
@@ -4014,8 +4060,8 @@
                     "decimals": 2,
                     "links": [
                         {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
+                            "title": "PGSQL Persist : Age for ${cls}",
+                            "url": "/d/pgsql-persist?var-ins=${primary}&viewPanel=228"
                         }
                     ],
                     "mappings": [
@@ -4113,8 +4159,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Query for ${ins}",
-                            "url": "/d/pgsql-query?var-ins=${ins}"
+                            "title": "PGSQL Node : Space for ${primary}",
+                            "url": "/d/pgsql-node?var-ins=${primary}&viewPanel=199"
                         }
                     ],
                     "mappings": [
