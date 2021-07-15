@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   load_log
+# Ctime     :   2021-07-15
+# Mtime     :   2021-07-15
+# Desc      :   load log sample into cmdb for analysis
+# Path      :   bin/load_log
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#==============================================================#
+# environment
+#==============================================================#
+APP_DIR="$(cd $(dirname $0) && pwd)"
+APP_NAME="$(basename ${APP_DIR})"
+METADB_URL=${METADB_URL-"service=meta"}
+
+#==============================================================#
+# parameter
+#==============================================================#
+LOG_PATH=${1}
+
+#==============================================================#
+# TODO: validation & fix
+#==============================================================#
+# known issues:
+# * csvlog below PG 13 does not have backend_type field
+# * +8 Timezone CST will be parse as -6
+
+#==============================================================#
+# load log
+#==============================================================#
+cat ${LOG_PATH} | psql ${METADB_URL} -AXtc 'TRUNCATE pigsty.csvlog; COPY pigsty.csvlog FROM STDIN CSV;'

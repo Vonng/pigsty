@@ -107,8 +107,8 @@ all: # top-level namespace
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
           # define an additional database named grafana & prometheus (optional)
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -136,19 +136,19 @@ all: # top-level namespace
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
-          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
 
         #---------------
         # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
         #---------------
-        pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
-          - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
-            role: common                                    # required, which roles will be applied? ('common' applies to all roles)
-            rules:                                          # required, rule content: array of hba string
-              - local   grafana         dbuser_grafana                          md5
-              - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+        # pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+        #   - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+        #     role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+        #     rules:                                          # required, rule content: array of hba string
+        #       - local   grafana         dbuser_grafana                          md5
+        #       - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+        #       - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
         vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
@@ -465,7 +465,7 @@ all: # top-level namespace
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_config: true                         # config ntp service? false will leave it with system default
-    node_timezone: Asia/Shanghai                  # default node timezone
+    node_timezone: Asia/Hong_Kong                 # default node timezone
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
@@ -604,7 +604,7 @@ all: # top-level namespace
     #  - clean: remove existing cluster (dangerous)
     #  - skip: end current play for this host
     # pg_exists: false                            # auxiliary flag variable (DO NOT SET THIS)
-    pg_exists_action: clean                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
+    pg_exists_action: abort                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
     pg_disable_purge: false                       # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
 
     # - storage - #
@@ -627,8 +627,11 @@ all: # top-level namespace
     pg_namespace: /pg                             # top level key namespace in dcs
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
+
     pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
                                                   # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
+    # extension shared libraries to be added
+    pg_shared_libraries: 'citus, timescaledb, pg_stat_statements, auto_explain'
 
     # - flags - #
     pg_backup: false                              # store base backup on this node          (instance level, TBD)

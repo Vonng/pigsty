@@ -3,10 +3,13 @@
 
 ## 2021-07-15
 
+* Calibration of dashboard data links
 * remove `grafana` & `prometheus` database definition in config file
   instead, change grafana primary database to postgres will be a tutorial for get start with pigsty
 * build & fix dashboard data links
 * add `bin/load_log` script for `pglog` application
+* change default timezone from Asia/ShangHai to Asia/Hong_kong
+* add `pg_shared_libraries` to customize extensions
 
 
 ## 2021-07-14

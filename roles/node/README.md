@@ -144,7 +144,7 @@ node_admin_pks: []                            # ssh public keys to be added to a
 # - node ntp - #
 node_ntp_service: ntp                         # ntp service provider: ntp|chrony
 node_ntp_config: true                         # config ntp service? false will leave it with system default
-node_timezone: Asia/Shanghai                  # default node timezone
+node_timezone: Asia/Hong_Kong                 # default node timezone
 node_ntp_servers:                             # default NTP servers
   - pool cn.pool.ntp.org iburst
   - pool pool.ntp.org iburst
