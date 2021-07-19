@@ -1,33 +1,36 @@
-# Pigsty -- Open Source PostgreSQL Distribution
+# Pigsty
 
-> [PIGSTY](http://pigsty.cc): Postgres in Graphic STYle
+## ![](docs/_media/icon.svg)
 
-[Pigsty](https://pigsty.cc/zh/) is an open-source, battery-included PostgreSQL Distribution.
+[Pigsty](docs/) is a Battery-included open-source PostgreSQL Distribution.
 
 It delivers the **BEST** open source **monitoring** solution for PostgreSQL. Along with the **easiest provisioning** solution for large scale production-grade database clusters. 
 
 It can be used both for large-scale pg clusters management in real-world prod-env, and for launching battery-included single pgsql sandbox for dev & data analysis & demo purpose in a simple and fast way.
 
-![](img/logo.svg)
+![](docs/_media/what-is-pigsty.svg)
 
-Check [**OFFICIAL SITE**](https://pigsty.cc/en/  ) for more information：[**https://pigsty.cc/en/**](https://pigsty.cc/en/)   | CN中文站点：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
+Check [**Pigsty Documentation**](docs/) and [Pigsty中文文档](docs/zh-cn/) for more information.
 
-> The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
->
 > Current master is @ **v1.0.0-beta1**
+> The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
+
 
 
 
 ## Quick Start
 
-Run on a fresh CentOS 7 node to install pigsty (nopass sudo required)  
+![](docs/_media/how.svg)  
 
 ```bash
-VERSION=v1.0.0-beta1
-cd ~ && curl -SLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty
-make config    # CONFIGURE (interactive wizard)
-make install   # INSTALL infrastructure on meta node
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
+git clone https://github.com/Vonng/pigsty && cd pigsty
+./configure
+make install
 ```
+
+
 
 Or, run on your **Mac** to launch vagrant + virtualbox sandbox
 
@@ -38,19 +41,20 @@ make start     # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
 make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
 ```
 
-Check [doc/quick-start](doc/quick-start.md) for more information.
+Check [docs/install.md](docs/install.md) for more information.
 
 
 
 ## Highlights
 
-* [Monitoring]() System based on prometheus & grafana &  [`pg_exporter`](https://github.com/Vonng/pg_exporter)
-* [Provisioning](#provisioning) Solution based on ansible. Kubernetes style, scale at ease.
-* [HA Deployment](#ha-deployment) based on patroni. Self-healing and failover in seconds
-* [Service Discovery](#service-discovery) based on DCS (consul / etcd), maintenance made easy.
-* [Offline Installation](#offline-installation) without Internet access. Fast and reliable.
-* Infrastructure as Code. Fully configurable and customizable. 
-* Based on PostgreSQL 13 and Patroni 2. Verified in proudction environment (CentOS 7, 200+nodes)
+* **Battery-Included** : deliver all you need to run production-grade databases with one-click.
+* **Monitoring System** based on [prometheus](https://prometheus.io/) & [grafana](https://grafana.com/) &  [pg_exporter](https://github.com/Vonng/pg_exporter)
+* **Provisioning Solution** based on [ansible](https://docs.ansible.com/ansible/latest/index.html) in kubernetes style. scale at ease.
+* **HA Architecture** based on [patroni](https://patroni.readthedocs.io/) and [haproxy](https://www.haproxy.org/). Self-healing and auto-failover in seconds
+* **Service Discovery** and leader election based on DCS ([consul](https://www.consul.io/) / etcd), maintenance made easy.
+* **Offline Installation** without Internet access. Fast, secure, and reliable.
+* **Flexible Design** makes pigsty fully configurable & customizable & extensible.
+* **Reliable Performance** verified in real-world production env (200+nodes, 1PB Data)
 
 
 
@@ -60,9 +64,9 @@ Check [doc/quick-start](doc/quick-start.md) for more information.
 
 Pigsty provides a battery-included [Monitoring System](https://pigsty.cc/en/docs/monitor/). Which is specially designed for managing large-scale PostgreSQL clusters, and consist of thousands of metrics and 30+ dashboards.
 
-![](img/overview1.jpg)
+![](docs/_media/overview1.jpg)
 
-![](img/overview2.jpg)
+![](docs/_media/overview2.jpg)
 
 
 
@@ -81,16 +85,12 @@ Here is an example base on vagrant 4-node demo. The default configuration file i
 
 This [Vagrantfile](vagrant/Vagrantfile) defines four nodes: `meta` , `node-1` , `node-2`, `node-3`. Check [Architecture Overview](https://pigsty.cc/en/docs/concepts/architecture/) for more information.
 
-![](img/infra.jpg)
+![](docs/_media/infra.jpg)
 
 And you can also mange cluster with pigsty [CLI](https://github.com/Vonng/pigsty-cli) & GUI (beta)
 
-<details>
-<summary>Pigsty GUI (beta)</summary>
+![](docs/_media/gui.jpg)
 
-![](img/gui.jpg)
-
-</details>
 
 
 
@@ -100,7 +100,7 @@ Pigsty has HA Deployment powered by [Patroni 2.0](https://github.com/zalando/pat
 
 Pigsty is a database **[provisioning](https://pigsty.cc/en/docs/concept/provision/) solution** that can create [**HA**](https://pigsty.cc/en/docs/concept/provision/ha/) pgsql clusters on demand. Pigsty can automatically perform failover, with read-only traffic intact; the impact of read-write traffic is usually limited in seconds.
 
-![](img/haproxy_l2vip.jpg)
+![](docs/_media/access.jpg)
 
 Each instance is **idempotent**, Pigsty uses a 'NodePort' approach to expose different kind of [**services**](https://pigsty.cc/en/docs/concept/provision/service/). 
 
@@ -265,27 +265,11 @@ Pigsty is integrated with [Service Discovery](https://pigsty.cc/en/docs/concept/
 
 Consul is the only DCS that is currently supported. You can use consul as DNS service provider to achieve DNS based traffic routing. 
 
-![](img/service-discovery.jpg)
+![](docs/_media/service-discovery.jpg)
 
 Pigsty can also use static file discovery for prometheus, which would eliminate the need of consul for monitoring.
 
 </details>
-
-
-
-### GUI Tools
-
-Pigsty have a simple [cli/gui](cli/gui) tool which provide an easier interface for beginers.
-
-![](img/gui-cli-config.jpg)
-
-
-
-### Visualization Support
-
-Pigsty can be used for data analysis and visualization.
-
-![](img/datalets.jpg)
 
 
 
@@ -327,7 +311,7 @@ Pigsty comes with a local Yum repo that includes all required packages and its d
 
 ## Contribution
 
-Check [doc/contribution.md](doc/contribution.md) for more information.
+Check [docs/contribution.md](docs/contribution.md) for more information.
 
 
 ## About

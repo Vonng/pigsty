@@ -589,6 +589,14 @@ cache:
 svg:
 	bin/svg
 
+# serve pigsty doc with python http server
+doc:
+	cd docs && python -m SimpleHTTPServer 3001
+
+# server pigsty doc with docsify cli
+docsify:
+	cd docs && docsify serve .
+
 ###############################################################
 
 

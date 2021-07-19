@@ -1,8 +1,8 @@
 # Grafana Upgrade
 
-You can use postgres as grafana backend database
+You can use postgres as grafana backend database.
 
-Which could be a good chance to get start with a vivid use-case of pigsty
+It could be a good chance to get start with a vivid use-case of pigsty
 
 
 ### 1. Create new users for grafana

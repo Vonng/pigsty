@@ -1,11 +1,33 @@
-# Quick Start
+## 安装
 
-3 steps to launch pigsty: **download**, **configure**, **install**
+![](_media/how-zh.svg)
+
+## 简短版本
+
+1. 使用`curl`下载软件（前者亦可通过`git clone`，后者为可选离线安装包）
+
+```bash
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
+```
+
+2. 下载 & 配置 & 安装
+
+```bash
+git clone https://github.com/Vonng/pigsty && cd pigsty
+./configure
+make install
+```
+
+访问 `http://<node_ip>:3000` 即可浏览 Pigsty [主页](http://g.pigsty.cc/d/home) (用户名: `admin`, 密码: `pigsty`)
+
+<iframe style="height:1160px" src="http://g.pigsty.cc/d/home"></iframe>
 
 
-## Get Started
 
-### Prepare
+## 详细介绍
+
+### 准备工作
 
 Get a node (vm & vagrant & cloud vps).
 * Kernel: Linux

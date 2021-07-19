@@ -50,11 +50,13 @@ If your ansible.cfg not lies there, adjust your inventory with `-i <path_to_inve
 
 
 
-### 3 CMDB Usage
+### 3. CMDB Usage
 
 cmdb will be installed under `pg-meta.meta` database, using schema `pigsty`
 
 There are several tables, views and functions:
+
+Check [cmdb.sql](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql) for detail.
 
 ```bash
 # Tables
@@ -77,8 +79,11 @@ pigsty.cluster_service      # cluster service definition in pg_services & pg_ser
 
 # seqs
 pigsty.job_id_seq
+```
 
-# funcs
+Also some built-in functions:
+
+```bash
 pigsty.activate_config
 pigsty.active_config
 pigsty.active_config_name
@@ -116,5 +121,4 @@ pigsty.upsert_cluster
 pigsty.upsert_config
 pigsty.upsert_instance
 pigsty.upsert_node
-
 ```

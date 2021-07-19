@@ -1,7 +1,7 @@
 # Development Log
 
 
-## 2021-07-15
+#### 2021-07-15
 
 * Calibration of dashboard data links
 * remove `grafana` & `prometheus` database definition in config file
@@ -14,7 +14,7 @@
 * prepare for v1.0.0-beta1
  
 
-## 2021-07-14
+#### 2021-07-14
 
 * add pgsql-xacts dashboard 
 * add pgsql-persist dashboard
@@ -25,7 +25,7 @@
 
 
 
-## 2021-07-13
+#### 2021-07-13
 
 * Release pigsty v1.0.0-alpha2
 * Fix systemd-devel deps failure on VPC.
@@ -35,7 +35,7 @@
 * Integrate pglog schema into `pigsty` schema
 * Update files/conf
 
-## 2021-07-12
+#### 2021-07-12
 
 * alert panel now links to alertmanager
 * add click-able data-link to most graph
@@ -65,7 +65,7 @@ v1.0.0-alpha2 Release
 ```
 
 
-## 2021-07-09
+#### 2021-07-09
 
 * now comes to the juice part, monitoring dashboard designing
 * add links between pgcat & pgsql, e.g table level dashboard
@@ -76,13 +76,13 @@ v1.0.0-alpha2 Release
 
 
 
-## 2021-07-08
+#### 2021-07-08
 
 * use [acpgh].pigsty as placeholder, passing `nginx_upstream` via environ, replace http host when provisioning dashboards
 * add pgsql-queries dashboard which runs on instance level, focusing on instance pgbouncer queries and rt, table qps, query qps, etc...
 
 
-## 2021-07-07
+#### 2021-07-07
 
 * Add baidu netdisk download for mainland China
   https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw 8su9
@@ -90,7 +90,7 @@ v1.0.0-alpha2 Release
 * Use pure python for grafana provisioning `grafana.py`
 
 
-## 2021-07-06
+#### 2021-07-06
 
 * Use v1.0.0-alpha1 instead. Since the change are significant, it is not appropriate to use v0.10. 
 * Remove the crud haproxy index pages, using grafana table & data links instead 
@@ -100,19 +100,19 @@ v1.0.0-alpha2 Release
 * Register datasource when create new database with `pgsql-createdb.yml`
 
 
-## 2021-07-05
+#### 2021-07-05
 
 * Extract a new role named `register` to handler all interaction between pgsql & infra.
 * Extract a new role named `envrion` to setup meta node environment including: ssh, metadb, env vars, etc... 
 * Dashboard tags now have hierarchy:  `Pigsty` is the top tier, Application name `PGSQL` `PGLOG` is second tier 
   * `Overview`, `Cluster`, `Instance`,`Database` are filter with `Pigsty` and `<Level>` tags. which means the nav-link can cross multiple applications
 
-## 2021-07-04
+#### 2021-07-04
 
 * [Milestone](milestone.md) chart of Pigsty
 
 
-## 2021-06-30
+#### 2021-06-30
 
 * Rough implementation on v0.10.0-alpha1
 * Setup environment for admin user (pgpass, pg_service, env vars,)
@@ -121,7 +121,7 @@ v1.0.0-alpha2 Release
 * [Milestone](./milestone.md) planning.
 
 
-## 2021-06-29
+#### 2021-06-29
 
 * Remake release system
 * Have a draft on application installation standard
@@ -130,21 +130,21 @@ v1.0.0-alpha2 Release
 * remove grafana plugins, since lot's of them were covered in grafana 8.0
 
 
-## 2021-06-28
+#### 2021-06-28
 
 * Remake alerting rules 
 
 
-## 2021-06-25
+#### 2021-06-25
 
 * Remake infra-rules and pgsql-rules
 
-## 2021-06-23
+#### 2021-06-23
 
 * Remake PGSQL node
 
 
-## 2021-06-10
+#### 2021-06-10
 
 It's time to have an overhaul on monitoring system, which includes:
 * Upgrade `pg_exporter` to 0.4.0 , re-write metric definition and add support for PostgreSQL 14  
@@ -153,6 +153,6 @@ It's time to have an overhaul on monitoring system, which includes:
 * Redesign entire monitoring system to use new label system and embrace Grafana 8.0
 * Using grafana 8.0 new features
 
-## 2021-06-01
+#### 2021-06-01
 
 Well it's good to write some dev logs.

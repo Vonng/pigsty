@@ -4,12 +4,7 @@
 
 > For those who make contribution to this project.
 
-
-
-## Special Thanks
-
-> For those who make significant contribution to pigsty in one way or another
-
+[Vonng](https://github.com/Vonng) is the author of Pigsty
 
 
 ## Hall of Shame
@@ -19,13 +14,12 @@
 
 
 
-
 ## Contribution Guide
 
 * Create Issue & Discuss
 * Fork this & Create PR
 * Review & Merge
-
+* Removing other's name is strictly forbid
 
 
 ## Bug Report

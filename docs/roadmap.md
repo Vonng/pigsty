@@ -1,6 +1,13 @@
 # Roadmap
 
 
+## Timeline
+
+![](_media/pigsty-timeline.svg)
+
+
+## History
+
 |      Time      | Description                                               | Release                                                      |
 | :------------: | --------------------------------------------------------- | ------------------------------------------------------------ |
 |   2019-05-15   | POC                                                       | [fa2ade31](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b) (v0.0.1) |
@@ -19,6 +26,12 @@
 |   2021-04-04   | Pigsty GUI, CLI, Logging Intergration                     | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0) |
 |   2021-04-20   | Accessibility and extensibility enhancement               | [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1) |
 |   2021-07-07   | PostgreSQL 14 Support, Monitoring System Overhaul         | v1.0.0-alpha1                                                |
+
+
+## Future
+
+|      Time      | Description                                               | Release                                                      |
+| :------------: | --------------------------------------------------------- | ------------------------------------------------------------ |
 | **2021-07-31** | GA                                                        | **v1.0.0**                                                   |
 |   2021-08-15   | app `pgsql` : PostgreSQL Cluster Monitoring v7            | v1.1                                                         |
 |   2021-08-31   | app `pgcat`: Explore postgres system catalog via grafana  | v1.2                                                         |
