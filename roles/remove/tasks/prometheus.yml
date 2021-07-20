@@ -6,6 +6,7 @@
 - name: Remove pgsql target from prometheus
   become: yes
   ignore_errors: yes
-  delegate_to: meta
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
   file: state=absent path=/etc/pigsty/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
 ...

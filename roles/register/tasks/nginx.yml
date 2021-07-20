@@ -2,13 +2,20 @@
 #------------------------------------------------------------------------------
 # Register HAProxy to Nginx
 #------------------------------------------------------------------------------
+# nginx are idempotent on multiple meta nodes
 - name: Register haproxy instance to nginx
   when: haproxy_enabled|bool
-  delegate_to: meta
   become: yes
   block:
+    - name: Create haproxy config dir resource dirs on /etc/pigsty
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["meta"] }}'
+      file: path=/etc/nginx/conf.d/haproxy state=directory owner=root
+
     # /etc/nginx/conf.d/haproxy/upstream-{{ pg_instance }}.conf
     - name: Register haproxy upstream to nginx
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["meta"] }}'
       copy:
         dest: /etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}-{{ pg_seq }}.conf
         content: |
@@ -18,6 +25,8 @@
 
     # /etc/nginx/conf.d/haproxy/location-{{ pg_instance }}.conf
     - name: Register haproxy url location to nginx
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["meta"] }}'
       copy:
         dest: /etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}-{{ pg_seq }}.conf
         content: |
@@ -28,6 +37,8 @@
 
     # reload meta node nginx (maybe not appropriate here)
     - name: Reload nginx to finish haproxy register
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["meta"] }}'
       systemd: name=nginx state=reloaded enabled=yes daemon_reload=yes
 
 ...
