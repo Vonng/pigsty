@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2021-07-12
+# Mtime     :   2021-07-20
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
@@ -460,11 +460,11 @@ function check_bin(){
     local pigsty_home=${1-${PIGSTY_HOME}}
     local repo_dir=${2-${REPO_DIR}}
     local target_dir="${pigsty_home:?}/files/bin"
-    if [[ -f ${repo_dir}/repo_complete ]]; then
-        log_info "bin = extract from ${repo_dir}"
-    else
-        log_info "bin = download from internet"
+    if [[ ! -f ${repo_dir}/repo_complete ]]; then
+        log_warn "bin = skip repo extraction"
+        return 0
     fi
+    log_info "bin = extract from ${repo_dir}"
     mkdir -p ${target_dir}
     sudo ${pigsty_home}/bin/get_node_exporter -t ${repo_dir}  -v 1.1.2  -p ${target_dir}/node_exporter
     sudo ${pigsty_home}/bin/get_pg_exporter   -t ${repo_dir}  -v 0.4.0  -p ${target_dir}/pg_exporter
