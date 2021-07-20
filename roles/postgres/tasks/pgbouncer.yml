@@ -59,6 +59,25 @@
         /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" "{{ pg_monitor_password }}"
         /pg/bin/pgbouncer-create-user "{{ pg_admin_username }}" "{{ pg_admin_password }}"
 
+    - name: Init pgbouncer business database list
+      tags: pgbouncer_db
+      ignore_errors: true
+      become_user: "{{ pg_dbsu }}"
+      shell: /pg/bin/pgbouncer-create-db '{{ database.name }}'
+      vars:
+        database: "{{ item }}"
+      with_items: "{{ pg_databases }}"
+
+    - name: Init pgbouncer business user list
+      tags: pgbouncer_user
+      when: user.pgbouncer is defined and user.pgbouncer|bool
+      ignore_errors: true
+      become_user: "{{ pg_dbsu }}"
+      shell: /pg/bin/pgbouncer-create-user '{{ user.name }}' '{% if 'password' in user %}{{ user.password }}{% else %}auto{% endif %}'
+      vars:
+        user: "{{ item }}"
+      with_items: "{{ pg_users }}"
+
 
 #------------------------------------------------------------------------------
 # Launch pgbouncer
