@@ -112,7 +112,7 @@ prometheus_scrape_timeout: 8s                 # scrape timeout
 prometheus_sd_interval: 10s                   # service discovery refresh interval
 
 # reference
-export_metrics_path: /metrics                 # default metrics path (only for job 'pg')
+exporter_metrics_path: /metrics                 # default metrics path (only for job 'pg')
 node_exporter_port: 9100                      # default port for node exporter
 pg_exporter_port: 9630                        # default port for pg exporter
 pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
