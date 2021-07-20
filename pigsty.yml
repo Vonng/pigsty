@@ -65,7 +65,7 @@ all: # top-level namespace
           pg_seq: 1                         # required, unique identity parameter (+integer) among pg_cluster
           pg_role: primary                  # required, pg_role is mandatory identity parameter, primary|replica|offline|delayed
           pg_offline_query: true            # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
-                                            # some variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
+          # some variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
         #---------------
         # mandatory                         # all configuration above (`ip`, `pg_seq`, `pg_role`) and `pg_cluster` are mandatory
         #---------------
@@ -117,7 +117,7 @@ all: # top-level namespace
           # define admin user for meta database (This user are used for pigsty app deployment by default)
           - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
             password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
-                                            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
+            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
             login: true                     # optional, can login, true by default  (new biz ROLE should be false)
             superuser: false                # optional, is superuser? false by default
             createdb: false                 # optional, can create database? false by default
@@ -132,7 +132,7 @@ all: # top-level namespace
             comment: pigsty admin user      # optional, comment string for this user/role
             roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
             parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
-              # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
+            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
@@ -487,7 +487,7 @@ all: # top-level namespace
 
     # - nginx - #
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
-                                                  # some service can only be accessed via correct domain name (e.g consul)
+      # some service can only be accessed via correct domain name (e.g consul)
       - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
       - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
       - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
@@ -620,7 +620,7 @@ all: # top-level namespace
     pg_port: 5432                                 # postgres port, 5432 by default
     pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
     # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
-                                                  # Set on primary instance will transform this cluster into a standby cluster
+    # Set on primary instance will transform this cluster into a standby cluster
     # - patroni - #
     # patroni_mode, available options: default|pause|remove
     #   - default: default ha mode
@@ -632,7 +632,7 @@ all: # top-level namespace
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
 
     pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
-                                                  # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
+    # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
     # extension shared libraries to be added
     pg_shared_libraries: 'citus, timescaledb, pg_stat_statements, auto_explain'
 
@@ -788,7 +788,7 @@ all: # top-level namespace
     # - node exporter - #
     node_exporter_enabled: true                   # setup node_exporter on instance
     node_exporter_port: 9100                      # default port for node exporter
-    node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
+    node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
 
     # - pg exporter - #
     pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter

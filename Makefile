@@ -436,7 +436,7 @@ rc:
 rw:
 	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta; done
 ro:
-	while true; do pgbench -nv -P1 -c8 --rate=256 -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
+	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
 
 # run tests on pg-test cluster (3-node on sandbox demo)
 # list pg-test clusters

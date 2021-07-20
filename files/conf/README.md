@@ -63,6 +63,15 @@ Will automatically be chosen during configure when:
   * current cpu core >= 8 (which means the spec is good enough for production setup)
 
 
+### **dcs3**
+
+[pigsty-dcs3.yml](pigsty-dcs3.yml) : 3-node of pg-meta and 1 node for `pg-test`
+
+which simulate a production env with 3 meta nodes (and an extra database node)
+
+
+
+## Relation of config template
 
 ```
  [demo4]   (home default)   
@@ -82,8 +91,6 @@ Will automatically be chosen during configure when:
   [oltp]
 
 ```
-
-
 
 
 
