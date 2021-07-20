@@ -1,8 +1,7 @@
-## 安装
-
-![](_media/how-zh.svg)
 
 ## 简短版本
+
+![](_media/how-zh.svg)
 
 1. 使用`curl`下载软件（前者亦可通过`git clone`，后者为可选离线安装包）
 
