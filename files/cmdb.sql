@@ -490,19 +490,20 @@ BEGIN
     WHERE key != 'meta';
 
     -- load nodes
-    INSERT INTO pigsty.node(ip)
-    SELECT key::INET AS ip
+    INSERT INTO pigsty.node(ip, cls)
+    SELECT key::INET AS ip, cls
     FROM -- abort on duplicate ip
          (SELECT key AS cls, value #> '{hosts}' AS hosts
           FROM jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.hosts);
+          WHERE key != 'meta') c, jsonb_each(c.hosts)
+    ON CONFLICT (ip) DO UPDATE SET cls = EXCLUDED.cls;
 
     -- load meta nodes
     INSERT INTO pigsty.node(ip)
     SELECT key::INET AS ip
     FROM -- set is_meta flag for meta_node
          (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each((SELECT _data #> '{all,children}'))
+          FROM jsonb_each((_clusters))
           WHERE key = 'meta') c, jsonb_each(c.hosts)
     ON CONFLICT(ip) DO UPDATE SET is_meta = true;
 
@@ -551,7 +552,7 @@ BEGIN
                 FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
                       FROM jsonb_each(_clusters)
                       WHERE key = 'meta') c, jsonb_each(c.hosts)) n
-                   JOIN instance i ON n.ip = i.ip
+                   JOIN pigsty.instance i ON n.ip = i.ip
          ) m
     ON CONFLICT(ins, key) DO UPDATE SET value = excluded.value;
 
@@ -957,39 +958,99 @@ COMMENT ON FUNCTION pigsty.select_cluster(TEXT) IS 'return cluster json via cls'
 -- example: SELECT select_cluster('pg-meta-tt')
 
 
+DROP FUNCTION IF EXISTS pigsty.delete_cluster(TEXT);
+CREATE OR REPLACE FUNCTION pigsty.select_cluster(_cls TEXT) RETURNS JSONB AS
+$$
+SELECT row_to_json(cluster.*)::JSONB
+FROM pigsty.cluster
+WHERE cls = _cls
+LIMIT 1;
+$$ LANGUAGE SQL STABLE;
+COMMENT ON FUNCTION pigsty.select_cluster(TEXT) IS 'return cluster json via cls';
+
+
 -- SELECT jsonb_build_object('hosts', jsonb_object_agg(ip, row_to_json(instance.*))) AS ij FROM instance WHERE cls = 'pg-meta-tt' GROUP BY cls;
 -- SELECT jsonb_build_object('vars', jsonb_object_agg(key, value)) AS ij FROM cluster_var WHERE cls = 'pg-meta-tt' GROUP BY cls;
 
--- TODO: fix instance
--- update existing cluster from config file cluster k:v (k=cluster_name,v=cluster_define)
-DROP FUNCTION IF EXISTS pigsty.upsert_cluster(_cls TEXT, _data JSONB);
-CREATE OR REPLACE FUNCTION pigsty.upsert_cluster(_cls TEXT, _data JSONB) RETURNS VOID AS
+DROP FUNCTION IF EXISTS pigsty.upsert_clusters(_data JSONB);
+CREATE OR REPLACE FUNCTION pigsty.upsert_clusters(_data JSONB) RETURNS VOID AS
 $$
 DECLARE
-    _hosts  JSONB   := _data -> 'hosts';
-    _vars   JSONB   := _data -> 'vars';
-    _shard  TEXT    := _vars ->> 'pg_shard';
-    _sindex INTEGER := (_vars ->> 'pg_sindex')::INTEGER;
+    _clusters JSONB := _data; -- input is all.children (cluster array)
 BEGIN
+    -- trunc tables
+    -- TRUNCATE cluster,instance,node,global_var,cluster_var,instance_var CASCADE;
+    DELETE FROM pigsty.cluster WHERE cls IN
+    (SELECT key FROM jsonb_each((_clusters)) WHERE key != 'meta');
 
-    -- upsert new cluster
-    INSERT INTO pigsty.cluster(cls, shard, sindex)
-    VALUES (_cls, _shard, _sindex)
-    ON CONFLICT(cls) DO UPDATE SET shard = excluded.shard, sindex = excluded.sindex;
+    -- load clusters
+    INSERT INTO pigsty.cluster(cls, shard, sindex) -- abort on conflict
+    SELECT key, value #>> '{vars,pg_shard}' AS shard, (value #>> '{vars,pg_sindex}')::INTEGER AS sindex
+    FROM jsonb_each((_clusters))
+    WHERE key != 'meta';
 
-    -- delete not exists vars and upsert new vars (keep ctime intact)
-    DELETE FROM pigsty.cluster_var WHERE cls = _cls AND key NOT IN (SELECT key FROM jsonb_each(_vars));
-    INSERT INTO pigsty.cluster_var(cls, key, value)
-    SELECT _cls, key, value
-    FROM jsonb_each(_vars)
-    ON CONFLICT(cls, key) DO UPDATE SET value = excluded.value, mtime = excluded.mtime;
+    -- load nodes
+    INSERT INTO pigsty.node(ip, cls)
+    SELECT key::INET AS ip, cls
+    FROM -- abort on duplicate ip
+         (SELECT key AS cls, value #> '{hosts}' AS hosts
+          FROM jsonb_each(_clusters)
+          WHERE key != 'meta') c, jsonb_each(c.hosts)
+    ON CONFLICT(ip) DO UPDATE SET cls = EXCLUDED.cls;
 
-    -- delete not exists instances and upsert new instances (keep existing instance info)
-    -- DELETE FROM instance WHERE cls = _cls;
-    -- TODO: insert instance
-END
+    -- load meta nodes
+    INSERT INTO pigsty.node(ip)
+    SELECT key::INET AS ip
+    FROM -- set is_meta flag for meta_node
+         (SELECT key AS cls, value #> '{hosts}' AS hosts FROM jsonb_each((_clusters)) WHERE key = 'meta') c, jsonb_each(c.hosts)
+    ON CONFLICT(ip) DO UPDATE SET cls = EXCLUDED.cls, is_meta = true;
+
+    -- load instances
+    INSERT INTO pigsty.instance(ins, ip, cls, seq, role)
+    SELECT cls || '-' || (value ->> 'pg_seq') AS ins,
+           key::INET                          AS ip,
+           cls,
+           (value ->> 'pg_seq')::INTEGER      AS seq,
+           (value ->> 'pg_role')::pigsty.pg_role     AS role
+    FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
+          FROM jsonb_each(_clusters)
+          WHERE key != 'meta') c, jsonb_each(c.hosts);
+
+    -- load cluster_var
+    INSERT INTO pigsty.cluster_var(cls, key, value) -- abort on conflict
+    SELECT cls, key, value
+    FROM (SELECT key AS cls, value -> 'vars' AS vars
+          FROM
+              jsonb_each(_clusters)
+          WHERE key != 'meta') c, jsonb_each(c.vars)
+    ON CONFLICT(cls, key) DO UPDATE set value = EXCLUDED.value;
+
+    -- load instance_var
+    INSERT INTO pigsty.instance_var(ins, key, value) -- abort on conflict
+    SELECT ins, key, value
+    FROM (SELECT cls, cls || '-' || (value ->> 'pg_seq') AS ins, value AS vars
+          FROM (SELECT key AS cls, value -> 'hosts' AS hosts
+                FROM jsonb_each(_clusters)
+                WHERE key != 'meta') c,
+              jsonb_each(c.hosts)) i, jsonb_each(vars)
+    ON CONFLICT(ins, key) DO UPDATE SET value = EXCLUDED.value;
+
+    -- inject meta_node config to instance_var
+    INSERT INTO pigsty.instance_var(ins, key, value)
+    SELECT ins, 'meta_node' AS key, 'true'::JSONB AS value
+    FROM (SELECT ins
+          FROM (SELECT key::INET AS ip
+                FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
+                      FROM jsonb_each(_clusters)
+                      WHERE key = 'meta') c, jsonb_each(c.hosts)) n
+                   JOIN pigsty.instance i ON n.ip = i.ip
+         ) m
+    ON CONFLICT(ins, key) DO UPDATE SET value = excluded.value;
+
+END;
 $$ LANGUAGE PlPGSQL VOLATILE;
-COMMENT ON FUNCTION upsert_cluster(TEXT, JSONB) IS 'upsert_cluster from k,v config';
+
+COMMENT ON FUNCTION pigsty.upsert_clusters(JSONB) IS 'upsert pgsql clusters all.childrens';
 
 
 --===========================================================--
