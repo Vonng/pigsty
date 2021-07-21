@@ -1,5 +1,23 @@
 # Development Log
 
+#### 2021-07-21
+
+* add ipython jupyterlab to meta packages
+* add pip support for meta python env
+* add grafana plugins echarts & csv/json data source
+* prepare for v1.0.0-beta2
+
+
+#### 2021-07-20
+
+* bug fix: register role does not run on all meta nodes 
+* add check for createpg createdb createuser scripts
+* bu
+
+#### 2021-07-19
+
+* Use docsify as documentation solution
+
 
 #### 2021-07-15
 
