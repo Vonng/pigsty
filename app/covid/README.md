@@ -7,3 +7,9 @@ Usage: Run this on meta node with admin user
 ```bash
 make all
 ```
+
+And then visit:
+
+http://g.pigsty/d/covid-overview
+
+
