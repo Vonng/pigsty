@@ -1,817 +1,971 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "description": "Covid-19 Disease By Single Country (From WHO)",
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": null,
-  "iteration": 1622108852755,
-  "links": [
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": true,
-      "tags": [
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "Covid-19 Disease By Single Country (From WHO)",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1626867976674,
+    "links": [
+        {
+            "asDropdown": false,
+            "icon": "external link",
+            "includeVars": true,
+            "tags": [
+                "COVID"
+            ],
+            "title": "COVID",
+            "type": "dashboards"
+        }
+    ],
+    "panels": [
+        {
+            "datasource": "Meta",
+            "gridPos": {
+                "h": 30,
+                "w": 13,
+                "x": 0,
+                "y": 0
+            },
+            "id": 22,
+            "options": {
+                "followTheme": false,
+                "getOption": "\nfunction parse_grafana_data(d) {\n    var rawData = []\n    if (data.series[0].fields[0].values.buffer === undefined) {\n        rawData = d.series[0].fields.map((e) => {\n            return e.values\n        })\n    } else { // large dataset will have their data inside a buffer\n        rawData = d.series[0].fields.map((e) => {\n            return e.values.buffer\n        })\n    }\n    var nDim = rawData.length\n    var nItem = rawData[0].length\n    var result = []\n    for (var i = 0; i < nItem; i++) {    // item\n        result[i] = []\n        for (var j = 0; j < nDim; j++) {  // dimension\n            result[i][j] = rawData[j][i]\n        }\n    }\n    return result\n}\n\nvar rawData = parse_grafana_data(data)\nvar dateList = rawData.map((i)=>{return {name: i[0],value: i[1]}})\n\n// event: jump to station main page when click symbol\nechartsInstance.on(\"click\", function (params) {\n    console.log(params)\n    window.location = '/d/covid-country?var-country=' + params.data[\"name\"]\n})\n\nreturn  {\n    grid: {\n        left: \"10%\",\n        bottom: \"10%\",\n    },\n    geo: {\n        show: false,\n        map: 'world'\n    },\n    visualMap: {\n        show: false,\n        min: 0,\n        max: 1,\n        inRange: {\n            color: ['#ffffff', '#a50026']\n        },\n        text: ['High', 'Low'],           // \u6587\u672c\uff0c\u9ed8\u8ba4\u4e3a\u6570\u503c\u6587\u672c\n        calculable: true\n    },\n    series: [\n        {\n            name: \"covid\",\n            type: 'map',\n            map: 'world',\n            roam: false,\n            coordinateSystem: 'geo',\n            data: dateList,\n        }\n    ]\n}"
+            },
+            "pluginVersion": "7.1.3",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n    country_code AS name, CASE WHEN country_code = '$country' THEN 1 ELSE 0 END AS value\nFROM covid.country_history\nWHERE \"date\" = (SELECT max(\"date\") FROM covid.country_history WHERE $__timeFilter(date));",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "$country Location",
+            "transparent": true,
+            "type": "vonng-echarts-panel"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 100,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 11,
+                "x": 13,
+                "y": 0
+            },
+            "id": 5,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "hidden",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.6",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  new_cases\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "longitude"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "china_railway",
+                    "timeColumn": "crawled_time",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "$country Daily New Cases",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 100,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#A352CC",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 11,
+                "x": 13,
+                "y": 6
+            },
+            "id": 10,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "hidden",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.6",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  new_death\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "longitude"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "china_railway",
+                    "timeColumn": "crawled_time",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "$country Daily New Deaths",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 100,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#FF780A",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 11,
+                "x": 13,
+                "y": 12
+            },
+            "id": 11,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "hidden",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.6",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  cum_cases\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "longitude"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "china_railway",
+                    "timeColumn": "crawled_time",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "$country Cumulative New Cases",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 100,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#E02F44",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 11,
+                "x": 13,
+                "y": 18
+            },
+            "id": 12,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "hidden",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.6",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  cum_death\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "longitude"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "china_railway",
+                    "timeColumn": "crawled_time",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "${country} Cumulative Deaths",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 33,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#E02F44",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 11,
+                "x": 13,
+                "y": 24
+            },
+            "id": 23,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "hidden",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.6",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT date AS time,\n       round(((CASE WHEN cases_15d > 0 THEN death_15d::FLOAT / cases_15d ELSE 0 END))::NUMERIC,6) AS death_ratio_15d\nFROM (SELECT *,\n             cum_death - lag(cum_death, 15) over w AS death_15d,\n             cum_cases - lag(cum_cases, 15) over w AS cases_15d\n      FROM covid.country_history\n      WHERE country_code = '${country}' WINDOW w AS (partition by country_code ORDER BY date)\n     ) d;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "longitude"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "china_railway",
+                    "timeColumn": "crawled_time",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Death Ratio in Last 15 Day",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 30
+            },
+            "id": 20,
+            "panels": [],
+            "title": "Data",
+            "type": "row"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 18,
+                "w": 12,
+                "x": 0,
+                "y": 31
+            },
+            "id": 7,
+            "options": {
+                "content": "https://covid19.who.int/table\n\n```bash\nmake reload  # download & refresh data\n```\n\n```sql\nCREATE TABLE covid.country_history\n(\n    date         DATE,\n    country_code VARCHAR(2) NOT NULL,\n    country      TEXT,\n    who_region   TEXT,\n    new_cases    INTEGER,\n    cum_cases    INTEGER,\n    new_death    INTEGER,\n    cum_death    INTEGER,\n    PRIMARY KEY (date, country_code)\n);\n\nCREATE TABLE covid.country_latest\n(\n    name              text PRIMARY KEY,\n    who_region        text,\n    cum_cases         NUMERIC,\n    cum_cases_ratio   NUMERIC,\n    new_cases_7       NUMERIC,\n    new_cases_7_ratio NUMERIC,\n    new_cases_1       NUMERIC,\n    cum_death         NUMERIC,\n    cum_death_ratio   NUMERIC,\n    new_death_7       NUMERIC,\n    new_death_7_ratio NUMERIC,\n    new_death_1       NUMERIC,\n    trans_class       text\n);\n```\n",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.0.6",
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "WHO Covid 19 Data",
+            "transparent": true,
+            "type": "text"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-text",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Country"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 74
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Date"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "auto"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Region"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "NewCases"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 116
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CumCases"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 102
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "NewDeath"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CumDeath"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 100
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 18,
+                "w": 12,
+                "x": 12,
+                "y": 31
+            },
+            "id": 2,
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Date"
+                    }
+                ]
+            },
+            "pluginVersion": "8.0.6",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT date::TEXT, \n       country_code AS country,\n       who_region AS region,\n       new_cases,\n       cum_cases,\n       new_death,\n       cum_death\nFROM covid.country_history \nWHERE country_code = '$country'\nORDER BY date, country_code;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Raw Data",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "country": "Country",
+                            "cum_cases": "CumCases",
+                            "cum_death": "CumDeath",
+                            "d": "\u65e5\u671f",
+                            "date": "Date",
+                            "new_cases": "NewCases",
+                            "new_death": "NewDeath",
+                            "region": "Region",
+                            "time": "\u65e5\u671f"
+                        }
+                    }
+                }
+            ],
+            "transparent": true,
+            "type": "table"
+        }
+    ],
+    "schemaVersion": 30,
+    "style": "dark",
+    "tags": [
         "COVID"
-      ],
-      "title": "COVID",
-      "type": "dashboards"
-    }
-  ],
-  "panels": [
-    {
-      "collapsed": false,
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 18,
-      "panels": [],
-      "repeat": "country",
-      "title": "单一国家统计: $country",
-      "type": "row"
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Meta",
-      "decimals": 0,
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 1
-      },
-      "hiddenSeries": false,
-      "id": 5,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": false,
-        "sort": "current",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.0-beta2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  new_cases\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "longitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "china_railway",
-          "timeColumn": "crawled_time",
-          "timeColumnType": "timestamp",
-          "where": [
+    ],
+    "templating": {
+        "list": [
             {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT country_code::TEXT FROM covid.country_history GROUP BY country_code ORDER BY max(cum_cases)  DESC;",
+                "description": null,
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Country",
+                "multi": false,
+                "name": "country",
+                "options": [],
+                "query": "SELECT country_code::TEXT FROM covid.country_history GROUP BY country_code ORDER BY max(cum_cases)  DESC;",
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
             }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "$country 新增病例",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:58",
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:59",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Meta",
-      "decimals": 0,
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 1
-      },
-      "hiddenSeries": false,
-      "id": 10,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": false,
-        "sort": "current",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.0-beta2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "/.*/",
-          "color": "#A352CC"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  new_death\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "longitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "china_railway",
-          "timeColumn": "crawled_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "$country 新增死亡",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Meta",
-      "decimals": 0,
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 7
-      },
-      "hiddenSeries": false,
-      "id": 11,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": false,
-        "sort": "current",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.0-beta2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "/.*/",
-          "color": "#FF780A"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  cum_cases\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "longitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "china_railway",
-          "timeColumn": "crawled_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "$country 累计新增病例",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Meta",
-      "decimals": 0,
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 7
-      },
-      "hiddenSeries": false,
-      "id": 12,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": false,
-        "sort": "current",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "8.0.0-beta2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "/.*/",
-          "color": "#E02F44"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "format": "time_series",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT \n  \"date\" AS time,\n  country_code AS metric,\n  cum_death\nFROM covid.country_history\nWHERE country_code = '$country'\nORDER BY 2,1;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "longitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "china_railway",
-          "timeColumn": "crawled_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "$country 累计死亡病例",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "collapsed": false,
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 20,
-      "panels": [],
-      "title": "数据说明",
-      "type": "row"
-    },
-    {
-      "datasource": null,
-      "gridPos": {
-        "h": 20,
-        "w": 12,
-        "x": 0,
-        "y": 14
-      },
-      "id": 7,
-      "options": {
-        "content": "# 世界卫生组织疫情数据\n\n### 数据下载\n\nhttps://covid19.who.int/table\n\n```bash\nmake reload\n```\n\n```sql\nCREATE TABLE covid.country_history\n(\n    date         DATE,\n    country_code VARCHAR(2) NOT NULL,\n    country      TEXT,\n    who_region   TEXT,\n    new_cases    INTEGER,\n    cum_cases    INTEGER,\n    new_death    INTEGER,\n    cum_death    INTEGER,\n    PRIMARY KEY (date, country_code)\n);\n\nCREATE TABLE covid.country_latest\n(\n    name              text PRIMARY KEY,\n    who_region        text,\n    cum_cases         NUMERIC,\n    cum_cases_ratio   NUMERIC,\n    new_cases_7       NUMERIC,\n    new_cases_7_ratio NUMERIC,\n    new_cases_1       NUMERIC,\n    cum_death         NUMERIC,\n    cum_death_ratio   NUMERIC,\n    new_death_7       NUMERIC,\n    new_death_7_ratio NUMERIC,\n    new_death_1       NUMERIC,\n    trans_class       text\n);\n```\n",
-        "mode": "markdown"
-      },
-      "pluginVersion": "8.0.0-beta2",
-      "timeFrom": null,
-      "timeShift": null,
-      "type": "text"
-    },
-    {
-      "datasource": "Meta",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "center",
-            "displayMode": "color-text",
-            "filterable": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "国家"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 60
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "日期"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "string"
-              },
-              {
-                "id": "custom.width"
-              },
-              {
-                "id": "custom.displayMode",
-                "value": "auto"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "地区"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "当日新增确诊"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 116
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "累计新增确诊"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 102
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "当日新增死亡"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "累计新增死亡"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          }
         ]
-      },
-      "gridPos": {
-        "h": 20,
-        "w": 12,
-        "x": 12,
-        "y": 14
-      },
-      "id": 2,
-      "options": {
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "日期"
-          }
+    },
+    "time": {
+        "from": "now/y",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
         ]
-      },
-      "pluginVersion": "8.0.0-beta2",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT date, \n       country_code AS country,\n       who_region AS region,\n       new_cases,\n       cum_cases,\n       new_death,\n       cum_death\nFROM covid.country_history \nWHERE country_code = '$country'\nORDER BY date, country_code;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "原始数据",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "country": "国家",
-              "cum_cases": "累计新增确诊",
-              "cum_death": "累计新增死亡",
-              "d": "日期",
-              "date": "日期",
-              "new_cases": "当日新增确诊",
-              "new_death": "当日新增死亡",
-              "region": "地区",
-              "time": "日期"
-            }
-          }
-        }
-      ],
-      "type": "table"
-    }
-  ],
-  "schemaVersion": 30,
-  "style": "dark",
-  "tags": [
-    "COVID"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "US",
-          "value": "US"
-        },
-        "datasource": "Meta",
-        "definition": "SELECT country_code::TEXT FROM covid.country_history GROUP BY country_code ORDER BY max(cum_cases)  DESC;",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "Country",
-        "multi": false,
-        "name": "country",
-        "options": [],
-        "query": "SELECT country_code::TEXT FROM covid.country_history GROUP BY country_code ORDER BY max(cum_cases)  DESC;",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now/y",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "",
-  "title": "Covid-19 Country",
-  "uid": "covid-country",
-  "version": 2
+    },
+    "timezone": "",
+    "title": "Covid-19 Country",
+    "uid": "covid-country",
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }
