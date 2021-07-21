@@ -2,12 +2,12 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   get-isd-station.sh
+# File      :   get-station.sh
 # Mtime     :   2020-09-09
 # Desc      :   Get ISD Station (isd-history) Dataset from noaa
 # Note      :   isd-history.csv will be downloaded to ../data/meta/isd-history.csv
-# Path      :   bin/get-isd-station.sh
-# Author    :   Vonng (fengruohang@outlook.com)
+# Path      :   bin/get-station.sh
+# Author    :   Vonng (rh@vonng.com)
 # Depend    :   curl, gzip
 #==============================================================#
 PROG_DIR="$(cd $(dirname $0) && pwd)"
@@ -27,5 +27,4 @@ cd ${DATA_DIR}
 # curl https://www1.ncdc.noaa.gov/pub/data/noaa/isd-history.csv -o isd_station.csv
 log_info "curl ${DATA_URL} -o ${DATA_DIR}/isd_station.csv.gz"
 curl ${DATA_URL} | gzip --best > isd_station.csv.gz
-pwd
-ls -lh
+

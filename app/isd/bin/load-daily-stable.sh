@@ -24,16 +24,16 @@ function log_info (){
 }
 
 # get year record count
-log_info "truncate isd_daily_stable"
-psql ${PGURL} -AXtwqc 'TRUNCATE isd_daily_stable;'
+log_info "truncate isd.daily_stable"
+psql ${PGURL} -AXtwqc 'TRUNCATE isd.daily_stable;'
 
-log_info "load data to isd_daily_stable"
-cat ${DATA_DIR}/isd_daily_stable.csv.gz | pv | gzip -d | psql ${PGURL} -AXtwc 'COPY isd_daily_stable FROM STDIN CSV HEADER;'
+log_info "load data to isd.daily_stable"
+cat ${DATA_DIR}/isd_daily_stable.csv.gz | pv | gzip -d | psql ${PGURL} -AXtwc 'COPY isd.daily_stable FROM STDIN CSV HEADER;'
 
-log_info "calculate isd_monthly_stable from isd_daily_stable"
+log_info "calculate isd.monthly_stable from isd.daily_stable"
 psql ${PGURL} -AXtwq <<-'EOF'
-TRUNCATE isd_monthly_stable;
-INSERT INTO isd_monthly_stable
+TRUNCATE isd.monthly_stable;
+INSERT INTO isd.monthly_stable
 SELECT date_trunc('month', ts)                                                    AS ts,           -- 月份
        station,                                                                                    -- 站号
        round(avg(temp_mean) ::NUMERIC, 1)::NUMERIC(3, 1)                          AS temp_mean,    -- 月平均气温
@@ -68,15 +68,15 @@ SELECT date_trunc('month', ts)                                                  
        count(*) FILTER ( WHERE vis_mean >= 4000 AND vis_mean < 10000)::SMALLINT   AS vis_10_days,  -- 能见度4-10km时间占比百分数
        count(*) FILTER ( WHERE vis_mean >= 10000 AND vis_mean < 20000 )::SMALLINT AS vis_20_days,  -- 能见度10-20km时间占比百分数
        count(*) FILTER ( WHERE vis_mean >= 20000 )::SMALLINT                      AS vis_20p_days  -- 能见度20km+时间占比百分数
-FROM isd_daily_stable
+FROM isd.daily_stable
 GROUP by date_trunc('month', ts), station
 ORDER BY 1, 2;
 EOF
 
-log_info "calculate isd_yearly_stable from isd_monthly_stable"
+log_info "calculate isd.yearly_stable from isd.monthly_stable"
 psql ${PGURL} -AXtwq <<-'EOF'
-TRUNCATE isd_yearly_stable;
-INSERT INTO isd_yearly_stable
+TRUNCATE isd.yearly_stable;
+INSERT INTO isd.yearly_stable
 SELECT date_trunc('year', ts)::DATE AS ts,           -- 年份
        station,                                      -- 站号
        min(temp_min)                AS temp_min,     -- 年最低气温
@@ -101,7 +101,7 @@ SELECT date_trunc('year', ts)::DATE AS ts,           -- 年份
        sum(vis_10_days)             AS vis_10_days,  -- 年能见度4-10km内日数
        sum(vis_20_days)             AS vis_20_days,  -- 年能见度10-20km内日数
        sum(vis_20p_days)            AS vis_20p_days  -- 年能见度20km上日数
-FROM isd_monthly_stable
+FROM isd.monthly_stable
 GROUP by date_trunc('year', ts), station
 ORDER BY 1, 2;
 EOF

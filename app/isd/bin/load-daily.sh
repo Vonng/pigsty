@@ -2,20 +2,20 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   load-isd-daily.sh
+# File      :   load-daily.sh
 # Mtime     :   2020-11-03
 # Desc      :   Load ISD daily Dataset (specific year) to database
-# Path      :   bin/load-isd-daily.sh
+# Path      :   bin/load-daily.sh
 # Author    :   Vonng(fengruohang@outlook.com)
 # Depend    :   curl
-# Usage     :   bin/load-isd-daily.sh [pgurl=isd] [year=2020]
+# Usage     :   bin/load-daily.sh [pgurl=postgres:///] [year=this-year]
 #==============================================================#
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 PROG_NAME="$(basename $0)"
 PROJ_DIR=$(dirname $PROG_DIR)
 
 # PGURL specify target database connection string
-PGURL=${1-'isd'}
+PGURL=${1-'postgres:///'}
 PARSER="${PROJ_DIR}/bin/isdd"
 DATA_DIR="${PROJ_DIR}/data/daily"
 
@@ -37,17 +37,17 @@ if (( year < 1900 )); then
 fi
 
 # get year record count
-sql="SELECT count(*) FROM isd_daily WHERE ts >= '${year}-01-01' AND ts < '${next_year}-01-01';"
+sql="SELECT count(*) FROM isd.daily WHERE ts >= '${year}-01-01' AND ts < '${next_year}-01-01';"
 count=$(psql ${PGURL} -AXtwqc "${sql}")
 log_info "Year ${year} got ${count} records"
 
 # delete year records
-log_info "DELETE FROM isd_daily WHERE ts >= '${year}-01-01' AND ts < '${next_year}-01-01';"
-sql="DELETE FROM isd_daily WHERE ts >= '${year}-01-01' AND ts < '${next_year}-01-01';"
+log_info "DELETE FROM isd.daily WHERE ts >= '${year}-01-01' AND ts < '${next_year}-01-01';"
+sql="DELETE FROM isd.daily WHERE ts >= '${year}-01-01' AND ts < '${next_year}-01-01';"
 psql ${PGURL} -AXtwqc "${sql}"
 
-log_info "VACUUM isd_daily"
-psql ${PGURL} -AXtwqc 'VACUUM isd_daily;'
+log_info "VACUUM isd.daily"
+psql ${PGURL} -AXtwqc 'VACUUM isd.daily;'
 
 log_info "parser=${PARSER}, input=${DATA_DIR}/${year}.tar.gz"
-${PARSER} -v -i "${DATA_DIR}/${year}.tar.gz" | psql ${PGURL} -AXtwqc "COPY isd_daily FROM STDIN CSV;"
+${PARSER} -v -i "${DATA_DIR}/${year}.tar.gz" | psql ${PGURL} -AXtwqc "COPY isd.daily FROM STDIN CSV;"

@@ -1,81 +1,83 @@
-# ISD —— Intergrated Surface Data
-
-
+# ISD —— Integrated Surface Data
 
 ## SYNOPSIS
 
-Download, Parse, Visualize Intergrated Suface Dataset.
+Download, Parse, Visualize Integrated Surface Dataset
 
-Including 30000 meteorology station, sub-hourly observation records, from 1900-2020.
+Including 30000 meteorology station, sub-hourly observation records, from 1900-2021.
 
 
+## Quick Start
 
-## Quick Started
+`make all` will just setup everything
 
-1. **Clone repo**
+> Internet (Github & noaa) access required
 
-    ```bash
-   git clone https://github.com/Vonng/isd && cd isd 
-   ```
 
-2. **Prepare a postgres database** 
+### Make Baseline Works
 
-    Connect via something like `isd` or `postgres://user:pass@host/dbname`)
-   
-   ```bash
-   # skip this if you already have a viable database
-   PGURL=postgres
-   psql ${PGURL} -c 'CREATE DATABASE isd;'
-   
-   # database connection string, something like `isd` or `postgres://user:pass@host/dbname`
-   PGURL='isd'
-   psql ${PGURL} -AXtwc 'CREATE EXTENSION postgis;'
-   
-   # create tables, partitions, functions
-   psql ${PGURL} -AXtwf 'sql/schema.sql'
-   ```
-   
-3. **Download data**
+Run `make baseline` will create a minimal usable production via:
 
-    * [ISD Station](https://www1.ncdc.noaa.gov/pub/data/noaa/isd-history.csv): Station metadata, id, name, location, country, etc...  
-    * [ISD History](https://www1.ncdc.noaa.gov/pub/data/noaa/isd-inventory.csv.z): Station observation records: observation count per month 
-    * [ISD Hourly](https://www.ncei.noaa.gov/data/global-hourly/archive/csv/): Yearly archived station (sub-)hourly observation records  
-    * [ISD Daily](https://www.ncei.noaa.gov/data/global-summary-of-the-day/archive/): Yearly archvied station daily aggregated summary
-    
-    ```bash
-    git clone https://github.com/Vonng/isd && cd isd
-    bin/get-isd-station.sh         # download isd station from noaa (proxy makes it faster)
-    bin/get-isd-history.sh         # download isd history observation from noaa
-    bin/get-isd-hourly.sh <year>   # download isd hourly data (yearly tarball 1901-2020)
-    bin/get-isd-daily.sh <year>    # download isd daily data  (yearly tarball 1929-2020) 
-    ```
+```bash
+make sql        # load isd database schema into postgres (via PGURL env)
+make ui         # setup grafana dashboards
+make download   # download meta data (dict) & parsers
+make load-meta  # load meta-data into database
+```
 
-4. **Build Parser**
+### Get This Year's Daily Summary
 
-   There are two ISD dataset parsers written in Golang : [`isdh`](parser/isdh/isdh.go) for isd hourly dataset and [`isdd`](parser/isdd/isdd.go) for isd daily dataset.
-   
-   `make isdh` and `make isdd` will build it and copy to bin. These parsers are required for loading data into database. 
-   
-   You can [download](https://github.com/Vonng/isd/releases/tag/v0.1.0) pre-compiled binary to [bin/](bin/) dir to skip this phase.
-   
-5. **Load data**
+Get latest daily observation summary (daily, monthly, yearly)
 
-   Metadata includes `world_fences`, `china_fences`, `isd_elements`, `isd_mwcode`, `isd_station`, `isd_history`. These are gzipped csv file lies in [`data/meta/`](data/meta/). `world_fences`, `china_fences`, `isd_elements`, `isd_mwcode` are constant dict table. But  `isd_station` and `isd_history` are frequently updated. You'll have to download it from noaa before loading it.   
-   
-   ```bash
-   # load metadata: fences, dicts, station, history,...
-   bin/load-meta.sh 
-   
-   # load a year's daily data to database 
-   bin/load-isd-daily <year> 
-   
-   # load a year's hourly data to database
-   bin/laod-isd-hourly <year>
-   ```
-   
-      > Note that the original `isd_daily` dataset has some un-cleansed data, refer [caveat](doc/isd-daily-caveat.md) for detail.  
-   
-   
+> NOTICE: Will download directly from noaa. (check your proxy if too slow! about 60MB per year)
+> around 3~4 GB original zipped file, 20 GB in database
+
+Run `make reload` will load minimal data (this year so far) to database.
+
+```bash
+make get-daily   # get latest observation daily summary (of latest year e.g 2021)
+make load-daily  # load latest daily data into database (of latest year e.g 2021)
+make refresh     # refresh monthly & yearly data based on daily data 
+```
+ISD Daily and ISD hourly dataset will roll update each day. Run these commands to get daily update.
+
+
+### Get This Year's Hourly Raw Data
+
+Get the latest hourly observation raw data (not recommended)
+
+> WARNING: hourly raw data are large dataset with tons of noisy. around 5GB per year
+> around 100 GB original zipped file, 1TB in database 
+
+Run `make reload-hourly` will load minimal raw data (this year so far) to database.
+
+```bash
+make get-hourly   # get latest observation daily summary (of latest year e.g 2021)
+make load-hourly  # load latest daily data into database (of latest year e.g 2021) 
+```
+
+### Pour more historic data
+
+You can download hourly & daily data by specific year.
+
+```bash
+# bin/get-daily.sh <year> will get specific year's observation daily summary (1929-2021)
+bin/get-daily.sh 2020     # get 2020 data
+
+# bin/get-hourly.sh <year> will get latest observation daily summary (1900-2021)
+bin/get-hourly.sh 2020 
+```
+
+And load them into database with parser:
+
+```bash
+# bin/load-daily.sh <PGURL> <year> will load <year>'s daily summary into PGURL database 
+bin/load-daily.sh service=meta 2020     # note there may have some dirty data that violate constraints
+
+# bin/load-hourly.sh <PGURL> <year> will load <year>'s raw hourly data into PGURL database
+bin/load-hourly.sh service=meta 2020
+```
+
 
 ## Data
 
@@ -88,11 +90,11 @@ Including 30000 meteorology station, sub-hourly observation records, from 1900-2
 | ISD Monthly | N/A                                                | [isd-gsom-document.pdf](doc/isd-gsom-document.pdf)     | Not used, gen from daily          |
 | ISD Yearly  | N/A                                                | [isd-gsoy-document.pdf](doc/isd-gsoy-document.pdf)     | Not used, gen from monthly        |
 
-Hourly Data: Oringinal tarball size 105GB, Table size 1TB (+600GB Indexes).
+Hourly Data: Original tarball size 105 GB, Table size 1TB (+600 GB Indexes).
 
-Daily Data: Oringinal tarball size 3.2GB, table size 24 GB
+Daily Data: Original tarball size 3.2GB, table size 24 GB
 
-It is recommended to have 2TB storage for a full installation, and at least 40GB for daily data only installation.  
+It is recommended to have 2 TB storage for a full installation, and at least 40 GB for daily data only installation.  
 
 
 
@@ -103,7 +105,7 @@ Data schema [definition](sql/schema.sql)
 #### Station
 
 ```sql
-CREATE TABLE public.isd_station
+CREATE TABLE isd.station
 (
     station    VARCHAR(12) PRIMARY KEY,
     usaf       VARCHAR(6) GENERATED ALWAYS AS (substring(station, 1, 6)) STORED,
@@ -125,7 +127,7 @@ CREATE TABLE public.isd_station
 #### Hourly Data
 
 ```sql
-CREATE TABLE public.isd_hourly
+CREATE TABLE isd.hourly
 (
     station    VARCHAR(11) NOT NULL,
     ts         TIMESTAMP   NOT NULL,
@@ -155,7 +157,7 @@ CREATE TABLE public.isd_hourly
 #### Daily Data
 
 ```sql
-CREATE TABLE public.isd_daily
+CREATE TABLE isd.daily
 (
     station     VARCHAR(12) NOT NULL,
     ts          DATE        NOT NULL,
@@ -190,24 +192,6 @@ CREATE TABLE public.isd_daily
     PRIMARY KEY (ts, station)
 ) PARTITION BY RANGE (ts);
 ```
-
-### Update
-
-ISD Daily and ISD hourly dataset will rolling update each day. Run following scripts to load latest data into database.
-
-```bash
-# download, clean, reload latest hourly dataset
-bin/get-isd-daily.sh
-bin/load-isd-daily.sh
-
-# download, clean, reload latest daily dataset
-bin/get-isd-daily.sh
-bin/load-isd-daily.sh
-
-# recalculate latest partition of monthly and yearly
-bin/refresh-latest.sh
-```
-
 
 
 ## Parser

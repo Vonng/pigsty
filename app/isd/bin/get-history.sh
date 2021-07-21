@@ -2,12 +2,12 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   get-isd-history.sh
+# File      :   get-history.sh
 # Mtime     :   2020-09-09
 # Desc      :   Get ISD History (isd inventory) Dataset from noaa
 # Note      :   isd-inventory.csv will be downloaded to ../data/meta/isd-history.csv.gz
-# Path      :   bin/get-isd-history.sh
-# Author    :   Vonng (fengruohang@outlook.com)
+# Path      :   bin/get-history.sh
+# Author    :   Vonng (rh@vonng.com)
 # Depend    :   curl, gzip
 #==============================================================#
 PROG_DIR="$(cd $(dirname $0) && pwd)"
@@ -27,4 +27,3 @@ cd ${DATA_DIR}
 # curl https://www1.ncdc.noaa.gov/pub/data/noaa/isd-inventory.csv.z -o isd_inventory.csv.z
 log_info "curl ${DATA_URL} to isd_history.csv.gz"
 curl ${DATA_URL} | gzip -d | gzip --best > isd_history.csv.gz
-ls -lh

@@ -3,27 +3,9 @@
 --============================================================--
 -- postgis required
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+DROP SCHEMA IF EXISTS isd CASCADE;
 CREATE SCHEMA IF NOT EXISTS isd;
-DROP TABLE IF EXISTS isd.china_fences;
-DROP TABLE IF EXISTS isd.world_fences;
 
-DROP TABLE IF EXISTS isd_station;
-DROP TABLE IF EXISTS isd_history;
-DROP TABLE IF EXISTS isd_elements;
-DROP TABLE IF EXISTS isd_mwcode;
-
-DROP TABLE IF EXISTS isd_hourly;
-DROP TABLE IF EXISTS isd_daily;
-DROP TABLE IF EXISTS isd_monthly;
-DROP TABLE IF EXISTS isd_yearly;
-
-DROP FUNCTION IF EXISTS wind16(_i NUMERIC);
-DROP FUNCTION IF EXISTS wind8(_i NUMERIC);
-DROP FUNCTION IF EXISTS mwcode_name(mw_code text);
-DROP FUNCTION IF EXISTS china_geojson(codes INTEGER[]);
-DROP FUNCTION IF EXISTS world_geojson(scale TEXT, codes TEXT[]);
-DROP FUNCTION IF EXISTS create_isd_hourly_partition(_year INTEGER, _upper INTEGER);
-DROP FUNCTION IF EXISTS refresh_isd_latest();
 
 --============================================================--
 --                    Meta Table Schema                        -
@@ -34,7 +16,7 @@ DROP FUNCTION IF EXISTS refresh_isd_latest();
 -- isd_station
 --   Station meta data
 ------------------------------------------------
-CREATE TABLE public.isd_station
+CREATE TABLE isd.station
 (
     station    VARCHAR(12) PRIMARY KEY,
     usaf       VARCHAR(6) GENERATED ALWAYS AS (substring(station, 1, 6)) STORED,
@@ -52,38 +34,38 @@ CREATE TABLE public.isd_station
     end_date   DATE GENERATED ALWAYS AS (upper(period)) STORED
 );
 
-COMMENT ON TABLE isd_station IS 'Integrated Surface Data (ISD) dataset station history';
-COMMENT ON COLUMN isd_station.station IS 'Primary key of isd station, 11 char, usaf+wban';
-COMMENT ON COLUMN isd_station.usaf IS 'Air Force station ID. May contain a letter in the first position.';
-COMMENT ON COLUMN isd_station.wban IS 'NCDC WBAN number';
-COMMENT ON COLUMN isd_station.name IS 'Station name';
-COMMENT ON COLUMN isd_station.country IS 'FIPS country ID (2 char)';
-COMMENT ON COLUMN isd_station.province IS 'State for US stations (2 char)';
-COMMENT ON COLUMN isd_station.icao IS 'ICAO ID';
-COMMENT ON COLUMN isd_station.location IS '2D location of station';
-COMMENT ON COLUMN isd_station.longitude IS 'longitude of the station';
-COMMENT ON COLUMN isd_station.latitude IS 'latitude of the station';
-COMMENT ON COLUMN isd_station.elevation IS 'altitude of the station';
-COMMENT ON COLUMN isd_station.begin_date IS 'Beginning Period Of Record (YYYYMMDD). There may be reporting gaps within the P.O.R.';
-COMMENT ON COLUMN isd_station.end_date IS 'Ending Period Of Record (YYYYMMDD). There may be reporting gaps within the P.O.R.';
-COMMENT ON COLUMN isd_station.period IS 'range of [begin,end] peroid';
+COMMENT ON TABLE  isd.station IS 'Integrated Surface Data (ISD) dataset station history';
+COMMENT ON COLUMN isd.station.station IS 'Primary key of isd station, 11 char, usaf+wban';
+COMMENT ON COLUMN isd.station.usaf IS 'Air Force station ID. May contain a letter in the first position.';
+COMMENT ON COLUMN isd.station.wban IS 'NCDC WBAN number';
+COMMENT ON COLUMN isd.station.name IS 'Station name';
+COMMENT ON COLUMN isd.station.country IS 'FIPS country ID (2 char)';
+COMMENT ON COLUMN isd.station.province IS 'State for US stations (2 char)';
+COMMENT ON COLUMN isd.station.icao IS 'ICAO ID';
+COMMENT ON COLUMN isd.station.location IS '2D location of station';
+COMMENT ON COLUMN isd.station.longitude IS 'longitude of the station';
+COMMENT ON COLUMN isd.station.latitude IS 'latitude of the station';
+COMMENT ON COLUMN isd.station.elevation IS 'altitude of the station';
+COMMENT ON COLUMN isd.station.begin_date IS 'Beginning Period Of Record (YYYYMMDD). There may be reporting gaps within the P.O.R.';
+COMMENT ON COLUMN isd.station.end_date IS 'Ending Period Of Record (YYYYMMDD). There may be reporting gaps within the P.O.R.';
+COMMENT ON COLUMN isd.station.period IS 'range of [begin,end] period';
 
 -- indexes
-CREATE INDEX ON isd_station (usaf);
-CREATE INDEX ON isd_station (wban);
-CREATE INDEX ON isd_station (name);
-CREATE INDEX ON isd_station (icao);
-CREATE INDEX ON isd_station (begin_date);
-CREATE INDEX ON isd_station (end_date);
-CREATE INDEX ON isd_station USING GIST (location);
-CREATE INDEX ON isd_station USING GIST (period);
+CREATE INDEX ON isd.station (usaf);
+CREATE INDEX ON isd.station (wban);
+CREATE INDEX ON isd.station (name);
+CREATE INDEX ON isd.station (icao);
+CREATE INDEX ON isd.station (begin_date);
+CREATE INDEX ON isd.station (end_date);
+CREATE INDEX ON isd.station USING GIST (location);
+CREATE INDEX ON isd.station USING GIST (period);
 
 
 ------------------------------------------------
 -- isd_history
 --   Station historic observation summary
 ------------------------------------------------
-CREATE TABLE public.isd_history
+CREATE TABLE isd.history
 (
     station      VARCHAR(12),
     year         DATE,
@@ -107,38 +89,38 @@ CREATE TABLE public.isd_history
     PRIMARY KEY (station, year)
 );
 
-COMMENT ON TABLE isd_history IS 'ISD观测记录清单表';
-COMMENT ON COLUMN isd_history.station IS 'station name: usaf(6) + wban(5)';
-COMMENT ON COLUMN isd_history.year IS 'observe year';
-COMMENT ON COLUMN isd_history.usaf IS 'Air Force station ID(6). May contain a letter in the first position';
-COMMENT ON COLUMN isd_history.wban IS 'NCDC WBAN number, 5char';
-COMMENT ON COLUMN isd_history.country IS '2位国家代码，缺省值为NA';
-COMMENT ON COLUMN isd_history.active_month IS '当年存在观测记录的月份数量';
-COMMENT ON COLUMN isd_history.total IS '当年记录数';
-COMMENT ON COLUMN isd_history.m1 IS '1月份记录数';
-COMMENT ON COLUMN isd_history.m2 IS '2月份记录数';
-COMMENT ON COLUMN isd_history.m3 IS '3月份记录数';
-COMMENT ON COLUMN isd_history.m4 IS '4月份记录数';
-COMMENT ON COLUMN isd_history.m5 IS '5月份记录数';
-COMMENT ON COLUMN isd_history.m6 IS '6月份记录数';
-COMMENT ON COLUMN isd_history.m7 IS '7月份记录数';
-COMMENT ON COLUMN isd_history.m8 IS '8月份记录数';
-COMMENT ON COLUMN isd_history.m9 IS '9月份记录数';
-COMMENT ON COLUMN isd_history.m10 IS '10月份记录数';
-COMMENT ON COLUMN isd_history.m11 IS '11月份记录数';
-COMMENT ON COLUMN isd_history.m12 IS '12月份记录数';
+COMMENT ON TABLE  isd.history IS 'ISD Observation History';
+COMMENT ON COLUMN isd.history.station IS 'station name: usaf(6) + wban(5)';
+COMMENT ON COLUMN isd.history.year IS 'observe year';
+COMMENT ON COLUMN isd.history.usaf IS 'Air Force station ID(6). May contain a letter in the first position';
+COMMENT ON COLUMN isd.history.wban IS 'NCDC WBAN number, 5char';
+COMMENT ON COLUMN isd.history.country IS '2 Char Country Code, N/A by default';
+COMMENT ON COLUMN isd.history.active_month IS 'How many months that has observation records in this year?';
+COMMENT ON COLUMN isd.history.total IS 'How many observation in this year';
+COMMENT ON COLUMN isd.history.m1 IS 'Jan records';
+COMMENT ON COLUMN isd.history.m2 IS 'Feb records';
+COMMENT ON COLUMN isd.history.m3 IS 'Mar records';
+COMMENT ON COLUMN isd.history.m4 IS 'Apr records';
+COMMENT ON COLUMN isd.history.m5 IS 'May records';
+COMMENT ON COLUMN isd.history.m6 IS 'Jun records';
+COMMENT ON COLUMN isd.history.m7 IS 'Jul records';
+COMMENT ON COLUMN isd.history.m8 IS 'Aug records';
+COMMENT ON COLUMN isd.history.m9 IS 'Sep records';
+COMMENT ON COLUMN isd.history.m10 IS 'Oct records';
+COMMENT ON COLUMN isd.history.m11 IS 'Sep records';
+COMMENT ON COLUMN isd.history.m12 IS 'Dec records';
 
 -- indexes
-CREATE UNIQUE INDEX ON isd_history (station, year);
-CREATE INDEX ON isd_history (year, country);
-CREATE INDEX ON isd_history (usaf);
+CREATE UNIQUE INDEX ON isd.history (station, year);
+CREATE INDEX ON isd.history (year, country);
+CREATE INDEX ON isd.history (usaf);
 
 
 ------------------------------------------------
 -- isd_elements
 --   Meteorology elements dictionary
 ------------------------------------------------
-CREATE TABLE public.isd_elements
+CREATE TABLE isd.elements
 (
     id       TEXT PRIMARY KEY,
     name     TEXT,
@@ -147,36 +129,36 @@ CREATE TABLE public.isd_elements
     section  TEXT
 );
 
-COMMENT ON TABLE public.isd_elements IS 'ISD气象要素释义表';
-COMMENT ON COLUMN public.isd_elements.id IS '气象要素标识';
-COMMENT ON COLUMN public.isd_elements.name IS '气象要素名称';
-COMMENT ON COLUMN public.isd_elements.name_cn IS '气象要素中文名称';
-COMMENT ON COLUMN public.isd_elements.coverage IS '气象要素数据覆盖率';
-COMMENT ON COLUMN public.isd_elements.section IS '气象要素所属类别';
+COMMENT ON TABLE  isd.elements IS 'isd element dictionary';
+COMMENT ON COLUMN isd.elements.id IS 'element identifer';
+COMMENT ON COLUMN isd.elements.name IS 'element name';
+COMMENT ON COLUMN isd.elements.name_cn IS 'element cn name';
+COMMENT ON COLUMN isd.elements.coverage IS 'element coverage';
+COMMENT ON COLUMN isd.elements.section IS 'element category';
 
 
 ------------------------------------------------
 -- isd_mwcode
 --   Weather code used by ISD MW fields
 ------------------------------------------------
-CREATE TABLE isd_mwcode
+CREATE TABLE isd.mwcode
 (
     code  VARCHAR(2) PRIMARY KEY,
     name  VARCHAR(8),
     brief TEXT
 );
 
-COMMENT ON TABLE isd_mwcode IS 'ISD MW字段两位天气代码';
-COMMENT ON COLUMN isd_mwcode.code IS '2 digit code from 00-99';
-COMMENT ON COLUMN isd_mwcode.name IS 'short description in chinese';
-COMMENT ON COLUMN isd_mwcode.brief IS 'origin description text';
+COMMENT ON TABLE  isd.mwcode IS 'ISD MW Code Dictionary';
+COMMENT ON COLUMN isd.mwcode.code IS '2 digit code from 00-99';
+COMMENT ON COLUMN isd.mwcode.name IS 'short description in chinese';
+COMMENT ON COLUMN isd.mwcode.brief IS 'origin description text';
 
 
 ------------------------------------------------
 -- world_fences
 --   GeoFence from eurostats
 ------------------------------------------------
-CREATE TABLE public.world_fences
+CREATE TABLE isd.world_fences
 (
     id            VARCHAR(2) PRIMARY KEY,
     name          VARCHAR(64),
@@ -192,38 +174,38 @@ CREATE TABLE public.world_fences
     fence1m       GEOMETRY
 );
 
-COMMENT ON TABLE public.world_fences IS '2020年世界行政区划地理围栏表,欧盟统计用';
-COMMENT ON COLUMN public.world_fences.id IS '两位国家代码';
-COMMENT ON COLUMN public.world_fences.name IS '英文国家名称';
-COMMENT ON COLUMN public.world_fences.name_raw IS '本地语言表示的国家名称';
-COMMENT ON COLUMN public.world_fences.name_cn IS '中文官方名称';
-COMMENT ON COLUMN public.world_fences.name_cn_short IS '中文简写名称';
-COMMENT ON COLUMN public.world_fences.iso2 IS 'ISO2位代码';
-COMMENT ON COLUMN public.world_fences.iso3 IS 'ISO3位代码';
-COMMENT ON COLUMN public.world_fences.fence60m IS '地理围栏1:60000000';
-COMMENT ON COLUMN public.world_fences.fence20m IS '地理围栏1:20000000';
-COMMENT ON COLUMN public.world_fences.fence10m IS '地理围栏1:10000000';
-COMMENT ON COLUMN public.world_fences.fence3m IS '地理围栏1:3000000';
-COMMENT ON COLUMN public.world_fences.fence1m IS '地理围栏1:1000000';
+COMMENT ON TABLE  isd.world_fences IS '2020 world administration geo fences from euro stats';
+COMMENT ON COLUMN isd.world_fences.id IS '两位国家代码';
+COMMENT ON COLUMN isd.world_fences.name IS '英文国家名称';
+COMMENT ON COLUMN isd.world_fences.name_raw IS '本地语言表示的国家名称';
+COMMENT ON COLUMN isd.world_fences.name_cn IS '中文官方名称';
+COMMENT ON COLUMN isd.world_fences.name_cn_short IS 'chinese abbreviation ';
+COMMENT ON COLUMN isd.world_fences.iso2 IS 'ISO 2-digit code';
+COMMENT ON COLUMN isd.world_fences.iso3 IS 'ISO 3-digit code';
+COMMENT ON COLUMN isd.world_fences.fence60m IS 'geofence 1:60000000';
+COMMENT ON COLUMN isd.world_fences.fence20m IS 'geofence 1:20000000';
+COMMENT ON COLUMN isd.world_fences.fence10m IS 'geofence 1:10000000';
+COMMENT ON COLUMN isd.world_fences.fence3m IS 'geofence 1:3000000';
+COMMENT ON COLUMN isd.world_fences.fence1m IS 'geofence 1:1000000';
 
 -- indexes
-CREATE INDEX IF NOT EXISTS world_fences_iso2_idx ON public.world_fences USING btree (iso2);
-CREATE INDEX IF NOT EXISTS world_fences_iso3_idx ON public.world_fences USING btree (iso3);
-CREATE INDEX IF NOT EXISTS world_fences_name_cn_idx ON public.world_fences USING btree (name_cn);
-CREATE INDEX IF NOT EXISTS world_fences_name_cn_short_idx ON public.world_fences USING btree (name_cn_short);
-CREATE INDEX IF NOT EXISTS world_fences_name_idx ON public.world_fences USING btree (name);
-CREATE INDEX IF NOT EXISTS world_fences_fence10m_idx ON public.world_fences USING gist (fence10m);
-CREATE INDEX IF NOT EXISTS world_fences_fence1m_idx ON public.world_fences USING gist (fence1m);
-CREATE INDEX IF NOT EXISTS world_fences_fence20m_idx ON public.world_fences USING gist (fence20m);
-CREATE INDEX IF NOT EXISTS world_fences_fence3m_idx ON public.world_fences USING gist (fence3m);
-CREATE INDEX IF NOT EXISTS world_fences_fence60m_idx ON public.world_fences USING gist (fence60m);
+CREATE INDEX IF NOT EXISTS world_fences_iso2_idx ON isd.world_fences USING btree (iso2);
+CREATE INDEX IF NOT EXISTS world_fences_iso3_idx ON isd.world_fences USING btree (iso3);
+CREATE INDEX IF NOT EXISTS world_fences_name_cn_idx ON isd.world_fences USING btree (name_cn);
+CREATE INDEX IF NOT EXISTS world_fences_name_cn_short_idx ON isd.world_fences USING btree (name_cn_short);
+CREATE INDEX IF NOT EXISTS world_fences_name_idx ON isd.world_fences USING btree (name);
+CREATE INDEX IF NOT EXISTS world_fences_fence10m_idx ON isd.world_fences USING gist (fence10m);
+CREATE INDEX IF NOT EXISTS world_fences_fence1m_idx ON isd.world_fences USING gist (fence1m);
+CREATE INDEX IF NOT EXISTS world_fences_fence20m_idx ON isd.world_fences USING gist (fence20m);
+CREATE INDEX IF NOT EXISTS world_fences_fence3m_idx ON isd.world_fences USING gist (fence3m);
+CREATE INDEX IF NOT EXISTS world_fences_fence60m_idx ON isd.world_fences USING gist (fence60m);
 
 
 ------------------------------------------------
 -- china_fences
 --   GeoFence from China MCN
 ------------------------------------------------
-CREATE TABLE public.china_fences
+CREATE TABLE isd.china_fences
 (
     id          INTEGER NOT NULL,
     adcode      VARCHAR(6),
@@ -239,26 +221,26 @@ CREATE TABLE public.china_fences
     fence       GEOMETRY
 );
 
-COMMENT ON TABLE public.china_fences IS '中国民政部行政区划地理围栏2018';
-COMMENT ON COLUMN china_fences.id IS '6位县级行政区划代码，主键';
-COMMENT ON COLUMN china_fences.adcode IS '6位县级行政区划代码';
-COMMENT ON COLUMN china_fences.name IS '行政区划名称';
-COMMENT ON COLUMN china_fences.center IS '行政区划中心';
-COMMENT ON COLUMN china_fences.population IS '行政区划人口';
-COMMENT ON COLUMN china_fences.area IS '地区面积';
-COMMENT ON COLUMN china_fences.area_code IS '地区代码（区号）';
-COMMENT ON COLUMN china_fences.post_code IS '邮政编码';
-COMMENT ON COLUMN china_fences.region_type IS '地区类型（后缀，等级）';
-COMMENT ON COLUMN china_fences.province IS '所属省份';
-COMMENT ON COLUMN china_fences.city IS '所属城市';
-COMMENT ON COLUMN china_fences.fence IS '地理边界';
+COMMENT ON TABLE  isd.china_fences IS 'China geo fences from MCN 2018';
+COMMENT ON COLUMN isd.china_fences.id IS '6位县级行政区划代码，主键';
+COMMENT ON COLUMN isd.china_fences.adcode IS '6位县级行政区划代码';
+COMMENT ON COLUMN isd.china_fences.name IS '行政区划名称';
+COMMENT ON COLUMN isd.china_fences.center IS '行政区划中心';
+COMMENT ON COLUMN isd.china_fences.population IS '行政区划人口';
+COMMENT ON COLUMN isd.china_fences.area IS '地区面积';
+COMMENT ON COLUMN isd.china_fences.area_code IS '地区代码（区号）';
+COMMENT ON COLUMN isd.china_fences.post_code IS '邮政编码';
+COMMENT ON COLUMN isd.china_fences.region_type IS '地区类型（后缀，等级）';
+COMMENT ON COLUMN isd.china_fences.province IS '所属省份';
+COMMENT ON COLUMN isd.china_fences.city IS '所属城市';
+COMMENT ON COLUMN isd.china_fences.fence IS '地理边界';
 
 -- indexes
-CREATE INDEX ON china_fences (adcode);
-CREATE INDEX ON china_fences (area_code);
-CREATE INDEX ON china_fences (name);
-CREATE INDEX ON china_fences (post_code);
-CREATE INDEX ON china_fences USING gist (fence);
+CREATE INDEX ON isd.china_fences (adcode);
+CREATE INDEX ON isd.china_fences (area_code);
+CREATE INDEX ON isd.china_fences (name);
+CREATE INDEX ON isd.china_fences (post_code);
+CREATE INDEX ON isd.china_fences USING gist (fence);
 
 
 
@@ -270,7 +252,7 @@ CREATE INDEX ON china_fences USING gist (fence);
 -- isd_hourly
 --   hourly observation data
 ------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.isd_hourly
+CREATE TABLE IF NOT EXISTS isd.hourly
 (
     station    VARCHAR(11) NOT NULL, -- station id
     ts         TIMESTAMP   NOT NULL, -- timestamp
@@ -289,73 +271,73 @@ CREATE TABLE IF NOT EXISTS public.isd_hourly
     cld_height NUMERIC(5),           -- [0,22000]
     cld_code   VARCHAR(2),           -- cloud code
     -- 水
-    sndp       NUMERIC(5, 1),        -- mm 降雪
-    prcp       NUMERIC(5, 1),        -- mm 降水
-    prcp_hour  NUMERIC(2),           -- 降水时长
-    prcp_code  VARCHAR(1),           -- 降水代码
+    sndp       NUMERIC(5, 1),        -- mm snow
+    prcp       NUMERIC(5, 1),        -- mm precipitation
+    prcp_hour  NUMERIC(2),           -- precipitation duration in hour
+    prcp_code  VARCHAR(1),           -- precipitation type code
     -- 天
-    mw_code    VARCHAR(2),           -- 人工天气观测代码
-    aw_code    VARCHAR(2),           -- 自动天气观测代码
-    pw_code    VARCHAR(1),           -- 过去一段时间的天气代码
-    pw_hour    NUMERIC(2),           -- 过去一段时间天气的时长
+    mw_code    VARCHAR(2),           -- manual weather observation code
+    aw_code    VARCHAR(2),           -- auto weather observation code
+    pw_code    VARCHAR(1),           -- weather code of past period of time
+    pw_hour    NUMERIC(2),           -- duration of pw_code period
     -- 杂
     -- remark     TEXT,
     -- eqd        TEXT,
-    data       JSONB
+    data       JSONB                 -- extra data
 ) PARTITION BY RANGE (ts);
 
 
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN station SET STORAGE MAIN;
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN cld_code SET STORAGE MAIN;
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN prcp_code SET STORAGE MAIN;
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN mw_code SET STORAGE MAIN;
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN aw_code SET STORAGE MAIN;
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN pw_code SET STORAGE MAIN;
-ALTER TABLE isd_hourly
+ALTER TABLE isd.hourly
     ALTER COLUMN wd_code SET STORAGE MAIN;
 
-COMMENT ON TABLE isd_hourly IS 'Integrated Surface Data (ISD) station from global hourly dataset';
-COMMENT ON COLUMN isd_hourly.station IS '11 char usaf wban station identifier';
-COMMENT ON COLUMN isd_hourly.ts IS 'observe timestamp in UTC';
-COMMENT ON COLUMN isd_hourly.temp IS '[-93.2,+61.8] temperature of the air';
-COMMENT ON COLUMN isd_hourly.dewp IS '[-98.2,+36.8] dew point temperature';
-COMMENT ON COLUMN isd_hourly.slp IS '[8600,10900] air pressure relative to Mean Sea Level (MSL).';
-COMMENT ON COLUMN isd_hourly.stp IS '[4500,10900] air pressure of station';
-COMMENT ON COLUMN isd_hourly.vis IS '[0-160000] horizontal distance at which an object can be seen and identified';
-COMMENT ON COLUMN isd_hourly.wd_angle IS '[1-360] angle measured in a clockwise direction';
-COMMENT ON COLUMN isd_hourly.wd_speed IS '[0-900] rate of horizontal travel of air past a fixed point';
-COMMENT ON COLUMN isd_hourly.wd_gust IS '[0-110] wind gust';
-COMMENT ON COLUMN isd_hourly.wd_code IS 'code that denotes the character of the WIND-OBSERVATION.';
-COMMENT ON COLUMN isd_hourly.cld_height IS 'the height above ground level';
-COMMENT ON COLUMN isd_hourly.cld_code IS 'GF1-1 An indicator that denotes the start of a SKY-CONDITION-OBSERVATION data group.';
-COMMENT ON COLUMN isd_hourly.sndp IS '降雪深度，毫米';
-COMMENT ON COLUMN isd_hourly.prcp IS '降水，毫米';
-COMMENT ON COLUMN isd_hourly.prcp_hour IS '降水时长';
-COMMENT ON COLUMN isd_hourly.prcp_code IS '降水代码';
-COMMENT ON COLUMN isd_hourly.mw_code IS 'MW1, 人工天气观测代码';
-COMMENT ON COLUMN isd_hourly.aw_code IS 'AW1, PRESENT-WEATHER-OBSERVATION automated occurrence identifier';
-COMMENT ON COLUMN isd_hourly.pw_code IS 'AY1-1, PAST-WEATHER-OBSERVATION manual atmospheric condition code';
-COMMENT ON COLUMN isd_hourly.pw_hour IS 'AY1-3, PAST-WEATHER-OBSERVATION period quantity, 过去一段时间天气的时长';
+COMMENT ON TABLE  isd.hourly IS 'Integrated Surface Data (ISD) station from global hourly dataset';
+COMMENT ON COLUMN isd.hourly.station IS '11 char usaf wban station identifier';
+COMMENT ON COLUMN isd.hourly.ts IS 'observe timestamp in UTC';
+COMMENT ON COLUMN isd.hourly.temp IS '[-93.2,+61.8] temperature of the air';
+COMMENT ON COLUMN isd.hourly.dewp IS '[-98.2,+36.8] dew point temperature';
+COMMENT ON COLUMN isd.hourly.slp IS '[8600,10900] air pressure relative to Mean Sea Level (MSL).';
+COMMENT ON COLUMN isd.hourly.stp IS '[4500,10900] air pressure of station';
+COMMENT ON COLUMN isd.hourly.vis IS '[0-160000] horizontal distance at which an object can be seen and identified';
+COMMENT ON COLUMN isd.hourly.wd_angle IS '[1-360] angle measured in a clockwise direction';
+COMMENT ON COLUMN isd.hourly.wd_speed IS '[0-900] rate of horizontal travel of air past a fixed point';
+COMMENT ON COLUMN isd.hourly.wd_gust IS '[0-110] wind gust';
+COMMENT ON COLUMN isd.hourly.wd_code IS 'code that denotes the character of the WIND-OBSERVATION.';
+COMMENT ON COLUMN isd.hourly.cld_height IS 'the height above ground level';
+COMMENT ON COLUMN isd.hourly.cld_code IS 'GF1-1 An indicator that denotes the start of a SKY-CONDITION-OBSERVATION data group.';
+COMMENT ON COLUMN isd.hourly.sndp IS 'snow depth in mm';
+COMMENT ON COLUMN isd.hourly.prcp IS 'precipitation in mm ';
+COMMENT ON COLUMN isd.hourly.prcp_hour IS 'precipitation hour';
+COMMENT ON COLUMN isd.hourly.prcp_code IS 'precipitation code';
+COMMENT ON COLUMN isd.hourly.mw_code IS 'MW1, manual weather code';
+COMMENT ON COLUMN isd.hourly.aw_code IS 'AW1, PRESENT-WEATHER-OBSERVATION automated occurrence identifier';
+COMMENT ON COLUMN isd.hourly.pw_code IS 'AY1-1, PAST-WEATHER-OBSERVATION manual atmospheric condition code';
+COMMENT ON COLUMN isd.hourly.pw_hour IS 'AY1-3, PAST-WEATHER-OBSERVATION period quantity, 过去一段时间天气的时长';
 -- COMMENT ON COLUMN isd_hourly.remark IS 'remark data section';
 -- COMMENT ON COLUMN isd_hourly.eqd IS ' element quality data section.';
-COMMENT ON COLUMN isd_hourly.data IS 'additional data fields in json format';
+COMMENT ON COLUMN isd.hourly.data IS 'additional data fields in json format';
 
 -- indexes
-CREATE INDEX IF NOT EXISTS isd_hourly_ts_station_idx ON isd_hourly USING btree (ts, station);
-CREATE INDEX IF NOT EXISTS isd_hourly_station_ts_idx ON isd_hourly USING btree (station, ts);
+CREATE INDEX IF NOT EXISTS hourly_ts_station_idx ON isd.hourly USING btree (ts, station);
+CREATE INDEX IF NOT EXISTS hourly_station_ts_idx ON isd.hourly USING btree (station, ts);
 
 
 ------------------------------------------------
 -- isd_daily
 --   daily observation summary data
 ------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.isd_daily
+CREATE TABLE IF NOT EXISTS isd.daily
 (
     -- 主键
     station     VARCHAR(12) NOT NULL, -- 台站号 6USAF+5WBAN
@@ -399,46 +381,45 @@ CREATE TABLE IF NOT EXISTS public.isd_daily
     PRIMARY KEY (ts, station)
 ) PARTITION BY RANGE (ts);
 
-COMMENT ON TABLE isd_daily IS 'ISD每日摘要汇总表';
-COMMENT ON COLUMN isd_daily.station IS '台站号 6USAF+5WBAN';
-COMMENT ON COLUMN isd_daily.ts IS '观测日期';
-COMMENT ON COLUMN isd_daily.temp_mean IS '平均温度 (℃)';
-COMMENT ON COLUMN isd_daily.temp_min IS '最低温度 ℃';
-COMMENT ON COLUMN isd_daily.temp_max IS '最高温度 ℃';
-COMMENT ON COLUMN isd_daily.dewp_mean IS '平均露点 (℃)';
-COMMENT ON COLUMN isd_daily.slp_mean IS '海平面气压 (hPa)';
-COMMENT ON COLUMN isd_daily.stp_mean IS '站点气压 (hPa)';
-COMMENT ON COLUMN isd_daily.vis_mean IS '可视距离 (m)';
-COMMENT ON COLUMN isd_daily.wdsp_mean IS '平均风速 (m/s)';
-COMMENT ON COLUMN isd_daily.wdsp_max IS '最大风速 (m/s)';
-COMMENT ON COLUMN isd_daily.gust IS '最大阵风 (m/s)';
-COMMENT ON COLUMN isd_daily.prcp_mean IS '降水量 (mm)';
-COMMENT ON COLUMN isd_daily.prcp IS '根据降水标记修正后的降水量 (mm)';
-COMMENT ON COLUMN isd_daily.sndp IS '当日最新上报的雪深 (mm)';
-COMMENT ON COLUMN isd_daily.is_foggy IS '(F)og';
-COMMENT ON COLUMN isd_daily.is_rainy IS '(R)ain or Drizzle';
-COMMENT ON COLUMN isd_daily.is_snowy IS '(S)now or pellets';
-COMMENT ON COLUMN isd_daily.is_hail IS '(H)ail';
-COMMENT ON COLUMN isd_daily.is_thunder IS '(T)hunder';
-COMMENT ON COLUMN isd_daily.is_tornado IS '(T)ornado or Funnel Cloud';
-COMMENT ON COLUMN isd_daily.temp_count IS '用于计算温度统计量的记录数量';
-COMMENT ON COLUMN isd_daily.dewp_count IS '用于计算平均露点的记录数量';
-COMMENT ON COLUMN isd_daily.slp_count IS '用于计算海平面气压统计量的记录数量';
-COMMENT ON COLUMN isd_daily.stp_count IS '用于计算站点气压统计量的记录数量';
-COMMENT ON COLUMN isd_daily.wdsp_count IS '用于计算风速统计量的记录数量';
-COMMENT ON COLUMN isd_daily.visib_count IS '用于计算视距的记录数量';
-COMMENT ON COLUMN isd_daily.temp_min_f IS '最低温度是统计得出（而非直接上报）';
-COMMENT ON COLUMN isd_daily.temp_max_f IS '同上，最高温度';
-COMMENT ON COLUMN isd_daily.prcp_flag IS '降水量标记: ABCDEFGHI';
+COMMENT ON TABLE  isd.daily IS 'isd daily observation summary';
+COMMENT ON COLUMN isd.daily.station IS 'station id 6USAF+5WBAN';
+COMMENT ON COLUMN isd.daily.ts IS 'observation date';
+COMMENT ON COLUMN isd.daily.temp_mean IS 'average (℃)';
+COMMENT ON COLUMN isd.daily.temp_min IS 'min ℃';
+COMMENT ON COLUMN isd.daily.temp_max IS 'max ℃';
+COMMENT ON COLUMN isd.daily.dewp_mean IS 'mean dew point (℃)';
+COMMENT ON COLUMN isd.daily.slp_mean IS 'sea level pressre (hPa)';
+COMMENT ON COLUMN isd.daily.stp_mean IS 'station level pressure (hPa)';
+COMMENT ON COLUMN isd.daily.vis_mean IS 'visible distance (m)';
+COMMENT ON COLUMN isd.daily.wdsp_mean IS 'mean wind speed (m/s)';
+COMMENT ON COLUMN isd.daily.wdsp_max IS 'max wind speed (m/s)';
+COMMENT ON COLUMN isd.daily.gust IS 'gust wind speed (m/s)';
+COMMENT ON COLUMN isd.daily.prcp_mean IS 'precipitation  (mm)';
+COMMENT ON COLUMN isd.daily.prcp IS '根据降水标记修正后的降水量 (mm)';
+COMMENT ON COLUMN isd.daily.sndp IS '当日最新上报的雪深 (mm)';
+COMMENT ON COLUMN isd.daily.is_foggy IS '(F)og';
+COMMENT ON COLUMN isd.daily.is_rainy IS '(R)ain or Drizzle';
+COMMENT ON COLUMN isd.daily.is_snowy IS '(S)now or pellets';
+COMMENT ON COLUMN isd.daily.is_hail IS '(H)ail';
+COMMENT ON COLUMN isd.daily.is_thunder IS '(T)hunder';
+COMMENT ON COLUMN isd.daily.is_tornado IS '(T)ornado or Funnel Cloud';
+COMMENT ON COLUMN isd.daily.temp_count IS '用于计算温度统计量的记录数量';
+COMMENT ON COLUMN isd.daily.dewp_count IS '用于计算平均露点的记录数量';
+COMMENT ON COLUMN isd.daily.slp_count IS '用于计算海平面气压统计量的记录数量';
+COMMENT ON COLUMN isd.daily.stp_count IS '用于计算站点气压统计量的记录数量';
+COMMENT ON COLUMN isd.daily.wdsp_count IS '用于计算风速统计量的记录数量';
+COMMENT ON COLUMN isd.daily.visib_count IS '用于计算视距的记录数量';
+COMMENT ON COLUMN isd.daily.temp_min_f IS '最低温度是统计得出（而非直接上报）';
+COMMENT ON COLUMN isd.daily.temp_max_f IS '同上，最高温度';
+COMMENT ON COLUMN isd.daily.prcp_flag IS '降水量标记: ABCDEFGHI';
 
-CREATE INDEX ON isd_daily (station, ts);
-
+CREATE INDEX ON isd.daily (station, ts);
 
 ------------------------------------------------
 -- isd_monthly
 --   monthly observation summary data
 ------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.isd_monthly
+CREATE TABLE IF NOT EXISTS isd.monthly
 (
     ts           DATE,          -- 月份时间戳,yyyy-mm-01
     station      VARCHAR(11),   -- 11位台站号
@@ -476,49 +457,48 @@ CREATE TABLE IF NOT EXISTS public.isd_monthly
     primary key (ts, station)
 ) PARTITION BY RANGE (ts);
 
-COMMENT ON TABLE isd_monthly IS 'ISD月度统计摘要汇总';
-COMMENT ON COLUMN isd_monthly.ts IS '月份时间戳,yyyy-mm-01';
-COMMENT ON COLUMN isd_monthly.station IS '11位台站号';
-COMMENT ON COLUMN isd_monthly.temp_mean IS '月平均气温';
-COMMENT ON COLUMN isd_monthly.temp_min IS '月最低气温';
-COMMENT ON COLUMN isd_monthly.temp_max IS '月最高气温';
-COMMENT ON COLUMN isd_monthly.temp_min_avg IS '月最低气温均值';
-COMMENT ON COLUMN isd_monthly.temp_max_avg IS '月最高气温均值';
-COMMENT ON COLUMN isd_monthly.dewp_mean IS '月平均露点';
-COMMENT ON COLUMN isd_monthly.dewp_min IS '月最低露点';
-COMMENT ON COLUMN isd_monthly.dewp_max IS '月最高露点';
-COMMENT ON COLUMN isd_monthly.slp_mean IS '月平均气压';
-COMMENT ON COLUMN isd_monthly.slp_min IS '月最低气压';
-COMMENT ON COLUMN isd_monthly.slp_max IS '月最高气压';
-COMMENT ON COLUMN isd_monthly.prcp_sum IS '月总降水';
-COMMENT ON COLUMN isd_monthly.prcp_sum IS '月最大降水';
-COMMENT ON COLUMN isd_monthly.prcp_mean IS '月平均降水';
-COMMENT ON COLUMN isd_monthly.wdsp_mean IS '月平均风速';
-COMMENT ON COLUMN isd_monthly.wdsp_max IS '月最大风速';
-COMMENT ON COLUMN isd_monthly.gust_max IS '月最大阵风';
-COMMENT ON COLUMN isd_monthly.sunny_days IS '月晴天日数';
-COMMENT ON COLUMN isd_monthly.windy_days IS '月大风日数';
-COMMENT ON COLUMN isd_monthly.foggy_days IS '月雾天日数';
-COMMENT ON COLUMN isd_monthly.rainy_days IS '月雨天日数';
-COMMENT ON COLUMN isd_monthly.snowy_days IS '月雪天日数';
-COMMENT ON COLUMN isd_monthly.hail_days IS '月冰雹日数';
-COMMENT ON COLUMN isd_monthly.thunder_days IS '月雷暴日数';
-COMMENT ON COLUMN isd_monthly.tornado_days IS '月龙卷日数';
-COMMENT ON COLUMN isd_monthly.hot_days IS '月高温日数';
-COMMENT ON COLUMN isd_monthly.cold_days IS '月低温日数';
-COMMENT ON COLUMN isd_monthly.vis_4_days IS '月能见度4km内日数';
-COMMENT ON COLUMN isd_monthly.vis_10_days IS '月能见度4-10km内日数';
-COMMENT ON COLUMN isd_monthly.vis_20_days IS '月能见度10-20km内日数';
-COMMENT ON COLUMN isd_monthly.vis_20p_days IS '月能见度20km上日数';
+COMMENT ON TABLE  isd.monthly IS 'isd monthly statistics';
+COMMENT ON COLUMN isd.monthly.ts IS '月份时间戳,yyyy-mm-01';
+COMMENT ON COLUMN isd.monthly.station IS '11位台站号';
+COMMENT ON COLUMN isd.monthly.temp_mean IS '月平均气温';
+COMMENT ON COLUMN isd.monthly.temp_min IS '月最低气温';
+COMMENT ON COLUMN isd.monthly.temp_max IS '月最高气温';
+COMMENT ON COLUMN isd.monthly.temp_min_avg IS '月最低气温均值';
+COMMENT ON COLUMN isd.monthly.temp_max_avg IS '月最高气温均值';
+COMMENT ON COLUMN isd.monthly.dewp_mean IS '月平均露点';
+COMMENT ON COLUMN isd.monthly.dewp_min IS '月最低露点';
+COMMENT ON COLUMN isd.monthly.dewp_max IS '月最高露点';
+COMMENT ON COLUMN isd.monthly.slp_mean IS '月平均气压';
+COMMENT ON COLUMN isd.monthly.slp_min IS '月最低气压';
+COMMENT ON COLUMN isd.monthly.slp_max IS '月最高气压';
+COMMENT ON COLUMN isd.monthly.prcp_sum IS '月总降水';
+COMMENT ON COLUMN isd.monthly.prcp_sum IS '月最大降水';
+COMMENT ON COLUMN isd.monthly.prcp_mean IS '月平均降水';
+COMMENT ON COLUMN isd.monthly.wdsp_mean IS '月平均风速';
+COMMENT ON COLUMN isd.monthly.wdsp_max IS '月最大风速';
+COMMENT ON COLUMN isd.monthly.gust_max IS '月最大阵风';
+COMMENT ON COLUMN isd.monthly.sunny_days IS '月晴天日数';
+COMMENT ON COLUMN isd.monthly.windy_days IS '月大风日数';
+COMMENT ON COLUMN isd.monthly.foggy_days IS '月雾天日数';
+COMMENT ON COLUMN isd.monthly.rainy_days IS '月雨天日数';
+COMMENT ON COLUMN isd.monthly.snowy_days IS '月雪天日数';
+COMMENT ON COLUMN isd.monthly.hail_days IS '月冰雹日数';
+COMMENT ON COLUMN isd.monthly.thunder_days IS '月雷暴日数';
+COMMENT ON COLUMN isd.monthly.tornado_days IS '月龙卷日数';
+COMMENT ON COLUMN isd.monthly.hot_days IS '月高温日数';
+COMMENT ON COLUMN isd.monthly.cold_days IS '月低温日数';
+COMMENT ON COLUMN isd.monthly.vis_4_days IS '月能见度4km内日数';
+COMMENT ON COLUMN isd.monthly.vis_10_days IS '月能见度4-10km内日数';
+COMMENT ON COLUMN isd.monthly.vis_20_days IS '月能见度10-20km内日数';
+COMMENT ON COLUMN isd.monthly.vis_20p_days IS '月能见度20km上日数';
 
-CREATE INDEX IF NOT EXISTS isd_monthly_station_ts_idx ON isd_monthly (station, ts);
-COMMENT ON INDEX isd_monthly_station_ts_idx IS '用于加速单Station历史数据查询';
+CREATE INDEX IF NOT EXISTS monthly_station_ts_idx ON isd.monthly (station, ts);
 
 ------------------------------------------------
 -- isd_yearly
 --   yearly observation summary data
 ------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.isd_yearly
+CREATE TABLE IF NOT EXISTS isd.yearly
 (
     ts           DATE,          -- 年份时间戳,yyyy-01-01
     station      VARCHAR(11),   -- 11位台站号
@@ -547,34 +527,34 @@ CREATE TABLE IF NOT EXISTS public.isd_yearly
     primary key (ts, station)
 ) PARTITION BY RANGE (ts);;
 
-COMMENT ON TABLE isd_yearly IS 'ISD年度统计摘要汇总';
-COMMENT ON COLUMN isd_yearly.ts IS '年份时间戳,yyyy-01-01';
-COMMENT ON COLUMN isd_yearly.station IS '11位台站号';
-COMMENT ON COLUMN isd_yearly.temp_min IS '年最低气温';
-COMMENT ON COLUMN isd_yearly.temp_max IS '年最高气温';
-COMMENT ON COLUMN isd_yearly.dewp_min IS '年最低露点';
-COMMENT ON COLUMN isd_yearly.dewp_max IS '年最高露点';
-COMMENT ON COLUMN isd_yearly.prcp_sum IS '年总降水';
-COMMENT ON COLUMN isd_yearly.prcp_max IS '年最大降水';
-COMMENT ON COLUMN isd_yearly.wdsp_max IS '年最大风速';
-COMMENT ON COLUMN isd_yearly.gust_max IS '年最大阵风';
-COMMENT ON COLUMN isd_yearly.sunny_days IS '年晴天日数';
-COMMENT ON COLUMN isd_yearly.windy_days IS '年大风日数';
-COMMENT ON COLUMN isd_yearly.foggy_days IS '年雾天日数';
-COMMENT ON COLUMN isd_yearly.rainy_days IS '年雨天日数';
-COMMENT ON COLUMN isd_yearly.snowy_days IS '年雪天日数';
-COMMENT ON COLUMN isd_yearly.hail_days IS '年冰雹日数';
-COMMENT ON COLUMN isd_yearly.thunder_days IS '年雷暴日数';
-COMMENT ON COLUMN isd_yearly.tornado_days IS '年龙卷日数';
-COMMENT ON COLUMN isd_yearly.hot_days IS '年高温日数';
-COMMENT ON COLUMN isd_yearly.cold_days IS '年低温日数';
-COMMENT ON COLUMN isd_yearly.vis_4_days IS '年能见度4km内日数';
-COMMENT ON COLUMN isd_yearly.vis_10_days IS '年能见度4-10km内日数';
-COMMENT ON COLUMN isd_yearly.vis_20_days IS '年能见度10-20km内日数';
-COMMENT ON COLUMN isd_yearly.vis_20p_days IS '年能见度20km上日数';
+COMMENT ON TABLE  isd.yearly IS 'isd yearly statistics';
+COMMENT ON COLUMN isd.yearly.ts IS 'year timestamp, yyyy-01-01';
+COMMENT ON COLUMN isd.yearly.station IS '11 char station number';
+COMMENT ON COLUMN isd.yearly.temp_min IS '年最低气温';
+COMMENT ON COLUMN isd.yearly.temp_max IS '年最高气温';
+COMMENT ON COLUMN isd.yearly.dewp_min IS '年最低露点';
+COMMENT ON COLUMN isd.yearly.dewp_max IS '年最高露点';
+COMMENT ON COLUMN isd.yearly.prcp_sum IS '年总降水';
+COMMENT ON COLUMN isd.yearly.prcp_max IS '年最大降水';
+COMMENT ON COLUMN isd.yearly.wdsp_max IS '年最大风速';
+COMMENT ON COLUMN isd.yearly.gust_max IS '年最大阵风';
+COMMENT ON COLUMN isd.yearly.sunny_days IS '年晴天日数';
+COMMENT ON COLUMN isd.yearly.windy_days IS '年大风日数';
+COMMENT ON COLUMN isd.yearly.foggy_days IS '年雾天日数';
+COMMENT ON COLUMN isd.yearly.rainy_days IS '年雨天日数';
+COMMENT ON COLUMN isd.yearly.snowy_days IS '年雪天日数';
+COMMENT ON COLUMN isd.yearly.hail_days IS '年冰雹日数';
+COMMENT ON COLUMN isd.yearly.thunder_days IS '年雷暴日数';
+COMMENT ON COLUMN isd.yearly.tornado_days IS '年龙卷日数';
+COMMENT ON COLUMN isd.yearly.hot_days IS '年高温日数';
+COMMENT ON COLUMN isd.yearly.cold_days IS '年低温日数';
+COMMENT ON COLUMN isd.yearly.vis_4_days IS '年能见度4km内日数';
+COMMENT ON COLUMN isd.yearly.vis_10_days IS '年能见度4-10km内日数';
+COMMENT ON COLUMN isd.yearly.vis_20_days IS '年能见度10-20km内日数';
+COMMENT ON COLUMN isd.yearly.vis_20p_days IS '年能见度20km上日数';
 
-CREATE INDEX IF NOT EXISTS isd_yearly_station_ts_idx ON isd_yearly (station, ts);
-COMMENT ON INDEX isd_yearly_station_ts_idx IS '用于加速单Station历史数据查询';
+CREATE INDEX IF NOT EXISTS yearly_station_ts_idx ON isd.yearly (station, ts);
+COMMENT ON INDEX isd.yearly_station_ts_idx IS '用于加速单Station历史数据查询';
 
 
 --============================================================--
@@ -585,7 +565,7 @@ COMMENT ON INDEX isd_yearly_station_ts_idx IS '用于加速单Station历史数�
 -- wind16
 --   turn 360 degree angle to 16 compass direction
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION wind16(_i NUMERIC) RETURNS VARCHAR(3) AS
+CREATE OR REPLACE FUNCTION isd.wind16(_i NUMERIC) RETURNS VARCHAR(3) AS
 $$
 SELECT CASE width_bucket(_i, 0, 360, 16) - 1
            WHEN 0 THEN 'N'
@@ -607,13 +587,13 @@ SELECT CASE width_bucket(_i, 0, 360, 16) - 1
            WHEN NULL THEN 'C'
            END;
 $$ LANGUAGE SQL IMMUTABLE;
-COMMENT ON FUNCTION wind16(_i NUMERIC) IS '将0-360度转变为16向指南针方位标识';
+COMMENT ON FUNCTION isd.wind16(_i NUMERIC) IS 'turn 0-360 degree to 16-compass marks';
 
 ------------------------------------------------
 -- wind8
 --   turn 360 degree angle to 8 compass direction
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION wind8(_i NUMERIC) RETURNS VARCHAR(3) AS
+CREATE OR REPLACE FUNCTION isd.wind8(_i NUMERIC) RETURNS VARCHAR(3) AS
 $$
 SELECT CASE width_bucket(_i, 0, 360, 8) - 1
            WHEN 0 THEN 'N'
@@ -627,13 +607,13 @@ SELECT CASE width_bucket(_i, 0, 360, 8) - 1
            WHEN NULL THEN 'C'
            END;
 $$ LANGUAGE SQL IMMUTABLE;
-COMMENT ON FUNCTION wind8(_i NUMERIC) IS '将0-360度转变为8向指南针方位标识';
+COMMENT ON FUNCTION isd.wind8(_i NUMERIC) IS 'turn 0-360 degree to 8-compass marks';
 
 ------------------------------------------------
 -- mwcode_name(mw_code text)
 -- turn MW code into text representation
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION mwcode_name(mw_code text) RETURNS TEXT
+CREATE OR REPLACE FUNCTION isd.mwcode_name(mw_code text) RETURNS TEXT
 AS
 $$
 SELECT CASE mw_code::INTEGER
@@ -739,24 +719,24 @@ SELECT CASE mw_code::INTEGER
            WHEN 99 THEN '重雷暴夹冰雹'
            ELSE '' END;
 $$ LANGUAGE SQL;
-COMMENT ON FUNCTION mwcode_name(mw_code text) IS '将2位数字MW天气代码转化为人类可读字符串';
+COMMENT ON FUNCTION isd.mwcode_name(mw_code text) IS 'turn 2-char MW weather code into human readable string';
 
 ------------------------------------------------
--- create_isd_hourly_partition
+-- isd.create_partition
 --    create yearly partition of isd_hourly
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION create_isd_hourly_partition(_year INTEGER, _upper INTEGER DEFAULT NULL) RETURNS TEXT AS
+CREATE OR REPLACE FUNCTION isd.create_partition(_year INTEGER, _upper INTEGER DEFAULT NULL) RETURNS TEXT AS
 $$
 DECLARE
     -- _part_name TEXT := CASE _upper WHEN NULL THEN format('isd_hourly_%s', _year) ELSE format('isd_hourly_%s_%s', _year,_upper) END;
-    _part_name TEXT := format('isd_hourly_%s', _year);
+    _part_name TEXT := format('isd.hourly_%s', _year);
     _part_lo   DATE := make_date(_year, 1, 1);
     -- _part_hi   DATE := CASE _upper WHEN NULL THEN make_date(_year + 1, 1, 1) ELSE make_date(_upper, 1, 1) END;
     _part_hi   DATE := coalesce(make_date(_upper, 1, 1), make_date(_year + 1, 1, 1));
     _sql       TEXT := format(
             $sql$
-            CREATE TABLE IF NOT EXISTS %s PARTITION OF public.isd_hourly FOR VALUES FROM ('%s') TO ('%s');
-            COMMENT ON TABLE %s IS 'isd_hourly partition from %s to %s';
+            CREATE TABLE IF NOT EXISTS %s PARTITION OF isd.hourly FOR VALUES FROM ('%s') TO ('%s');
+            COMMENT ON TABLE %s IS 'isd.hourly partition from %s to %s';
             $sql$
         , _part_name, _part_lo, _part_hi, _part_name, _part_lo, _part_hi);
 BEGIN
@@ -767,7 +747,7 @@ END;
 $$
     LANGUAGE PlPGSQL
     VOLATILE;
-COMMENT ON FUNCTION create_isd_hourly_partition(_year INTEGER, _upper INTEGER) IS 'create yearly partition of isd_hourly';
+COMMENT ON FUNCTION isd.create_partition(_year INTEGER, _upper INTEGER) IS 'create yearly partition of isd.hourly';
 
 ------------------------------------------------
 -- world_geojson
@@ -779,7 +759,7 @@ COMMENT ON FUNCTION create_isd_hourly_partition(_year INTEGER, _upper INTEGER) I
 -- example: get 1:10000000 US fence geojson
 -- SELECT world_geojson('10m', codes=>ARRAY['US']);
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION world_geojson(scale TEXT DEFAULT '60m', codes TEXT[] DEFAULT NULL) RETURNS JSON AS
+CREATE OR REPLACE FUNCTION isd.world_geojson(scale TEXT DEFAULT '60m', codes TEXT[] DEFAULT NULL) RETURNS JSON AS
 $$
 BEGIN
     IF codes IS NULL THEN
@@ -807,7 +787,7 @@ BEGIN
                                           1)::json                                                                   AS geometry
                                        , (SELECT row_to_json(t)
                                           FROM (SELECT id, iso2, iso3, name, name_raw, name_cn, name_cn_short) AS t) AS properties
-                                  FROM world_fences
+                                  FROM isd.world_fences
                               ) feature
                      ) fc);
     ELSE
@@ -835,7 +815,7 @@ BEGIN
                                           1)::json                                                                   AS geometry
                                        , (SELECT row_to_json(t)
                                           FROM (SELECT id, iso2, iso3, name, name_raw, name_cn, name_cn_short) AS t) AS properties
-                                  FROM world_fences
+                                  FROM isd.world_fences
                                   WHERE id = ANY (codes)
                               ) feature
                      ) fc);
@@ -843,7 +823,7 @@ BEGIN
 END;
 $$ STABLE LANGUAGE PlPGSQL
    PARALLEL SAFE;
-COMMENT ON FUNCTION world_geojson(scale TEXT, codes TEXT[]) IS 'generate geojson from world_fences';
+COMMENT ON FUNCTION isd.world_geojson(scale TEXT, codes TEXT[]) IS 'generate geojson from world_fences';
 
 ------------------------------------------------
 -- china_geojson
@@ -855,7 +835,7 @@ COMMENT ON FUNCTION world_geojson(scale TEXT, codes TEXT[]) IS 'generate geojson
 -- example: get china fences
 -- SELECT china_geojson(ARRAY[110101]);
 ------------------------------------------------
-CREATE OR REPLACE FUNCTION china_geojson(codes INTEGER[] DEFAULT NULL) RETURNS JSON AS
+CREATE OR REPLACE FUNCTION isd.china_geojson(codes INTEGER[] DEFAULT NULL) RETURNS JSON AS
 $$
 BEGIN
     IF codes IS NULL THEN
@@ -881,7 +861,7 @@ BEGIN
                                                        region_type,
                                                        province,
                                                        city) AS t)       AS properties
-                                  FROM china_fences
+                                  FROM isd.china_fences
                               ) feature
                      ) fc);
     ELSE
@@ -907,7 +887,7 @@ BEGIN
                                                        region_type,
                                                        province,
                                                        city) AS t)       AS properties
-                                  FROM china_fences
+                                  FROM isd.china_fences
                                   WHERE id = ANY (codes)
                               ) feature
                      ) fc);
@@ -915,17 +895,74 @@ BEGIN
 END;
 $$ STABLE LANGUAGE PlPGSQL
    PARALLEL SAFE;
-COMMENT ON FUNCTION china_geojson(codes INTEGER[]) IS 'generate geojson from china_fences';
+COMMENT ON FUNCTION isd.china_geojson(codes INTEGER[]) IS 'generate geojson from china_fences';
 
 
-------------------------------------------------
--- refresh_isd_latest
--- recalculate latest parition of isd_monthly and isd_yearly from isd_daily_latest
-------------------------------------------------
-CREATE OR REPLACE FUNCTION refresh_isd_latest() RETURNS VOID AS
+-------------------------------------------------
+-- create isd_hourly partitions
+-------------------------------------------------
+
+-----------------------------------
+-- cleanup all isd_hourly partitions
+-----------------------------------
+DO
 $$
-TRUNCATE isd_monthly_latest;
-INSERT INTO isd_monthly_latest
+    DECLARE
+        _relname TEXT;
+    BEGIN
+        FOR _relname IN SELECT relname FROM pg_class WHERE relname ~ '^isd.hourly_\d{4}$'
+            LOOP
+                RAISE NOTICE 'DROP TABLE %s;', _relname;
+                EXECUTE 'DROP TABLE IF EXISTS ' || _relname || ';';
+            END LOOP;
+    END
+$$;
+
+-----------------------------------
+-- create all isd_hourly partitions
+-- which are:
+--    isd_hourly_1900 : [1900, 1950)
+--    isd_hourly_1950 : [1950, 1960)
+--    isd_hourly_1950 : [1950, 1960)
+--    isd_hourly_1950 : [1950, 1960)
+-----------------------------------
+-- three merged partition: 50year, 10year, 10year
+SELECT isd.create_partition(1900, 1950); -- 20 GB
+SELECT isd.create_partition(1950, 1960); -- 47 GB
+SELECT isd.create_partition(1960, 1970); -- 41 GB
+
+-- the rest are yearly partition: from 1970 (10GB) to 2020 (41GB)
+SELECT isd.create_partition(year::INTEGER)
+FROM generate_series(1970, 2021) year;
+
+
+-------------------------------------------------
+-- create isd_daily / monthly / yearly partitions
+-------------------------------------------------
+CREATE TABLE IF NOT EXISTS isd.daily_stable PARTITION OF isd.daily FOR VALUES FROM ('1900-01-01') TO ('2021-01-01');
+CREATE TABLE IF NOT EXISTS isd.daily_latest PARTITION OF isd.daily FOR VALUES FROM ('2021-01-01') TO (MAXVALUE);
+COMMENT ON TABLE isd.daily_stable IS 'isd daily summary (stable history before 2021)';
+COMMENT ON TABLE isd.daily_latest IS 'isd daily summary (latest updates in 2021)';
+
+CREATE TABLE IF NOT EXISTS isd.monthly_stable PARTITION OF isd.monthly FOR VALUES FROM ('1900-01-01') TO ('2021-01-01');
+CREATE TABLE IF NOT EXISTS isd.monthly_latest PARTITION OF isd.monthly FOR VALUES FROM ('2021-01-01') TO (MAXVALUE);
+COMMENT ON TABLE isd.monthly_stable IS 'isd monthly summary (stable history before 2021)';
+COMMENT ON TABLE isd.monthly_latest IS 'isd monthly summary (latest updates in 2021)';
+
+CREATE TABLE IF NOT EXISTS isd.yearly_stable PARTITION OF isd.yearly FOR VALUES FROM ('1900-01-01') TO ('2021-01-01');
+CREATE TABLE IF NOT EXISTS isd.yearly_latest PARTITION OF isd.yearly FOR VALUES FROM ('2021-01-01') TO (MAXVALUE);
+COMMENT ON TABLE isd.yearly_stable IS 'isd yearly summary (stable history before 2021)';
+COMMENT ON TABLE isd.yearly_latest IS 'isd yearly summary (latest updates in 2021)';
+
+
+------------------------------------------------
+-- isd.refresh
+-- recalculate latest partition of isd.monthly and isd_yearly according to isd.daily_latest
+------------------------------------------------
+CREATE OR REPLACE FUNCTION isd.refresh() RETURNS VOID AS
+$$
+TRUNCATE isd.monthly_latest;
+INSERT INTO isd.monthly_latest
 SELECT date_trunc('month', ts)                                                    AS ts,           -- 月份
        station,                                                                                    -- 站号
        round(avg(temp_mean) ::NUMERIC, 1)::NUMERIC(3, 1)                          AS temp_mean,    -- 月平均气温
@@ -960,12 +997,12 @@ SELECT date_trunc('month', ts)                                                  
        count(*) FILTER ( WHERE vis_mean >= 4000 AND vis_mean < 10000)::SMALLINT   AS vis_10_days,  -- 能见度4-10km时间占比百分数
        count(*) FILTER ( WHERE vis_mean >= 10000 AND vis_mean < 20000 )::SMALLINT AS vis_20_days,  -- 能见度10-20km时间占比百分数
        count(*) FILTER ( WHERE vis_mean >= 20000 )::SMALLINT                      AS vis_20p_days  -- 能见度20km+时间占比百分数
-FROM isd_daily_latest
+FROM isd.daily_latest
 GROUP by date_trunc('month', ts), station
 ORDER BY 1, 2;
 
-TRUNCATE isd_yearly_latest;
-INSERT INTO isd_yearly_latest
+TRUNCATE isd.yearly_latest;
+INSERT INTO isd.yearly_latest
 SELECT date_trunc('year', ts)::DATE AS ts,           -- 年份
        station,                                      -- 站号
        min(temp_min)                AS temp_min,     -- 年最低气温
@@ -990,69 +1027,10 @@ SELECT date_trunc('year', ts)::DATE AS ts,           -- 年份
        sum(vis_10_days)             AS vis_10_days,  -- 年能见度4-10km内日数
        sum(vis_20_days)             AS vis_20_days,  -- 年能见度10-20km内日数
        sum(vis_20p_days)            AS vis_20p_days  -- 年能见度20km上日数
-FROM isd_monthly_latest
+FROM isd.monthly_latest
 GROUP by date_trunc('year', ts), station
 ORDER BY 1, 2;
 
 $$ LANGUAGE SQL;
 
-COMMENT ON FUNCTION refresh_isd_latest() IS 'recalculate latest partition of isd_monthly and isd_yearly';
-
-
--------------------------------------------------
--- create isd_hourly partitions
--------------------------------------------------
-
------------------------------------
--- cleanup all isd_hourly partitions
------------------------------------
-DO
-$$
-    DECLARE
-        _relname TEXT;
-    BEGIN
-        FOR _relname IN SELECT relname FROM pg_class WHERE relname ~ '^isd_hourly_\d{4}$'
-            LOOP
-                RAISE NOTICE 'DROP TABLE %s;', _relname;
-                EXECUTE 'DROP TABLE IF EXISTS ' || _relname || ';';
-            END LOOP;
-    END
-$$;
-
------------------------------------
--- create all isd_hourly partitions
--- which are:
---    isd_hourly_1900 : [1900, 1950)
---    isd_hourly_1950 : [1950, 1960)
---    isd_hourly_1950 : [1950, 1960)
---    isd_hourly_1950 : [1950, 1960)
------------------------------------
--- three merged partition: 50year, 10year, 10year
-SELECT create_isd_hourly_partition(1900, 1950); -- 20 GB
-SELECT create_isd_hourly_partition(1950, 1960); -- 47 GB
-SELECT create_isd_hourly_partition(1960, 1970); -- 41 GB
-
--- the rest are yearly partition: from 1970 (10GB) to 2020 (41GB)
-SELECT create_isd_hourly_partition(year::INTEGER)
-FROM generate_series(1970, 2020) year;
-
-
-
--------------------------------------------------
--- create isd_daily / monthly / yearly partitions
--------------------------------------------------
-CREATE TABLE IF NOT EXISTS isd_daily_stable PARTITION OF isd_daily FOR VALUES FROM ('1900-01-01') TO ('2021-01-01');
-CREATE TABLE IF NOT EXISTS isd_daily_latest PARTITION OF isd_daily FOR VALUES FROM ('2021-01-01') TO (MAXVALUE);
-COMMENT ON TABLE isd_daily_stable IS 'ISD年度摘要汇总表(稳定历史数据，2021前)';
-COMMENT ON TABLE isd_daily_latest IS 'ISD年度摘要汇总表(最近一年数据，2021后)';
-
-CREATE TABLE IF NOT EXISTS isd_monthly_stable PARTITION OF isd_monthly FOR VALUES FROM ('1900-01-01') TO ('2021-01-01');
-CREATE TABLE IF NOT EXISTS isd_monthly_latest PARTITION OF isd_monthly FOR VALUES FROM ('2021-01-01') TO (MAXVALUE);
-COMMENT ON TABLE isd_monthly_stable IS 'ISD年度摘要汇总表(稳定历史数据，2021前)';
-COMMENT ON TABLE isd_monthly_latest IS 'ISD年度摘要汇总表(最近一年数据，2021后)';
-
-CREATE TABLE IF NOT EXISTS isd_yearly_stable PARTITION OF isd_yearly FOR VALUES FROM ('1900-01-01') TO ('2021-01-01');
-CREATE TABLE IF NOT EXISTS isd_yearly_latest PARTITION OF isd_yearly FOR VALUES FROM ('2021-01-01') TO (MAXVALUE);
-COMMENT ON TABLE isd_yearly_stable IS 'ISD年度摘要汇总表(稳定历史数据，2021前)';
-COMMENT ON TABLE isd_yearly_latest IS 'ISD年度摘要汇总表(最近一年数据，2021后)';
-
+COMMENT ON FUNCTION isd.refresh() IS 'recalculate latest partition of isd.monthly and isd.yearly';

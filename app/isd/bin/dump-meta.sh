@@ -6,7 +6,7 @@ set -uo pipefail
 # Mtime     :   2020-09-09
 # Desc      :   Dump isd mwcode/elements china|world fences data
 # Path      :   bin/dump-meta.sh
-# Author    :   Vonng (fengruohang@outlook.com)
+# Author    :   Vonng (rh@vonng.com)
 #==============================================================#
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 PROG_NAME="$(basename $0)"
@@ -21,7 +21,7 @@ DATA_DIR="${PROJ_DIR}/data/meta"
 cd ${DATA_DIR}
 
 # PGURL specify target database connection string
-PGURL=${1-'isd'}
+PGURL=${1-'postgres:///'}
 
 
 log_info "dump china_fences to china_fences.csv.gz"

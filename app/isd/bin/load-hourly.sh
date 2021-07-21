@@ -2,13 +2,13 @@
 set -uo pipefail
 
 #==============================================================#
-# File      :   load-isd-hourly.sh
+# File      :   load-hourly.sh
 # Mtime     :   2020-11-03
 # Desc      :   Get ISD hourly data (specific year) to database
-# Path      :   bin/load-isd-hourly.sh
+# Path      :   bin/load-hourly.sh
 # Author    :   Vonng(fengruohang@outlook.com)
 # Depend    :   curl
-# Usage     :   bin/load-isd-hourly.sh [pgurl=isd] [year=2020]
+# Usage     :   bin/load-hourly.sh [pgurl=postgres:///] [year=this-year]
 #==============================================================#
 
 PROG_DIR="$(cd $(dirname $0) && pwd)"
@@ -46,11 +46,11 @@ if (( year < 1900 )); then
 fi
 
 
-log_info "create isd_hourly partition for year ${year}"
-psql ${PGURL} -AXtwc "SELECT create_isd_hourly_partition(${year})";
+log_info "create isd.hourly partition for year ${year}"
+psql ${PGURL} -AXtwc "SELECT isd.create_partition(${year})";
 
-log_info "truncate isd_hourly partition for year ${year}"
-psql ${PGURL} -AXtwc "TRUNCATE isd_hourly_${year}";
+log_info "truncate isd.hourly partition for year ${year}"
+psql ${PGURL} -AXtwc "TRUNCATE isd.hourly_${year}";
 
-log_info "load isd_hourly data for year ${year}"
-${PARSER} -v -i "${DATA_DIR}/${year}.tar.gz" | psql ${PGURL} -AXtwc "COPY isd_hourly FROM STDIN CSV;"
+log_info "load isd.hourly data for year ${year}"
+${PARSER} -v -i "${DATA_DIR}/${year}.tar.gz" | psql ${PGURL} -AXtwc "COPY isd.hourly FROM STDIN CSV;"

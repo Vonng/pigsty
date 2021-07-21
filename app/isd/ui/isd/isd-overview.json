@@ -1,0 +1,950 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "ISD Overview",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [
+        "ISD"
+      ],
+      "targetBlank": false,
+      "type": "dashboards"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": "Meta",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 40,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 14
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) AS \"Station\" FROM isd.station;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) AS \"Station (Selected)\"\nFROM isd.station WHERE period && daterange($__timeFrom()::DATE, $__timeTo()::DATE, '[]');",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": " SELECT sum(total) AS \"Observation\"\n FROM isd.history;",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": " SELECT sum(total) AS \"Observation(Selected)\"\n FROM isd.history WHERE $__timeFilter(year)",
+          "refId": "D",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": " SELECT sum(reltuples) AS \"Daily Summary (in db)\"\n FROM pg_class WHERE relname LIKE 'daily_%';",
+          "refId": "E",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": " SELECT sum(reltuples) AS \"Hourly RawData  (in db)\"\n FROM pg_class WHERE relname LIKE 'hourly_%';",
+          "refId": "F",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "transformations": [],
+      "type": "stat"
+    },
+    {
+      "datasource": "Meta",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 61,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 9,
+        "x": 0,
+        "y": 4
+      },
+      "id": 45,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT year AS time,\ncount(*) AS value\nFROM isd.history\nWHERE $__timeFilter(year)\nGROUP BY 1 ORDER BY 1;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Stations",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "value": "Count"
+            }
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Meta",
+      "gridPos": {
+        "h": 23,
+        "w": 15,
+        "x": 9,
+        "y": 4
+      },
+      "id": 19,
+      "options": {
+        "followTheme": false,
+        "getOption": "// data: extract and transform grafana data\nfunction parse_grafana_data(d) {\n    var rawData = []\n    if (data.series[0].fields[0].values.buffer === undefined) {\n        rawData = d.series[0].fields.map((e) => {\n            return e.values\n        })\n    } else { // large dataset will have their data inside a buffer\n        rawData = d.series[0].fields.map((e) => {\n            return e.values.buffer\n        })\n    }\n    var nDim = rawData.length\n    var nItem = rawData[0].length\n    var result = []\n    for (var i = 0; i < nItem; i++) {    // item\n        result[i] = []\n        for (var j = 0; j < nDim; j++) {  // dimension\n            result[i][j] = rawData[j][i]\n        }\n    }\n    return result\n}\n\nvar mapData = parse_grafana_data(data)\n\n\n// event: resize after window resize\nwindow.onresize = function () {\n    echartsInstance.resize()\n}\n\n// event: reset symbol size on geo zoom\nechartsInstance.on(\"georoam\", function (params) {\n    var zoomLevel = echartsInstance.getOption().geo[0].zoom\n    var symbolSize = 3 * Math.sqrt(zoomLevel)\n    echartsInstance.setOption({\n        series: [{symbolSize: symbolSize}]\n    })\n});\n\n// event: jump to station main page when click symbol\nechartsInstance.on(\"click\", {seriesName: 'station'}, function (params) {\n    window.location = '/d/isd-station?var-station=' + params.data[4]\n})\n\n// final option\nvar option = {\n    title: {\n        text: 'World Integrated Surface Stations',\n        subtext: 'Click station mark for detail info',\n        top: '2%',\n        right: '2%'\n    },\n    geo: {\n        map: 'world',\n        show: true,\n        center: [0, 20],\n        zoom: 1.6,\n        roam: true\n    },\n    visualMap: {\n        show: false,\n        left: 'right',\n        min: 0,\n        max: 2,\n        inRange: {\n            color: ['#A0A4AA', '#8AB8FF', '#73BF7B']\n        },\n        text: ['Active', 'Silent'],\n        calculable: true\n    },\n    series: [\n        {\n            type: 'scatter',\n            name: 'station',\n            coordinateSystem: 'geo',\n            symbol: 'circle',\n            symbolSize: 5,\n            data: mapData,\n            label: {\n                fontFamily: 'sans-serif',\n                formatter: function (param) {\n                    var pasca = param.value[6]\n                    if (pasca != null) {\n                        pasca = Math.round(pasca / 10)\n                    } else {\n                        pasca = 'N/A '\n                    }\n                    return \"\"\n                        + '{a|' + param.value[3] + '}\\n'            // station name\n                        + '{b|Station : ' + param.value[4] + '}\\n'  // station id\n                        + '{b|Location: (' + param.value[0] + ', ' + param.value[1] + ', ' + param.value[2] + ')}\\n' // location\n                        + '{b|Country : ' + param.value[6] + '}\\n'  // Country\n                        + '{b|LastSeen: ' + param.value[5] + '}\\n'  // Last Update Time\n                },\n                rich: {\n                    a: {\n                        color: 'blue',\n                        fontSize: 14,\n                        fontWeight: 'bold',\n                        lineHeight: 22\n                    },\n                    b: {\n                        lineHeight: 12,\n                        color: 'black'\n                    },\n                },\n                position: 'right',\n                show: false\n            },\n            emphasis: {\n                label: {\n                    show: true\n                }\n            }\n        }\n    ]\n};\n\nreturn option;"
+      },
+      "pluginVersion": "7.1.3",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT longitude,latitude,elevation,name,station,upper(period)::DATE::TEXT AS mtime,country,\n       CASE\n           WHEN upper(period) >= date_trunc('month', CURRENT_DATE) THEN 2\n           WHEN upper(period) >= date_trunc('year', CURRENT_DATE) THEN 1\n           ELSE 0 END AS category -- 0 active in this month, 1 active in this year, 0 default\nFROM isd.station\nWHERE period && daterange($__timeFrom()::DATE, $__timeTo()::DATE);",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "longitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "china_railway",
+          "timeColumn": "crawled_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "type": "vonng-echarts-panel"
+    },
+    {
+      "datasource": "Meta",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 66,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 0,
+        "y": 11
+      },
+      "id": 44,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT year AS time, sum(total) AS value\nFROM isd.history\nWHERE $__timeFilter(year)\nGROUP BY year\nORDER BY year;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Observations",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "value": "Records"
+            }
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Meta",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 0,
+        "y": 17
+      },
+      "id": 42,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": " SELECT year AS time, country AS metric, count(*) AS value \n FROM isd.history\n WHERE year = (SELECT max(year) FROM isd.history WHERE $__timeFilter(year))\n GROUP BY 1,2 ORDER BY 1,2;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Station by Country",
+      "transformations": [],
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 31,
+      "panels": [],
+      "title": "数据统计",
+      "type": "row"
+    },
+    {
+      "datasource": "Meta",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "displayMode": "auto",
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "count"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "range"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 9,
+        "x": 0,
+        "y": 28
+      },
+      "id": 17,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT bin, coalesce(r, 'N/A') AS range, count\nFROM (\n         SELECT bin, ((bin - 1) * 1000)::TEXT || ' ~ ' || (bin * 1000)::TEXT AS r, count(name) AS count\n         FROM (SELECT name, width_bucket(elevation, 0, 10000, 10) AS bin FROM isd.station) t\n         GROUP BY bin\n         ORDER BY bin DESC NULLS LAST\n     ) d;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Station Altitude Distriubtion",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "bin": true
+            },
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": "Meta",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "displayMode": "auto",
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 40
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Comment"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coverage"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "orange",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 5
+                    },
+                    {
+                      "color": "super-light-green",
+                      "value": 10
+                    },
+                    {
+                      "color": "green",
+                      "value": 50
+                    },
+                    {
+                      "color": "blue",
+                      "value": 75
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Category"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 15,
+        "x": 9,
+        "y": 28
+      },
+      "id": 37,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "coverage"
+          }
+        ]
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT * FROM isd.elements;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Observation Element Coverage",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "coverage": "Coverage",
+              "id": "ID",
+              "name": "Element",
+              "name_cn": "Comment",
+              "section": "Category"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [
+    "ISD"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-120y",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1d",
+      "1w/w",
+      "1M",
+      "2M",
+      "3M",
+      "6M",
+      "1y",
+      "2y",
+      "3y",
+      "6y",
+      "10y",
+      "20y",
+      "30y",
+      "50y",
+      "100y"
+    ]
+  },
+  "timezone": "",
+  "title": "ISD Overview",
+  "uid": "isd-overview",
+  "version": 17
+}

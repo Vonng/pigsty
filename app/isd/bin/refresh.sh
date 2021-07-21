@@ -15,7 +15,7 @@ PROG_NAME="$(basename $0)"
 PROJ_DIR=$(dirname $PROG_DIR)
 
 # PGURL specify target database connection string
-PGURL=${1-'isd'}
+PGURL=${1-'postgres:///'}
 PARSER="${PROJ_DIR}/bin/isdd"
 DATA_DIR="${PROJ_DIR}/data/daily"
 
@@ -23,6 +23,6 @@ function log_info (){
     [ -t 2 ] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\033[0m\n" 1>&2 || printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" 1>&2
 }
 
-log_info "refresh latest partition"
-psql ${PGURL} -AXtwqc 'SELECT refresh_isd_latest()'
+log_info "refresh latest monthly & yearly data"
+psql ${PGURL} -AXtwqc 'SELECT isd.refresh()'
 
