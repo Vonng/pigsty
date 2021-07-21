@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/zh/docs/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-15
+# Mtime     :   2021-07-21
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -437,6 +437,8 @@ all: # top-level namespace
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
       - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
       # - pam-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+    node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
+
 
     # - node features - #
     node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -529,8 +531,12 @@ all: # top-level namespace
     grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
     grafana_plugin: install                       # none|install, none will skip plugin installation
     grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
-    grafana_plugins: []                           # plugins that will be downloaded via grafana-cli
-    grafana_git_plugins: []                       # plugins that will be downloaded via git
+    grafana_plugins:                              # plugins that will be downloaded via grafana-cli
+      - marcusolsson-csv-datasource
+      - marcusolsson-json-datasource
+      - marcusolsson-treemap-panel
+    grafana_git_plugins:                          # plugins that will be downloaded via git
+      - https://github.com/Vonng/vonng-echarts-panel
 
     # - loki - #
     loki_clean: false                             # whether remove existing loki data

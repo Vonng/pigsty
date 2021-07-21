@@ -75,4 +75,25 @@
       yum: name={{ item }} disable_gpg_check=true
       with_items: "{{ node_meta_packages }}"
 
+
+#------------------------------------------------------------------------------
+# Install Python Packages with pip3
+#------------------------------------------------------------------------------
+- name: Install pip3 packages on meta node
+  tags: [ node_pkgs, node_pip ]
+  when: meta_node|bool and node_meta_pip_install != ''
+  ignore_errors: yes
+  environment: "{{ proxy_env | default({}) }}"
+  shell: |
+    #!/bin/bash
+    mkdir -p {{ repo_home }}/{{ repo_name }}/python
+    cd {{ repo_home }}/{{ repo_name }}/python
+    if [[ ! -f pip_downloaded ]]; then
+        /usr/bin/pip3 download {{ node_meta_pip_install }}
+        touch pip_downloaded
+    fi
+    rm -rf pip_downloaded
+    /usr/bin/pip3 install {{ repo_home }}/{{ repo_name }}/python/* || true
+    touch pip_downloaded
+
 ...
