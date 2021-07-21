@@ -46,7 +46,7 @@ cd ~ && git clone https://github.com/Vonng/pigsty
 **Or** download stable version release directly
 
 ```bash
-cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/v1.0.0-beta1/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty 
+cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/v1.0.0-beta2/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty 
 ```
 
 Download offline installation packages if you are in bad network condition (e.g Mainland China) [optional]

@@ -12,7 +12,7 @@ It can be used both for large-scale pg clusters management in real-world prod-en
 
 Check [**Pigsty Documentation**](docs/) and [Pigsty中文文档](docs/zh-cn/) for more information.
 
-> Current master is @ **v1.0.0-beta1**
+> Current master is @ **v1.0.0-beta2**
 > The latest stable version of pigsty is [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
 
 
