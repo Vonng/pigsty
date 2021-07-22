@@ -1,0 +1,15 @@
+# example config for simple database
+
+#----------------------------------#
+# cluster: pg-isd                  #
+#----------------------------------#
+pg-isd:
+  hosts:
+    10.10.10.51: { pg_seq: 1, pg_role: primary }
+    10.10.10.52: { pg_seq: 2, pg_role: replica }
+    10.10.10.53: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+  vars:
+    pg_cluster: pg-isd
+    pg_version: 13
+    pg_users: [ { name: dbuser_isd , password: isdISD , roles: [ dbrole_admin ] , pgbouncer: true } ]
+    pg_databases: [ { name: isd , owner: dbuser_isd, schemas: [ isd ] , parameters: { search_path: isd,public } } ]

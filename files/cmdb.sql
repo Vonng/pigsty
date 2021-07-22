@@ -82,7 +82,7 @@ COMMENT ON COLUMN pigsty.cluster.mtime IS 'cluster modification time';
 CREATE TABLE IF NOT EXISTS pigsty.node
 (
     ip      INET PRIMARY KEY,
-    cls     TEXT        NULL REFERENCES pigsty.cluster (cls) ON DELETE CASCADE ON UPDATE CASCADE,
+    cls     TEXT        NULL REFERENCES pigsty.cluster (cls) ON DELETE SET NULL ON UPDATE CASCADE,
     is_meta BOOLEAN     NOT NULL DEFAULT FALSE,
     status  status      NOT NULL DEFAULT 'unknown'::status,
     ctime   TIMESTAMPTZ NOT NULL DEFAULT now(),

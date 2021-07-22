@@ -1,0 +1,33 @@
+#--------------------------------------------------------------#
+# pg-infra (example database for cluster loading)
+#--------------------------------------------------------------#
+pg-infra:
+  hosts:
+    10.10.10.40: { pg_seq: 1, pg_role: primary }
+    10.10.10.41: { pg_seq: 2, pg_role: replica , pg_offline_query: true }
+  vars:
+    pg_cluster: pg-infrastructure
+    pg_version: 13
+    vip_address: 10.10.10.4
+    pgbouncer_poolmode: session
+    pg_hba_rules_extra:
+      - title: allow confluence jira gitlab eazybi direct access
+        role: common
+        rules:
+          - host    confluence dbuser_confluence   10.0.0.0/8        md5
+          - host    jira       dbuser_jira         10.0.0.0/8        md5
+          - host    gitlab     dbuser_gitlab       10.0.0.0/8        md5
+
+    pg_users:
+      # infra prod user
+      - { name: dbuser_hybridcloud, password: ssag-2xd, pgbouncer: true, roles: [ dbrole_readwrite ] }
+      - { name: dbuser_confluence, password: mc2iohos , pgbouncer: true, roles: [ dbrole_admin ] }
+      - { name: dbuser_gitlab, password: sdf23g22sfdd , pgbouncer: true, roles: [ dbrole_readwrite ] }
+      - { name: dbuser_jira, password: sdpijfsfdsfdfs , pgbouncer: true, roles: [ dbrole_admin ] }
+    pg_databases:
+      # infra database
+      - { name: hybridcloud , revokeconn: true, owner: dbuser_hybridcloud , parameters: { search_path: yay,public } , connlimit: 100 }
+      - { name: confluence , revokeconn: true, owner: dbuser_confluence , connlimit: 100 }
+      - { name: gitlab , revokeconn: true, owner: dbuser_gitlab, connlimit: 100 }
+      - { name: jira , revokeconn: true, owner: dbuser_jira , connlimit: 100 }
+

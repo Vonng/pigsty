@@ -109,3 +109,9 @@ config_dst=${pigsty_home}/pigsty.yml
 sed -e ${sed_cmd} ${config_src} > ${config_dst}
 ```
 
+
+## Cluster Config
+
+[`cls/`](cls/) contains some example of cluster definition.
+
+It can also be loaded via `load_cls.py` when using cmdb dynamic inventory.
