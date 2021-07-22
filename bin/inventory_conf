@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   inventory_conf
+# Ctime     :   2021-07-22
+# Mtime     :   2021-07-22
+# Desc      :   use static config as inventory
+# Path      :   bin/inventory_conf
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#==============================================================#
+# environment
+#==============================================================#
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=${PIGSTY_HOME-"${HOME}/pigsty"}
+METADB_URL=${METADB_URL-"service=meta"}
+PIGSTY_INVENTORY=${PIGSTY_HOME}/inventory.sh
+ANSIBLE_CONFIG=${PIGSTY_HOME}/ansible.cfg
+
+#==============================================================#
+# Update ansible.cfg with inventory = pigsty.yml
+#==============================================================#
+echo "update ansible.cfg set inventory = pigsty.yml"
+SED_CMD="s/inventory.*/inventory = pigsty.yml/g"
+sed -ie "${SED_CMD}" ${ANSIBLE_CONFIG}
+rm -rf "${ANSIBLE_CONFIG}e"
+
+cat ${ANSIBLE_CONFIG} | grep inventory

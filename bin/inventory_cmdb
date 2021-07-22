@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   inventory_cmdb
+# Ctime     :   2021-07-22
+# Mtime     :   2021-07-22
+# Desc      :   use cmdb as inventory
+# Path      :   bin/inventory_cmdb
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#==============================================================#
+# environment
+#==============================================================#
+APP_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME=${PIGSTY_HOME-"${HOME}/pigsty"}
+METADB_URL=${METADB_URL-"service=meta"}
+PIGSTY_INVENTORY=${PIGSTY_HOME}/inventory.sh
+ANSIBLE_CONFIG=${PIGSTY_HOME}/ansible.cfg
+
+#========================================#
+# write dynamic inventory query file
+#========================================#
+echo "write dynamic inventory query script to ${PIGSTY_INVENTORY}"
+cat > ${PIGSTY_INVENTORY} <<-EOF
+#!/bin/bash
+psql ${METADB_URL} -AXtwc 'SELECT text FROM pigsty.inventory;'
+EOF
+chmod 0755 ${PIGSTY_INVENTORY}
+
+DYNAMIC_INVENTORY_FILE=$(basename ${PIGSTY_INVENTORY})
+#========================================#
+# write dynamic inventory query file
+#========================================#
+echo "update ansible.cfg set inventory = ${DYNAMIC_INVENTORY_FILE}"
+SED_CMD="s/inventory.*/inventory = ${DYNAMIC_INVENTORY_FILE}/g"
+sed -ie "${SED_CMD}" ${ANSIBLE_CONFIG}
+rm -rf "${ANSIBLE_CONFIG}e"
+
+cat ${ANSIBLE_CONFIG} | grep inventory
