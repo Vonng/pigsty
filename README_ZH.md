@@ -10,9 +10,8 @@ Pigsty可以用于大规模生产数据库的监控部署与管理；也可以�
 
  [**官方网站**](https://pigsty.cc/en/  ) 提供了关于Pigsty的详细信息：[**https://pigsty.cc/zh/**](](https://pigsty.cc/zh/))
 
-> 最新的Pigsty稳定版本为[v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1).
+> 最新的Pigsty稳定版本为[v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.1)
 >
-> master目前位于 v1.0.0-beta2
 
 
 ## 快速上手
@@ -20,9 +19,8 @@ Pigsty可以用于大规模生产数据库的监控部署与管理；也可以�
 准备一台安装有CentOS 7.8的全新机器，您需要拥有sudo或root权限，并可以通过ssh登陆。
 
 ```bash
-curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~; cd ~/pigsty  # 下载源码
-make config    # 配置环境
-make install   # 安装软件
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 如需运行本地沙箱，可运行以下命令（MacOS）

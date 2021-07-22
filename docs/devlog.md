@@ -1,5 +1,17 @@
 # Development Log
 
+#### 2021-07-22
+
+* refactor `load_config.sh` with python to `load_conf.py`
+* add `inventory_cmdb` and `inventory_conf` to switch between static config and dynamic inventory
+* add new dashboards: pgsql-activity which focus on cluster level activities
+* add new dashboards: pgcat-bloat which focus on table & index bloat
+* fix minor dashboard bugs
+* fix pg_exporter config `pg_repl` collector version overlap for PG12
+* update covid dashboards & isd dashboards
+* prepare for 1.0.0
+
+
 #### 2021-07-21
 
 * add ipython jupyterlab to meta packages
@@ -12,7 +24,6 @@
 
 * bug fix: register role does not run on all meta nodes 
 * add check for createpg createdb createuser scripts
-* bu
 
 #### 2021-07-19
 

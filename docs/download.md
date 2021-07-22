@@ -36,7 +36,7 @@ Two things needs to be downloaded:
 * `pkg.tgz`: download and put to `/tmp/pkg.tgz`.
 
 ```bash
-VERSION=v1.0.0-beta2    # replace to specific pigsty version
+VERSION=v1.0.0    # replace to specific pigsty version
 curl -fsSL https://github.com/Vonng/pigsty/releases/download/${version}/pigsty.tgz -o ~/pigsty.tgz
 curl -fSL  https://github.com/Vonng/pigsty/releases/download/${version}/pkg.tgz    -o /tmp/pkg.tgz 
 ```

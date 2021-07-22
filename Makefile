@@ -8,7 +8,7 @@
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.0.0-beta2
+VERSION?=v1.0.0
 
 # pigsty cluster (meta by default)
 CLS?=meta
