@@ -14,7 +14,9 @@
 reload: get-daily load-daily refresh    # reload latest (this year) daily summary data
 reload-hourly: get-hourly load-hourly   # reload latest (this year) hourly raw data
 all: baseline reload                    # create minimal viable product with latest data
-baseline: sql ui download load-meta     # setup postgres database & grafana dashboards
+all: download baseline reload           # if data/ is empty, download data first
+baseline: sql ui load-meta              # setup postgres database & grafana dashboards
+download: get-meta get-parser get-station get-history
 
 
 ###############################################################
@@ -42,9 +44,6 @@ show:
 ###############################################################
 # Download
 ###############################################################
-
-# get basic data set (no observation data)
-download: get-meta get-parser get-station get-history
 
 # download meta data to data/meta dir
 get-meta:
