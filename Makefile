@@ -591,6 +591,7 @@ svg:
 
 # serve pigsty doc with python http server
 doc:
+	@echo "open http://localhost:3001"
 	cd docs && python -m SimpleHTTPServer 3001
 
 # server pigsty doc with docsify cli
