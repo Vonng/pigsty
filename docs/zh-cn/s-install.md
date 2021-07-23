@@ -1,78 +1,114 @@
 
-## 简短版本
+## 一键拉起
 
-![](_media/how-zh.svg)
-
-1. 使用`curl`下载软件（前者亦可通过`git clone`，后者为可选离线安装包）
+![](../_media/how-zh.svg)
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
-```
+# 离线下载
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
 
-2. 下载 & 配置 & 安装
-
-```bash
+# 常规安装
 git clone https://github.com/Vonng/pigsty && cd pigsty
 ./configure
 make install
 ```
 
-访问 `http://<node_ip>:3000` 即可浏览 Pigsty [主页](http://g.pigsty.cc/d/home) (用户名: `admin`, 密码: `pigsty`)
-
-<iframe style="height:1160px" src="http://g.pigsty.cc/d/home"></iframe>
+更详细的过程，与预期的结果，请参考下面的介绍。
 
 
 
-## 详细介绍
+## 准备
 
-### 准备工作
+安装Pigsty需要一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。
+该机器将作为 **管理节点(meta node)** ，发出控制命令，采集监控数据，运行定时任务。
 
-Get a node (vm & vagrant & cloud vps).
-* Kernel: Linux
-* Arch: x86_64
-* OS: CentOS 7.8.2003 (RHEL 7.x and equivalent is OK) 
+## 下载
 
-Execute with `root` or admin user with nopass `sudo` privilege
+**源码包`pigsty.tgz`**
 
-
-### Download
-
-Get the latest master updates with `git clone`
+Pigsty的源码包`pigsty.tgz`（约500 KB）是**必选项**，可以通过`curl`、`git`从Github下载。
 
 ```bash
-cd ~ && git clone https://github.com/Vonng/pigsty
+git clone https://github.com/Vonng/pigsty && cd pigsty
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz
 ```
 
-**Or** download stable version release directly
+建议解压于管理用户的家目录中，即：`PIGSTY_HOME=~/pigsty`
+
+**软件包`pkg.tgz`**
+
+Pigsty的离线软件包`pkg.tgz`（约1 GB）是**可选项**，可以通过`curl` 从Github下载。
 
 ```bash
-cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty 
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
-Download offline installation packages if you are in bad network condition (e.g Mainland China) [optional]
-
-```bash
-curl -fSL  https://github.com/Vonng/pigsty/releases/download/latest/pkg.tgz    -o /tmp/pkg.tgz
-```
+放置至目标机器的`/tmp/pkg.tgz`路径下的离线软件包会在配置过程中被自动识别并使用。
 
 
-Check [download](download.md) if having problem download pigsty from Github
+**其他下载渠道**
+
+如果没有互联网/Github访问，也可以从其他位置下载，例如百度云盘，详情参考[FAQ](s-faq.md)。
 
 
 
-### Configure
+## 配置
+
+解压并进入 pigsty 源码目录： `tar -xf pigsty.tgz && cd pigsty`，执行以下命令即可开始配置：
 
 ```bash
 ./configure
 ```
 
-It will launch an interactive (or non-interactive with `-n`) cli wizard for env checking & pre-installation works 
-
-Typical output would be:
+执行`configure`会检查下列事项，小问题可直接修复。
 
 ```bash
-[0715] vagrant@meta:~/pigsty
+check_kernel     # kernel        = Linux
+check_machine    # machine       = x86_64
+check_release    # release       = CentOS 7.x
+check_sudo       # current_user  = NOPASSWD sudo
+check_ssh        # current_user  = NOPASSWD ssh
+check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
+check_admin      # check current_user@primary_ip nopass ssh sudo
+check_mode       # check machine spec to determine node mode (tiny|oltp|olap|crit)
+check_config     # generate config according to primary_ip and mode
+check_pkg        # check offline installation package exists       (INTERACTIVE: ask for download)
+check_repo       # create repo from pkg.tgz if exists
+check_repo_file  # create local file repo file if repo exists
+check_utils      # check ansible sshpass and other utils installed
+check_bin        # check special bin files in pigsty/bin (loki,exporter) (require utils installed)
+```
+
+直接运行 `./configure` 将启动交互式命令行向导，提示用户回答以下三个问题：
+
+
+**IP地址**
+
+当检测到当前机器上有多块网卡与多个IP地址时，配置向导会提示您输入**主要**使用的IP地址，
+即您用于从内部网络访问该节点时使用的IP地址。注意请不要使用公网IP地址。
+
+**下载软件包**
+
+当节点的`/tmp/pkg.tgz`路径下未找到离线软件包时，配置向导会询问是否从Github下载。 
+选择`Y`即会开始下载，选择`N`则会跳过。如果您的节点有良好的互联网访问与合适的代理配置，或者需要自行制作离线软件包，可以选择`N`。
+
+**配置模板**
+
+使用什么样的配置文件模板。
+
+配置向导会根据当前机器环境**自动选择配置模板**，但用户可以通过`-m <mode>`手工指定使用但配置模板，例如：
+
+* [`demo4`]  项目默认配置文件，4节点沙箱
+* [`demo`]   单节点沙箱，若检测到当前为沙箱虚拟机，会使用此配置
+* [`tiny`]   单节点部署，若使用普通节点（微型: cpu < 8）部署，会使用此配置
+* [`oltp`]   生产单节点部署，若使用普通节点（高配：cpu >= 8）部署，会使用此配置
+* 更多配置模板，请参考 [Configuration Template](https://github.com/Vonng/pigsty/tree/master/files/conf)
+
+**配置过程的标准输出**
+
+```bash
+vagrant@meta:~/pigsty
 $ ./configure
 configure pigsty v1.0.0-alpha2 begin
 [ OK ] kernel = Linux
@@ -100,78 +136,21 @@ configure pigsty done. Use 'make install' to proceed
 
 
 
-### Install
+## 安装
 
 ```bash
-make install
+make instsall
 ```
 
-which actually does:
+在`./configure`的过程中，Ansible已经通过离线软件包或可用yum源安装完毕。
 
-```bash
-./infra.yml
-```
+`make install`会调用Ansible执行`infra.yml`剧本，在`meta`分组上完成安装。
 
-It will setup everything on your meta node.
+在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
 
-
-
-## Explore
-
-### View Graphic Interface
-
-* Main GUI are served @ port 3000
-* Visit GUI: http://10.10.10.10:3000  username: `admin` , password: `pigsty`
+安装完成后，您可以通过[**用户界面**](s-interface.md)访问Pigsty相关服务。
 
 
-### Make some noisy !
-
-* Make some load and monitoring from GUI
-
-```
-make ri      # init pgbench on pg-meta
-make rw      # add some read-write load to pg-meta
-make ro      # add some read-only load to pg-meta
-```
-
-
-## Logging
-
-These commands will install *[optional]* realtime logging collector on you pgsql nodes.
-
-Check [logging.md](logging.md) for more detail.
-
-```bash
-./infra-loki.yml
-./pgsql-promtail.yml
-```
-
-
-
-## Upgrade Grafana
-
-You can go through pigsty operational tasks with this tutorial: [Upgrade Grafana](grafana-upgrade.md)
-
-It will replace default sqlite3 file database with pg-meta postgres databaes. 
-
-
-
-
-### Deploy more clusters
-
-You can deploy more database cluster with `pgsql.yml`. 
-
-`pigsty-demo4.yml` is an example that deploys an extra 3-node cluster named `pg-test`
-
-Inside sandbox, You can also add some traffic to this cluster to monitoring it from dashboards.
-
-```bash
-make test-ri      # init pgbench on pg-test
-make test-rw        # add some read-write load to pg-test
-make test-ro        # add some read-only load to pg-test
-```
-
-### What's Next
-
-**Visit Pigsty [Official Site](https://pigsty.cc) to explore more features and fun tasks.**
-
+> 访问 `http://<node_ip>:3000` 即可浏览 Pigsty监控系统[主页](http://g.pigsty.cc/d/home)
+> 
+> (用户名: `admin`, 密码: `pigsty`)

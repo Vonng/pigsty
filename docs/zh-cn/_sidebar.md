@@ -5,11 +5,13 @@
   - [常见问题](s-faq.md)
 
 - 概念
-  - 系统架构
-  - 实体与标识
-  - 服务接入
-  - 数据库访问
-  - 访问控制模型
+  - [系统架构](c-arch.md)
+  - [实体与标识](c-entity.md)
+  - [数据库服务](c-service.md)
+  - [数据库接入](c-access.md)
+  - [角色体系](c-roles.md)
+  - [默认权限](c-privileges.md)
+  - [HBA认证](c-hba.md)
   
 - 教程
   - 从零开始的新部署
@@ -60,9 +62,9 @@
 - 参考
   - 配置项
   - 监控指标
-  - 报警规则
-  - 文件目录结构
+  - [报警规则](r-alert.md)
+  - [文件目录结构](r-fhs.md)
 
 - [社区交流](community.md)
-- [路线规划](roadmap.md)
-- [开发日志](devlog.md)
+- [路线规划](../roadmap.md)
+- [开发日志](devlog)
