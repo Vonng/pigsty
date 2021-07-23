@@ -5,14 +5,15 @@
   - [常见问题](s-faq.md)
 
 - 概念
-  - [系统架构](c-arch.md)
-  - [实体与标识](c-entity.md)
-  - [数据库服务](c-service.md)
-  - [数据库接入](c-access.md)
-  - [角色体系](c-roles.md)
-  - [默认权限](c-privileges.md)
-  - [HBA认证](c-hba.md)
-  
+  - [架构](c-arch.md)
+  - [实体](c-entity.md)
+  - [服务](c-service.md)
+  - [数据库](c-database.md)
+  - [用户](c-user.md)
+  - [权限](c-privilege.md)
+  - [认证](c-auth.md)
+  - [接入](c-access.md)  
+
 - 教程
   - 从零开始的新部署
   - 基本操作指南

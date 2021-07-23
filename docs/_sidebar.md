@@ -1,6 +1,5 @@
 - Getting Started
-  - [Install](install.md)
-  - [Demo](demo.md)
+  - [Install](s-install.md)
   - [Sandbox](sandbox.md)
   - [Interface](interface.md)
   - [Download](download.md)
