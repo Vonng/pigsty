@@ -9,7 +9,7 @@
 
 ?> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle". [zh-cn](zh-cn) docs
 
-![](_media/what-is-pigsty.svg)
+![](_media/what.svg)
 
 
 Pigsty is a monitoring system that is specially designed for large scale PostgreSQL clusters. Along with a production-grade HA PostgreSQL cluster provisioning solution. It brings the best observability for PostgreSQL and .
@@ -73,15 +73,11 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o 
 
 ## Monitoring
 
-![](_media/overview1.jpg)
-
-![](_media/overview2.jpg)
-
-![](_media/overview3.jpg)
+![](_media/overview-monitor.jpg)
 
 ## Provisioning
 
-![](_media/access.jpg)
+![](_media/access.svg)
 
 
 ## Examples

@@ -18,7 +18,7 @@ Pigsty会通过一系列端口对外提供服务，Web服务会通过Nginx 80端
 |    Dnsmasq    |  53  |      -       | 环境统一使用的DNS域名解析服务器 |
 
 
-![](../_media/infra.jpg)
+![](../_media/infra.svg)
 
 
 用户可以为这些服务配置自己已有的域名，或使用`make dns`快捷方式将默认的域名写入`/etc/hosts`。

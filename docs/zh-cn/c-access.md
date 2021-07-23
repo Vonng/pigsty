@@ -1,10 +1,6 @@
-
+# 接入
 
 Pigsty提供了丰富的接入方式，用户可以根据自己的基础设施情况与喜好自行选择接入模式。
-
-
-
-## 数据库访问方式
 
 用户可以通过多种方式访问数据库服务。
 
@@ -20,15 +16,15 @@ Pigsty提供了丰富的接入方式，用户可以根据自己的基础设施�
 
 Pigsty推荐使用基于Haproxy的接入方案（1/2），在生产环境中如果有基础设施支持，也可以使用基于L4VIP（或与之等效的负载均衡服务）的接入方案（3）。
 
-| 序号 | 方案                                 | 说明                                                      |
-| ---- | ------------------------------------ | --------------------------------------------------------- |
-| 1    | [DNS + Haproxy](#dns--haproxy)       | 标准高可用接入方案，系统无单点。                          |
-| 2    | [L2VIP + Haproxy](##l2-vip--haproxy) | Pigsty沙箱使用的标准接入架构，使用L2 VIP确保Haproxy高可用 |
-| 3    | [L4VIP + Haproxy](##l4-vip--haproxy) | 方案2的变体，使用L4 VIP确保Haprxoy高可用。                |
-| 4    | [L4 VIP](#l4-vip)                    | 大规模**高性能生产环境**建议使用DPVS L4 VIP直接接入       |
-| 5    | [Consul DNS](#consul-dns)            | 使用Consul DNS进行服务发现，绕开VIP与Haproxy              |
-| 6    | [Static DNS](#static-dns)            | 传统静态DNS接入方式                                       |
-| 7    | [IP](#ip)                            | 采用智能客户端接入                                        |
+| 序号 | 方案                                | 说明                                                      |
+| ---- | ----------------------------------- | --------------------------------------------------------- |
+| 1    | [DNS + Haproxy](#dns-haproxy)      | 标准高可用接入方案，系统无单点。                          |
+| 2    | [L2VIP + Haproxy](#l2-vip-haproxy) | Pigsty沙箱使用的标准接入架构，使用L2 VIP确保Haproxy高可用 |
+| 3    | [L4VIP + Haproxy](#l4-vip-haproxy) | 方案2的变体，使用L4 VIP确保Haprxoy高可用。                |
+| 4    | [L4 VIP](#l4-vip)                   | 大规模**高性能生产环境**建议使用DPVS L4 VIP直接接入       |
+| 5    | [Consul DNS](#consul-dns)           | 使用Consul DNS进行服务发现，绕开VIP与Haproxy              |
+| 6    | [Static DNS](#static-dns)           | 传统静态DNS接入方式                                       |
+| 7    | [IP](#ip)                           | 采用智能客户端接入                                        |
 
 
 
@@ -64,7 +60,7 @@ Haproxy本身的可用性**通过幂等副本实现**，每一个Haproxy都可�
 
 ### 方案示意
 
-![](../_media/access/haproxy.jpg)
+![](../_media/access-dns-ha.svg)
 
 
 
@@ -100,7 +96,7 @@ Pigsty沙箱使用的标准接入方案，采用单个域名绑定至单个L2 VI
 
 ### 方案示意
 
-![](../_media/access/haproxy_l2vip.jpg)
+![](../_media/access.svg)
 
 
 
@@ -122,9 +118,7 @@ Pigsty沙箱使用的标准接入方案，采用单个域名绑定至单个L2 VI
 * 多两跳，较为浪费，如果有条件可以直接使用方案4: L4 VIP直接接入。
 * Client IP地址丢失，部分HBA策略无法正常生效
 
-### 方案示意
 
-![](../_media/access/haproxy_l4vip.jpg)
 
 
 
@@ -146,9 +140,7 @@ Pigsty沙箱使用的标准接入方案，采用单个域名绑定至单个L2 VI
 * 未启用`toa`内核模块时，仍然会丢失客户端IP地址。
 * 没有Haproxy屏蔽主从差异，集群中的每个节点不再“**幂等**”。
 
-### 方案示意
 
-![](../_media/access/l4vip.jpg)
 
 
 
@@ -169,9 +161,7 @@ L2 VIP并非总是可用，特别是所有候选主库必须**位于同一二层
 * 依赖Consul DNS
 * 用户需要合理配置DNS缓存策略
 
-### 方案示意
 
-![](../_media/access/dns-sd.jpg)
 
 
 
@@ -190,10 +180,6 @@ L2 VIP并非总是可用，特别是所有候选主库必须**位于同一二层
 
 * 没有灵活性
 * 主从切换时容易导致流量损失
-
-### 方案示意
-
-![](../_media/access/dns.jpg)
 
 
 
@@ -214,9 +200,7 @@ L2 VIP并非总是可用，特别是所有候选主库必须**位于同一二层
 
 * 灵活性太差，集群扩缩容繁琐。
 
-### 方案示意
 
-![](../_media/access/ip.jpg)
 
 
 

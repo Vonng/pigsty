@@ -1,18 +1,74 @@
 # 目录结构
 
-> 介绍Pigsty默认设置的目录结构
-
-以下参数与Pigsty目录结构相关
-
-* [pg_dbsu_home](../../../config/6-pg-install/#pg_dbsu_home)：Postgres默认用户的家目录，默认为`/var/lib/pgsql`
-* [pg_bin_dir](../../../config/6-pg-install/#pg_bin_dir)：Postgres二进制目录，默认为`/usr/pgsql/bin/`
-* [pg_data](../../../config/7-pg-provision/#pg_data)：Postgres数据库目录，默认为`/pg/data`
-* [pg_fs_main](../../../config/7-pg-provision/#pg_fs_main)：Postgres主数据盘挂载点，默认为`/export`
-* [pg_fs_bkup](../../../config/7-pg-provision/#pg_fs_bkup)：Postgres备份盘挂载点，默认为`/var/backups`（可选，也可以选择备份到主数据盘上）
+## Pigsty目录结构
 
 
+```bash
+#------------------------------------------------------------------------------
+# pigsty
+#  ^-----@app                    # extra demo application resources
+#  ^-----@bin                    # bin scripts
+#  ^-----@docs                   # document (can be docsified)
+#  ^-----@files                  # ansible file resources 
+#            ^-----@conf         # config template files
+#            ^-----@rule         # soft link to prometheus rules
+#            ^-----@ui           # soft link to grafana dashboards
+#  ^-----@roles                  # ansible business logic
+#  ^-----@templates              # ansible templates
+#  ^-----@vagrant                # sandbox resources
+#  ^-----configure               # configure wizard script
+#  ^-----ansible.cfg             # default ansible config file
+#  ^-----pigsty.yml              # default config file
+#  ^-----*.yml                   # ansible playbooks
 
-## 概览
+#------------------------------------------------------------------------------
+# /etc/pigsty/
+#  ^-----@targets                # file based service discovery targets definition
+#            ^-----@infra        # infra static targets definition
+#            ^-----@pgsql        # pgsql static targets definition
+#            ^-----@redis (n/a)  # redis static targets definition (not exists for now)
+#  ^-----@dashboards             # static grafana dashboards
+#  ^-----@datasources            # static grafana datasources
+#  ^-----@playbooks              # extra ansible playbooks
+#------------------------------------------------------------------------------
+```
+
+
+## Prometheus目录结构
+
+```bash
+#------------------------------------------------------------------------------
+# Config FHS
+#------------------------------------------------------------------------------
+# /etc/prometheus/
+#  ^-----prometheus.yml              # prometheus main config file
+#  ^-----alertmanager.yml            # alertmanger main config file
+#  ^-----@bin                        # util scripts: check,reload,status,new
+#  ^-----@rules                      # record & alerting rules definition
+#            ^-----@infra-rules      # infrastructure metrics definition
+#            ^-----@infra-alert      # infrastructure alert definition
+#            ^-----@pgsql-rules      # database metrics definition
+#            ^-----@infra-alert      # database alert definition
+# /etc/pigsty/
+#  ^-----@targets                    # file based service discovery targets definition
+#            ^-----@infra            # infra static targets definition
+#            ^-----@pgsql            # pgsql static targets definition
+#            ^-----@redis (n/a)      # redis static targets definition (not exists for now)
+#
+#------------------------------------------------------------------------------
+```
+
+
+## Postgres目录结构
+
+以下参数与PostgreSQL数据库目录相关
+
+* [pg_dbsu_home](#pg_dbsu_home)：Postgres默认用户的家目录，默认为`/var/lib/pgsql`
+* [pg_bin_dir](#pg_bin_dir)：Postgres二进制目录，默认为`/usr/pgsql/bin/`
+* [pg_data](#pg_data)：Postgres数据库目录，默认为`/pg/data`
+* [pg_fs_main](#pg_fs_main)：Postgres主数据盘挂载点，默认为`/export`
+* [pg_fs_bkup](#pg_fs_bkup)：Postgres备份盘挂载点，默认为`/var/backups`（可选，也可以选择备份到主数据盘上的子目录）
+
 
 ```yaml
 #------------------------------------------------------------------------------

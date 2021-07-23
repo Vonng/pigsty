@@ -65,5 +65,5 @@ make start && make demo
 
 整个沙箱环境（四节点）结构如下图所示：
 
-![](../_media/arch.png)
+![](../_media/sandbox.svg)
 
