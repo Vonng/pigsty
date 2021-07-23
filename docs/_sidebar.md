@@ -1,62 +1,66 @@
 - Getting Started
-  - [Install](s-install.md)
-  - [Sandbox](sandbox.md)
-  - [Interface](interface.md)
-  - [Download](download.md)
-  - [FAQ](faq.md)
+  - [Install](zh-cn/s-install.md)
+  - [Sandbox](zh-cn/s-sandbox.md)
+  - [Interface](zh-cn/s-interface.md)
+  - [FAQ](zh-cn/s-faq.md)
 
 - Concept
-  - [Architecture](c-arch.md)
-  - [Entities & Identity](c-entity.md)
-  - [Service](c-service.md)
-  - [Database Access](c-access.md)
-  - [Access Control](c-acl.md)
+  - Architecture
+  - Entities
+  - Service
+  - Database
+  - User
+  - Privilege
+  - Authentication
+  - Access
 
 - Tutorial
-  - [New PgSQL Cluster](t-new-cluster.md)
-  - [Access PgSQL Cluster](t-access-pgsql.md)
-  - [Basic Operations](t-basic-cmd.md)
-  - [Monitor GUI](t-monitor-gui.md)
-  - [New PgSQL User](t-new-pguser.md)
-  - [New PgSQL DB](t-new-pgdb.md)
-  - [Setup Logging](t-logging.md)  
+  - New Environment
+  - Basic Operation
+  - Data Analysis IDE
+  - New PGSQL Cluster
+  - Play with Database
+  - New Biz User
+  - New Biz Database
+  - New Biz Database
+  - [Setup Logging](t-logging.md)
   - [Upgrade Grafana DB](t-grafana-upgrade.md)
   - [Use CMDB Inventory](t-cmdb.md)
-  - [New PgSQL Service](t-new-pgsvc.md)
-  - [PgSQL Template](t-pg-template.md)
-  - [Scaling Cluster](t-pg-scaling.md)
-  - [Ansible Basics](t-ansible.md)
-  - [Migration](t-migration.md)
-  - [Failures & Treatment](t-failures.md)
-  
+  - New PgSQL Service
+  - PgSQL Template
+  - Scaling Cluster
+  - Ansible Basics
+  - Migration
+  - Common Failures
+
 - Monitoring
-  - [Architecture](m-arch.md)
-  - [Organization](m-org.md)
-  - [Identity & Labels](m-identity.md)
-  - [Source: Metrics](m-metrics.md)
-  - [Source: Logging](m-logging.md)
-  - [Source: Catalog](m-catalog.md)
-  - [Grafana](m-grafana.md)
-  - [Prometheus](m-prometheus.md)
-  - [AlertManager](m-alertmanager.md)
-  - [PGSQL:Overview](m-pgsql-overview.md)
-  - [PGSQL:Cluster](m-pgsql-cluster.md)
-  - [PGSQL:Instance](m-pgsql-instance.md)
-  - [PGSQL:Object](m-pgsql-object.md)
-  - [PGCAT:Catalog](m-pgcat.md)
-  - [PGLOG:Analysis](m-pglog.md)
+  - Architecture
+  - Organization
+  - Identity & Labels
+  - Source: Metrics
+  - Source: Logging
+  - Source: Catalog
+  - Grafana
+  - Prometheus
+  - AlertManager
+  - PGSQL:Overview
+  - PGSQL:Cluster
+  - PGSQL:Instance
+  - PGSQL:Object
+  - PGCAT:Catalog
+  - PGLOG:Analysis
 
 - Provisioning
-  - [Overview](p-overview.md)
-  - [Prepare](p-prepare.md)
-  - [Configure](p-configure.md)
-  - [Customize](p-customitze.md)
-  - [Playbook:Infra](play-infra.md)
-  - [Playbook:PgSQL](play-pgsql.md)
-  - [Playbook:PgSQL Remove](play-pgsql-rm.md)
-  - [Playbook:PgSQL CreateDB](](play-pgsql-createdb.md))
-  - [Playbook:PgSQL CreateUser](play-pgsql-createuser.md)
-  - [Example Config](p-example.md)
+  - Overview
+  - Prepare
+  - Configure
+  - Customize
+  - Playbook:Infra
+  - Playbook:PgSQL
+  - Playbook:PgSQL Remove
+  - Playbook:PgSQL CreateDB
+  - Playbook:PgSQL CreateUser
+  - Example Config
 
 - Reference
   - Config Entries
@@ -65,6 +69,6 @@
   - FHS
 
 - [Contribution](contribution.md)
-- [Community](community.md)
+- [Community](zh-cn/community.md)
 - [Roadmap](roadmap.md)
-- [Dev Log](devlog.md)
+- [Changelog](devlog.md)

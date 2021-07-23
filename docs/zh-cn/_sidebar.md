@@ -23,8 +23,9 @@
   - 访问监控系统
   - 创建新PGSQL业务用户
   - 创建新PGSQL数据库
-  - 升级Grafana后端数据库
-  - 使用CMDB替换静态配置
+  - [部署日志收集服务](../t-logging.md)
+  - [升级Grafana后端数据库](../t-grafana-upgrade.md)
+  - [使用CMDB替换静态配置](../t-cmdb.md)
   - 创建新PGSQL服务
   - 定制PGSQL模板
   - 扩缩容PGSQL

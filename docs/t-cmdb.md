@@ -7,27 +7,47 @@ CMDB Inventory enables integration with external admin tools, such as [`pigsty-c
 
 ### 1. Load Config
 
-After `infra.yml` complete, use `bin/load_config` to upgrade static config file to cmdb dynamic inventory
+After `infra.yml` complete, use `bin/load_conf.py` to upgrade static config file to cmdb dynamic inventory
 
 ```bash 
-# bin/load_config [config_name=pgsql] [config_path=~/pigsty/pigsty.yml]
+usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]
+
+load config arguments
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n NAME, --name NAME  config profile name, pgsql by default
+  -p PATH, --path PATH  config path, ${PIGSTY_HOME}/pigsty.yml by default
+  -d DATA, --data DATA  postgres cmdb pgurl, ${METADB_URL} by default
 ```
 
 e.g : load default profile to cmdb as config profile `pgsql`
 ```bash
-bin/load_config
+bin/load_conf.py
 ```
 
 e.g : load 4 node-demo profile to cmdb as config profile `demo4`
 ```bash
-bin/load_config demo4 files/conf/pigsty-demo4.yml
+bin/load_conf.py demo4 files/conf/pigsty-demo4.yml
 ```
 
 
 ### 2. Inventory Usage
 
 
-After `bin/load_config`, use dynamic inventory instead of config file:
+After `bin/load_conf.py`, use dynamic inventory instead of config file:
+
+
+```bash
+bin/inventory_cmdb
+```
+
+You can switch back to static config file with
+
+```bash
+bin/inventory_confo
+```
+
    
 A dynamic inventory script `inventory.sh` will be created under pigsty home:
    
