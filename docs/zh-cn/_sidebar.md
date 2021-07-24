@@ -15,55 +15,37 @@
   - [接入](c-access.md)  
 
 - 教程
-  - 从零开始的新部署
-  - 基本操作指南
-  - 数据分析环境  
-  - 创建新PGSQL集群
-  - 访问PGSQL数据库
-  - 访问监控系统
-  - 创建新PGSQL业务用户
-  - 创建新PGSQL数据库
   - [部署日志收集服务](../t-logging.md)
   - [升级Grafana后端数据库](../t-grafana-upgrade.md)
   - [使用CMDB替换静态配置](../t-cmdb.md)
-  - 创建新PGSQL服务
-  - 定制PGSQL模板
-  - 扩缩容PGSQL
-  - Ansible基础
-  - 基于逻辑复制的迁移
-  - 常见故障定位处理
   
 - 监控
-  - 监控系统架构
-  - 用户界面组织
-  - 标签与身份管理
-  - 监控指标概览
-  - 数据库监控指标
-  - 衍生监控指标
-  - 报警规则
-  - PGSQL：全局概览
-  - PGSQL：集群监控
-  - PGSQL：实例监控
-  - PGSQL：对象监控
-  - PGCAT：系统目录
-  - PGLOG：日志分析
+  - [监控面板](m-dashboard.md)
+  - [服务发现](m-discovery.md)
+  - [监控指标](m-metric.md)
+  - [告警系统](m-alert.md)
 
+- 配置
+  - [配置总览](v-config.md)
+  - [连接参数](v-connect.md)
+  - [本地仓库](v-repo.md)
+  - [节点供给](v-node.md)
+  - [基础设施](v-meta.md)
+  - [元数据库](v-dcs.md)
+  - [数据库安装](v-pg-install.md)
+  - [数据库部署](v-pg-provision.md)
+  - [数据库定制](v-pg-template.md)
+  - [监控系统](v-monitor.md)
+  - [服务接入](v-service.md)
 
-- 管控
-  - 概览
-  - 准备
-  - 配置
-  - 定制
-  - 剧本：基础设施初始化
-  - 剧本：数据库初始化
-  - 剧本：数据库下线
-  - 剧本：业务数据库创建
-  - 剧本：业务用户创建
-  - 部署样例
-
+- 部署
+  - [剧本：基础设施初始化](p-infra.md)
+  - [剧本：数据库初始化](p-pgsql.md)
+  - [剧本：业务用户创建](p-pgsql-createuser.md)  
+  - [剧本：业务数据库创建](p-pgsql-createdb.md)
+  - [剧本：数据库下线](p-pgsql-remove.md)
+  
 - 参考
-  - 配置项
-  - 监控指标
   - [报警规则](r-alert.md)
   - [文件目录结构](r-fhs.md)
 

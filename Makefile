@@ -22,9 +22,10 @@ SRC?=pigsty.tgz
 # run with nopass SUDO user (or root) on CentOS 7.x node
 default: tip
 tip:
-	@echo '# To install pigsty, run with sudo user on centos 7.x node'
-	@echo 'curl -fsSL https://pigsty.cc/${SRC} | gzip -d | tar -xC ~; cd ~/pigsty'
-	@echo make config
+	@echo "# Run on Linux x86_64 CentOS 7.8 node with sudo & ssh access"
+	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"
+	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty"
+	@echo ./configure
 	@echo make install
 
 #-------------------------------------------------------------#
@@ -33,7 +34,7 @@ all: download configure install
 
 # (1). DOWNLOAD   pigsty source code to ~/pigsty
 download:
-	curl -fsSL https://pigsty.cc/${SRC} | gzip -d | tar -xC ~ ; cd ~/pigsty
+	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
 
 # (2). CONFIGURE  pigsty in interactive mode
 config:
@@ -43,7 +44,7 @@ config:
 install:
 	./infra.yml -l ${CLS}
 ###############################################################
-# curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
+
 
 
 
@@ -83,12 +84,15 @@ install:
 #------------------------------#
 # download pkg.tgz to /tmp/pkg.tgz
 pkg:
-	bin/get_pkg ${VERSION}
+	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz
 
 # download binaries from internet (to files/bin)
 # (if /www/pigsty exists, extract from it)
 bin:
-	bin/get_bin
+	bin/get_node_exporter -t /www/pigsty  -v 1.1.2  -p files/bin/node_exporter
+	bin/get_pg_exporter   -t /www/pigsty  -v 0.4.0  -p files/bin/pg_exporter
+	bin/get_loki          -t /www/pigsty  -v 2.2.1  -p files/bin/
+	chown files/bin/* -Rv --reference=files
 
 #------------------------------#
 # source code                  #
@@ -97,7 +101,8 @@ bin:
 
 # get latest stable version to ~/pigsty
 src:
-	curl -fsSL https://pigsty.cc/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
+	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz -o ~/pigsty.tgz
+
 ###############################################################
 
 
@@ -488,13 +493,6 @@ test-rb3:
 #------------------------------#
 # resource
 #------------------------------#
-# fetch pigsty resources from internet to your own host
-# (to dist/*.*/{pkg,pigsty}.tgz)
-fetch: pkg
-	mkdir dist/${VERSION}/
-	cp -f /tmp/pkg.tgz "dist/${VERSION}/pkg.tgz"
-	curl -fsSL https://pigsty.cc/pigsty.tgz -o "dist/latest/pigsty.tgz"
-
 # upload pigsty resource from your own host to vm
 upload:
 	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
@@ -559,12 +557,12 @@ rp: release-pkg
 release-pkg: cache
 	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg.tgz
 
-# publish will publish pigsty to pigsty.cc
+# publish will publish pigsty packages
 p: release publish
 publish:
 	bin/publish ${VERSION}
 
-# publish-beta will publish pigsty-beta.tgz to pigsty.cc
+# publish-beta will publish pigsty-beta.tgz packages
 pb: release publish-beta
 publish-beta:
 	bin/publish ${VERSION} beta
