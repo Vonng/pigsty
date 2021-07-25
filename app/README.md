@@ -1,6 +1,13 @@
 # App
 
-These are some applications that can runs on pigsty environment
+These are some applications that can runs on pigsty environment.
+
+If you have trouble downloading data from Github and other original datasource. 
+Download `app.tgz` from Github release page which includes basic data
+
+You can install most application by `cd <app> && make all`
+
+If you are using `app.tgz` version, use `make all2` instead which skip data dowloading
 
 
 ## Built-in Application

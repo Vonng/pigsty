@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------
--- 放置于SCHEMA covid 下
+-- Top level namespace covid
 -------------------------------------------------------------------------
 DROP SCHEMA IF EXISTS covid CASCADE;
 CREATE SCHEMA IF NOT EXISTS covid;
@@ -24,7 +24,8 @@ CREATE INDEX ON covid.country_history (date);
 CREATE INDEX ON covid.country_history (country_code);
 CREATE INDEX ON covid.country_history (date, country_code);
 
-
+-- not actually used
+DROP TABLE IF EXISTS covid.country_latest;
 CREATE TABLE covid.country_latest
 (
     name              text PRIMARY KEY,

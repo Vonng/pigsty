@@ -25,14 +25,13 @@
 |   2021-03-28   | Service Provision                                         | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0) |
 |   2021-04-04   | Pigsty GUI, CLI, Logging Intergration                     | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0) |
 |   2021-04-20   | Accessibility and extensibility enhancement               | [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1) |
-|   2021-07-07   | PostgreSQL 14 Support, Monitoring System Overhaul         | v1.0.0-alpha1                                                |
+|   2021-07-31   | PostgreSQL 14 Support, Monitoring System Overhaul         | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0) |
 
 
 ## Future
 
 |      Time      | Description                                               | Release                                                      |
 | :------------: | --------------------------------------------------------- | ------------------------------------------------------------ |
-| **2021-07-31** | GA                                                        | **v1.0.0**                                                   |
 |   2021-08-15   | app `pgsql` : PostgreSQL Cluster Monitoring v7            | v1.1                                                         |
 |   2021-08-31   | app `pgcat`: Explore postgres system catalog via grafana  | v1.2                                                         |
 |   2021-09-15   | app `pgdog`: Dig into postgres logs, event visualization  | v1.3                                                         |

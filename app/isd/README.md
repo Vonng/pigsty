@@ -9,9 +9,10 @@ Including 30000 meteorology station, sub-hourly observation records, from 1900-2
 
 ## Quick Start
 
-`make all` will just setup everything
+`make all` will setup everything
 
-> Internet (Github & noaa) access required
+> Internet (Github & noaa) access required  
+> if basic data included (e.g download app.tgz), use `make all2` instead
 
 
 ### Make Baseline Works

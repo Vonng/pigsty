@@ -17,7 +17,8 @@ GRAFANA_ENDPOINT?=http://10.10.10.10:3000
 # entry
 #-----------------------------#
 default: all
-all: sql ui reload
+all: sql ui reload    # if data is NOT downloaded
+all2: sql ui load     # if data already downloaded
 
 #-----------------------------#
 # install
@@ -34,15 +35,15 @@ sql:
 reload: download load
 download:
 	mkdir -p data/
-	curl -fSL https://covid19.who.int/WHO-COVID-19-global-table-data.csv -o data/latest.csv
+	# curl -fSL https://covid19.who.int/WHO-COVID-19-global-table-data.csv -o data/latest.csv
 	curl -fSL https://covid19.who.int/WHO-COVID-19-global-data.csv       -o data/history.csv
 
 #-----------------------------#
 # load / clean data
 #-----------------------------#
 load: clean
+	# cat data/latest.csv  | psql ${METADB_URL} -c "COPY covid.country_latest FROM STDIN CSV HEADER;";
 	cat data/history.csv | psql ${METADB_URL} -c "COPY covid.country_history FROM STDIN CSV HEADER;";
-	cat data/latest.csv  | psql ${METADB_URL} -c "COPY covid.country_latest FROM STDIN CSV HEADER;";
 
 clean:
 	psql ${METADB_URL} -c 'TRUNCATE covid.country_history, covid.country_latest;';

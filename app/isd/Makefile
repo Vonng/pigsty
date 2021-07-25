@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2020-11-03
-# Mtime     :   2021-07-21
+# Mtime     :   2021-07-26
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
 # Copyright (C) 2019-2020 Ruohang Feng
@@ -11,10 +11,11 @@
 ###############################################################
 # Public API
 ###############################################################
+all: download baseline reload           # if data/ is empty, download data first
+all2: baseline load-daily refresh       # if data/ is filled, use this instead
+
 reload: get-daily load-daily refresh    # reload latest (this year) daily summary data
 reload-hourly: get-hourly load-hourly   # reload latest (this year) hourly raw data
-all: baseline reload                    # create minimal viable product with latest data
-all: download baseline reload           # if data/ is empty, download data first
 baseline: sql ui load-meta              # setup postgres database & grafana dashboards
 download: get-meta get-parser get-station get-history
 
