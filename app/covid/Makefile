@@ -1,3 +1,18 @@
+#==============================================================#
+# File      :   Makefile
+# Ctime     :   2020-11-03
+# Mtime     :   2021-07-25
+# Desc      :   Makefile shortcuts
+# Path      :   Makefile
+# Copyright (C) 2019-2020 Ruohang Feng
+#==============================================================#
+
+# pigsty environment
+METADB_URL?=postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta
+GRAFANA_USERNAME?=admin
+GRAFANA_PASSWORD?=pigsty
+GRAFANA_ENDPOINT?=http://10.10.10.10:3000
+
 #-----------------------------#
 # entry
 #-----------------------------#
@@ -26,11 +41,11 @@ download:
 # load / clean data
 #-----------------------------#
 load: clean
-	cat data/history.csv | psql ${PGURL} -c "COPY covid.country_history FROM STDIN CSV HEADER;";
-	cat data/latest.csv  | psql ${PGURL} -c "COPY covid.country_latest FROM STDIN CSV HEADER;";
+	cat data/history.csv | psql ${METADB_URL} -c "COPY covid.country_history FROM STDIN CSV HEADER;";
+	cat data/latest.csv  | psql ${METADB_URL} -c "COPY covid.country_latest FROM STDIN CSV HEADER;";
 
 clean:
-	psql ${PGURL} -c 'TRUNCATE covid.country_history, covid.country_latest;';
+	psql ${METADB_URL} -c 'TRUNCATE covid.country_history, covid.country_latest;';
 
 
 .PHONY: default all ui sql download load trunc

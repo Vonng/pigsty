@@ -23,20 +23,20 @@ download: get-meta get-parser get-station get-history
 # Environment
 ###############################################################
 # your own environment
-#PGURL?=postgres:///
+#METADB_URL?=postgres:///
 #GRAFANA_USERNAME=admin
 #GRAFANA_PASSWORD=admin
 #GRAFANA_ENDPOINT=http://localhost:3000
 
 # pigsty environment
-PGURL?=postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta
-GRAFANA_USERNAME=admin
-GRAFANA_PASSWORD=pigsty
-GRAFANA_ENDPOINT=http://10.10.10.10:3000
+METADB_URL?=postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta
+GRAFANA_USERNAME?=admin
+GRAFANA_PASSWORD?=pigsty
+GRAFANA_ENDPOINT?=http://10.10.10.10:3000
 
 show:
-	@echo ${PGURL}
-	psql ${PGURL} -c '\dt+ isd.*'
+	@echo ${METADB_URL}
+	psql ${METADB_URL} -c '\dt+ isd.*'
 ###############################################################
 
 
@@ -75,7 +75,7 @@ get-hourly:
 ###############################################################
 # create schema on local machine (DANGEROUS, will wipe isd schema)
 sql:
-	psql ${PGURL} -f sql/schema.sql
+	psql ${METADB_URL} -f sql/schema.sql
 
 
 ###############################################################
@@ -91,11 +91,11 @@ ui:
 
 # dump meta data to data/meta dir
 dump-meta:
-	bin/dump-meta.sh ${PGURL}
+	bin/dump-meta.sh ${METADB_URL}
 
 # dump meta data to data/meta dir
 load-meta:
-	bin/load-meta.sh ${PGURL}
+	bin/load-meta.sh ${METADB_URL}
 
 ###############################################################
 # Load ISD Observation Data
@@ -103,15 +103,15 @@ load-meta:
 
 # load current year hourly data (parser required)
 load-hourly:
-	bin/load-hourly.sh ${PGURL}
+	bin/load-hourly.sh ${METADB_URL}
 
 # load current year daily data  (parser required)
 load-daily:
-	bin/load-daily.sh ${PGURL}
+	bin/load-daily.sh ${METADB_URL}
 
 # refresh latest partition of monthly & yearly data
 refresh:
-	bin/refresh.sh ${PGURL}
+	bin/refresh.sh ${METADB_URL}
 
 
 ###############################################################

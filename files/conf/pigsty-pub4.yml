@@ -9,7 +9,7 @@
 ######################################################################
 
 
-######################################################################
+########################################################w##############
 #                     Public Demo (4-node)                           #
 ######################################################################
 # admin user : root  (nopass ssh & sudo already set)                 #
@@ -430,6 +430,7 @@ all: # top-level namespace
       - { name: home,          host: pigsty.cc,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
       - { name: consul,        host: c.pigsty.cc,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
       - { name: grafana,       host: g.pigsty.cc,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
+      - { name: grafana2,      host: demo.pigsty.cc, url: "127.0.0.1:3000" }   # pigsty grafana public domain (3000)
       - { name: prometheus,    host: p.pigsty.cc,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
       - { name: alertmanager,  host: a.pigsty.cc,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
       - { name: haproxy,       host: h.pigsty.cc,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
@@ -438,8 +439,8 @@ all: # top-level namespace
 
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
+      - 172.21.0.11  pg-meta                       # sandbox vip for pg-meta
+      - 172.21.0.3  pg-test                       # sandbox vip for pg-test
       - 172.21.0.11 meta-1                        # sandbox node meta-1 (node-0)
       - 172.21.0.11 pigsty
       - 172.21.0.11 y.pigsty yum.pigsty
@@ -462,7 +463,7 @@ all: # top-level namespace
     # - grafana - #
     grafana_endpoint: http://172.21.0.11:3000     # grafana endpoint url
     grafana_admin_username: admin                 # default grafana admin username
-    grafana_admin_password: pigsty                # default grafana admin password
+    grafana_admin_password: pigstypigsty          # default grafana admin password
     grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
     # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
     grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
@@ -487,8 +488,6 @@ all: # top-level namespace
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
       meta-1: 172.21.0.11                         # you could use existing dcs cluster
-      # meta-2: 172.21.0.3                       # host which have their IP listed here will be init as server
-      # meta-3: 172.21.0.4                       # 3 or 5 dcs nodes are recommend for production environment
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
@@ -603,11 +602,11 @@ all: # top-level namespace
 
     # - system roles - #
     pg_replication_username: replicator           # system replication user
-    pg_replication_password: DBUser.Replicator    # system replication password
+    pg_replication_password: DBUser.Replicator2   # system replication password
     pg_monitor_username: dbuser_monitor           # system monitor user
-    pg_monitor_password: DBUser.Monitor           # system monitor password
+    pg_monitor_password: DBUser.Monitor2          # system monitor password
     pg_admin_username: dbuser_dba                 # system admin user
-    pg_admin_password: DBUser.DBA                 # system admin password
+    pg_admin_password: DBUser.DBA2                # system admin password
 
     # - default roles - #
     pg_default_roles:                             # check http://pigsty.cc/zh/docs/concepts/provision/acl/ for more detail, sequence matters

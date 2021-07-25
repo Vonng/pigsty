@@ -108,9 +108,9 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 **配置过程的标准输出**
 
 ```bash
-vagrant@meta:~/pigsty
+vagrant@meta:~/pigsty 
 $ ./configure
-configure pigsty v1.0.0-alpha2 begin
+configure pigsty v1.0.0 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect
@@ -122,15 +122,13 @@ configure pigsty v1.0.0-alpha2 begin
     (3) 10.10.10.2	    inet 10.10.10.2/8 scope global eth1
 [ OK ] primary_ip = 10.10.10.10 (from demo)
 [ OK ] admin = vagrant@10.10.10.10 ok
-[ OK ] mode = demo (vagrant demo)
-[ OK ] config = demo@10.10.10.10
+[ OK ] mode = pub4 (manually set)
+[ OK ] config = pub4@10.10.10.10
 [ OK ] cache = /tmp/pkg.tgz exists
 [ OK ] repo = /www/pigsty ok
 [ OK ] repo file = /etc/yum.repos.d/pigsty-local.repo
 [ OK ] utils = install from local file repo
 [ OK ] ansible = ansible 2.9.23
-[ OK ] bin = extract from /www/pigsty
-[ OK ] loki @ /home/vagrant/pigsty/files/bin
 configure pigsty done. Use 'make install' to proceed
 ```
 
