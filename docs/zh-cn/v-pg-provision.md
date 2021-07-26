@@ -36,7 +36,7 @@ PostgreSQL部署
 |          [patroni_port](#patroni_port)          |  `string`  |  G/C  | Patroni服务端口                  |
 | [patroni_watchdog_mode](#patroni_watchdog_mode) |   `enum`   |  G/C  | Patroni Watchdog模式           |
 |               [pg_conf](#pg_conf)               |   `enum`   |  G/C  | Patroni使用的配置模板               |
-|  [pg_shared_libraries](pg_shared_libraries)    |  `string`  |  G/C  | PG默认加载的共享库                    |
+|  [pg_shared_libraries](#pg_shared_libraries)    |  `string`  |  G/C  | PG默认加载的共享库                    |
 |           [pg_encoding](#pg_encoding)           |  `string`  |  G/C  | PG字符集编码                      |
 |             [pg_locale](#pg_locale)             |   `enum`   |  G/C  | PG使用的本地化规则                   |
 |         [pg_lc_collate](#pg_lc_collate)         |   `enum`   |  G/C  | PG使用的本地化排序规则                 |

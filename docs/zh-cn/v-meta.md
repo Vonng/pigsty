@@ -21,10 +21,10 @@
 |  [prometheus_scrape_timeout](#prometheus_scrape_timeout)  | `interval` |  G   | Prom抓取超时                 |
 |     [prometheus_sd_interval](#prometheus_sd_interval)     | `interval` |  G   | Prom服务发现刷新周期         |
 |      [grafana_endpoint](#grafana_endpoint)                |  `string`  |  G   | Grafana地址                  |
-| [grafana_admin_username](grafana_admin_username)          |  `string`  |  G   | Grafana管理员用户名          |
+| [grafana_admin_username](#grafana_admin_username)          |  `string`  |  G   | Grafana管理员用户名          |
 |     [grafana_admin_password](#grafana_admin_password)     |  `string`  |  G   | Grafana管理员密码            |
-|  [grafana_database](grafana_database)                     |  `string`  |  G  | Grafana后端数据库类型 |
-|     [grafana_pgurl](grafana_pgurl)                        |  `string`  |  G  | Grafana的PG数据库连接串 |
+|  [grafana_database](#grafana_database)                     |  `string`  |  G  | Grafana后端数据库类型 |
+|     [grafana_pgurl](#grafana_pgurl)                        |  `string`  |  G  | Grafana的PG数据库连接串 |
 |             [grafana_plugin](#grafana_plugin)             |   `enum`   |  G   | 如何安装Grafana插件          |
 |              [grafana_cache](#grafana_cache)              |  `string`  |  G   | Grafana插件缓存地址          |
 |          [grafana_customize](#grafana_customize)          |   `bool`   |  G   | 是否定制Grafana              |

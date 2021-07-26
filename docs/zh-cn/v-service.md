@@ -20,8 +20,8 @@
 |                [vip_address](#vip_address)                |  `string`   |  G/C  | 集群使用的VIP地址             |
 |               [vip_cidrmask](#vip_cidrmask)               |  `number`   |  G/C  | VIP地址的网络CIDR掩码         |
 |              [vip_interface](#vip_interface)              |  `string`   |  G/C  | VIP使用的网卡                 |
-|        [dns_mode](v-service.md#dns_mode)                 |  `enum`  |  G/C  | DNS配置模式 |
-|       [dns_selector](v-service.md#dns_selector)          |  `string`  |  G/C  | DNS解析对象选择器 |
+|        [dns_mode](#dns_mode)                 |  `enum`  |  G/C  | DNS配置模式 |
+|       [dns_selector](#dns_selector)          |  `string`  |  G/C  | DNS解析对象选择器 |
 
 ## 默认参数
 

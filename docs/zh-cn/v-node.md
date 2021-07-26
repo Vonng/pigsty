@@ -15,7 +15,7 @@
 |           [node_packages](#node_packages)           | `string[]` |   G   | 节点安装软件列表                 |
 |     [node_extra_packages](#node_extra_packages)     | `string[]` | C/I/A | 节点额外安装的软件列表              |
 |      [node_meta_packages](#node_meta_packages)      | `string[]` |   G   | 元节点所需的软件列表               |
-|  [node_meta_pip_install](node_meta_pip_install)     |  `string`  |  G  | 元节点上通过pip3安装的软件包           |
+|  [node_meta_pip_install](#node_meta_pip_install)     |  `string`  |  G  | 元节点上通过pip3安装的软件包           |
 |       [node_disable_numa](#node_disable_numa)       |   `bool`   |   G   | 关闭节点NUMA                 |
 |       [node_disable_swap](#node_disable_swap)       |   `bool`   |   G   | 关闭节点SWAP                 |
 |   [node_disable_firewall](#node_disable_firewall)   |   `bool`   |   G   | 关闭节点防火墙                  |
@@ -30,7 +30,7 @@
 |     [node_admin_username](#node_admin_username)     |  `string`  |   G   | 管理员用户名                              |
 | [node_admin_ssh_exchange](#node_admin_ssh_exchange) |   `bool`   |   G   | 在实例间交换管理员SSH密钥                 |
 |          [node_admin_pks](#node_admin_pks)          | `string[]` |   G   | 可登陆管理员的公钥列表                    |
-|          [node_admin_pk_current](#node_admin_pk_current)          | `bool` |   A   |  是否将当前用户的公钥加入管理员账户                   |
+|  [node_admin_pk_current](#node_admin_pk_current)    | `bool` |   A   |  是否将当前用户的公钥加入管理员账户                   |
 |        [node_ntp_service](#node_ntp_service)        |   `enum`   |   G   | NTP服务类型：ntp或chrony                  |
 |         [node_ntp_config](#node_ntp_config)         |   `bool`   |   G   | 是否配置NTP服务？                         |
 |           [node_timezone](#node_timezone)           |  `string`  |   G   | NTP时区设置                               |

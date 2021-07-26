@@ -24,9 +24,9 @@ Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安
 |        [pg_exporter_enabled](#pg_exporter_enabled)        |  `bool`  | G/C  | 启用PG指标收集器               |
 |           [pg_exporter_port](#pg_exporter_port)           | `number` | G/C  | PG指标暴露端口                 |
 |            [pg_exporter_url](#pg_exporter_url)            | `string` | G/C  | 采集对象数据库的连接串（覆盖） |
-| [pg_exporter_auto_discovery](pg_exporter_auto_discovery)     |  `bool`    |  G/C  | 是否自动发现实例中的数据库 |
-| [pg_exporter_exclude_database](pg_exporter_exclude_database) |  `string`  |  G/C  | 数据库自动发现排除列表 |
-| [pg_exporter_include_database](pg_exporter_include_database) |  `string`  |  G/C  | 数据库自动发现囊括列表 |
+| [pg_exporter_auto_discovery](#pg_exporter_auto_discovery)     |  `bool`    |  G/C  | 是否自动发现实例中的数据库 |
+| [pg_exporter_exclude_database](#pg_exporter_exclude_database) |  `string`  |  G/C  | 数据库自动发现排除列表 |
+| [pg_exporter_include_database](#pg_exporter_include_database) |  `string`  |  G/C  | 数据库自动发现囊括列表 |
 | [pgbouncer_exporter_enabled](#pgbouncer_exporter_enabled) |  `bool`  | G/C  | 启用PGB指标收集器              |
 |    [pgbouncer_exporter_port](#pgbouncer_exporter_port)    | `number` | G/C  | PGB指标暴露端口                |
 |     [pgbouncer_exporter_url](#pgbouncer_exporter_url)     | `string` | G/C  | 采集对象连接池的连接串         |
