@@ -15,10 +15,13 @@
   - [接入](c-access.md)  
 
 - 教程
-  - [部署日志收集服务](../t-logging.md)
-  - [升级Grafana后端数据库](../t-grafana-upgrade.md)
-  - [使用CMDB替换静态配置](../t-cmdb.md)
-  
+  - [部署准备工作](t-prepare.md)
+  - [使用与制作离线安装包](t-offline.md)  
+  - [升级Grafana后端数据库](t-grafana-upgrade.md)
+  - [使用CMDB替换静态配置](t-cmdb.md)
+  - [部署日志收集服务](t-logging.md)
+  - [分析CSV日志样本](t-log-analysis.md)  
+
 - 监控
   - [监控面板](m-dashboard.md)
   - [服务发现](m-discovery.md)

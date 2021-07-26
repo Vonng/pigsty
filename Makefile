@@ -522,6 +522,7 @@ copy: release copy-pro
 copy-all: copy-src copy-pkg
 
 # copy pigsty source code
+cs: copy-src
 copy-src:
 	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
@@ -529,6 +530,10 @@ copy-src:
 # copy pkg.tgz to vm node
 copy-pkg:
 	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
+
+copy-app:
+	scp dist/${VERSION}/app.tgz meta:~/app.tgz
+	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
 
 # dump grafana dashboards
 dd: dashboard-dump
@@ -592,7 +597,8 @@ doc:
 	@echo "open http://localhost:3001"
 	cd docs && python -m SimpleHTTPServer 3001
 
-# server pigsty doc with docsify cli
+# server pigsty doc with docsify included:
+d: docsify
 docsify:
 	cd docs && docsify serve .
 
@@ -622,8 +628,8 @@ docsify:
         st status suspend resume \
         ri rc rw ro test-list test-ri test-rc test-rw test-ro test-rw2 test-ro2 test-rb1 test-rb2 test-rb3 \
         fetch upload ut upload-test ul upload-latest \
-        copy copy-all copy-src copy-pkg \
+        copy copy-all cs copy-src copy-pkg copy-app \
         r releast rp release-pkg p publish pb publish-beta cache \
-        svg
+        svg doc d docsify
 
 ###############################################################

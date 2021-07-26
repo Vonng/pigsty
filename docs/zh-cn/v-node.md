@@ -248,15 +248,15 @@ Pigsty默认安装的额外软件包列表如下：
 
 通过yum安装的元节点软件包列表。
 
-与`node_packages`和`node_extra_packages`类似，但`node_meta_packages`中列出的软件包只会在元节点上安装。因此通常都是监控软件，管理工具，构建工具等。
-
-Pigsty默认安装的元节点软件包列表如下：
+与`node_packages`和`node_extra_packages`类似，但`node_meta_packages`中列出的软件包只会在元节点上安装。因此通常都是监控软件，管理工具，构建工具等。Pigsty默认安装的元节点软件包列表如下：
 
 ```yaml
 node_meta_packages:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
   - dnsmasq,nginx,ansible,pgbadger,polysh
 ```
+
+
 
 ### node_meta_pip_install
 
@@ -266,7 +266,6 @@ node_meta_packages:                           # packages for meta nodes only
 
 目前默认会安装`jupyterlab`，提供完整的Python运行时环境。
 
-!> 已知问题：当前jedi与ipython版本不兼容，需手工降级：`pip3 install jedi==0.17.2`
 
 
 ### node_disable_numa
@@ -277,19 +276,21 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### node_disable_swap
 
-是否禁用SWAP，如果您有足够的内存，且数据库采用独占式部署，建议直接关闭SWAP提高性能，默认关闭。
+是否禁用SWAP，默认不禁用。
+
+通常情况下不建议关闭SWAP，如果您有足够的内存，且数据库采用独占式部署，则可以关闭SWAP提高性能。
 
 
 
 ### node_disable_firewall
 
-是否关闭防火墙，这个东西非常讨厌，建议关闭，默认关闭。
+是否关闭防火墙，建议关闭，默认关闭。
 
 
 
 ### node_disable_selinux
 
-是否关闭SELinux，这个东西非常讨厌，建议关闭，默认关闭。
+是否关闭SELinux，建议关闭，默认关闭。
 
 
 
@@ -324,13 +325,18 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
 ### node_tune
 
-针对机器进行调优的预制方案
+针对机器进行调优的预制方案，基于`tuned`服务。有四种预制模式：
+
+* `tiny`：微型虚拟机
+* `oltp`：常规OLTP数据库，优化延迟
+* `olap`：常规OLAP数据库，优化吞吐量
+* `crit`：核心金融库，优化数据一致性
 
 
 
 ### node_sysctl_params
 
-修改sysctl系统参数
+额外修改sysctl系统参数
 
 字典KV结构
 
@@ -346,14 +352,14 @@ Pigsty默认会创建名为`admin (uid=88)`的管理用户，可以从元节点�
 
 ### node_admin_uid
 
-管理员用户的`uid`，默认为`88`
+管理员用户的`uid`，默认为`88`，分配时请注意UID命名空间冲突。
 
 
 
 
 ### node_admin_username
 
-管理员用户的名称，默认为`admin`
+管理员用户的名称，默认为`dba`
 
 
 
@@ -401,7 +407,9 @@ Pigsty默认会创建名为`admin (uid=88)`的管理用户，可以从元节点�
 
 默认使用的时区
 
-Pigsty默认使用`Asia/Shanghai`，请根据您的实际情况调整。
+Pigsty默认使用`Asia/Hong_Kong`，请根据您的实际情况调整。
+
+> 请不要使用`Asia/Shanghai`时区，该时区缩写 CST 会导致一系列日志时区解析问题。
 
 
 
@@ -409,7 +417,7 @@ Pigsty默认使用`Asia/Shanghai`，请根据您的实际情况调整。
 
 NTP服务器地址
 
-Pigsty默认会使用以下NTP服务器
+Pigsty默认会使用以下NTP服务器，其中`10.10.10.10`会被替换为管理节点的IP地址。
 
 ```ini
 - pool cn.pool.ntp.org iburst

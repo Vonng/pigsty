@@ -6,7 +6,7 @@
 
 [![logo](../_media/icon.svg)](/)
 
-?> 此文档可通过浏览器获得更佳阅览效果：`make doc` 或 `make docsify`
+?> 此文档可通过浏览器获得更佳阅览效果：`make doc` 或 `make docsify`。[在线中文文档](http://doc.pigsty.cc/#/zh-cn/) / [EN](http://doc.pigsty.cc/)
 
 > Pigsty (/ˈpɪɡˌstaɪ/) 是 PostgreSQL In Graphic STYle 的缩写，即 “图形化Postgres”。
 

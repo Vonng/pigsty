@@ -7,7 +7,7 @@
 - Monitoring Solution with Ultimate observability
 - Provisioning Solution to create HA PostgreSQL Clusters
 - Versatile Sandbox that can runs on your laptop with one-click
+- Open Source under Apache License 2.0
 
-
-[GitHub](https://github.com/Vonng/pigsty/)
-[Getting Started](#pigsty)
+[Documentation](#pigsty)
+[中文文档](zh-cn/)

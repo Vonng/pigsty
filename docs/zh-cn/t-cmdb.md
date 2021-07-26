@@ -1,15 +1,18 @@
-# Inventory Upgrade
+# 使用CMDB
 
-You can use postgres as [dynamic inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html) instead of config file `pigsty.yml`.
+您可以使用 `postgres` 作为 Pigsty 的配置源，替代静态配置文件。
 
-CMDB Inventory enables integration with external admin tools, such as [`pigsty-cli`](https://github.com/Vonng/pigsty-cli) or other 3rd party tools.
+使用 CMDB 作为 Ansible 的动态 Inventory具有一些优点：元数据以高度结构化的方式以数据表的形式呈现，并通过数据库约束确保一致性。同时CMDB允许您使用第三方的工具来编辑管理Pigsty元数据，便于与外部系统相互集成。
 
 
-### 1. Load Config
 
-After `infra.yml` complete, use `bin/load_conf.py` to upgrade static config file to cmdb dynamic inventory
+## 加载配置
 
-```bash 
+Pigsty CMDB的模式会在`pg-meta`元数据库初始化时自动创建（[`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)），位于`meta`数据库的`pigsty` 模式中。使用`bin/load_conf.py`可以将静态配置文件加载至CMDB中。
+
+!> 必须在管理节点完整执行`infra.yml`，安装完毕后，方可使用CMDB
+
+```bash
 usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]
 
 load config arguments
@@ -21,41 +24,37 @@ optional arguments:
   -d DATA, --data DATA  postgres cmdb pgurl, ${METADB_URL} by default
 ```
 
-e.g : load default profile to cmdb as config profile `pgsql`
+默认情况下，不带参数执行该脚本将会把`$PIGSTY_HOME/pigsty.yml`以`pgsql`的名称载入CMDB中。
+
 ```bash
 bin/load_conf.py
 ```
 
-e.g : load 4 node-demo profile to cmdb as config profile `demo4`
+您可以加载多份不同的配置文件，并给它们设置不同的名字。已有的同名配置文件会被覆盖。例如，将默认配置文件`pigsty-demo4.yml`加载至CMDB中并启用：
+
 ```bash
-bin/load_conf.py demo4 files/conf/pigsty-demo4.yml
+bin/load_conf.py  -n demo4  -p files/conf/pigsty-demo4.yml
 ```
 
 
-### 2. Inventory Usage
 
+## 使用CMDB作为配置源
 
-After `bin/load_conf.py`, use dynamic inventory instead of config file:
+当原有配置文件加载至CMDB作为初始数据后，即可配置Ansible使用CMDB作为配置源：
 
 
 ```bash
 bin/inventory_cmdb
 ```
 
-You can switch back to static config file with
+您可以切换回静态配置文件：
 
 ```bash
 bin/inventory_conf
 ```
 
-   
-A dynamic inventory script `inventory.sh` will be created under pigsty home:
-   
-```bash
-psql service=meta -AXtwc 'SELECT text FROM pigsty.inventory;'
-```
 
-`~/pigsty/ansible.cfg` will be adjusted to use `inventory.sh` as inventory: 
+修改配置源实质上是编辑Pigsty目录下的 `ansible.cfg` 实现的。
 
 ```bash
 ---
@@ -64,19 +63,11 @@ inventory = pigsty.yml
 inventory = inventory.sh
 ```
 
-if you want rollback to static config file, change that line back to `pigsty.yml`
-
-If your ansible.cfg not lies there, adjust your inventory with `-i <path_to_inventory.sh>`
 
 
 
-### 3. CMDB Usage
 
-cmdb will be installed under `pg-meta.meta` database, using schema `pigsty`
-
-There are several tables, views and functions:
-
-Check [cmdb.sql](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql) for detail.
+## CMDB模式
 
 ```bash
 # Tables
@@ -137,7 +128,7 @@ pigsty.update_global_vars
 pigsty.update_instance_var
 pigsty.update_instance_vars
 pigsty.update_node_status
-pigsty.upsert_cluster
+pigsty.upsert_clusters
 pigsty.upsert_config
 pigsty.upsert_instance
 pigsty.upsert_node

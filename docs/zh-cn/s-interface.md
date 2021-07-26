@@ -2,6 +2,16 @@
 
 完成安装后，可以通过浏览器访问Pigsty提供的图形用户界面。
 
+http://g.pigsty -> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
+
+访问 `http://<node_ip>:3000` 即可浏览 Pigsty [主页](http://demo.pigsty.cc/d/home) (用户名: `admin`, 密码: `pigsty`)
+
+您可以访问 [http://demo.pigsty.cc](http://demo.pigsty.cc) 来查看公开Pigsty Demo，并浏览**Pigsty监控系统**提供的功能。
+
+
+## Web服务
+
+
 Pigsty会通过一系列端口对外提供服务，Web服务会通过Nginx 80端口统一访问。
 
 |     组件      | 端口 |   默认域名   | 说明                            |
@@ -24,18 +34,11 @@ Pigsty会通过一系列端口对外提供服务，Web服务会通过Nginx 80端
 用户可以为这些服务配置自己已有的域名，或使用`make dns`快捷方式将默认的域名写入`/etc/hosts`。
 用户仍然可以使用 IP:Port 的方式直接访问大部分服务，例如，Pigsty监控系统的入口即为：
 
-http://g.pigsty -> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
-
-访问 `http://<node_ip>:3000` 即可浏览 Pigsty [主页](http://g.pigsty.cc/d/home) (用户名: `admin`, 密码: `pigsty`)
-
 
 
 
 ## Demo
 
-[http://g.pigsty.cc/d/home](http://g.pigsty.cc/d/home) 提供了公开的Demo，您可以在这里浏览**Pigsty监控系统**提供的功能。
-Pigsty部署方案与其他功能则可以通过[**沙箱环境**](s-sandbox.md)体验。
 
-<iframe style="height:1160px" src="http://g.pigsty.cc/d/home"></iframe>
-
+<iframe style="height:1160px" src="http://demo.pigsty.cc/d/home"></iframe>
 

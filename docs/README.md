@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-?> Use `make doc` to explore this document in browser. <small>[zh-cn](zh-cn/)</small> 
+?> Use `make doc` to explore this document in browser. Check [Online Docs](http://doc.pigsty.cc/) / [中文文档](http://doc.pigsty.cc/#/zh-cn/)
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
 

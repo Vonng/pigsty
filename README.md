@@ -4,9 +4,9 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest version:  [**v1.0.0**](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)
-
-> Check [zh-cn docs|中文文档](docs/zh-cn/) & [en docs](docs/) & [Public Demo](http://g.pigsty.cc) for more detail
+> Latest version:  [**v1.0.0**](https://github.com/Vonng/pigsty/releases/tag/v1.0.0) [Online Docs](http://doc.pigsty.cc/) / [中文文档](http://doc.pigsty.cc/#/zh-cn/)
+>
+> Use `make doc` to view local doc in browser. Or view raw md docs: [zh-cn](docs/zh-cn/) / [en docs](docs/)
 
 ![](docs/_media/what.svg)
 

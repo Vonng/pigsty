@@ -14,13 +14,12 @@ git clone https://github.com/Vonng/pigsty && cd pigsty
 make install
 ```
 
-更详细的过程，与预期的结果，请参考下面的介绍。
-
+更详细的过程与预期的结果，请参考下面的介绍。
 
 
 ## 准备
 
-安装Pigsty需要一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。
+安装Pigsty需要[准备](t-prepare)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。
 该机器将作为 **管理节点(meta node)** ，发出控制命令，采集监控数据，运行定时任务。
 
 ## 下载
@@ -55,7 +54,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o 
 
 ## 配置
 
-解压并进入 pigsty 源码目录： `tar -xf pigsty.tgz && cd pigsty`，执行以下命令即可开始配置：
+解压并进入 pigsty 源码目录： `tar -xf pigsty.tgz && cd pigsty`，执行以下命令即可开始[配置](v-config)：
 
 ```bash
 ./configure
@@ -142,13 +141,24 @@ make instsall
 
 在`./configure`的过程中，Ansible已经通过离线软件包或可用yum源安装完毕。
 
-`make install`会调用Ansible执行`infra.yml`剧本，在`meta`分组上完成安装。
+`make install`会调用Ansible执行[`infra.yml`](p-infra)剧本，在`meta`分组上完成安装。
 
 在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
 
-安装完成后，您可以通过[**用户界面**](s-interface.md)访问Pigsty相关服务。
+安装完成后，您可以通过[用户界面](s-interface.md)访问Pigsty相关服务。
 
 
 > 访问 `http://<node_ip>:3000` 即可浏览 Pigsty监控系统[主页](http://g.pigsty.cc/d/home)
 > 
 > (用户名: `admin`, 密码: `pigsty`)
+
+
+## 部署
+
+在4节点沙箱中，您需要额外执行[`pgsql.yml`](p-pgsql)剧本以完成`pg-test`集群（一主两从）的部署：
+
+```bash
+./pgsql.yml -l pg-test
+```
+
+该剧本执行完后，即可在监控系统中浏览集群详情。[Check Demo](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test)
