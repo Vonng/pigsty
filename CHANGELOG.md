@@ -44,7 +44,7 @@
 
 ## API Change
 
-* new var :  [node_meta_pip_install](http://doc.pigsty.cc/#/zh-cn/v-node?id=node_meta_pip_install)
+* new var :  [`node_meta_pip_install`](http://doc.pigsty.cc/#/zh-cn/v-node?id=node_meta_pip_install)
 * rename var: `grafana_url` to [`grafana_endpoint`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_endpoint)
 * new var: [`grafana_admin_username`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_admin_username)
 * new var: [`grafana_database`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_database)
@@ -62,25 +62,6 @@
 * Pgbouncer userlist & database list will be generated when executing tag `pgbouncer`
 
 
-
-## API Change
-
-New Dashboard: pgcat-query, get detailed information (including raw sql string) directly from corresponding postgres datasource
-New Dashboard: pgsql-queries, runs on instance level, focusing on instance pgbouncer queries and rt, table qps, query qps, etc...
-Update Dashboard: pgsql-alert, add Active Alert Table (you can silence alert from table panel)
-Update Dashboards: adjust layout and content for pgsql dashboards.
-Dashboard Templates: Infra links are automaticlly adjusted with nginx_upstream
-Dashboard management script: grafana.py: now CI is more easier for dashboards.
-Clickable Panel: Add data links to graphic elements.
-fix loki extraction bugs, add unzip to basic util set.
-fix util scripts and basic document (quick-start, download, roadmap, contribution)
-Software upgrade: grafana 8.0.5, vip-manager 1.0, prometheus 2.28.3 , consul v1.10.0, haproxy 2.2.12, pg_exporter 0.4.0
-Switch to pg_exporter v0.4.0 and new metrics set (tested in production for almost 2month, now is out of beta)
-Add time-sync option to vagrantfile
-Add new role register for pgsql & infra interaction
-Add new role environ for meta node env setup.
-Alerting rules overhaul (two implementation: Prometheus version & Grafan version)
-Remove svc, role, ip labels for all metrics
 
 # v0.9.0
 
