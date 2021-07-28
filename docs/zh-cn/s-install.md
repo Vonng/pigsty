@@ -4,7 +4,7 @@
 ![](../_media/how-zh.svg)
 
 ```bash
-# 离线下载
+# 离线下载（没有Git时可以使用此curl代码下载）
 # curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz  
 # curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
 
@@ -14,13 +14,13 @@ git clone https://github.com/Vonng/pigsty && cd pigsty
 make install
 ```
 
-更详细的过程与预期的结果，请参考下面的介绍。
+详细流程介绍见下：
 
 
 ## 准备
 
-安装Pigsty需要[准备](t-prepare)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。
-该机器将作为 **管理节点(meta node)** ，发出控制命令，采集监控数据，运行定时任务。
+安装Pigsty需要[准备](t-prepare)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。并需要一个可以[SSH登陆](t-prepare.md#ssh免密码访问)并带有[sudo权限](t-prepare.md#sudo免密码)的[管理用户](t-prepare.md#管理用户)。
+该机器将作为 **[管理节点](c-arch.md#管理节点)(meta node)** ，发出控制命令，采集监控数据，运行定时任务。
 
 ## 下载
 
@@ -49,6 +49,9 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o 
 **其他下载渠道**
 
 如果没有互联网/Github访问，也可以从其他位置下载，例如百度云盘，详情参考[FAQ](s-faq.md)。
+
+> 无Github访问下载：https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (提取码: `8su9`）
+>
 
 
 
@@ -96,7 +99,7 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 
 使用什么样的配置文件模板。
 
-配置向导会根据当前机器环境**自动选择配置模板**，但用户可以通过`-m <mode>`手工指定使用但配置模板，例如：
+配置向导会根据当前机器环境**自动选择配置模板**，但用户可以通过`-m <mode>`手工指定使用配置模板，例如：
 
 * [`demo4`]  项目默认配置文件，4节点沙箱
 * [`demo`]   单节点沙箱，若检测到当前为沙箱虚拟机，会使用此配置
@@ -145,6 +148,8 @@ make instsall
 
 在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
 
+### 访问图形用户界面
+
 安装完成后，您可以通过[用户界面](s-interface.md)访问Pigsty相关服务。
 
 
@@ -152,13 +157,26 @@ make instsall
 > 
 > (用户名: `admin`, 密码: `pigsty`)
 
+### 部署额外的数据库集群
 
-## 部署
-
-在4节点沙箱中，您需要额外执行[`pgsql.yml`](p-pgsql)剧本以完成`pg-test`集群（一主两从）的部署：
+在4节点沙箱中，您可以执行[`pgsql.yml`](p-pgsql)剧本以完成`pg-test`集群的部署：
 
 ```bash
 ./pgsql.yml -l pg-test
 ```
 
 该剧本执行完后，即可在监控系统中浏览集群详情。[Check Demo](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test)
+
+
+## 接下来做什么？
+
+您可以先浏览一番Pigsty监控系统的官方演示站点：[http://demo.pigsty.cc](http://demo.pigsty.cc)
+
+其中包含有两个有趣的数据应用：WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)，与全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)
+
+接下来，可以尝试在本地拉起[沙箱环境](s-sandbox.md)，或直接[准备](t-prepare.md)虚拟机/物理机进行标准部署。
+
+您可以[部署额外日志收集组件](t-logging.md)，启用Pigsty的日志查询与搜索能力。
+
+而后，教程[【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会以一个具体的例子介绍Pigsty提供的管控功能。
+

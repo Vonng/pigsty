@@ -1,79 +1,8 @@
 # 配置Pigsty
 
-Pigsty采用声明式配置：用户配置描述状态，而Pigsty负责将真实组件调整至所期待的状态。
+Pigsty采用声明式[配置](c-config.md)：用户配置描述状态，而Pigsty负责将真实组件调整至所期待的状态。
 
-Pigsty配置文件遵循[**Ansible规则**](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_variables.html)，采用YAML格式，详见[配置文件](#配置文件) 。
-
-Pigsty包含了168个[配置项](#配置项清单)，分为[十类](#配置项分类)五级。
-
-绝大多数配置参数无需修改，可直接使用默认值；定义新数据库集群只有三个必选**身份参数**。
-
-## 配置文件
-
-Pigsty配置文件遵循[**Ansible规则**](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_variables.html)，采用YAML格式，默认使用单一配置文件。Pigsty的默认配置文件路径为 [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) ，配置文件需要与[**Ansible**](https://docs.ansible.com/) 配合使用。Ansible是一个流行的DevOps工具，但普通用户无需了解Ansible的具体细节。
-
-用户可以在当前目录的 [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg) 中指定默认配置文件路径，或在执行剧本时通过命令行参数：`-i pigsty.yml` 的方式显式指定配置文件路径。
-
-用户也可以选择使用 CMDB 作为动态配置文件源，从而将Pigsty部署系统与外部管理平台相集成。详见：使用CMDB作为配置源。
-
-### 配置文件结构
-
-Pigsty的配置文件采用Ansible YAML Inventory格式，顶层结构如下：
-
-```yaml
-all:                      # 顶层对象 all
-  vars: <123 keys>        # 全局配置 all.vars
-  children:               # 分组定义：all.children 每一个项目定义了一个数据库集群 
-    meta: <2 keys>...
-    pg-meta: <2 keys>...
-    pg-test: <2 keys>...  # 一个具体的数据库集群 pg-test 的详细定义
-...
-```
-
-每一个具体的数据库集群，以Ansible Group的形式存在，如下所示：
-
-```yaml
-pg-test:                 # 数据库集群名称默认作为群组名称
-  vars:                  # 数据库集群级别变量
-    pg_cluster: pg-test  # 一个定义在集群级别的必选配置项，在整个pg-test中保持一致。 
-  hosts:                 # 数据库集群成员
-    10.10.10.11: {pg_seq: 1, pg_role: primary} # 数据库实例成员
-    10.10.10.12: {pg_seq: 2, pg_role: replica} # 必须定义身份参数 pg_role 与 pg_seq
-    10.10.10.13: {pg_seq: 3, pg_role: offline} # 可以在此指定实例级别的变量
-```
-
-## 配置项粒度
-
-Pigsty的参数可以在不同的**粒度**进行配置。
-
-Pigsty默认提供三种粒度：**全局**，**集群**，**实例**。
-
-在Pigsty的配置文件中，**配置项** 可以出现在三种位置。
-
-|     粒度     | 范围 | 优先级 | 说明                       | 位置                                 |
-| :----------: | ---- | ------ | -------------------------- | ------------------------------------ |
-|  **G**lobal  | 全局 | 低     | 在同一套**部署环境**内一致 | `all.vars.xxx`                       |
-| **C**luster  | 集群 | 中     | 在同一套**集群**内保持一致 | `all.children.<cls>.vars.xxx`        |
-| **I**nstance | 实例 | 高     | 最细粒度的配置层次         | `all.children.<cls>.hosts.<ins>.xxx` |
-
-每一个配置项都由一对键值组成。键是配置项的**名称**，值是配置项的内容。值的类型各异
-
-**集群**`vars`中定义的配置项会以同名键覆盖的方式**覆盖全局配置项**，**实例**中定义的配置项又会覆盖集群配置项与全局配置项。因此用户可以有的放矢，可以在不同层次，不同粒度上针对具体集群与具体实例进行**精细**配置。
-
-除了[**配置项粒度**](#配置项粒度)中指定的三种配置粒度，Pigsty配置项目中还有两种额外的优先级。
-
-* **默认**：当一个配置项在全局/集群/实例级别都没有出现时，将使用默认配置项。默认值的优先级最低，所有配置项都有默认值。
-* **参数**：当用户通过命令行传入参数时，参数指定的配置项具有最高优先级，将覆盖一切层次的配置。一些配置项只能通过命令行参数的方式指定与使用。
-
-|     层级     | 来源 | 优先级 | 说明                       | 位置                                 |
-| :----------: | ---- | ------ | -------------------------- | ------------------------------------ |
-| **D**efault  | 默认 | 最低   | 代码逻辑定义的默认值       | `roles/<role>/default/main.yml`      |
-|  **G**lobal  | 全局 | 低     | 在同一套**部署环境**内一致 | `all.vars.xxx`                       |
-| **C**luster  | 集群 | 中     | 在同一套**集群**内保持一致 | `all.children.<cls>.vars.xxx`        |
-| **I**nstance | 实例 | 高     | 最细粒度的配置层次         | `all.children.<cls>.hosts.<ins>.xxx` |
-| **A**rgument | 参数 | 最高   | 通过命令行参数传入         | `-e `                                |
-
-
+Pigsty包含了176个[配置项](#配置项清单)，分为[十类](#配置项分类)五级。绝大多数配置参数无需修改，可直接使用默认值；定义新数据库集群只有三个必选**身份参数**。
 
 ## 配置项分类
 
@@ -271,5 +200,4 @@ Pigsty默认提供三种粒度：**全局**，**集群**，**实例**。
 |  [服务供给](v-service.md)  |          [vip_interface](v-service.md#vip_interface)          |  `string`  |  G/C  | VIP使用的网卡 |
 |  [服务供给](v-service.md)  |           [dns_mode](v-service.md#dns_mode)              |  `enum`  |  G/C  | DNS配置模式 |
 |  [服务供给](v-service.md)  |          [dns_selector](v-service.md#dns_selector)          |  `string`  |  G/C  | DNS解析对象选择器 |
-
 
