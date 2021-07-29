@@ -26,6 +26,7 @@
   - [仅监控系统部署模式](t-monly.md) 
   - [定制Patroni配置模板](t-patroni-template.md)
   - [深度定制数据库模板](t-customize-template.md)
+  - [安装Pigsty扩展应用](t-application.md)
   
 - 监控
   - [监控面板](m-dashboard.md)

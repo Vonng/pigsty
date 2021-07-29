@@ -89,7 +89,7 @@ psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta   # 直连离线
 | primary | 5433 | 只有生产用户可以连接       | postgres://test@pg-test:5433/test                            |
 | replica | 5434 | 只有生产用户可以连接       | postgres://test@pg-test:5434/test                            |
 | default | 5436 | 管理员与DML执行者可以连接  | postgres://dbuser_admin@pg-test:5436/test                    |
-| offline | 5438 | ETL/STATS 个人用户可以连接 | postgres://dbuser_stats@pg-test-tt:5438/test<br />postgres://dbp_vonng@pg-test:5438/test |
+| offline | 5438 | ETL/STATS 个人用户可以连接 | postgres://dbuser_stats@pg-test:5438/test<br />postgres://dbp_vonng@pg-test:5438/test |
 
 下面将详细介绍这四种服务
 
