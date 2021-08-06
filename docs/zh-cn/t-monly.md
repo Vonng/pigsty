@@ -26,24 +26,23 @@ Pigsty监控系统 如果要与外部供给方案配合，监控已有数据库�
 
 ### 监控用户
 
-Pigsty创建的数据库集群会在 [**PG供给**](v-pg-provision/) 阶段中创建用于监控的系统用户，仅监控模式跳过了这些步骤，因此用户需要**自行创建**用于监控的用户。
+Pigsty创建的数据库集群会在 [数据库部署](v-pg-provision) 阶段中创建用于监控的系统用户，仅监控模式跳过了这些步骤，因此用户需要**自行创建**用于监控的用户。
 
-您需要手工在目标数据库集群中创建监控用户（默认为`dbuser_monitor`），以及监控相关的**模式**与**扩展**。并调整目标数据库集群的访问控制机制，允许使用该用户连接至数据库并访问监控相关对象。创建监控对象的参考SQL语句如下：
+您需要手工在目标数据库集群中创建监控用户（默认为`dbuser_monitor`），以及监控相关的**模式**与**扩展**。并调整目标数据库集群的[访问控制](c-auth.md)机制，允许使用该用户连接至数据库并访问监控相关对象。创建监控对象的参考SQL语句如下：
 
 ```sql
-CREATE USER "dbuser_monitor" ;                     -- 创建监控用户
-ALTER ROLE "dbuser_monitor" PASSWORD 'DBUser.Monitor';
-ALTER USER "dbuser_monitor" CONNECTION LIMIT 16;
-GRANT "pg_monitor" TO "dbuser_monitor";
--- GRANT "dbrole_readonly" TO "dbuser_monitor";    -- 可选：赋予监控用户只读权限
+-- 创建监控用户
+CREATE USER dbuser_monitor;
+ALTER ROLE dbuser_monitor PASSWORD 'DBUser.Monitor';
+ALTER USER dbuser_monitor CONNECTION LIMIT 16;
+GRANT pg_monitor TO dbuser_monitor;
+    
+-- 创建监控模式
+CREATE SCHEMA IF NOT EXISTS monitor;
+GRANT USAGE ON SCHEMA monitor TO dbuser_monitor;
 
-CREATE SCHEMA IF NOT EXISTS monitor;               -- 创建监控模式
-GRANT USAGE ON SCHEMA monitor TO "dbuser_monitor"; -- 创建监控扩展
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "monitor";
-
--- 额外的监控函数，用于监控共享内存指标，只有PG13及以上版本才需要。
--- CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
--- COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
+-- 创建监控扩展
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA monitor;
 ```
 
 ### 监控连接串
@@ -95,7 +94,10 @@ prometheus_sd_method: static      # 须使用静态文件服务发现，因为�
 
 #### 目标节点部分
 
-目标节点的[身份参数](http://pigsty.cc/zh/docs/deploy/config/7-pg-provision/#身份参数)仍然为必选项，除此之外，通常只有[监控系统参数](http://pigsty.cc/zh/docs/deploy/config/9-monitor/)需要调整。
+目标节点的[身份参数](c-config.md#身份参数)仍然为必选项，因为这些参数定义了数据库实例在监控系统中的身份标识。
+
+除此之外，通常只需要调整[监控系统参数](v-monitor)。
+
 
 ```yaml
 
@@ -161,11 +163,19 @@ pg_exporter_include_database: ''             # optional, comma separated list of
 ./pgsql.yml -t monitor -l <cluster>
 ```
 
+!> 忘记使用 `-t` 指定`monitor`任务会执行数据库实例初始化，执行前请确保命令正确
+
 监控组件部署完成后，您可以通过以下命令，将其注册至基础设施中：
 
 ```bash
 ./pgsql.yml -t register_prometheus,register_grafana -l <cluster>
 ```
+
+`register_prometheus` 任务会将目标数据库实例加入到Prometheus的监控对象列表中，而`register_grafana`则会将集群中所有业务数据库作为数据源注册至Grafana。
+
+
+
+
 
 
 
@@ -192,9 +202,10 @@ Pigsty会集成多种[来源](m-metric.md#指标数量)的指标，包括机器�
 在Pigsty沙箱中，当实例的角色身份发生变化时，系统会通过回调函数与反熵过程及时修正实例的角色信息，如将`primary`修改为`replica`，将其他角色修改为`primary`。
 
 ```json
-pg_up{cls="pg-meta", ins="pg-meta-1", instance="10.10.10.10:9630", ip="10.10.10.10", job="pg", role="primary", svc="pg-meta-primary"}
+pg_up{cls="pg-meta", ins="pg-meta-1", instance="10.10.10.10:9630", ip="10.10.10.10", job="pg"}
 ```
 
+Pigsty的监控系统中不会使用与身份相关的标签（例如`svc`，`role`），因此时间序列的标签不会因为主从切换而变化。
 如果您的外部系统，脚本，工具使用Consul服务注册中的角色信息（`service`，`role`），有必要关注自动主从切换导致的身份变化问题。
 
 ### 管理权限
@@ -203,4 +214,4 @@ Pigsty的监控指标依赖 `node_exporter` 与 `pg_exporter` 获取。
 
 尽管`pg_exporter`可以采用exporter拉取远程数据库实例信息的方式部署，但`node_exporter`必须部署在数据库所属的节点上。
 
-这意味着，用户必须拥有数据库所在机器的SSH登陆与`sudo`权限才能完成部署。换句话说，目标节点必须可以被Ansible**纳入管理**，而云厂商RDS通常不会给出此类权限。
+这意味着，用户必须拥有数据库所在机器的SSH登陆与`sudo`权限才能完成部署。该权限仅在部署时需要：目标节点必须可以被Ansible**纳入管理**，而云厂商RDS通常不会给出此类权限。

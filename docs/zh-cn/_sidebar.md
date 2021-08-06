@@ -18,6 +18,7 @@
 - 教程
   - [部署](t-deploy.md)
   - [准备](t-prepare.md)
+  - [常用操作命令](t-operation.md)
   - [使用与制作离线安装包](t-offline.md)  
   - [升级Grafana后端数据库](t-grafana-upgrade.md)
   - [使用CMDB替换静态配置](t-cmdb.md)
@@ -27,7 +28,8 @@
   - [定制Patroni配置模板](t-patroni-template.md)
   - [深度定制数据库模板](t-customize-template.md)
   - [安装Pigsty扩展应用](t-application.md)
-  
+  - [数据库备份与恢复](t-backup.md)  
+
 - 监控
   - [监控面板](m-dashboard.md)
   - [服务发现](m-discovery.md)
