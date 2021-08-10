@@ -95,7 +95,7 @@ patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|req
 pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
 # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
 # extension shared libraries to be added
-pg_shared_libraries: 'citus, timescaledb, pg_stat_statements, auto_explain'
+pg_shared_libraries: 'timescaledb, pg_stat_statements, auto_explain'
 
 # - flags - #
 pg_backup: false                              # store base backup on this node          (instance level, TBD)
