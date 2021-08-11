@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   doc
+# Ctime     :   2021-08-11
+# Mtime     :   2021-08-11
+# Desc      :   Serve local pigsty doc with docsify or python
+# Path      :   bin/doc
+# Deps      :   docsify or python (SimpleHTTPServer)
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+HOME_DIR="$(cd $(dirname ${PROG_DIR}) && pwd)"
+DOCS_DIR="${HOME_DIR}/docs"
+
+if command -v docsify; then
+    cd ${DOCS_DIR} && docsify serve
+else
+    echo "view http://localhost:3001"
+    cd ${DOCS_DIR} && python -m SimpleHTTPServer 3001
+fi

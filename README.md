@@ -35,7 +35,7 @@ Pigsty can be used both for large-scale pg clusters management in real-world pro
 * **Open Source** under Apache License 2.0
 
 
-## Distribution
+## Distributions
 
 
 **Distribution** refers to the overall solution consisting of a kernel and peripheral software packages. For example, Linux is an OS kernel, while RedHat, Debian, and SUSE are OS distributions based on Linux kernel.
