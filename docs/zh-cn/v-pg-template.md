@@ -51,7 +51,7 @@ pg_admin_username: dbuser_dba                 # system admin user
 pg_admin_password: DBUser.DBA                 # system admin password
 
 # - default roles - #
-pg_default_roles:                             # check http://pigsty.cc/zh/docs/concepts/provision/acl/ for more detail, sequence matters
+pg_default_roles:                             # check https://pigsty.cc/#/zh-cn/c-user for more detail, sequence matters
   # default roles
   - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
   - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }  # production read-write role

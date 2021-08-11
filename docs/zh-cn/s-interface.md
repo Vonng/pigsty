@@ -32,13 +32,17 @@ Pigsty会通过一系列端口对外提供服务，Web服务会通过Nginx 80端
 
 
 用户可以为这些服务配置自己已有的域名，或使用`make dns`快捷方式将默认的域名写入`/etc/hosts`。
-用户仍然可以使用 IP:Port 的方式直接访问大部分服务，例如，Pigsty监控系统的入口即为：
+用户仍然可以使用 IP:Port 的方式直接访问大部分服务，例如，Pigsty监控系统的入口即为管理节点IP+3000端口。
 
+!> 注意，如果使用了Consul作为DSC，Consul UI **必须** 通过Nginx域名的方式访问。Consul监听127.0.0.1端口，这是一个出于安全性考量而特意做出的设计：Consul包含了敏感的元数据，不宜直接对外暴露。
 
 
 
 ## Demo
 
+Pigsty 提供了一个公开演示的demo，地址为： [http://demo.pigsty.cc](http://demo.pigsty.cc)
+
+因为演示实例为1核1GB的空虚拟机空实例，故显示内容较为单薄，请以实际效果为准。
 
 <iframe style="height:1160px" src="http://demo.pigsty.cc/d/home"></iframe>
 

@@ -89,7 +89,7 @@ psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
 
 ## `pg-init-roles.sql`
 
-在 [`pg_default_roles` ](http://pigsty.cc/zh/docs/config/8-pg-template/#pg_default_roles)中可以自定义**全局统一**的角色体系。其中的定义会被渲染为`/pg/tmp/pg-init-roles.sql`，`pg-meta`集群中的渲染样例如下所示：
+在 [`pg_default_roles` ](v-pg-template.md#pg_default_roles)中可以自定义**全局统一**的角色体系。其中的定义会被渲染为`/pg/tmp/pg-init-roles.sql`，`pg-meta`集群中的渲染样例如下所示：
 
 ```sql
 ----------------------------------------------------------------------

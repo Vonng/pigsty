@@ -2,7 +2,7 @@
 
 # Pigsty <small>1.0.0</small>
 
-> <b>Battery-IncludedOpen-Source PostgreSQL Distribution</b>
+> <b>Battery-Included Open-Source PostgreSQL Distribution</b>
 
 - Monitoring Solution with Ultimate observability
 - Provisioning Solution to create HA PostgreSQL Clusters

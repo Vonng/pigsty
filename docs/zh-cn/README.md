@@ -8,7 +8,7 @@
 
 > Pigsty (/ˈpɪɡˌstaɪ/) 是 PostgreSQL In Graphic STYle 的缩写，即 “图形化Postgres”。
 >
-> [中文文档](http://doc.pigsty.cc/#/zh-cn/) | [EN DOCS](http://doc.pigsty.cc/) | [Public Demo](http://demo.pigsty.cc) | [Github Repo](https://github.com/Vonng/pigsty)，
+> [中文文档](https://pigsty.cc/#/zh-cn/) | [EN DOCS](https://pigsty.cc/#/?id=pigsty) | [Public Demo](https://demo.pigsty.cc) | [Github Repo](https://github.com/Vonng/pigsty)，
 >
 > 此文档可通过浏览器获得更佳阅览效果：`make doc` 或 `make docsify`
 
