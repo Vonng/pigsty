@@ -1,22 +1,29 @@
 #!/bin/bash
-set -euo pipefail
 
 #==============================================================#
 # File      :   doc
-# Ctime     :   2021-08-11
-# Mtime     :   2021-08-11
-# Desc      :   Serve local pigsty doc with docsify or python
+# Ctime     :   2021-08-10
+# Mtime     :   2021-08-12
+# Desc      :   Serve local doc with docsify, python3, python
 # Path      :   bin/doc
-# Deps      :   docsify or python (SimpleHTTPServer)
+# Deps      :   docsify or python3 or python2
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
+
 PROG_DIR="$(cd $(dirname $0) && pwd)"
-HOME_DIR="$(cd $(dirname ${PROG_DIR}) && pwd)"
-DOCS_DIR="${HOME_DIR}/docs"
+DOCS_DIR="$(cd $(dirname ${PROG_DIR}) && pwd)"
+
+# node.js (docsify) > python3 (http.server) > python2 (SimpleHTTPServer)
 
 if command -v docsify; then
+	echo "serve with docsify (click url to view in browser)"
     cd ${DOCS_DIR} && docsify serve
+elif command -v python3; then
+    echo "serve http://localhost:3001 (python3 http.server)"
+    cd ${DOCS_DIR} && python3 -m http.server 3001
+elif command -v python2; then
+    echo "serve http://localhost:3001 (python2 SimpleHTTPServer)"
+    cd ${DOCS_DIR} && python2 -m SimpleHTTPServer 3001
 else
-    echo "view http://localhost:3001"
-    cd ${DOCS_DIR} && python -m SimpleHTTPServer 3001
+	echo "no available server"
 fi
