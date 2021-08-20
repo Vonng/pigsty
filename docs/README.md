@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> [EN DOCS](https://pigsty.cc/#/?id=pigsty) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Public Demo](https://demo.pigsty.cc) | [Github Repo](https://github.com/Vonng/pigsty)
+> [EN DOCS](https://pigsty.cc/#/?id=pigsty) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/) | [Public Demo](https://demo.pigsty.cc) | [Github Repo](https://github.com/Vonng/pigsty)
 >
 > Use `make doc` to view this doc in browser
 >
