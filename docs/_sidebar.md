@@ -1,74 +1,65 @@
 - Getting Started
-  - [Install](zh-cn/s-install.md)
-  - [Sandbox](zh-cn/s-sandbox.md)
-  - [Interface](zh-cn/s-interface.md)
-  - [FAQ](zh-cn/s-faq.md)
+  - [Install](s-install.md)
+  - [Sandbox](s-sandbox.md)
+  - [Interface](s-interface.md)
+  - [FAQ](s-faq.md)
 
 - Concept
-  - Architecture
-  - Entities
-  - Service
-  - Database
-  - User
-  - Privilege
-  - Authentication
-  - Access
+  - [Architecture](c-arch.md)
+  - [Entities](c-entity.md)
+  - [Configuration](c-config.md)
+  - [Service](c-service.md)
+  - [Database](c-database.md)
+  - [User](c-user.md)
+  - [Privilege](c-privilege.md)
+  - [Authentication](c-auth.md)
+  - [Access](c-access.md)
 
 - Tutorial
-  - New Environment
-  - Basic Operation
-  - Data Analysis IDE
-  - New PGSQL Cluster
-  - Play with Database
-  - New Biz User
-  - New Biz Database
-  - New Biz Database
-  - [Setup Logging](t-logging.md)
-  - [Upgrade Grafana DB](t-grafana-upgrade.md)
-  - [Use CMDB Inventory](t-cmdb.md)
-  - New PgSQL Service
-  - PgSQL Template
-  - Scaling Cluster
-  - Ansible Basics
-  - Migration
-  - Common Failures
+  - [Deployment](t-deploy.md)
+  - [Prepare](t-prepare.md)
+  - [Operation](t-operation.md)
+  - [Offline Install](t-offline.md)
+  - [GrafanaDB Upgrade](t-grafana-upgrade.md)
+  - [PG CMDB Inventory](t-cmdb.md)
+  - [Logging Infrastructure](t-logging.md)
+  - [Analysis CSVLOG Sample](t-log-analysis.md)
+  - [Monitor Only Deployment](t-monly.md)
+  - [Customize Patroni Template](t-patroni-template.md)
+  - [Customize Database Content](t-customize-template.md)
+  - [Install Extension App](t-application.md)
+  - [Backup and Recovery](t-backup.md)
 
 - Monitoring
-  - Architecture
-  - Organization
-  - Identity & Labels
-  - Source: Metrics
-  - Source: Logging
-  - Source: Catalog
-  - Grafana
-  - Prometheus
-  - AlertManager
-  - PGSQL:Overview
-  - PGSQL:Cluster
-  - PGSQL:Instance
-  - PGSQL:Object
-  - PGCAT:Catalog
-  - PGLOG:Analysis
+  - [Dashboards](m-dashboard.md)
+  - [Service Discovery](m-discovery.md)
+  - [Metrics](m-metric.md)
+  - [Alerting](m-alert.md)
 
-- Provisioning
-  - Overview
-  - Prepare
-  - Configure
-  - Customize
-  - Playbook:Infra
-  - Playbook:PgSQL
-  - Playbook:PgSQL Remove
-  - Playbook:PgSQL CreateDB
-  - Playbook:PgSQL CreateUser
-  - Example Config
+- Configuration
+  - [Config Overview](v-config.md)
+  - [Connection](v-connect.md)
+  - [Local Repo](v-repo.md)
+  - [Node Provision](v-node.md)
+  - [Infrastructure](v-meta.md)
+  - [DCS(Consul)](v-dcs.md)
+  - [PG Install](v-pg-install.md)
+  - [PG Provision](v-pg-provision.md)
+  - [PG Template](v-pg-template.md)
+  - [Monitor](v-monitor.md)
+  - [Service](v-service.md)
+
+- Playbook
+  - [Infra Init](p-infra.md)
+  - [PgSQL Init](p-pgsql.md)
+  - [PgSQL Remove](p-pgsql-remove.md)
+  - [PgUser Init](p-pgsql-createuser.md)
+  - [PgDB Init](p-pgsql-createdb.md)
 
 - Reference
-  - Config Entries
-  - Metrics List
-  - Alerting Rules
-  - FHS
+  - [Alert Rules](r-alert.md)
+  - [File Hierarchy](r-fhs.md)
 
-- [Contribution](contribution.md)
-- [Community](zh-cn/community.md)
+- [Community](community.md)
 - [Roadmap](roadmap.md)
-- [Changelog](devlog.md)
+- [Devlog](devlog.md)
