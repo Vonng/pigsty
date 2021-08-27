@@ -6,7 +6,7 @@
 
 - Monitoring Solution with Ultimate observability
 - Provisioning Solution to create HA PostgreSQL Clusters
-- Versatile Sandbox that can runs on your laptop with one-click
+- Versatile Sandbox with one-click local installation on your laptop
 - Open Source under Apache License 2.0
 
 [Documentation](#pigsty)

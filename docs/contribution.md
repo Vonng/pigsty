@@ -7,12 +7,6 @@
 [Vonng](https://github.com/Vonng) is the author of Pigsty
 
 
-## Hall of Shame
-
-> For those who plagiarize or violate open source license.
-
-
-
 
 ## Contribution Guide
 

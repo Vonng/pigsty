@@ -292,8 +292,10 @@ Pigsty基于Apache 2.0协议开源，可以免费用于商业目的。
 
 ## 关于
 
-Pigsty (2018-2021)
+> Pigsty (/ˈpɪɡˌstaɪ/)是"PostgreSQL In Graphic STYle"的缩写
 
-作者：[冯若航](https://vonng.com) (rh@vonng.com)
+作者: [**冯若航**](https://vonng.com) ([rh@vonng.com](mailto:rh@vonng.com))
 
-协议：[Apache License 2.0 ](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)
+协议: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
+
+备案: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)

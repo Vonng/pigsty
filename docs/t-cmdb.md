@@ -101,7 +101,7 @@ pigsty.cluster_service      # cluster service definition in pg_services & pg_ser
 pigsty.job_id_seq
 ```
 
-Also some built-in functions:
+Also, some built-in functions:
 
 ```bash
 pigsty.activate_config

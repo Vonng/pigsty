@@ -269,7 +269,13 @@ make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 
 [Apache Apache License Version 2.0](LICENSE)
 
+
 ## About
 
-Author：[Vonng](https://vonng.com/en) (rh@vonng.com)
+> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
 
+Author: [**Vonng**](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
+
+License: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
+
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
