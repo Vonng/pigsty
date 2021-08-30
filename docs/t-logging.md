@@ -4,14 +4,19 @@ Pigsty have **OPTIONAL** logging collection support based on [loki](https://graf
 
 Since you may have different ideas on how to collect & analyze logs. Loki & promtail are optional and require extra setup
 
-## GUI
 
-There are 1 logging related dashboards:
+## Download
 
-* PGLOG Instance: Query & search raw log (postgres, patroni, pgbouncer) on specific instance (Powered by loki + promtail)
+Normally, the user does not need to worry about downloading the software. Just make sure you have the required binaries in `files/bin`.
+
+Before performing the installation, you need to download the four binaries, loki, promtail, logcli, and loki-canary.
+
+When using the offline installer for `./configure`, the relevant binaries will be extracted automatically, no need to worry about it.
+
+If you do `bin/get_loki` manually, you will download the binaries from the Internet to the `/tmp` directory, and the downloaded binaries will be placed in the `files/bin/` directory.
 
 
-## Install Loki & Promtail
+## Enable
 
 ```bash
 ./infra-loki.yml         # install loki (logging server) on meta node
@@ -21,17 +26,8 @@ There are 1 logging related dashboards:
 PGLOG Instance dashboard will be available after loki is installed
 
 
-## Download Loki
+## GUI
 
-loki, promtail, logcli, loki-canary are included in default pkg.tgz. They will be extracted to `files/bin/` during `configure`
+There are 1 logging related dashboards:
 
-If you want to download loki , use:
-
-```bash
-bin/get_loki
-```
-
-It will download loki binaries (`loki,promtail,logcli,loki-canary`) to `/tmp` 
-
-
-
+* PGLOG Instance: Query & search raw log (postgres, patroni, pgbouncer) on specific instance (Powered by loki + promtail)

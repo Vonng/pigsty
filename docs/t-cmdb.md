@@ -28,7 +28,7 @@ bin/load_conf.py
 
 e.g : load 4 node-demo profile to cmdb as config profile `demo4`
 ```bash
-bin/load_conf.py demo4 files/conf/pigsty-demo4.yml
+bin/load_conf.py -n demo4 -p files/conf/pigsty-demo4.yml
 ```
 
 

@@ -18,7 +18,7 @@ usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]
 load config arguments
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help            show this help message and exit„
   -n NAME, --name NAME  config profile name, pgsql by default
   -p PATH, --path PATH  config path, ${PIGSTY_HOME}/pigsty.yml by default
   -d DATA, --data DATA  postgres cmdb pgurl, ${METADB_URL} by default
