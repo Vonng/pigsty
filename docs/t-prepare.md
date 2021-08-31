@@ -13,7 +13,7 @@ How to prepare the resources required for Pigsty deployment.
 
 ## Node Provisioning
 
-Before deploying Pigsty, the user needs to prepare machine node resources, including at least one [admin node](c-arch.md#management node), with any number of [database nodes](c-arch.md#database nodes).
+Before deploying Pigsty, the user needs to prepare machine node resources, including at least one [admin node](c-arch.md#meta node), with any number of [database nodes](c-arch.md#database nodes).
 
 The [database nodes](c-arch.md#database nodes) can use any type of nodes: physical machines, local virtual machines, cloud virtual machines, containers, etc., only if the following conditions are met.
 
@@ -26,15 +26,15 @@ The [database nodes](c-arch.md#database nodes) can use any type of nodes: physic
 
 ## Meta Provisioning
 
-Pigsty requires [admin node](c-arch.md#management node) as the control center of the entire environment and provides [infrastructure](c-arch#infrastructure) services.
+Pigsty requires an [meta node](c-arch.md#meta-node) as the admin controller of the entire environment and provides [infrastructure](c-arch#infrastructure) services.
 
-The minimum number of **management nodes** is 1. The sandbox environment uses 1 management node by default. Pigsty's infrastructure is deployed as **replicas** on multiple management nodes, with the exception of DCS (Consul/Etcd), which exists as Quorum. Pigsty's database cluster requires the use of DCS for high availability functionality, and you can Use a DCS cluster that is automatically deployed on the management node, or use an external DCS cluster. When using Pigsty's built-in DCS cluster, you must use an odd number of management nodes, and it is recommended to use at least 3 management nodes in **production environments** to fully ensure the availability of DCS services.
+The minimum number of **meta nodes** is 1. The sandbox environment uses 1 meta node by default. Pigsty's infrastructure is deployed as **replicas** on multiple meta nodes, with the exception of DCS (Consul/Etcd), which exists as Quorum. Pigsty's database cluster requires the use of DCS for high availability functionality, and you can Use a DCS cluster that is automatically deployed on the meta node, or use an external DCS cluster. When using Pigsty's built-in DCS cluster, you must use an odd number of meta nodes, and it is recommended to use at least 3 meta nodes in **production environments** to fully ensure the availability of DCS services.
 
-Users should ensure that they can **login** to the management node and can log in to other database nodes via `ssh` with `sudo` or `root` privileges from the management node using [admin user](#admin user provisioned). Users should ensure that they have direct or indirect **access to port 80** of the management node to access the user interface provided by Pigsty.
+Users should ensure that they can **login** to the meta node and can log in to other database nodes via `ssh` with `sudo` or `root` privileges from the meta node using [admin user](#admin user provisioned). Users should ensure that they have direct or indirect **access to port 80** of the meta node to access the user interface provided by Pigsty.
 
-- [x] Number of administrative nodes: odd number, at least one
-- [x] Ability to log in to the management node using the administrator user
-- [x] Ability to access port 80 of the management node via browser (directly or indirectly)
+- [x] Number of meta nodes: odd number, at least one
+- [x] Ability to log in to the meta node using the administrator user
+- [x] Ability to access port 80 of the meta node via browser (directly or indirectly)
 - [x] **admin user** can log in to the database node remotely `ssh` from the admin node and execute `sudo` (including itself)
 
 
@@ -91,13 +91,13 @@ Note that replacing ``<username>`` with the name of the administrator you are us
 
 In order to run Pigsty, you need to have the following software.
 
-- [x] [Pigsty source code](#Source code download)
-- [x] [Pigsty offline package]() (optional)
+- [x] [Pigsty Source Code](#pigsty-source-code)
+- [x] [Pigsty Offline Package](#pigsty-offline-package) (OPTIONAL)
 
 To run the Pigsty sandbox on your own laptop, you will also need to download and install on the host computer.
 
-- [x] Vagrant: virtual machine hosting orchestration software (cross-platform, free)
-- [x] Virtualbox: virtual machine software (cross-platform, open source and free)
+- [x] [Vagrant](#vagrant): virtual machine hosting orchestration software (cross-platform, free)
+- [x] [Virtualbox](#virtualbox): virtual machine software (cross-platform, open source and free)
 
 
 
@@ -148,9 +148,9 @@ Pigsty users don't need to understand how vagrant works, they just need to know 
 
 [https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) A sample Vagrantfile is provided.
 
-This is the Vagrantfile used by Pigsty sandbox, defining four virtual machines, including a 2-core/4GB central control/**management node** `meta` and three 1-core/1GB **database nodes** `node-1, node-2, node3`.
+This is the Vagrantfile used by Pigsty sandbox, defining four virtual machines, including a 2-core/4GB central control/**meta node** `meta` and three 1-core/1GB **database nodes** `node-1, node-2, node3`.
 
-When using the sandbox through shortcuts like `make up` , `make new`, `make demo`, only a single management node `meta` will be used by default. Whereas `make up4`, `make new4`, `make demo4` will use all the virtual machines. Here the `N` value defines the number of additional database nodes (3). If your machine is under-configured, then consider using a smaller `N` value to reduce the number of database nodes. Users can also modify the number of CPU cores and memory resources per machine, etc., as described in the comments in the configuration file. Please refer to the Vagrant and Virtualbox documentation for more detailed customization.
+When using the sandbox through shortcuts like `make up` , `make new`, `make demo`, only a single meta node `meta` will be used by default. Whereas `make up4`, `make new4`, `make demo4` will use all the virtual machines. Here the `N` value defines the number of additional database nodes (3). If your machine is under-configured, then consider using a smaller `N` value to reduce the number of database nodes. Users can also modify the number of CPU cores and memory resources per machine, etc., as described in the comments in the configuration file. Please refer to the Vagrant and Virtualbox documentation for more detailed customization.
 
 ```ruby
 IMAGE_NAME = "centos/7"

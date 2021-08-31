@@ -34,7 +34,7 @@
   - [Dashboards](m-dashboard.md)
   - [Service Discovery](m-discovery.md)
   - [Metrics](m-metric.md)
-  - [Alerting](m-alert.md)
+  - [Alerting](r-alert.md)
 
 - Configuration
   - [Config Overview](v-config.md)
@@ -57,9 +57,9 @@
   - [PgDB Init](p-pgsql-createdb.md)
 
 - Reference
-  - [Alert Rules](r-alert.md)
-  - [File Hierarchy](r-fhs.md)
+  - [Alerting Rules](r-alert.md)
+  - [File Hierarchy Structure](r-fhs.md)
 
 - [Community](community.md)
 - [Roadmap](roadmap.md)
-- [Devlog](devlog.md)
+- [Develop Log](devlog.md)

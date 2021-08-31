@@ -59,7 +59,7 @@ Two things needs to be downloaded:
 
 
 
-#### How to download
+#### How to Download
 
 * `pigsty.tgz` : download and extract to `~/pigsty`
 * `pkg.tgz`: download and put to `/tmp/pkg.tgz`.

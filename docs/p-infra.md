@@ -1,190 +1,232 @@
-# 数据库集群初始化
+# Infrastructure Initialization
 
-> 如何定义并拉起PostgreSQL数据库集群
+> How to install pigsty on meta node (init infra on meta)
 
 
-## 剧本概览
+## Overview
 
-完成了[**基础设施初始化**](p-infra.md)后，用户可以[ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) 完成数据库集群的**初始化**。
+Infrastructure initialization is done via [`infra.yml`](https://github.com/Vonng/pigsty/blob/master/infra.yml). 
+This playbook will complete the installation and deployment of [infrastructure](c-arch.md#infrastructure) on [meta node](c-arch.md#meta-node).
 
-首先在 **Pigsty配置文件** 中完成数据库集群的定义，然后通过执行`pgsql.yml`将变更应用至实际环境中。
+The `infra.yml` uses the management node (default group name `meta`) as the deployment target.
+
+A complete execution of the initialization process can take 2 to 8 minutes, depending on the node sepc.
 
 ```bash
-./pgsql.yml                      # 在所有清单中的机器上执行数据库集群初始化操作（危险！）
-./pgsql.yml -l pg-test           # 在 pg-test 分组下的机器执行数据库集群初始化（推荐！）
-./pgsql.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群
-./pgsql.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器上的数据库实例
+./infra.yml
 ```
 
-!> **该剧本使用不当存在误删数据库的风险，因为初始化数据库会抹除原有数据库的痕迹**。
-[保险参数](#保护机制)提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中实例时自动中止或跳过高危操作，避免最坏情况发送。尽管如此，在**使用`pgsql.yml`时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。使用不带参数的`pgsql.yml`在生产环境中是一个高危操作，务必三思而后行。**
+!> You MUST finish meta node infra init before pgsql init ❗️
 
 
 
-![](../_media/playbook/pgsql.svg)
+![](_media/playbook/infra.svg)
+
+The **management node** can be reused as a **normal node**, i.e. a PostgreSQL database can be defined and created on the management node as well. The Infra script creates a [`pg-meta`](https://github.com/Vonng/pigsty/blob/master/) on the management node by default pigsty.yml#L43) metadatabase on the admin node to host Pigsty advanced features.
+
+`infra.yml` overwrites all the contents of [`pgsql.yml`](p-pgsql.md), so if `infra.yml` can be successfully executed on the admin node, then the database deployment must be successfully completed on the normal node in the same state.
 
 
 
-## 注意事项
 
-* 强烈建议在执行时添加`-l`参数，限制命令执行的对象范围。
+## Selective Execution
 
-* **单独**针对某一集群从库执行初始化时，用户必须自行确保**主库已经完成初始化**
+You can execute a subset of the playbook through tags.
 
-* 集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。（但制作从库的进程会继续，例如需要制作从库需超过1天的场景）。您可以在从库自动制作完毕后，通过Ansible的`--start-at-task`从`Wait for patroni replica online`任务继续执行后续步骤。
+As an example, if you want to update local yum repo on meta node:
 
-
-## 保护机制
-
-`pgsql.yml`提供**保护机制**，由配置参数`pg_exists_action`决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据`pg_exists_action`的配置`abort|clean|skip`行动。
-
-* `abort`：建议设置为默认配置，如遇现存实例，中止剧本执行，避免误删库。
-* `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有数据库。
-* `skip`：  直接在已有数据库集群上执行后续逻辑。
-* 您可以通过`./pgsql.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
-
-`pg_disable_purge`选项提供了双重保护，如果启用该选项，则``pg_exists_action`会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
-
-``dcs_exists_action`与`dcs_disable_purge`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
-
-
-
-## 选择性执行
-
-用户可以通过ansible的标签机制，可以选择执行剧本的一个子集。
-
-举个例子，如果只想执行服务初始化的部分，则可以通过以下命令进行
 
 ```bash
-./pgsql.yml --tags=service      # 刷新集群的服务定义
+./infra.yml --tags=repo
 ```
 
-常用的命令子集如下：
+Check [**Tasks**](#tasks) for available tags.
+
+Common tags including:
 
 ```bash
-# 基础设施初始化
-./pgsql.yml --tags=infra        # 完成基础设施的初始化，包括机器节点初始化与DCS部署
-
-./pgsql.yml --tags=node         # 完成机器节点的初始化，通常不会影响运行中数据库实例
-./pgsql.yml --tags=dcs          # 完成DCS：consul/etcd的初始化
-./pgsql.yml --tags=dcs -e dcs_exists_action # 完成consul/etcd的初始化，强制抹除
-
-# 数据库初始化
-./pgsql.yml --tags=pgsql        # 完成数据库部署：数据库、监控、服务
-
-./pgsql.yml --tags=postgres     # 完成数据库部署
-./pgsql.yml --tags=monitor      # 完成监控的部署
-./pgsql.yml --tags=service      # 完成负载均衡的部署，（Haproxy & VIP）
-./pgsql.yml --tags=register     # 将服务注册至基础设施
+./infra.yml --tags=environ                       # re-configure environment on meta nodes
+./infra.yml --tags=repo -e repo_rebuild=true     # re-create local yum repo
+./infra.yml --tags=repo_upstream                 # add upstream yum repo to meta node 
+./infra.yml --tags=prometheus                    # re-create Prometheus
+./infra.yml --tags=nginx_config,nginx_restart    # re-generate Nginx config & restart
+……
 ```
 
 
 
-## 日常管理任务
 
-日常管理也可以使用`./pgsql.yml`来修改数据库集群的状态，常用的命令子集如下：
+## Description
 
-```bash
-./pgsql.yml --tags=node_admin           # 在目标节点上创建管理员用户
+[`infra.yml`](https://github.com/Vonng/pigsty/blob/master/infra.yml) mainly accomplishes the following
 
-# 如果当前管理员没有ssh至目标节点的权限，可以使用其他具有ssh的用户创建管理员（输入密码）
-./pgsql.yml --tags=node_admin -e ansible_user=other_admin -k 
-
-./pgsql.yml --tags=pg_scripts           # 更新/pg/bin/目录脚本
-./pgsql.yml --tags=pg_hba               # 重新生成并应用集群HBA规则
-./pgsql.yml --tags=pgbouncer            # 重置Pgbouncer
-./pgsql.yml --tags=pg_user              # 全量刷新业务用户
-./pgsql.yml --tags=pg_db                # 全量刷新业务数据库
-
-./pgsql.yml --tags=register_consul      # 在目标实例本地注册Consul服务(本地执行)
-./pgsql.yml --tags=register_prometheus  # 在Prometheus中注册监控对象(代理至所有Meta节点执行)
-./pgsql.yml --tags=register_grafana     # 在Grafana中注册监控对象(只注册一次)
-./pgsql.yml --tags=register_nginx       # 在Nginx注册负载均衡器(代理至所有Meta节点执行)
-
-# 使用二进制安装的方式重新部署监控
-./pgsql.yml --tags=monitor -e exporter_install=binary
-
-# 刷新集群的服务定义（当集群成员或服务定义发生变化时执行）
-./pgsql.yml --tags=haproxy_config,haproxy_reload
-```
+* Configure the management node environment: directories, variables, credentials, etc.
+* Deploy and enable local sources
+* Complete the initialization of the management node
+* Complete management node infrastructure initialization
+  * CA infrastructure
+  * DNS Nameserver
+  * Nginx
+  * Prometheus & AlertManger
+  * Grafana
+* Complete execution of `. /pgsql.yml` to deploy the metadatabase `pg-meta`
 
 
 
-## 剧本说明
+## Content
 
-[`pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) 主要完成以下工作：
-
-* 初始化数据库节点基础设施（`node`）
-* 初始化DCS Agent（服务（`consul`）（如果为当前节点为管理节点，则初始化为DCS Server）
-* 安装、部署、初始化PostgreSQL， Pgbouncer， Patroni（`postgres`）
-* 安装PostgreSQL监控系统（`monitor`）
-* 安装部署Haproxy与VIP，对外暴露服务（`service`）
-* 将数据库实例注册至基础设施，接受监管（`register`）
-
-精确到任务的标签请参考[**任务详情**](#任务详情)
+<details>
 
 ```yaml
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   pgsql.yml
-# Mtime     :   2020-05-12
-# Mtime     :   2021-03-15
-# Desc      :   initialize pigsty cluster
-# Path      :   pgsql.yml
-# Copyright (C) 2018-2021 Ruohang Feng
+# File      :   infra.yml
+# Ctime     :   2020-04-13
+# Mtime     :   2021-07-07
+# Desc      :   init infrastructure on meta nodes
+# Path      :   infra.yml
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
+#==============================================================#
+# Playbook : Init Meta Node
+#==============================================================#
+#  Init infra on meta nodes (special group 'meta')
+#     infra.yml
+#
+#  Setup environment on meta node (dir, ssh, pgpass, env)
+#     infra.yml -t environ
+#
+#  Setup local yum repo
+#     infra.yml -t repo
+#
+#  Setup prometheus
+#     infra.yml -t prometheus
+#
+#  Setup grafana
+#     infra.yml -t grafana
+#
+#  Setup nginx
+#     infra.yml -t nginx
+#
+#  Setup cmdb on meta nodes
+#     infra.yml -t pgsql
+#
+#  Sync dashboards baseline to grafana
+#     infra.yml -t dashboard
+#
+#  Upgrade grafana with postgres as primary database
+#     infra.yml -t grafana -e grafana_database=postgres
+#     ssh meta rm -rf /etc/grafana/provisioning/dashboards/pigsty.yml
+#
+#==============================================================#
 
-#------------------------------------------------------------------------------
-# init node and database
-#------------------------------------------------------------------------------
-- name: Pgsql Initialization
+#---------------------------------------------------------------
+- name: Infra Init      # init infra on meta node
   become: yes
-  hosts: all
+  hosts: meta
   gather_facts: no
+  tags: infra
   roles:
 
-    - role: node                            # init node
-      tags: [infra, node]
+    - role: environ     # init postgres pgbouncer patroni
+      tags: environ
 
-    - role: consul                          # init consul
-      tags: [infra, dcs]
+    - role: repo        # init local yum repo on meta node
+      tags: repo
 
-    - role: postgres                        # init postgres
-      tags: [pgsql, postgres]
+    - role: node        # init meta node
+      tags: node
 
-    - role: monitor                         # init monitor system
-      tags: [pgsql, monitor]
+    - role: consul      # init dcs:consul (servers)
+      tags: [ dcs , consul ]
 
-    - role: service                         # init service
-      tags: [service]
+    - role: ca          # init certification infrastructure
+      tags: ca
 
+    - role: nameserver  # init dns nameserver
+      tags: nameserver
+
+    - role: nginx       # init nginx
+      tags: nginx
+
+    - role: prometheus  # init prometheus
+      tags: prometheus
+
+    - role: grafana     # init grafana
+      tags: grafana
+
+#---------------------------------------------------------------
+- name: Pgsql Init      # init pgsql-cmdb on meta nodes
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: pgsql
+  roles:
+
+    - role: postgres   # init postgres pgbouncer patroni
+      tags: postgres
+
+    - role: monitor    # init monitor exporters
+      tags: monitor
+
+    - role: service    # init service , lb , vip
+      tags: service
+
+    - role: register   # register cluster/instance to infra
+      tags: register
+
+#---------------------------------------------------------------
 ...
 
 ```
 
+</details>
 
 
 
+## Tasks
 
-## 任务详情
-
-使用以下命令可以列出数据库集群初始化的所有任务，以及可以使用的标签：
+List available tasks & tags with following commands
 
 ```bash
-./pgsql.yml --list-tasks
+./infra.yml --list-tasks
 ```
-
-默认任务如下：
 
 <details>
 
 ```yaml
-playbook: ./pgsql.yml
+playbook: ./infra.yml
 
-  play #1 (all): Infra Init	TAGS: [infra]
+  play #1 (meta): Infra Init	TAGS: [infra]
     tasks:
+      environ : Create pigsty resource dirs on /etc/pigsty	TAGS: [environ, environ_dirs, infra]
+      environ : Get current username	TAGS: [environ, environ_ssh, infra]
+      environ : Create admin user ssh key pair if not exists	TAGS: [environ, environ_ssh, infra]
+      environ : Write default user credential to pgpass	TAGS: [environ, environ_pgpass, infra]
+      environ : Write default meta service to pg_service	TAGS: [environ, environ_pgpass, infra]
+      environ : Set environment for admin user	TAGS: [environ, environ_vars, infra]
+      environ : Enable environment for admin user	TAGS: [environ, environ_vars, infra]
+      repo : Create local repo directory	TAGS: [infra, repo, repo_dir]
+      repo : Backup & remove existing repos	TAGS: [infra, repo, repo_upstream]
+      repo : Add required upstream repos	TAGS: [infra, repo, repo_upstream]
+      repo : Check repo pkgs cache exists	TAGS: [infra, repo, repo_prepare]
+      repo : Set fact whether repo_exists	TAGS: [infra, repo, repo_prepare]
+      repo : Move upstream repo to backup	TAGS: [infra, repo, repo_prepare]
+      repo : Add local file system repos	TAGS: [infra, repo, repo_prepare]
+      repo : Remake yum cache if not exists	TAGS: [infra, repo, repo_prepare]
+      repo : Install repo bootstrap packages	TAGS: [infra, repo, repo_boot]
+      repo : Render repo nginx server files	TAGS: [infra, repo, repo_nginx]
+      repo : Disable selinux for repo server	TAGS: [infra, repo, repo_nginx]
+      repo : Launch repo nginx server	TAGS: [infra, repo, repo_nginx]
+      repo : Waits repo server online	TAGS: [infra, repo, repo_nginx]
+      repo : Download web url packages	TAGS: [infra, repo, repo_download]
+      repo : Download repo packages	TAGS: [infra, repo, repo_download]
+      repo : Download repo pkg deps	TAGS: [infra, repo, repo_download]
+      repo : Create local repo index	TAGS: [infra, repo, repo_download]
+      repo : Copy bootstrap scripts	TAGS: [infra, repo, repo_download, repo_script]
+      repo : Mark repo cache as valid	TAGS: [infra, repo, repo_download]
       node : Update node hostname	TAGS: [infra, node, node_name]
       node : Add new hostname to /etc/hosts	TAGS: [infra, node, node_name]
       node : Write static dns records	TAGS: [infra, node, node_dns]
@@ -261,8 +303,71 @@ playbook: ./pgsql.yml
       consul : Wait for consul server online	TAGS: [consul, consul_server, dcs, infra]
       consul : Launch consul agent service	TAGS: [consul, consul_agent, dcs, infra]
       consul : Wait for consul agent online	TAGS: [consul, consul_agent, dcs, infra]
+      ca : Create local ca directory	TAGS: [ca, ca_dir, infra]
+      ca : Copy ca cert from local files	TAGS: [ca, ca_copy, infra]
+      ca : Check ca key cert exists	TAGS: [ca, ca_create, infra]
+      ca : Create self-signed CA key-cert	TAGS: [ca, ca_create, infra]
+      nameserver : Make sure dnsmasq package installed	TAGS: [infra, nameserver]
+      nameserver : Copy dnsmasq /etc/dnsmasq.d/config	TAGS: [infra, nameserver]
+      nameserver : Add dynamic dns records to meta	TAGS: [infra, nameserver]
+      nameserver : Launch meta dnsmasq service	TAGS: [infra, nameserver]
+      nameserver : Wait for meta dnsmasq online	TAGS: [infra, nameserver]
+      nameserver : Register consul dnsmasq service	TAGS: [infra, nameserver]
+      nameserver : Reload consul	TAGS: [infra, nameserver]
+      nginx : Make sure nginx installed	TAGS: [infra, nginx, nginx_install]
+      nginx : Create nginx config directory	TAGS: [infra, nginx, nginx_content]
+      nginx : Create local html directory	TAGS: [infra, nginx, nginx_content]
+      nginx : Update default nginx index page	TAGS: [infra, nginx, nginx_content]
+      nginx : Copy nginx default config	TAGS: [infra, nginx, nginx_config]
+      nginx : Copy nginx upstream conf	TAGS: [infra, nginx, nginx_config]
+      nginx : Create nginx haproxy config dir	TAGS: [infra, nginx, nginx_haproxy]
+      nginx : Create haproxy proxy server config	TAGS: [infra, nginx, nginx_haproxy, nginx_haproxy_config]
+      nginx : Restart meta nginx service	TAGS: [infra, nginx, nginx_restart]
+      nginx : Wait for nginx service online	TAGS: [infra, nginx, nginx_restart]
+      nginx : Make sure nginx exporter installed	TAGS: [infra, nginx, nginx_exporter]
+      nginx : Config nginx_exporter options	TAGS: [infra, nginx, nginx_exporter]
+      nginx : Restart nginx_exporter service	TAGS: [infra, nginx, nginx_exporter]
+      nginx : Wait for nginx exporter online	TAGS: [infra, nginx, nginx_exporter]
+      nginx : Register cosnul nginx service	TAGS: [infra, nginx, nginx_register]
+      nginx : Register consul nginx-exporter service	TAGS: [infra, nginx, nginx_register]
+      nginx : Reload consul	TAGS: [infra, nginx, nginx_register]
+      prometheus : Install prometheus and alertmanager	TAGS: [infra, prometheus]
+      prometheus : Wipe out prometheus config dir	TAGS: [infra, prometheus, prometheus_clean]
+      prometheus : Wipe out existing prometheus data	TAGS: [infra, prometheus, prometheus_clean]
+      prometheus : Create prometheus directories	TAGS: [infra, prometheus, prometheus_config]
+      prometheus : Copy prometheus bin scripts	TAGS: [infra, prometheus, prometheus_config]
+      prometheus : Copy prometheus rules	TAGS: [infra, prometheus, prometheus_config, prometheus_rules]
+      prometheus : Render prometheus config	TAGS: [infra, prometheus, prometheus_config]
+      prometheus : Render altermanager config	TAGS: [infra, prometheus, prometheus_config]
+      prometheus : Config /etc/prometheus opts	TAGS: [infra, prometheus, prometheus_config]
+      prometheus : Launch prometheus service	TAGS: [infra, prometheus, prometheus_launch]
+      prometheus : Wait for prometheus online	TAGS: [infra, prometheus, prometheus_launch]
+      prometheus : Launch alertmanager service	TAGS: [infra, prometheus, prometheus_launch]
+      prometheus : Wait for alertmanager online	TAGS: [infra, prometheus, prometheus_launch]
+      prometheus : Render infra file-sd targets targets for prometheus	TAGS: [infra, prometheus, prometheus_infra_targets]
+      prometheus : Reload prometheus service	TAGS: [infra, prometheus, prometheus_reload]
+      prometheus : Copy prometheus service definition	TAGS: [infra, prometheus, prometheus_register]
+      prometheus : Copy alertmanager service definition	TAGS: [infra, prometheus, prometheus_register]
+      prometheus : Reload consul to register prometheus	TAGS: [infra, prometheus, prometheus_register]
+      grafana : Make sure grafana installed	TAGS: [grafana, grafana_install, infra]
+      grafana : Stop grafana service	TAGS: [grafana, grafana_stop, infra]
+      grafana : Check grafana plugin cache exists	TAGS: [grafana, grafana_plugins, infra]
+      grafana : Provision grafana plugins via cache if exists	TAGS: [grafana, grafana_plugins, grafana_plugins_unzip, infra]
+      grafana : Download grafana plugins via internet	TAGS: [grafana, grafana_plugins, infra]
+      grafana : Download grafana plugins via git	TAGS: [grafana, grafana_plugins, infra]
+      grafana : Remove grafana provisioning config	TAGS: [grafana, grafana_config, infra]
+      grafana : Remake grafana resource dir	TAGS: [grafana, grafana_config, infra]
+      grafana : Templating /etc/grafana/grafana.ini	TAGS: [grafana, grafana_config, infra]
+      grafana : Templating datasources provisioning config	TAGS: [grafana, grafana_config, infra]
+      grafana : Templating dashboards provisioning config	TAGS: [grafana, grafana_config, infra]
+      grafana : Launch grafana service	TAGS: [grafana, grafana_launch, infra]
+      grafana : Wait for grafana online	TAGS: [grafana, grafana_launch, infra]
+      grafana : Sync grafana home and core dashboards	TAGS: [dashboard, dashboard_sync, grafana, grafana_provision, infra]
+      grafana : Provisioning grafana with grafana.py	TAGS: [dashboard, dashboard_init, grafana, grafana_provision, infra]
+      grafana : Register consul grafana service	TAGS: [grafana, grafana_register, infra]
+      grafana : Reload consul	TAGS: [grafana, grafana_register, infra]
 
-  play #2 (all): Pgsql Init	TAGS: [pgsql]
+  play #2 (meta): Pgsql Init	TAGS: [pgsql]
     tasks:
       postgres : Create os group postgres	TAGS: [instal, pg_dbsu, pgsql, postgres]
       postgres : Make sure dcs group exists	TAGS: [instal, pg_dbsu, pgsql, postgres]
@@ -420,8 +525,11 @@ playbook: ./pgsql.yml
       register : Register haproxy upstream to nginx	TAGS: [pgsql, register, register_nginx]
       register : Register haproxy url location to nginx	TAGS: [pgsql, register, register_nginx]
       register : Reload nginx to finish haproxy register	TAGS: [pgsql, register, register_nginx]
-
 ```
 
 </details>
+
+
+
+
 

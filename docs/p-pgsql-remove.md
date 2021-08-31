@@ -1,43 +1,41 @@
-# 数据库集群与实例下线
+# Remove Cluster/Instance
 
 
+## Overview
 
+Database offline: you can **remove** an existing database cluster or instance and recycle the node: [`pgsql-remove.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-remove.yml)
 
-## 剧本概览
+`pgsql-remove.yml` is the reverse operation of [`pgsql.yml`](p-pgsql.md) and will sequentially complete
 
-数据库下线：可以**移除**现有的数据库集群或实例，回收节点：[`pgsql-remove.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-remove.yml)
+* Unregistering the database instance from the infrastructure (`register`)
+* Stopping the load balancer, service component (`service`)
+* Remove the monitoring system component (`monitor`)
+* Remove Pgbouncer, Patroni, Postgres (`postgres`)
+* DCS offline (except DCS Server) (`dcs`)
+* Remove database directory (`rm_pgdata: true`)
+* Remove packages (`rm_pkgs: true`)
 
-`pgsql-remove.yml`是[`pgsql.yml`](p-pgsql.md)的反向操作，会依次完成
-
-* 将数据库实例从基础设施取消注册（`register`）
-* 停止负载均衡器，服务组件（`service`）
-* 移除监控系统组件（`monitor`）
-* 移除Pgbouncer，Patroni，Postgres（`postgres`）
-* DCS下线（DCS Server除外）（`dcs`）
-* 移除数据库目录（`rm_pgdata: true`）
-* 移除软件包（`rm_pkgs: true`）
-
-该剧本有两个命令行选项，可用于移除数据库目录与软件包（默认下线不会移除数据与安装包）
+This script has two command line options for removing database directories and packages (the default offline does not remove data and install packages)
 
 ```
 rm_pgdata: false        # remove postgres data? false by default
 rm_pgpkgs: false        # uninstall pg_packages? false by default
 ```
 
-![](../_media/playbook/pgsql-remove.svg)
+![](_media/playbook/pgsql-remove.svg)
 
 
 
-## 日常管理
+## Usage
 
 ```bash
-./pgsql-remove.yml -l pg-test     # 下线 pg-test 集群
-./pgsql-remove.yml -l 10.10.10.13 # 下线实例 10.10.10.13 (实际上是pg-test.pg-test-3)
+./pgsql-remove.yml -l pg-test                 # Remove cluster `pg-test`
+./pgsql-remove.yml -l 10.10.10.13             # Remove instance `10.10.10.13` (of cluster `pg-test`)
 ```
 
 
 
-## 剧本说明
+## Description
 
 ```yaml
 #!/usr/bin/env ansible-playbook
@@ -103,19 +101,18 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 
 
-## 使用样例
+## Tasks
 
 ```bash
 ./pgsql-remove.yml -l pg-test 
 ```
 
-!> 请**务必**通过`-l`限定执行范围，除非您真希望将整个环境中的所有数据库都下线。
+!> you **MUST** sepeify `-l` to limit execution targets. Unless you really want to wipe all your databases!
 
 
 
-## 任务详情
+## Details
 
-默认任务如下：
 
 ```yaml
 playbook: ./pgsql-remove.yml
@@ -170,7 +167,7 @@ playbook: ./pgsql-remove.yml
       remove : Remove pg extensions	TAGS: [pgpkgs, remove]
 ```
 
-![](../_media/play/pgsql-remove.svg)
+![](_media/play/pgsql-remove.svg)
 
 
 

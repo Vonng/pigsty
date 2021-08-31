@@ -2,7 +2,7 @@
 
 Pigsty采用声明式[配置](c-config.md)：用户配置描述状态，而Pigsty负责将真实组件调整至所期待的状态。
 
-Pigsty包含了176个[配置项](#配置项清单)，分为[十类](#配置项分类)五级。绝大多数配置参数无需修改，可直接使用默认值；定义新数据库集群只有三个必选**身份参数**。
+Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项分类)五级。绝大多数配置参数无需修改，可直接使用默认值；定义新数据库集群只有三个必选**身份参数**。
 
 ## 配置项分类
 
@@ -11,7 +11,7 @@ Pigsty包含了176个[配置项](#配置项清单)，分为[十类](#配置项�
 |  1   |  [连接参数](v-connect.md)  |      [connect](v-connect.md)      | 基础设施 |  1   | 代理服务器配置，管理对象的连接信息     |
 |  2   |    [本地仓库](v-repo.md)    |         [repo](v-repo.md)         | 基础设施 |  10  | 定制本地Yum源，离线安装包              |
 |  3   |    [节点供给](v-node.md)    |         [node](v-node.md)         | 基础设施 |  31  | 在普通节点上配置基础设施               |
-|  4   |    [基础设施](v-meta.md)    |         [meta](v-meta.md)         | 基础设施 |  26  | 在元节点上安装启用基础设施服务         |
+|  4   |    [基础设施](v-meta.md)    |         [meta](v-meta.md)         | 基础设施 |  25  | 在元节点上安装启用基础设施服务         |
 |  5   |    [元数据库](v-dcs.md)     |          [dcs](v-dcs.md)          | 基础设施 |  8   | 在所有节点上配置DCS服务（consul/etcd） |
 |  6   |  [PG安装](v-pg-install.md)  |   [pg-install](v-pg-install.md)   |  数据库  |  11  | 安装PostgreSQL数据库                   |
 |  7   | [PG供给](v-pg-provision.md) | [pg-provision](v-pg-provision.md) |  数据库  |  32  | 拉起PostgreSQL数据库集群               |
@@ -53,7 +53,7 @@ Pigsty包含了176个[配置项](#配置项清单)，分为[十类](#配置项�
 |    [节点供给](v-node.md)    |    [node_disable_firewall](v-node.md#node_disable_firewall)    |  `bool`  |  G  | 关闭节点防火墙 |
 |    [节点供给](v-node.md)    |     [node_disable_selinux](v-node.md#node_disable_selinux)     |  `bool`  |  G  | 关闭节点SELINUX |
 |    [节点供给](v-node.md)    |      [node_static_network](v-node.md#node_static_network)      |  `bool`  |  G  | 是否使用静态DNS服务器 |
-|    [节点供给](v-node.md)    |       [node_disk_prefetch](v-node.md#node_disk_prefetch)       |  `string`  |  G  | 是否启用磁盘预读 |
+|    [节点供给](v-node.md)    |       [node_disk_prefetch](v-node.md#node_disk_prefetch)       |  `bool`  |  G  | 是否启用磁盘预读 |
 |    [节点供给](v-node.md)    |      [node_kernel_modules](v-node.md#node_kernel_modules)      |  `string[]`  |  G  | 启用的内核模块 |
 |    [节点供给](v-node.md)    |                [node_tune](v-node.md#node_tune)                |  `enum`  |  G  | 节点调优模式 |
 |    [节点供给](v-node.md)    |       [node_sysctl_params](v-node.md#node_sysctl_params)       |  `dict`  |  G  | 操作系统内核参数 |
@@ -88,7 +88,6 @@ Pigsty包含了176个[配置项](#配置项清单)，分为[十类](#配置项�
 |    [基础设施](v-meta.md)    |            [grafana_pgurl](v-meta.md#grafana_pgurl)            |  `string`  |  G  | Grafana的PG数据库连接串 |
 |    [基础设施](v-meta.md)    |           [grafana_plugin](v-meta.md#grafana_plugin)           |  `enum`  |  G  | 如何安装Grafana插件 |
 |    [基础设施](v-meta.md)    |            [grafana_cache](v-meta.md#grafana_cache)            |  `string`  |  G  | Grafana插件缓存地址 |
-|    [基础设施](v-meta.md)    |        [grafana_customize](v-meta.md#grafana_customize)        |  `bool`  |  G  | 是否定制Grafana |
 |    [基础设施](v-meta.md)    |          [grafana_plugins](v-meta.md#grafana_plugins)          |  `string[]`  |  G  | 安装的Grafana插件列表 |
 |    [基础设施](v-meta.md)    |      [grafana_git_plugins](v-meta.md#grafana_git_plugins)      |  `string[]`  |  G  | 从Git安装的Grafana插件 |
 |    [基础设施](v-meta.md)    |      [loki_clean](v-meta.md#loki_clean)                        |  `bool`  |  A  | 是否在安装Loki时清理数据库目录 |

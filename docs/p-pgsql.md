@@ -1,127 +1,149 @@
-# 数据库集群初始化
+# PostgreSQL Initialization
 
-> 如何定义并拉起PostgreSQL数据库集群
+> How to define and pull-up PostgreSQL Clusters ?
 
+## Overview
 
-## 剧本概览
+After [**infra init**](p-infra.md), you can use [ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) to init postgres on it.
 
-完成了[**基础设施初始化**](p-infra.md)后，用户可以[ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) 完成数据库集群的**初始化**。
-
-首先在 **Pigsty配置文件** 中完成数据库集群的定义，然后通过执行`pgsql.yml`将变更应用至实际环境中。
+First, define new database cluster on [config](c-config.md) file, then apply changes with:
 
 ```bash
-./pgsql.yml                      # 在所有清单中的机器上执行数据库集群初始化操作（危险！）
-./pgsql.yml -l pg-test           # 在 pg-test 分组下的机器执行数据库集群初始化（推荐！）
-./pgsql.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群
-./pgsql.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器上的数据库实例
+./pgsql.yml                      # init all nodes in inventory (extreamly dangerous!)
+./pgsql.yml -l pg-test           # init cluster `pg-test` 
+./pgsql.yml -l pg-meta,pg-test   # init cluster `pg-test` and `pg-meta` simultaneously
+./pgsql.yml -l 10.10.10.11       # init instance on `10.10.10.11` (which is pg-test.pg-test-1)
 ```
 
-!> **该剧本使用不当存在误删数据库的风险，因为初始化数据库会抹除原有数据库的痕迹**。
-[保险参数](#保护机制)提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中实例时自动中止或跳过高危操作，避免最坏情况发送。尽管如此，在**使用`pgsql.yml`时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。使用不带参数的`pgsql.yml`在生产环境中是一个高危操作，务必三思而后行。**
+!> improper use of this playbook may lead to database deletion.
+The [safe guard parameter](#safe-guard) provides control to avoid this sort of accident.
+which allowing to automatically abort or skip high-risk operations when an existing running instance is detected during initialization to avoid worst-case sending. Nevertheless, when using `pgsql.yml`, double-check that the `-tags|-t` and `-limit|-l` parameters are correct. Make sure you are performing the right task on the right target. Using `-pgsql.yml` without parameters is a high-risk operation in a production environment, so think twice before you use it. **
+
+
+![](_media/playbook/pgsql.svg)
 
 
 
-![](../_media/playbook/pgsql.svg)
+## Notice
+
+* It is strongly recommended adding the `-l` parameter to the execution to limit the scope of the objects for which the command is executed.
+
+* **Separately** when executing initialization for a cluster slave, the user must make sure **the master has completed initialization** on their own
+
+* When a cluster is expanded, if `Patroni` takes too long to pull up a slave, the Ansible script may abort due to a timeout. (However, the process of making the slave will continue, for example in scenarios where the slave needs to be made for more than 1 day). You can continue to perform subsequent steps from the `-Wait for patroni replica online` task via Ansible's `-start-at-task` after the slave is automatically made.
+
+
+## Safe Guard
+
+`-pgsql.yml` provides a **protection mechanism**, determined by the configuration parameter `pg_exists_action`. When there is a running instance of PostgreSQL on the target machine before executing the script, Pigsty will act according to the configuration `abort|clean|skip` of `pg_exists_action`.
+
+* `abort`: recommended to be set as the default configuration to abort script execution if an existing instance is encountered to avoid accidental library deletion.
+* `clean`: recommended to be used in local sandbox environment, to clear existing database in case of existing instances.
+* `skip`: Execute subsequent logic directly on the existing database cluster.
+* You can use `. /pgsql.yml -e pg_exists_action=clean` to override the configuration file option and force wipe the existing instance
+
+The ``pg_disable_purge`'' option provides double protection; if enabled, ``pg_exists_action`'' is forced to be set to ``abort`' and will not wipe out running database instances under any circumstances.
+
+``dcs_exists_action` and ``dcs_disable_purge` have the same effect as the above two options, but for DCS (Consul Agent) instances.
 
 
 
-## 注意事项
+## Selective Execution
 
-* 强烈建议在执行时添加`-l`参数，限制命令执行的对象范围。
+You can execute a subset of the playbook through tags.
 
-* **单独**针对某一集群从库执行初始化时，用户必须自行确保**主库已经完成初始化**
-
-* 集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。（但制作从库的进程会继续，例如需要制作从库需超过1天的场景）。您可以在从库自动制作完毕后，通过Ansible的`--start-at-task`从`Wait for patroni replica online`任务继续执行后续步骤。
-
-
-## 保护机制
-
-`pgsql.yml`提供**保护机制**，由配置参数`pg_exists_action`决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据`pg_exists_action`的配置`abort|clean|skip`行动。
-
-* `abort`：建议设置为默认配置，如遇现存实例，中止剧本执行，避免误删库。
-* `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有数据库。
-* `skip`：  直接在已有数据库集群上执行后续逻辑。
-* 您可以通过`./pgsql.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
-
-`pg_disable_purge`选项提供了双重保护，如果启用该选项，则``pg_exists_action`会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
-
-``dcs_exists_action`与`dcs_disable_purge`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
-
-
-
-## 选择性执行
-
-用户可以通过ansible的标签机制，可以选择执行剧本的一个子集。
-
-举个例子，如果只想执行服务初始化的部分，则可以通过以下命令进行
+As an example, if you want to refresh cluster service definition, run with:
 
 ```bash
-./pgsql.yml --tags=service      # 刷新集群的服务定义
+./pgsql.yml --tags=service      # refresh cluster service definition
 ```
 
-常用的命令子集如下：
+common subsets:
 
 ```bash
-# 基础设施初始化
-./pgsql.yml --tags=infra        # 完成基础设施的初始化，包括机器节点初始化与DCS部署
+# infra init
+./pgsql.yml --tags=infra        # init infra on targets
 
-./pgsql.yml --tags=node         # 完成机器节点的初始化，通常不会影响运行中数据库实例
-./pgsql.yml --tags=dcs          # 完成DCS：consul/etcd的初始化
-./pgsql.yml --tags=dcs -e dcs_exists_action # 完成consul/etcd的初始化，强制抹除
+./pgsql.yml --tags=node         # perform node provision (usually not affect running instance)
+./pgsql.yml --tags=dcs          # init dcs service: consul or etcd
+./pgsql.yml --tags=dcs -e dcs_exists_action=clean      # init dcs with force (r)
 
-# 数据库初始化
-./pgsql.yml --tags=pgsql        # 完成数据库部署：数据库、监控、服务
+# pgsql init
+./pgsql.yml --tags=pgsql        # init pgsql part: database, monitor, and service
 
-./pgsql.yml --tags=postgres     # 完成数据库部署
-./pgsql.yml --tags=monitor      # 完成监控的部署
-./pgsql.yml --tags=service      # 完成负载均衡的部署，（Haproxy & VIP）
-./pgsql.yml --tags=register     # 将服务注册至基础设施
+./pgsql.yml --tags=postgres     # install, provision, customize postgres & patroni & pgbouncer
+./pgsql.yml --tags=monitor      # setup monitor system
+./pgsql.yml --tags=service      # deploy haproxy & setup service access layer (Haproxy & VIP)
+./pgsql.yml --tags=register     # register database cluster/instance to infrastructure
 ```
 
 
 
-## 日常管理任务
+## Daily Operation Tasks
 
-日常管理也可以使用`./pgsql.yml`来修改数据库集群的状态，常用的命令子集如下：
+You can perform some daily operation with `./pgsql.yml`, such as:
 
 ```bash
-./pgsql.yml --tags=node_admin           # 在目标节点上创建管理员用户
+. /pgsql.yml --tags=node_admin # Create admin user on the target node
+# If the current administrator does not have ssh to the target node, you can use another user with ssh to create an administrator (enter the password)
+. /pgsql.yml --tags=node_admin -e ansible_user=other_admin -k
 
-# 如果当前管理员没有ssh至目标节点的权限，可以使用其他具有ssh的用户创建管理员（输入密码）
+. /pgsql.yml --tags=pg_scripts # Update the /pg/bin/ directory script
+. /pgsql.yml --tags=pg_hba # Regenerate and apply cluster HBA rules
+. /pgsql.yml --tags=pgbouncer # Reset Pgbouncer
+. /pgsql.yml --tags=pg_user # Fully refresh business users
+. /pgsql.yml --tags=pg_db # Full refresh of business database
+
+. /pgsql.yml --tags=register_consul # Register the Consul service locally with the target instance (local execution)
+. /pgsql.yml --tags=register_prometheus # Register monitoring objects in Prometheus (proxy to all Meta nodes for execution)
+. /pgsql.yml --tags=register_grafana # Register monitoring objects in Grafana (only once)
+. /pgsql.yml --tags=register_nginx # Register the load balancer with Nginx (proxy to all Meta nodes for execution)
+
+# Redeploy monitoring using a binary install
+. /pgsql.yml --tags=monitor -e exporter_install=binary
+
+# Refresh the cluster's service definitions (performed when cluster membership or service definitions change)
+. /pgsql.yml --tags=haproxy_config,haproxy_reload
+```
+
+```bash
+./pgsql.yml --tags=node_admin           # create admin user on target
+
+# If current admin does not have ssh access to remote, you can use another admin with ssh access:
 ./pgsql.yml --tags=node_admin -e ansible_user=other_admin -k 
 
-./pgsql.yml --tags=pg_scripts           # 更新/pg/bin/目录脚本
-./pgsql.yml --tags=pg_hba               # 重新生成并应用集群HBA规则
-./pgsql.yml --tags=pgbouncer            # 重置Pgbouncer
-./pgsql.yml --tags=pg_user              # 全量刷新业务用户
-./pgsql.yml --tags=pg_db                # 全量刷新业务数据库
+./pgsql.yml --tags=pg_scripts           # update /pg/bin/ scripts
+./pgsql.yml --tags=pg_hba               # render and reload pg_hba rules
+./pgsql.yml --tags=pgbouncer            # reset pgbouncer
+./pgsql.yml --tags=pg_user              # refresh all business users
+./pgsql.yml --tags=pg_db                # refresh all business databases
 
-./pgsql.yml --tags=register_consul      # 在目标实例本地注册Consul服务(本地执行)
-./pgsql.yml --tags=register_prometheus  # 在Prometheus中注册监控对象(代理至所有Meta节点执行)
-./pgsql.yml --tags=register_grafana     # 在Grafana中注册监控对象(只注册一次)
-./pgsql.yml --tags=register_nginx       # 在Nginx注册负载均衡器(代理至所有Meta节点执行)
+./pgsql.yml --tags=register_consul      # register service to consul (on node)
+./pgsql.yml --tags=register_prometheus  # register monitor target on prometheus (on meta)
+./pgsql.yml --tags=register_grafana     # register postgres data source to grafana (on meta)
+./pgsql.yml --tags=register_nginx       # register haproxy admin to nginx (on meta)
 
-# 使用二进制安装的方式重新部署监控
+# update monitor exporter with binary mode
 ./pgsql.yml --tags=monitor -e exporter_install=binary
 
-# 刷新集群的服务定义（当集群成员或服务定义发生变化时执行）
+# refresh cluster service definition
 ./pgsql.yml --tags=haproxy_config,haproxy_reload
 ```
 
 
 
-## 剧本说明
+## Description
 
-[`pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) 主要完成以下工作：
+[`pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) does the following, among others.
 
-* 初始化数据库节点基础设施（`node`）
-* 初始化DCS Agent（服务（`consul`）（如果为当前节点为管理节点，则初始化为DCS Server）
-* 安装、部署、初始化PostgreSQL， Pgbouncer， Patroni（`postgres`）
-* 安装PostgreSQL监控系统（`monitor`）
-* 安装部署Haproxy与VIP，对外暴露服务（`service`）
-* 将数据库实例注册至基础设施，接受监管（`register`）
+* Initialize the database node infrastructure (`node`)
+* Initialize the DCS Agent (service (`consul`) (or DCS Server if the current node is the management node)
+* Installation, deployment, and initialization of PostgreSQL, Pgbouncer, and Patroni (`postgres`)
+* Installation of PostgreSQL monitoring system (`monitor`)
+* Install and deploy Haproxy and VIP, and expose services to the public (`service`)
+* Registering database instances to the infrastructure for supervision (`register`)
 
-精确到任务的标签请参考[**任务详情**](#任务详情)
+Please refer to [**task details**](#details) for the precise label of the task
 
 ```yaml
 #!/usr/bin/env ansible-playbook
@@ -168,15 +190,14 @@
 
 
 
-## 任务详情
+## Tasks
 
-使用以下命令可以列出数据库集群初始化的所有任务，以及可以使用的标签：
+List available tasks & tags with following commands
 
 ```bash
 ./pgsql.yml --list-tasks
 ```
 
-默认任务如下：
 
 <details>
 

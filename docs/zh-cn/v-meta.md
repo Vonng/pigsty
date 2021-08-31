@@ -27,7 +27,6 @@
 |     [grafana_pgurl](#grafana_pgurl)                        |  `string`  |  G  | Grafana的PG数据库连接串 |
 |             [grafana_plugin](#grafana_plugin)             |   `enum`   |  G   | 如何安装Grafana插件          |
 |              [grafana_cache](#grafana_cache)              |  `string`  |  G   | Grafana插件缓存地址          |
-|          [grafana_customize](#grafana_customize)          |   `bool`   |  G   | 是否定制Grafana              |
 |            [grafana_plugins](#grafana_plugins)            | `string[]` |  G   | 安装的Grafana插件列表        |
 |        [grafana_git_plugins](#grafana_git_plugins)        | `string[]` |  G   | 从Git安装的Grafana插件       |
 |        [loki_clean](#loki_clean)                          | `bool` |  A   | 是否在安装Loki时清理数据库目录       |

@@ -21,7 +21,7 @@
 |   [node_disable_firewall](#node_disable_firewall)   |   `bool`   |   G   | 关闭节点防火墙                  |
 |    [node_disable_selinux](#node_disable_selinux)    |   `bool`   |   G   | 关闭节点SELINUX              |
 |     [node_static_network](#node_static_network)     |   `bool`   |   G   | 是否使用静态DNS服务器             |
-|      [node_disk_prefetch](#node_disk_prefetch)      |  `string`  |   G   | 是否启用磁盘预读                 |
+|      [node_disk_prefetch](#node_disk_prefetch)      |  `bool`  |   G   | 是否启用磁盘预读                 |
 |     [node_kernel_modules](#node_kernel_modules)     | `string[]` |   G   | 启用的内核模块                  |
 |               [node_tune](#node_tune)               |   `enum`   |   G   | 节点[调优模式](/zh/docs/reference/tuned/) |
 |      [node_sysctl_params](#node_sysctl_params)      |   `dict`   |   G   | 操作系统内核参数                          |
