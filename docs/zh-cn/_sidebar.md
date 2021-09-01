@@ -1,5 +1,6 @@
 - 上手
-  - [快速开始](s-install.md)
+  - [上手指南](s-intro.md)
+  - [安装部署](s-install.md)
   - [本地沙箱](s-sandbox.md)
   - [用户界面](s-interface.md)
   - [常见问题](s-faq.md)

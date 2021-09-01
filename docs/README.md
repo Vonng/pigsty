@@ -4,11 +4,9 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> [EN DOCS](https://pigsty.cc) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/) | [Public Demo](http://demo.pigsty.cc) | [Github Repo](https://github.com/Vonng/pigsty)
+> Latest Version: [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Public Demo](https://demo.pigsty.cc)
 >
-> Use `make doc` to view this doc in browser
->
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
+> Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 
 
 ![](_media/what.svg)
@@ -17,7 +15,7 @@
 
 * Pigsty is a powerful & professional PostgreSQL [monitoring](#monitoring) system
 
-* Pigsty is a handy & reliable [provisioning](#provisioning) solution for [HA](#ha-clusters) Postgres Clusters.
+* Pigsty is a handy & reliable [provisioning](#provisioning) solution for [HA](#ha-clusters) Postgres clusters
 
 * Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
 
@@ -263,6 +261,10 @@ make dns       # Write static DNS
 make start     # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
 make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
 ```
+
+## What's Next?
+
+Check [Getting Started - Introduction](s-intro.md) for details. 
 
 
 ## License

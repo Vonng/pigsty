@@ -3,7 +3,7 @@
 
 ![](../_media/how-zh.svg)
 
-准备好新装机器（Linux x86_64 CentOS 7.8.2003）一台，配置ssh本机访问，以root或sudo用户执行以下命令。
+准备好**新装**机器（Linux x86_64 CentOS 7.8.2003）一台，配置ssh本机访问，以**root**或**sudo**用户执行以下命令。
 
 ```bash
 # 离线下载（没有Git时可以使用此curl代码下载）
@@ -16,7 +16,7 @@ git clone https://github.com/Vonng/pigsty && cd pigsty
 make install
 ```
 
-安装完毕后，可通过 http://g.pigsty 或管理节点3000端口访问Pigsty图形界面。默认管理员：`admin`: `pigsty`。
+安装完毕后，可通过本地域名 http://g.pigsty 或管理节点3000端口访问Pigsty图形界面。默认管理员：`admin`: `pigsty`。
 
 
 > 如果您没有可用机器节点，但有可用的Macbook/PC/笔记本，可使用[沙箱环境](s-sandbox.md)在本机自动创建虚拟机。
@@ -27,8 +27,8 @@ make install
 
 ## 准备
 
-安装Pigsty需要[准备](t-prepare)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。并需要一个可以SSH登陆并带有sudo权限的[管理用户](t-prepare.md#管理用户置备)。
-该机器将作为 **[管理节点](c-arch.md#管理节点)(meta node)** ，发出控制命令，采集监控数据，运行定时任务。
+安装Pigsty需要[准备](t-prepare.md)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。并需要一个可以SSH登陆并带有sudo权限的[管理用户](t-prepare.md#管理用户置备)。
+该机器将作为 [管理节点](c-arch.md#管理节点)(meta node) ，发出控制命令，采集监控数据，运行定时任务。
 
 **Pigsty默认以单机模式运行在管理节点上**，您可以额外准备任意数量的普通节点，用于部署额外的数据库实例与集群。例如在[Pigsty沙箱](s-sandbox.md) 有一种4节点版本，会使用额外的三个节点部署一套 1主2从 的测试集群 `pg-test`。
 
@@ -73,13 +73,14 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o 
 
 ## 配置
 
-解压并进入 pigsty 源码目录： `tar -xf pigsty.tgz && cd pigsty`，执行以下命令即可开始[配置](v-config)：
+解压并进入 pigsty 源码目录： `tar -xf pigsty.tgz && cd pigsty`，
+执行以下命令即可开始[配置](v-config.md)：
 
 ```bash
 ./configure
 ```
 
-执行`configure`会检查下列事项，小问题会自动尝试修复，否则提示报错退出。
+`configure`会检查下列事项，小问题会自动尝试修复，否则提示报错退出。
 
 ```bash
 check_kernel     # kernel        = Linux
@@ -114,14 +115,19 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 **配置模板**
 
 使用什么样的配置文件模板。
-
-配置向导会根据当前机器环境**自动选择配置模板**，但用户可以通过`-m <mode>`手工指定使用配置模板，例如：
+配置向导会根据当前机器环境**自动选择配置模板**，因此不会询问用户这个问题，用户通常也无需关心。
+但用户总是可以通过命令行参数`-m <mode>`手工指定想要使用的配置模板，例如：
 
 * [`demo4`]  项目默认配置文件，4节点沙箱
 * [`demo`]   单节点沙箱，若检测到当前为沙箱虚拟机，会使用此配置
 * [`tiny`]   单节点部署，若使用普通节点（微型: cpu < 8）部署，会使用此配置
 * [`oltp`]   生产单节点部署，若使用普通节点（高配：cpu >= 8）部署，会使用此配置
+
 * 更多配置模板，请参考 [Configuration Template](https://github.com/Vonng/pigsty/tree/master/files/conf)
+
+
+
+
 
 **配置过程的标准输出**
 
@@ -156,25 +162,27 @@ configure pigsty done. Use 'make install' to proceed
 
 ## 安装
 
-`make install`会调用Ansible执行[`infra.yml`](p-infra)剧本，在`meta`分组上完成安装。
+`make install`会在当前节点安装Pigsty。
 
 ```bash
 make install
 ```
 
+它实际上调用Ansible执行[`infra.yml`](p-infra.md)剧本，在`meta`分组上完成安装。
+
 在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
 
-> 在`./configure`的过程中，Ansible已经通过离线软件包或可用yum源安装完毕。
+> 在[configure](#配置)的过程中，Ansible已经通过离线软件包`pkg.tgz`或可用yum源安装完毕。
 
 
 ### 访问图形用户界面
 
-安装完成后，您可以通过[用户界面](s-interface.md)访问Pigsty相关服务。
+安装完成后，您可以通过[图形用户界面](s-interface.md)访问Pigsty相关服务。
 
-> 访问 `http://<node_ip>:3000` 即可浏览 Pigsty监控系统主页 (用户名: `admin`, 密码: `pigsty`)
+> 访问 `http://<primary_ip>:3000` 即可浏览 Pigsty监控系统主页 (用户名: `admin`, 密码: `pigsty`)
 
 
-### 部署额外的数据库集群（可选）
+### 部署额外数据库集群（可选）
 
 在4节点沙箱中，您可以执行[`pgsql.yml`](p-pgsql)剧本以完成`pg-test`集群的部署：
 
@@ -185,9 +193,9 @@ make install
 该剧本执行完后，即可在监控系统中浏览集群详情。[Check Demo](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test)
 
 
-### 部署额外的日志收集组件（可选）
+### 部署额外日志收集组件（可选）
 
-Pigsty自带了基于Loki与Promtail的实时日志收集解决方案，但默认不会启用，需要您手工启用。
+Pigsty自带了基于Loki与Promtail的实时日志收集解决方案，但默认不会启用，需要时可以通过以下两行命令手工启用。
 
 ```bash
 ./infra-loki.yml         # 在管理节点上安装loki(日志服务器)
@@ -195,19 +203,4 @@ Pigsty自带了基于Loki与Promtail的实时日志收集解决方案，但默�
 ```
 
 详见[部署日志收集服务](t-logging.md)
-
-
-----------------
-
-## 接下来做什么？
-
-您可以先浏览Pigsty监控系统的官方[演示](s-demo.md)站点：[http://demo.pigsty.cc](http://demo.pigsty.cc)，获取大致的印象。
-
-> Pigsty演示中包含有两个有趣的数据应用：WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)，与全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)
-
-您可以尝试在本机运行Pigsty，例如通过[沙箱环境](s-sandbox.md)，或直接[准备](t-prepare.md)虚拟机/物理机进行标准[部署](t-deploy.md)。
-
-如果您希望了解Pigsty的设计与概念，可以参阅以下主题：[架构](c-arch.md)、[实体](c-entity.md)、[配置](c-config.md)、[服务](c-service.md)、[数据库](c-database.md)、[用户](c-user.md)、[权限](c-privilege.md)、[认证](c-auth.md)、[接入](c-access.md)
-
-您可以通过**教程**了解部署、管理、访问 数据库集群、实例、用户、DB、服务的方式。 教程[【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会通过一个完整的例子，介绍如何使用Pigsty提供的管控原语创建新数据库集群、在已有集群中创建新的业务数据库与用户，以及使用该数据库的具体方式。
 

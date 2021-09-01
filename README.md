@@ -4,9 +4,11 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest version:  [**v1.0.0**](https://github.com/Vonng/pigsty/releases/tag/v1.0.0) [Online Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/)  | [Github Pages](https://vonng.github.io/pigsty/#/) | [Public Demo](https://demo.pigsty.cc)
+> Latest Version: [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)  |  [Public Demo](https://demo.pigsty.cc)
 >
-> Use `make doc` to view local [en docs](docs/) or [zh-cn docs](docs/zh-cn/) in your browser.
+> Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
+> 
+> Run `make doc` to serve [EN Docs](docs/) & [ZH Docs](docs/zh-cn/) on your localhost
 
 ![](docs/_media/what.svg)
 
@@ -14,7 +16,7 @@
 
 * Pigsty is a powerful & professional PostgreSQL [monitoring](#monitoring) system
 
-* Pigsty is a handy & reliable [provisioning](#provisioning) solution for [HA](#ha-clusters) Postgres Clusters.
+* Pigsty is a handy & reliable [provisioning](#provisioning) solution for [HA](#ha-clusters) Postgres clusters
 
 * Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
 

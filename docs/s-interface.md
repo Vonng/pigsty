@@ -1,18 +1,17 @@
 ## User Interface
 
-After completing the installation, the GUI provided by Pigsty can be accessed through a browser.
+Pigsty GUI is viable after [installation](s-install.md). 
 
 http://g.pigsty -> http://10.10.10.10:80 (nginx) -> http://10.10.10.10:3000 (grafana)
 
 Visit `http://<node_ip>:3000` to browse Pigsty [home](http://demo.pigsty.cc/d/home) (username: `admin`, password: `pigsty`)
 
-You can visit [http://demo.pigsty.cc](http://demo.pigsty.cc) to view the public Pigsty Demo and browse through the features provided by the **Pigsty Monitoring System**.
-
 
 ## Web Services
 
+Pigsty will provide services to the public through a series of ports. 
+Nginx is the uniform access-point for all web service.
 
-Pigsty will provide services to the public through a series of ports. Web services will be accessed uniformly through Nginx port 80.
 
 | Component | Port | Default Domain | Description |
 | :-----------: | :--: | :----------: | ------------------------------- |
@@ -31,10 +30,13 @@ Pigsty will provide services to the public through a series of ports. Web servic
 ![](_media/infra.svg)
 
 
-Users can configure their own existing domain names for these services, or use the `make dns` shortcut to write the default domain names to `/etc/hosts`.
-Users can still access most services directly using the IP:Port method, for example, the entry point to the Pigsty monitoring system is the management node IP+3000 port.
+Users can configure their own existing domain names for these services,
+or use the `make dns` shortcut to write the default domain names to `/etc/hosts`.
 
-! > Note that if Consul is used as the DSC, the Consul UI **must** be accessed through the Nginx domain. Consul listens on port 127.0.0.1, a deliberate design for security reasons: Consul contains sensitive metadata that should not be exposed directly to the public.
+Users can still access most services directly using the IP:Port method,
+for example, the entry point to the Pigsty monitoring system is the management node IP+3000 port.
+
+!> Note that if Consul is used as the DSC, the Consul UI **must** be accessed through domain names and proxy by nginx. Consul listens on port 127.0.0.1, it's a deliberate design due to security reasons: Consul stores sensitive metadata that should not expose to the public.
 
 
 

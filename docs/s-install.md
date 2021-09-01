@@ -3,7 +3,7 @@
 
 ![](../_media/how.svg)
 
-Prepare a new node : Linux x86_64 CentOS 7.8.2003, with root or sudo access
+[Prepare](#prepare) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access
 
 ```bash
 # download with curl (in case of git not available)
@@ -11,7 +11,7 @@ Prepare a new node : Linux x86_64 CentOS 7.8.2003, with root or sudo access
 # curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
-Download & Configure & Install
+[Download](#download) & [Configure](#configure) & [Install](#install)
 
 ```
 git clone https://github.com/Vonng/pigsty && cd pigsty
@@ -30,17 +30,19 @@ Visit `http://<primary_ip>:3000` to visit Pigsty [Home](http://demo.pigsty.cc/d/
 
 ### Prepare
 
-Prepare a node (vm & vagrant & cloud vps), which will be used as [meta](c-arch.md#meta) node (admin controller)
+Prepare a node (vm & vagrant & cloud vps), which will be used as [meta](c-arch.md#meta-node) node (admin controller)
 
 * Kernel: Linux
 * Arch: x86_64
 * OS: CentOS 7.8.2003 (RHEL 7.x and equivalent is OK)
 * SSH accessibility
 
-**Pigsty runs in standalone mode on a single meta node by default**. 
+Pigsty runs in standalone mode by default (runs everything on a single node) 
 You can prepare additional nodes for extra postgres clusters/instances.
 
-In large-scale production environments, three or more management nodes are typically deployed to provide redundancy.
+In real-world large-scale production environments, 3 or more meta nodes are recommended to provide redundancy.
+
+
 
 ----------------
 
@@ -75,13 +77,13 @@ Offline packages placed in the `/tmp/pkg.tgz` path of the target machine will be
 
 ## Configure
 
-Unzip and go to the pigsty source directory: ``tar -xf pigsty.tgz && cd pigsty`` and execute the following command to start [configuration](v-config).
+Unarchive and enter pigsty source dir with `tar -xf pigsty.tgz && cd pigsty`, then execute `configure` to perform pre-install check.
 
 ```bash
 . /configure
 ```
 
-Executing `configure` will check for the following things, minor problems will be automatically attempted to be fixed, otherwise it will prompt an error to exit.
+`configure` will check following items. If check fails, it will prompt an error and exit.
 
 ```bash
 check_kernel     # kernel        = Linux
@@ -100,24 +102,30 @@ check_utils      # check ansible sshpass and other utils installed
 check_bin        # check special bin files in pigsty/bin (loki,exporter) (require utils installed)
 ```
 
-Running directly `. /configure` will launch an interactive command line wizard that prompts the user to answer the following three questions.
+Running `./configure` without args will run in interactive mode. which will prompts 2 questions:
 
 
-**IP address**
+**Primary IP address**
 
-When multiple NICs with multiple IP addresses are detected on the current machine, the configuration wizard prompts you to enter the IP address that **primarily** uses
-that is, the IP address you use to access the node from the internal network. Note that you should not use a public IP address.
+When multiple NICs or multiple IP addresses are detected on the current node,
+the wizard prompts you to enter the IP address that **primarily** uses,
+that is, the IP address to access the node from the internal network. 
+public IP address should NOT be used here.
 
-**Download Package**
 
-When no offline packages are found in the `/tmp/pkg.tgz` path of the node, the configuration wizard will ask if you want to download them from Github.
-Selecting `Y` will start the download, selecting `N` will skip it. If your node has good Internet access with a suitable proxy configuration, or if you need to make your own offline packages, you can choose `N`.
+**Download Offline Package**
+
+When no offline package are found on `/tmp/pkg.tgz`, the wizard will ask if you want to download it from Github.
+Selecting `Y` will start the download, selecting `N` will skip it. 
+If your node does not have Internet access or if you wish to make your own offline package, choose `N`.
+
 
 **Configuration Template**
 
-What configuration file template to use.
+Which config template to use.
 
-The configuration wizard automatically selects a configuration template** based on the current machine environment **, but users can manually specify the configuration template to use with `-m <mode>`, for example.
+The wizard will choose template automatically according to a set of rules. So no question will be asked for this.
+While you can always specify it with `-m <mode>`.
 
 * [`demo4`] Project default configuration file, 4-node sandbox
 * [`demo`] single-node sandbox, which will be used if the current sandbox VM is detected
@@ -125,8 +133,7 @@ The configuration wizard automatically selects a configuration template** based 
 * [`oltp`] Production single-node deployment, this configuration is used if you deploy with a normal node (high: cpu >= 8)
 * For more configuration templates, please refer to [Configuration Template](https://github.com/Vonng/pigsty/tree/master/files/conf)
 
-**Standard output of the configuration process**
-
+**Stdout of configure**
 
 ```bash
 vagrant@meta:~/pigsty 
@@ -159,58 +166,53 @@ configure pigsty done. Use 'make install' to proceed
 
 ## Install
 
-`make install` will call Ansible to execute the [`infra.yml`](p-infra) script to complete the installation on the `meta` grouping.
+`make install` will init pigsty on meta node(s)
 
 ```bash
 make install
 ```
 
-The full installation took about 10 minutes in a sandbox environment 2-core 4GB VM.
+It actually invokes ansible playbook [`infra.yml`](p-infra.md) on `meta` group. 
+Which will init infrastructure and a full-featured `pg-meta` postgres cluster.
 
-> In the `. /configure` process, Ansible is already installed via offline packages or available yum sources.
+The installation procedure took about 10 minutes (offline installation, sandbox, 2C|4GB)
 
-
-### Accessing the GUI
-
-After the installation is complete, you can access Pigsty-related services through the [user interface](s-interface.md).
-
-> Visit `http://<node_ip>:3000` to browse the Pigsty monitoring system home page (username: `admin`, password: `pigsty`)
+> Ansible is already installed during [configure.check_utils](#configure), via `pkg.tgz` or `yum`
 
 
-### Deploy additional database clusters (optional)
+### GUI Access
 
-In a 4-node sandbox, you can execute the [``pgsql.yml`'' (p-pgsql) script to complete the deployment of the ``pg-test`' cluster by
+After the installation is complete, you can access Pigsty GUI through [graphic user interface](s-interface.md).
+
+> Visit `http://<primary_ip>:3000` to browse the Pigsty monitoring system home page (username: `admin`, password: `pigsty`)
+
+
+### Deploy Extra Postgres Cluster (OPTIONAL)
+
+After meta node is initialized, you can initiate control from it. 
+E.g: Deploy & Manage new PostgreSQL clusters on other database nodes.
+
+The 4-node [sandbox](s-sandbox.md) have prepared 3 extra nodes for an extra postgres demo cluster: `pg-test`.
+
+Playbook [`pgsql.yml`](p-pgsql.md) is responsible for initializing new postgres cluster:
 
 ```bash
 . /pgsql.yml -l pg-test
 ```
 
-Once the script is executed, you can browse the cluster details in the monitoring system. [Check Demo](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test)
+You can check that cluster with [【PGSQL Cluster】](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test) dashboard once playbook is finished.
 
 
-### Deploy additional log collection components (optional)
 
-Pigsty comes with a live log collection solution based on Loki and Promtail, but it is not enabled by default and you need to enable it manually.
+### Deploy Logging Components (OPTIONAL)
+
+Pigsty comes with a realtime logging collection solution based on [loki](https://grafana.com/oss/loki/) and [promtail](https://grafana.com/docs/loki/latest/clients/promtail/)
+It's optional, and not enabled by default. But you can deploy and enable it with two commands:
 
 ```bash
-. /infra-loki.yml # Install loki (logging server) on the management node
-. /pgsql-promtail.yml # Install promtail (Logging Agent) on the database node
+./infra-loki.yml        # Install loki     (logging server) on meta node
+./pgsql-promtail.yml    # Install promtail (logging agent) on database node
 ```
 
-See [deploying log collection service](t-logging.md) for details
-
-
-----------------
-
-## What's Next?
-
-You can start by browsing the official [demo](s-demo.md) site of the Pigsty monitoring system: [http://demo.pigsty.cc](http://demo.pigsty.cc) to get a general impression.
-
-> The Pigsty demo contains two interesting data applications: the WHO New Crown Epidemic Data Big Board: [`covid`](http://demo.pigsty.cc/d/covid-overview), with a global surface weather station historical data query: [`isd`](http://demo.pigsty.cc/ d/isd-overview)
-
-You can try to run Pigsty locally, e.g. via [sandbox environment](s-sandbox.md), or directly [prepare](t-prepare.md) virtual/physical machines for standard [deployment](t-deploy.md).
-
-If you wish to understand the design and concepts of Pigsty, you can refer to the following topics: [architecture](c-arch.md), [entity](c-entity.md), [configuration](c-config.md), [service](c-service.md), [database](c-database.md), [users](c- user.md), [privileges](c-privilege.md), [authentication](c-auth.md), [access](c-access.md)
-
-You can learn how to deploy, manage, and access database clusters, instances, users, DBs, and services with the **Tutorial**. The tutorial [[Using Postgres as a Grafana backend database]](t-grafana-upgrade.md) will go through a complete example of how to create a new database cluster using the control primitives provided by Pigsty, create a new business database with users in an existing cluster, and the specific ways to use that database.
+Check [Deploying Logging Components](t-logging.md) for details.
 

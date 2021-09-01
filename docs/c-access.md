@@ -1,6 +1,11 @@
 # Access
 
-Access is designed to solve the problem of high concurrency, high availability, and large-scale management in **production environments**. **Individual users** can choose to ignore the access mechanism, bypass domain names, VIPs, load balancers, connection pools, and access the database directly via IP address.
+**Access** mechanism is designed to solve the problem of real-world production environments: high concurrency & high availability.
+**Individual users** does not really need these. You can just ignore these access mechanism, bypass domain names, VIPs, load balancers, connection pools, and access the database directly via IP address.
+
+> Access default database via `postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta` (replace IP & password)
+
+
 
 In Pigsty's default configuration, a fully functional load balancer (HAProxy) is deployed on each database instance/node, so **any instance** of the entire database cluster can serve as the access point for the entire cluster. You need to decide your own access policy: **how to distribute business traffic to one, multiple, or all load-balanced instances** in the cluster.
 

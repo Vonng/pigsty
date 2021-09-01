@@ -1,24 +1,31 @@
 ## Sandbox
 
-Pigsty provides an out-of-the-box sandbox environment for the full Pigsty software that runs on a regular Mac/PC.
+Pigsty is shipped with an battery-included sandbox environment which could run on your laptop with one-click.
 
 ## Introduction
 
-The Pigsty sandbox relies on the [Virtualbox](https://www.virtualbox.org/) virtual machines (default: 1, full mode: 4) hosted by [Vagrant](https://www.vagrantup.com/).
+Pigsty sandbox relies on [Virtualbox](https://www.virtualbox.org/) vm nodes (default: 1, full mode: 4) hosted by [Vagrant](https://www.vagrantup.com/).
 
-Before using Pigsty sandbox, you need to install Vagrant and Virtualbox in your operating system, both of which are free cross-platform open source software.
+You have to install both virtualbox & vagrant on your host before launching Pigsty Sandbox.
+Both are free & open source cross-platform software.
 
-You can also choose to create your own virtual machines using your favorite virtual machine software (Parallel Desktop, VMWare) or use Cloud VMs directly for [standard installation and deployment] (t-deploy.md).
+You can also run pigsty sandbox with hand-made, cloud provisioned vm nodes, or using bare metal directly.
 
-Pigsty sandboxes come in two different sizes: single-node and four-node, with single-node sandboxes being the default configuration.
-The single-node sandbox is suitable for personal development, experimentation, and learning; as an environment for data analysis and visualization; and for designing, demonstrating, and distributing interactive data applications.
-The four-node sandbox can be used for complete demonstration of Pigsty's features and full exploration of the highly available architecture and monitoring system, so please choose your own on-demand.
+Pigsty sandbox have two different specs:
+   * 1 node version : default spec 
+   * 4 node version : complete version of pigsty demo
+
+The [1-node](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo.yml) sandbox can be used for dev, test, doing experiment, learning postgres, etc...
+It can setup a environment for data analysis and visualization, and for designing, demonstrating, distributing interactive data [applications](t-application.md).
+
+The [4-node](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo4.yml) sandbox can be used for complete demonstration of Pigsty's features. 
+You can test high availability behaviors, perform failover/switchover drills, experiment with different replication architecture.
 
 
 ## Quick Start
 
-1. Make sure [Vagrant](https://www.vagrantup.com/) and [Virtualbox](https://www.virtualbox.org/) are installed and available, just follow the official wizard (reboot required).
-2. [download](s-install.md#download) pigsty to **host**, enter pigsty directory, execute `make start` to pull up the virtual machine
+1. Make sure [Vagrant](https://www.vagrantup.com/) and [Virtualbox](https://www.virtualbox.org/) are installed and viable, just follow the official wizard (reboot required).
+2. [Download](s-install.md#download) pigsty to **host** & enter pigsty source directory, execute `make start` to pull up the vm nodes.
 3. execute `make demo` on the host to start automatic installation of the default single-node sandbox
 4. (Optional) Add static DNS records to access Pigsty Web UI via domain name
 
@@ -34,7 +41,7 @@ make demo    # Configure and install using a single node demo (demo4 is a 4 node
 
 
 
-## Sandbox architecture description
+## Architecture
 
 The sandbox environment uses a fixed IP address for demonstration purposes. The node IP address for a single-node sandbox is fixed to: `10.10.10.10`.
 

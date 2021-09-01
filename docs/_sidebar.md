@@ -1,4 +1,5 @@
 - Getting Started
+  - [Intro](s-intro.md)
   - [Install](s-install.md)
   - [Sandbox](s-sandbox.md)
   - [Interface](s-interface.md)

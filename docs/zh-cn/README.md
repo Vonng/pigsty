@@ -14,6 +14,13 @@
 
 
 
+> 最新版本: [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](https://demo.pigsty.cc)
+>
+> 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
+>
+> 执行`make doc`可以在本地浏览器中阅览文档
+
+
 ## Pigsty是什么？
 
 * Pigsty是**开箱即用的PostgreSQL[发行版](#发行版)**
@@ -274,6 +281,9 @@ make start  # 使用Vagrant拉起单个meta节点 (start4则为4个节点)
 make demo   # 使用单节点Demo配置并安装    (demo4则为4节点demo)
 ```
 
+接下来，您可以参考 [快速上手-简介](s-intro.md) 探索更多关于Pigsty的内容。 
+
+
 ## Demo
 
 [http://demo.pigsty.cc](http://demo.pigsty.cc) 提供了公开的演示。您可以在这里浏览**Pigsty监控系统**提供的功能。Pigsty自带有两个有趣的数据应用：WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)，与全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)。
@@ -282,12 +292,11 @@ make demo   # 使用单节点Demo配置并安装    (demo4则为4节点demo)
 Pigsty部署方案与其他功能则可以通过[**沙箱环境**](s-sandbox.md)在本机体验，教程 [【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会以一个具体的例子介绍Pigsty提供的管控功能。
 
 
-### 开源软件
+## 协议
 
 Pigsty基于Apache 2.0协议开源，可以免费用于商业目的。
 
 改装与衍生需遵守[Apache License 2.0 ](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)的显著声明条款。
-
 
 
 ## 关于
