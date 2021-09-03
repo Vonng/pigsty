@@ -7,11 +7,11 @@ A Pigsty **Deployment** is architecturally divided into two parts: one infrastru
 
 Infrastructure and database cluster are **loosely coupled**, removing infrastructure will not affect the operation of database cluster (except DCS).
 
-!> DCS is used for fault detection and master selection to support high database availability. **Stopping DCS services in default mode will cause all database clusters to reject writes**, so be sure to ensure the reliability of DCS services (increase the number of management nodes, or use an external, independently maintained, highly available DCS cluster).
+!> DCS is used for fault detection and master selection to support high database availability. **Stopping DCS services in default mode will cause all database clusters to reject writes**, so be sure to ensure the reliability of DCS services (increase the number of meta nodes, or use an external, independently maintained, highly available DCS cluster).
 
 Nodes (physical machines, virtual machines, Pods) are divided into two categories too:
 
-* [Meta Nodes](#meta-node) (Meta): deploys the infrastructure, performs the control logic, and requires at least one management node per Pigsty deployment.
+* [Meta Nodes](#meta-node) (Meta): deploys the infrastructure, performs the control logic, and requires at least one meta node per Pigsty deployment.
 * [Database Node](#database-node) (Node): used to deploy database clusters/instances, PG instances usually correspond to nodes one by one.
 
 **The meta node can also be reused as a common database node**, on meta nodes, there is a PostgreSQL database cluster named `pg-meta` running by default.
@@ -40,7 +40,7 @@ The infrastructure is usually handled by a dedicated Ops team or cloud vendor, b
 * Visualization infrastructure: Grafana
 * Local source infrastructure: Yum/Nginx
 * Distributed Configuration Storage: etcd/consul
-* Metadatabase/CMDB: `pg-meta
+* Metadatabase/CMDB: `pg-meta`
 * Remote node control component: Ansible
 * Data analysis visualization suite: Jupyterlab, Echarts, etc.
 * Other: timed tasks, patrol scripts, backup scripts, command line tools, configuration GUI, other extended applications
@@ -68,19 +68,19 @@ The main relationships between the infrastructures are as follows.
 
 ![](_media/meta.svg)
 
-The infrastructure is deployed on [meta-node](#meta-node). A set of environments containing one or more management nodes for infrastructure deployment.
+The infrastructure is deployed on [meta-node](#meta-node). A set of environments containing one or more meta nodes for infrastructure deployment.
 All infrastructure components are deployed replica-style, except for **Distributed Configuration Storage (DCS)**.
 
-?> If multiple management nodes are configured, the DCSs (etcd/consul) on the management nodes act together as a cluster of DCS servers.
+?> If multiple meta nodes are configured, the DCSs (etcd/consul) on the meta nodes act together as a cluster of DCS servers.
 
 
 ## Meta Node
 
-In each environment, **Pigsty requires at least one management node, which will act as the control center** for the entire environment. The management node is responsible for various administrative tasks: saving state, managing configuration, initiating tasks, collecting metrics, and so on. The infrastructure components of the entire environment, Nginx, Grafana, Prometheus, Alertmanager, NTP, DNS Nameserver, and DCS, will be deployed on the management node.
+In each environment, **Pigsty requires at least one meta node, which will act as the control center** for the entire environment. The meta node is responsible for various administrative tasks: saving state, managing configuration, initiating tasks, collecting metrics, and so on. The infrastructure components of the entire environment, Nginx, Grafana, Prometheus, Alertmanager, NTP, DNS Nameserver, and DCS, will be deployed on the meta node.
 
-The management node will also be used to deploy the metadatabase (Consul or Etcd), and users can also use existing **external DCS clusters**. If deploying DCS to the management nodes, it is recommended that 3 management nodes be used in a **production environment** to fully guarantee the availability of DCS services. infrastructure components outside of DCS will be deployed as peer-to-peer copies on all management nodes. The number of management nodes requires a minimum of 1, recommends 3, and recommends no more than 5.
+The meta node will also be used to deploy the meta-database (Consul or Etcd), and users can also use existing **external DCS clusters**. If deploying DCS to the meta nodes, it is recommended that 3 meta nodes be used in a **production environment** to fully guarantee the availability of DCS services. infrastructure components outside of DCS will be deployed as peer-to-peer copies on all meta nodes. The number of meta nodes requires a minimum of 1, recommends 3, and recommends no more than 5.
 
-The default services running on the management nodes are shown below.
+The default services running on the meta nodes are shown below.
 
 | Component | Port | Default Domain | Description |
 | :-----------: | :--: | :----------: | ------------------------------- |
@@ -100,10 +100,14 @@ The default services running on the management nodes are shown below.
 
 ## Database Cluster
 
-The production environment's databases are organized in **clusters**, which are a **logical entity** consisting of a set of database **instances** associated by **master-slave replication**. Each **database cluster** is a **self-organizing** business service unit consisting of at least one **database instance**.
+The production environment's databases are organized in **clusters**,
+which are a **logical entity** consisting of a set of database **instances** associated by **master-slave replication**.
+Each database cluster is  autonomous business unit consisting of at least one **database instance**.
 
-Clusters are the basic business service units, and the following diagram shows the replication topology in a sandbox environment. Where `pg-meta-1` alone constitutes a database cluster `pg-meta`, while `pg-test-1`, `pg-test-2`, and `pg-test-3` together constitute another logical cluster `pg-test`.
-
+Clusters are the basic business service units,
+and the following diagram shows the replication topology in a sandbox environment.
+Where `pg-meta-1` alone constitutes a database cluster `pg-meta`,
+while `pg-test-1`, `pg-test-2`, and `pg-test-3` together constitute another logical cluster `pg-test`.
 
 ```
 pg-meta-1
@@ -123,7 +127,9 @@ The following figure rearranges the location of related components in the `pg-te
 
 Pigsty is a database provisioning solution that creates **highly available database clusters** on demand. Pigsty can **automatically failover**, with business-side read-only traffic unaffected; the impact of read and write traffic is usually in the range of a few seconds to tens of seconds, depending on the specific configuration and load.
 
-In Pigsty, each "database instance" is **idempotent** in **usage**, using a NodePort-like approach to expose [**database service**](c-service.md) to the public. By default, access to port 5433 of **any instance** is sufficient to access the master database, and access to port 5434 of any instance is sufficient to access the slave database. Users also have the flexibility to use different ways to access the database at the same time, please refer to: [**Database Access**](c-access.md) for details.
+In Pigsty, each "database instance" is **idempotent** , using a NodePort-like approach to expose [**service**](c-service.md) to the public.
+By default, Port 5433 of **any instance** routes to the primary, and port 5434 routes the replicas. 
+You can also access to the database with different approaches, refer to: [**Database Access**](c-access.md) for details.
 
 
 
@@ -178,20 +184,18 @@ The main interactions are as follows.
 
 ## Interaction
 
-As an example of an environment consisting of a single [Admin Node] (# Admin Node) and a single [Database Node] (# Database Node), the architecture is shown in the following diagram.
+Here is an example of a single [meta node](#meta-node) and a single [database node](#database-node).
 
 ![](_media/infra.svg)
 
-The interaction between the management nodes and the database nodes mainly consists of.
-* The domain name of the database cluster/node depends on the Nameserver of the management node for **resolution** (optional).
-* Database node software **installation** requires the use of Yum Repo on the management node.
-* Database cluster/node monitoring **metrics** will be collected by Prometheus on the management node.
+The interaction between the meta nodes and the database nodes mainly consists of.
+* The domain name of the database cluster/node depends on the Nameserver of the meta node for **resolution** (optional).
+* Database node software **installation** requires the use of Yum Repo on the meta node.
+* Database cluster/node monitoring **metrics** will be collected by Prometheus on the meta node.
 * Logs from Postgres, Patroni, Pgbouncer in the database cluster will be collected by Protail and sent to Loki.
-* Pigsty will initiate **administration** of database nodes from the management node:
-
+* Pigsty will initiate **administration** of database nodes from the meta node:
   * Perform cluster creation, expansion and contraction, instance/cluster recycling
   * creating business users, business databases, modifying services, HBA modifications.
   * Performing log collection, garbage cleanup, backup, patrol, etc.
-
-* Consul of database node will synchronize locally registered services to DCS of management node and proxy state read/write operations.
-* Database node will synchronize time from management node (or other NTP server)
+* Consul of database node will synchronize locally registered services to DCS of meta node and proxy state read/write operations.
+* Database node will synchronize time from meta node (or other NTP server)

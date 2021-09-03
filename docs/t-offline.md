@@ -1,11 +1,20 @@
-# Off-line installation
+# Offline Installation
+
+To ensure system stability, Pigsty downloads all dependent packages from the Internet and creates [local yum repo](v-repo.md) on meta node during installation.
+
+The total size of all packages is about 1GB, and the download speed depends on the user's network condition. 
+
+Although Pigsty has tried to use mirror sources as much as possible to speed up the download, 
+a small portion of packages may still be blocked by firewalls and may appear very slow (especially in Mainland China).
+Users can set up a download proxy via the [**`proxy_env`**](v-connect.md#proxy_env) to resolve this.
+
+If you are using a different OS than CentOS 7.8, 
+it is usually recommended performing an online installation procedure instead of using `pkg.tgz` directly.
+Cause the `pkg.tgz` are made under CentOS 7.8, some rpms **MAY** be incompatible for other OS version.  
 
 
-Pigsty is a complex software system. To ensure system stability, Pigsty downloads all dependent packages from the Internet and creates [**local repository**](v-repo) (local Yum source) during the initialization process.
 
-The total size of all dependent software is about 1GB, and the download speed depends on the user's network. Although Pigsty has tried to use mirror sources as much as possible to speed up the download, the download of a small number of packages may still be blocked by firewalls and may appear very slow. Users can set up a download proxy via the [**`proxy_env`**](v-connect#proxy_env) configuration entry to complete the first download.
-
-If you are using a different operating system than CentOS 7.8, it is usually recommended that users use the full online download and installation process. and cache the downloaded software after the first initialization is complete, see [**Making an offline installer**](#Making an offline installer).
+and cache the downloaded software after the first initialization is complete, see [**Making an offline installer**](#Making an offline installer).
 
 If you wish to skip the long download process, or if the execution control meta-node **does not have Internet access**, consider downloading a pre-packaged **offline installer**.
 

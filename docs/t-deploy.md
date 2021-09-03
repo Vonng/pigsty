@@ -1,42 +1,43 @@
-# Pigsty Deployment
+# Deployment
 
-Deploying Pigsty is divided into three steps: [preparation](t-prepare.md), [modify configuration](c-config.md), [execute script](# execute script)
+There are 3 typical deployment type for Pigsty:
 
-Pigsty requires some [preparation](t-prepare.md) before deployment: configure the node with the correct permission configuration, download and install the relevant software. Once the preparation is complete, users should [modify the configuration](v-config.md) according to their needs and [execute playbooks](#execute) to adjust the system to the state described in the configuration. Among other things, **configuration** is where the focus of deploying Pigsty lies.
+  * [Standard Deployment](t-deploy.md): Install pigsty on a fresh CentOS 7 node with download & configure & install
+  * [Sandbox Deployment](s-sandbox.md) : Launch vm nodes on your laptop, then perform the standard deployment procedure.
+  * [Monitor-Only Deployment](t-monly.md) : Deploy infra to monitor existing PostgreSQL instances.
 
-## Deployment method
+No matter which deployment type is used, It always takes 3 steps:
 
-* [Standard Deployment](t-deploy.md): completes the standard Pigsty deployment process on a prepared machine node.
-* [Sandbox Deployment](s-sandbox.md) : Automatically prepares environment-defined virtual machine resources via `vagrant`, which greatly simplifies the Pigsty deployment process.
-* [Monitor-Only Deployment](t-monly.md) : A special deployment mode that uses Pigsty to monitor existing database clusters.
-
-Regardless of the deployment, the process is divided into three steps: [prepare resources](t-prepare.md), [configure](c-config.md), [execute playbooks](p-playbook.md). pigsty requires some [preparation](t-prepare.md) before deployment: configure the nodes with the correct privilege configuration. Download and install the relevant software. Once the preparation is complete, the user should [modify the configuration](c-config.md) and [execute the script](p-playbook.md) to adjust the system to the state described in the configuration according to their needs. The two steps, preparation and execution, are very simple, and **configuration** is where the key points in deploying Pigsty come in.
+  * [Prepare](t-prepare.md)
+  * [Configure](c-config.md)
+  * [Execution](#execute)
 
 ## [Prepare](t-prepare.md)
 
-- [node provisioning](t-prepare.md#node provisioning)
-- [Manage node provisioning](t-prepare.md#manage node provisioning)
-- [Manage user provisioning](t-prepare.md#manage user provisioning)
-- [software provisioning](t-prepare.md#software provisioning)
+- [Node Provisioning](t-prepare.md#node-provisioning)
+- [Meta Node Provisioning](t-prepare.md#meta-provisioning)
+- [Admin User Provisioning](t-prepare.md#admin-provisioning)
+- [Software Provisioning](t-prepare.md#software-provisioning)
 
 ## [Configure](c-config.md)
 
-- [config entry](c-config#config entry)
-- [config file](c-config#config file)
-- [infrastructure-config](c-config#infrastructure-config)
-- [database cluster configuration](c-config#database cluster configuration)
-- [identity parameters](c-config#identity parameters)
-- [connection information](c-config#connection information)
-- [custom-business-user](c-user.md)
-- [customize business database](c-database.md)
-- [Custom Patroni configuration template](t-patroni-template.md)
-- [Deep customization database template](t-customize-template.md)
+- [Config Entry](c-config.md#config-entry)
+- [Config File](c-config.md#config-file)
+- [Infrastructure Config](c-config.md#infrastructure-config)
+- [Database Cluster Config](c-config.md#database-cluster-configuration)
+- [Identity Parameters](c-config.md#identity-parameters)
+- [Connection Information](c-config.md#connect-parameters)
+- [Custom Business User](c-user.md)
+- [Customize business Database](c-database.md)
+- [Custom Patroni Template](t-patroni-template.md)
+- [Customize Database Content](t-customize-template.md)
 
 
-## Execute
+## Execution
 
-* [Infrastructure initialization](p-infra.md)
-* [database initialization](p-pgsql.md) (cluster creation, new instances)
-* [Database offline](p-pgsql-remove.md) (Remove instance, remove cluster)
-* [create business user](p-pgsql-createuser.md)
-* [create business database](p-pgsql-createdb.md)
+- [Infrastructure initialization](p-infra.md)
+- [database initialization](p-pgsql.md) (cluster creation, new instances)
+- [Database offline](p-pgsql-remove.md) (Remove instance, remove cluster)
+- [create business user](p-pgsql-createuser.md)
+- [create business database](p-pgsql-createdb.md)
+

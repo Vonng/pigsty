@@ -58,6 +58,10 @@ pg_databases:                       # define business databases on this cluster,
 * `pgbouncer`：布尔选项，是否将该数据库加入到Pgbouncer中。所有数据库都会加入至Pgbouncer列表，除非显式指定`pgbouncer: false`。
 * `comment`：数据库备注信息。
 
+**如何为某一个数据库指定不同的Collation规则？**
+
+TBD
+
 
 ## 创建数据库
 
@@ -118,3 +122,5 @@ pgbouncer-create-db test host=10.10.10.13    # 创建test数据库并将其指�
 ```
 
 ?> 手工修改Pgbouncer配置后，请通过`systemctl reload pgbouncer`重载生效。（切勿使用`pgbouncer -R`）
+
+

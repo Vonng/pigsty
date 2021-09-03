@@ -26,7 +26,7 @@ Pigsty provides some handy commands for pulling csv logs and pouring them into t
 
 The `pglog` command reads CSV logs from stdin and pours them into the sample table
 
-``bash
+```bash
 alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'" # useful alias
 ```
 

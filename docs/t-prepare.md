@@ -13,26 +13,38 @@ How to prepare the resources required for Pigsty deployment.
 
 ## Node Provisioning
 
-Before deploying Pigsty, the user needs to prepare machine node resources, including at least one [admin node](c-arch.md#meta node), with any number of [database nodes](c-arch.md#database nodes).
+Before deploying Pigsty, the user needs to prepare machine node resources,
+including at least one [meta node](c-arch.md#meta-node), with arbitrary [database nodes](c-arch.md#database-node).
 
-The [database nodes](c-arch.md#database nodes) can use any type of nodes: physical machines, local virtual machines, cloud virtual machines, containers, etc., only if the following conditions are met.
+The [database nodes](c-arch.md#database-node) can use any type of nodes: bare metals, local vms, cloud vms, containers, etc...
+only if the following conditions are met:
 
 - [x] Processor architecture: x86_64
-- [x] Hardware specifications of at least 1 core / 1 GB
-- [x] Operating system: CentOS 7.8.2003 (or other RHEL 7 equivalent distribution)
-- [x] Administrative users can log in to the database node from **administrative node** `ssh` and execute `sudo`
+- [x] Hardware specifications: 1C/1GB at least
+- [x] Operating System: CentOS 7.8.2003 (or RHEL7 equivalent)
+- [x] Admin user can `ssh` to the node and execute `sudo` commands.
 
 
 
 ## Meta Provisioning
 
-Pigsty requires an [meta node](c-arch.md#meta-node) as the admin controller of the entire environment and provides [infrastructure](c-arch#infrastructure) services.
+Pigsty requires an [meta node](c-arch.md#meta-node) as the admin controller of the entire environment and provides [infrastructure](c-arch.md#infrastructure) services.
 
-The minimum number of **meta nodes** is 1. The sandbox environment uses 1 meta node by default. Pigsty's infrastructure is deployed as **replicas** on multiple meta nodes, with the exception of DCS (Consul/Etcd), which exists as Quorum. Pigsty's database cluster requires the use of DCS for high availability functionality, and you can Use a DCS cluster that is automatically deployed on the meta node, or use an external DCS cluster. When using Pigsty's built-in DCS cluster, you must use an odd number of meta nodes, and it is recommended to use at least 3 meta nodes in **production environments** to fully ensure the availability of DCS services.
+The minimum number of **meta nodes** is 1. The sandbox environment uses 1 meta node by default. 
+Pigsty's infrastructure is deployed as **replicas** on multiple meta nodes, except for DCS (Consul/Etcd), which exists as Quorum.
 
-Users should ensure that they can **login** to the meta node and can log in to other database nodes via `ssh` with `sudo` or `root` privileges from the meta node using [admin user](#admin user provisioned). Users should ensure that they have direct or indirect **access to port 80** of the meta node to access the user interface provided by Pigsty.
+Pigsty's database cluster requires the use of DCS for HA failure detection and configuration storage,
+you can Use a DCS cluster that is automatically deployed on the meta node, or use an external DCS cluster.
 
-- [x] Number of meta nodes: odd number, at least one
+When using Pigsty's built-in DCS cluster, you must have odd number of meta nodes,
+and it is recommended to use at least 3 meta nodes in **production environments** to fully ensure the availability of DCS services.
+
+Of couse, you can use external DCS servers. Just change the [`dcs_servers`](v-dcs.md#dcs_servers).
+
+Users should ensure that they have nopass `ssh` & `sudo` privileges on meta node (to initiate control), 
+and direct/in-direct browser access to port 80 (to visit user interface).
+
+- [x] Number of meta nodes: odd number, at least 1
 - [x] Ability to log in to the meta node using the administrator user
 - [x] Ability to access port 80 of the meta node via browser (directly or indirectly)
 - [x] **admin user** can log in to the database node remotely `ssh` from the admin node and execute `sudo` (including itself)
@@ -48,18 +60,19 @@ Pigsty requires an **administrative user** that can **SSH into other nodes** fro
 - [x] Admin user is not `postgres` or `{{ dbsu }}` (using DBSU as admin is a security risk)
 - [x] ssh login password-free, sudo command password-free (or you know how to enter it manually via `-k`,`-K`)
 
-> **When performing deployments and changes**, the administrative user you are using **must** have `ssh` and `sudo` privileges on all nodes.
+> `ssh` and `sudo` privileges are REQUIRED for running playbooks.
 >
 > Pigsty strongly recommends configuring SSH **passwordless login** for the admin user and passwordless `sudo` for the admin user on all nodes.
 
-**Pigsty recommends that administrative user creation, privilege configuration and key distribution be done in the Provisioning phase of the virtual machine**, as part of the machine resource delivery content. For production environments, the machine should be delivered with such a user already configured with an unencrypted remote SSH login and performing unencrypted sudo. Usually most cloud platforms and ops systems can do this.
+It's highly recommended to setup admin user during vm provisioning phase.
+It's trivial to have such a user when you got a node.
 
 If you can only use the ssh password and sudo password, then you must add the additional parameters `--ask-pass|-k` and `--ask-become-pass|-K` to all script executions and enter the ssh password and sudo password when prompted. You can create a **dedicated administrator user** using the current user using the function to create an administrator user in [`pgsql.yml`](p-pgsql), and the following parameters are used to create the default administrator user.
 
-* [`node_admin_setup`](v-node#node_admin_setup)
-* [`node_admin_uid`](v-node#node_admin_uid)
-* [`node_admin_username`](v-node#node_admin_username)
-* [``node_admin_pks`''(v-node#node_admin_pks)
+* [`node_admin_setup`](v-node.md#node_admin_setup)
+* [`node_admin_uid`](v-node.md#node_admin_uid)
+* [`node_admin_username`](v-node.md#node_admin_username)
+* [`node_admin_pks`](v-node.md#node_admin_pks)
 
 ```bash
 . /pgsql.yml -t node_admin -l <target machine> --ask-pass --ask-become-pass
@@ -73,13 +86,13 @@ The default user for the sandbox environment, `vagrant`, has been configured wit
 
 Manual configuration of SSH password-free login can be achieved by `ssh-keygen` and `ssh-copy-id`, please refer to the related documentation.
 
-Manually configuring password-free ``sudo`` for a user can be done by adding the following entry to ``/etc/sudoers.d/<username>` file
+Manually configuring password-free `sudo` for a user can be done by adding the following entry to `/etc/sudoers.d/<username>` file
 
 ```bash
 %<username> ALL=(ALL) NOPASSWD: ALL
 ```
 
-Note that replacing ``<username>`` with the name of the administrator you are using is sufficient.
+Note that replacing `<username>` with the name of the administrator you are using is sufficient.
 
 
 

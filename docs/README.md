@@ -276,7 +276,7 @@ Check [Getting Started - Introduction](s-intro.md) for details.
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
 
-Author: [**Vonng**](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
+Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
 

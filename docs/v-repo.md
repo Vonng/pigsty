@@ -12,7 +12,7 @@ The total size of all dependent software is around 1GB and the download speed de
 When creating a local Yum source, if the `{{ repo_home }}/{{ repo_name }}` directory already exists and contains the `repo_complete` marker file, Pigsty assumes that the local Yum source has been initialized and therefore skips the software download phase, speeding it up significantly. An offline installer is a zip archive of the entire `{{ repo_home }}/{{ repo_name }}` directory.
 
 
-## 参数概览
+## Overview
 
 |                            Name                             |    Type    | Level  | Description |
 | :----------------------------------------------------------: | :--------: | :---: | ---- |

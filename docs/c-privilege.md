@@ -1,16 +1,19 @@
-# Permissions
+# Privilege
 
-PostgreSQL provides a standard access control mechanism: [authentication](c-auth.md) (Authentication) and [privileges](c-privilege.md) (Privileges), both based on the [role](c-user.md) (Role) and [user](c-user. md) (User) systems. Pigsty provides an out-of-the-box access control model that covers the security needs of most scenarios.
+PostgreSQL provides a standard access control mechanism: [authentication](c-auth.md) and [privileges](c-privilege.md),
+both based on the [role](c-user.md) systems.
+Pigsty provides a battery-included access control model that covers the security needs of most scenarios.
 
-This article describes the default permission system used by Pigsty.
+This article describes the default privilege system used by Pigsty.
 
-Pigsty's default user system consists of **four default users** with **four types of default roles**.
 
-## Object permissions
+## Object Privilege
 
-The permission model is closely related to the [default role](c-user.md).
+The privilege model ties to [default roles](c-user.md#default-roles) closely. 
 
-When using the Pigsty access control model, newly created business users should all belong to one of the four default roles, and the permissions held by the default roles are shown below.
+When using the Pigsty access control model,
+newly created business users should all belong to one of the 4 default roles,
+and the privileges held by the default roles are shown below.
 
 ```sql
 GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
@@ -56,25 +59,29 @@ GRANT USAGE                         ON TYPES     TO dbrole_admin
 * Offline users are similar to read-only users, but are only allowed to access instances of `pg_role == 'offline'` or `pg_offline_query = true`
 
 
-## Maintenance of object permissions
+## Maintenance of Object Privileges
 
 Default access to database objects is ensured by PostgreSQL's `ALTER DEFAULT PRIVILEGES`.
 
-All objects created by `{{ dbsu }}`, `{{ pg_admin_username }}`, `{{ dbrole_admin }}` will have the above default permissions.
-Conversely, objects created by other roles will not be configured with the correct default access permissions.
+All objects created by `{{ dbsu }}`, `{{ pg_admin_username }}`, `{{ dbrole_admin }}` will have the above default privileges.
+Conversely, objects created by other roles will not be configured with the correct default access privileges.
 
-Pigsty strongly discourages the use of **business users** to perform DDL changes, because PostgreSQL's `ALTER DEFAULT PRIVILEGE` only works for `objects created by specific users', and by default superuser `postgres` and ` dbuser_dba` have the default privilege configuration, if you want to grant business users the privilege to execute DDL, then besides giving the `dbrole_admin` role to business users, users should also keep in mind that when executing DDL changes, you should first execute.
+Pigsty strongly discourages the use of **business users** to perform DDL changes,
+because PostgreSQL's `ALTER DEFAULT PRIVILEGE` only works for objects created by specific users:
+Which are default superuser `postgres`, default admin user `dbuser_dba` in Pigsty ACL.
+if you want to grant business users the privilege to execute DDL,
+you should also set default privilege for that user, or use `SET ROLE` before executing DDL to **MAINTAIN PRIVILEGES**.
 
 ```sql
 SET ROLE dbrole_admin; -- The object created by dbrole_admin has the correct default privileges
 ```
 
-This way the created object will have the default access permissions
+This way the created object will have the default access privileges
 
 
-## Database permissions
+## Database Privilege
 
-Databases have three kinds of permissions: `CONNECT`, `CREATE`, `TEMP`, and the special attribute `OWNERSHIP`. The definition of a database is controlled by the parameter `pg_database`. A complete database definition is shown below.
+Databases have three kinds of privileges: `CONNECT`, `CREATE`, `TEMP`, and the special attribute `OWNERSHIP`. The definition of a database is controlled by the parameter `pg_database`. A complete database definition is shown below.
 
 ```yaml
 pg_databases:                       # define business databases on this cluster, array of database definition
@@ -102,7 +109,7 @@ pg_databases:                       # define business databases on this cluster,
 
 By default, the database superuser `dbsu` will be the default `OWNER` of the database if the database is not configured with an owner, otherwise it will be the specified user.
 
-By default, all users have the `CONNECT` permission for newly created databases, which will be reclaimed by setting `revokeconn == true` if you wish to reclaim the permission. Only the default user (dbsu|admin|monitor|replicator) with the database's owner is explicitly given the `CONNECT` permission. Also, `admin|owner` will have `GRANT OPTION` for the `CONNECT` permission and can delegate the `CONNECT` permission to others.
+By default, all users have the `CONNECT` privilege for newly created databases, which will be reclaimed by setting `revokeconn == true` if you wish to reclaim the privilege. Only the default user (dbsu|admin|monitor|replicator) with the database's owner is explicitly given the `CONNECT` privilege. Also, `admin|owner` will have `GRANT OPTION` for the `CONNECT` privilege and can delegate the `CONNECT` privilege to others.
 
 If you want to achieve **access isolation** between different databases, you can create a corresponding business user as `owner` for each database and set the `revokeconn` option for all of them, this configuration is especially useful for multi-tenant instances.
 
@@ -149,13 +156,13 @@ pg-infra:
 
 
 
-## Permission on create objects
+## CREATE privilege
 
-By default, Pigsty revokes the `PUBLIC` user's permission to `CREATE` a new schema under the database for security reasons.
-It also revokes the `PUBLIC` user's permission to create new relationships in the `PUBLIC` schema.
+By default, Pigsty revokes the `PUBLIC` user's privilege to `CREATE` a new schema under the database for security reasons.
+It also revokes the `PUBLIC` user's privilege to create new relationships in the `PUBLIC` schema.
 Database super users and administrators are not subject to this restriction and can always perform DDL changes anywhere.
 
-**Permissions to create objects in the database are independent of whether the user is the database owner or not, it only depends on whether the user was given administrator privileges when it was created**.
+**privileges to create objects in the database are independent of whether the user is the database owner or not, it only depends on whether the user was given administrator privileges when it was created**.
 
 ```yaml
 pg_users:

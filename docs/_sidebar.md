@@ -11,14 +11,14 @@
   - [Configuration](c-config.md)
   - [Service](c-service.md)
   - [Database](c-database.md)
-  - [User](c-user.md)
+  - [User/Role](c-user.md)
   - [Privilege](c-privilege.md)
   - [Authentication](c-auth.md)
   - [Access](c-access.md)
 
 - Tutorial
   - [Deployment](t-deploy.md)
-  - [Prepare](t-prepare.md)
+  - [Preparation](t-prepare.md)
   - [Operation](t-operation.md)
   - [Offline Install](t-offline.md)
   - [GrafanaDB Upgrade](t-grafana-upgrade.md)
@@ -38,8 +38,8 @@
   - [Alerting](r-alert.md)
 
 - Configuration
-  - [Config Overview](v-config.md)
-  - [Connection](v-connect.md)
+  - [Overview](v-config.md)
+  - [Connect](v-connect.md)
   - [Local Repo](v-repo.md)
   - [Node Provision](v-node.md)
   - [Infrastructure](v-meta.md)
@@ -63,4 +63,4 @@
 
 - [Community](community.md)
 - [Roadmap](roadmap.md)
-- [Develop Log](devlog.md)
+- [Dev Log](devlog.md)

@@ -329,7 +329,7 @@ Plugins will be installed via `cd /var/lib/grafana/plugins && git clone `.
 
 A visualization plugin will be downloaded by default: ``vonng-echarts-panel``
 
-``yaml
+```yaml
 grafana_git_plugins: # plugins that will be downloaded via git
   - https://github.com/Vonng/vonng-echarts-panel
 ```

@@ -1,11 +1,12 @@
 # Roles and Users
 
-PostgreSQL provides a standard access control mechanism: [authentication](c-auth.md) (Authentication) and [privileges](c-privilege.md) (Privileges), both based on the [role](c-user.md) (Role) and [user](c-user. md) (User) systems. Pigsty provides an out-of-the-box access control model that covers the security needs of most scenarios.
+PostgreSQL provides a standard access control mechanism: [authentication](c-auth.md) and [privileges](c-privilege.md),
+both based on the [role](c-user.md) systems. 
+Pigsty provides a battery-included access control model that covers the security needs of most scenarios.
 
-This paper describes the default role system used by Pigsty.
+This article describes the default role system used by Pigsty.
 
-Pigsty's default user system consists of **four default users** and **four types of default roles**.
-
+Pigsty's default user system consists of 4 **default users** and 4 **default roles**.
 
 
 ## Default Roles
@@ -170,11 +171,12 @@ Here is an example:
 
 ## Create users
 
-The roles and users defined by `pg_default_roles` and `pg_users` are automatically created sequentially when the database cluster (or master instance) is created.
+The roles and users defined by [`pg_default_roles`](v-pg-template.md#pg_default_roles) and [`pg_users`](v-pg-template.md#pg_users) are automatically created sequentially when the database cluster (or master instance) is created.
 
-New business users can be created on a running existing database via the pre-built script `pgsql-createuser.yml`.
+New business users can be created on a running existing database via built-in playbook [`pgsql-createuser.yml`](p-pgsql-createuser.md).
 
-First, you need to add the definition of the user to the `pg_users` configuration item of the corresponding database cluster configuration. Then, use the following command to create the user or role on the corresponding cluster.
+First, Add the definition of the user to the [`pg_users`](v-pg-template.md#pg_users) entry of the corresponding database cluster. 
+Then, use the following command to create the user/role on that cluster:
 
 ```bash
 # <pg_cluster> is the cluster name and <username> is the new username.
@@ -208,12 +210,12 @@ Under normal circumstances, use the `pgsql-createuser.yml` script to manage data
 
 ```bash
 # This command can be used to manually add users in an emergency
-/pg/bin/pgbouncer-create-user
 # Usage: pgbouncer-create-user <username> [password]
+/pg/bin/pgbouncer-create-user
 
-pgbouncer-create-user dbp_vonng Test.Password # plaintext password         
+pgbouncer-create-user dbp_vonng Test.Password                       # plaintext password         
 pgbouncer-create-user dbp_vonng md596bceae83ba2937778af09adf00ae738 # md5 password
-pgbouncer-create-user dbp_vonng auto # Get password from database query
-pgbouncer-create-user dbp_vonng null # Use empty password
+pgbouncer-create-user dbp_vonng auto                                # Get password from database query
+pgbouncer-create-user dbp_vonng null                                # Use empty password
 ```
 

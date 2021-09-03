@@ -23,7 +23,7 @@ psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5433/meta # go load balancin
 
 When deploying Pigsty in a production environment, you need to focus on **services**.
 
-## What is a Service
+## Definition
 
 A **Service** is the form of functionality that a database cluster provides to the outside world.
 
@@ -36,7 +36,7 @@ In addition, a highly available cluster will fail over **Failover** and the fail
 These different access requirements (read/write separation, pooling and direct connection, failover auto-adaptation) are eventually abstracted into the concept of **service**.
 
 
-## Service Representation
+## Form of Service
 
 The external manifestation of a service is usually an **access endpoint**, such as a connection URL to a PostgreSQL database.
 The user can access the corresponding database functionality through this endpoint.
@@ -73,7 +73,7 @@ You can define new services globally or for individual clusters via configuratio
 | default | 5436 | management | direct connection to cluster master |
 | offline | 5438 | ETL/personal user | connects directly to an available offline instance of the cluster |
 
-Take the metadatabase `pg-meta` as an example
+Take the meta-database `pg-meta` as an example
 
 ```bash
 psql postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta # production read/write
@@ -185,7 +185,7 @@ Offline instances are those with `pg_role == offline` or with the `pg_offline_qu
 
 An array of service definition objects defines the services exposed to the public in each database cluster. Each cluster can define multiple services, each containing any number of cluster members, and services are distinguished by **ports**.
 
-Services are defined via [**`pg_services`**] and [**`pg_services_extra`**]. The former is used to define services that are common across the environment, and the latter is used to define cluster-specific additional services. Both are arrays consisting of **service definitions**.
+Services are defined via [**`pg_services`**](v-service.md#pg_services) and [**`pg_services_extra`**](v-service.md#pg_services_extra). The former is used to define services that are common across the environment, and the latter is used to define cluster-specific additional services. Both are arrays consisting of **service definitions**.
 
 The following code defines a new service `standby` that uses port `5435` to provide **synchronous read** functionality to the outside world. This service will read from a synchronous slave (or master) in the cluster, thus ensuring that all reads are done without latency.
 

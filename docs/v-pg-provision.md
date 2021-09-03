@@ -113,7 +113,7 @@ pgbouncer_max_db_conn: 100                    # max connection to single databas
 
 ## Identity Parameters
 
-|           名称            |   类型   | 层级  | 说明                            |
+|           Name            |   Type   | Level  | Description                            |
 | :-----------------------: | :------: | :---: | ------------------------------- |
 | [pg_cluster](#pg_cluster) | `string` | **C** | **PG Cluster Name**            |
 |     [pg_seq](#pg_seq)     | `number` | **I** | **PG Instance Serial**            |

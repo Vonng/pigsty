@@ -1,8 +1,11 @@
 # Entity & Identifier
 
-Entity, and their naming are very important things, and naming style reflects the engineer's knowledge of the system architecture.
-Poorly defined concepts will lead to confusing communication, and arbitrarily set names will create an unexpected extra burden.
-This article introduces the concept of domain entities in Pigsty, and the naming rules used to identify them.
+Entity, and their naming are very important.
+Naming pattern reflects the engineer's knowledge of the system architecture.
+Poorly defined concepts will lead to confusing communication, 
+and arbitrarily set names will create an unexpected extra burden.
+This article introduces the concept of domain entities in Pigsty,
+and the naming pattern used to identify them.
 
 -------------
 

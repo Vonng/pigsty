@@ -5,7 +5,7 @@
 Users new to PostgreSQL and Pigsty, data analysts, data developers, 
 can get first impressions from the public Pigsty demo: [http://demo.pigsty.cc](http://demo.pigsty.cc).
 
-Two built-in [data applications](t-application.md) that build upon pigsty:  
+Two built-in data [applications](t-application.md) that build upon pigsty:  
   * WHO COVID-19 Dashboards: [`covid`](http://demo.pigsty.cc/d/covid-overview)
   * NOAA ISD Data Visualization: [`isd`](http://demo.pigsty.cc/d/isd-overview)
 
@@ -79,7 +79,7 @@ DBAs are usually more concerned with the usage of monitoring systems and the spe
 For professional users (deep customization), 
 Pigsty provides rich configuration items and customization interfaces.
 
-* [Configure Pigsty](v-config.md ## list of configuration items)
+* [Configure Pigsty](v-config.md#config-entries)
 * [Customize Patroni template](t-patroni-template.md)
 * [Customize database template](t-customize-template.md)
 
