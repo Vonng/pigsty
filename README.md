@@ -239,10 +239,11 @@ Pigsty comes with two example apps: `covid` for covid-19 data visualization, and
 
 ## Get Started
 
+If you are interested in Pigsty, check [Getting-Started: Introduction](docs/s-intro.md) for what's next.
+
 It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
 
 ![](docs/_media/how.svg)
-
 
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
@@ -254,9 +255,9 @@ git clone https://github.com/Vonng/pigsty && cd pigsty
 make install
 ```
 
-Check [Quick Start](s-install.md) for detail.
+Check [Quick Start](docs/s-install.md) for detail.
 
-If you don't have vm nodes, considering launch pigsty [sandbox](s-sandbox.md) on your Macbook:
+If you don't have vm nodes, considering launch pigsty [sandbox](docs/s-sandbox.md) on your Macbook:
 
 ```bash
 make deps      # Install MacOS deps with homebrew
@@ -275,8 +276,8 @@ make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
 
-Author: [**Vonng**](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
+Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
-License: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
+License: [Apache 2.0 License](LICENSE)
 
 Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)

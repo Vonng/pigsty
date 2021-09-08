@@ -1,4 +1,4 @@
-- [作者](https://vonng.com/)
+- [作者](https://vonng.com/en/)
 - [演示](http://demo.pigsty.cc)
 
 - 版本

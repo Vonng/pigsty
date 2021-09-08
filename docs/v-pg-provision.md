@@ -231,7 +231,7 @@ Security insurance, action the system should perform when a PostgreSQL instance 
 * clean: wipe the existing instance and continue (extremely dangerous)
 * skip: ignore the target of the existing instance (abort) and continue execution on the other target machine.
 
-If you really need to force wipe an existing database instance, it is recommended to use `pgsql-rm.yml` to finish offline and destroy the cluster and instance first, before re-executing the initialization. Otherwise, you need to complete the overwrite with the command line parameter `-e pg_exists_action=clean` to force the wiping of existing instances during the initialization process.
+If you really need to force wipe an existing database instance, it is recommended to use [`pgsql-remove.yml`](p-pgsql-remove.md) to finish offline and destroy the cluster and instance first, before re-executing the initialization. Otherwise, you need to complete the overwrite with the command line parameter `-e pg_exists_action=clean` to force the wiping of existing instances during the initialization process.
 
 
 
@@ -241,7 +241,7 @@ Double safety, default is `false`. If `true`, forces the `pg_exists_action` vari
 
 Equivalent to turning off the purge feature for `pg_exists_action`, ensuring that Postgres instances are not wiped out under any circumstances.
 
-This means that you will need to complete the cleanup of existing instances with the dedicated offline script `pgsql-rm.yml` before you can re-initialize the database on a cleaned node.
+This means that you will need to complete the cleanup of existing instances with the dedicated offline script [`pgsql-remove.yml`](p-pgsql-remove.md) before you can re-initialize the database on a cleaned node.
 
 
 
@@ -255,7 +255,7 @@ Default data directory, default is `/pg/data`
 
 Main data disk directory, defaults to `/export`
 
-Pigsty's default [directory structure] (/zh/docs/concepts/provision/fhs/) assumes that there is a master data disk mount point on the system to hold the database directory.
+Pigsty's default [FHS](r-fhs.md) assumes that there is a master data disk mount point on the system to hold the database directory.
 
 
 
@@ -263,7 +263,7 @@ Pigsty's default [directory structure] (/zh/docs/concepts/provision/fhs/) assume
 
 Archive and backup disk directory, default is `/var/backups`
 
-Pigsty's default [directory structure] (/zh/docs/concepts/provision/fhs/) assumes that there is a backup data disk mount point on the system for backup and archive data. The backup disk is not mandatory. If the backup disk does not exist on the system, the user can also specify a subdirectory on the primary data disk as the backup disk root mount point.
+Pigsty's default [FHS](r-fhs.md) assumes that there is a backup data disk mount point on the system for backup and archive data. The backup disk is not mandatory. If the backup disk does not exist on the system, the user can also specify a subdirectory on the primary data disk as the backup disk root mount point.
 
 
 
@@ -275,7 +275,7 @@ The IP address that the database listens to, default is all IPv4 addresses `0.0.
 
 ### pg_port
 
-The port that the database listens on, the default port is `5432`, it is not recommended to modify it.
+The port that the database listens on, the default port is `5432`, it is not recommended modifying it.
 
 
 
@@ -375,7 +375,7 @@ The default is `UTF8`, and it is not recommended to change this parameter if the
 
 The localization rule to be used when initializing the PostgreSQL instance.
 
-Default is `C`, it is not recommended to modify this parameter if there is no special need.
+Default is `C`, it is not recommended modifying this parameter if there is no special need.
 
 
 
