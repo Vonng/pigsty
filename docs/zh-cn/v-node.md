@@ -23,18 +23,18 @@
 |     [node_static_network](#node_static_network)     |   `bool`   |   G   | 是否使用静态DNS服务器             |
 |      [node_disk_prefetch](#node_disk_prefetch)      |  `bool`  |   G   | 是否启用磁盘预读                 |
 |     [node_kernel_modules](#node_kernel_modules)     | `string[]` |   G   | 启用的内核模块                  |
-|               [node_tune](#node_tune)               |   `enum`   |   G   | 节点[调优模式](/zh/docs/reference/tuned/) |
-|      [node_sysctl_params](#node_sysctl_params)      |   `dict`   |   G   | 操作系统内核参数                          |
-|        [node_admin_setup](#node_admin_setup)        |   `bool`   |   G   | 是否创建管理员用户                        |
-|          [node_admin_uid](#node_admin_uid)          |  `number`  |   G   | 管理员用户UID                             |
-|     [node_admin_username](#node_admin_username)     |  `string`  |   G   | 管理员用户名                              |
-| [node_admin_ssh_exchange](#node_admin_ssh_exchange) |   `bool`   |   G   | 在实例间交换管理员SSH密钥                 |
-|          [node_admin_pks](#node_admin_pks)          | `string[]` |   G   | 可登陆管理员的公钥列表                    |
-|  [node_admin_pk_current](#node_admin_pk_current)    | `bool` |   A   |  是否将当前用户的公钥加入管理员账户                   |
-|        [node_ntp_service](#node_ntp_service)        |   `enum`   |   G   | NTP服务类型：ntp或chrony                  |
-|         [node_ntp_config](#node_ntp_config)         |   `bool`   |   G   | 是否配置NTP服务？                         |
-|           [node_timezone](#node_timezone)           |  `string`  |   G   | NTP时区设置                               |
-|        [node_ntp_servers](#node_ntp_servers)        | `string[]` |   G   | NTP服务器列表                             |
+|               [node_tune](#node_tune)               |   `enum`   |   G   | 节点调优模式]                  |
+|      [node_sysctl_params](#node_sysctl_params)      |   `dict`   |   G   | 操作系统内核参数                 |
+|        [node_admin_setup](#node_admin_setup)        |   `bool`   |   G   | 是否创建管理员用户                |
+|          [node_admin_uid](#node_admin_uid)          |  `number`  |   G   | 管理员用户UID                 |
+|     [node_admin_username](#node_admin_username)     |  `string`  |   G   | 管理员用户名                   |
+| [node_admin_ssh_exchange](#node_admin_ssh_exchange) |   `bool`   |   G   | 在实例间交换管理员SSH密钥           |
+|          [node_admin_pks](#node_admin_pks)          | `string[]` |   G   | 可登陆管理员的公钥列表              |
+|  [node_admin_pk_current](#node_admin_pk_current)    | `bool` |   A   |  是否将当前用户的公钥加入管理员账户           |
+|        [node_ntp_service](#node_ntp_service)        |   `enum`   |   G   | NTP服务类型：ntp或chrony       |
+|         [node_ntp_config](#node_ntp_config)         |   `bool`   |   G   | 是否配置NTP服务？               |
+|           [node_timezone](#node_timezone)           |  `string`  |   G   | NTP时区设置                  |
+|        [node_ntp_servers](#node_ntp_servers)        | `string[]` |   G   | NTP服务器列表                 |
 
 ## 默认配置
 
@@ -217,11 +217,11 @@ node_local_repo_url:
 
 通过yum安装的软件包列表。
 
-软件包列表为数组，但每个元素可以包含由逗号分隔的多个软件包，Pigsty默认安装的软件包列表如下：
+软件包列表为数组，但每个元素可以包含由**逗号分隔**的多个软件包，Pigsty默认安装的软件包列表如下：
 
 ```yaml
-node_packages: # common packages for all nodes
-  - wget,yum-utils,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
+node_packages:                                # common packages for all nodes
+  - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
   - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
   - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
   - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
@@ -270,7 +270,9 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### node_disable_numa
 
-是否关闭Numa，注意，该选项需要重启后生效！默认不关闭，但生产环境强烈建议关闭NUMA。
+是否关闭Numa，注意，该选项需要重启机器后方可生效！
+
+默认不关闭，但生产环境建议关闭NUMA。
 
 
 
@@ -332,13 +334,14 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 * `olap`：常规OLAP数据库，优化吞吐量
 * `crit`：核心金融库，优化数据一致性
 
+通常机器节点的调优需要与[数据库模版](t-patroni-template.md)相对应。
 
 
 ### node_sysctl_params
 
-额外修改sysctl系统参数
+需要额外修改的操作系统内核参数
 
-字典KV结构
+字典KV结构，Key为参数名，Value为参数值。
 
 
 
@@ -398,9 +401,7 @@ Pigsty默认会创建名为`admin (uid=88)`的管理用户，可以从元节点�
 
 是否覆盖现有NTP配置？
 
-布尔选项，默认覆盖。
-
-
+布尔选项，默认覆盖（`true`）。
 
 
 ### node_timezone
@@ -411,6 +412,7 @@ Pigsty默认使用`Asia/Hong_Kong`，请根据您的实际情况调整。
 
 > 请不要使用`Asia/Shanghai`时区，该时区缩写 CST 会导致一系列日志时区解析问题。
 
+如果选择 `false`，则Pigsty不会修改该节点的时区配置。
 
 
 ### node_ntp_servers

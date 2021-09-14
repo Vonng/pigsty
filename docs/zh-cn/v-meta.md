@@ -272,13 +272,15 @@ Grafana管理用户的密码，默认为`pigsty`
 
 Grafana本身数据存储使用的数据库，默认为`sqlite3`文件数据库。
 
-可选为`postgres`，使用`postgres`时，必须确保目标数据库已经存在并可以访问
+可选为`postgres`，使用`postgres`时，必须确保目标数据库已经存在并可以访问。
 （即首次初始化基础设施前无法使用管理节点上的Postgres，因为Grafana先于该数据库而创建）
+
+详情请参考【[教程:使用Postgres作为Grafana后端数据库](t-grafana-upgrade.md)】
 
 
 ### grafana_pgurl
 
-当 `grafana_database` 类型为 `postgres`时，所使用的 Postgres连接串。
+当 `grafana_database` 类型为 `postgres`时，所使用的 Postgres 数据库连接串。
 
 
 ### grafana_plugin
@@ -289,7 +291,9 @@ Grafana插件的供给方式
 * `install`: 安装Grafana插件（默认）
 * `reinstall`: 强制重新安装Grafana插件
 
-Grafana需要访问互联网以下载若干扩展插件，如果您的元节点没有互联网访问，离线安装包中已经包含了所有下载好的Grafana插件。Pigsty会在插件下载完成后重新制作新的插件缓存安装包。
+Grafana需要访问互联网以下载若干扩展插件，如果您的元节点没有互联网访问，则应当确保使用了离线安装包。
+离线安装包中默认已经包含了所有下载好的Grafana插件，位于 [`grafana_cache`](#grafana_cache) 指定的路径下。
+当从互联网下载插件时，Pigsty会在下载完成后打包下载好的插件，并放置于 [`grafana_cache`](#grafana_cache) 路径下。
 
 
 
@@ -305,13 +309,13 @@ Grafana插件缓存文件地址
 
 ### grafana_plugins
 
-Grafana插件列表
+需要从Grafana官方安装的插件列表
 
-数组，每个元素是一个插件名称。
+数组，每个数组元素是一个字符串，为插件的名称。
 
 插件会通过`grafana-cli plugins install`的方式进行安装。
 
-默认安装的插件有：
+默认安装的插件包括：
 
 ```yaml
 grafana_plugins:                              # plugins that will be downloaded via grafana-cli
@@ -324,20 +328,17 @@ grafana_plugins:                              # plugins that will be downloaded 
 
 
 
-
-
-
 ### grafana_git_plugins
 
-Grafana的Git插件
+需要通过Git的方式下载的Grafana插件列表
 
-一些插件无法通过官方命令行下载，但可以通过Git Clone的方式下载，则可以考虑使用本参数。
+数组，每个数组元素是一个字符串，为插件的Git URL。
 
-数组，每个元素是一个插件名称。
+一些插件无法通过官方命令行下载，但可以通过Git Clone的方式下载。
 
 插件会通过`cd /var/lib/grafana/plugins && git clone `的方式进行安装。
 
-默认会下载一个可视化插件：`vonng-echarts-panel`
+默认会下载一个可视化插件：`vonng-echarts-panel`，提供为Grafana提供Echarts绘图支持。
 
 ```yaml
 grafana_git_plugins:                          # plugins that will be downloaded via git
@@ -348,9 +349,9 @@ grafana_git_plugins:                          # plugins that will be downloaded 
 
 ### loki_clean
 
-bool类型，命令行参数，用于指明安装Loki时是否先清理Loki数据目录？
+bool类型，命令行参数，用于指明安装Loki时是否先清理Loki数据目录。
 
-Loki不属于默认安装的监控组件，该参数目前只会被 `infra-loki.yml` 剧本使用。
+Loki不属于默认安装的监控组件，该参数目前只会被 [`infra-loki.yml`] 剧本使用。
 
 
 
@@ -360,5 +361,5 @@ Loki不属于默认安装的监控组件，该参数目前只会被 `infra-loki.
 
 默认位于`/export/loki/`
 
-Loki不属于默认安装的监控组件，该参数目前只会被 `infra-loki.yml` 剧本使用。
+Loki不属于默认安装的监控组件，该参数目前只会被 [`infra-loki.yml`] 剧本使用。
 

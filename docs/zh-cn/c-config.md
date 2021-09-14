@@ -201,7 +201,7 @@ Pigsty基于 **身份标识（Identity）** 进行管理。定义数据库集群
 |    [`pg_role`](v-pg-provision.md#pg_role)    | **必选**，实例级别 | 实例角色 | `primary`, `replica` |
 |     [`pg_seq`](v-pg-provision.md#pg_seq)     | **必选**，实例级别 | 实例序号 | `1`, `2`, `3`,`...`  |
 
-身份参数的内容遵循 [实体命名规则](c-entity.md) 。其中 [`pg_cluster`](http://pigsty.cc/zh/docs/config/8-pg-template/#pg_cluster) ，[`pg_role`](http://pigsty.cc/zh/docs/config/8-pg-template/#pg_role)，[`pg_seq`](http://pigsty.cc/zh/docs/config/8-pg-template/#pg_seq) 属于核心身份参数，是定义数据库集群所需的**最小必须参数集**，核心身份参数**必须显式指定**，不可忽略。
+身份参数的内容遵循 [实体命名规则](c-entity.md) 。其中 [`pg_cluster`](v-pg-template.md#pg_cluster) ，[`pg_role`](v-pg-template.md#pg_role)，[`pg_seq`](v-pg-template.md#pg_seq) 属于核心身份参数，是定义数据库集群所需的**最小必须参数集**，核心身份参数**必须显式指定**，不可忽略。
 
 - `pg_cluster` 标识了集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
 - `pg_role`标识了实例在集群中扮演的角色，在实例层面进行配置，可选值包括：

@@ -4,7 +4,11 @@
 
 ### 微信群
 
+使用微信扫描二维码加入Pigsty交流群
+
 ![](../_media/group.jpg)
+
+（2021-09-21日前有效）
 
 ### Github Issues
 

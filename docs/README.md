@@ -1,10 +1,10 @@
 # Pigsty
 
-## Pigsty v1.0.0 Documentation
+## Pigsty v1.0.1 Documentation
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Public Demo](https://demo.pigsty.cc)
+> Latest Version: [v1.0.1](https://github.com/Vonng/pigsty/releases/tag/v1.0.1)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Public Demo](https://demo.pigsty.cc)
 >
 > Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 
@@ -227,7 +227,7 @@ There are two specs of sandbox: 1 node (the default) and 4 node (full sandbox)
 Pigsty ships with handy tools such as Jupyterlab, PostgreSQL, Grafana, Echarts. Which is great for data analysis & visualization.
 You can turn pigsty sandbox into an IDE for making data-intensive applications and demos: Processing data with SQL & Python, Visualize with Grafana & Echarts.
 
-Pigsty comes with two example apps: `covid` for covid-19 data visualization, and `isd` for visualizing global surface weather station data.
+Pigsty comes with two example apps: [`covid`](http://demo.pigsty.cc/d/covid-overview) for covid-19 data visualization, and [`isd`](http://demo.pigsty.cc/d/isd-overview) for visualizing global surface weather station data.
 
 ![](_media/overview-covid.jpg)
 

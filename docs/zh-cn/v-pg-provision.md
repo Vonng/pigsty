@@ -348,12 +348,15 @@ Patroni API服务器默认监听的端口
 
 ### patroni_watchdog_mode
 
-当发生主从切换时，Patroni会尝试在提升从库前关闭主库。如果指定超时时间内主库仍未成功关闭，Patroni会根据配置使用Linux内核功能softdog进行fencing关机。
+当发生主从切换时，Patroni会尝试在提升从库前关闭主库。如果指定超时时间内主库仍未成功关闭，Patroni会根据配置使用Linux内核模块`softdog`进行fencing关机。
 
 * `off`：不使用`watchdog`
 * `automatic`：如果内核启用了`softdog`，则启用`watchdog`，不强制，默认行为。
 * `required`：强制使用`watchdog`，如果系统未启用`softdog`则拒绝启动。
 
+启用Watchdog意味着系统会优先确保数据一致性，而放弃可用性，如果您的系统更重视可用性，则可以关闭Watchdog。
+
+建议关闭管理节点上的Watchdog。
 
 
 ### pg_conf
@@ -370,7 +373,13 @@ Patroni API服务器默认监听的端口
 
 填入Patroni模板中`shared_preload_libraries`参数的字符串，控制PG启动预加载的动态库。
 
-在当前版本中，默认会加载以下库：`citus, timescaledb, pg_stat_statements, auto_explain`
+在当前版本中，默认会加载以下库：`timescaledb, pg_stat_statements, auto_explain`
+
+如果您希望默认启用Citus支持，则需要修改该参数，将 `citus` 添加至首位：
+
+`citus, timescaledb, pg_stat_statements, auto_explain`
+
+并修改 [Patroni模板](t-patroni-template.md) 中 `max_prepared_transaction` 参数为一个合适的值（大于等于`max_connections`的值）
 
 
 ### pg_encoding
@@ -427,4 +436,4 @@ Pgbouncer连接池默认使用的Pool模式
 
 默认值为`100`
 
-使用事务Pooling模式时，活跃服务端连接数通常处于个位数。如果采用会话Pooling，可以适当增大此参数。
+使用事务Pooling模式时，活跃服务端连接数通常处于个位数。如果采用会话Pooling模式，可以适当增大此参数。

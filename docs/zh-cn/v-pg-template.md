@@ -308,7 +308,7 @@ pg_default_privileges:
   - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
 ```
 
-详细信息请参考 [访问控制](/zh/docs/deploy/customize/privileges/)。
+详细信息请参考 [默认权限](c-privilege.md#对象的权限)。
 
 
 
@@ -358,7 +358,7 @@ pg_default_extensions:
 
 设置为`true`时，无论当前实例的角色为何，用户组`dbrole_offline`都可以连接至该实例并执行离线查询。
 
-对于实例数量较少（例如一主一从）的情况较为实用，用户可以将唯一的从库标记为`pg_offline_query = true`，从而接受ETL，慢查询与交互式访问。详细信息请参考 [访问控制-离线用户](/zh/docs/deploy/customize/privileges/)。
+对于实例数量较少（例如一主一从）的情况较为实用，用户可以将唯一的从库标记为`pg_offline_query = true`，从而接受ETL，慢查询与交互式访问。
 
 
 

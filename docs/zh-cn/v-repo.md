@@ -1,10 +1,25 @@
 # 本地仓库
 
-Pigsty是一个复杂的软件系统，为了确保系统的稳定，Pigsty会在初始化过程中从互联网下载所有依赖的软件包并建立本地Yum源。
+为了确保系统的稳定，Pigsty会在初始化过程中从互联网下载所有依赖的软件包，建立本地Yum源，以加速后续安装步骤。
 
-所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。尽管Pigsty已经尽量使用镜像源以加速下载，但少量包的下载仍可能受到防火墙的阻挠，可能出现非常慢的情况。您可以通过`proxy_env`配置项设置下载代理以完成首次下载，或直接下载预先打包好的**离线安装包**。
+所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
 
-建立本地Yum源时，如果`{{ repo_home }}/{{ repo_name }}`目录已经存在，而且里面有`repo_complete`的标记文件，Pigsty会认为本地Yum源已经初始化完毕，因此跳过软件下载阶段，显著加快速度。离线安装包即是把`{{ repo_home }}/{{ repo_name }}`目录整个打成压缩包。
+建立本地Yum源时，如果`{{ repo_home }}/{{ repo_name }}`目录已经存在，而且目录中存在名为`repo_complete`的标记文件，
+Pigsty会认为本地Yum源已经初始化完毕，跳过软件下载阶段。
+
+## 离线安装包
+
+尽管Pigsty已经尽量使用镜像源以加速下载，但少量包的下载仍可能受到防火墙的阻挠。如果某些软件包的下载速度过慢，
+您可以通过`proxy_env`配置项设置下载代理以完成首次下载，或直接下载预先打包好的[离线安装包](t-offline.md)。
+
+离线安装包即是把`{{ repo_home }}/{{ repo_name }}`目录整个打成压缩包`pkg.tgz`。
+在`configure`过程中，如果Pigsty发现离线软件包`/tmp/pkg.tgz`存在，则会将其解压至`{{ repo_home }}/{{ repo_name }}`目录
+
+默认的离线安装包基于CentOS 7.8.2003 x86_64操作系统制作，如果您使用的操作系统与此不同，或并非使用全新安装的操作系统环境，则有概率出现RPM软件包冲突与依赖错误的问题。
+在此情况下，您依然可以使用大部分离线软件包中的内容：只需要删除 `{{ repo_home }}/{{ repo_name }}/repo_complete` （默认为`/www/pigsty/repo_complete`）标记文件，
+并移除所有冲突的软件包，从您当前操作系统可用的YUM源（默认备份于`/etc/yum.repos.d/backup`）下载兼容的软件包。
+
+
 
 ## 参数概览
 
@@ -60,7 +75,7 @@ repo_url_packages: [...]                      # 通过URL下载的软件
 
 如果您的本地yum源没有使用标准的80端口，您需要在地址中加入端口，并与`repo_port`变量保持一致。
 
-您可以通过[节点](/zh/docs/deploy/config/3-node/)参数中的静态DNS配置来为环境中的所有节点写入`Pigsty`本地源的域名，沙箱环境中即是采用这种方式来解析默认的`yum.pigsty`域名。
+您可以通过[节点](v-node.md)参数中的静态DNS配置来为环境中的所有节点写入`Pigsty`本地源的域名，沙箱环境中即是采用这种方式来解析默认的`yum.pigsty`域名。
 
 
 
@@ -239,17 +254,24 @@ repo_packages:
 
 采用URL直接下载，而非yum下载的软件包。您可以将自定义的软件包连接添加到这里。
 
-Pigsty默认会通过URL下载三款软件：
+Pigsty默认会通过URL下载一些软件：
 
-* `pg_exporter`（必须，监控系统核心组件）
-* `vip-manager`（可选，启用VIP时必须）
-* `polysh`（可选，多机管理便捷工具）
+* `pg_exporter`： 必须项，监控系统核心组件
+* `vip-manager`：启用L2 VIP时所必须的软件包，用于管理VIP
+* `loki`, `promtail`, `logcli`, `loki-canary`：使用实时日志收集方案时需要下载的二进制软件包。
+* `node_exporter` , `pg_exporter`：监控Agent的二进制包，使用监控二进制安装模式，或[仅监控部署](t-monly.md)时需要
+
 
 ```yaml
 repo_url_packages:
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.3.1/pg_exporter-0.3.1-1.el7.x86_64.rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-  - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
+  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
+  - https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binaries
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
+  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
 ```
 
 

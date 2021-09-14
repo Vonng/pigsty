@@ -1,3 +1,21 @@
+# v1.0.1
+
+2021-09-14
+
+* Documentation Update
+  * Chinese document now viable
+  * Machine-Translated English document now viable
+* Bug Fix: `pgsql-remove` does not remove primary instance.
+* Bug Fix: replace pg_instance with pg_cluster + pg_seq
+  * Start-At-Task may fail due to pg_instance undefined
+* Bug Fix: remove citus from default shared preload library
+  * citus will force max_prepared_transaction to non-zero value
+* Bug Fix: ssh sudo checking in `configure`:
+  * now `ssh -t sudo -n ls` is used for privilege checking
+* Typo Fix: `pg-backup` script typo   
+* Alert Adjust: Remove ntp sanity check alert (dupe with ClockSkew)
+* Exporter Adjust: remove collector.systemd to reduce overhead
+
 # v1.0.0
 
 ## Highlights

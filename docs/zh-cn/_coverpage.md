@@ -1,6 +1,6 @@
 ![logo](../_media/icon.svg)
 
-# Pigsty <small>1.0.0</small>
+# Pigsty <small>1.0.1</small>
 
 > <b>开箱即用的开源PostgreSQL发行版</b>
 

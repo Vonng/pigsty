@@ -190,7 +190,7 @@ In particular, the Pgbouncer monitoring metrics contain the extremely important 
 
 ### Service Discovery
 
-External provisioning solutions usually have their own identity management mechanisms, so Pigsty does not overstep its authority to deploy DCS for **service discovery**. This means that users can only manage the identity of monitored objects using **static configuration files**, which is usually not a problem since Pigsty v1.0.0 uses a static file-based service discovery mechanism by default.
+External provisioning solutions usually have their own identity management mechanisms, so Pigsty does not overstep its authority to deploy DCS for **service discovery**. This means that users can only manage the identity of monitored objects using **static configuration files**, which is usually not a problem since Pigsty v1.0.10 uses a static file-based service discovery mechanism by default.
 
 ### Identity changes
 

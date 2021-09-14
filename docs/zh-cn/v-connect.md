@@ -23,6 +23,7 @@
 ./pgsql --limit <target_hosts>  --tags node_admin  -e ansible_user=<another_admin> --ask-pass --ask-become-pass 
 ```
 
+详情请参考：[准备：管理用户置备](t-prepare.md#管理用户置备)
 
 
 ## 参数详解

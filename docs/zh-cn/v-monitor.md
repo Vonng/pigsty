@@ -1,16 +1,21 @@
 # 监控系统
 
-Pigsty的监控系统包含两个Agent：**Node Exporter** , **PG Exporter**
+每一个被管理的Postgres实例都包括有4个采集端口：
+* 采集机器节点指标的 [Node Exporter](https://github.com/prometheus/node_exporter)
+* 采集数据库指标的 [PG Exporter](https://github.com/Vonng/pg_exporter)
+* 采集连接池指标的 [PGBouncer Exporter](https://github.com/Vonng/pg_exporter) （与PG Exporter使用同一二进制）
+* 采集负载均衡器指标的 [HAProxy](https://github.com/Vonng/pg_exporter) （内建支持，无需单独部署）
 
-Node Exporter用于暴露机器节点的监控指标，PG Exporter用于拉取数据库与Pgbouncer连接池的监控指标；此外，Haproxy将**直接**通过管理端口对外暴露监控指标。
+![](../_media/node.svg)
 
-默认情况下，所有监控Exporter都会被注册至Consul，Prometheus默认会通过静态文件服务发现的方式管理这些任务。
-但用户可以通过配置 [ `prometheus_sd_method`](v-meta.md/#prometheus_sd_method) 为 `consul` 改用Consul服务发现，
+这些采集端口会被[管理节点](c-arch.md#管理节点)上的Prometheus所采集。
+此外，可选的Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。
 
-Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。
+默认情况下，所有监控端点都会被注册至Consul，但Prometheus默认会通过静态文件服务发现的方式管理这些任务。
+用户可以通过配置 [`prometheus_sd_method`](v-meta.md#prometheus_sd_method) 为 `consul` 来使用Consul服务发现，动态管理实例
+
 
 ## 参数概览
-
 
 |                           名称                            |   类型   | 层级 | 说明                           |
 | :-------------------------------------------------------: | :------: | :--: | ------------------------------ |
@@ -103,22 +108,11 @@ promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to recei
 <meta>:<pigsty>/files/pg_exporter   ->  <target>:/usr/bin/pg_exporter
 ```
 
+### exporter_repo_url
 
+包含有Node|PG Exporter监控组件的YUM源 Repo 文件的URL。
 
-### exporter_binary_install（弃用）
-
-**该参数已被[`expoter_install`](#exporter_install) 参数覆盖**
-
-是否采用复制二进制文件的方式安装Node Exporter与PG Exporter，默认为`false`
-
-该选项主要用于集成外部供给方案时，减少对原有系统的工作假设。启用该选项将直接将Linux二进制文件复制至目标机器。
-
-```
-<meta>:<pigsty>/files/node_exporter ->  <target>:/usr/bin/node_exporter
-<meta>:<pigsty>/files/pg_exporter   ->  <target>:/usr/bin/pg_exporter
-```
-
-用户需要通过`files/download-exporter.sh`从Github下载Linux二进制程序至`files`目录，方可启用该选项。
+默认为空，当 `exporter_install : yum` 时，该参数指定的Repo会被添加至操作系统中。
 
 
 
@@ -126,14 +120,13 @@ promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to recei
 
 所有Exporter对外暴露指标的URL PATH，默认为`/metrics`
 
-该变量被外部角色`prometheus`引用，Prometheus会根据这里的配置，针对`job = pg`的监控对象应用此配置。
+该变量被外部角色`prometheus`引用，Prometheus会根据这里的配置，针对`job = pgsql`的监控对象应用此配置。
 
 
 
 ### node_exporter_enabled
 
 是否安装并配置`node_exporter`，默认为`true`
-
 
 
 ### node_exporter_port
@@ -153,24 +146,18 @@ promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to recei
 该选项的默认值为：
 
 ```yaml
-node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
+node_exporter_options: '--no-collector.softnet --collector.ntp --collector.tcpstat --collector.processes'
 ```
 
 
 
 ### pg_exporter_config
 
-`pg_exporter`使用的默认配置文件，定义了Pigsty中的指标。
+`pg_exporter`使用的默认配置文件，定义了Pigsty中的数据库与连接池监控指标。
 
-Pigsty默认提供了两个配置文件：
+默认为 [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/monitor/files/pg_exporter.yml)
 
-* `pg_exporter-demo.yaml` 用于沙箱演示环境，缓存TTL更低（1s），监控实时性更好，但性能冲击更大。
-
-* `pg_exporter.yaml`，用于生产环境，有着正常的缓存TTL（10s），显著降低多个Prometheus同时抓取的负载。
-
-如果用户采用了不同的Prometheus架构，建议对`pg_exporter`的配置文件进行检查与调整。
-
-Pigsty使用的PG Exporter配置文件默认从PostgreSQL 10.0 开始提供支持，目前支持至最新的PG 13版本
+Pigsty使用的PG Exporter配置文件默认从PostgreSQL 10.0 开始提供支持，目前支持至最新的PG 14版本
 
 
 
@@ -182,17 +169,19 @@ Pigsty使用的PG Exporter配置文件默认从PostgreSQL 10.0 开始提供支�
 
 ### pg_exporter_url
 
-PG Exporter用于连接至数据库的PGURL
+PG Exporter用于连接至数据库的PGURL，应当为访问`postgres`管理数据库的URL。
 
-可选参数，默认为空字符串。
-
-Pigsty默认使用以下规则生成监控的目标URL，如果配置了`pg_exporter_url`选项，则会直接使用该URL作为连接串。
+可选参数，默认为空字符串，如果配置了`pg_exporter_url`选项，则会直接使用该URL作为监控连接串。
+否则Pigsty将使用以下规则生成监控的目标URL：
 
 ```bash
-PG_EXPORTER_URL='postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@:{{ pg_port }}/{{ pg_default_database }}?host={{ pg_localhost }}&sslmode=disable'
+PG_EXPORTER_URL='postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@:{{ pg_port }}/postgres?host={{ pg_localhost }}&sslmode=disable'
 ```
 
 该选项以环境变量的方式配置于 `/etc/default/pg_exporter` 中。
+
+注意：当您只需要监控某一个特定业务数据库时，您可以直接使用该数据库的PGURL。
+如果您希望监控某一个数据库实例上**所有**的业务数据库，则建议使用管理数据库`postgres`的PGURL。
 
 
 
@@ -210,17 +199,13 @@ PG Exporter v0.4 后的新特性：启用自动数据库发现，默认开启。
 
 ### pg_exporter_exclude_database
 
-逗号分隔的数据库名称列表
-
-启用自动数据库发现时，此列表中的数据库不会被监控。
+逗号分隔的数据库名称列表，启用自动数据库发现时，此列表中的数据库**不会被监控**（被排除在监控对象之外）。
 
 
 
 ### pg_exporter_include_database
 
-逗号分隔的数据库名称列表
-
-启用自动数据库发现时，不在此列表中的数据库不会被监控。
+逗号分隔的数据库名称列表，启用自动数据库发现时，不在此列表中的数据库不会被监控（显式指定需要监控的数据库）。
 
 
 
@@ -232,23 +217,19 @@ PG Exporter v0.4 后的新特性：启用自动数据库发现，默认开启。
 
 ### pg_exporter_port
 
-`pg_exporter`监听的端口
-
-默认端口`9630`
+`pg_exporter`监听的端口，默认端口`9630`
 
 
 
 ### pgbouncer_exporter_port
 
-`pgbouncer_exporter`监听的端口
-
-默认端口`9631`
+`pgbouncer_exporter`监听的端口，默认端口`9631`
 
 
 
 ### pgbouncer_exporter_url
 
-PGBouncer Exporter用于连接至数据库的URL
+PGBouncer Exporter用于连接至数据库的URL，应当为访问`pgbouncer`管理数据库的URL。
 
 可选参数，默认为空字符串。
 
@@ -265,7 +246,8 @@ PG_EXPORTER_URL='postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@
 ### promtail_enabled
 
 布尔类型，全局｜集群变量，是否启用Promtail日志收集服务？默认启用。
-但需要注意Loki与Promtail目前属于额外选装模块，不会在`pgsql.yml`的Monitor部分安装，目前只会在`pgsql-promtail.yml` 剧本中使用。
+
+需要注意Loki与Promtail目前属于额外选装模块，不会在[`pgsql.yml`](p-pgsql.md)的Monitor部分安装，目前只会在 [`pgsql-promtail.yml`] 剧本中使用。
 
 
 
@@ -273,23 +255,27 @@ PG_EXPORTER_URL='postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@
 
 布尔类型，命令行参数。
 
-是否在安装promtail时移除已有状态信息？状态文件记录在[`promtail_status_file`](#promtail_status_file) 中，记录了所有日志的消费偏移量，默认不会清理。
+是否在安装promtail时移除已有状态信息？
+状态文件记录在[`promtail_status_file`](#promtail_status_file) 中，记录了所有日志的消费偏移量，默认不会清理。
 
 
 
 ### promtail_port
 
-promtail使用的默认端口，默认为9080
+promtail使用的默认端口，默认为9080。
 
 
 
 ### promtail_status_file
 
-字符串类型，集群｜全局变量，内容为保存Promtail状态信息的文件位置，默认为 `/tmp/promtail-status.yml`。
+字符串类型，集群｜全局变量。
+
+内容为保存Promtail状态信息的文件位置，默认值为 `/tmp/promtail-status.yml`。
 
 
 
 ### promtail_send_url
 
-HTTP URL，用于接收日志的loki服务endpoint
+用于接收Promtail发送日志的loki endpoint
 
+默认值为：`http://10.10.10.10:3100/loki/api/v1/push`，其中IP地址`10.10.10.10`会在`configure`过程中被替换。

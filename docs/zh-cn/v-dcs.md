@@ -71,9 +71,7 @@ DCS类型，有两种选项：
 
 ### dcs_name
 
-DCS集群名称
-
-默认为`pigsty`
+DCS集群名称，默认为`pigsty`。
 
 在Consul中代表 DataCenter名称
 
@@ -81,13 +79,14 @@ DCS集群名称
 
 ### dcs_servers
 
-DCS服务器名称与地址，采用字典格式，Key为DCS服务器实例名称，Value为对应的IP地址。
+DCS服务器名称与地址，采用字典格式，Key为DCS服务器实例名称，Value为服务器IP地址。
 
-可以使用外部的已有DCS服务器，也可以在目标机器上初始化新的DCS服务器。
+您可以使用外部的已有DCS服务器（推荐），也可以在目标机器上初始化新的DCS服务器。
 
-如果采用初始化新DCS实例的方式，建议先在所有DCS Server（通常也是元节点）上完成DCS初始化。
+如果采用初始化新DCS实例的方式，建议先在所有DCS Server（通常也是元节点）上完成DCS初始化（[`infra.yml`](p-infra.md)）。
 
-尽管您也可以一次性初始化所有的DCS Server与DCS Agent，但必须在完整初始化时将所有Server囊括在内。此时所有IP地址匹配`dcs_servers`项的目标机器将会在DCS初始化过程中，初始化为DCS Server。
+尽管您也可以一次性初始化所有的DCS Server与DCS Agent，但必须在完整初始化时将所有Server囊括在内。
+此时所有IP地址匹配`dcs_servers`项的目标机器将会在DCS初始化过程中被初始化为DCS Server。
 
 强烈建议使用奇数个DCS Server，演示环境可使用单个DCS Server，生产环境建议使用3～5个确保DCS可用性。
 
@@ -102,16 +101,16 @@ dcs_servers:
 
 
 
-
 ### dcs_exists_action
 
 安全保险，当Consul实例已经存在时，系统应当执行的动作
 
-* abort: 中止整个剧本的执行（默认行为）
-* clean: 抹除现有DCS实例并继续（极端危险）
-* skip: 忽略存在DCS实例的目标（中止），在其他目标机器上继续执行。
+* `abort`: 中止整个剧本的执行（默认行为）
+* `clean`: 抹除现有DCS实例并继续（极端危险）
+* `skip`: 忽略存在DCS实例的目标（中止），在其他目标机器上继续执行。
 
-如果您真的需要强制清除已经存在的DCS实例，建议先使用`pgsql-rm.yml`完成集群与实例的下线与销毁，在重新执行初始化。否则，则需要通过命令行参数`-e dcs_exists_action=clean`完成覆写，强制在初始化过程中抹除已有实例。
+如果您真的需要强制清除已经存在的DCS实例，建议先使用[`pgsql-remove.yml`](p-pgsql-remove.md)完成集群与实例的下线与销毁，再重新执行初始化。
+否则需要通过命令行参数`-e dcs_exists_action=clean`完成覆写，强制在初始化过程中抹除已有实例。
 
 
 
@@ -119,20 +118,16 @@ dcs_servers:
 
 双重安全保险，默认为`false`。如果为`true`，强制设置`dcs_exists_action`变量为`abort`。
 
-等效于关闭`dcs_exists_action`的清理功能，确保任何情况下DCS实例都不会被抹除。
+等效于关闭`dcs_exists_action`的清理功能，确保**任何情况**下DCS实例都不会被抹除。
 
 
 
 ### consul_data_dir
 
-Consul数据目录地址
-
-默认为`/var/lib/consul`
+Consul数据目录地址，默认为`/var/lib/consul`。
 
 
 
 ### etcd_data_dir
 
-Etcd数据目录地址
-
-默认为`/var/lib/etcd`
+Etcd数据目录地址，默认为`/var/lib/etcd`。

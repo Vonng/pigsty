@@ -209,7 +209,7 @@ Offline服务针对交互式的只读访问，包括：ETL，离线大型分析�
 
 ```
 
-#### **必选项目**[ ](http://localhost:1313/zh/docs/config/10-service/#必选项目)
+#### 必选项目
 
 - **名称（`service.name`）**：
 

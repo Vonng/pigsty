@@ -9,8 +9,14 @@ Pigsty源码包：`pigsty.tgz` 可以从以下位置获取：
 * 如果用户需要进行离线安装，则可以预先从Github或其他渠道下载源码包与离线安装包，并通过scp，ftp等方式上传至服务器。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pigsty.tgz -o ~/pigsty.tgz
 ```
+
+#### **源码包的版本策略**
+
+Pigsty遵循语义版本号规则: `<major>.<minor>.<release>`。大版本更新意味着重大的根本性架构调整（通常不会发生），
+次版本号增长意味着一次显著更新，通常意味着软件包版本更新，API的微小变动，以及其它增量功能变更，通常会包含一份升级注意事项说明。
+release版本号通常用于Bug修复与文档更新，Release版本号增长不会变更软件包版本（即 v1.0.1 与 v1.0.0对应的 `pkg.tgz`是相同的）。
 
 -----------
 
@@ -21,24 +27,33 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o 
 如果用户需要在**没有互联网访问**，或Github访问受限的环境下进行安装，就需要自行下载并将其上传至目标服务器指定位置。
 
 ```bash  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 将其放置于安装机器的 `/tmp/pkg.tgz` 路径下，即可在安装过程中自动使用。离线软件包默认会解压至：`/www/pigsty`。
+
 
 
 -----------
 
 #### 不使用离线安装包？
 
-离线安装包中包含了从各路Yum源与Github Release中收集下载的软件包。用户也可以选择不使用预先打包好的离线安装包，而是直接从原始上游下载。当用户使用非 CentOS 7.8 操作系统时，通常可以使用这种方式解决绝大多数依赖错漏问题。
+离线安装包中包含了从各路Yum源与Github Release中收集下载的软件包。
+用户也可以选择不使用预先打包好的离线安装包，而是直接从原始上游下载
+。当用户使用非 CentOS 7.8 操作系统时，通常可以使用这种方式解决绝大多数依赖错漏问题。
 不使用离线安装包只需要在`configure`过程中提示下载时选择否 `n`即可。
+
+
 
 -----------
 
 #### 安装yum软件包时报错
 
-默认的离线软件安装包基于CentOS 7.8环境制作，如果出现问题，可以删除`/www/pigsty`中出现问题的相关rpm包，以及`/www/pigsty/repo_complete`标记文件。执行`make repo-download`重新下载与当前操作系统版本匹配的依赖软件包即可。
+默认的离线软件安装包基于CentOS 7.8环境制作，如果出现问题，可以删除`/www/pigsty`中出现问题的相关rpm包，以及`/www/pigsty/repo_complete`标记文件。
+执行`make repo-download`重新下载与当前操作系统版本匹配的依赖软件包即可。
+
+注意，从原始上游下载所有安装包时，速度受网络条件影响可能会很慢。通常出现兼容性问题的RPM软件包只占很小的一部分，
+您可以考虑下载并解压离线安装包，删除其中的**不兼容项目**，以加快速度。
 
 -------------
 
@@ -55,10 +70,12 @@ Pigsty已经尽可能使用国内yum镜像进行下载，然而少量软件包�
 
 #### **Vagrant沙箱第一次启动太慢**
 
-Pigsty沙箱默认使用CentOS 7虚拟机，Vagrant首次启动虚拟机时，会下载`CentOS/7`的ISO镜像Box，尺寸不小。（当然用户也可以选择自行下载CentOS 7 安装盘ISO安装）。使用代理会提高下载速度，下载CentOS7 Box只需要在首次启动沙箱时进行，后续重建沙箱时会直接复用。
+Pigsty沙箱默认使用CentOS 7虚拟机，Vagrant首次启动虚拟机时，会下载`CentOS/7`的ISO镜像Box，尺寸不小。（当然用户也可以选择自行下载CentOS 7 安装盘ISO安装）。
+使用代理会提高下载速度，下载CentOS7 Box只需要在首次启动沙箱时进行，后续重建沙箱时会直接复用。
 
 
 -----------
+
 #### 1.0 GA意味着什么？
 
 Pigsty从0.3版本开始就实际应用于真实世界的生产环境中，并不是1.0才真正General Available。
@@ -85,7 +102,7 @@ Pigsty从0.3版本开始就实际应用于真实世界的生产环境中，并�
 
 #### **Pigsty的安装环境**
 
-安装Pigsty需要至少一个机器节点：规格至少为1核1GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。
+安装Pigsty需要至少一个机器节点：规格至少为1核1GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。建议使用**全新**节点（刚装完操作系统）。
 
 在生产环境中，建议使用更高规格的机器，并部署**多个管理节点**作为容灾冗余。生产环境中**管理节点**负责发出控制命令，管理部署数据库集群，采集监控数据，运行定时任务等。
 
@@ -125,13 +142,15 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 
 #### **是否可以监控已有的PG实例？**
 
-对于非Pigsty供给方案创建的外部数据库，可以使用**仅监控模式**部署，详情请参考文档。注意Pigsty部署需要目标机器ssh sudo权限。因此通常无法支持云厂商RDS，但例如MyBase for PostgreSQL的ECS托管云数据库是可以纳入监控的。
+对于非Pigsty供给方案创建的外部数据库，可以使用[仅监控模式](t-monly.md)部署，详情请参考文档。
+注意Pigsty部署需要目标机器ssh sudo权限。因此通常无法支持云厂商RDS，但例如MyBase for PostgreSQL的ECS托管云数据库是可以纳入监控的。
 
 -----------
 
 #### **云厂商RDS监控不了有什么办法？**
 
-目前Pigsty官方不支持对纯RDS的监控，因为缺少机器指标的监控系统是半成品。但用户可以通过本地部署PG Exporter远程连接监控RDS，以及Prometheus本地静态服务发现抓取本地Exporter，并通过手工配置Label的方式实现曲线救国。
+目前Pigsty官方不支持对纯RDS的监控，因为缺少机器指标的监控系统是半成品。
+但用户可以通过本地部署PG Exporter远程连接监控RDS，以及Prometheus本地静态服务发现抓取本地Exporter，并通过手工配置Label的方式实现曲线救国。
 
 -----------
 
@@ -142,6 +161,8 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 #### **为什么PG Instance Log面板没有数据？**
 
 日志收集目前是一个Beta特性，需要额外的安装步骤。执行`make logging`会安装`loki`与`promtail`，执行后该面板方可用。
+
+详情请参考：[启用实时日志收集](t-logging.md)
 
 loki是比较新的日志收集方案，不是所有人都愿意接受，因此作为选装项目。
 
