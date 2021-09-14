@@ -1,10 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 1-prod-node (configure for node with core >= 8)
-# Link      :   https://pigsty.cc/#/zh-cn/c-config
+# Desc      :   Pigsty 1-oltp-node (configure for node with core >= 8)
+# Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-15
+# Mtime     :   2021-09-14
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -54,8 +54,8 @@ all: # top-level namespace
         # optional                          # all configuration below are OPTIONAL for a pgsql cluster (Overwrite global default)
         #---------------
         pg_version: 13                      # pgsql version to be installed (use global version if missing)
-        node_tune: oltp                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
-        pg_conf: oltp.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
+        node_tune: oltp                     # node optimization profile: {oltp|olap|crit|oltp}, use oltp for vm sandbox
+        pg_conf: oltp.yml                   # pgsql template:  {oltp|olap|crit|oltp}, use oltp for sandbox
         patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}
         patroni_watchdog_mode: off          # disable patroni watchdog on meta node        {off|require|automatic}
         pg_lc_ctype: en_US.UTF8             # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
@@ -128,10 +128,12 @@ all: # top-level namespace
         #       - host    grafana         dbuser_grafana      127.0.0.1/32        md5
         #       - host    grafana         dbuser_grafana      10.10.10.10/32      md5
 
-        # vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
-        # vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
-        # vip_cidrmask: 8                     # cidr network mask length
-        # vip_interface: eth1                 # interface to add virtual ip
+#        vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
+#        vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
+#        vip_cidrmask: 8                     # cidr network mask length
+#        vip_interface: eth1                 # interface to add virtual ip
+
+
 
 
   #==================================================================#
@@ -312,8 +314,8 @@ all: # top-level namespace
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel tcl-devel
-      - pam-devel openldap-devel systemd-devel python-devel
+      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
+      # - pam-devel openldap-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
@@ -336,11 +338,11 @@ all: # top-level namespace
     node_dns_hosts:                               # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
       - 10.10.10.10 meta   pg-meta-1
-      # - 10.10.10.11 node-1 pg-test-1
-      # - 10.10.10.12 node-2 pg-test-2
-      # - 10.10.10.13 node-2 pg-test-3
+      - 10.10.10.11 node-1 pg-test-1
+      - 10.10.10.12 node-2 pg-test-2
+      - 10.10.10.13 node-2 pg-test-3
 
-    node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
+    node_dns_server: none
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
     node_dns_options:                             # dns resolv options
@@ -364,11 +366,11 @@ all: # top-level namespace
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-      - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
+      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
       - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
-      # - pam-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
     node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
+
 
     # - node features - #
     node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -382,7 +384,7 @@ all: # top-level namespace
     node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
     # - node tuned - #
-    node_tune: oltp                               # install and activate tuned profile: none|oltp|olap|crit|tiny
+    node_tune: oltp                               # install and activate tuned profile: none|oltp|olap|crit|oltp
     node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
     # net.bridge.bridge-nf-call-iptables: 1       # example sysctl parameters
 
@@ -392,7 +394,7 @@ all: # top-level namespace
     node_admin_username: dba                      # name of this admin user, dba by default
     node_admin_ssh_exchange: true                 # exchange admin ssh key among each pgsql cluster ?
     node_admin_pk_current: true                   # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pks: [ ]                           # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_admin_pks: []                            # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
 
     # - node ntp - #
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
@@ -431,6 +433,7 @@ all: # top-level namespace
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
@@ -480,7 +483,7 @@ all: # top-level namespace
       meta-1: 10.10.10.10                         # you could use existing dcs cluster
       # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
       # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
-    dcs_exists_action: abort                      # abort|skip|clean if dcs server already exists
+    dcs_exists_action: abort
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
@@ -565,7 +568,7 @@ all: # top-level namespace
     patroni_port: 8008                            # default patroni port
     patroni_watchdog_mode: automatic              # watchdog mode: off|automatic|required
 
-    pg_conf: oltp.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
+    pg_conf: oltp.yml                             # pgsql template:  {oltp|olap|crit|oltp}.yml , use oltp for sandbox
     # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
     # extension shared libraries to be added
     pg_shared_libraries: 'timescaledb, pg_stat_statements, auto_explain'
@@ -601,7 +604,7 @@ all: # top-level namespace
     pg_admin_password: DBUser.DBA                 # system admin password
 
     # - default roles - #
-    pg_default_roles:                             # check https://pigsty.cc/#/zh-cn/c-user for more detail, sequence matters
+    pg_default_roles:
       # default roles
       - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
       - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }  # production read-write role

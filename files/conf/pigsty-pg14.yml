@@ -1,10 +1,10 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 4-node demo (default config)
-# Link      :   https://pigsty.cc/#/zh-cn/c-config
+# Desc      :   Pigsty 4-node-demo (PG14 version)
+# Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-15
+# Mtime     :   2021-09-14
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -75,7 +75,7 @@ all: # top-level namespace
         #---------------
         # optional                          # all configuration below are OPTIONAL for a pgsql cluster (Overwrite global default)
         #---------------
-        pg_version: 13                      # pgsql version to be installed (use global version if missing)
+        pg_version: 14                      # pgsql version to be installed (use global version if missing)
         node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
         pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
         patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}
@@ -172,11 +172,11 @@ all: # top-level namespace
 
       vars:
         pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 14                      # test postgresql 14 with pg-test cluster
-        pg_packages:                        # overwrite postgres packages to be installed
+        pg_extensions: [ ]                  # no extension available for pg14 now
+        pg_packages:                        # install pg14 packages instead of 13
           - postgresql14* pgbouncer patroni pg_exporter pgbadger patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
           - python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
-        pg_extensions: []
+        pg_version: 14                      # test postgresql 14 with pg-test cluster
         pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
         pg_databases: [{ name: test}]       # create a database and user named 'test'
         vip_mode: l2                        # enable/disable vip (require members in same LAN)
@@ -302,12 +302,6 @@ all: # top-level namespace
           - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
           - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
 
-      - name: pgdg13
-        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
-          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
 
       - name: pgdg14-beta
         description: PostgreSQL 14 beta for RHEL/CentOS $releasever - $basearch
@@ -316,6 +310,13 @@ all: # top-level namespace
         baseurl:
           - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
           - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
+     
+      - name: pgdg13
+        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+        gpgcheck: no
+        baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
+          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
 
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
@@ -380,8 +381,7 @@ all: # top-level namespace
       - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
 
       # postgres 13 packages
-      - postgresql13*                                                                          # postgresql 13 kernel
-      - postgresql14*                                                                          # postgresql 14 kernel
+      - postgresql14*                                                                          # postgresql 13 kernel
       - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
       - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
       - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
@@ -394,8 +394,8 @@ all: # top-level namespace
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel tcl-devel
-      - pam-devel openldap-devel systemd-devel python-devel
+      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
+      # - pam-devel openldap-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
@@ -446,11 +446,11 @@ all: # top-level namespace
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-      - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
+      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
       - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
-      # - pam-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
     node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
+
 
     # - node features - #
     node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -581,7 +581,7 @@ all: # top-level namespace
     pg_dbsu_ssh_exchange: true                    # exchange postgres dbsu ssh key among same cluster ?
 
     # - postgres packages - #
-    pg_version: 13                                # default postgresql version to be installed
+    pg_version: 14                                # default postgresql version to be installed
     pgdg_repo: false                              # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
@@ -652,7 +652,7 @@ all: # top-level namespace
     pg_conf: tiny.yml                             # pgsql template:  {oltp|olap|crit|tiny}.yml , use tiny for sandbox
     # use oltp|olap|crit for production, or fork your own templates (in ansible templates dir)
     # extension shared libraries to be added
-    pg_shared_libraries: 'pg_stat_statements, auto_explain'
+    pg_shared_libraries: 'timescaledb, pg_stat_statements, auto_explain'
 
     # - flags - #
     pg_backup: false                              # store base backup on this node          (instance level, TBD)
@@ -685,7 +685,7 @@ all: # top-level namespace
     pg_admin_password: DBUser.DBA                 # system admin password
 
     # - default roles - #
-    pg_default_roles:                             # check https://pigsty.cc/#/zh-cn/c-user for more detail, sequence matters
+    pg_default_roles:
       # default roles
       - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
       - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }  # production read-write role

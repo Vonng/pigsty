@@ -2,9 +2,9 @@
 ######################################################################
 # File      :   pigsty.yml
 # Desc      :   Pigsty 1-node demo (default config after sandbox configure)
-# Link      :   https://pigsty.cc/#/zh-cn/c-config
+# Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-07-15
+# Mtime     :   2021-09-14
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -145,12 +145,12 @@ all: # top-level namespace
 
 
 
-    #----------------------------------#
-    # cluster: pg-test (4-node demo)   #
-    #----------------------------------#
-    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
-    # Uncomment these to use 4-node version demo
-
+#    #----------------------------------#
+#    # cluster: pg-test (4-node demo)   #
+#    #----------------------------------#
+#    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+#    # Uncomment these to use 4-node version demo
+#
 #    pg-test:                                # define the new 3-node cluster pg-test
 #      hosts:
 #
@@ -187,9 +187,9 @@ all: # top-level namespace
 #              maxconn: 3000                 # optional, max allowed front-end connection
 #              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
 #              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-
-
-
+#
+#
+#
 
   #==================================================================#
   #                           Globals                                #
@@ -369,8 +369,8 @@ all: # top-level namespace
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-      - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
-      - pam-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+      - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
+      # - pam-devel openldap-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
@@ -393,9 +393,9 @@ all: # top-level namespace
     node_dns_hosts:                               # static dns records in /etc/hosts
       - 10.10.10.10 yum.pigsty
       - 10.10.10.10 meta   pg-meta-1
-      # - 10.10.10.11 node-1 pg-test-1
-      # - 10.10.10.12 node-2 pg-test-2
-      # - 10.10.10.13 node-2 pg-test-3
+      - 10.10.10.11 node-1 pg-test-1
+      - 10.10.10.12 node-2 pg-test-2
+      - 10.10.10.13 node-2 pg-test-3
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -421,10 +421,9 @@ all: # top-level namespace
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-      - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
+      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
       - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
-      # - pam-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
     node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
 
 
@@ -490,7 +489,7 @@ all: # top-level namespace
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      # - 10.10.10.3  pg-test                       # sandbox vip for pg-test
+      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
       - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
       - 10.10.10.10 pigsty
       - 10.10.10.10 y.pigsty yum.pigsty
@@ -525,7 +524,6 @@ all: # top-level namespace
       - marcusolsson-treemap-panel
     grafana_git_plugins:                          # plugins that will be downloaded via git
       - https://github.com/Vonng/vonng-echarts-panel
-
 
     # - loki - #
     loki_clean: false                             # whether remove existing loki data
@@ -662,7 +660,7 @@ all: # top-level namespace
     pg_admin_password: DBUser.DBA                 # system admin password
 
     # - default roles - #
-    pg_default_roles:                             # check https://pigsty.cc/#/zh-cn/c-user for more detail, sequence matters
+    pg_default_roles:
       # default roles
       - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
       - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }  # production read-write role
