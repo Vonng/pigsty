@@ -1,0 +1,13 @@
+#----------------------------------#
+# cluster: pg-test (public demo)   #
+#----------------------------------#
+pg-test:                                # define the new 3-node cluster pg-test
+  hosts:
+    172.21.0.3:  {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
+    172.21.0.4:  {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
+    172.21.0.16: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
+  vars:
+    pg_cluster: pg-test                 # define actual cluster name
+    pg_version: 13                      # test postgresql 13 with pg-test cluster
+    pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
+    pg_databases: [{ name: test}]       # create a database and user named 'test'

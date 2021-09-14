@@ -112,7 +112,7 @@ git clone https://github.com/Vonng/pigsty && cd pigsty # 获取最新代码
 如果没有`git`，可以使用`curl`下载。建议使用此种方式下载固定版本：`v1.0.1`为具体版本号。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0./pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # 下载特定版本的代码（推荐）
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # 下载特定版本的代码（推荐）
 ```
 
 或从百度网盘下载源代码：https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (提取码: `8su9`）

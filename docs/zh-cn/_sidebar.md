@@ -30,6 +30,7 @@
   - [深度定制数据库模板](t-customize-template.md)
   - [安装Pigsty扩展应用](t-application.md)
   - [数据库备份与恢复](t-backup.md)  
+  - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
 
 - 监控
   - [监控面板](m-dashboard.md)
