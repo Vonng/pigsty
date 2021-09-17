@@ -7,8 +7,8 @@
 
 ```bash
 # download with curl (in case of git not available)
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 [Download](#download) & [Configure](#configure) & [Install](#install)

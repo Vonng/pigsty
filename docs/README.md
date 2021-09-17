@@ -1,10 +1,10 @@
 # Pigsty
 
-## Pigsty v1.0.1 Documentation
+## Pigsty v1.1.0 Documentation
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [v1.0.1](https://github.com/Vonng/pigsty/releases/tag/v1.0.1)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Public Demo](https://demo.pigsty.cc)
+> Latest Version: [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Public Demo](https://demo.pigsty.cc)
 >
 > Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 

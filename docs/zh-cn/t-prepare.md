@@ -109,10 +109,10 @@ Pigsty需要一个**管理用户**，该用户能够**从管理节点上SSH登�
 git clone https://github.com/Vonng/pigsty && cd pigsty # 获取最新代码 
 ```
 
-如果没有`git`，可以使用`curl`下载。建议使用此种方式下载固定版本：`v1.0.1`为具体版本号。
+如果没有`git`，可以使用`curl`下载。建议使用此种方式下载固定版本：`v1.1.0`为具体版本号。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # 下载特定版本的代码（推荐）
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.0/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # 下载特定版本的代码（推荐）
 ```
 
 或从百度网盘下载源代码：https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (提取码: `8su9`）
@@ -130,7 +130,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pigsty.tgz -o 
 离线软件包可从Github Release页面下载，`v1.0.0`为具体的版本号，软件包与源代码的版本应当保持一致。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.1/pkg.tgz    -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 百度网盘亦提供`pkg.tgz`的下载，地址同Pigsty源代码。
