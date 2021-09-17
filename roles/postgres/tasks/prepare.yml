@@ -169,6 +169,13 @@
         dest: /pg
         state: link
 
+    # dummy file could be removed in case of disk-full
+    # which cushion against immediate failure
+    - name: Create dummy placeholder file
+      tags: pg_dummy
+      command: fallocate -l {{ pg_dummy_filesize }} dummy
+
+
 
 #------------------------------------------------------------------------------
 # Write metadata

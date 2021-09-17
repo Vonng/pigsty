@@ -122,6 +122,7 @@ Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项�
 | [PG供给](v-pg-provision.md) |              [pg_data](v-pg-provision.md#pg_data)              |  `string`  |  G  | PG数据目录 |
 | [PG供给](v-pg-provision.md) |           [pg_fs_main](v-pg-provision.md#pg_fs_main)           |  `string`  |  G  | PG主数据盘挂载点 |
 | [PG供给](v-pg-provision.md) |           [pg_fs_bkup](v-pg-provision.md#pg_fs_bkup)           |  `path`  |  G  | PG备份盘挂载点 |
+| [PG供给](v-pg-provision.md) | [pg_dummy_filesize](v-pg-provision.md#pg_dummy_filesize)      |  `size`  | G/C/I | 占位文件`/pg/dummy`的大小  |
 | [PG供给](v-pg-provision.md) |            [pg_listen](v-pg-provision.md#pg_listen)            |  `ip`  |  G  | PG监听的IP地址 |
 | [PG供给](v-pg-provision.md) |              [pg_port](v-pg-provision.md#pg_port)              |  `number`  |  G  | PG监听的端口 |
 | [PG供给](v-pg-provision.md) |         [pg_localhost](v-pg-provision.md#pg_localhost)         |  `string`  |  G/C  | PG使用的UnixSocket地址 |

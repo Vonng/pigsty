@@ -7,36 +7,37 @@ Provisioning, is about creating & pulling-up postgres clusters on node with PG [
 
 |                            Name                             |    Type    | Level  | Description |
 | :----------------------------------------------------------: | :--------: | :---: | ---- |
-|           [pg_cluster](v-pg-provision.md#pg_cluster)           |  `string`  |  **C**  | **PG Cluster Name** |
-|               [pg_seq](v-pg-provision.md#pg_seq)               |  `number`  |  **I**  | **PG Instance Sequence** |
-|              [pg_role](v-pg-provision.md#pg_role)              |  `enum`  |  **I**  | **PG Instance Role** |
-|          [pg_hostname](v-pg-provision.md#pg_hostname)          |  `bool`  |  G/C  | set PG ins name as hostname |
-|          [pg_nodename](v-pg-provision.md#pg_nodename)          |  `bool`  |  G/C  | set PG ins name as consul nodename |
-|            [pg_exists](v-pg-provision.md#pg_exists)            |  `bool`  |  A  | flag indicate pg exists |
-|     [pg_exists_action](v-pg-provision.md#pg_exists_action)     |  `enum`  |  G/A  | how to deal with existing pg ins |
-| [pg_disable_purge](v-pg-provision.md#pg_disable_purge)         | `bool`  | G/C/I | disable pg instance purge |
-|              [pg_data](v-pg-provision.md#pg_data)              |  `string`  |  G  | pg data dir |
-|           [pg_fs_main](v-pg-provision.md#pg_fs_main)           |  `string`  |  G  | pg main data disk mountpoint |
-|           [pg_fs_bkup](v-pg-provision.md#pg_fs_bkup)           |  `path`  |  G  | pg backup disk mountpoint |
-|            [pg_listen](v-pg-provision.md#pg_listen)            |  `ip`  |  G  | pg listen IP address |
-|              [pg_port](v-pg-provision.md#pg_port)              |  `number`  |  G  | pg listen port |
-|         [pg_localhost](v-pg-provision.md#pg_localhost)         |  `string`  |  G/C  | pg unix socket path |
-|            [pg_upstream](v-pg-provision.md#pg_upstream)        | `string` | I | pg upstream IP address |
-|            [pg_backup](v-pg-provision.md#pg_backup)            | `bool`    | I | make base backup on this ins? |
-|            [pg_delay](v-pg-provision.md#pg_delay)              | `interval` | I | apply lag for delayed instance |
-|         [patroni_mode](v-pg-provision.md#patroni_mode)         |  `enum`  |  G/C  | patroni working mode |
-|         [pg_namespace](v-pg-provision.md#pg_namespace)         |  `string`  |  G/C  | namespace for patroni |
-|         [patroni_port](v-pg-provision.md#patroni_port)         |  `string`  |  G/C  | patroni listen port (8080) |
-| [patroni_watchdog_mode](v-pg-provision.md#patroni_watchdog_mode) |  `enum`  |  G/C  | patroni watchdog policy |
-|              [pg_conf](v-pg-provision.md#pg_conf)              |  `enum`  |  G/C  | patroni template |
-|   [pg_shared_libraries](v-pg-provision.md#pg_shared_libraries) |  `string`  |  G/C  | default preload shared libraries |
-|          [pg_encoding](v-pg-provision.md#pg_encoding)          |  `string`  |  G/C  | character encoding |
-|            [pg_locale](v-pg-provision.md#pg_locale)            |  `enum`  |  G/C  | locale |
-|        [pg_lc_collate](v-pg-provision.md#pg_lc_collate)        |  `enum`  |  G/C  | collate rule of locale |
-|          [pg_lc_ctype](v-pg-provision.md#pg_lc_ctype)          |  `enum`  |  G/C  | ctype of locale |
-|       [pgbouncer_port](v-pg-provision.md#pgbouncer_port)       |  `number`  |  G/C  | pgbouncer listen port |
-|   [pgbouncer_poolmode](v-pg-provision.md#pgbouncer_poolmode)   |  `enum`  |  G/C  | pgbouncer pooling mode |
-| [pgbouncer_max_db_conn](v-pg-provision.md#pgbouncer_max_db_conn) |  `number`  |  G/C  | max connection per database |
+|           [pg_cluster](#pg_cluster)           |  `string`  |  **C**  | **PG Cluster Name** |
+|               [pg_seq](#pg_seq)               |  `number`  |  **I**  | **PG Instance Sequence** |
+|              [pg_role](#pg_role)              |  `enum`  |  **I**  | **PG Instance Role** |
+|          [pg_hostname](#pg_hostname)          |  `bool`  |  G/C  | set PG ins name as hostname |
+|          [pg_nodename](#pg_nodename)          |  `bool`  |  G/C  | set PG ins name as consul nodename |
+|            [pg_exists](#pg_exists)            |  `bool`  |  A  | flag indicate pg exists |
+|     [pg_exists_action](#pg_exists_action)     |  `enum`  |  G/A  | how to deal with existing pg ins |
+| [pg_disable_purge](#pg_disable_purge)         | `bool`  | G/C/I | disable pg instance purge |
+|              [pg_data](#pg_data)              |  `string`  |  G  | pg data dir |
+|           [pg_fs_main](#pg_fs_main)           |  `string`  |  G  | pg main data disk mountpoint |
+|           [pg_fs_bkup](#pg_fs_bkup)           |  `path`  |  G  | pg backup disk mountpoint |
+| [pg_dummy_filesize](#pg_dummy_filesize)      |  `size`  | G/C/I |  `/pg/dummy` file size  |
+|            [pg_listen](#pg_listen)            |  `ip`  |  G  | pg listen IP address |
+|              [pg_port](#pg_port)              |  `number`  |  G  | pg listen port |
+|         [pg_localhost](#pg_localhost)         |  `string`  |  G/C  | pg unix socket path |
+|            [pg_upstream](#pg_upstream)        | `string` | I | pg upstream IP address |
+|            [pg_backup](#pg_backup)            | `bool`    | I | make base backup on this ins? |
+|            [pg_delay](#pg_delay)              | `interval` | I | apply lag for delayed instance |
+|         [patroni_mode](#patroni_mode)         |  `enum`  |  G/C  | patroni working mode |
+|         [pg_namespace](#pg_namespace)         |  `string`  |  G/C  | namespace for patroni |
+|         [patroni_port](#patroni_port)         |  `string`  |  G/C  | patroni listen port (8080) |
+| [patroni_watchdog_mode](#patroni_watchdog_mode) |  `enum`  |  G/C  | patroni watchdog policy |
+|              [pg_conf](#pg_conf)              |  `enum`  |  G/C  | patroni template |
+|   [pg_shared_libraries](#pg_shared_libraries) |  `string`  |  G/C  | default preload shared libraries |
+|          [pg_encoding](#pg_encoding)          |  `string`  |  G/C  | character encoding |
+|            [pg_locale](#pg_locale)            |  `enum`  |  G/C  | locale |
+|        [pg_lc_collate](#pg_lc_collate)        |  `enum`  |  G/C  | collate rule of locale |
+|          [pg_lc_ctype](#pg_lc_ctype)          |  `enum`  |  G/C  | ctype of locale |
+|       [pgbouncer_port](#pgbouncer_port)       |  `number`  |  G/C  | pgbouncer listen port |
+|   [pgbouncer_poolmode](#pgbouncer_poolmode)   |  `enum`  |  G/C  | pgbouncer pooling mode |
+| [pgbouncer_max_db_conn](#pgbouncer_max_db_conn) |  `number`  |  G/C  | max connection per database |
 
 
 ## Defaults
@@ -265,6 +266,14 @@ Archive and backup disk directory, default is `/var/backups`
 
 Pigsty's default [FHS](r-fhs.md) assumes that there is a backup data disk mount point on the system for backup and archive data. The backup disk is not mandatory. If the backup disk does not exist on the system, the user can also specify a subdirectory on the primary data disk as the backup disk root mount point.
 
+
+### pg_dummy_filesize
+
+File size for dummy placeholder file (`/pg/dummy`).
+
+Dummy file hold disk space (64MB for tiny-vm, 4GB for oltp node by default) for emergency use. 
+
+rm -f `/pg/dummy` could buy you some time in case of disk full. 
 
 
 ### pg_listen

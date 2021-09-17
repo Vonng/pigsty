@@ -11,7 +11,7 @@ The default YAML config file approach is used as example in this article.
 A sample of a typical configuration file: [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml)
 
 Config file is consist of [config entries](#config-entry). 
-Pigsty provides 175 config entries, and can be configured at different [levels](#hierarchy). 
+Pigsty provides 176 config entries, and can be configured at different [levels](#hierarchy). 
 Most of them can be directly used with default values, and the rest can be customized on demand. config entries can be divided into two major categories: [Infrastructure Configuration](#Infrastructure Configuration) and [Database Cluster](#Database Cluster Configuration), and further subdivided into ten groups.
 
 | No | Group | Category | Quantity | Function |
@@ -22,7 +22,7 @@ Most of them can be directly used with default values, and the rest can be custo
 | 4 | [meta](v-meta.md) | infra | 26 | Installing and enabling infrastructure services on a meta node |
 | 5 | [dcs](v-dcs.md) | infra | 8 | Configure DCS services (consul/etcd) on all nodes |
 | 6 | [pg-install](v-pg-install.md) | pgsql | 11 | Installing the PostgreSQL database |
-| 7 | [pg-provision](v-pg-provision.md) | pgsql | 32 | Pulling up a PostgreSQL database cluster |
+| 7 | [pg-provision](v-pg-provision.md) | pgsql | 33 | Pulling up a PostgreSQL database cluster |
 | 8 | [pg-template](v-pg-template.md) | pgsql | 19 | Customizing PostgreSQL database content |
 | 9 | [monitor](v-monitor.md) | pgsql | 21 | Installing Pigsty database monitoring system |
 | 10 | [service](v-service.md) | pgsql | 17 | Expose database services to the public via Haproxy or VIP |

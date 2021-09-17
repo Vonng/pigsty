@@ -25,6 +25,7 @@
 |               [pg_data](#pg_data)               |  `string`  |   G   | PG数据目录                       |
 |            [pg_fs_main](#pg_fs_main)            |  `string`  |   G   | PG主数据盘挂载点                    |
 |            [pg_fs_bkup](#pg_fs_bkup)            |   `path`   |   G   | PG备份盘挂载点                     |
+| [pg_dummy_filesize](pg_dummy_filesize)          |  `size`    | G/C/I | 占位文件`/pg/dummy`的大小  |
 |             [pg_listen](#pg_listen)             |    `ip`    |   G   | PG监听的IP地址                    |
 |               [pg_port](#pg_port)               |  `number`  |   G   | PG监听的端口                      |
 |          [pg_localhost](#pg_localhost)          |  `string`  |  G/C  | PG使用的UnixSocket地址            |
@@ -275,6 +276,12 @@ Pigsty的默认[目录结构](r-fhs)假设系统中存在一个主数据盘挂�
 
 Pigsty的默认[目录结构](r-fhs)假设系统中存在一个备份数据盘挂载点，用于盛放备份与归档数据。备份盘并不是必选项，如果系统中不存在备份盘，用户也可以指定一个主数据盘上的子目录作为备份盘根目录挂载点。
 
+
+### pg_dummy_filesize
+
+占位文件 `/pg/dummy` 的大小。默认为`64MiB`，生产环境建议使用`4GiB`，`8GiB`。
+
+占位文件是一个预分配的空文件，占据一定量的磁盘空间。当出现磁盘满故障时，移除该占位文件可以紧急释放一些磁盘空间应急使用。
 
 
 ### pg_listen

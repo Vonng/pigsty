@@ -11,10 +11,10 @@ Pigsty 通过**配置清单**（Inventory）来定义基础设施与数据库集
 |  1   |  [连接参数](v-connect.md)   |      [connect](v-connect.md)      | 基础设施 |  1   | 代理服务器配置，管理对象的连接信息     |
 |  2   |    [本地仓库](v-repo.md)    |         [repo](v-repo.md)         | 基础设施 |  10  | 定制本地Yum源，离线安装包              |
 |  3   |    [节点供给](v-node.md)    |         [node](v-node.md)         | 基础设施 |  31  | 在普通节点上配置基础设施               |
-|  4   |    [基础设施](v-meta.md)    |         [meta](v-meta.md)         | 基础设施 |  26  | 在元节点上安装启用基础设施服务         |
+|  4   |    [基础设施](v-meta.md)    |         [meta](v-meta.md)         | 基础设施 |  25  | 在元节点上安装启用基础设施服务         |
 |  5   |    [元数据库](v-dcs.md)     |          [dcs](v-dcs.md)          | 基础设施 |  8   | 在所有节点上配置DCS服务（consul/etcd） |
 |  6   |  [PG安装](v-pg-install.md)  |   [pg-install](v-pg-install.md)   |  数据库  |  11  | 安装PostgreSQL数据库                   |
-|  7   | [PG供给](v-pg-provision.md) | [pg-provision](v-pg-provision.md) |  数据库  |  32  | 拉起PostgreSQL数据库集群               |
+|  7   | [PG供给](v-pg-provision.md) | [pg-provision](v-pg-provision.md) |  数据库  |  33  | 拉起PostgreSQL数据库集群               |
 |  8   | [PG模板](v-pg-template.md)  |  [pg-template](v-pg-template.md)  |  数据库  |  19  | 定制PostgreSQL数据库内容               |
 |  9   |  [监控系统](v-monitor.md)   |      [monitor](v-monitor.md)      |  数据库  |  21  | 安装Pigsty数据库监控系统               |
 |  10  |  [服务供给](v-service.md)   |      [service](v-service.md)      |  数据库  |  17  | 通过Haproxy或VIP对外暴露数据库服务     |

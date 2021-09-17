@@ -3,7 +3,7 @@
 Pigsty uses declarative [configuration] (c-config.md) to describe desired state.
 And the idempotent provisioning playbooks are responsible for adjusting system into that state.
 
-Pigsty config is consist of 175 [config entry](#config-entries), 
+Pigsty config is consist of 176 [config entry](#config-entries), 
 divided into 10 [groups](#config-groups) and 5 levels. 
 Most of them does not need your attention. Only identity parameters are required for defining new database clusters.
 
@@ -18,7 +18,7 @@ Most of them does not need your attention. Only identity parameters are required
 | 4 | [meta](v-meta.md) | Infra | 25 | Installing and enabling infrastructure services on a meta node |
 | 5 | [dcs](v-dcs.md) | Infra | 8 | Configure DCS services (consul/etcd) on all nodes |
 | 6 | [pg-install](v-pg-install.md) | PgSQL | 11 | Install PostgreSQL database |
-| 7 | [pg-provision](v-pg-provision.md) | PgSQL | 32 | Pulling up a PostgreSQL database cluster |
+| 7 | [pg-provision](v-pg-provision.md) | PgSQL | 33 | Pulling up a PostgreSQL database cluster |
 | 8 | [pg-template](v-pg-template.md) | PgSQL | 19 | Customizing PostgreSQL database content |
 | 9 | [monitor](v-monitor.md) | PgSQL | 21 | Installing Pigsty database monitoring system |
 | 10 | [service](v-service.md) | PgSQL | 17 | Expose database services to the public via Haproxy or VIP |
@@ -126,6 +126,7 @@ Most of them does not need your attention. Only identity parameters are required
 | [pg-provision](v-pg-provision.md) |              [pg_data](v-pg-provision.md#pg_data)              |  `string`  |  G  | pg data dir |
 | [pg-provision](v-pg-provision.md) |           [pg_fs_main](v-pg-provision.md#pg_fs_main)           |  `string`  |  G  | pg main data disk mountpoint |
 | [pg-provision](v-pg-provision.md) |           [pg_fs_bkup](v-pg-provision.md#pg_fs_bkup)           |  `path`  |  G  | pg backup disk mountpoint |
+| [pg-provision](v-pg-provision.md) | [pg_dummy_filesize](v-pg-provision.md#pg_dummy_filesize)      |  `size`  | G/C/I |  `/pg/dummy` file size  |
 | [pg-provision](v-pg-provision.md) |            [pg_listen](v-pg-provision.md#pg_listen)            |  `ip`  |  G  | pg listen IP address |
 | [pg-provision](v-pg-provision.md) |              [pg_port](v-pg-provision.md#pg_port)              |  `number`  |  G  | pg listen port |
 | [pg-provision](v-pg-provision.md) |         [pg_localhost](v-pg-provision.md#pg_localhost)         |  `string`  |  G/C  | pg unix socket path |

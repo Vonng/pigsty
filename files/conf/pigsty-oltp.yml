@@ -8,6 +8,28 @@
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
+
+######################################################################
+#                        Sandbox (1-node)                            #
+#====================================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)              #
+# 1 node  meta    :    10.10.10.10  --->  pg-meta-1 (2 Core | 4GB)   #
+# 1 vip   pg-meta :    10.10.10.2   --->  pg-meta   (10.10.10.10)    #
+#====================================================================#
+#                        Sandbox (4-node)                            #
+#====================================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)              #
+# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
+# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
+# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
+# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
+# (replace these ip if your 4-node env have different ip addr)       #
+# VIP:                                                               #
+#     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
+#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}                #
+######################################################################
+
+
 all: # top-level namespace
 
   #==================================================================#
@@ -551,6 +573,7 @@ all: # top-level namespace
     pg_data: /pg/data                             # postgres data directory (soft link)
     pg_fs_main: /data                             # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups                     # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
+    pg_dummy_filesize: 4GiB                       # /pg/dummy hold some disk space for emergency use
 
     # - connection - #
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
