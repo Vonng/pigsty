@@ -1,4 +1,24 @@
-# v1.1.0
+# v1.1.0 (beta)
+
+* [ENHANCEMENT] add `pg_dummy_filesize` to create fs space placeholder 
+* [ENHANCEMENT] home page overhaul
+* [ENHANCEMENT] add jupyter lab integration
+* [ENHANCEMENT] add pgweb console integration
+* [ENHANCEMENT] add pgbadger support
+* [ENHANCEMENT] add pev2 support
+* [ENHANCEMENT] update default pkg.tgz software version:
+  * upgrade postgres to v13.4
+  * upgrade pgbouncer to v1.16
+  * upgrade grafana to v8.1.4
+  * upgrade prometheus to v2.2.29
+  * upgrade node_exporter to v1.2.2
+  * upgrade haproxy to v2.1.1
+  * upgrade consul to v1.10.2
+
+
+
+
+# v1.0.1
 
 2021-09-14
 

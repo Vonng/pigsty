@@ -1,5 +1,52 @@
 # Development Log
 
+
+#### 2021-09-24
+
+
+#### 2021-09-23
+
+* [ENHANCEMENT] home page overhaul
+* [ENHANCEMENT] add jupyter lab integration
+* [ENHANCEMENT] add pgweb console integration
+* [ENHANCEMENT] update default pkg.tgz software version:
+
+
+#### 2021-09-18
+
+* add pev2 support
+* add pgbadger support
+
+
+#### 2021-09-17
+
+* [ENHANCEMENT] add `pg_dummy_filesize` to create fs space placeholder
+
+#### 2021-09-14
+
+* release v1.0.1
+* huge amount of documentation updates
+* fix some minor bugs
+
+
+2021-09-14
+
+* Documentation Update
+  * Chinese document now viable
+  * Machine-Translated English document now viable
+* Bug Fix: `pgsql-remove` does not remove primary instance.
+* Bug Fix: replace pg_instance with pg_cluster + pg_seq
+  * Start-At-Task may fail due to pg_instance undefined
+* Bug Fix: remove citus from default shared preload library
+  * citus will force max_prepared_transaction to non-zero value
+* Bug Fix: ssh sudo checking in `configure`:
+  * now `ssh -t sudo -n ls` is used for privilege checking
+* Typo Fix: `pg-backup` script typo
+* Alert Adjust: Remove ntp sanity check alert (dupe with ClockSkew)
+* Exporter Adjust: remove collector.systemd to reduce overhead
+
+
+
 #### 2021-07-22
 
 * refactor `load_config.sh` with python to `load_conf.py`

@@ -270,7 +270,7 @@ ok: [172.21.0.11]
 TASK [repo : Download web url packages] ***************************************************************************************************************************************
 skipping: [172.21.0.11] => (item=https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm)
 skipping: [172.21.0.11] => (item=https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm)
-skipping: [172.21.0.11] => (item=https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz)
+skipping: [172.21.0.11] => (item=https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.1.2.linux-amd64.tar.gz)
 skipping: [172.21.0.11] => (item=https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz)
 skipping: [172.21.0.11] => (item=https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip)
 skipping: [172.21.0.11] => (item=https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip)
