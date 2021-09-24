@@ -1,0 +1,25 @@
+---
+#------------------------------------------------------------------------------
+# setup pev2 explain visualizer
+#------------------------------------------------------------------------------
+- name: Setup pev2 for nginx
+  ignore_errors: true               # skip if docs not available on local
+  block:
+
+    # create docs tarball @ files/docs.tgz (gitignored)
+    # extract to /www/
+    - name: Extract pigsty docs to repo home
+      become: yes
+      shell: |
+        # /www/pigsty/pev2.tar.gz is the default path
+        PEV2_TARBALL="{{ repo_home }}/{{ repo_name }}/pev2.tar.gz"
+
+        # skip if pev2 packages not available
+        if [[ ! -f ${PEV2_TARBALL} ]]; then
+            exit 0;
+        fi
+
+        rm -rf /{{ repo_home }}/pev2
+        tar -xf ${PEV2_TARBALL} -C {{ repo_home }}
+
+...
