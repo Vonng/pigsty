@@ -73,10 +73,9 @@ DROP VIEW IF EXISTS monitor.pg_index_bloat_human;
 DROP VIEW IF EXISTS monitor.pg_table_bloat;
 DROP VIEW IF EXISTS monitor.pg_index_bloat;
 DROP VIEW IF EXISTS monitor.pg_session;
-DROP VIEW IF EXISTS monitor.pg_kill;
-DROP VIEW IF EXISTS monitor.pg_cancel;
 DROP VIEW IF EXISTS monitor.pg_seq_scan;
-
+-- DROP VIEW IF EXISTS monitor.pg_kill;
+-- DROP VIEW IF EXISTS monitor.pg_cancel;
 
 ----------------------------------------------------------------------
 -- Table bloat estimate
@@ -223,47 +222,47 @@ COMMENT ON VIEW monitor.pg_session IS 'postgres session stats';
 
 
 ----------------------------------------------------------------------
--- pg kill
+-- pg kill (dangerous)
 ----------------------------------------------------------------------
-CREATE OR REPLACE VIEW monitor.pg_kill AS
-SELECT pid,
-       pg_terminate_backend(pid)                 AS killed,
-       datname                                   AS dat,
-       usename                                   AS usr,
-       application_name                          AS app,
-       client_addr                               AS addr,
-       state,
-       extract(epoch from now() - state_change)  AS query_time,
-       extract(epoch from now() - xact_start)    AS xact_time,
-       extract(epoch from now() - backend_start) AS conn_time,
-       substring(query, 1, 40)                   AS query
-FROM pg_stat_activity
-WHERE backend_type = 'client backend'
-  AND pid <> pg_backend_pid();
-COMMENT ON VIEW monitor.pg_kill IS 'kill all backend session';
+-- CREATE OR REPLACE VIEW monitor.pg_kill AS
+-- SELECT pid,
+--        pg_terminate_backend(pid)                 AS killed,
+--        datname                                   AS dat,
+--        usename                                   AS usr,
+--        application_name                          AS app,
+--        client_addr                               AS addr,
+--        state,
+--        extract(epoch from now() - state_change)  AS query_time,
+--        extract(epoch from now() - xact_start)    AS xact_time,
+--        extract(epoch from now() - backend_start) AS conn_time,
+--        substring(query, 1, 40)                   AS query
+-- FROM pg_stat_activity
+-- WHERE backend_type = 'client backend'
+--   AND pid <> pg_backend_pid();
+-- COMMENT ON VIEW monitor.pg_kill IS 'kill all backend session';
 
 
 ----------------------------------------------------------------------
 -- quick cancel view
 ----------------------------------------------------------------------
-DROP VIEW IF EXISTS monitor.pg_cancel;
-CREATE OR REPLACE VIEW monitor.pg_cancel AS
-SELECT pid,
-       pg_cancel_backend(pid)                    AS cancel,
-       datname                                   AS dat,
-       usename                                   AS usr,
-       application_name                          AS app,
-       client_addr                               AS addr,
-       state,
-       extract(epoch from now() - state_change)  AS query_time,
-       extract(epoch from now() - xact_start)    AS xact_time,
-       extract(epoch from now() - backend_start) AS conn_time,
-       substring(query, 1, 40)
-FROM pg_stat_activity
-WHERE state = 'active'
-  AND backend_type = 'client backend'
-  and pid <> pg_backend_pid();
-COMMENT ON VIEW monitor.pg_cancel IS 'cancel backend queries';
+-- DROP VIEW IF EXISTS monitor.pg_cancel;
+-- CREATE OR REPLACE VIEW monitor.pg_cancel AS
+-- SELECT pid,
+--        pg_cancel_backend(pid)                    AS cancel,
+--        datname                                   AS dat,
+--        usename                                   AS usr,
+--        application_name                          AS app,
+--        client_addr                               AS addr,
+--        state,
+--        extract(epoch from now() - state_change)  AS query_time,
+--        extract(epoch from now() - xact_start)    AS xact_time,
+--        extract(epoch from now() - backend_start) AS conn_time,
+--        substring(query, 1, 40)
+-- FROM pg_stat_activity
+-- WHERE state = 'active'
+--   AND backend_type = 'client backend'
+--   and pid <> pg_backend_pid();
+-- COMMENT ON VIEW monitor.pg_cancel IS 'cancel backend queries';
 
 
 ----------------------------------------------------------------------
