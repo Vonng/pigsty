@@ -1,0 +1,75 @@
+---
+#------------------------------------------------------------------------------
+# Make sure jupyter user exists
+#------------------------------------------------------------------------------
+# if root or default (admin user) is used, the jupyter user may have webshell
+# sudo privileges, which is quite dangerous, use with cautious
+
+- name: Create jupyter user {{ jupyter_username }}
+  tags: jupyter_user
+  when: jupyter_username != 'root' and jupyter_username != 'default'
+  user: name={{ jupyter_username }}
+
+- name: Get current username when default
+  tags: jupyter_user
+  when: jupyter_username == 'default'
+  block:
+    - name: Run whoami without become
+      command: whoami
+      changed_when: false
+      become: false
+      register: whoami
+
+    - name: Overwrite jupyter username
+      set_fact:
+        jupyter_username: "{{ whoami.stdout }}"
+
+#------------------------------------------------------------------------------
+# generate jupyter configuration file under jupyter os user home
+#------------------------------------------------------------------------------
+- name: Generate jupyter config
+  tags: jupyter_config
+  become: yes
+  become_user: "{{ jupyter_username }}"
+  block:
+    - name: Create jupyter config directory
+      file: path="/home/{{ jupyter_username }}/.jupyter" state=directory mode=0700
+
+    - name: Create jupyter lab directory
+      file: path="/home/{{ jupyter_username }}/lab" state=directory mode=0700
+
+    # use hard-coded password 'pigsty', PLEASE CHANGE IT THROUGH GUI!
+    - name: Generate jupyter lab password file
+      copy:
+        src: jupyter_server_config.json
+        dest: ~/.jupyter/jupyter_server_config.json
+        mode: 0400
+
+    # generate jupyter lab config file
+    - name: Generate jupyter config
+      template:
+        src: jupyter_lab_config.py
+        dest: ~/.jupyter/jupyter_lab_config.py
+        mode: 0664
+      vars:
+        jupyter_domain: "{{ nginx_upstream | json_query('[?name==`jupyter`].domain') | first }}"
+
+
+- name: Setup jupyter systemd service
+  tags: jupyter_launch
+  become: yes
+  block:
+    # setup systemd service for jupyter
+    - name: Copy jupyter lab systemd service
+      template: src=jupyter.service.j2 dest=/usr/lib/systemd/system/jupyter.service
+
+    - name: Launch jupyter lab service unit
+      systemd: name=jupyter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for jupyter lab online
+      wait_for: host=127.0.0.1 port=8888 state=started timeout=30
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+...
