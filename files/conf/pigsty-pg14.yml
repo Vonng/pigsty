@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node-demo (PG14 version)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-09-14
+# Mtime     :   2021-09-24
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -78,7 +78,7 @@ all: # top-level namespace
         pg_version: 14                      # pgsql version to be installed (use global version if missing)
         node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
         pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-        patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}
+        patroni_mode: default               # entering patroni pause mode after bootstrap  {default|pause|remove}
         patroni_watchdog_mode: off          # disable patroni watchdog on meta node        {off|require|automatic}
         pg_lc_ctype: en_US.UTF8             # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
 
@@ -223,9 +223,9 @@ all: # top-level namespace
 
     proxy_env:                                    # global proxy env when downloading packages
       no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com"
-      # http_proxy:                               # set your proxy here: e.g http://user:pass@proxy.xxx.com
-      # https_proxy:                              # set your proxy here: e.g http://user:pass@proxy.xxx.com
-      # all_proxy:                                # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
+      # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
 
 
     #------------------------------------------------------------------------------
@@ -235,8 +235,8 @@ all: # top-level namespace
 
     # - repo basic - #
     repo_enabled: true                            # build local yum repo on meta nodes?
-    repo_name: pigsty                             # local repo name
-    repo_address: yum.pigsty                      # repo external address (ip:port or url)
+    repo_name: pigsty                             # local repo name (do not change)
+    repo_address: pigsty                          # repo external address (ip:port or url)
     repo_port: 80                                 # listen address, must same as repo_address
     repo_home: /www                               # default repo dir location
     repo_rebuild: false                           # force re-download packages
@@ -400,12 +400,14 @@ all: # top-level namespace
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
-      - https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binaries
+      - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz # monitor binaries
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
-      - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.3.0/logcli-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.3.0/loki-canary-linux-amd64.zip
+      - https://github.com/dalibo/pev2/releases/download/v0.22.0/pev2.tar.gz
+      - https://github.com/sosedoff/pgweb/releases/download/v0.11.8/pgweb_linux_amd64.zip
 
     #------------------------------------------------------------------------------
     # NODE PROVISION
@@ -416,11 +418,9 @@ all: # top-level namespace
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
-      - 10.10.10.10 yum.pigsty
-      - 10.10.10.10 meta   pg-meta-1
-      - 10.10.10.11 node-1 pg-test-1
-      - 10.10.10.12 node-2 pg-test-2
-      - 10.10.10.13 node-2 pg-test-3
+      - 10.10.10.10 meta
+      - 10.10.10.10 pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
+
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -433,7 +433,7 @@ all: # top-level namespace
     node_repo_method: local                       # none|local|public (use local repo for production env)
     node_repo_remove: true                        # whether remove existing repo
     node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
-      - http://yum.pigsty/pigsty.repo
+      - http://pigsty/pigsty.repo
 
     # - node packages - #
     node_packages:                                # common packages for all nodes
@@ -501,33 +501,42 @@ all: # top-level namespace
 
     # - nginx - #
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
-      # some service can only be accessed via correct domain name (e.g consul)
-      - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
-      - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
-      - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
-      - { name: prometheus,    host: p.pigsty,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
-      - { name: alertmanager,  host: a.pigsty,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
-      - { name: haproxy,       host: h.pigsty,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
-      - { name: server,        host: s.pigsty,    url: "127.0.0.1:9633" }   # pigsty server gui (9093)
+      - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
+      - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+      - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
+      - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+      # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
+      - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+      - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+      - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
 
+    # - app - #
+    app_list:                                      # show extra application links on home page
+     - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+     - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+     - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+     - { name: HAProxy , url : '/haproxy.html', comment: 'haproxy admin index pages' }
+     - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+     - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+     - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+     - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
 
     # - nameserver - #
     dns_records:                                  # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test                       # sandbox vip for pg-test
-      - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-      - 10.10.10.10 pigsty
-      - 10.10.10.10 y.pigsty yum.pigsty
-      - 10.10.10.10 c.pigsty consul.pigsty
-      - 10.10.10.10 g.pigsty grafana.pigsty
-      - 10.10.10.10 p.pigsty prometheus.pigsty
-      - 10.10.10.10 a.pigsty alertmanager.pigsty
-      - 10.10.10.10 n.pigsty ntp.pigsty
-      - 10.10.10.10 h.pigsty haproxy.pigsty
+      - 10.10.10.2  pg-meta    # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test    # sandbox vip for pg-test
+      - 10.10.10.10 meta-1     # sandbox node meta-1
+      - 10.10.10.11 node-1     # sandbox node node-1
+      - 10.10.10.12 node-2     # sandbox node node-2
+      - 10.10.10.13 node-3     # sandbox node node-3
+      - 10.10.10.10 pg-meta-1  # sandbox instance pg-meta-1
+      - 10.10.10.11 pg-test-1  # sandbox instance node-1
+      - 10.10.10.12 pg-test-2  # sandbox instance node-2
+      - 10.10.10.13 pg-test-3  # sandbox instance node-3
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
+    prometheus_options: '--storage.tsdb.retention=15d --enable-feature=promql-negative-offset'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
     prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -549,6 +558,14 @@ all: # top-level namespace
       - marcusolsson-treemap-panel
     grafana_git_plugins:                          # plugins that will be downloaded via git
       - https://github.com/Vonng/vonng-echarts-panel
+
+    # other portal services
+    jupyter_enabled: true                         # setup jupyter lab server?
+    jupyter_password: pigsty                      # default password for jupyter notebook
+    pgweb_enabled: true                           # setup pgweb server?
+    docs_enabled: true                            # setup local document?
+    pev2_enabled: true                            # setup pev2?
+    pgbadger_enabled: true                        # setup pgbadger?
 
     # - loki - #
     loki_clean: false                             # whether remove existing loki data
