@@ -176,7 +176,7 @@ repo-upstream:
 
 # repo-download will re-download missing packages
 repo-download:
-	rm -rf /www/pigsty/repo_complete
+	sudo rm -rf /www/pigsty/repo_complete
 	./infra.yml -l ${CLS} --tags=repo_download
 
 #------------------------------#
