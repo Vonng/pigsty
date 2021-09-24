@@ -1,12 +1,23 @@
 ---
-# - domain names - #
-nginx_upstream:
-  - { name: home,          host: pigsty,   url: "127.0.0.1:3000"}
-  - { name: consul,        host: c.pigsty, url: "127.0.0.1:8500" }
-  - { name: grafana,       host: g.pigsty, url: "127.0.0.1:3000" }
-  - { name: prometheus,    host: p.pigsty, url: "127.0.0.1:9090" }
-  - { name: alertmanager,  host: a.pigsty, url: "127.0.0.1:9093" }
-  - { name: haproxy,       host: h.pigsty, url: "127.0.0.1:9091" }
+# - nginx - #
+nginx_upstream:                               # domain names that will be used for accessing pigsty services
+  - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
+  - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+  - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
+  - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+  # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
+  - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+  - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+
+# - app - #
+app_list:                                      # show extra application links on home page
+  - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+  - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+  - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+  - { name: HAProxy , url : '/haproxy.html', comment: 'haproxy admin index pages' }
+  - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+  - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
 
 # - reference - #
 repo_home: /www                               # default repo dir location

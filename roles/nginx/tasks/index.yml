@@ -1,0 +1,40 @@
+---
+#------------------------------------------------------------------------------
+# Create Nginx HomePage
+#------------------------------------------------------------------------------
+- name: Create nginx index page
+  tags: nginx_index
+  block:
+
+    - name: Get domain and endpoint from nginx_upstream
+      set_fact:
+        home_domain:         "http://{{ nginx_upstream | json_query('[?name==`home`].domain') | first }}"
+        consul_domain:       "http://{{ nginx_upstream | json_query('[?name==`consul`].domain') | first }}"
+        prometheus_domain:   "http://{{ nginx_upstream | json_query('[?name==`prometheus`].domain') | first }}"
+        grafana_domain:      "http://{{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}"
+        alertmanager_domain: "http://{{ nginx_upstream | json_query('[?name==`alertmanager`].domain') | first }}"
+        pgweb_domain:        "http://{{ nginx_upstream | json_query('[?name==`pgweb`].domain') | first }}"
+        jupyter_domain:      "http://{{ nginx_upstream | json_query('[?name==`jupyter`].domain') | first }}"
+
+        home_endpoint:         "{{ nginx_upstream | json_query('[?name==`home`].endpoint') | first }}"
+        consul_endpoint:       "{{ nginx_upstream | json_query('[?name==`consul`].endpoint') | first }}"
+        prometheus_endpoint:   "{{ nginx_upstream | json_query('[?name==`prometheus`].endpoint') | first }}"
+        grafana_endpoint:      "{{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first }}"
+        alertmanager_endpoint: "{{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first }}"
+        pgweb_endpoint:        "{{ nginx_upstream | json_query('[?name==`pgweb`].endpoint') | first }}"
+        jupyter_endpoint:      "{{ nginx_upstream | json_query('[?name==`jupyter`].endpoint') | first }}"
+
+    # make sure local html content directory exists ( /www by default )
+    - name: Create local html directory
+      file: path={{ repo_home }} state=directory
+
+    # used by index.html
+    - name: Copy pigsty logo file
+      copy: src=icon.svg dest=/{{ repo_home }}/icon.svg
+
+    # overwrite default home page
+    - name: Render default nginx home page
+      tags: nginx_home
+      template: src=index.html.j2 dest=/{{ repo_home }}/index.html
+
+...

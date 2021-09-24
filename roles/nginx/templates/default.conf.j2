@@ -1,8 +1,13 @@
+# include haproxy admin webui upstream definition
+include /etc/nginx/conf.d/haproxy/upstream-*.conf;
+
 server {
     listen       {{ repo_port | default('80') }} default_server;
-    server_name  {{ repo_address }} localhost;
+    server_name  localhost;
+
+    # home server (yum repo server)
     location / {
-        root        {{ repo_home }};
+        root        {{ repo_home|default('/www') }};
         index       index.html;
         autoindex   on;
         autoindex_exact_size on;
@@ -10,8 +15,13 @@ server {
         autoindex_format html;
     }
 
+    # liveness probe
     location /nginx {
         stub_status on;
         access_log off;
     }
+
+    # proxy pass haproxy admin webui requests
+    include /etc/nginx/conf.d/haproxy/location-*.conf;
 }
+
