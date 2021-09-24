@@ -46,21 +46,26 @@
 #--------------------------------------------------------------#
 # 3. Prepare repo (if cache exists)
 #--------------------------------------------------------------#
+# a valid local yum repo is identified with existence of flag file:
+# {{ repo_home }}/{{ repo_name }}/repo_complete (/www/pigsty/repo_complete)
+
 - name: Check local repo exists
   tags: repo_prepare
   block:
-    # set repo_exist = true if local repo already exists
+    # set repo_exists = true if local repo already exists
     - name: Check repo pkgs cache exists
       stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
       register: repo_cache
     - name: Set fact whether repo_exists
       set_fact:
-        repo_exist: "{{ repo_cache.stat.exists }}"
+        repo_exists: "{{ repo_cache.stat.exists }}"
 
 
+# if repo exists, just create a local file repo definition
+# so that we can install bootstrap pacakges from it
 - name: Prepare repo
   tags: repo_prepare
-  when: repo_exist
+  when: repo_exists
   block:
     # if local yum cache exists, use it instead
     - name: Move upstream repo to backup
@@ -87,37 +92,41 @@
 #--------------------------------------------------------------#
 # 4. Bootstrap
 #--------------------------------------------------------------#
-- name: Bootstrap repo server
+# those packages are already installed during configure
+# just make sure them exists
+- name: Install repo bootstrap packages
   tags: repo_boot
-  block:
-    - name: Install repo bootstrap packages
-      yum:
-        name: "{{ item }}"
-        state: latest
-      with_items:
-        - yum-utils
-        - createrepo
-        - ansible
-        - nginx
-        - wget
-        - unzip
-        - sshpass
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - yum-utils
+    - createrepo
+    - ansible
+    - nginx
+    - wget
+    - unzip
+    - sshpass
 
 
-- name: Bootstrap repo server
+# launch nginx server for yum repo
+- name: Bootstrap repo nginx server
   tags: repo_nginx
   block:
+    # copy repo nginx config & content
     - name: Render repo nginx server files
       template: src={{ item.src }} dest={{ item.dest }} mode=0644
       with_items:
-        - {src: index.html.j2,    dest: /www/index.html}
-        - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
-        - {src: local.repo.j2,    dest: "/www/{{ repo_name }}.repo"}
         - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
+        - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
+        - {src: index.html.j2,    dest: "{{ repo_home }}/index.html" }
+        - {src: local.repo.j2,    dest: "{{ repo_home }}/{{ repo_name }}.repo"}
 
+    # nginx sometimes may not work if selinux is enabled
     - name: Disable selinux for repo server
       selinux: state=disabled
 
+    # launch nginx with systemctl and wait for port 80 online
     - name: Launch repo nginx server
       systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
 
@@ -136,13 +145,13 @@
   when: not repo_exist
   block:
 
-    # download rpm from url
+    # download packages directly via url
     - name: Download web url packages
       environment: "{{ proxy_env }}"
       get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
       with_items: "{{ repo_url_packages }}"
 
-    # download from upstream repo
+    # download packages from upstream yum repo
     - name: Download repo packages
       environment: "{{ proxy_env }}"
       command:
@@ -150,26 +159,21 @@
         chdir: "{{ repo_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
-    # download rpm from url
-    - name: Download repo pkg deps
+    # download rpm according to url
+    - name: Download repo pkg dependencies
       environment: "{{ proxy_env }}"
       command:
         cmd: repotrack {{ item }}
         chdir: "{{ repo_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
-    # create repo
+    # create local yum repo
     - name: Create local repo index
       command: createrepo {{ repo_home }}/{{ repo_name }}
 
-    # copy bootstrap scripts
-    - name: Copy bootstrap scripts
-      tags: repo_script
-      template: src=bootstrap.sh.j2 dest={{ repo_home }}/{{ repo_name }}/bootstrap.sh mode=0755
-
     # set repo complete flag
     - name: Mark repo cache as valid
-      copy: content=ok dest=/www/{{ repo_name }}/repo_complete
+      copy: content=ok dest={{ repo_home }}/{{ repo_name }}/repo_complete
 
 
 ...

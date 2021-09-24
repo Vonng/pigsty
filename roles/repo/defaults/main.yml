@@ -8,11 +8,11 @@
 # - local yum repo - #
 repo_enabled: true                            # build local yum repo on meta nodes?
 repo_name: pigsty                             # local repo name
-repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
+repo_address: pigsty                          # local repo host (ip or hostname, including port if not using 80)
 repo_port: 80                                 # repo server listen address, must same as repo_address!
 repo_home: /www                               # default repo dir location
 repo_rebuild: false                           # force re-download packages
-repo_exist: false
+repo_exists: false                            # internal flag
 
 # - upstream repo - #
 repo_remove: true                             # remove existing repos
@@ -155,10 +155,10 @@ repo_packages:
   # postgres 13 packages
   - postgresql13*                                                                          # postgresql 13 kernel
   - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
-  - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-  - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
-  - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
-  - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
+  - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
+  - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
+  - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13            # FDW extensions
+  - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                   # MISC extensions
   - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
   - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
   - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
@@ -166,25 +166,19 @@ repo_packages:
 
   # build & devel packages (optional)
   - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-  - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
+  - zlib-devel openssl-libs openssl-devel libxml2-devel libxslt-devel
+  # - pam-devel openldap-devel systemd-devel tcl-devel python-devel
 
 
 repo_url_packages:
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter-0.4.0-1.el7.x86_64.rpm        # pg_exporter rpm
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
-  - https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binaries
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter_v0.4.0_linux-amd64.tar.gz
-  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip
-  - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
-  - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
-  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
-
-  # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
-  # - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-  # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter_v0.3.2_linux-amd64.tar.gz
-
-  # mirror in mainland china (use commented packages to install from official site)
-  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
-  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
-  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
+  - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz # monitor binaries
+  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
+  - https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.3.0/logcli-linux-amd64.zip
+  - https://github.com/grafana/loki/releases/download/v2.3.0/loki-canary-linux-amd64.zip
+  - https://github.com/dalibo/pev2/releases/download/v0.22.0/pev2.tar.gz
+  - https://github.com/sosedoff/pgweb/releases/download/v0.11.8/pgweb_linux_amd64.zip
 ...
