@@ -5,7 +5,8 @@
 * [ENHANCEMENT] add jupyter lab integration
 * [ENHANCEMENT] add pgweb console integration
 * [ENHANCEMENT] add pgbadger support
-* [ENHANCEMENT] add pev2 support
+* [ENHANCEMENT] add pev2 support, explain visualizer
+* [ENHANCEMENT] add pglog utils
 * [ENHANCEMENT] update default pkg.tgz software version:
   * upgrade postgres to v13.4
   * upgrade pgbouncer to v1.16
@@ -15,7 +16,21 @@
   * upgrade haproxy to v2.1.1
   * upgrade consul to v1.10.2
 
+**API Changes**
 
+* `nginx_upstream` now holds different structures. (incompatible)
+* new config entries: `app_list`, render into home page's nav entries
+* new config entries: `docs_enabled`, setup local docs on default server.
+* new config entries: `pev2_enabled`, setup local pev2 utils.
+* new config entries: `pgbadger_enabled`, create log summary/report dir
+* new config entries: `jupyter_enabled`, enable jupyter lab server on meta node 
+* new config entries: `jupyter_username`, specify which user to run jupyter lab
+* new config entries: `pgweb_enabled`, enable pgweb server on meta node
+* new config entries: `pgweb_username`, specify which user to run pgweb
+* new config entries: `loki_enabled`, enable loki on meta node (require loki binary)
+* rename internal flag `repo_exist` into `repo_exists`
+* now default value for `repo_address` is `pigsty` instead of `yum.pigsty`
+* now haproxy access point is `http://pigsty` instead of `http://h.pigsty`
 
 
 # v1.0.1
