@@ -8,7 +8,7 @@ PASSWORD = os.environ.get("GRAFANA_PASSWORD", 'pigsty')
 
 ##########################################
 # load dashboard
-##########################################
+############################w##############
 # external domain substitute info
 PLACEHOLDER_HOME = 'pigsty'
 PLACEHOLDER_CONSUL = 'c.pigsty'
@@ -16,7 +16,7 @@ PLACEHOLDER_GRAFANA = 'g.pigsty'
 PLACEHOLDER_PROMETHEUS = 'p.pigsty'
 PLACEHOLDER_ALERTMANAGER = 'a.pigsty'
 
-UPSTREAM_HOME = os.environ.get("NGINX_UPSTREAM_HAPROXY", PLACEHOLDER_HOME)
+UPSTREAM_HOME = os.environ.get("NGINX_UPSTREAM_HOME", PLACEHOLDER_HOME)
 UPSTREAM_GRAFANA = os.environ.get("NGINX_UPSTREAM_GRAFANA", PLACEHOLDER_GRAFANA)
 UPSTREAM_CONSUL = os.environ.get("NGINX_UPSTREAM_CONSUL", PLACEHOLDER_CONSUL)
 UPSTREAM_PROMETHEUS = os.environ.get("NGINX_UPSTREAM_PROMETHEUS", PLACEHOLDER_PROMETHEUS)
