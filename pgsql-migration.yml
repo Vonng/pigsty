@@ -1,0 +1,419 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   migration.yml
+# Desc      :   generate migration scripts
+# Note      :   check https://pigsty.cc/t-migration (TBD)
+# Ctime     :   2020-09-07
+# Mtime     :   2021-09-26
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+
+#==============================================================#
+#                        HOW TO USE ?                          #
+#==============================================================#
+# 1.  check src & dst primary privileges (ssh,sudo,superuser,replication)
+# 2.  provide necessary information in `vars`
+# 3.  run this playbook and generate scripts
+# 4.  execute script one-by-one to perform migration
+#--------------------------------------------------------------#
+# 1   `. active` to load migration context
+# 2   `check-....` to perform migration checklist
+# 3   `copy-schema` to perform schema synchronization
+# 4   `create-pub` & `create-sub` to build logical replication
+# 6   `progress` & mon-ui to wait until initial data copy complete
+# 7   switch read-only traffic to dst cluster (optional)
+# 8   suspend src cluster & copy-seq
+# 9   route read-write traffic to dst cluster
+# 10  remove-sub & clean up
+#==============================================================#
+
+
+- name: Generate Migration Plan
+  hosts: meta
+  gather_facts: no
+
+  vars:
+
+    #--------------------------------------------------------------#
+    #                   MIGRATION CONTEXT                          #
+    #--------------------------------------------------------------#
+
+    # src cluster (the old cluster)
+    src_cls: pg-meta                       # src cluster name
+    src_db: meta                           # src database name
+    src_ip: 10.10.10.10                    # ip address of src cluster primary
+    src_list: [ ]                          # ip address list of src cluster members (non-primary)
+
+    #--------------------------------------------------------------#
+    # dst cluster (the new cluster)
+    dst_cls: pg-test                       # dst cluster name
+    dst_db: test                           # dst database name
+    dst_ip: 10.10.10.11                    # dst cluster leader ip addressh
+    dst_list: [ 10.10.10.12, 10.10.10.13 ] # dst cluster members (non-primary)
+
+    # dst cluster access information
+    dst_dns: pg-test                       # dst cluster dns records
+    dst_vip: 10.10.10.3                    # dst cluster vip records
+
+    #--------------------------------------------------------------#
+    # credential (assume .pgpass viable)
+    pg_admin_username: dbuser_dba          # superuser @ both side
+    pg_replicatoin_username: replicator    # repl user @ src to be used
+    migration_context_dir: ~/migration     # this dir will be created
+    #--------------------------------------------------------------#
+
+
+  tasks:
+
+    - name: Gather Facts
+      delegate_to: localhost
+      run_once: true
+      block:
+
+        #--------------------------------------------------------------#
+        - name: Build parameters from vars
+          set_fact:
+            src_pg: "postgres://{{ pg_admin_username }}@{{ src_ip }}/{{ src_db }}"  # src pg url
+            dst_pg: "postgres://{{ pg_admin_username }}@{{ dst_ip }}/{{ dst_db }}"  # dst pg url
+            dir_name: "{{ src_cls }}.{{ src_db }}"                                  # context dir name
+            dir_path: "{{ migration_context_dir }}/{{ src_cls }}.{{ src_db }}"      # context dir path
+            pub_name: 'pub_{{ src_cls | replace("-", "_") }}_{{ src_db | replace("-", "_") }}'    # publication name
+            sub_name: 'sub_{{ src_cls | replace("-", "_") }}_{{ src_db | replace("-", "_") }}'    # subscription name
+            sub_conn: 'host={{ src_ip }} dbname={{ src_db }} user={{ pg_replication_username }}'  # subscription connection string
+
+        - debug:
+            msg: "create migration context for {{ src_cls }}.{{ src_db }} to {{ dst_cls }}.{{ dst_db }}"
+        #--------------------------------------------------------------#
+
+
+
+        #--------------------------------------------------------------#
+        # create script dir:  ~/migration/{{ cls }}.{{ db }} by default
+        #--------------------------------------------------------------#
+        - name: Create context directory
+          file: path={{ dir_path }} state=directory mode=0700
+
+
+        #--------------------------------------------------------------#
+        # activate will set environment variables used by other scripts
+        #--------------------------------------------------------------#
+        - name: Create context activate script
+          copy:
+            dest: "{{ dir_path }}/activate"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # ACTIVATE MIGRATION CONTEXT FOR
+              # {{ src_cls }}.{{ src_db }} --> {{ dst_cls }}.{{ dst_db }}
+
+              # src/dst primary url
+              export SRCPG={{ src_pg }}
+              export DSTPG={{ dst_pg }}
+              export PUBNAME={{ pub_name }}
+              export SUBNAME={{ sub_name }}
+
+              # src cluster : {{ src_cls }}
+              export SRCCLS={{ src_cls }}
+              export SRCDB={{ src_db }}
+              export SRCIP={{ src_ip }}
+
+              # dst cluster : {{ dst_cls }}
+              export DSTCLS={{ dst_cls }}
+              export DSTIP={{ dst_ip }}
+              export DSTDB={{ dst_db }}
+
+              # migraiont context
+              export DIRNAME={{ dir_name }}
+              export DIRPATH={{ dir_path }}
+              cd ${DIRPATH}
+
+        #--------------------------------------------------------------#
+        # check-replica-identity will check all tables in src databases
+        # logical replication require `replication identity` to work
+        # which means every table should have a primary key or at least
+        # a not-null unique index on it
+        #--------------------------------------------------------------#
+        - name: Create check-replica-identity script
+          copy:
+            dest: "{{ dir_path }}/check-replica-identity"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # CHECK REPLICA IDENTITFY FOR {{ src_cls }}.{{ src_db }}
+
+              psql {{ src_pg }} -Xw <<-EOF
+              SELECT quote_ident(nspname) || '.' || quote_ident(relname) AS name, con.ri AS keys, pg_size_pretty(pg_table_size(c.oid)) AS size,
+                     CASE relreplident WHEN 'd' THEN 'default' WHEN 'n' THEN 'nothing' WHEN 'f' THEN 'full' WHEN 'i' THEN 'index' END AS identity
+              FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid, LATERAL (SELECT array_agg(contype) AS ri FROM pg_constraint WHERE conrelid = c.oid) con
+              WHERE relkind = 'r' AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')
+              ORDER BY 2,3;
+              EOF
+
+
+        #--------------------------------------------------------------#
+        # check-replica-identity-solution will try fix problematic tables
+        # if there's any table that does not have a primary key, this
+        # script will try to fix it. It will print SQL solution to it
+        #--------------------------------------------------------------#
+        - name: Create check-replica-identity-solution script
+          copy:
+            dest: "{{ dir_path }}/check-replica-identity-solution"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # GENERATE REPLICA IDENTITFY FIX SQL FOR {{ src_cls }}.{{ src_db }}
+
+              psql {{ src_pg }} -AXtw <<-EOF
+              SELECT fix || '  -- ' || pg_size_pretty(pg_table_size(relid)) -- , relname, fix, attnotnull
+              FROM (
+              SELECT relid,name AS relname, uk, uk::RegClass::OID AS ukid, uk, CASE WHEN uk IS NOT NULL THEN  'ALTER TABLE ' || name || ' REPLICA IDENTITY USING INDEX ' || uk ||';'
+              ELSE  'ALTER TABLE ' || name || ' REPLICA IDENTITY FULL;' END AS fix FROM
+              (SELECT quote_ident(nspname) || '.' || quote_ident(relname) AS name, c.oid AS relid,
+                     (SELECT idx.relname AS u FROM pg_catalog.pg_class tbl, pg_catalog.pg_class idx, pg_catalog.pg_index i
+                      WHERE tbl.oid = c.oid AND tbl.oid = i.indrelid AND i.indexrelid = idx.oid AND indisunique AND NOT indisprimary AND indisvalid LIMIT 1) AS uk,
+                     CASE relreplident WHEN 'd' THEN 'default' WHEN 'n' THEN 'nothing' WHEN 'f' THEN 'full' WHEN 'i' THEN 'index' END AS ri
+              FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid
+              WHERE relkind = 'r' AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')
+                AND NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid = c.oid AND contype = 'p') ORDER BY 2, 3 ) p
+              ) t, LATERAL(SELECT json_object_agg(ra.attname, ra.attnotnull) AS attnotnull FROM
+                  (SELECT attname, attnotnull FROM pg_attribute WHERE attrelid = ukid ) rb JOIN
+                  (SELECT attname, attnotnull FROM pg_attribute WHERE attrelid = relid ) ra
+                  ON ra.attname = rb.attname
+              ) atts;
+              EOF
+
+
+        #--------------------------------------------------------------#
+        # check-special-object will print special objects in src database
+        # maybe you have to pay extra attention to them during migration
+        #--------------------------------------------------------------#
+        - name: Create check-special-object script
+          copy:
+            dest: "{{ dir_path }}/check-special-object"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # CHECK SPECIAL OBJECT FOR {{ src_cls }}.{{ src_db }}
+
+              psql {{ src_pg }} -Xw <<-EOF
+              SELECT relkind ,quote_ident(nspname) || '.' || quote_ident(relname) AS name, con.ri AS keys, pg_size_pretty(pg_table_size(c.oid)) AS size,
+                     CASE relreplident WHEN 'd' THEN 'default' WHEN 'n' THEN 'nothing' WHEN 'f' THEN 'full' WHEN 'i' THEN 'index' END AS identity
+              FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid, LATERAL (SELECT array_agg(contype) AS ri FROM pg_constraint WHERE conrelid = c.oid) con
+              WHERE relkind NOT IN ('r','i','v', 'S') AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')
+              ORDER BY 1,2;
+              EOF
+
+
+        #--------------------------------------------------------------#
+        # copy-schema will dump src schema definition and load it to dst
+        # it will use `-c` to generate clean sql before creation.
+        # so it's idempotent. you have to copy schema to dst database
+        # before building logical replication
+        #--------------------------------------------------------------#
+        - name: Create copy-schema script
+          copy:
+            dest: "{{ dir_path }}/copy-schema"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # COPY SCHEMA FROM {{ src_cls }}.{{ src_db }} TO {{ dst_cls }}.{{ dst_db }}
+              pg_dump {{ src_pg }} -Oscx -T spatial_ref_sys -N monitor | psql -Xw {{ dst_pg }}
+
+
+        #--------------------------------------------------------------#
+        # copy-seq will dump src database sequences to target databases
+        # logical replication does not handle sequence replication
+        # you have to do that manually at the switchover time.
+        #--------------------------------------------------------------#
+        - name: Generate copy-seq script
+          shell: |
+            SCRIPT_PATH={{ dir_path }}/copy-seq
+            echo '#!/bin/bash' > ${SCRIPT_PATH}
+            psql {{ src_pg }} -qAXtw >> ${SCRIPT_PATH} <<-EOF
+                SELECT 'pg_dump {{ src_pg }} -Oxa ' ||
+                string_agg('-t ' || quote_ident(schemaname) || '.' || quote_ident(sequencename), ' ') ||
+                ' | grep setval | psql -qAXtw {{ dst_pg }}'
+                FROM pg_sequences;
+            EOF
+            chmod 755 ${SCRIPT_PATH}
+
+
+        #--------------------------------------------------------------#
+        # next-seq will advance all dst database sequences by 10000
+        # it will resolve primary key conflict in case of emergency
+        #--------------------------------------------------------------#
+        - name: Create next-seq script
+          copy:
+            dest: "{{ dir_path }}/next-seq"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # ADVANCE SEQUENCE OF DST CLUSTER {{ dst_cls }}
+              psql {{ dst_pg }} -qAXtw <<-EOF
+                  SELECT seqname, setval(seqname, nextval(seqname) + 10000) FROM (SELECT quote_ident(schemaname) || '.' || quote_ident(sequencename) AS seqname FROM pg_sequences) s;
+              EOF
+
+
+        #--------------------------------------------------------------#
+        # create-pub will create publication on src database
+        # you may check table listed in here before execution
+        #--------------------------------------------------------------#
+        - name: Generate create-pub script
+          shell: |
+            SCRIPT_PATH={{ dir_path }}/create-pub
+            echo '#!/bin/bash' > ${SCRIPT_PATH}
+            echo "psql {{ src_pg }} -AXtw <<-EOF" >> ${SCRIPT_PATH}
+            psql {{ src_pg }} -AXtw >> ${SCRIPT_PATH} <<-EOF
+            SELECT 'CREATE PUBLICATION ' || '"{{ pub_name }}"' || ' FOR TABLE ' || string_agg(name, E',\n') || ';' AS sql FROM
+            (SELECT quote_ident(nspname) || '.' || quote_ident(relname) AS name FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid
+            WHERE relkind = 'r' AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')) tbl;
+            EOF
+            echo "EOF" >> ${SCRIPT_PATH}
+            chmod 755 ${SCRIPT_PATH}
+
+        #--------------------------------------------------------------#
+        # create-sub will create subscription on dst database
+        # this subscription will make dst a realtime logical replica of src
+        #--------------------------------------------------------------#
+        - name: Generate create-sub script
+          shell: |
+            SCRIPT_PATH={{ dir_path }}/create-sub
+            echo '#!/bin/bash' > ${SCRIPT_PATH}
+            echo "psql {{ dst_pg }} -AXtw <<-EOF" >> ${SCRIPT_PATH}
+            cat >> ${SCRIPT_PATH} <<-EOF
+            CREATE SUBSCRIPTION "{{ sub_name }}"
+              CONNECTION '{{ sub_conn }}'
+              PUBLICATION "{{ pub_name }}";
+            EOF
+            echo "EOF" >> ${SCRIPT_PATH}
+            chmod 755 ${SCRIPT_PATH}
+
+
+        #--------------------------------------------------------------#
+        # remove-sub will remove subscription on dst database
+        #--------------------------------------------------------------#
+        - name: Create remove-sub script
+          copy:
+            dest: "{{ dir_path }}/remove-sub"
+            mode: 0755
+            content: |
+              #!/bin/bash
+              # REMOVE SUBSCRIPTION {{ sub_name }} FROM DST CLUSTER {{ dst_cls }}
+              psql {{ dst_pg }} -X <<-EOF
+                  ALTER SUBSCRIPTION "{{ sub_name }}" DISABLE;
+                  DROP SUBSCRIPTION "{{ sub_name }}";
+              EOF
+
+
+        #--------------------------------------------------------------#
+        # progress will print rough progress report on initial data copy
+        # logical replication will perform a data copy for each table
+        # during start-up.
+        # you can also check this with pgsql-replication dashboard
+        #--------------------------------------------------------------#
+        - name: Generate progress reporting script
+          shell: |
+            SCRIPT_PATH={{ dir_path }}/progress   # generate script to this path
+            cat > ${SCRIPT_PATH} <<-'EOF'
+            #!/bin/bash
+
+            SRCPG='{{ src_pg }}'
+            DSTPG='{{ dst_pg }}'
+            # SRCPG=${SRCPG-'{{ src_pg }}'}
+            # DSTPG=${DSTPG-'{{ dst_pg }}'}
+            echo "replication progress for ${SRCPG} --> ${DSTPG}"
+
+            function relation_progress() {
+                local relname=${1}
+                local res_src=$(psql "${SRCPG}" -AXtwc "SELECT pg_table_size('${relname}'::RegClass);")
+                local res_src_size=$(psql "${SRCPG}" -AXtwc "SELECT pg_size_pretty(pg_table_size('${relname}'::RegClass));")
+                local res_dst=$(psql "${DSTPG}" -AXtwc "SELECT pg_table_size('${relname}'::RegClass);")
+                local res_dst_size=$(psql "${DSTPG}" -AXtwc "SELECT pg_size_pretty(pg_table_size('${relname}'::RegClass));")
+                local res_dst100=$((res_dst*100))
+                percent=0
+                if [[ ${res_src} != '0' ]]; then
+                    percent=$((res_dst100/res_src))
+                fi
+                echo "${relname} [${res_dst_size} / ${res_src_size}] : ${percent}%"
+            }
+
+            function overall_progress() {
+                tables=$(psql ${DSTPG} -AXtwc "SELECT relname FROM pg_class c JOIN pg_subscription_rel sr ON c.oid = sr.srrelid WHERE relkind = 'r' AND srsubstate != 'r';")
+                for table in $tables; do
+                    relation_progress ${table}
+                done
+            }
+
+            overall_progress
+            EOF
+            chmod 755 ${SCRIPT_PATH}
+
+        #--------------------------------------------------------------#
+        # compare will compare src & dst table by table row count
+        # it's a fast & rough approach to tell weather logical replication
+        # is still in sync.
+        #--------------------------------------------------------------#
+        - name: Generate compare reporting script
+          shell: |
+            SCRIPT_PATH={{ dir_path }}/compare
+            cat > ${SCRIPT_PATH} <<-'EOF'
+            #!/bin/bash
+
+            SRCPG='{{ src_pg }}'
+            DSTPG='{{ dst_pg }}'
+            # SRCPG=${SRCPG-'{{ src_pg }}'}
+            # DSTPG=${DSTPG-'{{ dst_pg }}'}
+            echo "relation compare for ${SRCPG} --> ${DSTPG}"
+
+            function log_info() {
+                [ -t 2 ] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\033[0m\n" >&2 ||
+                    printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" >&2
+            }
+
+            function log_error() {
+                [ -t 2 ] && printf "\033[0;31m[$(date "+%Y-%m-%d %H:%M:%S")][ERROR] $*\033[0m\n" >&2 ||
+                    printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" >&2
+            }
+
+            function compare_relation() {
+                local relname=${1}
+                res1=$(psql "${SRCPG}" -AXtwc "SELECT count(*) AS cnt FROM ${relname};")
+                res2=$(psql "${DSTPG}" -AXtwc "SELECT count(*) AS cnt FROM ${relname};")
+                if [[ "${res1}" == "${res2}" ]]; then
+                    log_info "[PASS] ${relname}\t${res1}"
+                else
+                    log_error "[FAIL] ${relname}\t [SRC=${res1}] [DST=${res2}]"
+                fi
+            }
+
+            function compare_sequence() {
+                local seqname=${1}
+                res1=$(psql "${SRCPG}" -AXtwc "SELECT currval('${seqname}');")
+                res2=$(psql "${DSTPG}" -AXtwc "SELECT currval('${seqname}');")
+                if [[ "${res1}" == "${res2}" ]]; then
+                    log_info "[PASS] ${seqname}\t${res1}"
+                else
+                    log_error "[FAIL] ${seqname}\t [SRC=${res1}] [DST=${res2}]"
+                fi
+            }
+
+            function compare_all() {
+                sequences=$(psql ${SRCPG} -AXtwc "SELECT quote_ident(schemaname) || '.' || quote_ident(sequencename) FROM pg_sequences;")
+                for sequence in $sequences; do
+                    compare_sequence ${sequence}
+                done
+
+                tables=$(psql ${SRCPG} -AXtwc "SELECT quote_ident(nspname) || '.' || quote_ident(relname) AS name FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE relkind = 'r' AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')")
+                for table in $tables; do
+                    compare_relation ${table}
+                done
+            }
+
+            compare_all
+            EOF
+            chmod 755 ${SCRIPT_PATH}
+
+
+...
