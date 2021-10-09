@@ -1,0 +1,1283 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "Meta",
+                "enable": true,
+                "hide": false,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Photos",
+                "rawQuery": "SELECT app || ' access ' || category || ' for ' || (timeend - time)::TEXT AS text,\n       category || ',' || app                              AS tags,\n       time,\n       timeend\nFROM (SELECT id,\n             max(category)                                   AS category,\n             max(kind)                                       AS kind,\n             max(app)                                        AS app,\n             min(ts) FILTER ( WHERE kind = 'intervalBegin' ) AS time,\n             max(ts) FILTER ( WHERE kind = 'intervalEnd' )   AS timeend\n      FROM applog.privacy_log\n      WHERE app = '${app}' AND id IS NOT NULL AND category = 'photos'\n      GROUP BY id\n     ) d\nORDER BY time;\n",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            },
+            {
+                "datasource": "Meta",
+                "enable": true,
+                "iconColor": "red",
+                "name": "Contacts",
+                "rawQuery": "SELECT app || ' access ' || category || ' for ' || (timeend - time)::TEXT AS text,\n       category || ',' || app                              AS tags,\n       time,\n       timeend\nFROM (SELECT id,\n             max(category)                                   AS category,\n             max(kind)                                       AS kind,\n             max(app)                                        AS app,\n             min(ts) FILTER ( WHERE kind = 'intervalBegin' ) AS time,\n             max(ts) FILTER ( WHERE kind = 'intervalEnd' )   AS timeend\n      FROM applog.privacy_log\n      WHERE app = '${app}' AND id IS NOT NULL AND category = 'contacts'\n      GROUP BY id\n     ) d\nORDER BY time;\n"
+            },
+            {
+                "datasource": "Meta",
+                "enable": true,
+                "iconColor": "red",
+                "name": "Camera",
+                "rawQuery": "SELECT app || ' access ' || category || ' for ' || (timeend - time)::TEXT AS text,\n       category || ',' || app                              AS tags,\n       time,\n       timeend\nFROM (SELECT id,\n             max(category)                                   AS category,\n             max(kind)                                       AS kind,\n             max(app)                                        AS app,\n             min(ts) FILTER ( WHERE kind = 'intervalBegin' ) AS time,\n             max(ts) FILTER ( WHERE kind = 'intervalEnd' )   AS timeend\n      FROM applog.privacy_log\n      WHERE app = '${app}' AND id IS NOT NULL AND category = 'camera'\n      GROUP BY id\n     ) d\nORDER BY time;",
+                "target": {}
+            },
+            {
+                "datasource": "Meta",
+                "enable": true,
+                "iconColor": "red",
+                "name": "Mic",
+                "rawQuery": "SELECT app || ' access ' || category || ' for ' || (timeend - time)::TEXT AS text,\n       category || ',' || app                              AS tags,\n       time,\n       timeend\nFROM (SELECT id,\n             max(category)                                   AS category,\n             max(kind)                                       AS kind,\n             max(app)                                        AS app,\n             min(ts) FILTER ( WHERE kind = 'intervalBegin' ) AS time,\n             max(ts) FILTER ( WHERE kind = 'intervalEnd' )   AS timeend\n      FROM applog.privacy_log\n      WHERE app = '${app}' AND id IS NOT NULL AND category = 'microphone'\n      GROUP BY id\n     ) d\nORDER BY time;"
+            },
+            {
+                "datasource": "Meta",
+                "enable": true,
+                "iconColor": "red",
+                "name": "Location",
+                "rawQuery": "SELECT app || ' access ' || category || ' for ' || (timeend - time)::TEXT AS text,\n       category || ',' || app                              AS tags,\n       time,\n       timeend\nFROM (SELECT id,\n             max(category)                                   AS category,\n             max(kind)                                       AS kind,\n             max(app)                                        AS app,\n             min(ts) FILTER ( WHERE kind = 'intervalBegin' ) AS time,\n             max(ts) FILTER ( WHERE kind = 'intervalEnd' )   AS timeend\n      FROM applog.privacy_log\n      WHERE app = '${app}' AND id IS NOT NULL AND category = 'location'\n      GROUP BY id\n     ) d\nORDER BY time;"
+            },
+            {
+                "datasource": "Meta",
+                "enable": true,
+                "iconColor": "red",
+                "name": "Library",
+                "rawQuery": "SELECT app || ' access ' || category || ' for ' || (timeend - time)::TEXT AS text,\n       category || ',' || app                              AS tags,\n       time,\n       timeend\nFROM (SELECT id,\n             max(category)                                   AS category,\n             max(kind)                                       AS kind,\n             max(app)                                        AS app,\n             min(ts) FILTER ( WHERE kind = 'intervalBegin' ) AS time,\n             max(ts) FILTER ( WHERE kind = 'intervalEnd' )   AS timeend\n      FROM applog.privacy_log\n      WHERE app = '${app}' AND id IS NOT NULL AND category = 'mediaLibrary'\n      GROUP BY id\n     ) d\nORDER BY time;"
+            }
+        ]
+    },
+    "description": "App privacy log events for single application",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1633750628687,
+    "links": [
+        {
+            "asDropdown": false,
+            "icon": "bolt",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Auto Zoom",
+            "tooltip": "Adjust Time Range to Session Log Events",
+            "type": "link",
+            "url": "/d/applog-app?var-app=${app}&from=${ts_begin}&to=${ts_end}"
+        },
+        {
+            "asDropdown": false,
+            "icon": "info",
+            "includeVars": false,
+            "keepTime": true,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Overview",
+            "tooltip": "",
+            "type": "link",
+            "url": "/d/pglog-analysis"
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "APPLOG"
+            ],
+            "targetBlank": false,
+            "title": "APPLOG",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        }
+    ],
+    "panels": [
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 27,
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 60,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ERROR"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "FATAL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "purple",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "LOG"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 21,
+                "x": 0,
+                "y": 1
+            },
+            "id": 25,
+            "interval": "1s",
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "sum"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       category AS metric, count(*) AS value \nFROM ${log}\nWHERE $__timeFilter(ts)\nGROUP BY 1, 2\nORDER BY 1, 2;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "${category} events",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Session"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGLOG Session for ${__data.fields.Session}",
+                                        "url": "/d/pglog-session?var-sid=${__data.fields.Session}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Count"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 10
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Error"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background-solid"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 16,
+                "w": 3,
+                "x": 21,
+                "y": 1
+            },
+            "id": 23,
+            "interval": null,
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Count"
+                    }
+                ]
+            },
+            "pluginVersion": "8.1.7",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT app, count(*) AS count FROM ${log}\nWHERE $__timeFilter(ts) AND app IS NOT NULL\nGROUP BY app ORDER BY 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "app": "App",
+                            "count": "Count",
+                            "error": "Error",
+                            "sid": "Session"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 60,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ERROR"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "FATAL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "purple",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "LOG"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 21,
+                "x": 0,
+                "y": 9
+            },
+            "id": 30,
+            "interval": "1s",
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "sum"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       category AS metric, count(*) AS value \nFROM ${log}\nWHERE $__timeFilter(ts) AND app = '$app'\nGROUP BY 1, 2\nORDER BY 1, 2;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "${app} events",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Meta",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 147
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Conn"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 138
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 66
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Line"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 63
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Session"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 126
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "CMD"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SessionStart"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 160
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "VXID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TXID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Level"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "DEBUG": {
+                                                "color": "rgba(128, 128, 128, 0.5)",
+                                                "index": 7
+                                            },
+                                            "ERROR": {
+                                                "color": "red",
+                                                "index": 4
+                                            },
+                                            "FATAL": {
+                                                "color": "purple",
+                                                "index": 5
+                                            },
+                                            "INFO": {
+                                                "color": "dark-green",
+                                                "index": 1
+                                            },
+                                            "LOG": {
+                                                "color": "green",
+                                                "index": 0
+                                            },
+                                            "NOTICE": {
+                                                "color": "blue",
+                                                "index": 2
+                                            },
+                                            "PANIC": {
+                                                "color": "text",
+                                                "index": 6
+                                            },
+                                            "WARNING": {
+                                                "color": "orange",
+                                                "index": 3
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background-solid"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Code"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "unit",
+                                "value": "string"
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-text"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "00000": {
+                                                "color": "green",
+                                                "index": 0
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Detail"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Hint"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IQ"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IQP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Ctx"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "QueryP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Loc"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Appname"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 96
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Backend"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Message"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "left"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Username"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Session Start"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "accessor"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 406
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "id"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 285
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 17,
+                "w": 24,
+                "x": 0,
+                "y": 17
+            },
+            "id": 29,
+            "options": {
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.1.7",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM ${log} WHERE app = '${app}' AND $__timeFilter(ts);",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Log Event",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "backend": true,
+                            "conn": true,
+                            "datname": true,
+                            "location": false,
+                            "pid": true,
+                            "sid": true,
+                            "stime": true,
+                            "username": true
+                        },
+                        "indexByName": {
+                            "accessor": 6,
+                            "app": 2,
+                            "bundle_id": 7,
+                            "category": 3,
+                            "context": 14,
+                            "domain": 8,
+                            "domain_owner": 9,
+                            "domain_type": 10,
+                            "first_ts": 11,
+                            "hits": 13,
+                            "id": 1,
+                            "initiated_type": 12,
+                            "kind": 5,
+                            "ts": 0,
+                            "type": 4
+                        },
+                        "renameByName": {
+                            "accessor": "Assessor",
+                            "app": "Application",
+                            "appname": "Appname",
+                            "backend": "Backend",
+                            "bundle_id": "",
+                            "category": "Category",
+                            "cmd_tag": "CMD",
+                            "code": "Code",
+                            "conn": "Conn",
+                            "context": "",
+                            "datname": "Database",
+                            "detail": "Detail",
+                            "hint": "Hint",
+                            "id": "ID",
+                            "iq": "IQ",
+                            "iqp": "IQP",
+                            "kind": "Kind",
+                            "level": "Level",
+                            "location": "Loc",
+                            "msg": "Message",
+                            "pid": "PID",
+                            "q": "Query",
+                            "qp": "QueryP",
+                            "sid": "Session",
+                            "sln": "Line",
+                            "stime": "Session Start",
+                            "ts": "Time",
+                            "txid": "TXID",
+                            "type": "Type",
+                            "username": "Username",
+                            "vxid": "VXID"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 30,
+    "style": "dark",
+    "tags": [
+        "Pigsty",
+        "APPLOG"
+    ],
+    "templating": {
+        "list": [
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT max(ts) + '5s'::INTERVAL FROM ${log} WHERE  app = '$app';",
+                "description": "Last log timestamp of this session",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Time End",
+                "multi": false,
+                "name": "ts_end",
+                "options": [],
+                "query": "SELECT max(ts) + '5s'::INTERVAL FROM ${log} WHERE  app = '$app';",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "description": "Schema qualified csv log table",
+                "error": null,
+                "hide": 2,
+                "label": "Log Table",
+                "name": "log",
+                "query": "applog.privacy_log",
+                "skipUrlSync": false,
+                "type": "constant"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT distinct app FROM ${log};",
+                "description": "Session ID from log sample",
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Application",
+                "multi": false,
+                "name": "app",
+                "options": [],
+                "query": "SELECT distinct app FROM ${log};",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT min(ts) - '5s'::INTERVAL FROM ${log} WHERE app = '$app';",
+                "description": "First log timestamp of this session",
+                "error": null,
+                "hide": 2,
+                "includeAll": false,
+                "label": "Time Begin",
+                "multi": false,
+                "name": "ts_begin",
+                "options": [],
+                "query": "SELECT min(ts) - '5s'::INTERVAL FROM ${log} WHERE app = '$app';",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            },
+            {
+                "allValue": null,
+                "current": {},
+                "datasource": "Meta",
+                "definition": "SELECT distinct category FROM ${log} Where category is not null;",
+                "description": "Category",
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Category",
+                "multi": false,
+                "name": "category",
+                "options": [],
+                "query": "SELECT distinct category FROM ${log} Where category is not null;",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-7d",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Apple Privacy Log Detail",
+    "uid": "applog-app",
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
+}
