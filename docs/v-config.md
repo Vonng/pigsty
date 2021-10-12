@@ -3,7 +3,7 @@
 Pigsty uses declarative [configuration] (c-config.md) to describe desired state.
 And the idempotent provisioning playbooks are responsible for adjusting system into that state.
 
-Pigsty config is consist of 176 [config entry](#config-entries), 
+Pigsty config is consist of 185 [config entry](#config-entries), 
 divided into 10 [groups](#config-groups) and 5 levels. 
 Most of them does not need your attention. Only identity parameters are required for defining new database clusters.
 
@@ -15,7 +15,7 @@ Most of them does not need your attention. Only identity parameters are required
 | 1 | [connect](v-connect.md) | Infra | 1 | Proxy server configuration, connection information for managed objects |
 | 2 | [repo](v-repo.md) | Infra | 10 | Customize local Yum sources, install packages offline |
 | 3 | [node](v-node.md) | Infra | 31 | Configure the infrastructure on a normal node |
-| 4 | [meta](v-meta.md) | Infra | 25 | Installing and enabling infrastructure services on a meta node |
+| 4 | [meta](v-meta.md) | Infra | 34 | Installing and enabling infrastructure services on a meta node |
 | 5 | [dcs](v-dcs.md) | Infra | 8 | Configure DCS services (consul/etcd) on all nodes |
 | 6 | [pg-install](v-pg-install.md) | PgSQL | 11 | Install PostgreSQL database |
 | 7 | [pg-provision](v-pg-provision.md) | PgSQL | 33 | Pulling up a PostgreSQL database cluster |
@@ -77,6 +77,10 @@ Most of them does not need your attention. Only identity parameters are required
 |    [meta](v-meta.md)    |                  [ca_cert](v-meta.md#ca_cert)                  |  `string`  |  G  | ca cert file name |
 |    [meta](v-meta.md)    |                   [ca_key](v-meta.md#ca_key)                   |  `string`  |  G  | ca private key name |
 |    [meta](v-meta.md)    |           [nginx_upstream](v-meta.md#nginx_upstream)           |  `object[]`  |  G  | nginx upstream definition |
+|    [meta](v-meta.md)    |                 [app_list](v-meta.md##app_list)                |  `object[]`  |  G  | app list on home page navbar |
+|    [meta](v-meta.md)    |             [docs_enabled](v-meta.md#docs_enabled)             |  `bool`      |  G  | enable local docs |
+|    [meta](v-meta.md)    |             [pev2_enabled](v-meta.md#pev2_enabled)             |  `bool`      |  G  | enable pev2 |
+|    [meta](v-meta.md)    |         [pgbadger_enabled](v-meta.md#pgbadger_enabled)         |  `bool`      |  G  | enable pgbadger |
 |    [meta](v-meta.md)    |              [dns_records](v-meta.md#dns_records)              |  `string[]`  |  G  | dynamic DNS records |
 |    [meta](v-meta.md)    |      [prometheus_data_dir](v-meta.md#prometheus_data_dir)      |  `string`  |  G  | prometheus data dir |
 |    [meta](v-meta.md)    |       [prometheus_options](v-meta.md#prometheus_options)       |  `string`  |  G  | prometheus cli args |
@@ -94,8 +98,13 @@ Most of them does not need your attention. Only identity parameters are required
 |    [meta](v-meta.md)    |            [grafana_cache](v-meta.md#grafana_cache)            |  `string`  |  G  | grafana plugins cache path |
 |    [meta](v-meta.md)    |          [grafana_plugins](v-meta.md#grafana_plugins)          |  `string[]`  |  G  | grafana plugins to be installed |
 |    [meta](v-meta.md)    |      [grafana_git_plugins](v-meta.md#grafana_git_plugins)      |  `string[]`  |  G  | grafana plugins via git |
-|    [meta](v-meta.md)    |      [loki_clean](v-meta.md#loki_clean)                        |  `bool`  |  A  | remove existing loki data? |
-|    [meta](v-meta.md)    |      [loki_data_dir](v-meta.md#loki_data_dir)                  |  `string`  |  G  | loki data path |
+|    [meta](v-meta.md)    |             [loki_enabled](v-meta.md#loki_enabled)             |  `bool`      |  G  | whether loki is enabled |
+|    [meta](v-meta.md)    |               [loki_clean](v-meta.md#loki_clean)               |  `bool`  |  A  | remove existing loki data? |
+|    [meta](v-meta.md)    |            [loki_data_dir](v-meta.md#loki_data_dir)            |  `string`  |  G  | loki data path |
+|    [meta](v-meta.md)    |          [jupyter_enabled](v-meta.md#jupyter_enabled)          |  `bool`      |  G  | whether jupyter lab is enabled |
+|    [meta](v-meta.md)    |         [jupyter_username](v-meta.md#jupyter_username)         |  `bool`      |  G  | os user for jupyter lab|
+|    [meta](v-meta.md)    |            [pgweb_enabled](v-meta.md#pgweb_enabled)            |  `bool`      |  G  | whether pgweb is enabled |
+|    [meta](v-meta.md)    |           [pgweb_username](v-meta.md#pgweb_username)           |  `bool`      |  G  | os user for pgweb |
 |    [dcs](v-dcs.md)     |         [service_registry](v-dcs.md#service_registry)          |  `enum`  |  G/C/I  | where to register service? |
 |    [dcs](v-dcs.md)     |                 [dcs_type](v-dcs.md#dcs_type)                  |  `enum`  |  G  | which dcs to use (consul/etcd) |
 |    [dcs](v-dcs.md)     |                 [dcs_name](v-dcs.md#dcs_name)                  |  `string`  |  G  | dcs cluster name (dc) |

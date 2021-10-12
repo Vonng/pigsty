@@ -138,7 +138,7 @@ While you can always specify it with `-m <mode>`.
 ```bash
 vagrant@meta:~/pigsty 
 $ ./configure
-configure pigsty v1.0.0 begin
+configure pigsty v1.1.0 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect

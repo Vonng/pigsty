@@ -12,6 +12,10 @@ This section describes config entries about [infrastructure](c-arch.md#infrastru
 |                  [ca_cert](#ca_cert)                  |  `string`  |  G  | ca cert file name |
 |                   [ca_key](#ca_key)                   |  `string`  |  G  | ca private key name |
 |           [nginx_upstream](#nginx_upstream)           |  `object[]`  |  G  | nginx upstream definition |
+|           [app_list](#app_list)                       |  `object[]`  |  G  | app list on home page navbar |
+|      [docs_enabled](#docs_enabled)                       |  `bool`      |  G  | enable local docs |
+|      [pev2_enabled](#pev2_enabled)                       |  `bool`      |  G  | enable pev2 |
+|      [pgbadger_enabled](#pgbadger_enabled)               |  `bool`      |  G  | enable pgbadger |
 |              [dns_records](#dns_records)              |  `string[]`  |  G  | dynamic DNS records |
 |      [prometheus_data_dir](#prometheus_data_dir)      |  `string`  |  G  | prometheus data dir |
 |       [prometheus_options](#prometheus_options)       |  `string`  |  G  | prometheus cli args |
@@ -29,9 +33,13 @@ This section describes config entries about [infrastructure](c-arch.md#infrastru
 |            [grafana_cache](#grafana_cache)            |  `string`  |  G  | grafana plugins cache path |
 |          [grafana_plugins](#grafana_plugins)          |  `string[]`  |  G  | grafana plugins to be installed |
 |      [grafana_git_plugins](#grafana_git_plugins)      |  `string[]`  |  G  | grafana plugins via git |
+|      [loki_enabled](#loki_enabled)                        |  `bool`      |  G  | whether loki is enabled |
 |      [loki_clean](#loki_clean)                        |  `bool`  |  A  | remove existing loki data? |
 |      [loki_data_dir](#loki_data_dir)                  |  `string`  |  G  | loki data path |
-
+|      [jupyter_enabled](#jupyter_enabled)               |  `bool`      |  G  | enable Jupyter Lab |
+|      [jupyter_username](#jupyter_username)               |  `bool`      |  G  | os user for jupyterlab |
+|      [pgweb_enabled](#pgweb_enabled)               |  `bool`      |  G  | whether jupyter is enabled |
+|      [pgweb_username](#pgweb_username)               |  `bool`      |  G  | whether pgweb is enabled |
 
 
 ## Defaults
@@ -49,32 +57,45 @@ ca_key: ca.key                                # ca private key
 
 # - nginx - #
 nginx_upstream:                               # domain names that will be used for accessing pigsty services
-  # some service can only be accessed via correct domain name (e.g consul)
-  - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
-  - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
-  - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
-  - { name: prometheus,    host: p.pigsty,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
-  - { name: alertmanager,  host: a.pigsty,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
-  - { name: haproxy,       host: h.pigsty,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
-  - { name: server,        host: s.pigsty,    url: "127.0.0.1:9633" }   # pigsty server gui (9093)
+  - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
+  - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+  - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
+  - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+  # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
+  - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+  - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+
+# - app - #
+app_list:                                      # show extra application links on home page
+  - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+  - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+  - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+  - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+  - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+  - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+  - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+
+docs_enabled: true                            # setup local document under default server?
+pev2_enabled: true                            # setup pev2 explain visualizer under default server?
+pgbadger_enabled: true                        # setup pgbadger under default server?
 
 # - nameserver - #
 dns_records:                                  # dynamic dns record resolved by dnsmasq
-  - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-  - 10.10.10.3  pg-test                       # sandbox vip for pg-test
-  - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-  - 10.10.10.10 pigsty
-  - 10.10.10.10 y.pigsty yum.pigsty
-  - 10.10.10.10 c.pigsty consul.pigsty
-  - 10.10.10.10 g.pigsty grafana.pigsty
-  - 10.10.10.10 p.pigsty prometheus.pigsty
-  - 10.10.10.10 a.pigsty alertmanager.pigsty
-  - 10.10.10.10 n.pigsty ntp.pigsty
-  - 10.10.10.10 h.pigsty haproxy.pigsty
+  - 10.10.10.2  pg-meta    # sandbox vip for pg-meta
+  - 10.10.10.3  pg-test    # sandbox vip for pg-test
+  - 10.10.10.10 meta-1     # sandbox node meta-1
+  - 10.10.10.11 node-1     # sandbox node node-1
+  - 10.10.10.12 node-2     # sandbox node node-2
+  - 10.10.10.13 node-3     # sandbox node node-3
+  - 10.10.10.10 pg-meta-1  # sandbox instance pg-meta-1
+  - 10.10.10.11 pg-test-1  # sandbox instance node-1
+  - 10.10.10.12 pg-test-2  # sandbox instance node-2
+  - 10.10.10.13 pg-test-3  # sandbox instance node-3
 
 # - prometheus - #
 prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
+prometheus_options: '--storage.tsdb.retention=15d --enable-feature=promql-negative-offset'
 prometheus_reload: false                      # reload prometheus instead of recreate it
 prometheus_sd_method: static                  # service discovery method: static|consul|etcd
 prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -88,7 +109,7 @@ grafana_admin_password: pigsty                # default grafana admin password
 grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
 # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
 grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-grafana_plugin: install                       # none|install, none will skip plugin installation
+grafana_plugin: install                       # none|install|always
 grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
 grafana_plugins:                              # plugins that will be downloaded via grafana-cli
   - marcusolsson-csv-datasource
@@ -97,9 +118,18 @@ grafana_plugins:                              # plugins that will be downloaded 
 grafana_git_plugins:                          # plugins that will be downloaded via git
   - https://github.com/Vonng/vonng-echarts-panel
 
-# - loki - #
+# - loki - #                                  # note that loki is not installed by default
+loki_enabled: true                            # enable loki?
 loki_clean: false                             # whether remove existing loki data
 loki_data_dir: /data/loki                     # default loki data dir
+
+# - jupyter - #
+jupyter_enabled: true                         # setup jupyter lab server?
+jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
+
+# - pgweb - #
+pgweb_enabled: true                           # setup pgweb server?
+pgweb_username: pgweb                         # os user name, special names: default|root (dangerous!)
 ```
 
 
@@ -158,18 +188,61 @@ URL and domain name of the Nginx upstream service
 
 Nginx forwards traffic through the Host, so make sure you have the correct domain name configured when accessing the Pigsty infrastructure service.
 
-Do not change the definition of the ``name`` section.
+Do not change the `name` field for default services. It's hard coded in tasks.
 
 ```yaml
-nginx_upstream:
-- { name: home, host: pigsty, url: "127.0.0.1:3000"}
-- { name: consul, host: c.pigsty, url: "127.0.0.1:8500" }
-- { name: grafana, host: g.pigsty, url: "127.0.0.1:3000" }
-- { name: prometheus, host: p.pigsty, url: "127.0.0.1:9090" }
-- { name: alertmanager, host: a.pigsty, url: "127.0.0.1:9093" }
-- { name: haproxy, host: h.pigsty, url: "127.0.0.1:9091" }
+nginx_upstream:                               # domain names that will be used for accessing pigsty services
+  - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
+  - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+  - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
+  - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+  # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
+  - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+  - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
 ```
 
+### app_list
+
+App list that will show on home page navibar.
+
+Add according to your needs. `${grafana}` in `url` will be replaced with your grafana nginx domain name.
+
+
+```yaml
+app_list:                                   # show extra application links on home page
+ - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+ - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+ - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+ - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+ - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+ - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+ - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+```
+
+
+### docs_enabled
+
+Setup local document under default server? `true` by default
+
+Local docs are static content than mount on `/docs` path of default nginx server. 
+ 
+
+
+### pev2_enabled
+
+Setup local postgres explain visualizer 2 (pev2) under default server? `true` by default
+
+Pev2 is a convenient tool for visualizing explain results, which are static content mount on `/pev2` path of default nginx server.
+
+
+### pgbadger_enabled
+
+Setup local pgbadger under default server? `true` by default
+
+Pgbadger is a convenient tool for generating report from postgres logs.
+
+Enable this will create log report dir and mount then on `/logs`, `/report` of default nginx server
 
 
 ### dns_records
@@ -335,6 +408,13 @@ grafana_git_plugins: # plugins that will be downloaded via git
 ```
 
 
+### loki_enabled
+
+bool type, indicate whether setup loki during infra initialization
+
+Loki is not part of the default installation of monitoring components,
+and this parameter is currently only used by the `infra-loki.yml` script.
+
 
 ### loki_clean
 
@@ -351,4 +431,73 @@ String type, filesystem path to specify the Loki data directory location.
 The default location is `/export/loki/`
 
 Loki is not part of the default installed monitoring component, this parameter is currently only used by the `infra-loki.yml` script.
+
+
+
+### jupyter_enabled
+
+Setup jupyter notebook server ? `true` for demo and personal use, `false` for production deployment.
+
+It's very useful to have a jupyter lab when performing data analysis tasks. 
+While the web-terminal and ability to execute arbitrary code on meta controller is DANGEROUS in production environment.
+
+You can only access jupyter lab via domain names (e.g `lab.pigsty` by default). The default password is `pigsty`  
+
+```yaml
+- { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+```
+
+Use with cautious.
+
+
+
+### jupyter_username
+
+which os user to run jupyter lab server.
+
+`jupyter` by default. It will create a low-privilege user `jupyter` to run jupyter lab. Any other names work similarly. 
+
+run as `root` is extremely dangerous!
+
+the special `default` will use the user who runs the playbook (usually an admin), which is convenient but dangerous.
+
+
+
+### pgweb_enabled
+
+Setup pgweb server ? `true` for demo and personal use, `false` for production deployment.
+
+It's very useful to have a out-of-box web client tools which could explore database content without external tools.
+While the web-console and ability to execute SQL on meta controller is quite DANGEROUS in production environment.
+
+You can only access pgweb console via domain names (e.g `cli.pigsty` by default).
+
+```yaml
+- { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+```
+
+And you have to provide any postgres connect string to proceed. 
+
+Use with cautious.
+
+
+
+### pgweb_username
+
+which os user to run pgweb server.
+
+`pgweb` by default. It will create a low-privilege user `pgweb` to run jupyter lab. Any other names work similarly.
+
+the special `default` will use the user who runs the playbook (usually an admin), which is convenient but dangerous.
+
+ 
+
+
+
+
+
+
+
+
+
 

@@ -2,7 +2,7 @@
 
 Pigsty采用声明式[配置](c-config.md)：用户配置描述状态，而Pigsty负责将真实组件调整至所期待的状态。
 
-Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项分类)五级。绝大多数配置参数无需修改，可直接使用默认值；定义新数据库集群只有三个必选**身份参数**。
+Pigsty包含了185个[配置项](#配置项清单)，分为[十类](#配置项分类)五级。绝大多数配置参数无需修改，可直接使用默认值；定义新数据库集群只有三个必选**身份参数**。
 
 ## 配置项分类
 
@@ -14,7 +14,7 @@ Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项�
 |  4   |    [基础设施](v-meta.md)    |         [meta](v-meta.md)         | 基础设施 |  25  | 在元节点上安装启用基础设施服务         |
 |  5   |    [元数据库](v-dcs.md)     |          [dcs](v-dcs.md)          | 基础设施 |  8   | 在所有节点上配置DCS服务（consul/etcd） |
 |  6   |  [PG安装](v-pg-install.md)  |   [pg-install](v-pg-install.md)   |  数据库  |  11  | 安装PostgreSQL数据库                   |
-|  7   | [PG供给](v-pg-provision.md) | [pg-provision](v-pg-provision.md) |  数据库  |  32  | 拉起PostgreSQL数据库集群               |
+|  7   | [PG供给](v-pg-provision.md) | [pg-provision](v-pg-provision.md) |  数据库  |  33  | 拉起PostgreSQL数据库集群               |
 |  8   | [PG模板](v-pg-template.md)  |  [pg-template](v-pg-template.md)  |  数据库  |  19  | 定制PostgreSQL数据库内容               |
 |  9   |  [监控系统](v-monitor.md)   |      [monitor](v-monitor.md)      |  数据库  |  21  | 安装Pigsty数据库监控系统               |
 |  10  |  [服务供给](v-service.md)  |     [service](v-service.md)      |  数据库  |  17  | 通过Haproxy或VIP对外暴露数据库服务     |
@@ -61,7 +61,7 @@ Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项�
 |    [节点供给](v-node.md)    |           [node_admin_uid](v-node.md#node_admin_uid)           |  `number`  |  G  | 管理员用户UID |
 |    [节点供给](v-node.md)    |      [node_admin_username](v-node.md#node_admin_username)      |  `string`  |  G  | 管理员用户名 |
 |    [节点供给](v-node.md)    |  [node_admin_ssh_exchange](v-node.md#node_admin_ssh_exchange)  |  `bool`  |  G  | 在实例间交换管理员SSH密钥 |
-|    [节点供给](v-node.md) | [node_admin_current_pk](v-node.md#node_admin_current_pk) | `bool` | A | 将当前用户的公钥加入管理员账户 |
+|    [节点供给](v-node.md) | [node_admin_current_pk](v-node.md#node_admin_current_pk)          | `bool` | A | 将当前用户的公钥加入管理员账户 |
 |    [节点供给](v-node.md)    |           [node_admin_pks](v-node.md#node_admin_pks)           |  `string[]`  |  G  | 可登陆管理员的公钥列表 |
 |    [节点供给](v-node.md)    |         [node_ntp_service](v-node.md#node_ntp_service)         |  `enum`  |  G  | NTP服务类型：ntp或chrony |
 |    [节点供给](v-node.md)    |          [node_ntp_config](v-node.md#node_ntp_config)          |  `bool`  |  G  | 是否配置NTP服务？ |
@@ -73,6 +73,10 @@ Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项�
 |    [基础设施](v-meta.md)    |                  [ca_cert](v-meta.md#ca_cert)                  |  `string`  |  G  | CA证书 |
 |    [基础设施](v-meta.md)    |                   [ca_key](v-meta.md#ca_key)                   |  `string`  |  G  | CA私钥名称 |
 |    [基础设施](v-meta.md)    |           [nginx_upstream](v-meta.md#nginx_upstream)           |  `object[]`  |  G  | Nginx上游服务器 |
+|    [基础设施](v-meta.md)    |                 [app_list](v-meta.md##app_list)                |  `object[]`  |  G  | 首页导航栏显示的应用列表 |
+|    [基础设施](v-meta.md)    |             [docs_enabled](v-meta.md#docs_enabled)             |  `bool`      |  G  | 是否启用本地文档 |
+|    [基础设施](v-meta.md)    |             [pev2_enabled](v-meta.md#pev2_enabled)             |  `bool`      |  G  | 是否启用PEV2组件 |
+|    [基础设施](v-meta.md)    |         [pgbadger_enabled](v-meta.md#pgbadger_enabled)         |  `bool`      |  G  | 是否启用Pgbadger |
 |    [基础设施](v-meta.md)    |              [dns_records](v-meta.md#dns_records)              |  `string[]`  |  G  | 动态DNS解析记录 |
 |    [基础设施](v-meta.md)    |      [prometheus_data_dir](v-meta.md#prometheus_data_dir)      |  `string`  |  G  | Prometheus数据库目录 |
 |    [基础设施](v-meta.md)    |       [prometheus_options](v-meta.md#prometheus_options)       |  `string`  |  G  | Prometheus命令行参数 |
@@ -90,8 +94,13 @@ Pigsty包含了175个[配置项](#配置项清单)，分为[十类](#配置项�
 |    [基础设施](v-meta.md)    |            [grafana_cache](v-meta.md#grafana_cache)            |  `string`  |  G  | Grafana插件缓存地址 |
 |    [基础设施](v-meta.md)    |          [grafana_plugins](v-meta.md#grafana_plugins)          |  `string[]`  |  G  | 安装的Grafana插件列表 |
 |    [基础设施](v-meta.md)    |      [grafana_git_plugins](v-meta.md#grafana_git_plugins)      |  `string[]`  |  G  | 从Git安装的Grafana插件 |
-|    [基础设施](v-meta.md)    |      [loki_clean](v-meta.md#loki_clean)                        |  `bool`  |  A  | 是否在安装Loki时清理数据库目录 |
-|    [基础设施](v-meta.md)    |      [loki_data_dir](v-meta.md#loki_data_dir)                  |  `string`  |  G  | Loki的数据目录 |
+|    [基础设施](v-meta.md)    |             [loki_enabled](v-meta.md#loki_enabled)             |  `bool`      |  G  | 是否启用Loki |
+|    [基础设施](v-meta.md)    |               [loki_clean](v-meta.md#loki_clean)               |  `bool`  |  A  | 是否在安装Loki时清理数据库目录 |
+|    [基础设施](v-meta.md)    |            [loki_data_dir](v-meta.md#loki_data_dir)            |  `string`  |  G  | Loki的数据目录 |
+|    [基础设施](v-meta.md)    |          [jupyter_enabled](v-meta.md#jupyter_enabled)          |  `bool`      |  G  | 是否启用JupyterLab |
+|    [基础设施](v-meta.md)    |         [jupyter_username](v-meta.md#jupyter_username)         |  `bool`      |  G  | Jupyter使用的操作系统用户 |
+|    [基础设施](v-meta.md)    |            [pgweb_enabled](v-meta.md#pgweb_enabled)            |  `bool`      |  G  | 是否启用PgWeb |
+|    [基础设施](v-meta.md)    |           [pgweb_username](v-meta.md#pgweb_username)           |  `bool`      |  G  | PgWeb使用的操作系统用户 |
 |    [元数据库](v-dcs.md)     |         [service_registry](v-dcs.md#service_registry)          |  `enum`  |  G/C/I  | 服务注册的位置 |
 |    [元数据库](v-dcs.md)     |                 [dcs_type](v-dcs.md#dcs_type)                  |  `enum`  |  G  | 使用的DCS类型 |
 |    [元数据库](v-dcs.md)     |                 [dcs_name](v-dcs.md#dcs_name)                  |  `string`  |  G  | DCS集群名称 |

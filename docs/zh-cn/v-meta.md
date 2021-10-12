@@ -1,6 +1,8 @@
 # 管理节点基础设施
 
-这一节定义了部署于元节点上的 [**基础设施**](c-arch.md#基础设施) ，包括：
+这一节定义了部署于元节点上的 [**基础设施**](c-arch.md#基础设施) 
+
+`nginx`, `prometheus`, `grafana` 为必选基础设施，而`nameserver`, `loki`, `jupyter`, `pgweb`属于可选基础设施。
 
 ## 参数概览
 
@@ -12,6 +14,10 @@
 |                    [ca_cert](#ca_cert)                    |  `string`  |  G   | CA证书                       |
 |                     [ca_key](#ca_key)                     |  `string`  |  G   | CA私钥名称                   |
 |             [nginx_upstream](#nginx_upstream)             | `object[]` |  G   | Nginx上游服务器              |
+|           [app_list](#app_list)                          |  `object[]`  |  G  | 首页导航栏显示的应用列表 |
+|      [docs_enabled](#docs_enabled)                       |  `bool`      |  G  | 是否启用本地文档 |
+|      [pev2_enabled](#pev2_enabled)                       |  `bool`      |  G  | 是否启用PEV2组件 |
+|      [pgbadger_enabled](#pgbadger_enabled)               |  `bool`      |  G  | 是否启用Pgbadger |
 |                [dns_records](#dns_records)                | `string[]` |  G   | 动态DNS解析记录              |
 |        [prometheus_data_dir](#prometheus_data_dir)        |  `string`  |  G   | Prometheus数据库目录         |
 |         [prometheus_options](#prometheus_options)         |  `string`  |  G   | Prometheus命令行参数         |
@@ -29,10 +35,13 @@
 |              [grafana_cache](#grafana_cache)              |  `string`  |  G   | Grafana插件缓存地址          |
 |            [grafana_plugins](#grafana_plugins)            | `string[]` |  G   | 安装的Grafana插件列表        |
 |        [grafana_git_plugins](#grafana_git_plugins)        | `string[]` |  G   | 从Git安装的Grafana插件       |
+|      [loki_enabled](#loki_enabled)                        |  `bool`      |  G  | 是否启用Loki |
 |        [loki_clean](#loki_clean)                          | `bool` |  A   | 是否在安装Loki时清理数据库目录       |
 |        [loki_data_dir](#loki_data_dir)                    | `string` |  G   | Loki的数据目录      |
-
-
+|      [jupyter_enabled](#jupyter_enabled)               |  `bool`      |  G  | 是否启用JupyterLab |
+|      [jupyter_username](#jupyter_username)               |  `bool`      |  G  | Jupyter使用的操作系统用户 |
+|      [pgweb_enabled](#pgweb_enabled)               |  `bool`      |  G  | 是否启用PgWeb |
+|      [pgweb_username](#pgweb_username)               |  `bool`      |  G  | PgWeb使用的操作系统用户 |
 
 
 ## 默认参数
@@ -50,32 +59,45 @@ ca_key: ca.key                                # ca private key
 
 # - nginx - #
 nginx_upstream:                               # domain names that will be used for accessing pigsty services
-  # some service can only be accessed via correct domain name (e.g consul)
-  - { name: home,          host: pigsty,      url: "127.0.0.1:3000" }   # default -> grafana (3000)
-  - { name: consul,        host: c.pigsty,    url: "127.0.0.1:8500" }   # pigsty consul UI (8500) (domain required)
-  - { name: grafana,       host: g.pigsty,    url: "127.0.0.1:3000" }   # pigsty grafana (3000)
-  - { name: prometheus,    host: p.pigsty,    url: "127.0.0.1:9090" }   # pigsty prometheus (9090)
-  - { name: alertmanager,  host: a.pigsty,    url: "127.0.0.1:9093" }   # pigsty alertmanager (9093)
-  - { name: haproxy,       host: h.pigsty,    url: "127.0.0.1:9091" }   # pigsty haproxy admin page (9091)
-  - { name: server,        host: s.pigsty,    url: "127.0.0.1:9633" }   # pigsty server gui (9093)
+  - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
+  - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+  - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
+  - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+  # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
+  - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+  - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+
+# - app - #
+app_list:                                      # show extra application links on home page
+  - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+  - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+  - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+  - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+  - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+  - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+  - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+
+docs_enabled: true                            # setup local document under default server?
+pev2_enabled: true                            # setup pev2 explain visualizer under default server?
+pgbadger_enabled: true                        # setup pgbadger under default server?
 
 # - nameserver - #
 dns_records:                                  # dynamic dns record resolved by dnsmasq
-  - 10.10.10.2  pg-meta                       # sandbox vip for pg-meta
-  - 10.10.10.3  pg-test                       # sandbox vip for pg-test
-  - 10.10.10.10 meta-1                        # sandbox node meta-1 (node-0)
-  - 10.10.10.10 pigsty
-  - 10.10.10.10 y.pigsty yum.pigsty
-  - 10.10.10.10 c.pigsty consul.pigsty
-  - 10.10.10.10 g.pigsty grafana.pigsty
-  - 10.10.10.10 p.pigsty prometheus.pigsty
-  - 10.10.10.10 a.pigsty alertmanager.pigsty
-  - 10.10.10.10 n.pigsty ntp.pigsty
-  - 10.10.10.10 h.pigsty haproxy.pigsty
+  - 10.10.10.2  pg-meta    # sandbox vip for pg-meta
+  - 10.10.10.3  pg-test    # sandbox vip for pg-test
+  - 10.10.10.10 meta-1     # sandbox node meta-1
+  - 10.10.10.11 node-1     # sandbox node node-1
+  - 10.10.10.12 node-2     # sandbox node node-2
+  - 10.10.10.13 node-3     # sandbox node node-3
+  - 10.10.10.10 pg-meta-1  # sandbox instance pg-meta-1
+  - 10.10.10.11 pg-test-1  # sandbox instance node-1
+  - 10.10.10.12 pg-test-2  # sandbox instance node-2
+  - 10.10.10.13 pg-test-3  # sandbox instance node-3
 
 # - prometheus - #
 prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
+prometheus_options: '--storage.tsdb.retention=15d --enable-feature=promql-negative-offset'
 prometheus_reload: false                      # reload prometheus instead of recreate it
 prometheus_sd_method: static                  # service discovery method: static|consul|etcd
 prometheus_scrape_interval: 10s               # global scrape & evaluation interval
@@ -89,7 +111,7 @@ grafana_admin_password: pigsty                # default grafana admin password
 grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
 # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
 grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-grafana_plugin: install                       # none|install, none will skip plugin installation
+grafana_plugin: install                       # none|install|always
 grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
 grafana_plugins:                              # plugins that will be downloaded via grafana-cli
   - marcusolsson-csv-datasource
@@ -98,9 +120,18 @@ grafana_plugins:                              # plugins that will be downloaded 
 grafana_git_plugins:                          # plugins that will be downloaded via git
   - https://github.com/Vonng/vonng-echarts-panel
 
-# - loki - #
+# - loki - #                                  # note that loki is not installed by default
+loki_enabled: false                           # enable loki?
 loki_clean: false                             # whether remove existing loki data
 loki_data_dir: /data/loki                     # default loki data dir
+
+# - jupyter - #
+jupyter_enabled: true                         # setup jupyter lab server?
+jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
+
+# - pgweb - #
+pgweb_enabled: true                           # setup pgweb server?
+pgweb_username: pgweb                         # os user name, special names: default|root (dangerous!)
 ```
 
 
@@ -126,7 +157,6 @@ CA自签名的主题
 ```
 "/CN=root-ca"
 ```
-
 
 
 ### ca_homedir
@@ -159,17 +189,69 @@ Nginx上游服务的URL与域名
 
 Nginx会通过Host进行流量转发，因此确保访问Pigsty基础设施服务时，配置有正确的域名。
 
-不要修改`name` 部分的定义。
+部分基础设施默认只能通过Nginx代理访问（监听地址为`127.0.0.1`的服务：Consul, Pgweb, Jupyter）
+
+不要修改`name` 部分的定义，默认基础设施的`name`是硬编码在任务中的。
 
 ```yaml
-nginx_upstream:
-- { name: home,          host: pigsty,   url: "127.0.0.1:3000"}
-- { name: consul,        host: c.pigsty, url: "127.0.0.1:8500" }
-- { name: grafana,       host: g.pigsty, url: "127.0.0.1:3000" }
-- { name: prometheus,    host: p.pigsty, url: "127.0.0.1:9090" }
-- { name: alertmanager,  host: a.pigsty, url: "127.0.0.1:9093" }
-- { name: haproxy,       host: h.pigsty, url: "127.0.0.1:9091" }
+nginx_upstream:                               # domain names that will be used for accessing pigsty services
+  - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
+  - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+  - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
+  - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+  # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
+  - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+  - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
 ```
+
+### app_list
+
+用于渲染Pigsty首页的应用列表，每一项都会备渲染为首页导航栏App下拉选单的按钮
+
+其中，`url`中的`${grafana}`会被自动替换为[`nginx_upstream`](#nginx_upstream) 中定义的 Grafana域名。
+
+
+```yaml
+app_list:                                   # show extra application links on home page
+ - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+ - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+ - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+ - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+ - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+ - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+ - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+```
+
+大部分应用均为可选项。
+
+
+
+### docs_enabled
+
+是否在默认首页中启用本地文档支持？默认启用
+
+本地文档是静态页面，由默认的Nginx提供服务，挂载于`/docs`路径下。
+
+
+
+### pev2_enabled
+
+是否在默认首页中启用Pev2组件？默认启用
+
+Pev2是一个方便的PostgreSQL执行计划可视化工具，为静态单页应用。
+
+Pev2由默认的Nginx提供服务，挂载于`/pev2`路径下。
+
+
+
+### pgbadger_enabled
+
+是否在默认首页中启用Pgbadger组件？默认启用
+
+Pgbadger是一个方便的PostgreSQL日志分析工具，可以从PG日志中生成全面美观的网页报告。
+
+Pgabdger由默认的Nginx提供服务，挂载于`/logs`路径与`/report`路径下。
 
 
 
@@ -178,7 +260,6 @@ nginx_upstream:
 动态DNS解析记录
 
 每一条记录都会写入元节点的`/etc/hosts`中，并由元节点上的域名服务器提供解析。
-
 
 
 
@@ -346,6 +427,13 @@ grafana_git_plugins:                          # plugins that will be downloaded 
 ```
 
 
+### loki_enabled
+
+是否启用Loki？布尔类型，对于演示与个人使用默认启用，对于生产环境部署默认不启用。
+
+Loki是与Grafana搭配的轻量级实时日志收集检索解决方案，因为萝卜白菜各有所爱，所以默认不会在生产环境中启用
+
+
 
 ### loki_clean
 
@@ -363,3 +451,49 @@ Loki不属于默认安装的监控组件，该参数目前只会被 [`infra-loki
 
 Loki不属于默认安装的监控组件，该参数目前只会被 [`infra-loki.yml`] 剧本使用。
 
+
+
+### jupyter_enabled
+
+是否启用Jupyter Lab服务器？对于演示与个人使用默认启用，对于生产环境部署默认不启用。
+
+对于数据分析、个人学习研究、演示环境，Jupyter Lab非常有用，可以用于完成各类数据分析、处理、演示的工作。
+
+但是Jupyter Lab提供的网页终端与任意代码执行能力对于生产环境非常危险，您必须在充分意识到这一风险的前提下手工启用该功能。
+
+Jupyter Lab的网页界面默认只能通过域名由 Nginx 代理访问，默认为`lab.pigsty`，默认的密码为`pigsty`，默认会使用名为`jupyter`的操作系统用户运行。
+
+```yaml
+- { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+```
+
+
+
+### jupyter_username
+
+运行Jupyter Lab服务器的操作系统用户。默认为`jupyter`，即会创建一个低权限的默认用户`jupyter`。
+
+其他用户名亦同理，但特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 Jupyter Lab，这会更方便，但也更危险。
+
+
+
+### pgweb_enabled
+
+是否启用PGWeb服务器？对于演示与个人使用默认启用，对于生产环境部署默认不启用。
+
+PGWEB是一个开箱即用的网页PostgreSQL客户端，可以浏览数据库内对象，执行简单SQL。
+
+PGWEB的网页界面默认只能通过域名由 Nginx 代理访问，默认为`cli.pigsty`，默认会使用名为`pgweb`的操作系统用户运行。
+
+```yaml
+- { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+```
+
+
+### pgweb_username
+
+运行PGWEB服务器的操作系统用户。默认为`pgweb`，即会创建一个低权限的默认用户`pgweb`。
+
+其他用户名亦同理，但特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 PGWEB。
+
+您需要数据库的连接串方可通过PGWEB访问环境中的数据库。例如：`postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`
