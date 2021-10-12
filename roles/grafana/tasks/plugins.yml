@@ -1,26 +1,33 @@
 #--------------------------------------------------------------#
+# behavior
+#   grafana_plugin
+#      = none     :  skip grafana plugins installation at all
+#      = install  :  use cache if exists, otherwise download from internet
+#      = always   :  always download from internet not matter cache exists or not
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
 # Extract plugins cache if applicable
 #--------------------------------------------------------------#
 - name: Check grafana plugin cache exists
   stat: path={{ grafana_cache }}
   register: grafana_plugins_cache
 
+# skip if grafana_plugin = none
 - name: Provision grafana plugins via cache if exists
   tags: grafana_plugins_unzip
-  when: grafana_plugins_cache.stat.exists
+  when: grafana_plugins_cache.stat.exists  and grafana_plugin != 'none'
   shell: |
     [[ -a "{{ grafana_cache }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf {{ grafana_cache }} -C /var/lib/grafana
     chown -R grafana /var/lib/grafana
 
 
 #--------------------------------------------------------------#
-# download plugins from internet if
-#   1. cache not exists
-#   2. grafana_plugin = install     (default)
-#      if grafana_plugin != install , skip plugin download
+# download plugins from internet
 #--------------------------------------------------------------#
 - name: Download grafana plugins via internet
-  when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'install'
+  when: grafana_plugin != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin == 'always')
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
   grafana_plugin: name={{ item }}
@@ -28,7 +35,7 @@
 
 
 - name: Download grafana plugins via git
-  when: not grafana_plugins_cache.stat.exists or grafana_plugin == 'install'
+  when: grafana_plugin != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin == 'always')
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
   git:
