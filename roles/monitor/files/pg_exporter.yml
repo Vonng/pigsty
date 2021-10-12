@@ -3169,7 +3169,7 @@ pgbouncer_database:
   desc: Pgbouncer database stats # http://www.pgbouncer.org/usage.html#show-databases
   query: SHOW DATABASES;
   ttl: 10
-  min_version: 10800
+  min_version: 11600
   tags:
     - pgbouncer
 
@@ -3191,8 +3191,11 @@ pgbouncer_database:
     - force_user:
         usage: DISCARD
     - pool_size:
-        usage: COUNTER
+        usage: GAUGE
         description: Maximum number of server connections
+    - min_pool_size:
+        usage: GAUGE
+        description: Minimum number of server connections
     - reserve_pool:
         usage: GAUGE
         description: Maximum number of additional connections for this database
@@ -3309,7 +3312,7 @@ pgbouncer_pool:
   desc: Pgbouncer pool stats    # http://www.pgbouncer.org/usage.html#show-pools
   query: SHOW POOLS;
   ttl: 10
-  min_version: 10800
+  min_version: 11600
   tags:
     - pgbouncer
 
@@ -3329,6 +3332,10 @@ pgbouncer_pool:
         usage: GAUGE
         rename: waiting_clients
         description: Client connections that have sent queries but have not yet got a server connection
+    - cl_cancel_req:
+        usage: GAUGE
+        rename: cancel_clients
+        description: Client connections that have not forwarded query cancellations to the server yet.
     - sv_active:
         usage: GAUGE
         rename: active_servers
