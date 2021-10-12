@@ -168,20 +168,14 @@
               psql {{ src_pg }} -AXtw <<-EOF
               SELECT fix || '  -- ' || pg_size_pretty(pg_table_size(relid)) -- , relname, fix, attnotnull
               FROM (
-              SELECT relid,name AS relname, uk, uk::RegClass::OID AS ukid, uk, CASE WHEN uk IS NOT NULL THEN  'ALTER TABLE ' || name || ' REPLICA IDENTITY USING INDEX ' || uk ||';'
-              ELSE  'ALTER TABLE ' || name || ' REPLICA IDENTITY FULL;' END AS fix FROM
-              (SELECT quote_ident(nspname) || '.' || quote_ident(relname) AS name, c.oid AS relid,
-                     (SELECT idx.relname AS u FROM pg_catalog.pg_class tbl, pg_catalog.pg_class idx, pg_catalog.pg_index i
-                      WHERE tbl.oid = c.oid AND tbl.oid = i.indrelid AND i.indexrelid = idx.oid AND indisunique AND NOT indisprimary AND indisvalid LIMIT 1) AS uk,
-                     CASE relreplident WHEN 'd' THEN 'default' WHEN 'n' THEN 'nothing' WHEN 'f' THEN 'full' WHEN 'i' THEN 'index' END AS ri
-              FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid
-              WHERE relkind = 'r' AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')
-                AND NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid = c.oid AND contype = 'p') ORDER BY 2, 3 ) p
-              ) t, LATERAL(SELECT json_object_agg(ra.attname, ra.attnotnull) AS attnotnull FROM
-                  (SELECT attname, attnotnull FROM pg_attribute WHERE attrelid = ukid ) rb JOIN
-                  (SELECT attname, attnotnull FROM pg_attribute WHERE attrelid = relid ) ra
-                  ON ra.attname = rb.attname
-              ) atts;
+                       SELECT relid, name AS relname, uk, (quote_ident(nspname) || '.' || quote_ident(uk))::RegClass::OID AS ukid, uk, CASE WHEN uk IS NOT NULL THEN  'ALTER TABLE ' || name || ' REPLICA IDENTITY USING INDEX ' || uk ||';' ELSE  'ALTER TABLE ' || name || ' REPLICA IDENTITY FULL;' END AS fix FROM
+                           (SELECT nspname, quote_ident(nspname) || '.' || quote_ident(relname) AS name, c.oid AS relid, (SELECT idx.relname AS u FROM pg_catalog.pg_class tbl, pg_catalog.pg_class idx, pg_catalog.pg_index i WHERE tbl.oid = c.oid AND tbl.oid = i.indrelid AND i.indexrelid = idx.oid AND indisunique AND NOT indisprimary AND indisvalid LIMIT 1) AS uk,
+                                   CASE relreplident WHEN 'd' THEN 'default' WHEN 'n' THEN 'nothing' WHEN 'f' THEN 'full' WHEN 'i' THEN 'index' END AS ri
+                            FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid
+                            WHERE relkind = 'r' AND nspname NOT IN ('pg_catalog', 'information_schema', 'monitor', 'repack', 'pg_toast')
+                              AND NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid = c.oid AND contype = 'p') ORDER BY 2, 3 ) p
+                   ) t,
+                   LATERAL(SELECT json_object_agg(ra.attname, ra.attnotnull) AS attnotnull FROM (SELECT attname, attnotnull FROM pg_attribute WHERE attrelid = ukid ) rb JOIN (SELECT attname, attnotnull FROM pg_attribute WHERE attrelid = relid ) ra ON ra.attname = rb.attname) atts
               EOF
 
 
