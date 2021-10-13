@@ -1,4 +1,4 @@
-# v1.1.0 (beta)
+# v1.1.0
 
 * [ENHANCEMENT] add `pg_dummy_filesize` to create fs space placeholder 
 * [ENHANCEMENT] home page overhaul
@@ -8,13 +8,14 @@
 * [ENHANCEMENT] add pev2 support, explain visualizer
 * [ENHANCEMENT] add pglog utils
 * [ENHANCEMENT] update default pkg.tgz software version:
-  * upgrade postgres to v13.4
-  * upgrade pgbouncer to v1.16
+  * upgrade postgres to v13.4  (with official pg14 support)
+  * upgrade pgbouncer to v1.16 (metrics definition updates)
   * upgrade grafana to v8.1.4
   * upgrade prometheus to v2.2.29
   * upgrade node_exporter to v1.2.2
   * upgrade haproxy to v2.1.1
   * upgrade consul to v1.10.2
+  * upgrade vip-manager to v1.0.1
 
 **API Changes**
 
@@ -25,9 +26,10 @@
 * new config entries: `pgbadger_enabled`, create log summary/report dir
 * new config entries: `jupyter_enabled`, enable jupyter lab server on meta node 
 * new config entries: `jupyter_username`, specify which user to run jupyter lab
+* new config entries: `jupyter_password`, specify jupyter lab default password
 * new config entries: `pgweb_enabled`, enable pgweb server on meta node
 * new config entries: `pgweb_username`, specify which user to run pgweb
-* new config entries: `loki_enabled`, enable loki on meta node (require loki binary)
+
 * rename internal flag `repo_exist` into `repo_exists`
 * now default value for `repo_address` is `pigsty` instead of `yum.pigsty`
 * now haproxy access point is `http://pigsty` instead of `http://h.pigsty`

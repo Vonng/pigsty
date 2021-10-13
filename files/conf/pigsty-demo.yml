@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 1-node demo (default config after sandbox configure)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-09-24
+# Mtime     :   2021-10-12
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -15,6 +15,18 @@
 # admin user : vagrant  (nopass ssh & sudo already set)              #
 # 1 node  meta    :    10.10.10.10  --->  pg-meta-1 (2 Core | 4GB)   #
 # 1 vip   pg-meta :    10.10.10.2   --->  pg-meta   (10.10.10.10)    #
+#====================================================================#
+#                        Sandbox (4-node)                            #
+#====================================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)              #
+# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
+# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
+# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
+# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
+# (replace these ip if your 4-node env have different ip addr)       #
+# VIP:                                                               #
+#     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
+#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}                #
 ######################################################################
 
 
@@ -96,7 +108,7 @@ all: # top-level namespace
 
           # define an additional database named grafana & prometheus (optional)
           # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , createrole: true, comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -376,7 +388,8 @@ all: # top-level namespace
 
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
-      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
+      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm   # vip-manager
+      - https://github.com/timescale/promscale/releases/download/0.6.1/promscale_0.6.1_Linux_x86_64.rpm             # promscale
       - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz # monitor binaries
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
       - https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
@@ -529,7 +542,7 @@ all: # top-level namespace
     grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
     # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
     grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-    grafana_plugin: install                       # none|install, none will skip plugin installation
+    grafana_plugin: install                       # none|install|always
     grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
     grafana_plugins:                              # plugins that will be downloaded via grafana-cli
       - marcusolsson-csv-datasource
@@ -539,13 +552,13 @@ all: # top-level namespace
       - https://github.com/Vonng/vonng-echarts-panel
 
     # - loki - #                                  # note that loki is not installed by default
-    loki_enabled: true                            # enable loki?
     loki_clean: false                             # whether remove existing loki data
     loki_data_dir: /data/loki                     # default loki data dir
 
     # - jupyter - #
     jupyter_enabled: true                         # setup jupyter lab server?
     jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
+    jupyter_password: pigsty                      # jupyter password (very important if enabled!)
 
     # - pgweb - #
     pgweb_enabled: true                           # setup pgweb server?

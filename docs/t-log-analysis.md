@@ -22,23 +22,31 @@ Pigsty provides some handy commands for pulling csv logs and pouring them into t
 
 
 
-### `pglog`
+### pglog scripts
 
-The `pglog` command reads CSV logs from stdin and pours them into the sample table
+There are several util scripts in `bin/` prefixed with `pglog-`
+
+**`pglog-cat`**
+
+`pglog-cat` will **cat** CSV log for given ip address of given data. If no param is given, localhost's latest csv log will be printed.
+
+
+**`pglog-sample`**
+
+`pglog-sample` will ingest csv log from stdin and pour it into `pglog.sample` table for further analysis in dashboards.
+
+
+**`pglog-summary`**
+
+`pglog-summary` is similar to `pglog-cat` , but it will generate pgbadger report instead of print it to stdout
+
+
+
+## convenient shortcuts
 
 ```bash
 alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'" # useful alias
 ```
-
-For example, suppose you have a ``postgresql-Tue.csv`` log, then you can use the following
-
-```bash
-postgresql-Tue.csv | pglog
-```
-
-to pour it into the analysis sample table.
-
-### `catlog`
 
 The ``catlog`` command pulls CSV database logs from a specific node for a specific date and writes them to ``stdout`
 
@@ -53,8 +61,6 @@ function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
 ```
 
 By default, `catlog` pulls the logs for the current node for the current day, you can specify the node with the date via the parameter.
-
-### Shortcuts
 
 Use a combination of `pglog` and `catlog` to quickly pull database CSV logs for analysis.
 

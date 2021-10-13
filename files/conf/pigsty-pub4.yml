@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node demo (public demo)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-09-24
+# Mtime     :   2021-10-12
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -353,6 +353,7 @@ all: # top-level namespace
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
+      - https://github.com/timescale/promscale/releases/download/0.6.1/promscale_0.6.1_Linux_x86_64.rpm             # timescale extension
       - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz # monitor binaries
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
       - https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
@@ -361,6 +362,7 @@ all: # top-level namespace
       - https://github.com/grafana/loki/releases/download/v2.3.0/loki-canary-linux-amd64.zip
       - https://github.com/dalibo/pev2/releases/download/v0.22.0/pev2.tar.gz
       - https://github.com/sosedoff/pgweb/releases/download/v0.11.8/pgweb_linux_amd64.zip
+
 
     #------------------------------------------------------------------------------
     # NODE PROVISION
@@ -373,7 +375,6 @@ all: # top-level namespace
     node_dns_hosts:                               # static dns records in /etc/hosts
       - 172.21.0.11 meta
       - 172.21.0.11 pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
-
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -513,13 +514,13 @@ all: # top-level namespace
       - https://github.com/Vonng/vonng-echarts-panel
 
     # - loki - #                                  # note that loki is not installed by default
-    loki_enabled: true                            # enable loki?
     loki_clean: false                             # whether remove existing loki data
     loki_data_dir: /data/loki                     # default loki data dir
 
     # - jupyter - #
     jupyter_enabled: true                         # setup jupyter lab server?
     jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
+    jupyter_password: pigsty                      # jupyter password (very important if enabled!)
 
     # - pgweb - #
     pgweb_enabled: true                           # setup pgweb server?
