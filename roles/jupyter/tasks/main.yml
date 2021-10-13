@@ -24,6 +24,8 @@
       set_fact:
         jupyter_username: "{{ whoami.stdout }}"
 
+
+
 #------------------------------------------------------------------------------
 # generate jupyter configuration file under jupyter os user home
 #------------------------------------------------------------------------------
@@ -32,20 +34,16 @@
   become: yes
   become_user: "{{ jupyter_username }}"
   block:
+
     - name: Create jupyter config directory
       file: path="/home/{{ jupyter_username }}/.jupyter" state=directory mode=0700
 
     - name: Create jupyter lab directory
       file: path="/home/{{ jupyter_username }}/lab" state=directory mode=0700
 
-    # use hard-coded password 'pigsty', PLEASE CHANGE IT THROUGH GUI!
-    - name: Generate jupyter lab password file
-      copy:
-        src: jupyter_server_config.json
-        dest: ~/.jupyter/jupyter_server_config.json
-        mode: 0400
-
+    #---------------------------------
     # generate jupyter lab config file
+    #---------------------------------
     - name: Generate jupyter config
       template:
         src: jupyter_lab_config.py
@@ -54,7 +52,36 @@
       vars:
         jupyter_domain: "{{ nginx_upstream | json_query('[?name==`jupyter`].domain') | first }}"
 
+    #---------------------------------
+    # write predefined password
+    #---------------------------------
+    - name: Generate jupyter salted password
+      tags: jupyter_password
+      shell: |
+        python3 -c "from notebook.auth import passwd; print(passwd('{{ jupyter_password }}'))"
+      register: salt_password
 
+    # - debug:
+    #     msg: "{{ salt_password.stdout }}"
+
+    - name: Write jupyter lab password file
+      tags: jupyter_password
+      copy:
+        # src: jupyter_server_config.json
+        dest: ~/.jupyter/jupyter_server_config.json
+        mode: 0400
+        content: |
+          {
+            "ServerApp": {
+              "password": "{{ salt_password.stdout }}"
+            }
+          }
+
+
+
+#------------------------------------------------------------------------------
+# systemctl jupyter
+#------------------------------------------------------------------------------
 - name: Setup jupyter systemd service
   tags: jupyter_launch
   become: yes
@@ -68,8 +95,5 @@
 
     - name: Wait for jupyter lab online
       wait_for: host=127.0.0.1 port=8888 state=started timeout=30
-
-#------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
 
 ...

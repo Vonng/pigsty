@@ -98,11 +98,11 @@ Most of them does not need your attention. Only identity parameters are required
 |    [meta](v-meta.md)    |            [grafana_cache](v-meta.md#grafana_cache)            |  `string`  |  G  | grafana plugins cache path |
 |    [meta](v-meta.md)    |          [grafana_plugins](v-meta.md#grafana_plugins)          |  `string[]`  |  G  | grafana plugins to be installed |
 |    [meta](v-meta.md)    |      [grafana_git_plugins](v-meta.md#grafana_git_plugins)      |  `string[]`  |  G  | grafana plugins via git |
-|    [meta](v-meta.md)    |             [loki_enabled](v-meta.md#loki_enabled)             |  `bool`      |  G  | whether loki is enabled |
 |    [meta](v-meta.md)    |               [loki_clean](v-meta.md#loki_clean)               |  `bool`  |  A  | remove existing loki data? |
 |    [meta](v-meta.md)    |            [loki_data_dir](v-meta.md#loki_data_dir)            |  `string`  |  G  | loki data path |
 |    [meta](v-meta.md)    |          [jupyter_enabled](v-meta.md#jupyter_enabled)          |  `bool`      |  G  | whether jupyter lab is enabled |
-|    [meta](v-meta.md)    |         [jupyter_username](v-meta.md#jupyter_username)         |  `bool`      |  G  | os user for jupyter lab|
+|    [meta](v-meta.md)    |         [jupyter_username](v-meta.md#jupyter_username)         |  `bool`      |  G  | os user for jupyter lab |
+|    [meta](v-meta.md)    |         [jupyter_password](v-meta.md#jupyter_password)         |  `bool`      |  G  | password for jupyter lab |
 |    [meta](v-meta.md)    |            [pgweb_enabled](v-meta.md#pgweb_enabled)            |  `bool`      |  G  | whether pgweb is enabled |
 |    [meta](v-meta.md)    |           [pgweb_username](v-meta.md#pgweb_username)           |  `bool`      |  G  | os user for pgweb |
 |    [dcs](v-dcs.md)     |         [service_registry](v-dcs.md#service_registry)          |  `enum`  |  G/C/I  | where to register service? |

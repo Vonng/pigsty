@@ -35,11 +35,11 @@
 |              [grafana_cache](#grafana_cache)              |  `string`  |  G   | Grafana插件缓存地址          |
 |            [grafana_plugins](#grafana_plugins)            | `string[]` |  G   | 安装的Grafana插件列表        |
 |        [grafana_git_plugins](#grafana_git_plugins)        | `string[]` |  G   | 从Git安装的Grafana插件       |
-|      [loki_enabled](#loki_enabled)                        |  `bool`      |  G  | 是否启用Loki |
 |        [loki_clean](#loki_clean)                          | `bool` |  A   | 是否在安装Loki时清理数据库目录       |
 |        [loki_data_dir](#loki_data_dir)                    | `string` |  G   | Loki的数据目录      |
 |      [jupyter_enabled](#jupyter_enabled)               |  `bool`      |  G  | 是否启用JupyterLab |
 |      [jupyter_username](#jupyter_username)               |  `bool`      |  G  | Jupyter使用的操作系统用户 |
+|      [jupyter_password](#jupyter_password)               |  `bool`      |  G  | Jupyter Lab使用的密码 |
 |      [pgweb_enabled](#pgweb_enabled)               |  `bool`      |  G  | 是否启用PgWeb |
 |      [pgweb_username](#pgweb_username)               |  `bool`      |  G  | PgWeb使用的操作系统用户 |
 
@@ -427,13 +427,6 @@ grafana_git_plugins:                          # plugins that will be downloaded 
 ```
 
 
-### loki_enabled
-
-是否启用Loki？布尔类型，对于演示与个人使用默认启用，对于生产环境部署默认不启用。
-
-Loki是与Grafana搭配的轻量级实时日志收集检索解决方案，因为萝卜白菜各有所爱，所以默认不会在生产环境中启用
-
-
 
 ### loki_clean
 
@@ -474,6 +467,16 @@ Jupyter Lab的网页界面默认只能通过域名由 Nginx 代理访问，默�
 运行Jupyter Lab服务器的操作系统用户。默认为`jupyter`，即会创建一个低权限的默认用户`jupyter`。
 
 其他用户名亦同理，但特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 Jupyter Lab，这会更方便，但也更危险。
+
+
+
+### jupyter_password
+
+Jupyter Lab的密码，默认为`pigsty`。
+
+如果启用Jupyter，强烈建议修改此密码。
+
+加盐混淆的密码默认会写入`~jupyter/.jupyter/jupyter_server_config.json`。
 
 
 

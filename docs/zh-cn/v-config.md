@@ -94,11 +94,11 @@ Pigsty包含了185个[配置项](#配置项清单)，分为[十类](#配置项�
 |    [基础设施](v-meta.md)    |            [grafana_cache](v-meta.md#grafana_cache)            |  `string`  |  G  | Grafana插件缓存地址 |
 |    [基础设施](v-meta.md)    |          [grafana_plugins](v-meta.md#grafana_plugins)          |  `string[]`  |  G  | 安装的Grafana插件列表 |
 |    [基础设施](v-meta.md)    |      [grafana_git_plugins](v-meta.md#grafana_git_plugins)      |  `string[]`  |  G  | 从Git安装的Grafana插件 |
-|    [基础设施](v-meta.md)    |             [loki_enabled](v-meta.md#loki_enabled)             |  `bool`      |  G  | 是否启用Loki |
 |    [基础设施](v-meta.md)    |               [loki_clean](v-meta.md#loki_clean)               |  `bool`  |  A  | 是否在安装Loki时清理数据库目录 |
 |    [基础设施](v-meta.md)    |            [loki_data_dir](v-meta.md#loki_data_dir)            |  `string`  |  G  | Loki的数据目录 |
 |    [基础设施](v-meta.md)    |          [jupyter_enabled](v-meta.md#jupyter_enabled)          |  `bool`      |  G  | 是否启用JupyterLab |
 |    [基础设施](v-meta.md)    |         [jupyter_username](v-meta.md#jupyter_username)         |  `bool`      |  G  | Jupyter使用的操作系统用户 |
+|    [基础设施](v-meta.md)    |         [jupyter_password](v-meta.md#jupyter_password)         |  `bool`      |  G  | Jupyter Lab的密码 |
 |    [基础设施](v-meta.md)    |            [pgweb_enabled](v-meta.md#pgweb_enabled)            |  `bool`      |  G  | 是否启用PgWeb |
 |    [基础设施](v-meta.md)    |           [pgweb_username](v-meta.md#pgweb_username)           |  `bool`      |  G  | PgWeb使用的操作系统用户 |
 |    [元数据库](v-dcs.md)     |         [service_registry](v-dcs.md#service_registry)          |  `enum`  |  G/C/I  | 服务注册的位置 |

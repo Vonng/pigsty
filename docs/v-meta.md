@@ -33,11 +33,11 @@ This section describes config entries about [infrastructure](c-arch.md#infrastru
 |            [grafana_cache](#grafana_cache)            |  `string`  |  G  | grafana plugins cache path |
 |          [grafana_plugins](#grafana_plugins)          |  `string[]`  |  G  | grafana plugins to be installed |
 |      [grafana_git_plugins](#grafana_git_plugins)      |  `string[]`  |  G  | grafana plugins via git |
-|      [loki_enabled](#loki_enabled)                        |  `bool`      |  G  | whether loki is enabled |
 |      [loki_clean](#loki_clean)                        |  `bool`  |  A  | remove existing loki data? |
 |      [loki_data_dir](#loki_data_dir)                  |  `string`  |  G  | loki data path |
 |      [jupyter_enabled](#jupyter_enabled)               |  `bool`      |  G  | enable Jupyter Lab |
 |      [jupyter_username](#jupyter_username)               |  `bool`      |  G  | os user for jupyterlab |
+|      [jupyter_password](#jupyter_password)               |  `bool`      |  G  | password for jupyterlab |
 |      [pgweb_enabled](#pgweb_enabled)               |  `bool`      |  G  | whether jupyter is enabled |
 |      [pgweb_username](#pgweb_username)               |  `bool`      |  G  | whether pgweb is enabled |
 
@@ -460,6 +460,16 @@ which os user to run jupyter lab server.
 run as `root` is extremely dangerous!
 
 the special `default` will use the user who runs the playbook (usually an admin), which is convenient but dangerous.
+
+
+
+### jupyter_password
+
+password for jupyter server, `pigsty` by default. 
+
+It's highly recommended changing it if jupyter is enabled 
+
+Write salted password to `~jupyter/.jupyter/jupyter_server_config.json` by default.
 
 
 
