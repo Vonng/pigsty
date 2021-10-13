@@ -22,6 +22,7 @@
   - [常用操作命令](t-operation.md)
   - [使用与制作离线安装包](t-offline.md)  
   - [升级Grafana后端数据库](t-grafana-upgrade.md)
+  - [配置Prometheus远程存储](t-promscale.md)
   - [使用CMDB替换静态配置](t-cmdb.md)
   - [部署日志收集服务](t-logging.md)
   - [分析CSV日志样本](t-log-analysis.md)  
@@ -32,6 +33,8 @@
   - [安装Pigsty扩展应用](t-application.md)
   - [数据库备份与恢复](t-backup.md)  
   - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
+  - [数据库迁移](t-migration.md)
+
 
 - 监控
   - [监控面板](m-dashboard.md)
