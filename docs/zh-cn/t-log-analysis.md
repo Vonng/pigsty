@@ -22,28 +22,31 @@ Pigsty提供了一些趁手的命令，用于拉取csv日志，并灌入样本�
 
 
 
-### pglog
+### pglog脚本
 
-`pglog`命令从stdin读取CSV日志，灌入样本表中
+在Pigsty的`bin`目录下有一些以`pglog-`前缀的脚本：
+
+**`pglog-cat`**
+
+`pglog-cat` 会将特定机器特定日期的CSV日志打印到标准输出，第一个参数为机器IP，第二个参数为日期。缺省值为`127.0.0.1`与今天
+
+
+**`pglog-sample`**
+
+`pglog-sample` 会从标准输入读取CSV日志，并灌入`pglog.sample`表中，以便从Dashboard中分析。
+
+
+**`pglog-summary`**
+
+`pglog-summary`与`pglog-cat`类似 , 但它会拉取PG CSV日志，并使用Pgbadger进行分析，而不是打印至标准输出
+
+
+
+## 方便的快捷命令
 
 ```bash
-alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'"  # useful alias
-```
-
-例如，假设您有一份`postgresql-Tue.csv`日志，则可以通过：
-
-```bash
-cat postgresql-Tue.csv | pglog
-```
-
-将其灌入分析样本表中。
-
-### catlog
-
-`catlog`命令从特定节点拉取特定日期的CSV数据库日志，写入`stdout`
-
-```bash
-# default: get pgsql csvlog (localhost @ today) 
+alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'" # useful alias
+### default: get pgsql csvlog (localhost @ today) 
 function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
     local node=${1-'127.0.0.1'}
     local today=$(date '+%Y-%m-%d')
@@ -52,9 +55,9 @@ function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
 }
 ```
 
-默认情况下，`catlog`会拉取当前节点当日的日志，您可以通过参数指定节点与日期。
+`catlog`命令从特定节点拉取特定日期的CSV数据库日志，写入`stdout`
 
-### 快捷方式
+默认情况下，`catlog`会拉取当前节点当日的日志，您可以通过参数指定节点与日期。
 
 组合使用`pglog`与`catlog`，即可快速拉取数据库CSV日志进行分析。
 
@@ -62,4 +65,5 @@ function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
 catlog | pglog                       # 分析当前节点当日的日志
 catlog node-1 '2021-07-15' | pglog   # 分析node-1在2021-07-15的csvlog
 ```
+
 

@@ -25,6 +25,7 @@
   - [使用CMDB替换静态配置](t-cmdb.md)
   - [部署日志收集服务](t-logging.md)
   - [分析CSV日志样本](t-log-analysis.md)  
+  - [使用Jupyter进行数据分析](t-jupyter.md)
   - [仅监控系统部署模式](t-monly.md) 
   - [定制Patroni配置模板](t-patroni-template.md)
   - [深度定制数据库模板](t-customize-template.md)

@@ -46,11 +46,6 @@ There are several util scripts in `bin/` prefixed with `pglog-`
 
 ```bash
 alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'" # useful alias
-```
-
-The ``catlog`` command pulls CSV database logs from a specific node for a specific date and writes them to ``stdout`
-
-```bash
 ### default: get pgsql csvlog (localhost @ today) 
 function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
     local node=${1-'127.0.0.1'}
@@ -60,6 +55,8 @@ function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
 }
 ```
 
+The `catlog` command pulls CSV database logs from a specific node for a specific date and writes them to `stdout`
+
 By default, `catlog` pulls the logs for the current node for the current day, you can specify the node with the date via the parameter.
 
 Use a combination of `pglog` and `catlog` to quickly pull database CSV logs for analysis.
@@ -68,4 +65,3 @@ Use a combination of `pglog` and `catlog` to quickly pull database CSV logs for 
 catlog | pglog # Analyze the current node's logs for the current day
 catlog node-1 '2021-07-15' | pglog # Analyze node-1's csvlog on 2021-07-15
 ```
-
