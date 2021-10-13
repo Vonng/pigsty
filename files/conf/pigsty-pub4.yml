@@ -96,8 +96,8 @@ all: # top-level namespace
               - {name: adminpack, schema: pg_catalog}    # install adminpack to pg_catalog and install postgis to public
               - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 
-          # define an additional database named grafana & prometheus (optional)
           - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -124,7 +124,7 @@ all: # top-level namespace
             # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
           - {name: dbuser_view   , password: DBUser.Viewer  ,pgbouncer: true, roles: [dbrole_readonly], comment: read-only viewer for meta database}
           - {name: dbuser_grafana, password: DBUser.Grafana ,pgbouncer: true, roles: [ dbrole_admin ], comment: admin user for grafana database}
-
+          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
 
 
     #----------------------------------#
