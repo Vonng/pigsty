@@ -6,9 +6,9 @@
 
 使用微信扫描二维码加入Pigsty交流群
 
-![](../_media/group.jpg)
+### Telegram
 
-（2021-09-21日前有效）
+https://t.me/joinchat/gV9zfZraNPM3YjFh
 
 ### Github Issues
 
@@ -21,4 +21,3 @@ https://github.com/Vonng/pigsty/issues
 ### Discord
 
 
-### Telegram

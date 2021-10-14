@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)  |  [Public Demo](https://demo.pigsty.cc)
+> Latest Version: [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)  |  [Public Demo](http://home.pigsty.cc)
 >
 > Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 

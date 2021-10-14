@@ -6,7 +6,7 @@
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](https://demo.pigsty.cc)
+> 最新版本: [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 >
