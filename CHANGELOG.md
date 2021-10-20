@@ -1,3 +1,25 @@
+# v1.1.1
+* [ENHANCEMENT] replace timescaledb `apache` version with `timescale` version
+* [ENHANCEMENT] upgrade prometheus to 2.30
+* [BUG FIX] now pg_exporter config dir's owner are {{ pg_dbsu }} instead of prometheus
+
+How to upgrade to v1.1.1 from v1.0.0.
+The major change in v1.1.1 is timescaledb. Which replace old `apache` license version with `timescale` license version
+
+```bash
+stop/pause postgres instance with timescaledb
+yum remove -y timescaledb_13
+
+[timescale_timescaledb]
+name=timescale_timescaledb
+baseurl=https://packagecloud.io/timescale/timescaledb/el/7/$basearch
+repo_gpgcheck=0
+gpgcheck=0
+enabled=1
+
+yum install timescaledb-2-postgresql13 
+```
+
 # v1.1.0
 
 * [ENHANCEMENT] add `pg_dummy_filesize` to create fs space placeholder 

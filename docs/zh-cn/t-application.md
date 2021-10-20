@@ -17,7 +17,7 @@ Pigsty除了用于部署、监控PostgreSQL，还可以用于制作，分发数�
 
 一个Pigsty应用会在应用根目录提供一个安装脚本：`install`或相关快捷方式。您需要使用[管理用户](t-prepare.md#管理应用置备)在[管理节点](t-prepare.md#管理节点置备)执行安装。安装脚本会检测当前的环境（获取 `METADB_URL`， `PIGSTY_HOME`，`GRAFANA_ENDPOINT`等信息以执行安装）
 
-您可以从 https://github.com/Vonng/pigsty/releases/download/v1.1.0/app.tgz 下载带有基础数据的应用安装。
+您可以从 https://github.com/Vonng/pigsty/releases/download/v1.1.1/app.tgz 下载带有基础数据的应用安装。
 
 
 

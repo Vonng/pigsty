@@ -26,8 +26,6 @@ bin/createdb    pg-meta  prometheus
 检查数据库可用性并创建扩展
 
 ```bash
-psql postgres://dbuser_prometheus:DBUser.Prometheus@10.10.10.10:5432/prometheus
-
 psql postgres://dbuser_prometheus:DBUser.Prometheus@10.10.10.10:5432/prometheus -c 'CREATE EXTENSION timescaledb;'
 ```
 
@@ -72,7 +70,11 @@ systemctl start promscale && systemctl status promscale
 
 Prometheus可以使用Remote Write/ Remote Read的方式，通过Promscale，使用Postgres作为远程存储。
 
-编辑Prometheus配置文件：`vi /etc/prometheus/prometheus.yml`
+编辑Prometheus配置文件：
+
+```bash
+vi /etc/prometheus/prometheus.yml
+```
 
 添加以下记录：
 
@@ -84,3 +86,7 @@ remote_read:
 ```
 
 重启Prometheus后，监控数据即可放入Postgres中。
+
+```bash
+systemctl restart prometheus
+```
