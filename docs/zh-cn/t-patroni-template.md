@@ -19,6 +19,19 @@ Pigsty提供了四种预定义的初始化模板，初始化模板是用于初�
 
 如果使用定制的 [Patroni配置模板](v-pg-provision.md#pg_conf)，通常也应当针对机器节点使用配套的 [节点优化模板](v-node#node_tune)。
 
+其他可用配置参考：
+
+|     配置名称     | CPU  |  Mem  | Disk  |
+| :--------------: | :--: | :---: | :---: |
+|      `tiny`      |  1   |  1GB  | 40GB  |
+|      `mini`      |  2   |  4GB  | 100GB |
+|     `small`      |  4   |  8GB  | 200GB |
+|     `medium`     |  8   | 16GB  | 500GB |
+|     `large`      |  16  | 32GB  |  1TB  |
+|     `xlarge`     |  32  | 64GB  |  2TB  |
+| `oltp|crit|olap` |  64  | 400GB |  4TB  |
+
+
 
 
 ## Patroni模板样例

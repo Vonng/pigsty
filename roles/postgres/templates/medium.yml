@@ -3,17 +3,17 @@
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
 # Mtime     :   2020-12-22
-# Desc      :   patroni cluster definition for {{ pg_cluster }} (olap)
+# Desc      :   patroni cluster definition for {{ pg_cluster }} (small)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
-# Note      :   Analysis Database Cluster Template (olap:64C:400GB:3TB)
+# Note      :   Database Cluster Template (medium:8C:16G:500GB)
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
-# OLTP database are optimized for throughput
-# typical spec: 64 Core | 400 GB RAM | PCI-E SSD xTB
+# SMALL database are optimized for moderate resource situation (e.g 4 Core 8G)
+# typical spec: 4 Core | 8 GB RAM | Normal SSD 100x GB
 
 ---
 #------------------------------------------------------------------------------
@@ -45,6 +45,7 @@ consul:
   service_tags:
     - {{ pg_cluster }}
 
+
 #------------------------------------------------------------------------------
 # api
 #------------------------------------------------------------------------------
@@ -57,6 +58,7 @@ restapi:
     verify_client: none                 # none|optional|required
     username: {{ pg_monitor_username }}
     password: '{{ pg_monitor_password }}'
+
 
 #------------------------------------------------------------------------------
 # ctl
@@ -115,6 +117,7 @@ bootstrap:
     - lc-ctype: {{ pg_lc_ctype }}
 {% endif %}
 
+
   #----------------------------------------------------------------------------
   # bootstrap users
   #---------------------------------------------------------------------------
@@ -125,8 +128,6 @@ bootstrap:
       password: '{{ pg_replication_password }}'
     {{ pg_monitor_username }}:
       password: '{{ pg_monitor_password }}'
-    {{ pg_admin_username }}:
-      password: '{{ pg_admin_password }}'
 
   # bootstrap hba, allow local and intranet password access & replication
   # will be overwritten later
@@ -140,7 +141,7 @@ bootstrap:
 
 
   #----------------------------------------------------------------------------
-  # template
+  # customization
   #---------------------------------------------------------------------------
   # post_init: /pg/bin/pg-init
 
@@ -184,8 +185,8 @@ bootstrap:
     master_start_timeout: 10
 
     # import: candidate will not be promoted if replication lag is higher than this
-    # maximum RPO: 16MB (analysis tolerate more data loss)
-    maximum_lag_on_failover: 16777216
+    # maximum RPO: 1MB
+    maximum_lag_on_failover: 1048576
 
     # The number of seconds Patroni is allowed to wait when stopping Postgres and effective only when synchronous_mode is enabled
     master_stop_timeout: 30
@@ -206,21 +207,22 @@ bootstrap:
       use_pg_rewind: true
       remove_data_directory_on_rewind_failure: true
 
+
       parameters:
         #----------------------------------------------------------------------
         # IMPORTANT PARAMETERS
         #----------------------------------------------------------------------
-        max_connections: 800                    # 100 -> 800
+        max_connections: 800                    # default 100 -> 800
         superuser_reserved_connections: 10      # reserve 10 connection for su
-        max_locks_per_transaction: 256          # 64 -> 256 (analysis)
+        max_locks_per_transaction: 64           # default 64
         max_prepared_transactions: 0            # 0 disable 2PC
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 64                # default 8 -> 64, set to cpu core 64
+        max_worker_processes: 8                 # default 8
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
         max_wal_senders: 24                     # 10 -> 24
         max_replication_slots: 16               # 10 -> 16
-        wal_keep_size: 100GB                    # keep at least 100GB WAL
+        wal_keep_size: 20GB                     # keep at least 20GB WAL
         password_encryption: md5                # use traditional md5 auth
 
         #----------------------------------------------------------------------
@@ -229,29 +231,29 @@ bootstrap:
         # memory: shared_buffers and maintenance_work_mem will be dynamically set
         shared_buffers: {{ pg_shared_buffers }}
         maintenance_work_mem: {{ pg_maintenance_work_mem }}
-        work_mem: 128MB                         # 4MB -> 128MB (analysis)
+        work_mem: 32MB                          # default 4MB -> 32MB
         huge_pages: try                         # try huge pages
-        temp_file_limit: 500GB                  # 0 -> 500GB (analysis)
-        vacuum_cost_delay: 2ms                  # wait 2ms per 10000 cost
+        temp_file_limit: 100GB                  # 0 -> 100GB (according to your disk)
+        vacuum_cost_delay: 5ms                  # wait 5ms per 10000 cost
         vacuum_cost_limit: 10000                # 10000 cost each round
         bgwriter_delay: 10ms                    # check dirty page every 10ms
-        bgwriter_lru_maxpages: 1600             # 100 -> 1600 (analysis)
+        bgwriter_lru_maxpages: 800              # 100 -> 800
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
-        max_parallel_workers: 32                # default 8 -> 32, limit by max_worker_processes
-        max_parallel_maintenance_workers: 8     # default 2 -> 8, limit by parallel worker
-        max_parallel_workers_per_gather: 8      # default 2 -> 0, enable parallel query in OLAP mode
+        max_parallel_workers: 4                 # default 8 -> 4, limit by max_worker_processes
+        max_parallel_maintenance_workers: 2     # default 2 -> 2, limit by parallel worker
+        max_parallel_workers_per_gather: 0      # default 2 -> 0, disable parallel query in OLTP mode
 
         #----------------------------------------------------------------------
         # WAL
         #----------------------------------------------------------------------
         wal_buffers: 16MB                       # max to 16MB
         wal_writer_delay: 20ms                  # wait period
-        wal_writer_flush_after: 16MB            # max allowed data loss (analysis)
-        min_wal_size: 100GB                     # at least 100GB WAL
-        max_wal_size: 400GB                     # at most 400GB WAL
+        wal_writer_flush_after: 1MB             # max allowed data loss
+        min_wal_size: 20GB                      # at least 20GB WAL
+        max_wal_size: 100GB                     # at most 100GB WAL
         commit_delay: 20                        # 200ms -> 20ms, increase speed
         commit_siblings: 10                     # 5 -> 10
-        checkpoint_timeout: 60min               # checkpoint 5min -> 1h
+        checkpoint_timeout: 60min               # checkpoint 5min -> 60min
         checkpoint_completion_target: 0.95      # 0.5 -> 0.95
         archive_mode: on
         archive_command: 'wal_dir=/pg/arcwal; [[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d); /bin/mkdir -p ${wal_dir}/$(date +%Y%m%d) && /usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4'
@@ -260,7 +262,7 @@ bootstrap:
         # REPLICATION
         #----------------------------------------------------------------------
         # synchronous_standby_names: ''
-        vacuum_defer_cleanup_age: 0             # 0 (default)
+        vacuum_defer_cleanup_age: 50000         # 0->50000 last 50000 xact changes will not be vacuumed
         promote_trigger_file: promote.signal    # default promote trigger file path
         max_standby_archive_delay: 10min        # max delay before canceling queries when reading WAL from archive;
         max_standby_streaming_delay: 3min       # max delay before canceling queries when reading streaming WAL;
@@ -274,12 +276,10 @@ bootstrap:
         # QUERY TUNING
         #----------------------------------------------------------------------
         # planner
-        enable_partitionwise_join: on           # enable on analysis
+        # enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 320GB             # max mem - shared buffer
-        default_statistics_target: 1000         # stat bucket 100 -> 1000
-        jit: on                                 # default on
-        jit_above_cost: 100000                  # default jit threshold
+        effective_cache_size: 12GB              # max mem - shared buffer
+        default_statistics_target: 500          # stat bucket 100 -> 500
 
         #----------------------------------------------------------------------
         # REPORTING AND LOGGING
@@ -293,7 +293,7 @@ bootstrap:
         log_lock_waits: on                      # log lock wait info
         log_replication_commands: on            # log replication info
         log_statement: ddl                      # log ddl change
-        log_min_duration_statement: 1000         # log slow query (>1s)
+        log_min_duration_statement: 100         # log slow query (>100ms)
 
         #----------------------------------------------------------------------
         # STATISTICS
@@ -306,10 +306,10 @@ bootstrap:
         # AUTOVACUUM
         #----------------------------------------------------------------------
         log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
-        autovacuum_max_workers: 3               # default autovacuum worker 3
+        autovacuum_max_workers: 1               # default autovacuum worker 3 -> 1
         autovacuum_naptime: 1min                # default autovacuum naptime 1min
-        autovacuum_vacuum_scale_factor: 0.08    # fraction of table size before vacuum   20% -> 8%
-        autovacuum_analyze_scale_factor: 0.04   # fraction of table size before analyze  10% -> 4%
+        autovacuum_vacuum_scale_factor: 0.10    # fraction of table size before vacuum   20% -> 10%
+        autovacuum_analyze_scale_factor: 0.05   # fraction of table size before analyze  10% -> 5%
         autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay: same as vacuum_cost_delay
         autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
         autovacuum_freeze_max_age: 100000000    # age > 1 billion triggers force vacuum
@@ -318,7 +318,7 @@ bootstrap:
         # CLIENT
         #----------------------------------------------------------------------
         deadlock_timeout: 50ms                  # 50ms for deadlock
-        idle_in_transaction_session_timeout: 0  # Disable idle in xact timeout in analysis database
+        idle_in_transaction_session_timeout: 1h # 1 hour timeout for idle in transaction
 
         #----------------------------------------------------------------------
         # CUSTOMIZED OPTIONS
@@ -334,7 +334,7 @@ bootstrap:
         auto_explain.log_nested_statements: true
 
         # pg_stat_statements
-        pg_stat_statements.max: 10000           # 5000 -> 10000 queries
+        pg_stat_statements.max: 5000            # default 5000 queries
         pg_stat_statements.track: all           # track all statements (all|top|none)
         pg_stat_statements.track_utility: off   # do not track query other than CRUD
         pg_stat_statements.track_planning: off  # do not track planning metrics
@@ -413,5 +413,6 @@ postgresql:
   #   - local   replication     postgres                                ident
   #   - local   replication     all                                     md5
   #   - host    replication     all            0.0.0.0/0                md5
+
 
 ...

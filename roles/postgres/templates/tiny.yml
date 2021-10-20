@@ -7,7 +7,7 @@
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
-# Note      :   Tiny Database Cluster Template
+# Note      :   Database Cluster Template (tiny:1C:1G:40GB)
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
@@ -216,11 +216,11 @@ bootstrap:
         max_locks_per_transaction: 64           # default 64
         max_prepared_transactions: 0            # 0 disable 2PC
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 8                 # keep default 8 (set to cpu core)
+        max_worker_processes: 1                 # keep default 8 (set to cpu core)
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
-        max_wal_senders: 24                     # 10 -> 24
-        max_replication_slots: 16               # 10 -> 16
+        # max_wal_senders: 24                     # 10 -> 24
+        # max_replication_slots: 16               # 10 -> 16
         wal_keep_size: 1GB                      # keep at least 1GB WAL
         password_encryption: md5                # use traditional md5 auth
 
@@ -232,7 +232,7 @@ bootstrap:
         maintenance_work_mem: {{ pg_maintenance_work_mem }}
         work_mem: 4MB                           # default 4MB
         huge_pages: try                         # try huge pages
-        temp_file_limit: 40GB                   # 0 -> 40GB (according to your disk)
+        temp_file_limit: 20GB                   # 0 -> 40GB (according to your disk)
         vacuum_cost_delay: 5ms                  # wait 5ms per 10000 cost
         vacuum_cost_limit: 10000                # 10000 cost each round
         bgwriter_delay: 10ms                    # check dirty page every 10ms
@@ -248,8 +248,8 @@ bootstrap:
         wal_buffers: 16MB                       # max to 16MB
         wal_writer_delay: 20ms                  # wait period
         wal_writer_flush_after: 1MB             # max allowed data loss
-        min_wal_size: 100GB                     # at least 100GB WAL
-        max_wal_size: 400GB                     # at most 400GB WAL
+        min_wal_size: 1GB                       # at least 1GB WAL
+        max_wal_size: 10GB                      # at most 10GB WAL
         commit_delay: 20                        # 200ms -> 20ms, increase speed
         commit_siblings: 10                     # 5 -> 10
         checkpoint_timeout: 15min               # checkpoint 5min -> 15min
@@ -268,8 +268,8 @@ bootstrap:
         wal_receiver_status_interval: 1s        # send replies at least this often
         hot_standby_feedback: on                # send info from standby to prevent query conflicts
         wal_receiver_timeout: 60s               # time that receiver waits for
-        max_logical_replication_workers: 8      # 4 -> 8, 6 sync worker + 1~2 apply worker
-        max_sync_workers_per_subscription: 6    # 2 -> 6, 6 sync worker
+        # max_logical_replication_workers: 8      # 4 -> 8, 6 sync worker + 1~2 apply worker
+        # max_sync_workers_per_subscription: 6    # 2 -> 6, 6 sync worker
 
         #----------------------------------------------------------------------
         # QUERY TUNING
@@ -277,7 +277,7 @@ bootstrap:
         # planner
         # enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 2GB               # max mem - shared buffer
+        effective_cache_size: 750MB             # max mem - shared buffer
         default_statistics_target: 200          # stat bucket 100 -> 200
 
         #----------------------------------------------------------------------
@@ -307,8 +307,8 @@ bootstrap:
         log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
         autovacuum_max_workers: 1               # default autovacuum worker 3 -> 1
         autovacuum_naptime: 1min                # default autovacuum naptime 1min
-        autovacuum_vacuum_scale_factor: 0.08    # fraction of table size before vacuum   20% -> 8%
-        autovacuum_analyze_scale_factor: 0.04   # fraction of table size before analyze  10% -> 4%
+        # autovacuum_vacuum_scale_factor: 0.16    # fraction of table size before vacuum   20% -> 8%
+        # autovacuum_analyze_scale_factor: 0.04   # fraction of table size before analyze  10% -> 4%
         autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay: same as vacuum_cost_delay
         autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
         autovacuum_freeze_max_age: 100000000    # age > 1 billion triggers force vacuum
