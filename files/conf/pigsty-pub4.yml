@@ -271,6 +271,12 @@ all: # top-level namespace
           - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
           - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
 
+      - name: timescaledb
+        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+        gpgcheck: no
+        baseurl:
+          - https://packagecloud.io/timescale/timescaledb/el/7/$basearch
+
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
         gpgcheck: no
@@ -335,7 +341,8 @@ all: # top-level namespace
 
       # postgres 13 packages
       - postgresql13*                                                                          # postgresql 13 kernel
-      - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
+      - timescaledb-2-postgresql-13                                                            # timescaledb
+      - postgresql13* postgis31* citus_13 pg_repack13 pg_squeeze13                             # postgresql 13 extensions
       - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
       - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
       - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13            # FDW extensions
@@ -560,7 +567,7 @@ all: # top-level namespace
       - postgresql${pg_version}*                  # postgresql kernel packages
       - postgis31_${pg_version}*                  # postgis
       - citus_${pg_version}                       # citus
-      - timescaledb_${pg_version}                 # timescaledb
+      - timescaledb-2-postgresql-${pg_version}    # timescaledb
       - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
