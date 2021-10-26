@@ -2541,7 +2541,9 @@ pg_subrel:
 pg_class:
   name: pg_class
   desc: Postgres relation catalog info db level normal version
-  query: SELECT CURRENT_CATALOG AS datname,relnamespace::RegNamespace || '.' || relname AS relname, relkind,relpages,reltuples,CASE WHEN relkind = 'i' THEN NULL ELSE age(relfrozenxid) END AS relage,pg_relation_size(oid) AS relsize,relnatts FROM pg_class c WHERE relnamespace = ANY(SELECT oid FROM pg_namespace WHERE nspname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar','citus'])) AND relkind = ANY(ARRAY['r', 'i', 'm', 't']) ORDER BY relpages DESC LIMIT 256;
+  query: |
+    SELECT CURRENT_CATALOG AS datname,relnamespace::RegNamespace || '.' || relname AS relname, relkind,relpages,reltuples,CASE WHEN relkind = 'i' THEN NULL ELSE age(relfrozenxid) END AS relage,pg_relation_size(oid) AS relsize,relnatts FROM pg_class c
+    WHERE relnamespace = ANY(SELECT oid FROM pg_namespace WHERE nspname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar']) AND nspname !~'timescaledb' AND nspname !~'citus') AND relkind = ANY(ARRAY['r', 'i', 'm', 't']) ORDER BY relpages DESC LIMIT 256;
   ttl: 60
   timeout: 1
   min_version: 090400
@@ -2606,6 +2608,7 @@ pg_table_13:
            n_mod_since_analyze,n_ins_since_vacuum,last_vacuum,last_autovacuum,last_analyze,last_autoanalyze,vacuum_count,autovacuum_count,analyze_count,autoanalyze_count,
            heap_blks_read,heap_blks_hit,idx_blks_read,idx_blks_hit,toast_blks_read,toast_blks_hit,tidx_blks_read,tidx_blks_hit
     FROM pg_stat_user_tables t, LATERAL (SELECT * FROM pg_statio_user_tables tio WHERE t.relid = tio.relid) p
+    WHERE t.schemaname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar']) AND t.schemaname !~'timescaledb' AND t.schemaname !~'citus'
     ORDER BY 8 DESC LIMIT 128;
 
   ttl: 10
@@ -2730,6 +2733,7 @@ pg_table_10_12:
            n_mod_since_analyze,last_vacuum,last_autovacuum,last_analyze,last_autoanalyze,vacuum_count,autovacuum_count,analyze_count,autoanalyze_count,
            heap_blks_read,heap_blks_hit,idx_blks_read,idx_blks_hit,toast_blks_read,toast_blks_hit,tidx_blks_read,tidx_blks_hit
     FROM pg_stat_user_tables t, LATERAL (SELECT * FROM pg_statio_user_tables tio WHERE t.relid = tio.relid) p
+    WHERE t.schemaname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar']) AND t.schemaname !~'timescaledb' AND t.schemaname !~'citus'
     ORDER BY 8 DESC LIMIT 128;
 
   ttl: 10
@@ -2846,8 +2850,9 @@ pg_index:
   desc: PostgreSQL index metrics
   query: |
     SELECT CURRENT_CATALOG AS datname, schemaname || '.' || indexrelname AS idxname, schemaname || '.' || relname AS relname ,idx_scan, idx_tup_read, idx_tup_fetch, idx_blks_read, idx_blks_hit
-      FROM pg_stat_user_indexes psui, LATERAL (SELECT idx_blks_read, idx_blks_hit FROM pg_statio_user_indexes psio WHERE psio.indexrelid = psui.indexrelid) p2
-      ORDER BY idx_tup_read DESC LIMIT 128;
+    FROM pg_stat_user_indexes psui, LATERAL (SELECT idx_blks_read, idx_blks_hit FROM pg_statio_user_indexes psio WHERE psio.indexrelid = psui.indexrelid) p2
+    WHERE schemaname <> ALL(ARRAY['pg_catalog','information_schema','pg_toast','columnar']) AND schemaname !~'timescaledb' AND schemaname !~'citus'
+    ORDER BY idx_tup_read DESC LIMIT 128;
 
   ttl: 10
   timeout: 1
@@ -2955,7 +2960,7 @@ pg_table_size:
            pg_indexes_size(rel.oid)              AS indexsize,
            pg_total_relation_size(reltoastrelid) AS toastsize
     FROM pg_namespace nsp JOIN pg_class rel ON nsp.oid = rel.relnamespace
-    WHERE nspname <> ALL(ARRAY['pg_catalog', 'information_schema', 'monitor', 'pg_toast', 'repack', 'columnar', 'citus']) AND nspname NOT LIKE 'pg%' AND nspname !~'timescaledb' AND nspname !~'citus' AND rel.relkind = 'r';
+    WHERE nspname <> ALL(ARRAY['pg_catalog', 'information_schema', 'monitor', 'pg_toast', 'repack', 'columnar']) AND nspname !~'timescaledb' AND nspname !~'citus' AND rel.relkind = 'r';
 
   ttl: 300
   timeout: 2
