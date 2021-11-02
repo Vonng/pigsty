@@ -103,6 +103,10 @@ with open(dst_path, 'w') as dst:
         elif line.startswith('    dcs_exists_action:'):
             dst.write('    dcs_exists_action: abort                      # abort|skip|clean if dcs server already exists\n')
 
+        # reset pg_exists_action = abort
+        elif line.startswith('    pg_exists_action:'):
+            dst.write('    pg_exists_action: abort                       # abort|skip|clean if postgres already exists\n')
+
         # reset node_dns_server = none
         elif line.startswith('    node_dns_server:'):
             dst.write('    node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)\n')

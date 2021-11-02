@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2021-07-20
+# Mtime     :   2021-11-02
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
@@ -16,7 +16,7 @@
 #==============================================================#
 # ./configure
 #     [-i|--ip <ip>]
-#     [-m|--mode <mode>]
+#     [-m|--mode <mode]
 #     [-d|--download]
 #     [-n|--non-interactive]
 
@@ -55,11 +55,9 @@ BIN_DIR=${PIGSTY_HOME}/files/bin
 INTERACTIVE=true                  # run configure with interactive mode
 PRIMARY_IP=""                     # primary IP address (intranet, do not use public IP)
 MODE=""                           # default install mode ([auto]|demo|...)
-CONF_SPEC=tiny                    # default postgres spec (tiny|mini|small|medium|large|oltp)
-NODE_TUNE=tiny                    # default machine spec (tiny|oltp)
+SPEC=tiny                         # default postgres spec (tiny|mini|small|medium|large|huge)
 DEFAULT_PKG_PATH=/tmp/pkg.tgz     # default offline installation pkg path
 DOWNLOAD_PKG=false                # whether to download pkg.tgz if not exists ?
-
 
 #==============================================================#
 # color log util
@@ -345,22 +343,19 @@ function check_spec(){
     # infer machine spec from cpu core
     CPU_COUNT=$(getconf _NPROCESSORS_ONLN)
     if ((${CPU_COUNT}>=32)); then
-        CONF_SPEC=oltp
-        NODE_TUNE=oltp
+        SPEC=oltp
     elif ((${CPU_COUNT}>=16)); then
-        CONF_SPEC=large
-        NODE_TUNE=oltp
+        SPEC=large
     elif ((${CPU_COUNT}>=8)); then
-        CONF_SPEC=medium
-        NODE_TUNE=oltp
+        SPEC=medium
     elif ((${CPU_COUNT}>=4)); then
-        CONF_SPEC=small
+        SPEC=small
     elif ((${CPU_COUNT}>=2)); then
-        CONF_SPEC=mini
+        SPEC=mini
     elif ((${CPU_COUNT}>=1)); then
-        CONF_SPEC=tiny
+        SPEC=tiny
     fi
-    log_info "spec = ${CONF_SPEC} (cpu = ${CPU_COUNT})"
+    log_info "spec = ${SPEC} (cpu = ${CPU_COUNT})"
 }
 
 #----------------------------------------------#
@@ -368,11 +363,9 @@ function check_spec(){
 #----------------------------------------------#
 function check_config(){
     local primary_ip=${1-${PRIMARY_IP}}
-    local mode=${2-${MODE}}                                            # use files/conf/pigsty-${mode}.yml as template
+    local mode=${2-${MODE}}                        # use files/conf/pigsty-${mode}.yml as template
     local pigsty_home=${3-${PIGSTY_HOME}}
-    local sed_cmd1="s/10.10.10.10/${primary_ip}/g"                     # replace 10.10.10.10 with actual ip address
-    local sed_cmd2="s/pg_conf: tiny.yml/pg_conf: ${CONF_SPEC}.yml/g"   # replace pg_conf with appropriate spec
-    local sed_cmd3="s/node_tune: tiny/node_tune: ${NODE_TUNE}/g"       # replace node_tune with appropriate mode
+    local sed_cmd1="s/10.10.10.10/${primary_ip}/g" # replace 10.10.10.10 with actual ip address
     local config_src=${pigsty_home}/files/conf/pigsty-${mode}.yml
     local config_dst=${pigsty_home}/pigsty.yml
 
@@ -381,7 +374,17 @@ function check_config(){
         exit 11
     fi
 
-    cat ${config_src} | sed -e "${sed_cmd1}" | sed -e "${sed_cmd2}" | sed -e "${sed_cmd3}" > ${config_dst}
+    # otherwise, infer from cpu count (<8 tiny, >=8 oltp)
+    if (($(getconf _NPROCESSORS_ONLN)>=8)); then
+        local sed_cmd2="s/pg_conf: tiny.yml/pg_conf: oltp.yml/g"   # replace pg_conf to oltp mode
+        local sed_cmd3="s/node_tune: tiny/node_tune: oltp/g"       # replace node_tune to oltp mode
+        cat ${config_src} | sed -e "${sed_cmd1}" | sed -e "${sed_cmd2}" | sed -e "${sed_cmd3}" > ${config_dst}
+        log_info "config = ${mode} @ ${primary_ip} [tiny -> oltp]"
+    else
+        cat ${config_src} | sed -e "${sed_cmd1}"  > ${config_dst}
+        log_info "config = ${mode}@${primary_ip}"
+    fi
+
     log_info "config = ${mode}@${primary_ip}"
 }
 
@@ -532,7 +535,7 @@ function main(){
     while [ $# -gt 0 ]; do
         case $1 in
             -h|--help)
-                echo './configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode {tiny|oltp}]'
+                echo './configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode {auto|demo}]'
                 exit 0;;
             -i|--ip) PRIMARY_IP="$2" ; shift;;
             -m|--mode) MODE="$2"     ; shift;;

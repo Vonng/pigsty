@@ -3,17 +3,17 @@
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
 # Mtime     :   2020-12-22
-# Desc      :   patroni cluster definition for {{ pg_cluster }} (large)
+# Desc      :   patroni cluster definition for {{ pg_cluster }}
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
-# Note      :   Medium Database Cluster Template (medium:16C:32G:1TB)
+# Note      :   Customize Database Cluster Template (medium:16C:256G:4TB)
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
 
-# large.crit database are optimized for security, integrity, RPO
-# typical spec: 16 Core | 32 GB RAM | PCI-E SSD 1TB
+# c16-m256-crit.yml is a customized template for 16 Core | 256 GB Mem
+# optimize for security, integrity, RPO
 
 ---
 #------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ bootstrap:
 
   # default bootstrap method: initdb
   initdb:
-    # - data-checksums
+    - data-checksums
 {% if pg_encoding != '' %}
     - encoding: {{ pg_encoding }}
 {% endif %}
@@ -242,7 +242,7 @@ bootstrap:
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
         max_parallel_workers: 8                 # default 8, limit by max_worker_processes
         max_parallel_maintenance_workers: 4     # default 2 -> 4, limit by parallel worker
-        max_parallel_workers_per_gather: 4      # default 2 -> 0, disable parallel query in OLTP mode
+        max_parallel_workers_per_gather: 4      # default 2 -> 4, allow 4 workers at most
 
         #----------------------------------------------------------------------
         # WAL
@@ -279,7 +279,7 @@ bootstrap:
         # planner
         # enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 24GB              # max mem - shared buffer
+        effective_cache_size: 160GB             # max mem - shared buffer
         default_statistics_target: 500          # stat bucket 100 -> 500
 
         #----------------------------------------------------------------------
