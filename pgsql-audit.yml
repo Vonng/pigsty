@@ -1,0 +1,278 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-audit.yml
+# Desc      :   generate audit report
+# Note      :   check https://pigsty.cc/t-audit (TBD)
+# Ctime     :   2020-11-02
+# Mtime     :   2021-11-02
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+
+#==============================================================#
+# ./pgsql-audit.yml -l <instance_to_be_audit>
+#--------------------------------------------------------------#
+# DB.05 Password Policy
+# DB.06 User & Role & Privileges
+# DB.10 Version, Uptime, Change log
+# DB.14 Migration
+# DB.15 DB Cronjob N/A
+# DB.17 Backups (policy,log)
+#==============================================================#
+
+
+- name: Generate Migration Plan
+  hosts: meta
+  gather_facts: no
+
+  vars:
+
+    #--------------------------------------------------------------#
+    #                   MIGRATION CONTEXT                          #
+    #--------------------------------------------------------------#
+    # pg_admin_username: dbuser_dba     # superuser admin
+    audit_context_dir: ~/audit          # this dir will be created
+    #--------------------------------------------------------------#
+
+  tasks:
+
+    #--------------------------------------------------------------#
+    - name: Gather Facts
+      delegate_to: localhost
+      block:
+
+
+        #--------------------------------------------------------------#
+        # probe non-trivial databases on target instances
+        #--------------------------------------------------------------#
+        - name: Get business databases list
+          shell: |
+            #!/bin/bash
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d postgres \
+              -qAXtqwc "Select datname FROM pg_database Where datallowconn And Not datistemplate And datname != 'postgres';"
+          register: dblist_result
+
+        #--------------------------------------------------------------#
+        - name: Build parameters from vars
+          set_fact:
+            pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
+            ip_address: "{{ inventory_hostname }}"
+            dir_path: "{{ audit_context_dir }}/{{ pg_cluster }}-{{ pg_seq }}"
+            dblist: "{{ dblist_result.stdout_lines }}"
+        - debug:
+            msg: "audit instance {{ pg_instance }} {{ dblist }} on {{ ip_address }}"
+
+        #--------------------------------------------------------------#
+        # create script dir:  ~/migration/{{ cls }}.{{ db }} by default
+        #--------------------------------------------------------------#
+        - name: Create context directory
+          file: path={{ dir_path }} state=directory mode=0700
+
+
+
+        #########################################
+        # -- DB.05 Password Policy: HBA
+        #########################################
+        - name: Create hba report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d postgres \
+              -Xw --html > {{ dir_path }}/DB05-password-policy-hba.html <<-'EOF'
+            SELECT type, database, user_name, address, netmask, auth_method FROM pg_hba_file_rules;
+            EOF
+
+
+        #########################################
+        # -- DB.06 Users & Roles
+        #########################################
+        - name: Create users report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d postgres \
+              -Xw --html > {{ dir_path }}/DB06-users.html <<-'EOF'
+            SELECT r.rolname                     AS name,
+                   r.rolsuper                    AS superuser,
+                   r.rolinherit                  AS inherit,
+                   r.rolcreaterole               AS create_role,
+                   r.rolcreatedb                 AS create_db,
+                   r.rolcanlogin                 AS can_login,
+                   r.rolreplication              AS can_replication,
+                   r.rolbypassrls                AS bypass_rls,
+                   r.rolconnlimit                AS conn_limit,
+                   r.rolvaliduntil               AS valid_until,
+                   ARRAY(SELECT b.rolname
+                         FROM pg_catalog.pg_auth_members m
+                                  JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid)
+                         WHERE m.member = r.oid) as member_of
+            FROM pg_catalog.pg_roles r
+            WHERE r.rolname !~ '^pg_' -- remove system default roles
+            ORDER BY 2 DESC, 1;
+            EOF
+
+        #########################################
+        # -- DB.06 Superusers
+        #########################################
+        - name: Create superuser report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d postgres \
+              -Xw --html > {{ dir_path }}/DB06-superuser.html <<-'EOF'
+            SELECT r.rolname                     AS name,
+                   r.rolsuper                    AS superuser,
+                   r.rolinherit                  AS inherit,
+                   r.rolcreaterole               AS create_role,
+                   r.rolcreatedb                 AS create_db,
+                   r.rolcanlogin                 AS can_login,
+                   r.rolreplication              AS can_replication,
+                   r.rolbypassrls                AS bypass_rls,
+                   r.rolconnlimit                AS conn_limit,
+                   r.rolvaliduntil               AS valid_until,
+                   ARRAY(SELECT b.rolname
+                         FROM pg_catalog.pg_auth_members m
+                                  JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid)
+                         WHERE m.member = r.oid) as member_of
+            FROM pg_catalog.pg_roles r
+            WHERE r.rolsuper
+            ORDER BY 2 DESC, 1;
+            EOF
+
+        #########################################
+        # -- DB.06 Database Privileges
+        #########################################
+        - name: Create database privileges report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d postgres \
+            -Xw --html > {{ dir_path }}/DB06-database-privileges.html <<-'EOF'
+            SELECT d.datname                                          as "Name",
+                   pg_catalog.pg_get_userbyid(d.datdba)               as "Owner",
+                   pg_catalog.array_to_string(d.datacl, E'\n')        AS "Access privileges"
+            FROM pg_catalog.pg_database d JOIN pg_catalog.pg_tablespace t on d.dattablespace = t.oid
+            WHERE datname NOT IN ('postgres', 'template0', 'template1')
+            ORDER BY 1;
+            EOF
+
+        #########################################
+        # -- DB.06 Schema Privileges
+        #########################################
+        - name: Create schema privileges report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d {{ item }} \
+            -Xw --html > {{ dir_path }}/DB06-schema-privileges-{{ item }}.html <<-'EOF'
+            SELECT n.nspname AS "Name",
+                   pg_catalog.pg_get_userbyid(n.nspowner) AS "Owner",
+                   pg_catalog.array_to_string(n.nspacl, E'\n') AS "Access privileges"
+            FROM pg_catalog.pg_namespace n
+            WHERE n.nspname !~ '^pg_' AND n.nspname <> 'information_schema'
+            ORDER BY 1;
+            EOF
+          with_items: "{{ dblist }}"
+
+        #########################################
+        # -- DB.06 Object Privileges
+        #########################################
+        - name: Create object privileges report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d {{ item }} \
+            -Xw --html > {{ dir_path }}/DB06-object-privileges-{{ item }}.html <<-'EOF'
+            SELECT distinct "Type","Access privileges"
+            FROM (
+                     SELECT n.nspname                                   as "Schema",
+                            c.relname                                   as "Name",
+                            CASE c.relkind
+                                WHEN 'r' THEN 'table'
+                                WHEN 'v' THEN 'view'
+                                WHEN 'm' THEN 'materialized view'
+                                WHEN 'S' THEN 'sequence'
+                                WHEN 'f' THEN 'foreign table'
+                                WHEN 'p' THEN 'table' END               as "Type",
+                            pg_catalog.array_to_string(c.relacl, E'\n') AS "Access privileges",
+                            pg_catalog.array_to_string(ARRAY(
+                                                               SELECT attname || E':\n  ' || pg_catalog.array_to_string(attacl, E'\n  ')
+                                                               FROM pg_catalog.pg_attribute a
+                                                               WHERE attrelid = c.oid
+                                                                 AND NOT attisdropped
+                                                                 AND attacl IS NOT NULL
+                                                           ), E'\n')    AS "Column privileges",
+                            pg_catalog.array_to_string(ARRAY(
+                                                               SELECT polname
+                                                                          || CASE
+                                                                                 WHEN NOT polpermissive THEN
+                                                                                     E' (RESTRICTIVE)'
+                                                                                 ELSE '' END
+                                                                          || CASE
+                                                                                 WHEN polcmd != '*' THEN
+                                                                                     E' (' || polcmd || E'):'
+                                                                                 ELSE E':'
+                                                                          END
+                                                                          || CASE
+                                                                                 WHEN polqual IS NOT NULL THEN
+                                                                                     E'\n  (u): ' || pg_catalog.pg_get_expr(polqual, polrelid)
+                                                                                 ELSE E''
+                                                                          END
+                                                                          || CASE
+                                                                                 WHEN polwithcheck IS NOT NULL THEN
+                                                                                     E'\n  (c): ' || pg_catalog.pg_get_expr(polwithcheck, polrelid)
+                                                                                 ELSE E''
+                                                                          END || CASE
+                                                                                     WHEN polroles <> '{0}' THEN
+                                                                                             E'\n  to: ' ||
+                                                                                             pg_catalog.array_to_string(
+                                                                                                     ARRAY(
+                                                                                                             SELECT rolname
+                                                                                                             FROM pg_catalog.pg_roles
+                                                                                                             WHERE oid = ANY (polroles)
+                                                                                                             ORDER BY 1
+                                                                                                         ), E', ')
+                                                                                     ELSE E''
+                                                                          END
+                                                               FROM pg_catalog.pg_policy pol
+                                                               WHERE polrelid = c.oid), E'\n')
+                                                                        AS "Policies"
+                     FROM pg_catalog.pg_class c
+                              LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+                     WHERE c.relkind IN ('r', 'v', 'm', 'S', 'f', 'p')
+                       AND n.nspname !~ '^pg_'
+                       AND pg_catalog.pg_table_is_visible(c.oid)
+                     ORDER BY 1, 2
+                 ) priv;
+            EOF
+          with_items: "{{ dblist }}"
+
+
+        #########################################
+        # -- DB.10 Version, Uptime, Change log
+        #########################################
+        - name: Create version & uptime & changelog report
+          shell: |
+            #!/bin/bash
+
+            psql -h {{ inventory_hostname }} -U {{ pg_admin_username }} -d postgres \
+            -Xw  --html > {{ dir_path }}/DB10-version-uptime.html <<-'EOF'
+            SELECT current_setting('server_version')  AS version,
+                   pg_postmaster_start_time()         AS boot_time,
+                   now() - pg_postmaster_start_time() AS uptime;
+            EOF
+
+        #########################################
+        # -- DB.14 Migration
+        #########################################
+
+        #########################################
+        # -- DB.15 Cronjob
+        #########################################
+
+        #########################################
+        # -- DB.17 Backups (policy,log)
+        #########################################
+
+...
