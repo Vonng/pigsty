@@ -1,14 +1,35 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty Auto-Generated Config Template
+# Desc      :   Pigsty 4-node demo (public demo)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
 # Mtime     :   2021-11-03
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
-all:  
+
+######################################################################
+#                        Sandbox (4-node)                            #
+#====================================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)              #
+# 1.  meta    :    172.21.0.11     (2 Core | 4GB)    pg-meta         #
+# 2.  node-1  :    172.21.0.3      (1 Core | 1GB)    pg-test-1       #
+# 3.  node-2  :    172.21.0.4      (1 Core | 1GB)    pg-test-2       #
+# 4.  node-3  :    172.21.0.16     (1 Core | 1GB)    pg-test-3       #
+######################################################################
+
+
+all: # top-level namespace
+
+  #==================================================================#
+  #                           Clusters                                #
+  #==================================================================#
+  # postgres database clusters are defined as kv pair in `all.children`
+  # where the key is cluster name and the value is the object consist
+  # of cluster members (hosts) and cluster specific variables (vars)
+  # meta nodes are defined in special group "meta" with `meta_node=true`
+
   children:
 
     #----------------------------------#
@@ -17,20 +38,22 @@ all:
     meta:
       vars: { meta_node: true , ansible_group_priority: 99 }
       hosts:
-        10.10.10.10: { }
-
+        172.21.0.11: { }
 
     #----------------------------------#
     # cluster: pg-meta (default cmdb)
     #----------------------------------#
     pg-meta:
     hosts:
-      10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
+      172.21.0.11: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
     vars:
       pg_cluster: pg-meta
+      pg_conf: small.yml
       pg_users:
-        - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
-        - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+        - { name: dbuser_meta      , password: DBUser.Meta       , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
+        - { name: dbuser_view      , password: DBUser.Viewer     , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+        - {name: dbuser_grafana    , password: DBUser.Grafana    , pgbouncer: true , roles: [dbrole_admin], comment: admin user for grafana database }
+        - {name: dbuser_prometheus , password: DBUser.Prometheus , pgbouncer: true , roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
       pg_databases:
         - name: meta
           baseline: cmdb.sql
@@ -41,20 +64,42 @@ all:
             - { name: adminpack, schema: pg_catalog }
             - { name: postgis, schema: public }
             - { name: timescaledb }
+        
+        - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+        - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
 
 
     #----------------------------------#
-    # cluster: pg-test (example cluster)
+    # cluster: pg-test (3-node demo)   #
     #----------------------------------#
-    #pg-test:
-    #  hosts:
-    #    10.10.10.11: { pg_seq: 1, pg_role: primary }
-    #    10.10.10.12: { pg_seq: 2, pg_role: replica }
-    #    10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
-    #  vars:
-    #    pg_cluster: pg-test
-    #    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] , comment: test user } ]
-    #    pg_databases: [ { name: test , extensions: [ { name: postgis, schema: public } ] } ]
+
+    pg-test:                                # define the new 3-node cluster pg-test
+      hosts:
+        172.21.0.3:  { pg_seq: 1, pg_role: primary }
+        172.21.0.4:  { pg_seq: 2, pg_role: replica }
+        172.21.0.16: { pg_seq: 3, pg_role: replica, pg_offline_query: true }
+
+      vars:
+        pg_cluster: pg-test
+        pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
+        pg_databases: [{ name: test }]      # create a database and user named 'test'
+
+        pg_services_extra:
+          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
+            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
+            dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+            check_method: http              # optional, health check method: http is the only available method for now
+            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
+            check_url: /read-only?lag=0     # optional, health check url path, / by default
+            check_code: 200                 # optional, health check expected http code, 200 by default
+            selector: "[]"                  # required, JMESPath to filter inventory ()
+            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
+            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
+              maxconn: 3000                 # optional, max allowed front-end connection
+              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+
 
 
 
@@ -268,12 +313,12 @@ all:
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
-      - 10.10.10.10 meta
-      - 10.10.10.10 pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
+      - 172.21.0.11 meta
+      - 172.21.0.11 pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
 
-    node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
+    node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
-      - 10.10.10.10
+      - 172.21.0.11
     node_dns_options:                             # dns resolv options
       - options single-request-reopen timeout:1 rotate
       - domain service.consul
@@ -315,6 +360,7 @@ all:
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: { }                       # set additional sysctl parameters, k:v format
+    # net.bridge.bridge-nf-call-iptables: 1       # example sysctl parameters
 
     # - node admin - #
     node_admin_setup: true                        # create a default admin user defined by `node_admin_*` ?
@@ -322,19 +368,20 @@ all:
     node_admin_username: dba                      # name of this admin user, dba by default
     node_admin_ssh_exchange: true                 # exchange admin ssh key among each pgsql cluster ?
     node_admin_pk_current: true                   # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pks: [ ]                           # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_admin_pks:                               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+      - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     # - node tz - #
-    node_timezone: ''                             # default node timezone, empty will not change. (e.g. Asia/Hong_Kong)
+    node_timezone: Asia/Hong_Kong                 # default node timezone, empty will not change
 
     # - node ntp - #
-    node_ntp_config: false                        # config ntp service? false will leave it with system default
+    node_ntp_config: true                         # config ntp service? false will leave it with system default
     node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-      - server 10.10.10.10 iburst
+      - server 172.21.0.11 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
 
 
@@ -350,14 +397,14 @@ all:
 
     # - nginx - #
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
-      - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
-      - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
-      - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
-      - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
+      - { name: home,          domain: home.pigsty.cc,    endpoint: "172.21.0.11:80" }     # default -> index.html (80)
+      - { name: grafana,       domain: demo.pigsty.cc,    endpoint: "172.21.0.11:3000" }   # pigsty grafana (3000)
+      - { name: prometheus,    domain: p.pigsty.cc,        endpoint: "172.21.0.11:9090" }   # pigsty prometheus (9090)
+      - { name: alertmanager,  domain: a.pigsty.cc,        endpoint: "172.21.0.11:9093" }   # pigsty alertmanager (9093)
       # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
-      - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
-      - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
-      - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+      - { name: consul,        domain: c.pigsty.cc,        endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
+      - { name: pgweb,         domain: cli.pigsty.cc,      endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
+      - { name: jupyter,       domain: lab.pigsty.cc,      endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
 
     # - app - #
     app_list:                                      # show extra application links on home page
@@ -366,29 +413,43 @@ all:
       - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
       - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
       - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+      - { name: ISD     , url : '${grafana}/d/isd-overview'    , comment: 'noaa isd data visualization' }
+      - { name: Covid   , url : '${grafana}/d/covid-overview'  , comment: 'covid data visualization' }
+      - { name: Covid   , url : '${grafana}/d/applog-overview' , comment: 'apple privacy log visualization' }
 
     docs_enabled: true                            # setup local document under default server?
     pev2_enabled: true                            # setup pev2 explain visualizer under default server?
     pgbadger_enabled: true                        # setup pgbadger under default server?
 
     # - nameserver - #
-    dns_records: [ ]                              # dynamic dns record resolved by dnsmasq
+    dns_records:                                  # dynamic dns record resolved by dnsmasq
+      - 10.10.10.2  pg-meta    # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test    # sandbox vip for pg-test
+      - 172.21.0.11 meta-1     # sandbox node meta-1
+      - 172.21.0.3 node-1      # sandbox node node-1
+      - 172.21.0.4 node-2      # sandbox node node-2
+      - 172.21.0.16 node-3     # sandbox node node-3
+      - 172.21.0.11 pg-meta-1  # sandbox instance pg-meta-1
+      - 172.21.0.3 pg-test-1   # sandbox instance node-1
+      - 172.21.0.4 pg-test-2   # sandbox instance node-2
+      - 172.21.0.16 pg-test-3  # sandbox instance node-3
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-    prometheus_options: '--storage.tsdb.retention=15d --enable-feature=promql-negative-offset'
+    prometheus_options: '--storage.tsdb.retention=30d --enable-feature=promql-negative-offset'
     prometheus_reload: false                      # reload prometheus instead of recreate it
     prometheus_sd_method: static                  # service discovery method: static|consul|etcd
-    prometheus_scrape_interval: 10s               # global scrape & evaluation interval
-    prometheus_scrape_timeout: 8s                 # scrape timeout
-    prometheus_sd_interval: 10s                   # service discovery refresh interval
+    prometheus_scrape_interval: 5s               # global scrape & evaluation interval
+    prometheus_scrape_timeout: 4s                 # scrape timeout
+    prometheus_sd_interval: 5s                   # service discovery refresh interval
 
     # - grafana - #
-    grafana_endpoint: http://10.10.10.10:3000     # grafana endpoint url
+    grafana_endpoint: http://172.21.0.11:3000     # grafana endpoint url
     grafana_admin_username: admin                 # default grafana admin username
-    grafana_admin_password: pigsty                # default grafana admin password
+    grafana_admin_password: pigsty2               # default grafana admin password
     grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
-    grafana_pgurl: ''                             # postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
+    # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
+    grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
     grafana_plugin: install                       # none|install, none will skip plugin installation
     grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
     grafana_plugins:                              # plugins that will be downloaded via grafana-cli
@@ -403,12 +464,12 @@ all:
     loki_data_dir: /data/loki                     # default loki data dir
 
     # - jupyter - #
-    jupyter_enabled: false                        # disable jupyter on production by default
+    jupyter_enabled: true                         # setup jupyter lab server?
     jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
-    jupyter_password: pigsty                      # jupyter password (very important if enabled!)
+    jupyter_password: pigstypigsty                # jupyter password (very important if enabled!)
 
     # - pgweb - #
-    pgweb_enabled: false                          # disable pgweb on production by default
+    pgweb_enabled: true                           # setup pgweb server?
     pgweb_username: pgweb                         # os user name, special names: default|root (dangerous!)
 
 
@@ -419,10 +480,10 @@ all:
     dcs_type: consul                              # consul | etcd | both
     dcs_name: pigsty                              # consul dc name | etcd initial cluster token
     dcs_servers:                                  # dcs server dict in name:ip format
-      meta-1: 10.10.10.10                         # you could use existing dcs cluster
-      # meta-2: 10.10.10.11                       # host which have their IP listed here will be init as server
-      # meta-3: 10.10.10.12                       # 3 or 5 dcs nodes are recommend for production environment
-    dcs_exists_action: abort                      # abort|skip|clean if dcs server already exists
+      meta-1: 172.21.0.11                         # you could use existing dcs cluster
+      # meta-2: 172.21.0.3                       # host which have their IP listed here will be init as server
+      # meta-3: 172.21.0.4                       # 3 or 5 dcs nodes are recommend for production environment
+    dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
@@ -436,7 +497,7 @@ all:
     pg_dbsu_uid: 26                               # os dbsu uid and gid, 26 for default postgres users and groups
     pg_dbsu_sudo: limit                           # dbsu sudo privilege: none|limit|all|nopass, limit by default
     pg_dbsu_home: /var/lib/pgsql                  # postgresql home directory
-    pg_dbsu_ssh_exchange: false                   # exchange postgres dbsu ssh key among same cluster ?
+    pg_dbsu_ssh_exchange: true                    # exchange postgres dbsu ssh key among same cluster ?
 
     # - postgres packages - #                     # `${pg_version} will be replaced by actual `pg_version`
     pg_version: 14                                # default postgresql version to be installed
@@ -468,7 +529,7 @@ all:
     # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
 
     # - identity option -#
-    pg_hostname: false                            # overwrite node hostname with pg instance name
+    pg_hostname: true                             # overwrite node hostname with pg instance name
     pg_nodename: true                             # overwrite consul nodename with pg instance name
 
     # - retention - #
@@ -477,14 +538,14 @@ all:
     #  - clean: remove existing cluster (dangerous)
     #  - skip: end current play for this host
     # pg_exists: false                            # auxiliary flag variable (DO NOT SET THIS)
-    pg_exists_action: abort                       # abort|skip|clean if postgres already exists
+    pg_exists_action: abort                       # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
     pg_disable_purge: false                       # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
 
     # - storage - #
     pg_data: /pg/data                             # postgres data directory (soft link)
     pg_fs_main: /data                             # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups                     # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
-    pg_dummy_filesize: 1GiB                       # /pg/dummy hold some disk space for emergency use
+    pg_dummy_filesize: 1GiB                      # /pg/dummy hold some disk space for emergency use
 
     # - connection - #
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
@@ -531,11 +592,11 @@ all:
 
     # - system roles - #
     pg_replication_username: replicator           # system replication user
-    pg_replication_password: DBUser.Replicator    # system replication password
+    pg_replication_password: DBUser.ReplicatoR    # system replication password
     pg_monitor_username: dbuser_monitor           # system monitor user
-    pg_monitor_password: DBUser.Monitor           # system monitor password
+    pg_monitor_password: DBUser.MonitorXXX        # system monitor password
     pg_admin_username: dbuser_dba                 # system admin user
-    pg_admin_password: DBUser.DBA                 # system admin password
+    pg_admin_password: DBUser.DBAxxx              # system admin password
 
     # - default roles - #
     pg_default_roles:
@@ -597,7 +658,7 @@ all:
       - title: allow meta node password access
         role: common
         rules:
-          - host    all     all                         10.10.10.10/32      md5
+          - host    all     all                         172.21.0.11/32      md5
 
       - title: allow intranet admin password access
         role: common
@@ -682,7 +743,7 @@ all:
     promtail_clean: false                         # remove promtail status file? false by default
     promtail_port: 9080                           # default listen address for promtail
     promtail_status_file: /tmp/promtail-status.yml
-    promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
+    promtail_send_url: http://172.21.0.11:3100/loki/api/v1/push  # loki url to receive logs
 
     #------------------------------------------------------------------------------
     # SERVICE PROVISION
@@ -739,7 +800,7 @@ all:
     haproxy_reload: true                          # reload haproxy after config
     haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
     haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: pigsty                # default haproxy admin password
+    haproxy_admin_password: pigstypigsty          # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
     haproxy_client_timeout: 24h                   # client side connection timeout
     haproxy_server_timeout: 24h                   # server side connection timeout
