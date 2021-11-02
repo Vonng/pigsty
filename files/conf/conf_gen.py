@@ -41,23 +41,23 @@ all:
     # cluster: pg-meta (default cmdb)
     #----------------------------------#
     pg-meta:
-    hosts:
-      10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
-    vars:
-      pg_cluster: pg-meta
-      pg_users:
-        - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
-        - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
-      pg_databases:
-        - name: meta
-          baseline: cmdb.sql
-          comment: pigsty meta database
-          connlimit: -1
-          schemas: [ pigsty ]
-          extensions:
-            - { name: adminpack, schema: pg_catalog }
-            - { name: postgis, schema: public }
-            - { name: timescaledb }
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
+          - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+        pg_databases:
+          - name: meta
+            baseline: cmdb.sql
+            comment: pigsty meta database
+            connlimit: -1
+            schemas: [ pigsty ]
+            extensions:
+              - { name: adminpack, schema: pg_catalog }
+              - { name: postgis, schema: public }
+              - { name: timescaledb }
 
 
     #----------------------------------#
