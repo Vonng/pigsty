@@ -45,7 +45,11 @@ There are several util scripts in `bin/` prefixed with `pglog-`
 ## convenient shortcuts
 
 ```bash
-alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'" # useful alias
+alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
+alias pglog12="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample12 FROM STDIN CSV;'"
+alias pglog13="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample13 FROM STDIN CSV;'"
+alias pglog14="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
+
 ### default: get pgsql csvlog (localhost @ today) 
 function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
     local node=${1-'127.0.0.1'}

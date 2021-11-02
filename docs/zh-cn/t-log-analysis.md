@@ -48,7 +48,7 @@ Pigsty提供了一些趁手的命令，用于拉取csv日志，并灌入样本�
 ## 方便的快捷命令
 
 ```bash
-alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample12 FROM STDIN CSV;'" # useful alias
+alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
 alias pglog12="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample12 FROM STDIN CSV;'"
 alias pglog13="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample13 FROM STDIN CSV;'"
 alias pglog14="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
