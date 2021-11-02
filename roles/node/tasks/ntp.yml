@@ -1,43 +1,48 @@
 ---
+
 #--------------------------------------------------------------#
-# 1. Make sure ntp and chrony package installed
+# 0. Setup node timezone (if given)
 #--------------------------------------------------------------#
-- name: Install ntp
-  tags: ntp_install
+- name: Setup default node timezone
+  tags: node_timezone
+  when: node_timezone is defined and node_timezone != ""
+  timezone: name={{ node_timezone }}
+
+#--------------------------------------------------------------#
+# 1. Make sure ntp/chrony package installed
+#--------------------------------------------------------------#
+- name: Install ntp or chrony
+  tags: [ node_ntp, ntp_config ]
+  when: node_ntp_config|bool
   block:
     - name: Install ntp package
+      when: node_ntp_service == 'ntp'
       package: name=ntp state=present
 
     - name: Install chrony package
+      when: node_ntp_service == 'chrony'
       package: name=chrony state=present
-
-
 
 #--------------------------------------------------------------#
 # 2. Config ntp (when node_ntp_setup is true)
 # if you already have ntp & chronyd settled, use node_ntp_setup = false
 #--------------------------------------------------------------#
 - name: Config ntpd and chronyd service
-  tags: ntp_config
+  tags: [ node_ntp, ntp_config ]
   when: node_ntp_config|bool
   block:
-    - name: Setup default node timezone
-      when: node_timezone is defined and node_timezone != ""
-      timezone: name={{ node_timezone }}
-
     - name: Copy the ntp.conf file
       template: src=ntp.conf.j2 dest=/etc/ntp.conf
 
     - name: Copy the chrony.conf template
       template: src=chrony.conf.j2 dest=/etc/chrony.conf
 
-
-
 #--------------------------------------------------------------#
 # 3. Launch ntp
 #--------------------------------------------------------------#
 - name: Launch ntpd and chrony service
-  tags: ntp_launch
+  tags: [ node_ntp, ntp_launch ]
+  when: node_ntp_config|bool
   block:
     - name: Launch ntpd service
       when: node_ntp_service == 'ntp'
