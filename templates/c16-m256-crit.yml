@@ -215,10 +215,10 @@ bootstrap:
         #----------------------------------------------------------------------
         max_connections: 800                    # default 100 -> 800
         superuser_reserved_connections: 10      # reserve 10 connection for su
-        max_locks_per_transaction: 64           # default 64
+        max_locks_per_transaction: 32768        # default 64 -> 32768
         max_prepared_transactions: 0            # 0 disable 2PC
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 8                 # default 8
+        max_worker_processes: 16                # default 8
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
         max_wal_senders: 24                     # 10 -> 24
@@ -240,7 +240,7 @@ bootstrap:
         bgwriter_delay: 10ms                    # check dirty page every 10ms
         bgwriter_lru_maxpages: 800              # 100 -> 800
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
-        max_parallel_workers: 8                 # default 8, limit by max_worker_processes
+        max_parallel_workers: 16                # default 8, limit by max_worker_processes
         max_parallel_maintenance_workers: 4     # default 2 -> 4, limit by parallel worker
         max_parallel_workers_per_gather: 4      # default 2 -> 4, allow 4 workers at most
 
@@ -339,6 +339,10 @@ bootstrap:
         pg_stat_statements.track: all           # track all statements (all|top|none)
         pg_stat_statements.track_utility: on    # track query other than CRUD
         pg_stat_statements.track_planning: on   # track planning metrics
+
+        # timescaledb
+        timescaledb.telemetry_level: off        # disable timescale telemetry
+        timescaledb.max_background_workers: 6   # increase background worker 8 -> 6
 
 
 #------------------------------------------------------------------------------

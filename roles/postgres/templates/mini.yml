@@ -213,14 +213,14 @@ bootstrap:
         #----------------------------------------------------------------------
         max_connections: 200                    # default 100 -> 200
         superuser_reserved_connections: 10      # reserve 10 connection for su
-        max_locks_per_transaction: 64           # default 64
+        max_locks_per_transaction: 1024         # default 64 -> 1024
         max_prepared_transactions: 0            # 0 disable 2PC
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 2                 # default 8 -> 4 (set to cpu core)
+        max_worker_processes: 8                 # default 8
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
-        #max_wal_senders: 24                     # 10 -> 24
-        #max_replication_slots: 16               # 10 -> 16
+        #max_wal_senders: 24                    # 10 -> 24
+        #max_replication_slots: 16              # 10 -> 16
         wal_keep_size: 5GB                      # keep at least 5GB WAL
         password_encryption: md5                # use traditional md5 auth
 
@@ -338,6 +338,9 @@ bootstrap:
         pg_stat_statements.track_utility: off   # do not track query other than CRUD
         pg_stat_statements.track_planning: off  # do not track planning metrics
 
+        # timescaledb
+        timescaledb.telemetry_level: off        # disable timescale telemetry
+        timescaledb.max_background_workers: 4   # decrease background worker 8 -> 4
 
 #------------------------------------------------------------------------------
 # postgres
