@@ -24,7 +24,7 @@
 # const
 #==============================================================#
 # pigsty version string
-VERSION=v1.1.1
+VERSION=v1.2.0
 
 # where to download pkg.tgz ?
 DEFAULT_SRC_URL="https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz"
@@ -49,13 +49,14 @@ BIN_DIR=${PIGSTY_HOME}/files/bin
 #==============================================================#
 # args
 #  -i  --ip  <ip addr>    : set local primary ip address
-#  -m  --mode             : mode, (tiny|oltp|...|demo|demo4), tiny by default
+#  -m  --mode             : mode, ([auto]|demo|...)
 #  -n  --non-interactive  : flag, run as non-interactive mode
 #==============================================================#
 INTERACTIVE=true                  # run configure with interactive mode
 PRIMARY_IP=""                     # primary IP address (intranet, do not use public IP)
-MODE=""                           # default install mode (tiny|oltp|...|demo|demo4)
-PRO_MODE=false                    # install pigsty pro extra resources ?
+MODE=""                           # default install mode ([auto]|demo|...)
+CONF_SPEC=tiny                    # default postgres spec (tiny|mini|small|medium|large|oltp)
+NODE_TUNE=tiny                    # default machine spec (tiny|oltp)
 DEFAULT_PKG_PATH=/tmp/pkg.tgz     # default offline installation pkg path
 DOWNLOAD_PKG=false                # whether to download pkg.tgz if not exists ?
 
@@ -332,14 +333,34 @@ function check_mode(){
         MODE=demo
         return 0
     fi
-    # otherwise, infer from cpu count (<8 tiny, >=8 oltp)
-    if (($(getconf _NPROCESSORS_ONLN)>=8)); then
-        MODE=oltp
-        log_info "mode = oltp (infer from cpu core >= 8)"
-    else
-        MODE=tiny
-        log_info "mode = tiny (infer from cpu core < 8)"
+
+    # otherwise, use auto template
+    MODE=auto
+}
+
+#----------------------------------------------#
+# check node spec
+#----------------------------------------------#
+function check_spec(){
+    # infer machine spec from cpu core
+    CPU_COUNT=$(getconf _NPROCESSORS_ONLN)
+    if ((${CPU_COUNT}>=32)); then
+        CONF_SPEC=oltp
+        NODE_TUNE=oltp
+    elif ((${CPU_COUNT}>=16)); then
+        CONF_SPEC=large
+        NODE_TUNE=oltp
+    elif ((${CPU_COUNT}>=8)); then
+        CONF_SPEC=medium
+        NODE_TUNE=oltp
+    elif ((${CPU_COUNT}>=4)); then
+        CONF_SPEC=small
+    elif ((${CPU_COUNT}>=2)); then
+        CONF_SPEC=mini
+    elif ((${CPU_COUNT}>=1)); then
+        CONF_SPEC=tiny
     fi
+    log_info "spec = ${CONF_SPEC} (cpu = ${CPU_COUNT})"
 }
 
 #----------------------------------------------#
@@ -347,9 +368,11 @@ function check_mode(){
 #----------------------------------------------#
 function check_config(){
     local primary_ip=${1-${PRIMARY_IP}}
-    local mode=${2-${MODE}}
+    local mode=${2-${MODE}}                                            # use files/conf/pigsty-${mode}.yml as template
     local pigsty_home=${3-${PIGSTY_HOME}}
-    local sed_cmd="s/10.10.10.10/${primary_ip}/g"
+    local sed_cmd1="s/10.10.10.10/${primary_ip}/g"                     # replace 10.10.10.10 with actual ip address
+    local sed_cmd2="s/pg_conf: tiny.yml/pg_conf: ${CONF_SPEC}.yml/g"   # replace pg_conf with appropriate spec
+    local sed_cmd3="s/node_tune: tiny/node_tune: ${NODE_TUNE}/g"       # replace node_tune with appropriate mode
     local config_src=${pigsty_home}/files/conf/pigsty-${mode}.yml
     local config_dst=${pigsty_home}/pigsty.yml
 
@@ -357,7 +380,8 @@ function check_config(){
         log_error "config mode = ${mode} not exists"
         exit 11
     fi
-    sed -e ${sed_cmd} ${config_src} > ${config_dst}
+
+    cat ${config_src} | sed -e "${sed_cmd1}" | sed -e "${sed_cmd2}" | sed -e "${sed_cmd3}" > ${config_dst}
     log_info "config = ${mode}@${primary_ip}"
 }
 
@@ -531,7 +555,8 @@ function main(){
     check_ssh        # current_user  = NOPASSWD ssh
     check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
     check_admin      # check current_user@primary_ip nopass ssh sudo
-    check_mode       # check machine spec to determine node mode (tiny|oltp|olap|crit)
+    check_mode       # check config template (auto|demo|...)
+    check_spec       # check machine spec (tiny|mini|small|medium|large|...)
     check_config     # generate config according to primary_ip and mode
 
     # prepare
