@@ -127,10 +127,10 @@
 /usr/pgsql-${pg_version}/
 ```
 
-安装剧本会自动创建指向当前安装版本的软连接，例如，如果安装了13版本的Postgres，则有：
+安装剧本会自动创建指向当前安装版本的软连接，例如，如果安装了14版本的Postgres，则有：
 
 ```bash
-/usr/pgsql -> /usr/pgsql-13
+/usr/pgsql -> /usr/pgsql-14
 ```
 
 因此，默认的`pg_bin_dir`为`/usr/pgsql/bin/`，该路径会在`/etc/profile.d/pgsql.sh`中添加至所有用户的`PATH`环境变量中。
@@ -150,14 +150,14 @@ Pigsty假设用于部署数据库实例的单个节点上至少有一块主数�
 #   {{ pg_fs_main }} contains the main data             (MUST ALREADY MOUNTED)
 #   {{ pg_fs_bkup }} contains archive and backup data   (MAYBE ALREADY MOUNTED)
 #   {{ pg_cluster }}-{{ pg_version }} is the default parent folder 
-#    for pgdata (e.g pg-test-12)
+#    for pgdata (e.g pg-test-14)
 #------------------------------------------------------------------------------
 # default variable:
 #     pg_fs_main = /export           fast ssd
 #     pg_fs_bkup = /var/backups      cheap hdd
 #
-#     /pg      -> /export/postgres/pg-test-12
-#     /pg/data -> /export/postgres/pg-test-12/data
+#     /pg      -> /export/postgres/pg-test-14
+#     /pg/data -> /export/postgres/pg-test-14/data
 ```
 
 
@@ -168,29 +168,29 @@ Pigsty假设用于部署数据库实例的单个节点上至少有一块主数�
 # basic
 {{ pg_fs_main }}     /export                      # contains all business data (pg,consul,etc..)
 {{ pg_dir_main }}    /export/postgres             # contains postgres main data
-{{ pg_cluster_dir }} /export/postgres/pg-test-13  # contains cluster `pg-test` data (of version 13)
-                     /export/postgres/pg-test-13/bin            # binary scripts
-                     /export/postgres/pg-test-13/log            # misc logs
-                     /export/postgres/pg-test-13/tmp            # tmp, sql files, records
-                     /export/postgres/pg-test-13/conf           # configurations
-                     /export/postgres/pg-test-13/data           # main data directory
-                     /export/postgres/pg-test-13/meta           # identity information
-                     /export/postgres/pg-test-13/stat           # stats information
-                     /export/postgres/pg-test-13/change         # changing records
+{{ pg_cluster_dir }} /export/postgres/pg-test-14  # contains cluster `pg-test` data (of version 13)
+                     /export/postgres/pg-test-14/bin            # binary scripts
+                     /export/postgres/pg-test-14/log            # misc logs
+                     /export/postgres/pg-test-14/tmp            # tmp, sql files, records
+                     /export/postgres/pg-test-14/conf           # configurations
+                     /export/postgres/pg-test-14/data           # main data directory
+                     /export/postgres/pg-test-14/meta           # identity information
+                     /export/postgres/pg-test-14/stat           # stats information
+                     /export/postgres/pg-test-14/change         # changing records
 
 {{ pg_fs_bkup }}     /var/backups                      # contains all backup data (pg,consul,etc..)
 {{ pg_dir_bkup }}    /var/backups/postgres             # contains postgres backup data
-{{ pg_backup_dir }}  /var/backups/postgres/pg-test-13  # contains cluster `pg-test` backup (of version 13)
-                     /var/backups/postgres/pg-test-13/backup   # base backup
-                     /var/backups/postgres/pg-test-13/arcwal   # WAL archive
-                     /var/backups/postgres/pg-test-13/remote   # mount NFS/S3 remote resources here
+{{ pg_backup_dir }}  /var/backups/postgres/pg-test-14  # contains cluster `pg-test` backup (of version 13)
+                     /var/backups/postgres/pg-test-14/backup   # base backup
+                     /var/backups/postgres/pg-test-14/arcwal   # WAL archive
+                     /var/backups/postgres/pg-test-14/remote   # mount NFS/S3 remote resources here
 
 # links
-/pg             -> /export/postgres/pg-test-12               # pg root link
-/pg/data        -> /export/postgres/pg-test-12/data          # real data dir
-/pg/backup      -> /var/backups/postgres/pg-test-13/backup   # base backup
-/pg/arcwal      -> /var/backups/postgres/pg-test-13/arcwal   # WAL archive
-/pg/remote      -> /var/backups/postgres/pg-test-13/remote   # mount NFS/S3 remote resources here
+/pg             -> /export/postgres/pg-test-14               # pg root link
+/pg/data        -> /export/postgres/pg-test-14/data          # real data dir
+/pg/backup      -> /var/backups/postgres/pg-test-14/backup   # base backup
+/pg/arcwal      -> /var/backups/postgres/pg-test-14/arcwal   # WAL archive
+/pg/remote      -> /var/backups/postgres/pg-test-14/remote   # mount NFS/S3 remote resources here
 
 ```
 

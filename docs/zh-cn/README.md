@@ -38,7 +38,7 @@
 * 基于DCS的[服务发现](m-discovery.md)与配置管理，维护管理自动化，智能化，无需人工维护元数据。
 * 无需互联网访问与代理的[离线安装](t-offline.md)模式，快速、安全、可靠。
 * [代码定义](v-config.md)的基础设施，可配置，可定制，可扩展。
-* 基于PostgreSQL13（支持14beta），打包PostGIS，Timescale，Citus等强力扩展。 
+* 基于PostgreSQL 14（支持13/12），打包PostGIS，Timescale，Citus等强力扩展。 
 * 集成Echarts，Jupyterlab等工具，可作为数据分析与可视化的集成开发环境。
 * 架构方案经过长时间大规模的生产环境验证（200余节点，64C|400GB|3TB，18个月）
 
@@ -110,7 +110,7 @@ pg-meta:                                # required, ansible group name , pgsql c
     #---------------
     # optional                          # all configuration below are OPTIONAL for a pgsql cluster (Overwrite global default)
     #---------------
-    pg_version: 13                      # pgsql version to be installed (use global version if missing)
+    pg_version: 14                      # pgsql version to be installed (use global version if missing)
     node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
     pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
     patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}

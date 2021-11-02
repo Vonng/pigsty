@@ -119,7 +119,7 @@ pg-infra:
     10.10.10.41: { pg_seq: 2, pg_role: replica , pg_offline_query: true }
   vars:
     pg_cluster: pg-infrastructure
-    pg_version: 13
+    pg_version: 14
     vip_address: 10.10.10.4
     pgbouncer_poolmode: session
     pg_hba_rules_extra:

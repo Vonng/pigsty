@@ -137,7 +137,7 @@ PostgreSQL二进制目录
 
 默认为`/usr/pgsql/bin/`，这是一个安装过程中手动创建的软连接，指向安装的具体Postgres版本目录。
 
-例如`/usr/pgsql -> /usr/pgsql-13`。
+例如`/usr/pgsql -> /usr/pgsql-14`。
 
 
 
