@@ -35,6 +35,9 @@ Pigsty提供了一些趁手的命令，用于拉取csv日志，并灌入样本�
 
 `pglog-sample` 会从标准输入读取CSV日志，并灌入`pglog.sample`表中，以便从Dashboard中分析。
 
+针对不同版本的CSV日志（13，14均添加了新字段），可以使用以下变体命令：
+
+`pglog12,pglog13,pglog14`
 
 **`pglog-summary`**
 
@@ -45,7 +48,11 @@ Pigsty提供了一些趁手的命令，用于拉取csv日志，并灌入样本�
 ## 方便的快捷命令
 
 ```bash
-alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'" # useful alias
+alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample12 FROM STDIN CSV;'" # useful alias
+alias pglog12="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample12 FROM STDIN CSV;'"
+alias pglog13="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample13 FROM STDIN CSV;'"
+alias pglog14="psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
+
 ### default: get pgsql csvlog (localhost @ today) 
 function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
     local node=${1-'127.0.0.1'}

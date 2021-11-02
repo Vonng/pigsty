@@ -1634,3 +1634,11 @@ CREATE INDEX ON pglog.sample (datname);
 CREATE INDEX ON pglog.sample (code);
 CREATE INDEX ON pglog.sample (level);
 COMMENT ON TABLE pglog.sample IS 'PostgreSQL CSVLOG sample for Pigsty PGLOG analysis';
+
+-- child tables
+CREATE TABLE pglog.sample12 () INHERITS (pglog.sample);
+CREATE TABLE pglog.sample13 (backend TEXT) INHERITS (pglog.sample);
+CREATE TABLE pglog.sample14 (backend TEXT, leader_pid INTEGER, query_id BIGINT) INHERITS (pglog.sample);
+COMMENT ON TABLE pglog.sample12 IS 'PostgreSQL 12- CSVLOG sample for Pigsty PGLOG analysis';
+COMMENT ON TABLE pglog.sample13 IS 'PostgreSQL 13 CSVLOG sample for Pigsty PGLOG analysis';
+COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14 CSVLOG sample for Pigsty PGLOG analysis';
