@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-10-20
+# Mtime     :   2021-11-02
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -43,14 +43,14 @@ all: # top-level namespace
   children:
 
     #----------------------------------#
-    # meta node (admin controller)     #
+    # meta nodes (admin controller)    #
     #----------------------------------#
     meta:                                  # special group 'meta' marks admin nodes
       vars:                                # with variable 'meta_node = true'
         meta_node: true                    # and set their ansible_group_priority to 99
         ansible_group_priority: 99         # which will overwrite other group definition
       hosts:                               # add meta nodes here
-        10.10.10.10: {}                    # 10.10.10.10 is the default meta node
+        10.10.10.10: { }                   # 10.10.10.10 is the default meta node
 
 
     #----------------------------------#
@@ -75,7 +75,7 @@ all: # top-level namespace
         #---------------
         # optional                          # all configuration below are OPTIONAL for a pgsql cluster (Overwrite global default)
         #---------------
-        pg_version: 13                      # pgsql version to be installed (use global version if missing)
+        pg_version: 14                      # pgsql version to be installed (use global version if missing)
         node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
         pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
         patroni_mode: default               # entering patroni pause mode after bootstrap  {default|pause|remove}
@@ -108,7 +108,7 @@ all: # top-level namespace
 
           # define an additional database named grafana & prometheus (optional)
           # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -172,7 +172,7 @@ all: # top-level namespace
 
       vars:
         pg_cluster: pg-test                 # define actual cluster name
-        pg_version: 13                      # test postgresql 13 with pg-test cluster
+        pg_version: 14                      # test postgresql 13 with pg-test cluster
         pg_users: [{name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user for test database cluster }]
         pg_databases: [{ name: test}]       # create a database and user named 'test'
         vip_mode: l2                        # enable/disable vip (require members in same LAN)
@@ -300,12 +300,12 @@ all: # top-level namespace
           - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
           - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
 
-      - name: pgdg13
-        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+      - name: pgdg14
+        description: PostgreSQL 14 for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
         baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
-          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch    # tuna
+          - https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch                # official
 
       - name: timescaledb
         description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
@@ -375,18 +375,18 @@ all: # top-level namespace
       - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel              # other common utils
       - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
 
-      # postgres 13 packages
-      - postgresql13*                                                                          # postgresql 13 kernel
-      - timescaledb-2-postgresql-13                                                            # timescaledb
-      - postgresql13* postgis31* citus_13 pg_repack13 pg_squeeze13                             # postgresql 13 extensions
-      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
-      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
-      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13            # FDW extensions
-      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                   # MISC extensions
-      - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
-      - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
-      - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
-      - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
+      # postgres 14 packages
+      - postgresql14*                                                                              # postgresql 14 kernel
+      - timescaledb-2-postgresql-14                                                                # timescaledb
+      - postgresql14* postgis32_14* citus_14* pg_repack_14 pglogical_14*                           # postgresql 14 extensions
+      - pg_qualstats_14 pg_stat_kcache_14 system_stats_14 bgw_replstatus_14 pg_stat_monitor_14     # stats extensions
+      - plr_14 plsh_14 plpgsql_check_14 plproxy_14 plr_14 plsh_14 plpgsql_check_14 pldebugger_14   # PL extensions
+      - hdfs_fdw_14 mongo_fdw_14 mysql_fdw_14 ogr_fdw_14 pgbouncer_fdw_14 tds_fdw_14 pgmemcache_14 # FDW extensions
+      - wal2json_14 count_distinct_14 geoip_14 ip4r_14 pguri_14 hll_14 prefix_14 rum_14 hypopg_14  # Type & Index
+      - pg_cron_14 pg_wait_sampling_14 pg_permissions_14 powa_14 pg_track_settings_14 pgaudit16_14 # Misc
+      - pgq_14 jsquery_14 logerrors_14 periods_14 pg_auto_failover_14 pg_catcheck_14 pgfincore_14
+      - pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_prioritize_14 safeupdate_14 semver_14
+      - pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 tdigest_14 orafce_14 table_version_14
 
       # build & devel packages (optional)
       - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
@@ -396,15 +396,15 @@ all: # top-level namespace
     repo_url_packages:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm   # vip-manager
-      - https://github.com/timescale/promscale/releases/download/0.6.1/promscale_0.6.1_Linux_x86_64.rpm             # promscale
+      - https://github.com/timescale/promscale/releases/download/0.6.2/promscale_0.6.2_Linux_x86_64.rpm             # promscale
       - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz # monitor binaries
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
       - https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.3.0/logcli-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.3.0/loki-canary-linux-amd64.zip
-      - https://github.com/dalibo/pev2/releases/download/v0.22.0/pev2.tar.gz
-      - https://github.com/sosedoff/pgweb/releases/download/v0.11.8/pgweb_linux_amd64.zip
+      - https://github.com/dalibo/pev2/releases/download/v0.23.0/pev2.tar.gz
+      - https://github.com/sosedoff/pgweb/releases/download/v0.11.9/pgweb_linux_amd64.zip
 
     #------------------------------------------------------------------------------
     # NODE PROVISION
@@ -461,7 +461,7 @@ all: # top-level namespace
 
     # - node tuned - #
     node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params: {}                        # set additional sysctl parameters, k:v format
+    node_sysctl_params: { }                       # set additional sysctl parameters, k:v format
     # net.bridge.bridge-nf-call-iptables: 1       # example sysctl parameters
 
     # - node admin - #
@@ -473,10 +473,12 @@ all: # top-level namespace
     node_admin_pks:                               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
+    # - node tz - #
+    node_timezone: Asia/Hong_Kong                 # default node timezone, empty will not change
+
     # - node ntp - #
-    node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_config: true                         # config ntp service? false will leave it with system default
-    node_timezone: Asia/Hong_Kong                 # default node timezone
+    node_ntp_service: ntp                         # ntp service provider: ntp|chrony
     node_ntp_servers:                             # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
@@ -508,13 +510,13 @@ all: # top-level namespace
 
     # - app - #
     app_list:                                      # show extra application links on home page
-     - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
-     - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
-     - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
-     - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
-     - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
-     - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
-     - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+      - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
+      - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
+      - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
+      - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
+      - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
+      - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+      - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
 
     docs_enabled: true                            # setup local document under default server?
     pev2_enabled: true                            # setup pev2 explain visualizer under default server?
@@ -549,7 +551,7 @@ all: # top-level namespace
     grafana_database: sqlite3                     # default grafana database type: sqlite3|postgres, sqlite3 by default
     # if postgres is used, url must be specified. The user is pre-defined in pg-meta.pg_users
     grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-    grafana_plugin: install                       # none|install|always
+    grafana_plugin: install                       # none|install, none will skip plugin installation
     grafana_cache: /www/pigsty/plugins.tgz        # path to grafana plugins cache tarball
     grafana_plugins:                              # plugins that will be downloaded via grafana-cli
       - marcusolsson-csv-datasource
@@ -598,29 +600,23 @@ all: # top-level namespace
     pg_dbsu_home: /var/lib/pgsql                  # postgresql home directory
     pg_dbsu_ssh_exchange: true                    # exchange postgres dbsu ssh key among same cluster ?
 
-    # - postgres packages - #
-    pg_version: 13                                # default postgresql version to be installed
+    # - postgres packages - #                     # `${pg_version} will be replaced by actual `pg_version`
+    pg_version: 14                                # default postgresql version to be installed
     pgdg_repo: false                              # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*                  # postgresql kernel packages
-      - postgis31_${pg_version}*                  # postgis
-      - citus_${pg_version}                       # citus
+      - postgis32_${pg_version}*                  # postgis
       - timescaledb-2-postgresql-${pg_version}    # timescaledb
+      - citus_${pg_version}                       # citus
       - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
       - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
 
     pg_extensions:                                # postgresql extensions. `${pg_version} will be replaced by `pg_version`
-      - pg_repack${pg_version} pg_qualstats${pg_version} pg_stat_kcache${pg_version} wal2json${pg_version}
-      # - ogr_fdw${pg_version} mysql_fdw_${pg_version} redis_fdw_${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version}
-      # - count_distinct${version}  ddlx_${version}  geoip${version}  orafce${version}
-      # - hypopg_${version}  ip4r${version}  jsquery_${version}  logerrors_${version}  periods_${version}  pg_auto_failover_${version}  pg_catcheck${version}
-      # - pg_fkpart${version}  pg_jobmon${version}  pg_partman${version}  pg_prioritize_${version}  pg_track_settings${version}  pgaudit15_${version}
-      # - pgcryptokey${version}  pgexportdoc${version}  pgimportdoc${version}  pgmemcache-${version}  pgmp${version}  pgq-${version}  pgquarrel pgrouting_${version}
-      # - pguint${version}  pguri${version}  prefix${version}   safeupdate_${version}  semver${version}   table_version${version}  tdigest${version}
+      - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 
 
     #------------------------------------------------------------------------------
@@ -634,7 +630,7 @@ all: # top-level namespace
     # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
 
     # - identity option -#
-    pg_hostname: false                            # overwrite node hostname with pg instance name
+    pg_hostname: true                             # overwrite node hostname with pg instance name
     pg_nodename: true                             # overwrite consul nodename with pg instance name
 
     # - retention - #
@@ -735,7 +731,7 @@ all: # top-level namespace
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
 
     # - schemas - #
-    pg_default_schemas: [monitor]                 # default schemas to be created
+    pg_default_schemas: [ monitor ]               # default schemas to be created
 
     # - extension - #
     pg_default_extensions:                        # default extensions to be created
@@ -907,8 +903,8 @@ all: # top-level namespace
     haproxy_admin_username: admin                 # default haproxy admin username
     haproxy_admin_password: pigsty                # default haproxy admin password
     haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 12h                   # client side connection timeout
-    haproxy_server_timeout: 12h                   # server side connection timeout
+    haproxy_client_timeout: 24h                   # client side connection timeout
+    haproxy_server_timeout: 24h                   # server side connection timeout
 
     # - vip - #
     vip_mode: none                                # none | l2 | l4

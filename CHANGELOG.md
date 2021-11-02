@@ -1,3 +1,27 @@
+# v1.2.0
+ 
+* [HIGHLIGHT] Use PostgreSQL 14 as default version
+* [ENHANCEMENT] Use TimescaleDB 2.5 as default extension
+* [ENHANCEMENT] new monitor-only mode: 
+  * you can use pigsty to monitor existing pg instances with a connectable url only
+  * pg_exporter will be deployed on meta node locally
+  * new dashboard PGSQL Cluster Monly for remote clusters
+* [ENHANCEMENT] Software upgrade
+  * grafana to 8.2.2
+  * pev2 to v0.11.9
+  * promscale to 0.6.2
+  * pgweb to 0.11.9
+  * Add new extensions: pglogical pg_stat_monitor orafce 
+* [ENHANCEMENT] Automatic detect machine spec and use proper `node_tune` and `pg_conf` templates 
+* [ENHANCEMENT] Rework on bloat related views, now more information are exposed
+* [ENHANCEMENT] Remove timescale & citus internal monitoring
+* [ENHANCEMENT] New playbook `pgsql-audit.yml` to create audit report.
+* [BUG FIX] now pgbouncer_exporter resource owner are {{ pg_dbsu }} instead of postgres
+* [BUG FIX] fix pg_exporter duplicate metrics on pg_table pg_index while executing `REINDEX TABLE CONCURRENTLY`
+* [CHANGE] now all config templates are minimize into two: auto & demo. (removed: `pub4, pg14, demo4, tiny, oltp` ) 
+  * `pigsty-demo` is configured if `vagrant` is the default user, otherwise `pigsty-auto` is used.
+  
+
 # v1.1.1
 * [ENHANCEMENT] replace timescaledb `apache` version with `timescale` version
 * [ENHANCEMENT] upgrade prometheus to 2.30

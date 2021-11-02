@@ -6,11 +6,12 @@ Config templates are named as `pigsty-<mode>.yml`.  `<mode>` can be designated u
 
 There are several built-in config modes:
 
-### **demo4 (default)** 
+### **demo (default)** 
 
-[pigsty-demo4.yml](pigsty-demo4.yml) : 4-node sandbox demo configuration file
+[pigsty-demo.yml](pigsty-demo.yml) : 4-node sandbox demo configuration file
 
-which have a one-node cluster `pg-meta` on `10.10.10.10`, and a 3-node cluster `pg-test` on `10.10.10.11(node-1)` , `10.10.10.12(node-2)`, `10.10.10.13(node-3)`
+which have a one-node cluster `pg-meta` on `10.10.10.10`,
+and a 3-node cluster `pg-test` on `10.10.10.11(node-1)` , `10.10.10.12(node-2)`, `10.10.10.13(node-3)`
 
 If not configured, this is the default configuration file.
 
@@ -36,7 +37,7 @@ This config is used for testing PG14 new features.
 
 ### **tiny**
 
-[pigsty-tiny.yml](pigsty-tiny.yml) : default single-node tiny template
+[pigsty-tiny.yml](pigsty-auto.yml) : default single-node tiny template
 
 Use this if you are installing pigsty on your own node/vm. 
 
@@ -52,7 +53,7 @@ Will automatically be chosen during configure when:
 
 ### **oltp**
 
-[pigsty-oltp.yml](pigsty-oltp.yml) : default single-node tiny template
+[pigsty-oltp.yml](pigsty-prod.yml) : default single-node tiny template
 
 Use this if you are installing pigsty on your production environment
 
