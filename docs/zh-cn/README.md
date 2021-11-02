@@ -1,12 +1,12 @@
 # Pigsty
 
-## v1.1.1 中文文档
+## v1.2.0 中文文档
 
 **开箱即用**的**开源**PostgreSQL**发行版**
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.1.1](https://github.com/Vonng/pigsty/releases/tag/v1.1.1)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
+> 最新版本: [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 >
@@ -255,8 +255,8 @@ Pigsty自带有两个样例：新冠疫情数据可视化 [`covid`](http://demo.
 
 ```bash
 # 离线下载
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pkg.tgz    -o /tmp/pkg.tgz
 
 # 常规安装
 git clone https://github.com/Vonng/pigsty && cd pigsty

@@ -7,8 +7,8 @@
 
 ```bash
 # download with curl (in case of git not available)
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.1.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 [Download](#download) & [Configure](#configure) & [Install](#install)
@@ -138,7 +138,7 @@ While you can always specify it with `-m <mode>`.
 ```bash
 vagrant@meta:~/pigsty 
 $ ./configure
-configure pigsty v1.1.1 begin
+configure pigsty v1.2.0 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect

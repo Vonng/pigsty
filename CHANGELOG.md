@@ -26,9 +26,8 @@
 * [ENHANCEMENT] replace timescaledb `apache` version with `timescale` version
 * [ENHANCEMENT] upgrade prometheus to 2.30
 * [BUG FIX] now pg_exporter config dir's owner are {{ pg_dbsu }} instead of prometheus
-
-How to upgrade to v1.1.1 from v1.0.0.
-The major change in v1.1.1 is timescaledb. Which replace old `apache` license version with `timescale` license version
+* **How to upgrade from v1.0.0**
+  The major change in this release is timescaledb. Which replace old `apache` license version with `timescale` license version
 
 ```bash
 stop/pause postgres instance with timescaledb
