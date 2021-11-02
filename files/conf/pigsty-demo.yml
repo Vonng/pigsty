@@ -103,8 +103,9 @@ all: # top-level namespace
             connlimit: -1                   # optional, database connection limit, default -1 disable limit
             schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
             extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
-              - {name: adminpack, schema: pg_catalog}    # install adminpack to pg_catalog and install postgis to public
-              - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
+              - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
+              - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
+              - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
 
           # define an additional database named grafana & prometheus (optional)
           # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
@@ -517,6 +518,7 @@ all: # top-level namespace
       - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
       - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
       - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+      - { name: Applog  , url : '${grafana}/d/applog-overview', comment: 'apple privacy log analysis' }
 
     docs_enabled: true                            # setup local document under default server?
     pev2_enabled: true                            # setup pev2 explain visualizer under default server?

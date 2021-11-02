@@ -1,7 +1,8 @@
 # v1.2.0
  
-* [HIGHLIGHT] Use PostgreSQL 14 as default version
+* [ENHANCEMENT] Use PostgreSQL 14 as default version
 * [ENHANCEMENT] Use TimescaleDB 2.5 as default extension
+  * now timescaledb & postgis are enabled in cmdb by default
 * [ENHANCEMENT] new monitor-only mode: 
   * you can use pigsty to monitor existing pg instances with a connectable url only
   * pg_exporter will be deployed on meta node locally
@@ -20,13 +21,30 @@
 * [BUG FIX] fix pg_exporter duplicate metrics on pg_table pg_index while executing `REINDEX TABLE CONCURRENTLY`
 * [CHANGE] now all config templates are minimize into two: auto & demo. (removed: `pub4, pg14, demo4, tiny, oltp` ) 
   * `pigsty-demo` is configured if `vagrant` is the default user, otherwise `pigsty-auto` is used.
-  
+
+
+**How to upgrade from v1.1.1**
+
+There's no API change in 1.2.0 You can still use old `pigsty.yml` configuration files (PG13).
+
+For the infrastructure part. Re-execution of `repo` will do most of the parts
+
+As for the database. You can still use the existing PG13 instances. In-place upgrade is quite
+tricky especially when involving extensions such as PostGIS & Timescale. I would highly recommend
+performing a database migration with logical replication. 
+
+The new playbook `pgsql-migration.yml` will make this a lot easier. It will create a series of
+scripts which will help you to migrate your cluster with near-zero downtime. 
+
+
+
 
 # v1.1.1
 * [ENHANCEMENT] replace timescaledb `apache` version with `timescale` version
 * [ENHANCEMENT] upgrade prometheus to 2.30
 * [BUG FIX] now pg_exporter config dir's owner are {{ pg_dbsu }} instead of prometheus
-* **How to upgrade from v1.0.0**
+
+**How to upgrade from v1.1.0**
   The major change in this release is timescaledb. Which replace old `apache` license version with `timescale` license version
 
 ```bash

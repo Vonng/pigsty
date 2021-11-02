@@ -57,6 +57,7 @@ all:
           extensions:
             - { name: adminpack, schema: pg_catalog }
             - { name: postgis, schema: public }
+            - { name: timescaledb }
 
 
     #----------------------------------#
@@ -148,6 +149,10 @@ with open(dst_path, 'w') as dst:
 
         # skip covid app entry for production
         elif line.startswith('      - { name: Covid'):
+            continue
+
+        # skip applog app entry for production
+        elif line.startswith('      - { name: Applog'):
             continue
 
         # skip example sysctl param
