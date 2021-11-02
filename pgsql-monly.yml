@@ -1,0 +1,189 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql-monly.yml
+# Mtime     :   2020-11-02
+# Mtime     :   2021-11-02
+# Desc      :   pgsql monitor only mode
+# Path      :   pgsql-monly.yml
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+
+#==============================================================#
+# Guide                                                        #
+#==============================================================#
+# Monly mode is used for monitoring remote postgres instances
+#
+# Requirement :
+#     Monitor User : user (dbuser_monitor) with role pg_monitor
+#     Connectable  : a connectable url to remote postgres (hba)
+#     Local Port   : distinguish instances with local port
+#     Binary Ready : files/bin/pg_exporter exists (done by configure)
+#
+#        ————— meta —————
+#       |                |
+#       |  prometheus    |             ———— node1 ————
+#       |      ^         |  metrics   |              |
+#       |  pg_exporter <-|------------|-- postgres   |
+#       |      ^         |            |              |
+#       |      ^         |             ——————————————
+#       |      ^         |
+#       |      ^         |             ———— node2 ————
+#       |      ^         |  metrics   |              |
+#       |  pg_exporter <-|------------|-- postgres   |
+#       |                |            |              |
+#        ————————————————              ——————————————
+#
+# Limitation:
+#    no node, pgbouncer, haproxy metrics, pg metrics only
+#    Use PGSQL Cluster Monly Dashboard instead
+#==============================================================#
+
+#------------------------------------------------------------------------------
+# De-Register Cluster/Instance
+#------------------------------------------------------------------------------
+
+- name: Deploy pg_exporters on meta node
+  become: yes
+  hosts: all
+  tags: monly
+  gather_facts: no
+  vars:
+
+    #-----------------------------------------------------------------#
+    # in monitor-only(monly) mode, `pg_exporter_port` are interpreted as
+    # local port on meta node. It is admin's responsibility to allocate
+    # a unique local port on meta node to be used for pg_exporter.
+    # Define `pg_exporter_port` at instance level in your inventory:
+    #
+    #  pg-test:
+    #    hosts:
+    #      10.10.10.11: { pg_seq: 1, pg_role: primary , pg_exporter_port: 20001 }
+    #      10.10.10.12: { pg_seq: 2, pg_role: replica , pg_exporter_port: 20002 }
+    #      10.10.10.13: { pg_seq: 3, pg_role: offline , pg_exporter_port: 20003 }
+    #
+    # pg_exporter_port: 9630                        # mandatory, local port on meta node, unique for each instance !!!
+    # pg_exporter_url: ''                           # optional, if not set, generate from inventory
+    #
+    # pg_port: 5432                                 # postgres port, 5432 by default
+    # pg_monitor_username: dbuser_monitor           # system monitor user
+    # pg_monitor_password: DBUser.Monitor           # system monitor password
+    #
+    # pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter
+    # pg_exporter_enabled: true                     # setup pg_exporter on instance
+    # pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
+    # pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+    # pg_exporter_include_database: ''             # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
+    # exporter_metrics_path: /metrics               # default metric path for pg related exporter
+    #--------------------------------------------------------------#
+
+
+  tasks:
+
+    - name: Deploy pg_exporter on meta node        # only deploy to first meta node if multiple exists
+      delegate_to: '{{ groups["meta"][0] }}'
+      block:
+
+        #--------------------------------------------------------------#
+        # precheck
+        #--------------------------------------------------------------#
+        # if you are using default pg_exporter_port (9630)
+        # it means that you have forgotten to define this var FOR EACH INSTANCE!
+        - name: Check pg_exporter_port properly configured
+          assert:
+            that:
+              - pg_exporter_port is defined
+              - pg_exporter_port != 9630
+
+        #--------------------------------------------------------------#
+        # set fact
+        #--------------------------------------------------------------#
+        - name: Build parameters from vars
+          set_fact:
+            pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
+            unit_name: "pg_exporter_{{ pg_cluster }}-{{ pg_seq }}"
+            dst_address: "{{ inventory_hostname }}:{{ pg_port }}"
+            target_url: "{% if pg_exporter_url != '' %}{{ pg_exporter_url }}{% else %}postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ inventory_hostname }}:{{ pg_port }}/postgres?sslmode=disable{% endif %}"
+
+        # print check message
+        - debug:
+            msg: "deploy {{ unit_name }} on local:{{ pg_exporter_port }} -> {{ pg_instance }}@{{ dst_address }} with {{ target_url }}"
+
+
+        #--------------------------------------------------------------#
+        # create config
+        #--------------------------------------------------------------#
+        - name: Create /etc/pg_exporter conf dir
+          file: path=/etc/pg_exporter state=directory owner={{ pg_dbsu }} group=postgres mode=0775
+
+        # keep original config name
+        - name: Copy default pg_exporter.yml config
+          copy: src={{ pg_exporter_config }} dest=/etc/pg_exporter/{{ pg_exporter_config }} owner=postgres group=postgres mode=0644
+
+        - name: Config /etc/default/{{ unit_name }}
+          copy:
+            dest: "/etc/default/{{ unit_name }}"
+            owner: "{{ pg_dbsu }}"
+            group: postgres
+            mode: 0600
+            content: |
+              PG_EXPORTER_LISTEN_ADDRESS=":{{ pg_exporter_port }}"
+              PG_EXPORTER_URL='{{ target_url }}'
+              PG_EXPORTER_AUTO_DISCOVERY={% if pg_exporter_auto_discovery|bool %}true{% else %}false{% endif %}
+
+              PG_EXPORTER_EXCLUDE_DATABASE="{{ pg_exporter_exclude_database|default('template0,template1,postgres') }}"
+              PG_EXPORTER_INCLUDE_DATABASE="{{ pg_exporter_include_database|default('') }}"
+              PG_EXPORTER_CONFIG=/etc/pg_exporter/{{ pg_exporter_config }}
+              PG_EXPORTER_TELEMETRY_PATH="{{ exporter_metrics_path }}"
+              PG_EXPORTER_DISABLE_CACHE=false
+              PG_EXPORTER_OPTS='--log.level=info --log.format="logger:syslog?appname={{ unit_name }}&local=7"'
+
+        - name: Config {{ unit_name }} service unit
+          copy:
+            dest: /usr/lib/systemd/system/{{ unit_name }}.service
+            content: |
+              [Unit]
+              Description= PG Exporter @ {{ pg_exporter_port }} for {{ pg_instance }}@{{ dst_address }}
+              Documentation=https://github.com/Vonng/pg_exporter
+              After=network.target
+
+              [Service]
+              EnvironmentFile=-/etc/default/{{ unit_name }}
+              User={{ pg_dbsu }}
+              ExecStart=/usr/bin/pg_exporter $PG_EXPORTER_OPTS
+              ExecReload=/usr/bin/kill -HUP $MAINPID
+              Restart=on-failure
+              RestartSec=5s
+
+              CPUQuota=10%
+              MemoryLimit=200M
+
+              [Install]
+              WantedBy=multi-user.target
+
+
+        #--------------------------------------------------------------#
+        # launch exporter
+        #--------------------------------------------------------------#
+        - name: Launch {{ unit_name }} systemd service
+          systemd: name={{ unit_name }} state=restarted enabled=yes daemon_reload=yes
+
+        - name: Wait for {{ unit_name }} service online
+          ignore_errors: true
+          wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started  timeout=10
+
+
+        #--------------------------------------------------------------#
+        # Register Exporter
+        #--------------------------------------------------------------#
+        # register local pg_exporter to first meta nodes
+        - name: Register pgsql instance as prometheus target
+          copy:
+            dest: /etc/pigsty/targets/pgsql/{{ pg_instance }}.yml
+            content: |
+              # {{ pg_instance }} @ {{ inventory_hostname }}
+              - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, instance: {{ inventory_hostname }}:9630 }
+                targets: [ 127.0.0.1:{{ pg_exporter_port }} ]
+
+...
