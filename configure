@@ -365,6 +365,7 @@ function check_config(){
     local primary_ip=${1-${PRIMARY_IP}}
     local mode=${2-${MODE}}                        # use files/conf/pigsty-${mode}.yml as template
     local pigsty_home=${3-${PIGSTY_HOME}}
+    local spec=${4-${SPEC}}
     local sed_cmd1="s/10.10.10.10/${primary_ip}/g" # replace 10.10.10.10 with actual ip address
     local config_src=${pigsty_home}/files/conf/pigsty-${mode}.yml
     local config_dst=${pigsty_home}/pigsty.yml
@@ -374,7 +375,7 @@ function check_config(){
         exit 11
     fi
 
-    # otherwise, infer from cpu count (<8 tiny, >=8 oltp)
+    # replace node_tune & pg_conf with tiny or oltp according to cpu count
     if (($(getconf _NPROCESSORS_ONLN)>=8)); then
         local sed_cmd2="s/pg_conf: tiny.yml/pg_conf: oltp.yml/g"   # replace pg_conf to oltp mode
         local sed_cmd3="s/node_tune: tiny/node_tune: oltp/g"       # replace node_tune to oltp mode
@@ -382,10 +383,13 @@ function check_config(){
         log_info "config = ${mode} @ ${primary_ip} [tiny -> oltp]"
     else
         cat ${config_src} | sed -e "${sed_cmd1}"  > ${config_dst}
-        log_info "config = ${mode}@${primary_ip}"
+        log_info "config = ${mode} @ ${primary_ip}"
     fi
 
-    log_info "config = ${mode}@${primary_ip}"
+    # replace meta node pg_conf with more precise templates:
+    local sed_cmd4='s/        pg_conf:.*/'"        pg_conf: ${spec}.yml/g"
+    sed -ie "${sed_cmd4}" ${config_dst}
+    rm -rf "${config_dst}e" || true
 }
 
 #----------------------------------------------#

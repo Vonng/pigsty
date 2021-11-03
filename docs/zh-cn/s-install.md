@@ -118,10 +118,9 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 配置向导会根据当前机器环境**自动选择配置模板**，因此不会询问用户这个问题，用户通常也无需关心。
 但用户总是可以通过命令行参数`-m <mode>`手工指定想要使用的配置模板，例如：
 
-* [`demo4`]  项目默认配置文件，4节点沙箱
-* [`demo`]   单节点沙箱，若检测到当前为沙箱虚拟机，会使用此配置
-* [`tiny`]   单节点部署，若使用普通节点（微型: cpu < 8）部署，会使用此配置
-* [`oltp`]   生产单节点部署，若使用普通节点（高配：cpu >= 8）部署，会使用此配置
+* [`demo`]  项目默认配置文件，4节点沙箱使用的配置文件
+* [`auto`]  在生产环境中部署时推荐的配置文件模板
+* [`pub4`]  Pigsty公开Demo使用的配置文件，使用VPS部署，作为一个实际的样例。
 
 * 更多配置模板，请参考 [Configuration Template](https://github.com/Vonng/pigsty/tree/master/files/conf)
 
