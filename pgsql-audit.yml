@@ -15,21 +15,19 @@
 #--------------------------------------------------------------#
 # DB.05 Password Policy
 # DB.06 User & Role & Privileges
-# DB.10 Version, Uptime, Change log
+# DB.10 Version, Uptime, DDL Change
 # DB.14 Migration
 # DB.15 DB Cronjob N/A
 # DB.17 Backups (policy,log)
 #==============================================================#
-
-
-- name: Generate Migration Plan
-  hosts: meta
+- name: Generate Audit Report
+  hosts: all
   gather_facts: no
 
   vars:
 
     #--------------------------------------------------------------#
-    #                   MIGRATION CONTEXT                          #
+    #                     AUDIT CONTEXT                            #
     #--------------------------------------------------------------#
     # pg_admin_username: dbuser_dba     # superuser admin
     audit_context_dir: ~/audit          # this dir will be created
@@ -37,12 +35,9 @@
 
   tasks:
 
-    #--------------------------------------------------------------#
-    - name: Gather Facts
+    - name: Generate audit report
       delegate_to: localhost
       block:
-
-
         #--------------------------------------------------------------#
         # probe non-trivial databases on target instances
         #--------------------------------------------------------------#
@@ -264,6 +259,10 @@
             EOF
 
         #########################################
+        # -- DB.10 DDL Change
+        #########################################
+
+        #########################################
         # -- DB.14 Migration
         #########################################
 
@@ -272,7 +271,7 @@
         #########################################
 
         #########################################
-        # -- DB.17 Backups (policy,log)
+        # -- DB.17 Backups (policy,log,restore)
         #########################################
 
 ...
