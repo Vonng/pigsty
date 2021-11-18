@@ -8,17 +8,23 @@
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Postgres Cluster Service",
     "editable": true,
+    "fiscalYearStartMonth": 0,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626334080635,
+    "iteration": 1637236887528,
     "links": [
         {
             "asDropdown": true,
@@ -81,6 +87,7 @@
             "url": ""
         }
     ],
+    "liveNow": false,
     "panels": [
         {
             "collapsed": false,
@@ -140,7 +147,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -316,7 +323,7 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
+                "w": 7,
                 "x": 6,
                 "y": 1
             },
@@ -330,7 +337,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -622,8 +629,8 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 12,
-                "x": 12,
+                "w": 11,
+                "x": 13,
                 "y": 1
             },
             "id": 71,
@@ -636,7 +643,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -761,7 +768,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -836,7 +843,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -932,7 +939,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -1013,7 +1020,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -1027,6 +1034,76 @@
             ],
             "title": "Server",
             "transformations": [],
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 0,
+                "y": 7
+            },
+            "id": 89,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.2",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
+                    "interval": "",
+                    "legendFormat": "Active Session",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "count(sum by (server) (haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"}) > 0)",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Active Server",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "count(sum by (ins)(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"} > 0))",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Active Proxy",
+                    "refId": "C"
+                }
+            ],
             "type": "stat"
         },
         {
@@ -1254,8 +1331,8 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 6,
-                "x": 0,
+                "w": 7,
+                "x": 6,
                 "y": 7
             },
             "id": 45,
@@ -1268,7 +1345,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -1352,6 +1429,7 @@
         },
         {
             "datasource": null,
+            "description": "Service map tells whether a server can be used as a specific service/role/svc.\ne.g Offline marks this server can be used as offline server",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1446,7 +1524,7 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "/.*-primary/"
+                            "options": "/primary/"
                         },
                         "properties": [
                             {
@@ -1455,12 +1533,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "super-light-blue",
+                                                "color": "#ff738380",
                                                 "index": 1,
-                                                "text": "Candidate"
+                                                "text": "\u23fb"
                                             },
                                             "1": {
-                                                "color": "orange",
+                                                "color": "dark-orange",
                                                 "index": 2,
                                                 "text": "Primary"
                                             }
@@ -1473,7 +1551,7 @@
                                             "result": {
                                                 "color": "gray",
                                                 "index": 0,
-                                                "text": "No Route"
+                                                "text": "\u2205"
                                             }
                                         },
                                         "type": "special"
@@ -1485,7 +1563,7 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "/.*-offline/"
+                            "options": "/offline/"
                         },
                         "properties": [
                             {
@@ -1494,12 +1572,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "#ffee5280",
                                                 "index": 1,
                                                 "text": "\u23fb"
                                             },
                                             "1": {
-                                                "color": "yellow",
+                                                "color": "semi-dark-yellow",
                                                 "index": 2,
                                                 "text": "Offline"
                                             }
@@ -1512,7 +1590,7 @@
                                             "result": {
                                                 "color": "gray",
                                                 "index": 0,
-                                                "text": "No Route"
+                                                "text": "\u2205"
                                             }
                                         },
                                         "type": "special"
@@ -1524,7 +1602,7 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "/.*-default/"
+                            "options": "/default/"
                         },
                         "properties": [
                             {
@@ -1533,12 +1611,12 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "super-light-blue",
+                                                "color": "#ffb35780",
                                                 "index": 1,
-                                                "text": "Candidate"
+                                                "text": "\u23fb"
                                             },
                                             "1": {
-                                                "color": "super-light-orange",
+                                                "color": "orange",
                                                 "index": 2,
                                                 "text": "Default"
                                             }
@@ -1551,7 +1629,7 @@
                                             "result": {
                                                 "color": "gray",
                                                 "index": 0,
-                                                "text": "No Route"
+                                                "text": "\u2205"
                                             }
                                         },
                                         "type": "special"
@@ -1563,7 +1641,7 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "/.*-standby/"
+                            "options": "/standby/"
                         },
                         "properties": [
                             {
@@ -1577,7 +1655,7 @@
                                                 "text": "\u23fb"
                                             },
                                             "1": {
-                                                "color": "super-light-orange",
+                                                "color": "orange",
                                                 "index": 2,
                                                 "text": "Standby"
                                             }
@@ -1590,7 +1668,7 @@
                                             "result": {
                                                 "color": "gray",
                                                 "index": 0,
-                                                "text": "No Route"
+                                                "text": "\u2205"
                                             }
                                         },
                                         "type": "special"
@@ -1602,7 +1680,7 @@
                     {
                         "matcher": {
                             "id": "byRegexp",
-                            "options": "/.*-replica/"
+                            "options": "/replica/"
                         },
                         "properties": [
                             {
@@ -1611,7 +1689,7 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "blue",
+                                                "color": "#96d98d80",
                                                 "index": 1,
                                                 "text": "\u23fb"
                                             },
@@ -1629,7 +1707,7 @@
                                             "result": {
                                                 "color": "gray",
                                                 "index": 0,
-                                                "text": "No Route"
+                                                "text": "\u2205"
                                             }
                                         },
                                         "type": "special"
@@ -1642,8 +1720,8 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 18,
-                "x": 6,
+                "w": 11,
+                "x": 13,
                 "y": 7
             },
             "id": 79,
@@ -1656,7 +1734,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.2.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -1676,6 +1754,10 @@
                     }
                 },
                 {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
                     "id": "organize",
                     "options": {
                         "excludeByName": {
@@ -1686,11 +1768,27 @@
                             "ip": true,
                             "job": true
                         },
-                        "indexByName": {},
+                        "indexByName": {
+                            "Time": 1,
+                            "cls": 6,
+                            "job": 7,
+                            "pg-moderation-tt-default": 2,
+                            "pg-moderation-tt-offline": 3,
+                            "pg-moderation-tt-primary": 4,
+                            "pg-moderation-tt-replica": 5,
+                            "server": 0
+                        },
                         "renameByName": {
                             "proxy": "",
                             "server": "Server"
                         }
+                    }
+                },
+                {
+                    "id": "renameByRegex",
+                    "options": {
+                        "regex": "(.*)-(.*)",
+                        "renamePattern": "$2"
                     }
                 }
             ],
@@ -1712,105 +1810,8 @@
             "type": "row"
         },
         {
-            "datasource": "Prometheus-PgSQL",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "bars",
-                        "fillOpacity": 44,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepBefore",
-                        "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "title": "PGSQL Service for ${__field.labels.proxy}",
-                            "url": "/d/pgsql-service?var-svc=${__field.labels.proxy}&var-cls=${cls}"
-                        },
-                        {
-                            "title": "PGSQL Instance for ${__field.labels.server}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
-                        }
-                    ],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 14
-            },
-            "id": 49,
-            "options": {
-                "graph": {},
-                "legend": {
-                    "calcs": [
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "pluginVersion": "7.4.3",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "haproxy_server_status{proxy=\"$svc\"} > 0",
-                    "interval": "",
-                    "legendFormat": "{{ ins }} \u27a1\ufe0f {{ server }}",
-                    "refId": "A"
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Healthy Route",
-            "type": "timeseries"
-        },
-        {
             "datasource": null,
-            "description": "Session by postgres instance",
+            "description": "Session are created between proxies(haproxy) and servers(postgres).",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1871,19 +1872,19 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
+                "h": 16,
+                "w": 10,
+                "x": 0,
                 "y": 14
             },
             "id": 75,
             "options": {
                 "legend": {
                     "calcs": [
-                        "last"
+                        "lastNotNull"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "bottom"
                 },
                 "tooltip": {
                     "mode": "multi"
@@ -1901,297 +1902,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Proxy \u2794 Server Sessions",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "stepBefore",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
-                        },
-                        {
-                            "title": "PGSQL Queries for ${__field.labels.ins}",
-                            "url": "/d/pgsql-queries?var-ins=${__field.labels.ins}"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 100,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "percent"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 5,
-                "w": 12,
-                "x": 0,
-                "y": 22
-            },
-            "id": 56,
-            "options": {
-                "graph": {},
-                "legend": {
-                    "calcs": [
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single"
-                }
-            },
-            "pluginVersion": "7.4.3",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "haproxy:ins:usage{cls=\"$cls\"}",
-                    "interval": "",
-                    "legendFormat": "{{ ins }}",
-                    "refId": "B"
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Proxy Busy",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "axisSoftMin": 0,
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "smooth",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for ${__field.labels.server}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
-                        },
-                        {
-                            "title": "PGSQL Queries for ${__field.labels.server}",
-                            "url": "/d/pgsql-queries?var-ins=${__field.labels.server}"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1.25,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 5,
-                "w": 12,
-                "x": 12,
-                "y": 22
-            },
-            "id": 11,
-            "options": {
-                "graph": {},
-                "legend": {
-                    "calcs": [
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single"
-                }
-            },
-            "pluginVersion": "7.4.3",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "ins:pressure1{cls=\"$cls\"}",
-                    "interval": "",
-                    "legendFormat": "{{ ins }}",
-                    "refId": "B"
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Server Busy",
-            "type": "timeseries"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
-                        },
-                        {
-                            "title": "PGSQL Session for ${__field.labels.ins}",
-                            "url": "/d/pgsql-session?var-ins=${__field.labels.ins}"
-                        }
-                    ],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 5,
-                "w": 12,
-                "x": 0,
-                "y": 27
-            },
-            "id": 59,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi"
-                }
-            },
-            "pluginVersion": "8.0.0-beta2",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "sum by (ins) (haproxy_frontend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
-                    "interval": "",
-                    "legendFormat": "{{ ins }}",
-                    "refId": "A"
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Proxy Sessions",
+            "title": "Active Session",
             "type": "timeseries"
         },
         {
@@ -2207,7 +1918,7 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 10,
+                        "fillOpacity": 70,
                         "gradientMode": "none",
                         "hideFrom": {
                             "graph": false,
@@ -2257,16 +1968,16 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 5,
-                "w": 12,
-                "x": 12,
-                "y": 27
+                "h": 8,
+                "w": 14,
+                "x": 10,
+                "y": 14
             },
-            "id": 74,
+            "id": 85,
             "options": {
                 "legend": {
                     "calcs": [
-                        "last"
+                        "lastNotNull"
                     ],
                     "displayMode": "table",
                     "placement": "right"
@@ -2279,7 +1990,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (server) (haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
+                    "expr": "sum by (server) (haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"}) > 0",
                     "interval": "",
                     "legendFormat": "{{ server }}",
                     "refId": "A"
@@ -2287,7 +1998,7 @@
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Server Sessions",
+            "title": "Active Session (by Server)",
             "type": "timeseries"
         },
         {
@@ -2302,9 +2013,10 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 10,
+                        "fillOpacity": 70,
                         "gradientMode": "none",
                         "hideFrom": {
+                            "graph": false,
                             "legend": false,
                             "tooltip": false,
                             "viz": false
@@ -2327,8 +2039,12 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                            "title": "PGSQL Proxy for ${__field.labels.ins}",
+                            "url": "/d/pgsql-proxy?var-ins=${__field.labels.ins}"
+                        },
+                        {
+                            "title": "PGSQL Session for ${__field.labels.ins}",
+                            "url": "/d/pgsql-session?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [],
@@ -2339,10 +2055,291 @@
                             {
                                 "color": "green",
                                 "value": null
-                            },
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 14,
+                "x": 10,
+                "y": 22
+            },
+            "id": 59,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0-beta2",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum by (ins) (haproxy_frontend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Active Session (by Proxy)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "HAProxy CPU Usage (busy ratio)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.ins}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                        },
+                        {
+                            "title": "PGSQL Queries for ${__field.labels.ins}",
+                            "url": "/d/pgsql-queries?var-ins=${__field.labels.ins}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
                             {
-                                "color": "#EAB839",
-                                "value": 0
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 0,
+                "y": 30
+            },
+            "id": 56,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.4.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "haproxy:ins:usage{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "B"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Busy Ratio (of Proxy)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "PostgreSQL Instance CPU Usage (busy ratio)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.server}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
+                        },
+                        {
+                            "title": "PGSQL Queries for ${__field.labels.server}",
+                            "url": "/d/pgsql-queries?var-ins=${__field.labels.server}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 30
+            },
+            "id": 11,
+            "options": {
+                "graph": {},
+                "legend": {
+                    "calcs": [
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "7.4.3",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "ins:pressure1{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "B"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Busy Ratio (of Server)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": null,
+            "description": "\u25b2 for out traffic\n\u25bc for incoming traffic",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 5,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Proxy for ${__field.labels.ins}",
+                            "url": "/d/pgsql-proxy?var-ins=${__field.labels.ins}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -2351,10 +2348,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 32
+                "y": 35
             },
             "id": 60,
             "options": {
@@ -2373,20 +2370,28 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (ins) (rate(haproxy_frontend_bytes_in_total{cls=\"$cls\", proxy=\"$svc\"}[1m]) + rate(haproxy_frontend_bytes_out_total{cls=\"$cls\", proxy=\"$svc\"}[1m]))",
+                    "expr": "sum by (ins) (rate(haproxy_frontend_bytes_out_total{cls=\"$cls\", proxy=\"$svc\"}[5m]))",
                     "interval": "",
-                    "legendFormat": "{{ ins }}",
+                    "legendFormat": "{{ ins }}-TX\u25b2",
                     "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "- sum by (ins) (rate(haproxy_frontend_bytes_in_total{cls=\"$cls\", proxy=\"$svc\"}[5m]))",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}-RX\u25bc",
+                    "refId": "B"
                 }
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Proxy Traffic",
+            "title": "Traffic (by Proxy)",
             "type": "timeseries"
         },
         {
             "datasource": null,
-            "description": "",
+            "description": "\u25b2 for out traffic\n\u25bc for incoming traffic",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2397,7 +2402,7 @@
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 10,
+                        "fillOpacity": 5,
                         "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
@@ -2414,7 +2419,7 @@
                         "spanNulls": true,
                         "stacking": {
                             "group": "A",
-                            "mode": "normal"
+                            "mode": "none"
                         },
                         "thresholdsStyle": {
                             "mode": "off"
@@ -2422,18 +2427,21 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Instance for ${__field.labels.server}",
+                            "title": "PGSQL Instance: for ${__field.labels.ins}",
                             "url": "/d/pgsql-instance?var-ins=${__field.labels.server}"
                         }
                     ],
                     "mappings": [],
-                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
                                 "color": "green",
                                 "value": null
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 0
                             }
                         ]
                     },
@@ -2442,12 +2450,12 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 32
+                "y": 35
             },
-            "id": 77,
+            "id": 90,
             "options": {
                 "legend": {
                     "calcs": [
@@ -2464,20 +2472,28 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "sum by (server) (rate(haproxy_server_bytes_in_total{cls=\"$cls\", proxy=\"$svc\"}[1m]) + rate(haproxy_server_bytes_out_total{cls=\"$cls\", proxy=\"$svc\"}[1m]))",
+                    "expr": "sum by (server) (rate(haproxy_server_bytes_out_total{cls=\"$cls\", proxy=\"$svc\"}[5m]))",
                     "interval": "",
-                    "legendFormat": "{{ ins }}",
+                    "legendFormat": "{{ server }}-TX\u25b2",
                     "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "- sum by (server) (rate(haproxy_server_bytes_in_total{cls=\"$cls\", proxy=\"$svc\"}[5m]))",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ server }}-RX\u25bc",
+                    "refId": "B"
                 }
             ],
             "timeFrom": null,
             "timeShift": null,
-            "title": "Traffic by Server",
+            "title": "Traffic (by Server)",
             "type": "timeseries"
         }
     ],
     "refresh": "1m",
-    "schemaVersion": 30,
+    "schemaVersion": 31,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -2590,5 +2606,6 @@
     "timezone": "",
     "title": "PGSQL Service",
     "uid": "pgsql-service",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }

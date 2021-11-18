@@ -8,18 +8,39 @@
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Catalog Explorer for Tables",
     "editable": true,
+    "fiscalYearStartMonth": 0,
     "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1625831708302,
+    "iteration": 1637236982143,
     "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "PGCAT"
+            ],
+            "targetBlank": false,
+            "title": "PGCAT",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
         {
             "asDropdown": true,
             "icon": "external link",
@@ -81,6 +102,7 @@
             "url": ""
         }
     ],
+    "liveNow": false,
     "panels": [
         {
             "collapsed": false,
@@ -98,7 +120,7 @@
         },
         {
             "datasource": "Prometheus-PgSQL",
-            "description": "Database name",
+            "description": "Relation Name",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -106,8 +128,8 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Database for ${datname}",
-                            "url": "/d/pgsql-database?var-ins=${ins}&var-datname=${datname}"
+                            "title": "PGSQL Table for ${relname}",
+                            "url": "/d/pgsql-table?var-ins=${ins}&var-datname=${datname}&var-relname=${relname}"
                         }
                     ],
                     "mappings": [],
@@ -125,9 +147,576 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 3,
+                "w": 6,
                 "x": 0,
                 "y": 1
+            },
+            "id": 50,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.2.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "title": "Relation",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${relname}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "$dsn",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-background",
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "No"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Column"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Storage"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "e": {
+                                                "color": "super-light-yellow",
+                                                "index": 2,
+                                                "text": "External"
+                                            },
+                                            "m": {
+                                                "color": "super-light-green",
+                                                "index": 1,
+                                                "text": "Main"
+                                            },
+                                            "p": {
+                                                "color": "super-light-blue",
+                                                "index": 0,
+                                                "text": "Plain"
+                                            },
+                                            "x": {
+                                                "color": "super-light-orange",
+                                                "index": 3,
+                                                "text": "Extended"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Align"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "c": {
+                                                "color": "super-light-blue",
+                                                "index": 0,
+                                                "text": "C/1"
+                                            },
+                                            "d": {
+                                                "color": "super-light-orange",
+                                                "index": 3,
+                                                "text": "D/8"
+                                            },
+                                            "i": {
+                                                "color": "super-light-green",
+                                                "index": 2,
+                                                "text": "I/4"
+                                            },
+                                            "s": {
+                                                "color": "light-blue",
+                                                "index": 1,
+                                                "text": "S/2"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Len"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "super-light-blue",
+                                                "index": 1,
+                                                "text": "1"
+                                            },
+                                            "2": {
+                                                "color": "light-blue",
+                                                "index": 2,
+                                                "text": "2"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": -2,
+                                            "result": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 0,
+                                                "text": "Var"
+                                            },
+                                            "to": 0
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 3,
+                                            "result": {
+                                                "color": "super-light-green",
+                                                "index": 3
+                                            },
+                                            "to": 7.9
+                                        },
+                                        "type": "range"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 8,
+                                            "result": {
+                                                "color": "super-light-orange",
+                                                "index": 4
+                                            },
+                                            "to": 999
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Dim"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 0,
+                                                "text": "N"
+                                            },
+                                            "1": {
+                                                "color": "super-light-green",
+                                                "index": 1,
+                                                "text": "1"
+                                            },
+                                            "2": {
+                                                "color": "super-light-blue",
+                                                "index": 2,
+                                                "text": "2"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Dropped"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 75
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 0,
+                                                "text": "F"
+                                            },
+                                            "true": {
+                                                "color": "red",
+                                                "index": 1,
+                                                "text": "T"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background-solid"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Collation"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "NOT NULL"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 0,
+                                                "text": "NULLABLE"
+                                            },
+                                            "true": {
+                                                "color": "#b8b8b8e0",
+                                                "index": 1,
+                                                "text": "NOT NULL"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TypeID"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Type"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 140
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 18,
+                "x": 6,
+                "y": 1
+            },
+            "id": 38,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "No"
+                    }
+                ]
+            },
+            "pluginVersion": "8.2.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT *, pg_catalog.format_type(a.atttypid, a.atttypmod) AS atttype\nFROM pg_attribute a LEFT JOIN LATERAL (\n    SELECT pg_catalog.pg_get_expr(d.adbin, d.adrelid, true) AS def\n    FROM pg_catalog.pg_attrdef d\n    WHERE d.adrelid = a.attrelid\n      AND d.adnum = a.attnum\n      AND a.atthasdef\n    ) d ON true\nWHERE attrelid = '${oid}' AND attnum > 0 ORDER BY attnum;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "attacl": true,
+                            "attbyval": true,
+                            "attcacheoff": true,
+                            "attcollation": true,
+                            "attfdwoptions": true,
+                            "attgenerated": true,
+                            "atthasdef": true,
+                            "atthasmissing": true,
+                            "attidentity": true,
+                            "attinhcount": true,
+                            "attislocal": true,
+                            "attmissingval": true,
+                            "attoptions": true,
+                            "attrelid": true,
+                            "attstattarget": true,
+                            "atttypmod": true
+                        },
+                        "indexByName": {
+                            "attacl": 14,
+                            "attalign": 7,
+                            "attbyval": 19,
+                            "attcacheoff": 17,
+                            "attcollation": 11,
+                            "attfdwoptions": 25,
+                            "attgenerated": 21,
+                            "atthasdef": 13,
+                            "atthasmissing": 20,
+                            "attidentity": 12,
+                            "attinhcount": 23,
+                            "attisdropped": 4,
+                            "attislocal": 22,
+                            "attlen": 8,
+                            "attmissingval": 26,
+                            "attname": 1,
+                            "attndims": 9,
+                            "attnotnull": 3,
+                            "attnum": 0,
+                            "attoptions": 24,
+                            "attrelid": 15,
+                            "attstattarget": 16,
+                            "attstorage": 6,
+                            "atttype": 2,
+                            "atttypid": 5,
+                            "atttypmod": 18,
+                            "def": 10
+                        },
+                        "renameByName": {
+                            "attacl": "",
+                            "attalign": "Align",
+                            "attcollation": "Collation",
+                            "atthasdef": "",
+                            "attidentity": "ID",
+                            "attisdropped": "Dropped",
+                            "attlen": "Len",
+                            "attname": "Column",
+                            "attndims": "Dim",
+                            "attnotnull": "NOT NULL",
+                            "attnum": "No",
+                            "attstorage": "Storage",
+                            "atttype": "Type",
+                            "atttypid": "TypeID",
+                            "avg_width": "Avg Width",
+                            "correlation": "Correlation",
+                            "def": "Default",
+                            "n_distinct": "N Distinct",
+                            "null_frac": "Null Frac"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": "Prometheus-PgSQL",
+            "description": "Database name",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGCAT Database for ${datname}",
+                            "url": "/d/pgcat-database?var-dsn=${dsn}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 6,
+                "x": 0,
+                "y": 3
             },
             "id": 48,
             "options": {
@@ -145,7 +734,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -201,8 +790,8 @@
             "gridPos": {
                 "h": 2,
                 "w": 3,
-                "x": 3,
-                "y": 1
+                "x": 0,
+                "y": 5
             },
             "id": 49,
             "options": {
@@ -220,7 +809,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -253,86 +842,6 @@
         },
         {
             "datasource": "Prometheus-PgSQL",
-            "description": "Relation Name",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Table for ${relname}",
-                            "url": "/d/pgsql-table?var-ins=${ins}&var-datname=${datname}&var-relname=${relname}"
-                        }
-                    ],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "text",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 2,
-                "w": 9,
-                "x": 6,
-                "y": 1
-            },
-            "id": 50,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "center",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "name"
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "1",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "queryType": "measurements",
-                    "refId": "A"
-                }
-            ],
-            "title": "Relation",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "Time": "",
-                            "Value": "${tblname}"
-                        }
-                    }
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": "Prometheus-PgSQL",
             "description": "Relation OID",
             "fieldConfig": {
                 "defaults": {
@@ -355,9 +864,9 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 4,
-                "x": 15,
-                "y": 1
+                "w": 3,
+                "x": 3,
+                "y": 5
             },
             "id": 51,
             "options": {
@@ -375,7 +884,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "exemplar": true,
@@ -458,9 +967,9 @@
             },
             "gridPos": {
                 "h": 2,
-                "w": 5,
-                "x": 19,
-                "y": 1
+                "w": 6,
+                "x": 0,
+                "y": 7
             },
             "id": 34,
             "options": {
@@ -478,7 +987,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -671,6 +1180,23 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Bloat Ratio"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGCAT Bloat",
+                                        "url": "/d/pgcat-bloat"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -678,7 +1204,7 @@
                 "h": 4,
                 "w": 24,
                 "x": 0,
-                "y": 3
+                "y": 9
             },
             "id": 45,
             "options": {
@@ -696,7 +1222,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -785,10 +1311,8 @@
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [
                         {
@@ -804,7 +1328,7 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
@@ -816,15 +1340,24 @@
                 "h": 10,
                 "w": 6,
                 "x": 0,
-                "y": 7
+                "y": 13
             },
-            "id": 29,
+            "id": 53,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -896,16 +1429,14 @@
                     }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "color-text",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [
                         {
@@ -928,37 +1459,74 @@
                                 "value": null
                             },
                             {
-                                "color": "orange",
-                                "value": 0
-                            },
-                            {
                                 "color": "green",
                                 "value": 1
                             }
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "boolean"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 0,
+                                                "text": "False"
+                                            },
+                                            "true": {
+                                                "color": "#abababeb",
+                                                "index": 1,
+                                                "text": "True"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 10,
                 "w": 6,
                 "x": 6,
-                "y": 7
+                "y": 13
             },
             "id": 10,
             "links": [],
             "options": {
-                "showHeader": true
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT relhasindex :: INTEGER, relispartition :: INTEGER, relisshared :: INTEGER, relhasrules :: INTEGER, relhastriggers :: INTEGER, relhassubclass :: INTEGER, relrowsecurity :: INTEGER, relforcerowsecurity :: INTEGER, relispopulated :: INTEGER FROM pg_class c WHERE oid = '${oid}'",
+                    "rawSql": "SELECT relhasindex,\n       relispartition,\n       relisshared,\n       relhasrules,\n       relhastriggers,\n       relhassubclass,\n       relrowsecurity,\n       relforcerowsecurity,\n       relispopulated\nFROM pg_class c\nWHERE oid = '${oid}'",
                     "refId": "A",
                     "select": [
                         [
@@ -1004,101 +1572,52 @@
                             "value": "\u5c5e\u6027\u53d6\u503c"
                         }
                     }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "last"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Features",
-                            "Last": "Value"
-                        }
-                    }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "\u6807\u8bc6\u7b26\u7c7b\u578b"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": null
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "\u5c5e\u6027\u540d\u79f0"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 194
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Field"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 165
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 10,
                 "w": 6,
                 "x": 12,
-                "y": 7
+                "y": 13
             },
             "id": 30,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -1166,38 +1685,16 @@
                             "value": "\u53d6\u503c"
                         }
                     }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "last"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Field",
-                            "Last": "Value",
-                            "Last (not null)": "\u53d6\u503c"
-                        }
-                    }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "color-text",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [
                         {
@@ -1216,15 +1713,15 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             },
                             {
-                                "color": "orange",
+                                "color": "#e3e3e3e0",
                                 "value": 0
                             },
                             {
-                                "color": "green",
+                                "color": "orange",
                                 "value": 1
                             }
                         ]
@@ -1236,15 +1733,24 @@
                 "h": 3,
                 "w": 6,
                 "x": 18,
-                "y": 7
+                "y": 13
             },
             "id": 37,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -1315,89 +1821,52 @@
                             "value": "\u53d6\u503c"
                         }
                     }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "last"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Persist Feature",
-                            "Last": "Value"
-                        }
-                    }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "\u6807\u8bc6\u7b26\u7c7b\u578b"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": null
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "\u5c5e\u6027\u540d\u79f0"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 194
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 5,
                 "w": 6,
                 "x": 18,
-                "y": 10
+                "y": 16
             },
             "id": 36,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -1467,68 +1936,51 @@
                     }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [],
+                    "noValue": "nil options",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "\u6807\u8bc6\u7b26\u7c7b\u578b"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": null
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "\u5c5e\u6027\u540d\u79f0"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 194
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 2,
                 "w": 6,
                 "x": 18,
-                "y": 15
+                "y": 21
             },
             "id": 35,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -1599,28 +2051,22 @@
                     }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#e3e3e3e0",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
@@ -1631,14 +2077,26 @@
                 "h": 9,
                 "w": 6,
                 "x": 0,
-                "y": 17
+                "y": 23
             },
             "id": 11,
             "links": [],
             "options": {
-                "showHeader": true
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -1741,48 +2199,28 @@
                             "value": "Value"
                         }
                     }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Tuple",
-                            "Last (not null)": "Value"
-                        }
-                    }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
-                    }
+                    },
+                    "unit": "locale"
                 },
                 "overrides": []
             },
@@ -1790,14 +2228,163 @@
                 "h": 9,
                 "w": 6,
                 "x": 6,
-                "y": 17
+                "y": 23
+            },
+            "id": 39,
+            "links": [],
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.2.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM pg_statio_user_tables WHERE relid = '${oid}'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "relid": true,
+                            "relname": true,
+                            "schemaname": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "analyze_count": "Analyze Count",
+                            "autoanalyze_count": "AutoAnalyze Count",
+                            "autovacuum_count": "AutoVacuum Count",
+                            "heap_blks_hit": "Heap Blocks Hit",
+                            "heap_blks_read": "Heap Blocks Read",
+                            "idx_blks_hit": "Index Blocks Hit",
+                            "idx_blks_read": "Index Blocks Read",
+                            "idx_scan": "Index Scan",
+                            "idx_tup_fetch": "Idxscan Tuples",
+                            "key": "Item",
+                            "last_analyze": "Last Analyze",
+                            "last_autoanalyze": "Last AutoAnalyze",
+                            "last_autovacuum": "Last AutoVacuum",
+                            "last_vacuum": "Last Vacuum",
+                            "n_dead_tup": "Dead Tuples",
+                            "n_ins_since_vacuum": "Insert Since Vacuum",
+                            "n_live_tup": "Live Tuples",
+                            "n_mod_since_analyze": "Modify Since Analyze",
+                            "n_tup_del": "Deleted Tuples",
+                            "n_tup_hot_upd": "Hot-Updated Tuples",
+                            "n_tup_ins": "Inserted Tuples",
+                            "n_tup_upd": "Updated Tuples",
+                            "relid": "",
+                            "relname": "",
+                            "schemaname": "",
+                            "seq_scan": "Sequential Scan",
+                            "seq_tup_read": "Seqscan Tuples",
+                            "tidx_blks_hit": "Toast Index Blocks Hit",
+                            "tidx_blks_read": "Toast Index Blocks Read",
+                            "toast_blks_hit": "Toast Blocks Hit",
+                            "toast_blks_read": "Toast Blocks Read",
+                            "vacuum_count": "Vacuum Count",
+                            "value": "Value"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": "$dsn",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": ""
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "dateTimeFromNow"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 6,
+                "x": 12,
+                "y": 23
             },
             "id": 40,
             "links": [],
             "options": {
-                "showHeader": true
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -1888,77 +2475,54 @@
                             "value": "Value"
                         }
                     }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Vacuum",
-                            "Last (not null)": "Value"
-                        }
-                    }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#e3e3e3e0",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Analyze"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": null
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 9,
                 "w": 6,
-                "x": 12,
-                "y": 17
+                "x": 18,
+                "y": 23
             },
             "id": 41,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
@@ -2051,28 +2615,9 @@
                             "value": "Value"
                         }
                     }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Analyze",
-                            "Last (not null)": "Value"
-                        }
-                    }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
             "datasource": "$dsn",
@@ -2080,7 +2625,7 @@
                 "defaults": {
                     "custom": {
                         "align": "center",
-                        "displayMode": "auto",
+                        "displayMode": "color-background",
                         "filterable": false
                     },
                     "mappings": [],
@@ -2088,620 +2633,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#e3e3e3e0",
                                 "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 9,
-                "w": 6,
-                "x": 18,
-                "y": 17
-            },
-            "id": 39,
-            "links": [],
-            "options": {
-                "showHeader": true
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT * FROM pg_statio_user_tables WHERE relid = '${oid}'",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "relid": true,
-                            "relname": true,
-                            "schemaname": true
-                        },
-                        "indexByName": {},
-                        "renameByName": {
-                            "analyze_count": "Analyze Count",
-                            "autoanalyze_count": "AutoAnalyze Count",
-                            "autovacuum_count": "AutoVacuum Count",
-                            "heap_blks_hit": "Heap Blocks Hit",
-                            "heap_blks_read": "Heap Blocks Read",
-                            "idx_blks_hit": "Index Blocks Hit",
-                            "idx_blks_read": "Index Blocks Read",
-                            "idx_scan": "Index Scan",
-                            "idx_tup_fetch": "Idxscan Tuples",
-                            "key": "Item",
-                            "last_analyze": "Last Analyze",
-                            "last_autoanalyze": "Last AutoAnalyze",
-                            "last_autovacuum": "Last AutoVacuum",
-                            "last_vacuum": "Last Vacuum",
-                            "n_dead_tup": "Dead Tuples",
-                            "n_ins_since_vacuum": "Insert Since Vacuum",
-                            "n_live_tup": "Live Tuples",
-                            "n_mod_since_analyze": "Modify Since Analyze",
-                            "n_tup_del": "Deleted Tuples",
-                            "n_tup_hot_upd": "Hot-Updated Tuples",
-                            "n_tup_ins": "Inserted Tuples",
-                            "n_tup_upd": "Updated Tuples",
-                            "relid": "",
-                            "relname": "",
-                            "schemaname": "",
-                            "seq_scan": "Sequential Scan",
-                            "seq_tup_read": "Seqscan Tuples",
-                            "tidx_blks_hit": "Toast Index Blocks Hit",
-                            "tidx_blks_read": "Toast Index Blocks Read",
-                            "toast_blks_hit": "Toast Blocks Hit",
-                            "toast_blks_read": "Toast Blocks Read",
-                            "vacuum_count": "Vacuum Count",
-                            "value": "Value"
-                        }
-                    }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Blocks I/O",
-                            "Last (not null)": "Value"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": "$dsn",
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "No"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 40
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Name"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Storage"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "e": {
-                                                "color": "super-light-blue",
-                                                "index": 2,
-                                                "text": "External"
-                                            },
-                                            "m": {
-                                                "color": "green",
-                                                "index": 1,
-                                                "text": "Main"
-                                            },
-                                            "p": {
-                                                "color": "super-light-green",
-                                                "index": 0,
-                                                "text": "Plain"
-                                            },
-                                            "x": {
-                                                "color": "blue",
-                                                "index": 3,
-                                                "text": "Extended"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Align"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "c": {
-                                                "color": "super-light-blue",
-                                                "index": 0,
-                                                "text": "C/1"
-                                            },
-                                            "d": {
-                                                "color": "super-light-yellow",
-                                                "index": 3,
-                                                "text": "D/8"
-                                            },
-                                            "i": {
-                                                "color": "super-light-green",
-                                                "index": 2,
-                                                "text": "I/4"
-                                            },
-                                            "s": {
-                                                "color": "light-blue",
-                                                "index": 1,
-                                                "text": "S/2"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Len"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "color": "super-light-blue",
-                                                "index": 1,
-                                                "text": "1"
-                                            },
-                                            "2": {
-                                                "color": "light-blue",
-                                                "index": 2,
-                                                "text": "2"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": -2,
-                                            "result": {
-                                                "color": "rgba(128, 128, 128, 0.5)",
-                                                "index": 0,
-                                                "text": "Var"
-                                            },
-                                            "to": 0
-                                        },
-                                        "type": "range"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 3,
-                                            "result": {
-                                                "color": "super-light-green",
-                                                "index": 3
-                                            },
-                                            "to": 7.9
-                                        },
-                                        "type": "range"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 8,
-                                            "result": {
-                                                "color": "super-light-yellow",
-                                                "index": 4
-                                            },
-                                            "to": null
-                                        },
-                                        "type": "range"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Dim"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "rgba(128, 128, 128, 0.5)",
-                                                "index": 0,
-                                                "text": "N"
-                                            },
-                                            "1": {
-                                                "color": "super-light-green",
-                                                "index": 1,
-                                                "text": "1"
-                                            },
-                                            "2": {
-                                                "color": "super-light-blue",
-                                                "index": 2,
-                                                "text": "2"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Drop"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "false": {
-                                                "color": "green",
-                                                "index": 0,
-                                                "text": "OK"
-                                            },
-                                            "true": {
-                                                "color": "red",
-                                                "index": 1,
-                                                "text": "DROP"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background-solid"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Collation"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "NOT NULL"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 100
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "false": {
-                                                "color": "super-light-green",
-                                                "index": 0,
-                                                "text": "NULLABLE"
-                                            },
-                                            "true": {
-                                                "color": "super-light-orange",
-                                                "index": 1,
-                                                "text": "NOT NULL"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "TypeID"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 24,
-                "x": 0,
-                "y": 26
-            },
-            "id": 38,
-            "links": [],
-            "options": {
-                "showHeader": true,
-                "sortBy": []
-            },
-            "pluginVersion": "8.0.4",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "hide": false,
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT *, pg_catalog.format_type(a.atttypid, a.atttypmod) AS atttype\nFROM pg_attribute a LEFT JOIN LATERAL (\n    SELECT pg_catalog.pg_get_expr(d.adbin, d.adrelid, true) AS def\n    FROM pg_catalog.pg_attrdef d\n    WHERE d.adrelid = a.attrelid\n      AND d.adnum = a.attnum\n      AND a.atthasdef\n    ) d ON true\nWHERE attrelid = '${oid}' AND attnum > 0 ORDER BY attnum;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Columns",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "attacl": true,
-                            "attbyval": true,
-                            "attcacheoff": true,
-                            "attcollation": true,
-                            "attfdwoptions": true,
-                            "attgenerated": true,
-                            "atthasdef": true,
-                            "atthasmissing": true,
-                            "attidentity": true,
-                            "attinhcount": true,
-                            "attislocal": true,
-                            "attmissingval": true,
-                            "attoptions": true,
-                            "attrelid": true,
-                            "attstattarget": true,
-                            "atttypmod": true
-                        },
-                        "indexByName": {
-                            "attacl": 14,
-                            "attalign": 8,
-                            "attbyval": 19,
-                            "attcacheoff": 17,
-                            "attcollation": 11,
-                            "attfdwoptions": 25,
-                            "attgenerated": 21,
-                            "atthasdef": 13,
-                            "atthasmissing": 20,
-                            "attidentity": 12,
-                            "attinhcount": 23,
-                            "attisdropped": 1,
-                            "attislocal": 22,
-                            "attlen": 9,
-                            "attmissingval": 26,
-                            "attname": 2,
-                            "attndims": 10,
-                            "attnotnull": 4,
-                            "attnum": 0,
-                            "attoptions": 24,
-                            "attrelid": 15,
-                            "attstattarget": 16,
-                            "attstorage": 7,
-                            "atttype": 3,
-                            "atttypid": 6,
-                            "atttypmod": 18,
-                            "def": 5
-                        },
-                        "renameByName": {
-                            "attacl": "",
-                            "attalign": "Align",
-                            "attcollation": "Collation",
-                            "atthasdef": "",
-                            "attidentity": "ID",
-                            "attisdropped": "Drop",
-                            "attlen": "Len",
-                            "attname": "Name",
-                            "attndims": "Dim",
-                            "attnotnull": "NOT NULL",
-                            "attnum": "No",
-                            "attstorage": "Storage",
-                            "atttype": "Type",
-                            "atttypid": "TypeID",
-                            "avg_width": "Avg Width",
-                            "correlation": "Correlation",
-                            "def": "Default",
-                            "n_distinct": "N Distinct",
-                            "null_frac": "Null Frac"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": "$dsn",
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
                             }
                         ]
                     }
@@ -2763,7 +2696,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Index"
+                            "options": "Name"
                         },
                         "properties": [
                             {
@@ -2842,9 +2775,9 @@
                 "h": 5,
                 "w": 24,
                 "x": 0,
-                "y": 34
+                "y": 32
             },
-            "id": 13,
+            "id": 54,
             "links": [],
             "options": {
                 "showHeader": true,
@@ -2855,14 +2788,14 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.4",
+            "pluginVersion": "8.2.4",
             "targets": [
                 {
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT *, pg_get_indexdef(indexrelid) AS def FROM pg_stat_user_indexes WHERE relid = '${oid}';",
+                    "rawSql": "SELECT schemaname || '.' || indexrelname   AS \"Name\",\n       *,\n       pg_get_indexdef(indexrelid) AS def\nFROM pg_stat_user_indexes\nWHERE relid = '${oid}';",
                     "refId": "A",
                     "select": [
                         [
@@ -2892,20 +2825,24 @@
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "relname": true
+                            "indexrelname": true,
+                            "relname": true,
+                            "schemaname": true
                         },
                         "indexByName": {
-                            "def": 2,
-                            "idx_scan": 6,
-                            "idx_tup_fetch": 8,
-                            "idx_tup_read": 7,
-                            "indexrelid": 4,
-                            "indexrelname": 1,
-                            "relid": 5,
-                            "relname": 3,
-                            "schemaname": 0
+                            "Name": 0,
+                            "def": 3,
+                            "idx_scan": 7,
+                            "idx_tup_fetch": 9,
+                            "idx_tup_read": 8,
+                            "indexrelid": 5,
+                            "indexrelname": 2,
+                            "relid": 6,
+                            "relname": 4,
+                            "schemaname": 1
                         },
                         "renameByName": {
+                            "Name": "Name",
                             "def": "Define",
                             "idx_scan": "Scan",
                             "idx_tup_fetch": "Tup Fetch",
@@ -2919,11 +2856,506 @@
                     }
                 }
             ],
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": "$dsn",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-background",
+                        "filterable": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null",
+                                "result": {
+                                    "color": "#e3e3e3e0",
+                                    "index": 0
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "No"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 40
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 150
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Inhreited"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "false": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 1,
+                                                "text": "False"
+                                            },
+                                            "true": {
+                                                "color": "orange",
+                                                "index": 0,
+                                                "text": "True"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null",
+                                            "result": {
+                                                "color": "#e3e3e3e0",
+                                                "index": 2
+                                            }
+                                        },
+                                        "type": "special"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Correlation"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "min",
+                                "value": -1
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "continuous-BlYlRd"
+                                }
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Dim"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "rgba(128, 128, 128, 0.5)",
+                                                "index": 0,
+                                                "text": "N"
+                                            },
+                                            "1": {
+                                                "color": "super-light-green",
+                                                "index": 1,
+                                                "text": "1"
+                                            },
+                                            "2": {
+                                                "color": "super-light-blue",
+                                                "index": 2,
+                                                "text": "2"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Width"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background-solid"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "super-light-blue",
+                                            "value": 2
+                                        },
+                                        {
+                                            "color": "super-light-green",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 8
+                                        },
+                                        {
+                                            "color": "dark-green",
+                                            "value": 16
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 32
+                                        },
+                                        {
+                                            "color": "dark-yellow",
+                                            "value": 64
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 128
+                                        },
+                                        {
+                                            "color": "dark-orange",
+                                            "value": 256
+                                        },
+                                        {
+                                            "color": "super-light-red",
+                                            "value": 512
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 1024
+                                        },
+                                        {
+                                            "color": "purple",
+                                            "value": 2048
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MCV"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Correlation"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Null Frac"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "continuous-BlYlRd"
+                                }
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "max",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Width"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "N Distinct"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 86
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MCF"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Histogram"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.displayMode",
+                                "value": "json-view"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 37
+            },
+            "id": 52,
+            "links": [],
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "No"
+                    }
+                ]
+            },
+            "pluginVersion": "8.2.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT a.attnum, b.* FROM\n(SELECT * FROM pg_attribute a WHERE attrelid = '$oid' AND attnum > 0) a LEFT JOIN\n(SELECT * FROM pg_stats WHERE schemaname = '$nspname' AND tablename = '$tblname') b\nON a.attname = b.attname ORDER BY 1;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Column Stats",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "attacl": true,
+                            "attbyval": true,
+                            "attcacheoff": true,
+                            "attcollation": true,
+                            "attfdwoptions": true,
+                            "attgenerated": true,
+                            "atthasdef": true,
+                            "atthasmissing": true,
+                            "attidentity": true,
+                            "attinhcount": true,
+                            "attislocal": true,
+                            "attmissingval": true,
+                            "attoptions": true,
+                            "attrelid": true,
+                            "attstattarget": true,
+                            "atttypmod": true,
+                            "elem_count_histogram": true,
+                            "inherited": false,
+                            "most_common_elem_freqs": true,
+                            "most_common_elems": true,
+                            "schemaname": true,
+                            "tablename": true
+                        },
+                        "indexByName": {
+                            "attname": 1,
+                            "attnum": 0,
+                            "avg_width": 5,
+                            "correlation": 3,
+                            "elem_count_histogram": 12,
+                            "histogram_bounds": 9,
+                            "inherited": 2,
+                            "most_common_elem_freqs": 11,
+                            "most_common_elems": 10,
+                            "most_common_freqs": 8,
+                            "most_common_vals": 7,
+                            "n_distinct": 6,
+                            "null_frac": 4,
+                            "schemaname": 13,
+                            "tablename": 14
+                        },
+                        "renameByName": {
+                            "attacl": "",
+                            "attalign": "Align",
+                            "attcollation": "Collation",
+                            "atthasdef": "",
+                            "attidentity": "ID",
+                            "attisdropped": "Drop",
+                            "attlen": "Len",
+                            "attname": "Name",
+                            "attndims": "Dim",
+                            "attnotnull": "NOT NULL",
+                            "attnum": "No",
+                            "attstorage": "Storage",
+                            "atttype": "Type",
+                            "atttypid": "TypeID",
+                            "avg_width": "Avg Width",
+                            "correlation": "Correlation",
+                            "def": "Default",
+                            "elem_count_histogram": "ECH",
+                            "histogram_bounds": "Histogram",
+                            "inherited": "Inhreited",
+                            "most_common_elem_freqs": "MCEF",
+                            "most_common_elems": "MCE",
+                            "most_common_freqs": "MCF",
+                            "most_common_vals": "MCV",
+                            "n_distinct": "N Distinct",
+                            "null_frac": "Null Frac",
+                            "schemaname": ""
+                        }
+                    }
+                }
+            ],
+            "transparent": true,
             "type": "table"
         }
     ],
     "refresh": "1m",
-    "schemaVersion": 30,
+    "schemaVersion": 32,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -3124,5 +3556,6 @@
     "timezone": "",
     "title": "PGCAT Table",
     "uid": "pgcat-table",
-    "version": 1
+    "version": 1,
+    "author": "Vonng (rh@vonng.com)"
 }
