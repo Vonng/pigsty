@@ -57,7 +57,7 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 
 
 --==================================================================--
---                            Monitor Views                         --
+--                            Monitor Schema                        --
 --==================================================================--
 
 ----------------------------------------------------------------------
@@ -237,14 +237,7 @@ COMMENT ON VIEW monitor.pg_table_bloat_human IS 'postgres table bloat info in hu
 ----------------------------------------------------------------------
 DROP VIEW IF EXISTS monitor.pg_session CASCADE;
 CREATE OR REPLACE VIEW monitor.pg_session AS
-SELECT coalesce(datname, 'all') AS datname,
-       numbackends,
-       active,
-       idle,
-       ixact,
-       max_duration,
-       max_tx_duration,
-       max_conn_duration
+SELECT coalesce(datname, 'all') AS datname, numbackends, active, idle, ixact, max_duration, max_tx_duration, max_conn_duration
 FROM (
          SELECT datname,
                 count(*)                                         AS numbackends,
