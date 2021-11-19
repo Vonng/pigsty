@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-monly.yml
 # Mtime     :   2020-11-02
-# Mtime     :   2021-11-02
+# Mtime     :   2021-11-19
 # Desc      :   pgsql monitor only mode
 # Path      :   pgsql-monly.yml
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
@@ -11,7 +11,7 @@
 
 
 #==============================================================#
-# Guide                                                        #
+# Guide : https://pigsty.cc/#/t-monly                          #
 #==============================================================#
 # Monly mode is used for monitoring remote postgres instances
 #
@@ -40,14 +40,12 @@
 #    Use PGSQL Cluster Monly Dashboard instead
 #==============================================================#
 
-#------------------------------------------------------------------------------
-# De-Register Cluster/Instance
-#------------------------------------------------------------------------------
 
-- name: Deploy pg_exporters on meta node
+
+- name: Deploy basic monitoring comoponents (monly deployment)
   become: yes
   hosts: all
-  tags: monly
+  tags: [ monly ]
   gather_facts: no
   vars:
 
@@ -81,7 +79,49 @@
 
   tasks:
 
-    - name: Deploy pg_exporter on meta node        # only deploy to first meta node if multiple exists
+
+    #--------------------------------------------------------------#
+    # Register Postgres Datasource to Grafana to enable PGCAT      #
+    #--------------------------------------------------------------#
+    - name: Register postgres instance to grafana
+      tags: [ grafana, register_grafana ]
+      delegate_to: '{{ groups["meta"][0] }}'
+      block:
+        - name: Render datasource definition on meta node
+          copy:
+            dest: "/etc/pigsty/datasources/{{ insdb }}.json"
+            content: |
+              {
+                "type": "postgres", "access": "proxy",
+                "name": "{{ insdb }}", "url": "{{ inventory_hostname }}:{{ pg_port }}", "user": "{{ pg_monitor_username }}", "database": "{{ datname }}",
+                "typeLogoUrl": "", "basicAuth": false, "basicAuthUser": "", "basicAuthPassword": "", "withCredentials": false, "isDefault": false,
+                "jsonData": {"connMaxLifetime": 3600, "maxIdleConns": 1, "maxOpenConns": 8, "postgresVersion": {{ pg_version }}00, "sslmode": "disable", "tlsAuth": false, "tlsAuthWithCACert": false},
+                "secureJsonData":{"password": "{{ pg_monitor_password }}"}
+              }
+            mode: 0600
+          vars:
+            datname: "{{ item.name }}"
+            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
+          with_items: "{{ pg_databases }}"
+
+        - name: Load grafana datasource on meta node
+          shell: |
+            curl -X DELETE "{{ grafana_endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
+            curl -X POST   "{{ grafana_endpoint }}/api/datasources/" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ insdb }}.json || true
+          vars:
+            datname: "{{ item.name }}"
+            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
+          with_items: "{{ pg_databases }}"
+
+
+
+    #--------------------------------------------------------------#
+    # Deploy local pg_exporters on meta node
+    #--------------------------------------------------------------#
+    # NOTICE: only deploy to first meta node if multiple exists
+    # This behavior can be tuned if multiple meta nodes exists
+    - name: Deploy pg_exporter on meta node
+      tags: [ prometheus, register_promethus, pg_exporter ]
       delegate_to: '{{ groups["meta"][0] }}'
       block:
 
@@ -185,5 +225,10 @@
               # {{ pg_instance }} @ {{ inventory_hostname }}
               - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, instance: {{ inventory_hostname }}:9630 }
                 targets: [ 127.0.0.1:{{ pg_exporter_port }} ]
+
+
+
+
+
 
 ...

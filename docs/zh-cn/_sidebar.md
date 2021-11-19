@@ -19,9 +19,9 @@
 - 教程
   - [部署](t-deploy.md)
   - [准备](t-prepare.md)
+  - [监控系统部署](t-monly.md)
   - [常用操作命令](t-operation.md)
-  - [使用与制作离线安装包](t-offline.md)  
-  - [仅监控系统部署](t-monly.md)
+  - [使用与制作离线安装包](t-offline.md)
   - [升级Grafana后端数据库](t-grafana-upgrade.md)
   - [配置Prometheus远程存储](t-promscale.md)
   - [使用CMDB替换静态配置](t-cmdb.md)
