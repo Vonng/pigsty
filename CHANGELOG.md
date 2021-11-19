@@ -1,3 +1,27 @@
+# v1.3.0 (Doing)
+
+* [ENHANCEMENT] monitor: PGCAT Overhaul 
+  * New Dashboard: PGCAT Instance 
+  * New Dashboard: PGCAT Database Dashboard
+  * Remake Dashboard: PGCAT Table
+
+* [ENHANCEMENT] monitor: PGSQL Enhancement
+  * New Panels: PGSQL Cluster, add 10 key metrics panel (toggled by default) 
+  * New Panels: PGSQL Instance, add 10 key metrics panel (toggled by default)
+  * Simplify & Redesign: PGSQL Service
+  * Add cross references to PGCAT dashboards
+
+* [ENHANCEMENT] monitor deploy 
+  * Now grafana datasource is automatically registered during monly deployment
+
+* [ENHANCEMENT] migration playbook beta 2
+  * now you can generate migration manual and resources via pgsql-migration
+  * now you can feed migration task definition file to pgsql-migration playbook without modifying this playbook
+
+* [ENHANCEMENT] add PostgreSQL 13 into default package list
+
+
+
 # v1.2.0
  
 * [ENHANCEMENT] Use PostgreSQL 14 as default version

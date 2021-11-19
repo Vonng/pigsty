@@ -25,25 +25,23 @@
 |   2021-03-28   | Service Provision                                         | [v0.8.0](https://github.com/Vonng/pigsty/releases/tag/v0.8.0) |
 |   2021-04-04   | Pigsty GUI, CLI, Logging Intergration                     | [v0.9.0](https://github.com/Vonng/pigsty/releases/tag/v0.9.0) |
 |   2021-04-20   | Accessibility and extensibility enhancement               | [v0.9.1](https://github.com/Vonng/pigsty/releases/tag/v0.9.1) |
-|   2021-07-31   | PostgreSQL 14 Support, Monitoring System Overhaul         | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0) |
+|   2021-07-26   | v1 GA, Monitoring System Overhaul                         | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0) |
+|   2021-10-12   | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger              | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0) |
+|   2021-11-03   | Upgrade default Postgres to 14, monitoring existing pg    | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0) |
+|   2021-11-31   | Dashboards update: PGCAT Overhaul & PGSQL Enhancement     | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0) |
+
 
 
 ## Future
 
 |      Time      | Description                                               | Release                                                      |
 | :------------: | --------------------------------------------------------- | ------------------------------------------------------------ |
-|   2021-08-15   | app `pgsql` : PostgreSQL Cluster Monitoring v7            | v1.1                                                         |
-|   2021-08-31   | app `pgcat`: Explore postgres system catalog via grafana  | v1.2                                                         |
-|   2021-09-15   | app `pgdog`: Dig into postgres logs, event visualization  | v1.3                                                         |
-|   2021-09-31   | app `pgfox`: Integration of PostgreSQL Explain Visualizer | v1.4                                                         |
-|   2021-10-31   | Citus Deployment Support                                  | v1.5                                                         |
-|   2021-11-31   | Pigsty private cloud DBaaS backend/frontend               | v1.6                                                         |
-|   2021-12-15   | Timescaledb intergration                                  | v1.7                                                         |
-|   2021-12-31   | PostgreSQL 14 By Default                                  | v2.0                                                         |
+|   2021-12-31   | PGLOG redesign                                            | v1.4                                                         |
+|   2022-01-31   | Redis Deployment Support                                  | v1.5                                                         |
+|   2022-01-31   | Citus Deployment Support                                  | v1.5                                                         |
+|     2022       | Pigsty private cloud DBaaS backend/frontend               | v1.6                                                         |
 |      2022      | ETCD as major meta database                               | v2.2                                                         |
 |      2022      | Greenplum & other distribution                            | v2.3                                                         |
 |      2022      | Pigsty Docker Images                                      | v2.4                                                         |
 |      2022      | Pigsty Operator                                           | v2.6                                                         |
 |     2022+      | Cloud Native Pigsty                                       | v3.0                                                         |
-|                |                                                           |                                                              |
-
