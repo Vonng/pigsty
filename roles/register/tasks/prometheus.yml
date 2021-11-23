@@ -4,13 +4,13 @@
 #--------------------------------------------------------------#
 # prometheus are idempotent on multiple meta nodes
 
-# /etc/pigsty/targets/pgsql/{{ pg_instance }}.yml
+# /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
 - name: Register pgsql instance as prometheus target
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   become: yes
   copy:
-    dest: /etc/pigsty/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+    dest: /etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
     content: |
       # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
       - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }} }

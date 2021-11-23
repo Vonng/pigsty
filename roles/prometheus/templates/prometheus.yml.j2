@@ -59,11 +59,12 @@ rule_files:
   - rules/infra-alert.yml
   - rules/pgsql-rules.yml
   - rules/pgsql-alert.yml
-
+  - rules/redis-rules.yml
+  - rules/redis-alert.yml
 
 {% if prometheus_sd_method == 'static' %}
 #------------------------------------------------------------------------------
-# Targets (Static File Service Discovery)
+# Targets (Static File Service Discovery) (Default)
 #------------------------------------------------------------------------------
 # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config
 scrape_configs:
@@ -90,8 +91,9 @@ scrape_configs:
     metrics_path: {{ exporter_metrics_path }}
     file_sd_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
-        # files: [ targets/pgsql/*.yml ] # /etc/prometheus/targets/pgsql/*.yml
-        files: [ /etc/pigsty/targets/pgsql/*.yml ]
+        files: [ targets/pgsql/*.yml ]
+
+
 
 {% endif %}
 
@@ -150,4 +152,7 @@ scrape_configs:
         action: replace
         target_label: ins
 
+
 {% endif %}
+
+

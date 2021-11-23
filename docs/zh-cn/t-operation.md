@@ -242,7 +242,7 @@ Pigsty默认使用静态文件服务发现来配置监控目标，每一个实�
 
 ```bash
 # 将 pg-test 集群中的所有实例 注册至管理节点的Prometheus 
-# /etc/pigsty/targets/pgsql/<instance>.yml
+# /etc/prometheus/targets/pgsql/<instance>.yml
 ./pgsql.yml -l pg-test -t register_prometheus
 
 # 仅更新单个实例的配置

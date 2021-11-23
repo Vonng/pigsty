@@ -298,7 +298,7 @@ Prometheus使用的服务发现机制，默认为`static`，可选项：
 
 Pigsty建议使用`static`服务发现，该方式提供了更高的可靠性与灵活性。
 
-`static`服务发现依赖`/etc/pigsty/targets/pgsql/*.yml`中的配置进行服务发现。
+`static`服务发现依赖`/etc/prometheus/targets/pgsql/*.yml`中的配置进行服务发现。
 采用这种方式的优势是不依赖Consul。当Pigsty监控系统与外部管控方案集成时，这种模式对原系统的侵入性较小。
 
 手动维护时，可以根据以下命令从配置文件生成Prometheus所需的监控对象配置文件。

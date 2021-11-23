@@ -289,7 +289,7 @@ The service discovery mechanism used by Prometheus, default is `static`, optiona
 
 Pigsty recommends using `static` service discovery, which provides greater reliability and flexibility.
 
-`static` service discovery relies on the configuration in `/etc/pigsty/targets/pgsql/*.yml` for service discovery.
+`static` service discovery relies on the configuration in `/etc/prometheus/targets/pgsql/*.yml` for service discovery.
 The advantage of this approach is that it does not rely on Consul, and when the Pigsty monitoring system is integrated with an external control solution, this mode is less invasive to the original system.
 
 For manual maintenance, you can generate the required monitoring object configuration file for Prometheus from the configuration file according to the following command

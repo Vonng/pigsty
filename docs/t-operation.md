@@ -250,7 +250,7 @@ This configuration file is automatically maintained during cluster/instance init
 
 ```bash
 # Register all instances in the pg-test cluster to Prometheus on the management node 
-# /etc/pigsty/targets/pgsql/<instance>.yml
+# /etc/prometheus/targets/pgsql/<instance>.yml
 . /pgsql.yml -l pg-test -t register_prometheus
 
 # Update the configuration for a single instance only

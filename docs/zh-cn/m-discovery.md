@@ -65,15 +65,15 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
   metrics_path: /metrics
   file_sd_configs:
     - refresh_interval: 10s
-      files: [ /etc/pigsty/targets/pgsql/*.yml ]
+      files: [ /etc/prometheus/targets/pgsql/*.yml ]
 ```
 
-在`/etc/pigsty/targets`目录下存放有由Pigsty生成的监控对象定义文件，`pgsql`是默认环境的名称。
+在`/etc/prometheus/targets`目录下存放有由Pigsty生成的监控对象定义文件，`pgsql`是默认环境的名称。
 
 **每一个实例由一个单独的文件定义**，形如：
 
 ```
-/etc/pigsty/targets/pgsql
+/etc/prometheus/targets/pgsql
                      ^-----pg-meta-1.yml
                      ^-----pg-test-1.yml
                      ^-----pg-test-2.yml

@@ -186,11 +186,9 @@ PLAY [Infra Init] **************************************************************
 
 TASK [environ : Create pigsty resource dirs on /etc/pigsty] *******************************************************************************************************************
 ok: [172.21.0.11] => (item=/etc/pigsty)
-ok: [172.21.0.11] => (item=/etc/pigsty/targets)
 ok: [172.21.0.11] => (item=/etc/pigsty/playbooks)
 ok: [172.21.0.11] => (item=/etc/pigsty/dashboards)
 ok: [172.21.0.11] => (item=/etc/pigsty/datasources)
-ok: [172.21.0.11] => (item=/etc/pigsty/targets/pgsql)
 
 TASK [environ : Get current username] *****************************************************************************************************************************************
 ok: [172.21.0.11]

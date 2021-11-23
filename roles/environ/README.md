@@ -4,7 +4,6 @@ Setup meta node admin user environment
 
 ## Create directories
   * `/etc/pigsty` : pigsty resource dir
-  * `/etc/pigsty/targets` : prometheus static targets
   * `/etc/pigsty/playbooks` : additional ansible playbooks
   * `/etc/pigsty/dashboards` : grafana dashboards
   * `/etc/pigsty/datasources` : grafana datasources
