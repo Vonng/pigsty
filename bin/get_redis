@@ -1,0 +1,93 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   get_redis
+# Ctime     :   2021-11-22
+# Mtime     :   2021-11-22
+# Desc      :   Get redis binary into files/bin
+# Path      :   bin/get_redis
+# Depend    :   make, gcc, curl
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+REDIS_VERSION=6.2.6
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_FILES_DIR="$(cd $(dirname ${PROG_DIR}) && pwd)"/files
+PIGSTY_BINDIR=${PIGSTY_FILES_DIR}/bin
+
+#==============================================================#
+# download redis tarball
+#==============================================================#
+function get_redis() {
+	local version=${1-6.2.6}
+	local REDIS_DIRNAME=redis-${version}
+  local REDIS_TARBALL=redis-${version}.tar.gz
+  local REDIS_SOURCE=https://download.redis.io/releases/${REDIS_TARBALL}
+
+  if [[ -f "/tmp/${REDIS_TARBALL}" ]]; then
+    echo "found /tmp/${REDIS_TARBALL}"
+  else
+    if [[ -f "/www/pigsty/${REDIS_TARBALL}" ]]; then
+      echo "found /www/pigsty/${REDIS_TARBALL}"
+      cp -f "/www/pigsty/${REDIS_TARBALL}" /tmp/${REDIS_TARBALL}
+    else
+      echo "download redis source tarball ${REDIS_TARBALL} from redis.io"
+      curl -SL ${REDIS_SOURCE} -o /tmp/${REDIS_TARBALL}
+    fi
+  fi
+}
+
+#==============================================================#
+# compile tarball
+# assume source /tmp/redis-${version}.tar.gz exists
+# generate /tmp/redis as results
+#==============================================================#
+function make_redis() {
+	local version=${1-6.2.6}
+	local REDIS_DIRNAME=redis-${version}
+  local REDIS_TARBALL=redis-${version}.tar.gz
+  local REDIS_SOURCE=https://download.redis.io/releases/${REDIS_TARBALL}
+
+  # if compiled redis binary not
+  if [[ ! -x /tmp/${REDIS_DIRNAME}/src/redis-server ]]; then
+    echo "compile ${REDIS_DIRNAME} to /tmp/redis"
+    rm -rf /tmp/${REDIS_DIRNAME}
+    cd /tmp && tar -xf ${REDIS_TARBALL}
+    cd /tmp/${REDIS_DIRNAME} && make -j8
+  else
+    echo "found compiled result, copy to /tmp/redis"
+  fi
+
+  # copy redis binaries
+  rm -rf /tmp/redis && mkdir -p /tmp/redis
+  cp -f /tmp/${REDIS_DIRNAME}/src/redis-server       /tmp/redis/
+  cp -f /tmp/${REDIS_DIRNAME}/src/redis-cli          /tmp/redis/
+  cp -f /tmp/${REDIS_DIRNAME}/src/redis-sentinel     /tmp/redis/
+  cp -f /tmp/${REDIS_DIRNAME}/src/redis-check-rdb    /tmp/redis/
+  cp -f /tmp/${REDIS_DIRNAME}/src/redis-check-aof    /tmp/redis/
+  cp -f /tmp/${REDIS_DIRNAME}/src/redis-benchmark    /tmp/redis/
+}
+
+
+#==============================================================#
+# move redis binary from /tmp/redis to ${PIGSTY_HOME}/files/bin
+#==============================================================#
+function mv_redis(){
+  cp -f /tmp/redis/redis-server     ${PIGSTY_BINDIR}/redis-server
+  cp -f /tmp/redis/redis-cli        ${PIGSTY_BINDIR}/redis-cli
+  cp -f /tmp/redis/redis-sentinel   ${PIGSTY_BINDIR}/redis-sentinel
+  cp -f /tmp/redis/redis-check-rdb  ${PIGSTY_BINDIR}/redis-check-rdb
+  cp -f /tmp/redis/redis-check-aof  ${PIGSTY_BINDIR}/redis-check-aof
+  cp -f /tmp/redis/redis-benchmark  ${PIGSTY_BINDIR}/redis-benchmark
+}
+
+#==============================================================#
+# Main
+#==============================================================#
+get_redis  ${REDIS_VERSION}
+make_redis ${REDIS_VERSION}
+mv_redis
+
