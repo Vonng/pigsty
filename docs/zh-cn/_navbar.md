@@ -2,7 +2,7 @@
 - [演示](http://demo.pigsty.cc)
 
 - 版本
-  - [v1.0](/)
+  - [v1.x](/)
   - [v0.9](http://v0.pigsty.cc)
 
 - 语言

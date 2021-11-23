@@ -28,7 +28,8 @@
 
 3. 针对该集群执行剧本：`./pgsql-monly.yml -l pg-test`
 
-
+4. 该剧本会在Grafana中注册目标PostgreSQL数据源，因此PGCAT功能完整可用。
+   该剧本会在管理节点本地部署PG Exporter监控远程PG实例，故PGSQL中纯数据库相关指标可用。
 
 
 

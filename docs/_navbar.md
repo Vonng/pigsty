@@ -2,7 +2,7 @@
 - [Demo](http://demo.pigsty.cc)
 
 - Version
-  - [v1.0](/)
+  - [v1.x](/)
   - [v0.9](http://v0.pigsty.cc)
 
 - Language
