@@ -1,0 +1,127 @@
+---
+#==============================================================#
+# File      :   redis-alert.yml
+# Ctime     :   2020-04-22
+# Mtime     :   2021-11-22
+# Desc      :   Alerting rules for redis
+# Path      :   /etc/prometheus/rules/redis-alert.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+################################################################
+#                     Alert Rule Format                        #
+################################################################
+# Level: three alert levels
+#   0 : CRIT System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : WARN Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : INFO Warning events that need attention         mail             5m
+
+# - alert: RedisDown        <------- CamelCase Alert Name
+#   expr: redis_up < 1      <------- Expression
+#   for: 1m                 <------- Duration Threshold
+#        ^------- (omit) : Trigger immediately
+#   labels:
+#     level: 0              <------- numeric expression of severity 0,1,2
+#     severity: CRIT        <------- alert severity: fatal,error,event
+#     category: redis       <------- category: infra, node, pgsql, redis, ...
+#   annotations:            <------- short & detailed information about context
+#     summary: "FATAL RedisDown {{ $labels.type }}@{{ $labels.instance }}"
+#     description: |
+#       redis_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+################################################################
+
+groups:
+
+  ################################################################
+  #                         Redis Alert                          #
+  ################################################################
+  - name: redis-alert
+    rules:
+
+      #==============================================================#
+      #                         Error                                #
+      #==============================================================#
+      # redis down triggers a P0 alert
+      - alert: RedisDown
+        expr: redis_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: redis }
+        annotations:
+          summary: "CRIT RedisDown: {{ $labels.ins }} {{ $labels.instance }} {{ $value }}"
+          description: |
+            redis_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} == 0
+            http://g.pigsty/d/redis-instance?from=now-5m&to=now&var-ins={{$labels.ins}}
+
+      # redis reject connection in last 5m
+      - alert: RedisRejectConn
+        expr: redis:ins:conn_reject > 0
+        labels: { level: 0, severity: CRIT, category: redis }
+        annotations:
+          summary: "CRIT RedisRejectConn: {{ $labels.ins }} {{ $labels.instance }} {{ $value }}"
+          description: |
+            redis:ins:conn_reject[cls={{ $labels.cls }}, ins={{ $labels.ins }}][5m] = {{ $value }} > 0
+            http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=88&fullscreen&var-ins={{ $labels.ins }}
+
+
+
+      #==============================================================#
+      #                         Latency                              #
+      #==============================================================#
+      # redis avg query response time > 160ms
+      - alert: RedisRTHighh
+        expr: redis:ins:rt > 0.00016
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 Redis RT High: {{ $labels.cls }} {{ $labels.ins }}"
+          description: |
+            pg:ins:query_rt[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 160µs
+            http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=97&fullscreen&var-ins={{ $labels.ins }}
+
+
+
+      #==============================================================#
+      #                        Saturation                            #
+      #==============================================================#
+      # redis cpu usage more than 60% for 1m
+      - alert: RedisCPUHigh
+        expr: redis:ins:cpu_usage > 0.60
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "P1 RedisCPUHigh: {{ $labels.cls }} {{ $labels.ins }}"
+          description: |
+            redis:ins:cpu_all[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 60%
+            http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=43&fullscreen&var-ins={{ $labels.ins }}
+
+      # redis mem usage more than 80% for 1m
+      - alert: RedisMemHigh
+        expr: redis:ins:mem_usage > 0.80
+        for: 1m
+        labels:
+          severity: P1
+        annotations:
+          summary: "Warn RedisMemHigh: {{ $labels.cls }} {{ $labels.ins }}"
+          description: |
+            redis:ins:mem_usage[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 80%
+            http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=7&fullscreen&var-ins={{ $labels.ins }}
+
+      #==============================================================#
+      #                         Traffic                              #
+      #==============================================================#
+      # redis qps more than 16000 for 5m
+      - alert: RedisQPSHigh
+        expr: redis:ins:qps > 16000
+        for: 5m
+        labels:
+          severity: P2
+        annotations:
+          summary: "Info RedisQPSHigh: {{ $labels.cls }} {{ $labels.ins }}"
+          description: |
+            redis:ins:qps[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 16000
+            http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=96&fullscreen&var-ins={{ $labels.ins }}
+
+
+...

@@ -93,7 +93,27 @@ scrape_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/pgsql/*.yml ]
 
-
+  #------------------------------------------------------------------------------
+  # job: redis (database monitoring)
+  # multiple redis targets from redis_exporter @ target nodes
+  # labels: [cls, ins, instance]
+  # path: targets/redis/*.yml
+  #------------------------------------------------------------------------------
+  - job_name: redis
+    metrics_path: /scrape
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/redis/*.yml ]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      # scrape redis_exporter on target node
+      - source_labels: [__param_target]
+        regex: ^redis://(.*):\d+$
+        target_label: __address__
+        replacement: $1:9121
 
 {% endif %}
 
