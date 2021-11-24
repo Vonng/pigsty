@@ -1,5 +1,5 @@
 [Unit]
-Description=Redis Server@:%i  {{ redis_cluster }}@{{ inventory_hostname }}:%i
+Description=Redis Sentinel@:%i  {{ redis_cluster }}@{{ inventory_hostname }}:%i
 Documentation=https://redis.io/documentation
 #AssertPathExists=/var/log/redis
 #AssertPathExists=/var/run/redis
@@ -7,7 +7,7 @@ Documentation=https://redis.io/documentation
 AssertPathExists=/etc/redis/%i.conf
 
 [Service]
-ExecStart=/bin/redis-server /etc/redis/%i.conf --daemonize no --supervised systemd
+ExecStart=/bin/redis-sentinel /etc/redis/%i.conf --daemonize no --supervised systemd
 ExecStop=/usr/libexec/redis-shutdown %i
 #ExecStop=/bin/redis-cli -p %i shutdown
 WorkingDirectory={{ redis_fs_main }}/redis/%i

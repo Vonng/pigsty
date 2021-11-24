@@ -49,12 +49,15 @@
 #------------------------------------------------------------------------------
 # Systemd
 #------------------------------------------------------------------------------
-- name: Render redis-server@ service template
+- name: Render redis & sentinel systemd service template
   tags: [ redis_systemd, redis_node ]
   become: yes
   block:
     - name: Render redis systemd service template
-      template: src=redis.service dest=/usr/lib/systemd/system/redis-server@.service owner=root mode=644
+      template: src=redis.service dest=/usr/lib/systemd/system/redis@.service owner=root mode=644
+
+    - name: Render redis-sentinel systemd service template
+      template: src=redis-sentinel.service dest=/usr/lib/systemd/system/redis-sentinel@.service owner=root mode=644
 
     - name: Reload systemd daemon
       systemd: daemon_reload=yes
@@ -77,6 +80,7 @@
 # Assert before launch instances
 #------------------------------------------------------------------------------
 - name: Check necessary variables exists
+  tags: [ redis_ins ]
   assert:
     that:
       - redis_cluster is defined and redis_cluster != ''
@@ -84,26 +88,54 @@
       - redis_instances | type_debug == "dict"
     fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
 
+
+#------------------------------------------------------------------------------
+# Clean [DANGEROUS!]
+#------------------------------------------------------------------------------
+- name: Clean existing redis
+  tags: [ redis_ins, redis_clean ]
+  when: redis_exists_action == 'clean'
+  block:
+
+    - name: Shut redis instance
+      ignore_errors: true
+      service:
+        name: "{{ svcname }}"
+        state: stopped
+      vars:
+        port: "{{ item.key }}"
+        svcname: "{% if redis_mode == 'sentinel' %}redis-sentinel{% else %}redis{% endif %}@{{ item.key }}"
+      with_dict: "{{ redis_instances }}"
+
+
+    - name: Remove redis instance data dir
+      file: path={{ redis_fs_main }}/redis/{{ port }} state=absent owner=redis mode=0700
+      vars:
+        port: "{{ item.key }}"
+      with_dict:
+        - "{{ redis_instances }}"
+
+
 #------------------------------------------------------------------------------
 # Config
 #------------------------------------------------------------------------------
 - name: Create redis resource dir
-  tags: [ redis_config ]
+  tags: [ redis_ins, redis_config ]
   become: yes
   block:
     - name: Render redis instance config
-      template: src={{ redis_conf }} dest=/etc/redis/{{ port }}.conf owner=redis mode=0700
+      template: src={{ config_template }} dest=/etc/redis/{{ port }}.conf owner=redis mode=0700
       vars:
-        seq: "{{ item.key }}"
-        port: "{{ item.value.port }}"
+        port: "{{ item.key }}"
         upstream: "{{ item.value['replica_of']|default(None) }}"
+        config_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.conf{% else %}{{ redis_conf }}{% endif %}"
       with_dict:
         - "{{ redis_instances }}"
 
     - name: Create redis instance data dir
       file: path={{ redis_fs_main }}/redis/{{ port }} state=directory owner=redis mode=0700
       vars:
-        port: "{{ item.value.port }}"
+        port: "{{ item.key }}"
       with_dict:
         - "{{ redis_instances }}"
 
@@ -111,39 +143,80 @@
 #------------------------------------------------------------------------------
 # launch
 #------------------------------------------------------------------------------
-# launch primaries
-- include_tasks: launch.yml
-  tags: [ redis_launch, redis_launch_primary ]
+- name: Launch redis-server primary systemd service
+  tags: [ redis_ins, redis_launch, redis_primary ]
+  service:
+    name: "{{ svcname }}"
+    state: restarted
   vars:
-    seq: "{{ item.key }}"
-    port: "{{ item.value.port }}"
-    ip: "{{ inventory_hostname }}"
-    pg_cluster: "{{ pg_cluster }}"
-    upstream: "{{ item.value['replica_of']|default(None) }}"
+    port: "{{ item.key }}"
+    svcname: "{% if redis_mode == 'sentinel' %}redis-sentinel{% else %}redis{% endif %}@{{ item.key }}"
   with_dict: "{{ redis_instances }}"
   when: item.value.replica_of is not defined
 
-# launch replicas
-- include_tasks: launch.yml
-  tags: [ redis_launch, redis_launch_replica, reload ]
+- name: Launch redis-server replica systemd service
+  tags: [ redis_ins, redis_launch, redis_replica ]
+  service:
+    name: "{{ svcname }}"
+    state: restarted
   vars:
-    seq: "{{ item.key }}"
-    port: "{{ item.value.port }}"
-    ip: "{{ inventory_hostname }}"
-    pg_cluster: "{{ pg_cluster }}"
-    upstream: "{{ item.value['replica_of']|default(None) }}"
+    port: "{{ item.key }}"
+    svcname: "{% if redis_mode == 'sentinel' %}redis-sentinel{% else %}redis{% endif %}@{{ item.key }}"
   with_dict: "{{ redis_instances }}"
   when: item.value.replica_of is defined
 
 
-#--------------------------------------------------------------#
-# Register
-#--------------------------------------------------------------#
-# register redis targets to prometheus on meta nodes
+#------------------------------------------------------------------------------
+# create redis cluster if redis_mode = 'cluster'
+#------------------------------------------------------------------------------
+- name: Join redis cluster
+  when: redis_mode == 'cluster'
+  tags: [ redis_ins, redis_join ]
+  delegate_to: '{{ groups["meta"][0] }}'
+  run_once: true
+  block:
 
+    - name: Fetch redis cluster memberships
+      set_fact:
+        redis_cluster_members={{ hostvars| json_query(redis_cluster_members_query) }}
+      vars:
+        redis_cluster_members_query: "[@.*][0][?redis_cluster=='{{ redis_cluster }}']"
+
+    - name: Render redis cluster join script
+      copy:
+        dest: /tmp/{{ redis_cluster }}-join.sh
+        mode: 0755
+        owner: root
+        content: |
+          #!/bin/bash
+          /bin/redis-cli --cluster create --cluster-yes \
+          {% for node in redis_cluster_members %}
+          {% for port in node.redis_instances %}
+            {{ node.inventory_hostname }}:{{ port }} \
+          {% endfor %}
+          {% endfor %}
+            --cluster-replicas {{ redis_cluster_replicas|default(1) }}
+
+    - name: Join redis clusters
+      shell: "/tmp/{{ redis_cluster }}-join.sh"
+
+
+
+#------------------------------------------------------------------------------
+# join redis-sentinel cluster if redis_mode = 'cluster'
+#------------------------------------------------------------------------------
+
+
+###############################################################################
+# Register
+###############################################################################
+
+#------------------------------------------------------------------------------
+# register redis targets to prometheus on meta nodes
+#------------------------------------------------------------------------------
 # /etc/prometheus/targets/redis/{{ redis_node }}.yml
 - name: Register redis instance as prometheus target
-  tags: [ redis_register, register_prometheus ]
+  tags: [ redis_ins, redis_register, register_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   become: yes
@@ -152,10 +225,12 @@
     content: |
       # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
 
-      {% for seq,conf in redis_instances.items() %}
-      - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ seq }}, instance: {{ inventory_hostname }}:{{ conf.port }} }
-        targets: [ redis://{{ inventory_hostname }}:{{ conf.port }} ]
+      {% for port in redis_instances %}
+      - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ redis_node }}-{{ port }}, instance: {{ inventory_hostname }}:{{ port }} }
+        targets: [ redis://{{ inventory_hostname }}:{{ port }} ]
 
       {% endfor %}
+
+
 
 ...

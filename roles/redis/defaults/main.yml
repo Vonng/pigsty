@@ -1,23 +1,27 @@
 ---
 # - identity - #
-# redis_cluster:                    # name of this redis 'cluster' , cluster level
-# redis_node:                       # id of this redis node, integer sequence
-# redis_instances:                  # redis instance list on this redis node
+# redis_cluster: redis-test         # name of this redis 'cluster' , cluster level
+# redis_node: 1                     # id of this redis node, integer sequence @ instance level
+# redis_instances: {}               # redis instance list on this redis node @ instance level
 
 # - config - #
 redis_mode: standalone              # standalone,cluster,sentinel
 redis_conf: redis.conf              # which config template will be used
 redis_fs_main: /data                # main data disk for redis
 redis_bind_address: '0.0.0.0'       # e.g 0.0.0.0, empty will use inventory_hostname as bind address
+redis_exists_action: clean          # abort|skip|clean if dcs server already exists
+redis_disable_purge: false          # set to true to disable purge functionality for good (force redis_exists_action = abort)
 redis_max_memory: 1GB               # max memory used by each redis instance
 redis_mem_policy: allkeys-lru       # memory eviction policy
 redis_password: ''                  # empty password disable password auth (masterauth & requirepass)
 redis_rdb_save: ['1200 1']          # redis RDB save directives, empty list disable it
 redis_aof_enabled: false            # enable redis AOF
 redis_rename_commands: {}           # rename dangerous commands
-  # flushall: opflushall
-  # flushdb: opflushdb
-  # keys: opkeys
+# redis_rename_commands:              # rename dangerous commands
+#   flushall: opflushall
+#   flushdb: opflushdb
+#   keys: opkeys
+redis_cluster_replicas: 1           # how much replicas per master in redis cluster ?
 
 # - redis exporter - #
 redis_exporter_enabled: true        # install redis exporter on redis nodes
@@ -30,7 +34,8 @@ node_exporter_port: 9100                      # default port for node exporter
 node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
 
 # - reference - #
-exporter_install: none              # none|yum|binary, none by default
+redis_install: yum                  # none|yum|binary, yum by default (install from yum repo)
+exporter_install: none              # none|yum|binary, none by default (usually installed during node init)
 exporter_repo_url: ''               # if set, repo will be added to /etc/yum.repos.d/ before yum installation
 exporter_metrics_path: /metrics     # default metric path for pg related exporter
 service_registry: consul

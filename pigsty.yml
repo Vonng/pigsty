@@ -202,54 +202,52 @@ all: # top-level namespace
               default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
-
     #----------------------------------#
-    # cluster: redis-meta              #
+    # sentinel example                 #
     #----------------------------------#
-    redis-meta:
+    redis-sentinel:
       hosts:
-        10.10.10.10: {redis_node: 1 , redis_instances: {16379: { port: 6379 } }}
-      vars: { redis_cluster: redis-meta , redis_max_memory: 128MB }
-
+        10.10.10.10:
+          redis_node: 1
+          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+      vars:
+        redis_cluster: redis-sentinel
+        redis_mode: sentinel
+        redis_max_memory: 128MB
 
     #----------------------------------#
-    # cluster: redis-test              #
+    # cluster example                  #
     #----------------------------------#
-    redis-test:
+    redis-cluster:
       hosts:
         10.10.10.11:
           redis_node: 1
-          redis_instances:
-            16501: { port: 6501 }
-            16502: { port: 6502 , replica_of: '10.10.10.11 6501'}
-            16503: { port: 6503 , replica_of: '10.10.10.11 6501'}
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
         10.10.10.12:
           redis_node: 2
-          redis_instances:
-            26501: { port: 6501 }
-            26502: { port: 6502 , replica_of: '10.10.10.12 6501'}
-            26503: { port: 6503 , replica_of: '10.10.10.12 6501'}
-        10.10.10.13:
-          redis_node: 3
-          redis_instances:
-            36501: { port: 6501 }
-            36502: { port: 6502 , replica_of: '10.10.10.13 6501'}
-            36503: { port: 6503 , replica_of: '10.10.10.13 6501'}
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
       vars:
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_conf_template: redis.conf     # which config template will be used
-        redis_fs_main: /data                # main data disk for redis
-        redis_bind_address: '0.0.0.0'       # e.g 0.0.0.0, empty will use inventory_hostname as bind address
-        redis_max_memory: 128MB             # max memory used by each redis instance
+        redis_cluster: redis-cluster        # name of this redis 'cluster'
+        redis_mode: cluster                 # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
         redis_mem_policy: allkeys-lru       # memory eviction policy
-        redis_password: ''                  # empty password disable password auth (masterauth & requirepass)
-        redis_rdb_save: ['1200 1']          # redis RDB save directives, empty list disable it
-        redis_aof_enabled: false            # enable redis AOF
-        redis_rename_commands:              # rename dangerous commands
-          flushall: opflushall
-          flushdb: opflushdb
-          keys: opkeys
+
+    #----------------------------------#
+    # standalone example               #
+    #----------------------------------#
+    redis-standalone:
+      hosts:
+        10.10.10.13:
+          redis_node: 1
+          redis_instances:
+            6501: {}
+            6502: { replica_of: '10.10.10.13 6501' }
+            6503: { replica_of: '10.10.10.13 6501' }
+      vars:
+        redis_cluster: redis-standalone     # name of this redis 'cluster'
+        redis_mode: standalone              # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
+
 
   #==================================================================#
   #                           Globals                                #

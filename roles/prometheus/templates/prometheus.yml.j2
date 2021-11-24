@@ -108,12 +108,15 @@ scrape_configs:
       - source_labels: [__address__]
         target_label: __param_target
       - source_labels: [__param_target]
+        regex: ^redis://(.*):(\d+)$
+        replacement: $1:$2
         target_label: instance
       # scrape redis_exporter on target node
       - source_labels: [__param_target]
         regex: ^redis://(.*):\d+$
-        target_label: __address__
         replacement: $1:9121
+        target_label: __address__
+
 
 {% endif %}
 
