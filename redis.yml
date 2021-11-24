@@ -1,0 +1,85 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   pgsql.yml
+# Mtime     :   2020-11-22
+# Mtime     :   2021-11-22
+# Desc      :   init redis instance
+# Path      :   redis.yml
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#---------------------------------------------------------------
+- name: Deploy Redis on Nodes
+  hosts: all
+  become: true
+  gather_facts: no
+
+  roles:
+    - role: node      # node setup role
+      tags: node
+
+    - role: redis
+      tags: redis
+
+#---------------------------------------------------------------
+
+################################################################
+# Tutorial
+################################################################
+# How to create redis clusters ?
+#   1. define this cluster in pigsty.yml
+#   2. ./redis.yml -l <cluster>
+#
+#    Here are two example redis cluster definition:
+#
+#    #----------------------------------#
+#    # cluster: redis-meta              #
+#    #----------------------------------#
+#    redis-meta:
+#      hosts:
+#        10.10.10.10: {redis_node: 1 , redis_instances: {16379: { port: 6379 } }}
+#      vars:
+#        redis_cluster: redis-meta           # name of this redis cluster
+#
+#
+#    #----------------------------------#
+#    # cluster: redis-test              #
+#    #----------------------------------#
+#    redis-test:
+#      hosts:
+#        10.10.10.11:
+#          redis_node: 1
+#          redis_instances:
+#            16501: { port: 6501 }
+#            16502: { port: 6502 , replica_of: '10.10.10.11 6501'}
+#            16503: { port: 6503 , replica_of: '10.10.10.11 6501'}
+#        10.10.10.12:
+#          redis_node: 2
+#          redis_instances:
+#            26501: { port: 6501 }
+#            26502: { port: 6502 , replica_of: '10.10.10.12 6501' }
+#            26503: { port: 6503 , replica_of: '10.10.10.12 6501' }
+#        10.10.10.13:
+#          redis_node: 3
+#          redis_instances:
+#            36501: { port: 6501 }
+#            36502: { port: 6502 , replica_of: '10.10.10.13 6501'}
+#            36503: { port: 6503 , replica_of: '10.10.10.13 6501' }
+#      vars:
+#        redis_cluster: redis-test           # name of this redis 'cluster'
+#        redis_mode: standalone              # standalone,cluster,sentinel
+#        redis_conf_template: redis.conf     # which config template will be used
+#        redis_fs_main: /data                # main data disk for redis
+#        redis_bind_address: '0.0.0.0'       # e.g 0.0.0.0, empty will use inventory_hostname as bind address
+#        redis_max_memory: 1GB               # max memory used by each redis instance
+#        redis_mem_policy: allkeys-lru       # memory eviction policy
+#        redis_password: ''                  # empty password disable password auth (masterauth & requirepass)
+#        redis_rdb_save: ['1200 1']          # redis RDB save directives, empty list disable it
+#        redis_aof_enabled: false            # enable redis AOF
+#        redis_rename_commands:              # rename dangerous commands
+#          flushall: opflushall
+#          flushdb: opflushdb
+#          keys: opkeys
+################################################################
+...

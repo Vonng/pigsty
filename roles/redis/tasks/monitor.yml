@@ -1,0 +1,55 @@
+---
+#------------------------------------------------------------------------------
+# Monitor Install
+#------------------------------------------------------------------------------
+# assume node_exporter & redis_exporter installed via role: node
+- name: Install node_exporter & redis_exporter
+  tags: exporter_install
+  package: name={{ item }} state=present
+  with_items:
+    - node_exporter
+    - redis_exporter
+
+
+#------------------------------------------------------------------------------
+# Node Exporter
+#------------------------------------------------------------------------------
+# Note that node_exporter may already exist, this may overwrite existing node_exporter instance
+- name: Setup node_exporter
+  tags: node_exporter
+  block:
+    - name: Copy node_exporter systemd service
+      template: src=node_exporter.service.j2 dest=/usr/lib/systemd/system/node_exporter.service
+
+    - name: Config default node_exporter options
+      template: src=node_exporter.j2 dest=/etc/default/node_exporter
+
+    - name: Launch node_exporter service unit
+      systemd: name=node_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for node_exporter online
+      wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
+
+
+#------------------------------------------------------------------------------
+# Redis Exporter
+#------------------------------------------------------------------------------
+# there's only one redis exporter per Node (NOT per redis instance!)
+# use prometheus multi-target to scrape all redis instances on this node
+
+- name: Setup redis_exporter
+  tags: redis_exporter
+  block:
+    - name: Config /etc/default/redis_exporter
+      template: src=redis_exporter.j2 dest=/etc/default/redis_exporter owner=prometheus group=prometheus mode=0600
+
+    - name: Config redis_exporter service unit
+      template: src=redis_exporter.service.j2 dest=/usr/lib/systemd/system/redis_exporter.service
+
+    - name: Launch redis_exporter systemd service
+      systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for redis_exporter service online
+      ignore_errors: true
+      wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
+...

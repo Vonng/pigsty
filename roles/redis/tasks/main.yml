@@ -1,0 +1,161 @@
+---
+
+###############################################################################
+# Setup Redis Nodes
+###############################################################################
+
+#------------------------------------------------------------------------------
+# Assert valid redis cluster definition
+#------------------------------------------------------------------------------
+- name: Check node has redis_cluster defined
+  tags: redis_node
+  assert:
+    that:
+      - redis_cluster is defined and redis_cluster != ''
+
+#------------------------------------------------------------------------------
+# Install
+#------------------------------------------------------------------------------
+- import_tasks: install.yml
+  tags: [ redis_install, redis_node ]
+
+#----------------------------------=--------------------------------------------
+# Prepare
+#------------------------------------------------------------------------------
+- name: Create user redis
+  tags: [ redis_user , redis_node ]
+  user: name=redis home=/home/redis generate_ssh_key=yes
+
+
+#----------------------------------=--------------------------------------------
+# Directory & Service
+#------------------------------------------------------------------------------
+- name: Create redis resource dir
+  tags: [ redis_dir , redis_node ]
+  become: yes
+  block:
+    - name: Make sure fs main dir exists
+      file: path={{ redis_fs_main }} state=directory owner=root mode=0777
+
+    - name: Make sure redis data dir exists
+      file: path={{ item }} state=directory owner=redis mode=0700
+      with_items:
+        - /etc/redis
+        - /var/log/redis/
+        - /var/run/redis/
+        - "{{ redis_fs_main }}/redis"
+
+
+#------------------------------------------------------------------------------
+# Systemd
+#------------------------------------------------------------------------------
+- name: Render redis-server@ service template
+  tags: [ redis_systemd, redis_node ]
+  become: yes
+  block:
+    - name: Render redis systemd service template
+      template: src=redis.service dest=/usr/lib/systemd/system/redis-server@.service owner=root mode=644
+
+    - name: Reload systemd daemon
+      systemd: daemon_reload=yes
+
+
+#------------------------------------------------------------------------------
+# Monitor (node_exporter & redis_exporter)
+#------------------------------------------------------------------------------
+- import_tasks: monitor.yml
+  tags: [ redis_monitor, redis_node ]
+
+
+
+
+###############################################################################
+# Setup Redis Instance Resource
+###############################################################################
+
+#------------------------------------------------------------------------------
+# Assert before launch instances
+#------------------------------------------------------------------------------
+- name: Check necessary variables exists
+  assert:
+    that:
+      - redis_cluster is defined and redis_cluster != ''
+      - redis_instances is defined
+      - redis_instances | type_debug == "dict"
+    fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
+
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+- name: Create redis resource dir
+  tags: [ redis_config ]
+  become: yes
+  block:
+    - name: Render redis instance config
+      template: src={{ redis_conf }} dest=/etc/redis/{{ port }}.conf owner=redis mode=0700
+      vars:
+        seq: "{{ item.key }}"
+        port: "{{ item.value.port }}"
+        upstream: "{{ item.value['replica_of']|default(None) }}"
+      with_dict:
+        - "{{ redis_instances }}"
+
+    - name: Create redis instance data dir
+      file: path={{ redis_fs_main }}/redis/{{ port }} state=directory owner=redis mode=0700
+      vars:
+        port: "{{ item.value.port }}"
+      with_dict:
+        - "{{ redis_instances }}"
+
+
+#------------------------------------------------------------------------------
+# launch
+#------------------------------------------------------------------------------
+# launch primaries
+- include_tasks: launch.yml
+  tags: [ redis_launch, redis_launch_primary ]
+  vars:
+    seq: "{{ item.key }}"
+    port: "{{ item.value.port }}"
+    ip: "{{ inventory_hostname }}"
+    pg_cluster: "{{ pg_cluster }}"
+    upstream: "{{ item.value['replica_of']|default(None) }}"
+  with_dict: "{{ redis_instances }}"
+  when: item.value.replica_of is not defined
+
+# launch replicas
+- include_tasks: launch.yml
+  tags: [ redis_launch, redis_launch_replica, reload ]
+  vars:
+    seq: "{{ item.key }}"
+    port: "{{ item.value.port }}"
+    ip: "{{ inventory_hostname }}"
+    pg_cluster: "{{ pg_cluster }}"
+    upstream: "{{ item.value['replica_of']|default(None) }}"
+  with_dict: "{{ redis_instances }}"
+  when: item.value.replica_of is defined
+
+
+#--------------------------------------------------------------#
+# Register
+#--------------------------------------------------------------#
+# register redis targets to prometheus on meta nodes
+
+# /etc/prometheus/targets/redis/{{ redis_node }}.yml
+- name: Register redis instance as prometheus target
+  tags: [ redis_register, register_prometheus ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  become: yes
+  copy:
+    dest: /etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml
+    content: |
+      # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
+
+      {% for seq,conf in redis_instances.items() %}
+      - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ seq }}, instance: {{ inventory_hostname }}:{{ conf.port }} }
+        targets: [ redis://{{ inventory_hostname }}:{{ conf.port }} ]
+
+      {% endfor %}
+
+...

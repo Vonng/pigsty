@@ -1,0 +1,37 @@
+---
+# - identity - #
+# redis_cluster:                    # name of this redis 'cluster' , cluster level
+# redis_node:                       # id of this redis node, integer sequence
+# redis_instances:                  # redis instance list on this redis node
+
+# - config - #
+redis_mode: standalone              # standalone,cluster,sentinel
+redis_conf: redis.conf              # which config template will be used
+redis_fs_main: /data                # main data disk for redis
+redis_bind_address: '0.0.0.0'       # e.g 0.0.0.0, empty will use inventory_hostname as bind address
+redis_max_memory: 1GB               # max memory used by each redis instance
+redis_mem_policy: allkeys-lru       # memory eviction policy
+redis_password: ''                  # empty password disable password auth (masterauth & requirepass)
+redis_rdb_save: ['1200 1']          # redis RDB save directives, empty list disable it
+redis_aof_enabled: false            # enable redis AOF
+redis_rename_commands: {}           # rename dangerous commands
+  # flushall: opflushall
+  # flushdb: opflushdb
+  # keys: opkeys
+
+# - redis exporter - #
+redis_exporter_enabled: true        # install redis exporter on redis nodes
+redis_exporter_port: 9121           # default port for redis exporter
+redis_exporter_options: ''          # default cli args for redis exporter
+
+# - node exporter - #
+node_exporter_enabled: true                   # setup node_exporter on instance
+node_exporter_port: 9100                      # default port for node exporter
+node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
+
+# - reference - #
+exporter_install: none              # none|yum|binary, none by default
+exporter_repo_url: ''               # if set, repo will be added to /etc/yum.repos.d/ before yum installation
+exporter_metrics_path: /metrics     # default metric path for pg related exporter
+service_registry: consul
+...

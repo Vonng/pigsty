@@ -1,0 +1,24 @@
+[Unit]
+Description=Redis Server@:%i  {{ redis_cluster }}@{{ inventory_hostname }}:%i
+Documentation=https://redis.io/documentation
+#AssertPathExists=/var/log/redis
+#AssertPathExists=/var/run/redis
+AssertPathExists=/etc/redis/%i.conf
+AssertPathExists={{ redis_fs_main }}/redis/%i
+
+[Service]
+ExecStart=/usr/bin/redis-server /etc/redis/%i.conf
+ExecStop=/usr/libexec/redis-shutdown redis/%i
+#ExecStop=/usr/bin/redis-cli -p %i shutdown
+WorkingDirectory={{ redis_fs_main }}/redis/%i
+PIDFile=/var/run/redis/redis-%i.pid
+LimitNOFILE=10032
+TimeoutStartSec=30s
+TimeoutStopSec=30s
+UMask=0077
+User=redis
+Group=redis
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
