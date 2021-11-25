@@ -4,7 +4,7 @@
 ###############################################################################
 # add repo url if any stuff require yum installation and there's a non-empty repo url
 - name: Install extra yum repo for redis
-  tags: [ redis_install, redis_install_yum ]
+  tags: [ redis_install, redis_node ]
   when: exporter_repo_url != '' and (redis_install == 'yum' or exporter_install == 'yum')
   get_url:
     url: "{{ exporter_repo_url }}"
@@ -21,14 +21,14 @@
 
 # when redis_install = 'yum' (default)
 - name: Install redis via yum
-  tags: [ redis_install, redis_install_yum ]
+  tags: [ redis_install, redis_node ]
   when: redis_install == 'yum'
   package: name=redis state=present
 
 # when redis_install = 'binary'
 - name: Install redis via binaries
   when: redis_install == 'binary'
-  tags: [ redis_install, redis_install_binary ]
+  tags: [ redis_install, redis_node ]
   copy: src={{ item.src }} dest={{ item.dest }} owner=root mode=0755
   with_items:
     - { src: bin/redis-server     , dest: /bin/redis-server     }
@@ -52,7 +52,7 @@
 
 # when exporter_install = 'yum'
 - name: Install redis monitor via yum
-  tags: [ redis_monitor_install, redis_monitor_install_yum ]
+  tags: [ redis_monitor_install, redis_node ]
   when: exporter_install == 'yum'
   package: name={{ item }} state=present
   with_items:
@@ -61,11 +61,56 @@
 
 # when exporter_install = 'binary'
 - name: Install redis monitor via binaries
-  tags: [ redis_monitor_install, redis_monitor_install_binary ]
+  tags: [ redis_monitor_install, redis_node ]
   when: exporter_install == 'binary'
   copy: src={{ item.src }} dest={{ item.dest }} owner=root mode=0755
   ignore_errors: true
   with_items:
     - { src: bin/redis_exporter , dest: /bin/redis_exporter }
     - { src: bin/node_exporter  , dest: /bin/node_exporter  }
+
+
+
+###############################################################################
+# User
+###############################################################################
+- name: Create user redis
+  tags: [ redis_user , redis_node ]
+  user: name=redis home=/home/redis generate_ssh_key=yes
+
+
+###############################################################################
+# Directory & Service
+###############################################################################
+- name: Create redis resource dir
+  tags: [ redis_dir , redis_node ]
+  become: yes
+  block:
+    - name: Make sure fs main dir exists
+      file: path={{ redis_fs_main }} state=directory owner=root mode=0777
+
+    - name: Make sure redis data dir exists
+      file: path={{ item }} state=directory owner=redis mode=0700
+      with_items:
+        - /etc/redis
+        - /var/log/redis/
+        - /var/run/redis/
+        - "{{ redis_fs_main }}/redis"
+
+
+###############################################################################
+# Systemd (multiple instance templates)
+###############################################################################
+- name: Render redis & sentinel systemd service template
+  tags: [ redis_systemd, redis_node ]
+  become: yes
+  block:
+    - name: Render redis systemd service template
+      template: src=redis@.service dest=/usr/lib/systemd/system/redis@.service owner=root mode=644
+
+    - name: Render redis-sentinel systemd service template
+      template: src=redis-sentinel@.service dest=/usr/lib/systemd/system/redis-sentinel@.service owner=root mode=644
+
+    - name: Reload systemd daemon
+      systemd: daemon_reload=yes
 

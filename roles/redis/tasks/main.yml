@@ -5,63 +5,10 @@
 ###############################################################################
 
 #------------------------------------------------------------------------------
-# Assert valid redis cluster definition
-#------------------------------------------------------------------------------
-- name: Check node has redis_cluster defined
-  tags: redis_node
-  assert:
-    that:
-      - redis_cluster is defined and redis_cluster != ''
-
-#------------------------------------------------------------------------------
 # Install
 #------------------------------------------------------------------------------
-- import_tasks: install.yml
-  tags: [ redis_install, redis_node ]
-
-#----------------------------------=--------------------------------------------
-# Prepare
-#------------------------------------------------------------------------------
-- name: Create user redis
-  tags: [ redis_user , redis_node ]
-  user: name=redis home=/home/redis generate_ssh_key=yes
-
-
-#----------------------------------=--------------------------------------------
-# Directory & Service
-#------------------------------------------------------------------------------
-- name: Create redis resource dir
-  tags: [ redis_dir , redis_node ]
-  become: yes
-  block:
-    - name: Make sure fs main dir exists
-      file: path={{ redis_fs_main }} state=directory owner=root mode=0777
-
-    - name: Make sure redis data dir exists
-      file: path={{ item }} state=directory owner=redis mode=0700
-      with_items:
-        - /etc/redis
-        - /var/log/redis/
-        - /var/run/redis/
-        - "{{ redis_fs_main }}/redis"
-
-
-#------------------------------------------------------------------------------
-# Systemd
-#------------------------------------------------------------------------------
-- name: Render redis & sentinel systemd service template
-  tags: [ redis_systemd, redis_node ]
-  become: yes
-  block:
-    - name: Render redis systemd service template
-      template: src=redis.service dest=/usr/lib/systemd/system/redis@.service owner=root mode=644
-
-    - name: Render redis-sentinel systemd service template
-      template: src=redis-sentinel.service dest=/usr/lib/systemd/system/redis-sentinel@.service owner=root mode=644
-
-    - name: Reload systemd daemon
-      systemd: daemon_reload=yes
-
+- import_tasks: node.yml
+  tags: [ redis_node  ]
 
 #------------------------------------------------------------------------------
 # Monitor (node_exporter & redis_exporter)
@@ -73,7 +20,7 @@
 
 
 ###############################################################################
-# Setup Redis Instance Resource
+# Setup Redis Instances
 ###############################################################################
 
 #------------------------------------------------------------------------------
@@ -88,82 +35,15 @@
       - redis_instances | type_debug == "dict"
     fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
 
-
 #------------------------------------------------------------------------------
-# Clean [DANGEROUS!]
+# Create redis instances
 #------------------------------------------------------------------------------
-- name: Clean existing redis
-  tags: [ redis_ins, redis_clean ]
-  when: redis_exists_action == 'clean'
-  block:
-
-    - name: Shut redis instance
-      ignore_errors: true
-      service:
-        name: "{{ svcname }}"
-        state: stopped
-      vars:
-        port: "{{ item.key }}"
-        svcname: "{% if redis_mode == 'sentinel' %}redis-sentinel{% else %}redis{% endif %}@{{ item.key }}"
-      with_dict: "{{ redis_instances }}"
-
-
-    - name: Remove redis instance data dir
-      file: path={{ redis_fs_main }}/redis/{{ port }} state=absent owner=redis mode=0700
-      vars:
-        port: "{{ item.key }}"
-      with_dict:
-        - "{{ redis_instances }}"
-
-
-#------------------------------------------------------------------------------
-# Config
-#------------------------------------------------------------------------------
-- name: Create redis resource dir
-  tags: [ redis_ins, redis_config ]
-  become: yes
-  block:
-    - name: Render redis instance config
-      template: src={{ config_template }} dest=/etc/redis/{{ port }}.conf owner=redis mode=0700
-      vars:
-        port: "{{ item.key }}"
-        upstream: "{{ item.value['replica_of']|default(None) }}"
-        config_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.conf{% else %}{{ redis_conf }}{% endif %}"
-      with_dict:
-        - "{{ redis_instances }}"
-
-    - name: Create redis instance data dir
-      file: path={{ redis_fs_main }}/redis/{{ port }} state=directory owner=redis mode=0700
-      vars:
-        port: "{{ item.key }}"
-      with_dict:
-        - "{{ redis_instances }}"
-
-
-#------------------------------------------------------------------------------
-# launch
-#------------------------------------------------------------------------------
-- name: Launch redis-server primary systemd service
-  tags: [ redis_ins, redis_launch, redis_primary ]
-  service:
-    name: "{{ svcname }}"
-    state: restarted
+- include_tasks: instance.yml
+  tags: redis_ins
   vars:
     port: "{{ item.key }}"
-    svcname: "{% if redis_mode == 'sentinel' %}redis-sentinel{% else %}redis{% endif %}@{{ item.key }}"
+    conf: "{{ item.value|default({}) }}"
   with_dict: "{{ redis_instances }}"
-  when: item.value.replica_of is not defined
-
-- name: Launch redis-server replica systemd service
-  tags: [ redis_ins, redis_launch, redis_replica ]
-  service:
-    name: "{{ svcname }}"
-    state: restarted
-  vars:
-    port: "{{ item.key }}"
-    svcname: "{% if redis_mode == 'sentinel' %}redis-sentinel{% else %}redis{% endif %}@{{ item.key }}"
-  with_dict: "{{ redis_instances }}"
-  when: item.value.replica_of is defined
 
 
 #------------------------------------------------------------------------------
@@ -202,14 +82,9 @@
 
 
 
-#------------------------------------------------------------------------------
-# join redis-sentinel cluster if redis_mode = 'cluster'
-#------------------------------------------------------------------------------
-
-
-###############################################################################
-# Register
-###############################################################################
+################################################################################
+## Register
+################################################################################
 
 #------------------------------------------------------------------------------
 # register redis targets to prometheus on meta nodes
@@ -232,5 +107,5 @@
       {% endfor %}
 
 
-
 ...
+

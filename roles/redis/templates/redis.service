@@ -1,17 +1,17 @@
 [Unit]
-Description=Redis Server@:%i  {{ redis_cluster }}@{{ inventory_hostname }}:%i
+Description=Redis Server@:{{ port }}  {{ redis_cluster }}@{{ inventory_hostname }}:{{ port }}
 Documentation=https://redis.io/documentation
 #AssertPathExists=/var/log/redis
 #AssertPathExists=/var/run/redis
-#AssertPathExists={{ redis_fs_main }}/redis/%i
-AssertPathExists=/etc/redis/%i.conf
+#AssertPathExists={{ redis_fs_main }}/redis/{{ port }}
+AssertPathExists=/etc/redis/{{ port }}.conf
 
 [Service]
-ExecStart=/bin/redis-server /etc/redis/%i.conf --daemonize no --supervised systemd
-ExecStop=/usr/libexec/redis-shutdown %i
-#ExecStop=/bin/redis-cli -p %i shutdown
-WorkingDirectory={{ redis_fs_main }}/redis/%i
-PIDFile=/var/run/redis/redis-%i.pid
+ExecStart=/bin/redis-server /etc/redis/{{ port }}.conf --daemonize no --supervised systemd
+ExecStop=/usr/libexec/redis-shutdown {{ port }}
+#ExecStop=/bin/redis-cli -p {{ port }} shutdown
+WorkingDirectory={{ redis_fs_main }}/redis/{{ port }}
+PIDFile=/var/run/redis/redis-{{ port }}.pid
 LimitNOFILE=10032
 TimeoutStartSec=60s
 TimeoutStopSec=60s
