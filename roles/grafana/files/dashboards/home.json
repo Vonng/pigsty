@@ -597,10 +597,161 @@
         },
         {
             "datasource": null,
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Cluster ${__field.labels.cls}",
+                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "-1": {
+                                    "color": "gray",
+                                    "index": 1,
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "No Data"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster ${__field.labels.cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Cluster ${__field.labels.cls}",
+                                        "url": "/d/redis-cluster?var-cls=${__field.labels.cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
             "gridPos": {
                 "h": 20,
                 "w": 6,
                 "x": 12,
+                "y": 0
+            },
+            "id": 30,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.2.5",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "cls:pressure1{job=\"pgsql\"}",
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "redis:cls:cpu_usage{job=\"redis\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "Clusters",
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "gridPos": {
+                "h": 20,
+                "w": 6,
+                "x": 18,
                 "y": 0
             },
             "id": 10,
@@ -616,37 +767,6 @@
             "pluginVersion": "8.2.5",
             "title": "Dashboards",
             "type": "dashlist"
-        },
-        {
-            "datasource": null,
-            "gridPos": {
-                "h": 20,
-                "w": 6,
-                "x": 18,
-                "y": 0
-            },
-            "id": 26,
-            "options": {
-                "alertName": "",
-                "dashboardAlerts": false,
-                "dashboardTitle": "",
-                "folderId": null,
-                "maxItems": 20,
-                "showOptions": "current",
-                "sortOrder": 1,
-                "stateFilter": {
-                    "alerting": true,
-                    "execution_error": true,
-                    "no_data": true,
-                    "ok": true,
-                    "paused": true,
-                    "pending": true
-                },
-                "tags": []
-            },
-            "pluginVersion": "8.2.5",
-            "title": "Grafana Alerts",
-            "type": "alertlist"
         },
         {
             "datasource": "Prometheus",
@@ -850,25 +970,7 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [
-                        {
-                            "title": "PGSQL Instance for ${__field.labels.ins}",
-                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
-                        },
-                        {
-                            "title": "PGSQL Node for ${__field.labels.ins}",
-                            "url": "/d/pgsql-node?var-id=${__field.labels.ins}"
-                        },
-                        {
-                            "title": "PGSQL Proxy for ${__field.labels.ins}",
-                            "url": "/d/pgsql-proxy?var-ins=${__field.labels.ins}"
-                        },
-                        {
-                            "targetBlank": true,
-                            "title": "Alert Info for ${__field.labels.ins}",
-                            "url": "http://a.pigsty/#/alerts?filter=%7Bins%3D%22${__field.labels.ins}%22%7D"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
                     "max": 1.1,
                     "min": 0,
@@ -886,11 +988,102 @@
                         ]
                     }
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "dark-green",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "C"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Redis Instance ${__field.labels.ins} @ ${__field.labels.instance}",
+                                        "url": "/d/redis-instance?var-ins=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 12,
-                "w": 8,
+                "w": 12,
                 "x": 0,
                 "y": 8
             },
@@ -907,135 +1100,48 @@
                     "fields": "",
                     "values": false
                 },
-                "text": {
-                    "titleSize": 8,
-                    "valueSize": 8
-                },
-                "textMode": "none"
+                "text": {},
+                "textMode": "name"
             },
             "pluginVersion": "8.2.5",
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "max by (instance,ins) (up{job!=\"infra\"})",
+                    "expr": "max by (type,instance) (up{job=\"infra\"})",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ type }}",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "min by (ins) (up{job=\"pgsql\"})",
+                    "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
-                    "refId": "A"
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (instance,ins) (up{job=\"redis\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "C"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "max by (instance) (up{job!~\"(infra|pgsql|redis)\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ instance }}",
+                    "refId": "D"
                 }
             ],
             "title": "Instances",
-            "type": "stat"
-        },
-        {
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [
-                        {
-                            "title": "PGSQL Cluster ${__field.labels.cls}",
-                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}"
-                        }
-                    ],
-                    "mappings": [
-                        {
-                            "options": {
-                                "-1": {
-                                    "color": "gray",
-                                    "index": 1,
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "match": "null+nan",
-                                "result": {
-                                    "color": "gray",
-                                    "index": 0,
-                                    "text": "No Data"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.3
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.7
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "text",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 12,
-                "w": 4,
-                "x": 8,
-                "y": 8
-            },
-            "id": 30,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {
-                    "titleSize": 8,
-                    "valueSize": 8
-                },
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.2.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "cls:pressure1{}",
-                    "interval": "",
-                    "legendFormat": "{{ cls }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "Clusters",
             "type": "stat"
         },
         {
