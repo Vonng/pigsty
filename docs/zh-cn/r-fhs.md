@@ -24,9 +24,6 @@
 #------------------------------------------------------------------------------
 # /etc/pigsty/
 #  ^-----@targets                # file based service discovery targets definition
-#            ^-----@infra        # infra static targets definition
-#            ^-----@pgsql        # pgsql static targets definition
-#            ^-----@redis (n/a)  # redis static targets definition (not exists for now)
 #  ^-----@dashboards             # static grafana dashboards
 #  ^-----@datasources            # static grafana datasources
 #  ^-----@playbooks              # extra ansible playbooks
@@ -47,14 +44,16 @@
 #  ^-----@rules                      # record & alerting rules definition
 #            ^-----@infra-rules      # infrastructure metrics definition
 #            ^-----@infra-alert      # infrastructure alert definition
-#            ^-----@pgsql-rules      # database metrics definition
-#            ^-----@infra-alert      # database alert definition
-# /etc/pigsty/
+#            ^-----@pgsql-rules      # postgres metrics definition
+#            ^-----@pgsql-alert      # postgres alert definition
+#            ^-----@redis-rules      # redis metrics definition
+#            ^-----@redis-alert      # redis alert definition
+#            ^-----@..........       # other metrics & alerts definition
 #  ^-----@targets                    # file based service discovery targets definition
 #            ^-----@infra            # infra static targets definition
 #            ^-----@pgsql            # pgsql static targets definition
-#            ^-----@redis (n/a)      # redis static targets definition (not exists for now)
-#
+#            ^-----@redis            # redis static targets definition
+#            ^-----@.....            # other targets
 #------------------------------------------------------------------------------
 ```
 
@@ -166,17 +165,17 @@ Pigsty假设用于部署数据库实例的单个节点上至少有一块主数�
 
 ```bash
 # basic
-{{ pg_fs_main }}     /export                      # contains all business data (pg,consul,etc..)
-{{ pg_dir_main }}    /export/postgres             # contains postgres main data
-{{ pg_cluster_dir }} /export/postgres/pg-test-14  # contains cluster `pg-test` data (of version 13)
-                     /export/postgres/pg-test-14/bin            # binary scripts
-                     /export/postgres/pg-test-14/log            # misc logs
-                     /export/postgres/pg-test-14/tmp            # tmp, sql files, records
-                     /export/postgres/pg-test-14/conf           # configurations
-                     /export/postgres/pg-test-14/data           # main data directory
-                     /export/postgres/pg-test-14/meta           # identity information
-                     /export/postgres/pg-test-14/stat           # stats information
-                     /export/postgres/pg-test-14/change         # changing records
+{{ pg_fs_main }}     /data                      # contains all business data (pg,consul,etc..)
+{{ pg_dir_main }}    /data/postgres             # contains postgres main data
+{{ pg_cluster_dir }} /data/postgres/pg-test-14  # contains cluster `pg-test` data (of version 13)
+                     /data/postgres/pg-test-14/bin            # binary scripts
+                     /data/postgres/pg-test-14/log            # misc logs
+                     /data/postgres/pg-test-14/tmp            # tmp, sql files, records
+                     /data/postgres/pg-test-14/conf           # configurations
+                     /data/postgres/pg-test-14/data           # main data directory
+                     /data/postgres/pg-test-14/meta           # identity information
+                     /data/postgres/pg-test-14/stat           # stats information
+                     /data/postgres/pg-test-14/change         # changing records
 
 {{ pg_fs_bkup }}     /var/backups                      # contains all backup data (pg,consul,etc..)
 {{ pg_dir_bkup }}    /var/backups/postgres             # contains postgres backup data
@@ -186,8 +185,8 @@ Pigsty假设用于部署数据库实例的单个节点上至少有一块主数�
                      /var/backups/postgres/pg-test-14/remote   # mount NFS/S3 remote resources here
 
 # links
-/pg             -> /export/postgres/pg-test-14               # pg root link
-/pg/data        -> /export/postgres/pg-test-14/data          # real data dir
+/pg             -> /data/postgres/pg-test-14                 # pg root link
+/pg/data        -> /data/postgres/pg-test-14/data            # real data dir
 /pg/backup      -> /var/backups/postgres/pg-test-14/backup   # base backup
 /pg/arcwal      -> /var/backups/postgres/pg-test-14/arcwal   # WAL archive
 /pg/remote      -> /var/backups/postgres/pg-test-14/remote   # mount NFS/S3 remote resources here
@@ -206,3 +205,31 @@ Pgbouncer使用Postgres用户运行，配置文件位于`/etc/pgbouncer`。配�
 * `database.txt`：列出连接池中的数据库
 
 
+## Redis文件结构
+
+Pigsty提供了对Redis部署与监控对基础支持。
+
+Redis二进制使用RPM包或复制二进制的方式安装于`/bin/`中，包括
+
+```bash
+redis-server    
+redis-server    
+redis-cli       
+redis-sentinel  
+redis-check-rdb 
+redis-check-aof 
+redis-benchmark 
+/usr/libexec/redis-shutdown
+```
+
+对于一个名为 `redis-test-1-6379` 的 Redis 实例，与其相关的资源如下所示：
+
+```bash
+/usr/lib/systemd/system/redis-test-1-6379.service               # 服务
+/etc/redis/redis-test-1-6379.conf                               # 配置 
+/data/redis/redis-test-1-6379                                   # 数据库目录
+/data/redis/redis-test-1-6379/redis-test-1-6379.rdb             # RDB文件
+/data/redis/redis-test-1-6379/redis-test-1-6379.aof             # AOF文件
+/var/log/redis/redis-test-1-6379.log                            # 日志
+/var/run/redis/redis-test-1-6379.pid                            # PID
+```

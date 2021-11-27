@@ -28,9 +28,6 @@ Extra dir `/etc/pigsty` will be created on meta node during installation.
 #------------------------------------------------------------------------------
 # /etc/pigsty/
 #  ^-----@targets                # file based service discovery targets definition
-#            ^-----@infra        # infra static targets definition
-#            ^-----@pgsql        # pgsql static targets definition
-#            ^-----@redis (n/a)  # redis static targets definition (not exists for now)
 #  ^-----@dashboards             # static grafana dashboards
 #  ^-----@datasources            # static grafana datasources
 #  ^-----@playbooks              # extra ansible playbooks
@@ -53,14 +50,16 @@ Extra dir `/etc/pigsty` will be created on meta node during installation.
 #  ^-----@rules                      # record & alerting rules definition
 #            ^-----@infra-rules      # infrastructure metrics definition
 #            ^-----@infra-alert      # infrastructure alert definition
-#            ^-----@pgsql-rules      # database metrics definition
-#            ^-----@infra-alert      # database alert definition
-# /etc/pigsty/
+#            ^-----@pgsql-rules      # postgres metrics definition
+#            ^-----@pgsql-alert      # postgres alert definition
+#            ^-----@redis-rules      # redis metrics definition
+#            ^-----@redis-alert      # redis alert definition
+#            ^-----@..........       # other metrics & alerts definition
 #  ^-----@targets                    # file based service discovery targets definition
 #            ^-----@infra            # infra static targets definition
 #            ^-----@pgsql            # pgsql static targets definition
-#            ^-----@redis (n/a)      # redis static targets definition (not exists for now)
-#
+#            ^-----@redis            # redis static targets definition
+#            ^-----@.....            # other targets
 #------------------------------------------------------------------------------
 ```
 
@@ -178,31 +177,31 @@ Subdir will be created under `pg_fs_main` and `pg_fs_bkup`.
 
 ```bash
 # basic
-{{ pg_fs_main }}     /export                      # contains all business data (pg,consul,etc..)
-{{ pg_dir_main }}    /export/postgres             # contains postgres main data
-{{ pg_cluster_dir }} /export/postgres/pg-test-13  # contains cluster `pg-test` data (of version 13)
-                     /export/postgres/pg-test-13/bin            # binary scripts
-                     /export/postgres/pg-test-13/log            # misc logs
-                     /export/postgres/pg-test-13/tmp            # tmp, sql files, records
-                     /export/postgres/pg-test-13/conf           # configurations
-                     /export/postgres/pg-test-13/data           # main data directory
-                     /export/postgres/pg-test-13/meta           # identity information
-                     /export/postgres/pg-test-13/stat           # stats information
-                     /export/postgres/pg-test-13/change         # changing records
+{{ pg_fs_main }}     /data                                    # contains all business data (pg,consul,etc..)
+{{ pg_dir_main }}    /data/postgres                           # contains postgres main data
+{{ pg_cluster_dir }} /data/postgres/pg-test-13                # contains cluster `pg-test` data (of version 13)
+                     /data/postgres/pg-test-13/bin            # binary scripts
+                     /data/postgres/pg-test-13/log            # misc logs
+                     /data/postgres/pg-test-13/tmp            # tmp, sql files, records
+                     /data/postgres/pg-test-13/conf           # configurations
+                     /data/postgres/pg-test-13/data           # main data directory
+                     /data/postgres/pg-test-13/meta           # identity information
+                     /data/postgres/pg-test-13/stat           # stats information
+                     /data/postgres/pg-test-13/change         # changing records
 
-{{ pg_fs_bkup }}     /var/backups                      # contains all backup data (pg,consul,etc..)
-{{ pg_dir_bkup }}    /var/backups/postgres             # contains postgres backup data
-{{ pg_backup_dir }}  /var/backups/postgres/pg-test-13  # contains cluster `pg-test` backup (of version 13)
+{{ pg_fs_bkup }}     /var/backups                              # contains all backup data (pg,consul,etc..)
+{{ pg_dir_bkup }}    /var/backups/postgres                     # contains postgres backup data
+{{ pg_backup_dir }}  /var/backups/postgres/pg-test-13          # contains cluster `pg-test` backup (of version 13)
                      /var/backups/postgres/pg-test-13/backup   # base backup
                      /var/backups/postgres/pg-test-13/arcwal   # WAL archive
                      /var/backups/postgres/pg-test-13/remote   # mount NFS/S3 remote resources here
 
 # links
-/pg             -> /export/postgres/pg-test-12               # pg root link
-/pg/data        -> /export/postgres/pg-test-12/data          # real data dir
-/pg/backup      -> /var/backups/postgres/pg-test-13/backup   # base backup
-/pg/arcwal      -> /var/backups/postgres/pg-test-13/arcwal   # WAL archive
-/pg/remote      -> /var/backups/postgres/pg-test-13/remote   # mount NFS/S3 remote resources here
+/pg             -> /data/postgres/pg-test-14                   # pg root link
+/pg/data        -> /data/postgres/pg-test-14/data              # real data dir
+/pg/backup      -> /var/backups/postgres/pg-test-14/backup     # base backup
+/pg/arcwal      -> /var/backups/postgres/pg-test-14/arcwal     # WAL archive
+/pg/remote      -> /var/backups/postgres/pg-test-14/remote     # mount NFS/S3 remote resources here
 
 ```
 
@@ -216,4 +215,38 @@ Pgbouncer is run with Postgres dbsu and the configuration file is located in `/e
 * `userlist.txt`: lists the users in the connection pool
 * `pgb_hba.conf`: lists the access rights of the connection pool users
 * `database.txt`: lists the databases in the connection pool
+
+
+
+## Redis FHS
+
+Pigsty has monitor & deployment support for redis since v1.3
+
+Redis binaries are installed via `yum` or `binary` under `/bin/`, including
+
+```bash
+redis-server    
+redis-server    
+redis-cli       
+redis-sentinel  
+redis-check-rdb 
+redis-check-aof 
+redis-benchmark 
+/usr/libexec/redis-shutdown
+```
+
+for a redis instance named `redis-test-1-6379`
+* redis_cluster = redis-test
+* redis_node    = 1
+* port          = 6379
+
+```bash
+/usr/lib/systemd/system/redis-test-1-6379.service               # service
+/etc/redis/redis-test-1-6379.conf                               # config 
+/data/redis/redis-test-1-6379                                   # data dir
+/data/redis/redis-test-1-6379/redis-test-1-6379.rdb             # rdb
+/data/redis/redis-test-1-6379/redis-test-1-6379.aof             # aof
+/var/log/redis/redis-test-1-6379.log                            # log
+/var/run/redis/redis-test-1-6379.pid                            # pid
+```
 
