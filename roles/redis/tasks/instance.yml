@@ -47,7 +47,7 @@
         #enabled: no
 
     - name: Remove redis instance data dir
-      file: path={{ redis_fs_main }}/redis/{{ port }} state=absent owner=redis mode=0700
+      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=absent owner=redis mode=0700
 
 
 #------------------------------------------------------------------------------
@@ -60,11 +60,11 @@
 
     # data dir @ /data/redis/<port> (default)
     - name: Create redis instance data dir
-      file: path={{ redis_fs_main }}/redis/{{ port }} state=directory owner=redis mode=0700
+      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=directory owner=redis mode=0700
 
     # config @ /etc/redis/<port>.conf
     - name: Render redis instance config
-      template: src={{ config_template }} dest=/etc/redis/{{ port }}.conf owner=redis mode=0700
+      template: src={{ config_template }} dest=/etc/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.conf owner=redis mode=0700
       vars:
         upstream: "{{ conf['replica_of']|default(None) }}"
         config_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.conf{% else %}{{ redis_conf }}{% endif %}"

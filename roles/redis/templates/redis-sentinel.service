@@ -1,17 +1,17 @@
 [Unit]
-Description=Redis Sentinel@:{{ port }}  {{ redis_cluster }}@{{ inventory_hostname }}:{{ port }}
+Description=Redis Sentinel {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}:{{ port }}
 Documentation=https://redis.io/documentation
 #AssertPathExists=/var/log/redis
 #AssertPathExists=/var/run/redis
-#AssertPathExists={{ redis_fs_main }}/redis/{{ port }}
-AssertPathExists=/etc/redis/{{ port }}.conf
+#AssertPathExists={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}
+AssertPathExists=/etc/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.conf
 
 [Service]
-ExecStart=/bin/redis-sentinel /etc/redis/{{ port }}.conf --daemonize no --supervised systemd
-ExecStop=/usr/libexec/redis-shutdown {{ port }}
+ExecStart=/bin/redis-sentinel /etc/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.conf --daemonize no --supervised systemd
+ExecStop=/usr/libexec/redis-shutdown {{ redis_cluster }}-{{ redis_node }}-{{ port }}
 #ExecStop=/bin/redis-cli -p {{ port }} shutdown
-WorkingDirectory={{ redis_fs_main }}/redis/{{ port }}
-PIDFile=/var/run/redis/redis-{{ port }}.pid
+WorkingDirectory={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}
+PIDFile=/var/run/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.pid
 LimitNOFILE=10032
 TimeoutStartSec=60s
 TimeoutStopSec=60s
