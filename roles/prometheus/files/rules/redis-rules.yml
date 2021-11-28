@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   redis-rules.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2020-12-03
+# Mtime     :   2021-11-28
 # Desc      :   Record rules for redis
 # Path      :   /etc/prometheus/rules/redis-rules.yml
 # Copyright (C) 2019-2020 Ruohang Feng
@@ -14,6 +14,40 @@ groups:
   ################################################################
   - name: redis-rules
     rules:
+
+      ################################################################
+      #                     PGSQL : Identity                         #
+      ################################################################
+      # redis:ins holds id(ins,instance) map to redis instance
+      - record: redis:ins
+        expr: |
+          max by (id, ins, instance, cls, job) (
+            label_replace(redis_up, "id", "$1", "ins", "(.+)") OR
+            label_replace(redis_up, "id", "$1", "instance", "(.+)")
+          )
+
+      #==============================================================#
+      #                           Node                               #
+      #==============================================================#
+      # add new `ip` label to redis_up
+      - record: redis:node:ip
+        expr: label_replace(redis_up, "ip", "$1", "instance", "(.*)\\:\\d+")
+
+      # node memory total bytes
+      - record: redis:node:mem_total
+        expr: max by (job,cls,ip) (label_replace(redis_total_system_memory_bytes, "ip", "$1", "instance", "(.*)\\:\\d+"))
+
+      # config max memory for all instances on node
+      - record: redis:node:mem_alloc
+        expr: sum by (job,cls,ip) (label_replace(redis_config_maxmemory, "ip", "$1", "instance", "(.*)\\:\\d+"))
+
+      - record: redis:node:mem_used
+        expr: sum by (job,cls,ip) (label_replace(redis_memory_used_bytes, "ip", "$1", "instance", "(.*)\\:\\d+"))
+
+      # config max memory for all instances on node
+      - record: redis:node:qps
+        expr: sum by (job,cls,ip) (label_replace(redis:ins:qps, "ip", "$1", "instance", "(.*)\\:\\d+"))
+
 
       #==============================================================#
       #                           CPU                                #

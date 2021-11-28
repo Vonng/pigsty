@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   redis-alert.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2021-11-22
+# Mtime     :   2021-11-28
 # Desc      :   Alerting rules for redis
 # Path      :   /etc/prometheus/rules/redis-alert.yml
 # Copyright (C) 2018-2021 Ruohang Feng
@@ -71,10 +71,9 @@ groups:
       - alert: RedisRTHighh
         expr: redis:ins:rt > 0.00016
         for: 1m
-        labels:
-          severity: P1
+        labels: { level: 1, severity: WARN, category: redis }
         annotations:
-          summary: "P1 Redis RT High: {{ $labels.cls }} {{ $labels.ins }}"
+          summary: "WARN RedisRTHigh: {{ $labels.cls }} {{ $labels.ins }}"
           description: |
             pg:ins:query_rt[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 160µs
             http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=97&fullscreen&var-ins={{ $labels.ins }}
@@ -88,10 +87,9 @@ groups:
       - alert: RedisCPUHigh
         expr: redis:ins:cpu_usage > 0.60
         for: 1m
-        labels:
-          severity: P1
+        labels: { level: 1, severity: WARN, category: redis }
         annotations:
-          summary: "P1 RedisCPUHigh: {{ $labels.cls }} {{ $labels.ins }}"
+          summary: "WARN RedisCPUHigh: {{ $labels.cls }} {{ $labels.ins }}"
           description: |
             redis:ins:cpu_all[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 60%
             http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=43&fullscreen&var-ins={{ $labels.ins }}
@@ -100,10 +98,9 @@ groups:
       - alert: RedisMemHigh
         expr: redis:ins:mem_usage > 0.80
         for: 1m
-        labels:
-          severity: P1
+        labels: { level: 1, severity: WARN, category: redis }
         annotations:
-          summary: "Warn RedisMemHigh: {{ $labels.cls }} {{ $labels.ins }}"
+          summary: "WARN RedisMemHigh: {{ $labels.cls }} {{ $labels.ins }}"
           description: |
             redis:ins:mem_usage[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 80%
             http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=7&fullscreen&var-ins={{ $labels.ins }}
@@ -115,10 +112,9 @@ groups:
       - alert: RedisQPSHigh
         expr: redis:ins:qps > 16000
         for: 5m
-        labels:
-          severity: P2
+        labels: { level: 1, severity: WARN, category: redis }
         annotations:
-          summary: "Info RedisQPSHigh: {{ $labels.cls }} {{ $labels.ins }}"
+          summary: "INFO RedisQPSHigh: {{ $labels.cls }} {{ $labels.ins }}"
           description: |
             redis:ins:qps[cls={{ $labels.cls }}, ins={{ $labels.ins }}] = {{ $value }} > 16000
             http://g.pigsty/d/redis-instance?from=now-10m&to=now&viewPanel=96&fullscreen&var-ins={{ $labels.ins }}
