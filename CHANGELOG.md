@@ -20,6 +20,8 @@
 
 * [ENHANCEMENT] add PostgreSQL 13 into default package list
 
+* [ENHANCEMENT] Redis Deployment (cluster,sentinel,standalone)
+* [ENHANCEMENT] Redis Monitor (Redis Overview, Redis Cluster, Redis Instance)
 
 
 # v1.2.0

@@ -210,3 +210,9 @@ Pigsty包含了185个[配置项](#配置项清单)，分为[十类](#配置项�
 |  [服务供给](v-service.md)  |           [dns_mode](v-service.md#dns_mode)              |  `enum`  |  G/C  | DNS配置模式 |
 |  [服务供给](v-service.md)  |          [dns_selector](v-service.md#dns_selector)          |  `string`  |  G/C  | DNS解析对象选择器 |
 
+
+## Redis支持
+
+Pigsty v1.3提供了Redis部署与监控的支持，但仍作为Beta功能。Redis的相关配置项请参考 [Redis配置](v-redis.md)
+
+

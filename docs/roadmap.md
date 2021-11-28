@@ -28,7 +28,7 @@
 |   2021-07-26   | v1 GA, Monitoring System Overhaul                         | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0) |
 |   2021-10-12   | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger              | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0) |
 |   2021-11-03   | Upgrade default Postgres to 14, monitoring existing pg    | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0) |
-|   2021-11-31   | Dashboards update: PGCAT Overhaul & PGSQL Enhancement     | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0) |
+|   2021-11-31   | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta   | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0) |
 
 
 
@@ -36,7 +36,7 @@
 
 |      Time      | Description                                               | Release                                                      |
 | :------------: | --------------------------------------------------------- | ------------------------------------------------------------ |
-|   2021-12-31   | PGLOG redesign                                            | v1.4                                                         |
+|   2021-12-31   | Auto-Migration Playbook & PGLOG redesign                  | v1.4                                                         |
 |   2022-01-31   | Redis Deployment Support                                  | v1.5                                                         |
 |   2022-01-31   | Citus Deployment Support                                  | v1.5                                                         |
 |     2022       | Pigsty private cloud DBaaS backend/frontend               | v1.6                                                         |

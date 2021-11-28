@@ -20,6 +20,18 @@
 * Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
 
 
+## Quick Start
+
+Run on fresh Linux x86_64 CentOS 7.8.2003 node with ssh root access:
+
+```bash
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pkg.tgz    -o /tmp/pkg.tgz
+git clone https://github.com/Vonng/pigsty && cd pigsty
+./configure
+make install
+```
+
 
 ## Highlights
 
@@ -32,15 +44,15 @@
 * **Flexible Design** makes pigsty fully configurable & customizable & extensible.
 * **Reliable Performance** verified in real-world production env (200+nodes, 1PB Data)
 * **Open Source** under Apache License 2.0
+* **Universal Runtime**: Deploy & monitoring other databases & applications (redis is now supported!)
 
 
 ## Distribution
 
-
 **Distribution** refers to the overall solution consisting of a kernel and peripheral software packages. For example, Linux is an OS kernel, while RedHat, Debian, and SUSE are OS distributions based on Linux kernel.
 
-Pigsty is an entire **solution** for using postgres in your production environment. It will setup everything for your with one-click:
-creating & scaling clusters, switchover & auto failover. manage databases, users, roles, hbas, schemas, hbas with configuration, connection pooling, load balancing, monitoring & logging & alerting, service discovery, etc...  
+Pigsty is an entire **solution** for using PostgreSQL in your production environment. It will just prepare everything for your with one-click:
+creating & scaling clusters, switchover & auto failover. manage databases, users, roles, hbas, schemas, HBAs with configuration, connection pooling, load balancing, monitoring & logging & alerting, service discovery, etc...  
 
 
 ![](_media/infra.svg)
@@ -234,6 +246,7 @@ Pigsty comes with two example apps: [`covid`](http://demo.pigsty.cc/d/covid-over
 ![](_media/overview-isd.jpg)
 
 
+
 ## Get Started
 
 It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
@@ -279,5 +292,4 @@ Check [Getting Started - Introduction](s-intro.md) for details.
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
-
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
+d

@@ -28,6 +28,18 @@
 
 ![](../_media/what-zh.svg)
 
+## 太长；不看
+
+准备新机器一台：Linux x86_64 CentOS 7.8，配置免密码`sudo`与`ssh`登陆权限，执行以下命令在本机完成Pigsty安装。
+
+```bash
+git clone https://github.com/Vonng/pigsty && cd pigsty
+./configure
+make install
+```
+
+安装Pigsty的细节请参考[快速上手](#快速上手)
+
 
 ## 亮点特性
 
@@ -40,8 +52,8 @@
 * [代码定义](v-config.md)的基础设施，可配置，可定制，可扩展。
 * 基于PostgreSQL 14（支持13/12），打包PostGIS，Timescale，Citus等强力扩展。 
 * 集成Echarts，Jupyterlab等工具，可作为数据分析与可视化的集成开发环境。
-* 架构方案经过长时间大规模的生产环境验证（200余节点，64C|400GB|3TB，18个月）
-
+* 架构方案经过长时间大规模的生产环境验证（200余节点 x 64C|400GB|3TB x 2年）
+* Pigsty提供基于裸机的**应用运行时**，可用于部署与监控其他数据库与应用，目前还对Redis提供原生部署监控支持
 
 ### 发行版
 
@@ -68,8 +80,9 @@ Pigsty监控系统由目前由三个紧密联系的应用共同组成：
   * 直接浏览数据库系统 **目录（Catalog）** 的 `pgcat`
   * 实时查询搜索分析数据库 **日志（log）** 的 `pglog`
 
-Pigsty监控系统基于业内最佳实践，采用Prometheus、Grafana作为监控基础设施。开源开放，定制便利，可复用，可移植，没有厂商锁定。可与已有PostgreSQL数据库实例集成，亦可用于其他数据库或应用的监控。
-
+Pigsty监控系统基于业内最佳实践，采用Prometheus、Grafana作为监控基础设施。开源开放，定制便利，可复用，可移植，没有厂商锁定。
+Pigsty监控系统可独立使用，监控已有PostgreSQL数据库实例，详情参考[监控系统部署](t-monly.md)。
+Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis部署与监控](t-redis.md)的支持。
 
 
 ### 部署方案
@@ -86,6 +99,7 @@ Pigsty采纳 *Infra as Code* 的设计哲学，使用类似 Kubernetes 的声明
 
 ![](../_media/provision.jpg)
 
+
 <details>
 <summary>使用更多参数对数据库集群进行定制</summary>
 
@@ -93,14 +107,18 @@ Pigsty采纳 *Infra as Code* 的设计哲学，使用类似 Kubernetes 的声明
 
 ```yaml
 #----------------------------------#
-# cluster: pg-test (3-node)        #
+# cluster: pg-meta (on meta node)  #
 #----------------------------------#
+# pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
+# if you have multiple n meta nodes, consider deploying pg-meta as n-node cluster too
+
 pg-meta:                                # required, ansible group name , pgsql cluster name. should be unique among environment
   hosts:                                # `<cluster>.hosts` holds instances definition of this cluster
-    10.10.10.11: {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
-    10.10.10.12: {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
-    10.10.10.13: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
-
+    10.10.10.10:                        # INSTANCE-LEVEL CONFIG: ip address is the key. values are instance level config entries (dict)
+      pg_seq: 1                         # required, unique identity parameter (+integer) among pg_cluster
+      pg_role: primary                  # required, pg_role is mandatory identity parameter, primary|replica|offline|delayed
+      pg_offline_query: true            # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
+      # some variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
     #---------------
     # mandatory                         # all configuration above (`ip`, `pg_seq`, `pg_role`) and `pg_cluster` are mandatory
     #---------------
@@ -113,7 +131,7 @@ pg-meta:                                # required, ansible group name , pgsql c
     pg_version: 14                      # pgsql version to be installed (use global version if missing)
     node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
     pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-    patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}
+    patroni_mode: default               # entering patroni pause mode after bootstrap  {default|pause|remove}
     patroni_watchdog_mode: off          # disable patroni watchdog on meta node        {off|require|automatic}
     pg_lc_ctype: en_US.UTF8             # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
 
@@ -138,12 +156,13 @@ pg-meta:                                # required, ansible group name , pgsql c
         connlimit: -1                   # optional, database connection limit, default -1 disable limit
         schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
         extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
-          - {name: adminpack, schema: pg_catalog}    # install adminpack to pg_catalog and install postgis to public
-          - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
+          - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
+          - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
+          - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
 
       # define an additional database named grafana & prometheus (optional)
-      - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-      - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+      # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+      # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
 
     #---------------
     # biz users                         # Defining Business Users (Optional)
@@ -172,11 +191,82 @@ pg-meta:                                # required, ansible group name , pgsql c
 
       # define additional business users for prometheus & grafana (optional)
       - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-      - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+      - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
+
+    #---------------
+    # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
+    #---------------
+    pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+      - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+        role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+        rules:                                          # required, rule content: array of hba string
+          - local   grafana         dbuser_grafana                          md5
+          - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+          - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+
+    vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
+    vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
+    vip_cidrmask: 8                     # cidr network mask length
+    vip_interface: eth1                 # interface to add virtual ip
+
 ```
 
 </details>
 
+
+此外，除了PostgreSQL外，从Pigsty v1.3开始，还提供了对Redis部署与监控的支持，更多的数据库类型将在后续逐渐加入。
+<details>
+<summary>样例：定制不同类型的Redis集群</summary>
+
+```bash
+#----------------------------------#
+# sentinel example                 #
+#----------------------------------#
+redis-sentinel:
+  hosts:
+    10.10.10.10:
+      redis_node: 1
+      redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+  vars:
+    redis_cluster: redis-sentinel
+    redis_mode: sentinel
+    redis_max_memory: 128MB
+
+#----------------------------------#
+# cluster example                  #
+#----------------------------------#
+redis-cluster:
+  hosts:
+    10.10.10.11:
+      redis_node: 1
+      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+    10.10.10.12:
+      redis_node: 2
+      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+  vars:
+    redis_cluster: redis-cluster        # name of this redis 'cluster'
+    redis_mode: cluster                 # standalone,cluster,sentinel
+    redis_max_memory: 64MB              # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru       # memory eviction policy
+
+#----------------------------------#
+# standalone example               #
+#----------------------------------#
+redis-standalone:
+  hosts:
+    10.10.10.13:
+      redis_node: 1
+      redis_instances:
+        6501: {}
+        6502: { replica_of: '10.10.10.13 6501' }
+        6503: { replica_of: '10.10.10.13 6501' }
+  vars:
+    redis_cluster: redis-standalone     # name of this redis 'cluster'
+    redis_mode: standalone              # standalone,cluster,sentinel
+    redis_max_memory: 64MB              # max memory used by each redis instance
+```
+
+</details>
 
 
 ### 高可用集群
@@ -286,7 +376,7 @@ Pigsty部署方案与其他功能则可以通过[**沙箱环境**](s-sandbox.md)
 
 ## 协议
 
-Pigsty基于Apache 2.0协议开源，可以免费用于商业目的。
+Pigsty基于Apache 2.0协议开源，可以免费用于商业目的。如需额外支持，请联系[作者](https://vonng.com/en/))
 
 改装与衍生需遵守[Apache License 2.0 ](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)的显著声明条款。
 
