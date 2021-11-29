@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-11-03
+# Mtime     :   2021-11-28
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -51,6 +51,8 @@ all: # top-level namespace
         ansible_group_priority: 99         # which will overwrite other group definition
       hosts:                               # add meta nodes here
         10.10.10.10: { }                   # 10.10.10.10 is the default meta node
+        10.10.10.11: { }                   # 10.10.10.10 is the default meta node
+        10.10.10.12: { }                   # 10.10.10.10 is the default meta node
 
 
     #----------------------------------#
@@ -202,8 +204,51 @@ all: # top-level namespace
               default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
+    #----------------------------------#
+    # redis sentinel example           #
+    #----------------------------------#
+    redis-sentinel:
+      hosts:
+        10.10.10.10:
+          redis_node: 1
+          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+      vars:
+        redis_cluster: redis-sentinel
+        redis_mode: sentinel
+        redis_max_memory: 128MB
 
+    #----------------------------------#
+    # redis cluster example            #
+    #----------------------------------#
+    redis-cluster:
+      hosts:
+        10.10.10.11:
+          redis_node: 1
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+        10.10.10.12:
+          redis_node: 2
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+      vars:
+        redis_cluster: redis-cluster        # name of this redis 'cluster'
+        redis_mode: cluster                 # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
+        redis_mem_policy: allkeys-lru       # memory eviction policy
 
+    #----------------------------------#
+    # redis standalone example         #
+    #----------------------------------#
+    redis-standalone:
+      hosts:
+        10.10.10.13:
+          redis_node: 1
+          redis_instances:
+            6501: {}
+            6502: { replica_of: '10.10.10.13 6501' }
+            6503: { replica_of: '10.10.10.13 6501' }
+      vars:
+        redis_cluster: redis-standalone     # name of this redis 'cluster'
+        redis_mode: standalone              # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
 
 
   #==================================================================#
@@ -301,6 +346,13 @@ all: # top-level namespace
           - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
           - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
 
+      - name: pgdg13
+        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+        gpgcheck: no
+        baseurl:
+          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
+          - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
+
       - name: pgdg14
         description: PostgreSQL 14 for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
@@ -351,16 +403,17 @@ all: # top-level namespace
     # - what to download - #
     repo_packages:
       # repo bootstrap packages
-      - epel-release nginx wget yum-utils yum createrepo sshpass unzip                        # bootstrap packages
+      - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                    # bootstrap packages
 
       # node basic packages
-      - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget git tuned         # basic system util
-      - readline zlib openssl libyaml libxml2 libxslt perl-ExtUtils-Embed ca-certificates     # basic pg dependency
+      - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf    # basic system util
+      - readline zlib openssl libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils* # basic pg dependency
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet  # system utils
+      - ca-certificates openssh-clients ed mlocate lrzsz parted bzip2 krb5-devel rsync apr apr-util
 
       # dcs & monitor packages
       - grafana prometheus2 pushgateway alertmanager                                          # monitor and ui
-      - node_exporter postgres_exporter nginx_exporter blackbox_exporter                      # exporter
+      - node_exporter postgres_exporter nginx_exporter blackbox_exporter redis_exporter       # exporter
       - consul consul_exporter consul-template etcd                                           # dcs
 
       # python3 dependencies
@@ -375,6 +428,18 @@ all: # top-level namespace
       - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity             # major components
       - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel              # other common utils
       - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
+
+      # postgres 13 packages
+      - postgresql13*                                                                          # postgresql 13 kernel
+      - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
+      - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                       # stats extensions
+      - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13     # PL extensions
+      - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13            # FDW extensions
+      - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                   # MISC extensions
+      - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
+      - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
+      - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
+      - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
       # postgres 14 packages
       - postgresql14*                                                                              # postgresql 14 kernel
@@ -395,17 +460,26 @@ all: # top-level namespace
       # - pam-devel openldap-devel systemd-devel tcl-devel python-devel
 
     repo_url_packages:
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm            # pg_exporter rpm
-      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm   # vip-manager
-      - https://github.com/timescale/promscale/releases/download/0.6.2/promscale_0.6.2_Linux_x86_64.rpm             # promscale
-      - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz # monitor binaries
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
-      - https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.3.0/logcli-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.3.0/loki-canary-linux-amd64.zip
+      # monitor packages
+      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm       # vip-manager
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm                # pg_exporter rpm
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz             # pg_exporter binary
+      - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.2.2.linux-amd64.tar.gz     # node_exporter binaries
+
+      # extra components
+      - https://github.com/grafana/loki/releases/download/v2.4.1/loki-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.4.1/promtail-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.4.1/logcli-linux-amd64.zip
+      - https://github.com/grafana/loki/releases/download/v2.4.1/loki-canary-linux-amd64.zip
       - https://github.com/dalibo/pev2/releases/download/v0.23.0/pev2.tar.gz
       - https://github.com/sosedoff/pgweb/releases/download/v0.11.9/pgweb_linux_amd64.zip
+      - https://github.com/timescale/promscale/releases/download/0.6.2/promscale_0.6.2_Linux_x86_64.rpm                # promscale
+
+      # extra databases support
+      - https://download.redis.io/releases/redis-6.2.6.tar.gz                                                          # redis src tarball
+      - https://rpmfind.net/linux/remi/enterprise/7/remi/x86_64/redis-6.2.6-1.el7.remi.x86_64.rpm                      # redis rpm
+      - https://github.com/greenplum-db/gpdb/releases/download/6.18.2/open-source-greenplum-db-6.18.2-rhel7-x86_64.rpm # greenplum
+
 
     #------------------------------------------------------------------------------
     # NODE PROVISION
@@ -435,14 +509,14 @@ all: # top-level namespace
     # - node packages - #
     node_packages:                                # common packages for all nodes
       - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
-      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
+      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf
       - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
       - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
-      - node_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
+      - node_exporter,redis_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
     node_extra_packages:                          # extra packages for all nodes
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
-      - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
+      - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,redis
       - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
       - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
