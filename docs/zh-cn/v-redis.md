@@ -1,10 +1,12 @@
-# PostgreSQL置备
+# Redis
 
-**REDIS置备**，是在一台安装完Postgres的机器上，创建并拉起一套数据库的过程，包括：
+Redis的配置参数并为列入 pigsty.yml 主配置文件中，但您可以按需加入，或直接在Redis集群层面配置。
 
-* **集群身份定义**，清理现有实例，创建目录结构，拷贝工具与脚本，配置环境变量
-* 渲染Patroni模板配置文件，使用Patroni拉起主库，使用Patroni拉起从库
-* 配置Pgbouncer，初始化业务用户与数据库，将数据库与数据源服务注册至DCS。
+详情请参考：[Redis部署与监控教程](t-redis.md)
+
+
+
+
 
 
 ## 参数概览
@@ -38,42 +40,41 @@
 ```yaml
 ---
 # - identity - #
-redis_cluster: redis-test           # name of this redis 'cluster' , cluster level
-redis_node: 1                       # id of this redis node, integer sequence @ instance level
-redis_instances: {}                 # redis instance list on this redis node @ instance level
+# redis_cluster: redis-test         # name of this redis cluster @ cluster level
+# redis_node: 1                     # redis node identifier, integer sequence @ node level
+# redis_instances: {}               # redis instances definition of this redis node @ node level
 
 # - mode - #
 redis_mode: standalone              # standalone,cluster,sentinel
-redis_conf: redis.conf              # which config template will be used
-redis_fs_main: /data                # main data disk for redis
-redis_bind_address: '0.0.0.0'       # e.g 0.0.0.0, empty will use inventory_hostname as bind address
+redis_conf: redis.conf              # config template path (except sentinel)
+redis_fs_main: /data                # main fs mountpoint for redis data
+redis_bind_address: '0.0.0.0'       # bind address, empty string turns to inventory_hostname
 
 # - cleanup - #
-redis_exists: false                 # internal flag
-redis_exists_action: clean          # abort|skip|clean if dcs server already exists
-redis_disable_purge: false          # set to true to disable purge functionality for good (force redis_exists_action = abort)
+redis_exists: false                 # internal flag to indicate redis exists
+redis_exists_action: clean          # abort|skip|clean if redis server already exists
+redis_disable_purge: false          # force redis_exists_action = abort if true
 
 # - conf - #
 redis_max_memory: 1GB               # max memory used by each redis instance
 redis_mem_policy: allkeys-lru       # memory eviction policy
-redis_password: ''                  # empty password disable password auth (masterauth & requirepass)
-redis_rdb_save: ['1200 1']          # redis RDB save directives, empty list disable it
-redis_aof_enabled: false            # enable redis AOF
+redis_password: ''                  # masterauth & requirepass password, disable by empty string
+redis_rdb_save: ['1200 1']          # redis rdb save directives, disable with empty list
+redis_aof_enabled: false            # redis aof enabled
 redis_rename_commands: {}           # rename dangerous commands
-# redis_rename_commands:              # rename dangerous commands
 #   flushall: opflushall
 #   flushdb: opflushdb
 #   keys: opkeys
-redis_cluster_replicas: 1           # how much replicas per master in redis cluster ?
+redis_cluster_replicas: 1           # how many replicas for a master in redis cluster ?
 
 # - redis exporter - #
-redis_exporter_enabled: true        # install redis exporter on redis nodes
+redis_exporter_enabled: true        # install redis exporter on redis nodes ?
 redis_exporter_port: 9121           # default port for redis exporter
 redis_exporter_options: ''          # default cli args for redis exporter
 
 # - node exporter - #
-node_exporter_enabled: true                   # setup node_exporter on instance
-node_exporter_port: 9100                      # default port for node exporter
+node_exporter_enabled: true         # setup node_exporter on instance
+node_exporter_port: 9100            # default port for node exporter
 node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
 
 # - reference - #
@@ -84,6 +85,7 @@ exporter_metrics_path: /metrics     # default metric path for pg related exporte
 service_registry: consul
 ...
 ```
+
 
 
 ## 身份参数
@@ -161,6 +163,8 @@ redis_instances:
 
 每一个Redis实例在对应节点上监听一个唯一端口，您可以为Redis实例配置独立的参数选项（目前只支持 `replica_of`，用于预构建主从复制）
 
+
+
 **身份参数，必填参数，实例级参数**
 
 
@@ -178,66 +182,148 @@ redis_instances:
 当使用`cluster`模式时，Pigsty会根据 [`redis_cluster_replicas`](#redis_cluster_replicas) 参数使用所有定义的实例创建原生Redis集群。
 
 
+
 ### redis_conf
+
+Redis配置文件模板，`redis.conf`是默认使用的配置模板。
+
+当创建`sentinel`模式的实例时，Pigsty会使用专用的`redis-sentinel.conf` 配置模板，此参数无效。
 
 
 
 ### redis_fs_main
 
+Redis使用的主数据盘挂载点，默认为`/data`。
+
+Pigsty会在该目录下创建`redis`目录，用于存放Redis数据。例如`/data/redis`。
+
+详情请参考 [FHS：Redis](r-fhs.md)
+
 
 
 ### redis_bind_address
+
+Redis监听的IP地址，如果留空则为 inventory_hostname。
+
+默认配置为`0.0.0.0`，即所有本地IPv4地址
 
 
 
 ### redis_exists
 
+内部使用的标记位，判断Redis实例是否存在，请勿修改。
+
 
 
 ### redis_exists_action
+
+如果Redis实例已经存在，如何处理：
+
+
+
+* `abort`:  中止整个剧本的执行
+* `skip`:  继续执行，因此Redis实例可能会使用现有数据库中的RDB文件启动。
+* `clean`: 抹除数据，清洁启动。
+
 
 
 
 ### redis_disable_purge
 
+如果启用，强制设置 `redis_exists_action = abort` 
+
 
 
 ### redis_max_memory
+
+每个Redis实例使用的最大内存限制，默认为64MB，建议在集群层面配置此参数。
+
 
 
 
 ### redis_mem_policy
 
+内存淘汰策略，默认为 `allkeys-lru` ，其他可选策略包括：
+
+* volatile-lru
+* allkeys-lru
+* volatile-lfu
+* allkeys-lfu
+* volatile-random
+* allkeys-random
+* volatile-ttl
+* noeviction
+
 
 
 ### redis_password
+
+masterauth & requirepass 使用的密码，留空则禁用密码，默认禁用
+
+!> 注意安全，请不要将无密码保护的Redis放置于公网上
 
 
 
 ### redis_rdb_save
 
+Redis SAVE命令，配置将启用RDB功能。
+
+每一条Save策略作为一个字符串。
+
+
 
 
 ### redis_aof_enabled
+
+是否启用redis AOF？
 
 
 
 ### redis_rename_commands
 
+JSON字典，将Key表示的命令重命名为Value表示的命令。
+
+避免误操作危险命令。
+
 
 
 ### redis_cluster_replicas
+
+在Redis原生集群模式中，为每一个主库配置多少个从库？默认为1个。
+
+```bash
+/bin/redis-cli --cluster create --cluster-yes \
+  --cluster-replicas {{ redis_cluster_replicas|default(1) }}
+```
+
+
+
 
 
 
 ### redis_exporter_enabled
 
+是否启用Redis Exporter？
+
+Redis Exporter默认启用，在每个Redis节点上部署一个，默认监听9121端口。
+
+
 
 
 ### redis_exporter_port
 
+Redis Exporter 使用的默认端口，9121 为默认端口。
+
+注：如果您修改了该默认端口，则需要在Prometheus的相关配置规则文件中一并替换此端口。
+
+
 
 
 ### redis_exporter_options
+
+Redis Exporter默认使用的命令行参数选项。
+
+
+
 
 

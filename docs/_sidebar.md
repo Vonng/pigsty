@@ -30,6 +30,7 @@
   - [Customize Database Content](t-customize-template.md)
   - [Install Extension App](t-application.md)
   - [Backup and Recovery](t-backup.md)
+  - [Redis deploy & monitor](t-redis.md)
 
 - Monitoring
   - [Dashboards](m-dashboard.md)
@@ -49,6 +50,7 @@
   - [PG Template](v-pg-template.md)
   - [Monitor](v-monitor.md)
   - [Service](v-service.md)
+  - [Redis](v-redis.md)
 
 - Playbook
   - [Infra Init](p-infra.md)

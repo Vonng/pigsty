@@ -34,7 +34,7 @@
   - [数据库备份与恢复](t-backup.md)  
   - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
   - [数据库迁移](t-migration.md)
-
+  - [Redis集群部署与监控](t-redis.md)
 
 - 监控
   - [监控面板](m-dashboard.md)
@@ -54,6 +54,7 @@
   - [数据库定制](v-pg-template.md)
   - [监控系统](v-monitor.md)
   - [服务接入](v-service.md)
+  - [Redis](v-redis.md)
 
 - 部署
   - [剧本：基础设施初始化](p-infra.md)
