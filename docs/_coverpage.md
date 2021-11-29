@@ -1,6 +1,6 @@
 ![logo](_media/icon.svg)
 
-# Pigsty <small>1.2.0</small>
+# Pigsty <small>1.3.0</small>
 
 > <b>Battery-Included Open-Source PostgreSQL Distribution</b>
 

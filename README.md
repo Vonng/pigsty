@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)  |  [Public Demo](http://home.pigsty.cc)
+> Latest Version: [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)  |  [Public Demo](http://home.pigsty.cc)
 >
 > Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 
@@ -248,8 +248,8 @@ It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.2.0/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pkg.tgz    -o /tmp/pkg.tgz
 git clone https://github.com/Vonng/pigsty && cd pigsty
 ./configure
 make install

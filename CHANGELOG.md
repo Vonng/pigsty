@@ -1,4 +1,10 @@
-# v1.3.0 (Doing)
+# v1.3.0
+
+* [ENHANCEMENT] Redis Deployment (cluster,sentinel,standalone)
+* [ENHANCEMENT] Redis Monitor
+  * Redis Overview Dashboard
+  * Redis Cluster Dashboard
+  * Redis Instance Dashboard
 
 * [ENHANCEMENT] monitor: PGCAT Overhaul 
   * New Dashboard: PGCAT Instance 
@@ -9,19 +15,17 @@
   * New Panels: PGSQL Cluster, add 10 key metrics panel (toggled by default) 
   * New Panels: PGSQL Instance, add 10 key metrics panel (toggled by default)
   * Simplify & Redesign: PGSQL Service
-  * Add cross references to PGCAT dashboards
+  * Add cross-references between PGCAT & PGSL dashboards
 
 * [ENHANCEMENT] monitor deploy 
   * Now grafana datasource is automatically registered during monly deployment
-
-* [ENHANCEMENT] migration playbook beta 2
-  * now you can generate migration manual and resources via pgsql-migration
-  * now you can feed migration task definition file to pgsql-migration playbook without modifying this playbook
-
-* [ENHANCEMENT] add PostgreSQL 13 into default package list
-
-* [ENHANCEMENT] Redis Deployment (cluster,sentinel,standalone)
-* [ENHANCEMENT] Redis Monitor (Redis Overview, Redis Cluster, Redis Instance)
+* 
+* [ENHANCEMENT] software upgrade
+  * add PostgreSQL 13 to default package list
+  * upgrade to PostgreSQL 14.1 by default
+  * add greenplum rpm and dependencies
+  * add redis rpm & source packages
+  * add perf as default packages
 
 
 # v1.2.0
