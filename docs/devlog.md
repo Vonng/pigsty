@@ -1,7 +1,12 @@
 # Development Log
 
 
-#### 2021-09-24
+#### 2021-11-29
+
+Add redis support for pigsty
+pgcat overhaul
+new key metrics panel for pgsql cluster & pgsql instance
+....
 
 
 #### 2021-09-23

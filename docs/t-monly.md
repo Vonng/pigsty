@@ -57,7 +57,7 @@ To perform a streamlined monitoring deployment, you will also need to refer to t
 
 
 
-! [](... /_media/monly.svg)
+![](../_media/monly.svg)
 
 > Figure: Schematic diagram of the monitoring-only mode architecture, with multiple PG Exporter deployed locally on the management machine to monitor multiple remote database instances.
 

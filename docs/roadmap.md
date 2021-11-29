@@ -29,19 +29,6 @@
 |   2021-10-12   | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger              | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0) |
 |   2021-11-03   | Upgrade default Postgres to 14, monitoring existing pg    | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0) |
 |   2021-11-31   | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta   | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0) |
-
-
-
-## Future
-
-|      Time      | Description                                               | Release                                                      |
-| :------------: | --------------------------------------------------------- | ------------------------------------------------------------ |
-|   2021-12-31   | Auto-Migration Playbook & PGLOG redesign                  | v1.4                                                         |
-|   2022-01-31   | Redis Deployment Support                                  | v1.5                                                         |
-|   2022-01-31   | Citus Deployment Support                                  | v1.5                                                         |
-|     2022       | Pigsty private cloud DBaaS backend/frontend               | v1.6                                                         |
-|      2022      | ETCD as major meta database                               | v2.2                                                         |
-|      2022      | Greenplum & other distribution                            | v2.3                                                         |
-|      2022      | Pigsty Docker Images                                      | v2.4                                                         |
-|      2022      | Pigsty Operator                                           | v2.6                                                         |
-|     2022+      | Cloud Native Pigsty                                       | v3.0                                                         |
+|   2021-12-31   | Auto-Migration Playbook & PGLOG redesign                  | v1.4 (TBD)  |
+|   2022-01-31   | Greenplum Deployment Support                              | v1.5 (TBD)  |
+|   2022-01-31   | Citus Deployment Support                                  | v1.5 (TBD)  |
