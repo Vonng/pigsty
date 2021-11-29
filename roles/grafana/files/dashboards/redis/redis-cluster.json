@@ -24,7 +24,7 @@
     "gnetId": 10819,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1638075916033,
+    "iteration": 1638155398928,
     "links": [
         {
             "asDropdown": false,
@@ -5419,7 +5419,7 @@
             "type": "row"
         },
         {
-            "collapsed": false,
+            "collapsed": true,
             "datasource": "Prometheus",
             "gridPos": {
                 "h": 1,
@@ -5428,308 +5428,309 @@
                 "y": 58
             },
             "id": 27,
-            "panels": [],
-            "title": "Replication",
-            "type": "row"
-        },
-        {
-            "cacheTimeout": null,
-            "datasource": "Prometheus",
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
+            "panels": [
+                {
+                    "cacheTimeout": null,
+                    "datasource": "Prometheus",
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {
+                                "align": "center",
+                                "displayMode": "auto",
+                                "filterable": false
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": [
                             {
-                                "color": "green",
-                                "value": null
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Readonly"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "green",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "blue",
+                                                    "value": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-text"
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "text": "False"
+                                                    },
+                                                    "1": {
+                                                        "text": "True"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Primary"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 135
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "Redis Instance : ${__data.fields.Primary} ",
+                                                "url": "/d/redis-instance?var-id=${__data.fields.Primary}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Replica"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 135
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "Redis Instance : ${__data.fields.Replica}",
+                                                "url": "/d/redis-instance?var-id=${__data.fields.Replica}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Replica Ins"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "Redis Instance : ${__data.fields[\"Replica Ins\"]}",
+                                                "url": "/d/redis-instance?var-id=${__data.fields[\"Replica Ins\"]}"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
-                    }
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 59
+                    },
+                    "id": 89,
+                    "links": [],
+                    "options": {
+                        "showHeader": true,
+                        "sortBy": []
+                    },
+                    "pluginVersion": "8.2.5",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "label_join(label_replace(redis_slave_info{cls=\"$cls\"}, \"replica_ins\", \"$1\", \"ins\", \"(.+)\"), 'ins', ':', 'master_host', 'master_port')",
+                            "format": "table",
+                            "instant": true,
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 1800
+                        }
+                    ],
+                    "timeFrom": null,
+                    "timeShift": null,
+                    "title": "Replication",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "Time": true,
+                                    "Value": true,
+                                    "__name__": true,
+                                    "cls": true,
+                                    "instance": false,
+                                    "ip": true,
+                                    "job": true,
+                                    "master_host": true,
+                                    "master_port": true
+                                },
+                                "indexByName": {
+                                    "Time": 4,
+                                    "Value": 9,
+                                    "__name__": 5,
+                                    "cls": 6,
+                                    "ins": 0,
+                                    "instance": 1,
+                                    "job": 7,
+                                    "master_host": 10,
+                                    "master_port": 8,
+                                    "read_only": 3,
+                                    "replica_ins": 2
+                                },
+                                "renameByName": {
+                                    "Value": "",
+                                    "ins": "Primary",
+                                    "instance": "Replica",
+                                    "ip": "Replica IP",
+                                    "master_host": "",
+                                    "master_port": "",
+                                    "read_only": "Readonly",
+                                    "replica_ins": "Replica Ins"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Readonly"
-                        },
-                        "properties": [
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "green",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "blue",
-                                            "value": 1
-                                        }
-                                    ]
+                {
+                    "datasource": "Prometheus",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
                                 }
                             },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-text"
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
                                     {
-                                        "options": {
-                                            "0": {
-                                                "text": "False"
-                                            },
-                                            "1": {
-                                                "text": "True"
-                                            }
-                                        },
-                                        "type": "value"
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
                                     }
                                 ]
                             },
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            }
-                        ]
+                            "unit": "bytes"
+                        },
+                        "overrides": []
                     },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Primary"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 135
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Redis Instance : ${__data.fields.Primary} ",
-                                        "url": "/d/redis-instance?var-id=${__data.fields.Primary}"
-                                    }
-                                ]
-                            }
-                        ]
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 59
                     },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Replica"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 135
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Redis Instance : ${__data.fields.Replica}",
-                                        "url": "/d/redis-instance?var-id=${__data.fields.Replica}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Replica Ins"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Redis Instance : ${__data.fields[\"Replica Ins\"]}",
-                                        "url": "/d/redis-instance?var-id=${__data.fields[\"Replica Ins\"]}"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 59
-            },
-            "id": 89,
-            "links": [],
-            "options": {
-                "showHeader": true,
-                "sortBy": []
-            },
-            "pluginVersion": "8.2.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "label_join(label_replace(redis_slave_info{cls=\"$cls\"}, \"replica_ins\", \"$1\", \"ins\", \"(.+)\"), 'ins', ':', 'master_host', 'master_port')",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 1800
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Replication",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "Time": true,
-                            "Value": true,
-                            "__name__": true,
-                            "cls": true,
-                            "instance": false,
-                            "ip": true,
-                            "job": true,
-                            "master_host": true,
-                            "master_port": true
-                        },
-                        "indexByName": {
-                            "Time": 4,
-                            "Value": 9,
-                            "__name__": 5,
-                            "cls": 6,
-                            "ins": 0,
-                            "instance": 1,
-                            "job": 7,
-                            "master_host": 10,
-                            "master_port": 8,
-                            "read_only": 3,
-                            "replica_ins": 2
-                        },
-                        "renameByName": {
-                            "Value": "",
-                            "ins": "Primary",
-                            "instance": "Replica",
-                            "ip": "Replica IP",
-                            "master_host": "",
-                            "master_port": "",
-                            "read_only": "Readonly",
-                            "replica_ins": "Replica Ins"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": "Prometheus",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
+                    "id": 57,
                     "links": [],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "single"
+                        }
                     },
-                    "unit": "bytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 59
-            },
-            "id": 57,
-            "links": [],
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "lastNotNull"
+                    "pluginVersion": "8.2.5",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "redis:ins:lsn_rate{cls=\"$cls\"}",
+                            "format": "time_series",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }}",
+                            "metric": "A",
+                            "refId": "A",
+                            "step": 240,
+                            "target": ""
+                        }
                     ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single"
-                }
-            },
-            "pluginVersion": "8.2.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "redis:ins:lsn_rate{cls=\"$cls\"}",
-                    "format": "time_series",
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }}",
-                    "metric": "A",
-                    "refId": "A",
-                    "step": 240,
-                    "target": ""
+                    "timeFrom": null,
+                    "timeShift": null,
+                    "title": "LSN Rate",
+                    "type": "timeseries"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "LSN Rate",
-            "type": "timeseries"
+            "title": "Replication",
+            "type": "row"
         }
     ],
     "refresh": false,
