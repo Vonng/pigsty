@@ -12,6 +12,8 @@ Pigsty源码包：`pigsty.tgz` 可以从以下位置获取：
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pigsty.tgz -o ~/pigsty.tgz
 ```
 
+-----------
+
 #### **源码包的版本策略**
 
 Pigsty遵循语义版本号规则: `<major>.<minor>.<release>`。大版本更新意味着重大的根本性架构调整（通常不会发生），
@@ -30,30 +32,36 @@ release版本号通常用于Bug修复与文档更新，Release版本号增长不
 # curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
-将其放置于安装机器的 `/tmp/pkg.tgz` 路径下，即可在安装过程中自动使用。离线软件包默认会解压至：`/www/pigsty`。
+-----------
 
+#### 离线安装包如何使用
 
+将下载好的离线安装包`pkg.tgz`，其放置于安装机器的 `/tmp/pkg.tgz` 路径下，即可在安装过程中自动使用。
+
+离线软件包默认会解压至：`/www/pigsty`。在安装过程中， 当`/www/pigsty/`目录与标记文件 `/www/pigsty/repo_complete` 同时存在时，Pigsty将直接使用该软件包，跳过冗长的下载环节。
 
 -----------
 
 #### 不使用离线安装包？
 
-离线安装包中包含了从各路Yum源与Github Release中收集下载的软件包。
-用户也可以选择不使用预先打包好的离线安装包，而是直接从原始上游下载
-。当用户使用非 CentOS 7.8 操作系统时，通常可以使用这种方式解决绝大多数依赖错漏问题。
+离线安装包中包含了从各路Yum源与Github Release中收集下载的软件包，用户也可以选择不使用预先打包好的离线安装包，而是直接从原始上游下载。
+
+当`/www/pigsty/`目录不存在，或者标记文件 `/www/pigsty/repo_complete`不存在时，Pigsty会从 [`repo_upsteram`](v-repo#repo_upstream) 指定的原始上游下载所有软件依赖。
+
 不使用离线安装包只需要在`configure`过程中提示下载时选择否 `n`即可。
-
-
 
 -----------
 
 #### 安装yum软件包时报错
 
-默认的离线软件安装包基于CentOS 7.8环境制作，如果出现问题，可以删除`/www/pigsty`中出现问题的相关rpm包，以及`/www/pigsty/repo_complete`标记文件。
-执行`make repo-download`重新下载与当前操作系统版本匹配的依赖软件包即可。
+默认的离线软件安装包基于CentOS 7.8.2003 Linux x86_64 环境制作，在全新安装该操作系统的节点上可以确保安装成功。
 
-注意，从原始上游下载所有安装包时，速度受网络条件影响可能会很慢。通常出现兼容性问题的RPM软件包只占很小的一部分，
-您可以考虑下载并解压离线安装包，删除其中的**不兼容项目**，以加快速度。
+绝大多数CentOS 7.x及其兼容发行版，可能有极个别软件包存在依赖问题。当用户使用非 CentOS 7.8.2003 操作系统版本时需要注意。
+
+如果出现RPM依赖与版本问题，可以考虑不使用离线安装，直接从上游Repo下载正确的RPM依赖包，通常可以使用这种方式解决绝大多数依赖错漏问题。
+
+如果只有零星个别的RPM包有兼容性问题，您可以考虑删除`/www/pigsty`中出现问题的相关RPM包，以及`/www/pigsty/repo_complete`标记文件，
+这样在标准安装中，只会实际下载缺失的问题RPM包，加快速度。
 
 -------------
 
@@ -102,7 +110,7 @@ Pigsty从0.3版本开始就实际应用于真实世界的生产环境中，并�
 
 #### **Pigsty的安装环境**
 
-安装Pigsty需要至少一个机器节点：规格至少为1核1GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。建议使用**全新**节点（刚装完操作系统）。
+安装Pigsty需要至少一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。建议使用**全新**节点（刚装完操作系统）。
 
 在生产环境中，建议使用更高规格的机器，并部署**多个管理节点**作为容灾冗余。生产环境中**管理节点**负责发出控制命令，管理部署数据库集群，采集监控数据，运行定时任务等。
 
@@ -115,9 +123,7 @@ Pigsty强烈建议使用CentOS 7.8操作系统安装元节点与数据库节点�
 
 Pigsty的默认开发、测试、部署环境都基于CentOS 7.8，CentOS 7.6也经过充分的验证。其他CentOS 7.x及其等效版本RHEL7 , Oracle Linux 7理论上没有问题，但并未进行测试与验证。
 
-在使用**仅监控模式**监控已有PostgreSQL数据库集群时，可以使用不同的Linux发行版。因为监控系统相关组件均为Go编写的二进制，可以兼容各种Linux发行版，但这并不是官方支持的行为。
-
-后续其他操作系统支持可能以容器镜像的形式提供。
+Pigsty在使用仅监控模式监控已有的PostgreSQL实例时，对目标节点的操作系统没有要求。
 
 
 -----------
@@ -143,14 +149,24 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 #### **是否可以监控已有的PG实例？**
 
 对于非Pigsty供给方案创建的外部数据库，可以使用[仅监控模式](t-monly.md)部署，详情请参考文档。
-注意Pigsty部署需要目标机器ssh sudo权限。因此通常无法支持云厂商RDS，但例如MyBase for PostgreSQL的ECS托管云数据库是可以纳入监控的。
 
------------
+如果该实例可以被Pigsty管理，您可以考虑采用与标准部署相同的方式，在目标节点上部署 node_exporter, pg_exporter 等组件。
 
-#### **云厂商RDS监控不了有什么办法？**
+如果您只有访问该数据库的URL（例如RDS云数据库实例），则可以使用 仅监控部署 模式，在该模式下，Pigsty会通过部署于管理节点本地的 pg_exporter 实例监控远程PG实例。
 
-目前Pigsty官方不支持对纯RDS的监控，因为缺少机器指标的监控系统是半成品。
-但用户可以通过本地部署PG Exporter远程连接监控RDS，以及Prometheus本地静态服务发现抓取本地Exporter，并通过手工配置Label的方式实现曲线救国。
+
+#### **是否可以使用已有的DCS集群**
+
+当然可以，只需要在 [`dcs_servers`](v-meta.md#dcs_servers)) 中填入对应的集群，即可使用外部DCS集群。
+
+
+#### **是否可以使用已有的Grafana与Prometheus实例**
+
+Pigsty在安装过程中会直接在管理节点上安装与配置Prometheus与Grafana，并在创建/销毁 实例/集群 时维护其中的配置。
+
+因此不支持使用已有Prometheus与Grafana，但您可以将Prometheus的配置文件`/etc/prometheus`，以及Grafana的所有面板与数据源复制至新集群中。
+
+
 
 -----------
 
@@ -170,7 +186,7 @@ loki是比较新的日志收集方案，不是所有人都愿意接受，因此�
 
 #### **监控系统的数据量有多大？**
 
-这取决于用户数据库的复杂程度（workload），作为参考：200个生产数据库实例1天产生的监控数据量约为16GB。Pigsty默认保留30天监控数据，可以通过参数调整。
+这取决于用户数据库的复杂程度（workload），作为参考：200个生产数据库实例1天产生的监控数据量约为16GB。Pigsty默认保留两周的监控数据，可以通过参数调整。
 
 -----------
 
@@ -200,8 +216,6 @@ DCS自身的可用性通过多节点共识保证，故生产环境中建议部�
 
 
 
-
-
 ## 软件问题
 
 
@@ -226,3 +240,43 @@ sudo ntpdate -u pool.ntp.org
 ```
 
 即可解决长时间休眠或关机重启后监控系统没有数据的问题。
+
+
+
+
+
+
+## DCS相关问题
+
+
+-----------
+#### Abort because consul instance already exists
+
+在执行数据库&基础设施初始化时，为了避免误删库，提供了一个保护机制。
+
+当Pigsty发现Consul已经在运行时，会根据参数 [`dcs_exists_action`](v-dcs.md#dcs_exists_action) 来采取不同的行为
+
+默认 `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
+
+此外，若参数 [`dcs_disable_purge`](v-dcs.md#dcs_disable_purge) 为真，则 `dcs_exists_action` 将会强制配置为 `abort`，以免误删DCS实例。
+
+
+-----------
+
+
+
+## Postgres相关问题
+
+-----------
+#### Abort because postgres instance already exists
+
+在执行数据库&基础设施初始化时，为了避免误删Postgres实例，提供了一个保护机制。
+
+当Pigsty发现Postgres已经在运行时，会根据参数 [`pg_exists_action`](v-pg-provision.md#pg_exists_action) 来采取不同的行为
+
+默认 `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
+
+此外，若参数 [`pg_disable_purge`](v-pg-provision.md#pg_disable_purge) 为真，则 `pg_exists_action` 将会强制配置为 `abort`，以免误删数据库实例。
+
+
+-----------
