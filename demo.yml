@@ -1,0 +1,109 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   demo.yml
+# Ctime     :   2021-01-19
+# Mtime     :   2021-12-01
+# Desc      :   init demo on all nodes
+# Path      :   demo.yml
+# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#---------------------------------------------------------------
+# Notice
+#---------------------------------------------------------------
+# This is a special playbook that interleave infra.yml & pgsql.yml
+# It is used for 4-node demo, or in case that there are multiple
+# meta nodes also reused as common database nodes.
+#
+# to init multiple metea nodes, add their ip address to pigsty.yml
+#   all.children.meta.hosts
+#
+# if offline installation packages is used, you can also copy them to
+#   copy /www/pigsty to all meta nodes before run ./demo.yml
+#
+#---------------------------------------------------------------
+
+
+#---------------------------------------------------------------
+- name: Init Repo on Meta Nodes
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: repos
+  roles:
+
+    - role: environ     # init postgres pgbouncer patroni
+      tags: environ
+
+    - role: repo        # init local yum repo on meta node
+      tags: repo
+
+#---------------------------------------------------------------
+- name: Init All Nodes with DCS
+  become: yes
+  hosts: all
+  tags: nodes
+  gather_facts: no
+  roles:
+
+    - role: node        # init meta node
+      tags: node
+
+    - role: consul      # init dcs:consul (servers)
+      tags: [ dcs , consul ]
+
+
+#---------------------------------------------------------------
+- name: Init Infrastructure on Meta Nodes
+  become: yes
+  hosts: meta
+  tags: meta
+  gather_facts: no
+  roles:
+    - role: ca          # init certification infrastructure
+      tags: ca
+
+    - role: nameserver  # init dns nameserver
+      tags: nameserver
+
+    - role: nginx       # init nginx
+      tags: nginx
+
+    - role: prometheus  # init prometheus
+      tags: prometheus
+
+    - role: grafana     # init grafana
+      tags: grafana
+
+    - role: jupyter     # init jupyter lab
+      tags: jupyter
+      when: jupyter_enabled|bool
+
+    - role: pgweb       # init pgweb console
+      tags: pgweb
+      when: pgweb_enabled|bool
+
+
+#---------------------------------------------------------------
+- name: Init All Postgres Instances   # init all postgres nodes
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: pgsql
+  roles:
+
+    - role: postgres   # init postgres pgbouncer patroni
+      tags: postgres
+
+    - role: monitor    # init monitor exporters
+      tags: monitor
+
+    - role: service    # init service , lb , vip
+      tags: service
+
+    - role: register   # register cluster/instance to infra
+      tags: register
+
+#---------------------------------------------------------------
+...
