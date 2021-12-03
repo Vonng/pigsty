@@ -17,24 +17,20 @@
   - [接入](c-access.md)  
   
 - 教程
-  - [部署](t-deploy.md)
-  - [准备](t-prepare.md)
+  - [部署教程](t-deploy.md)
+  - [资源准备](t-prepare.md)
   - [监控系统部署](t-monly.md)
   - [常用操作命令](t-operation.md)
+  - [数据库高可用演练](t-ha-drill.md)
+  - [常见故障诊断与处理](t-failure.md)
+  - [数据库备份与恢复](t-backup.md)
   - [使用与制作离线安装包](t-offline.md)
-  - [升级Grafana后端数据库](t-grafana-upgrade.md)
-  - [配置Prometheus远程存储](t-promscale.md)
-  - [使用CMDB替换静态配置](t-cmdb.md)
+  - [Redis集群部署与监控](t-redis.md)
   - [部署日志收集服务](t-logging.md)
-  - [分析CSV日志样本](t-log-analysis.md)  
-  - [使用Jupyter进行数据分析](t-jupyter.md) 
+  - [数据库迁移](t-migration.md)
+  - [安装Pigsty扩展应用](t-application.md)
   - [定制Patroni配置模板](t-patroni-template.md)
   - [深度定制数据库模板](t-customize-template.md)
-  - [安装Pigsty扩展应用](t-application.md)
-  - [数据库备份与恢复](t-backup.md)  
-  - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
-  - [数据库迁移](t-migration.md)
-  - [Redis集群部署与监控](t-redis.md)
 
 - 监控
   - [监控面板](m-dashboard.md)
@@ -66,6 +62,13 @@
 - 参考
   - [报警规则](r-alert.md)
   - [文件目录结构](r-fhs.md)
+  - [分析CSV日志样本](t-log-analysis.md)
+  - [使用CMDB替换静态配置](t-cmdb.md)
+  - [升级Grafana后端数据库](t-grafana-upgrade.md)
+  - [配置Prometheus远程存储](t-promscale.md)
+  - [使用Jupyter进行数据分析](t-jupyter.md)
+  - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
+
 
 - [社区交流](community.md)
 - [路线规划](../roadmap.md)
