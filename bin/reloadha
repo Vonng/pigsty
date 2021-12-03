@@ -2,12 +2,12 @@
 set -euo pipefail
 
 #==============================================================#
-# File      :   bin/reloadhba
-# Ctime     :   2021-11-02
+# File      :   bin/reloadha
+# Ctime     :   2021-12-03
 # Mtime     :   2021-12-03
-# Desc      :   Wrapper of pgsql playbook reload hba task
-# Usage     :   bin/reloadhba <cluster>
-# Path      :   bin/reloadhba
+# Desc      :   Wrapper of pgsql playbook reload haproxy task
+# Usage     :   bin/reloadha <cluster>
+# Path      :   bin/reloadha <cluster>
 # Depend    :   pigsty playbook pgsql.yml
 # Copyright (C) 2018-2021 Ruohang Feng
 #==============================================================#
@@ -48,14 +48,16 @@ PG_CLUSTER=${1-''}
 
 if [[ -z "${PG_CLUSTER}" ]]; then
     log_error "pg_cluster is empty"
-    log_hint "bin/reloadhba <pg_cluster> # define database in pg_databases first"
+    log_hint "bin/reloadha <pg_cluster>  # define database in pg_databases first"
     exit 1
 fi
 #==============================================================#
 
 
 #==============================================================#
-log_warn "reload ${PG_CLUSTER} hba rules"
+log_warn "reload ${PG_CLUSTER} hba"
 #==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
-${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t pg_hba
+${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} -t haproxy_config
+
+log_hint "some haproxy statistics may not be accurate after reload"
