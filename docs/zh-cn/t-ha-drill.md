@@ -71,8 +71,8 @@ while true; do pgbench -nv -P1 -c8 --select-only --rate=512 -T10 postgres://test
 Pigsty的监控指标采集周期默认为10秒，而Patroni主从切换的典型耗时通常在几秒到十几秒之间。您可以使用`patronictl`来获取亚秒级别的观测精度：
 
 ```bash
-pt list pg-test          # 查看 pg-test 集群状态（在单独的窗口中）
-pt list pg-test -w 0.1   # 查看 pg-test 集群状态，每0.1s刷新一次
+pg list pg-test          # 查看 pg-test 集群状态（在单独的窗口中）
+pg list pg-test -w 0.1   # 查看 pg-test 集群状态，每0.1s刷新一次
 ```
 
 您可以开启四个Terminal窗口，分别用于：
@@ -80,7 +80,7 @@ pt list pg-test -w 0.1   # 查看 pg-test 集群状态，每0.1s刷新一次
 * 在管理节点上执行管理命令（用来触发模拟故障的命令）
 * 发起并观察读写请求负载（`pgbench`）
 * 发起并观察只读请求负载（`pgbench --select-only`）
-* 实时查阅集群主从状态（`pt list`）
+* 实时查阅集群主从状态（`pg list`）
 
 
 
@@ -100,7 +100,7 @@ ssh 10.10.10.3 sudo reboot    # 直接将 pg-test-1 主节点重启（VIP指向�
 
 Patroni可以正常处理主库宕机，执行自动Failover。
 
-当集群处于维护模式时，则需要人工介入处理（人工执行`pt failover`）
+当集群处于维护模式时，则需要人工介入处理（人工执行`pg failover <cluster>`）
 
 <details><summary>patronictl list 结果</summary>
 

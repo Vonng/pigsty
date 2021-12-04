@@ -38,23 +38,25 @@
 
 Pigsty默认使用Patroni管理PostgreSQL实例数据库。这意味着，您需要使用`patronictl`命令来管理Postgres集群，包括：集群配置变更，重启，Failover，Switchover，重做特定实例，切换自动/手动高可用模式等。
 
-用户可以使用`patronictl`在管理节点上以 `postgres`身份管理所有的数据库集群，亦可以在目标集群的任意实例上以 `postgres` 用户身份执行，别名`pt`已经在所有托管的机器上创建：`alias pt='patronictl -c /pg/bin/patroni.yml'`
+用户可以使用`patronictl`在管理节点上以 `postgres`身份管理所有的数据库集群，别名`pt`已经在所有托管的机器上创建：`alias pt='patronictl -c /pg/bin/patroni.yml'`
 
-常用的管理命令如下所示，更多命令请参考`pt --help`
+用户亦可以在管理节点上，使用快捷命令`pg`对所有目标Postgres集群发起管理，管理节点上设置有`alias pg=/bin/patronictl -c /etc/pigsty/patronictl.yml`。
+
+常用的管理命令如下所示，更多命令请参考`pg --help`
 
 ```bash
-pt list        [cluster]             # 打印集群信息
-pt edit-config [cluster]             # 编辑某个集群的配置文件 
+pg list        [cluster]             # 打印集群信息
+pg edit-config [cluster]             # 编辑某个集群的配置文件 
 
-pt reload      [cluster] [instance]  # 重载某个集群或实例的配置
-pt restart     [cluster] [instance]  # 重启某个集群或实例 
-pt reinit      [cluster] [instance]  # 重置某个集群中的实例（重新制作从库）
+pg reload      [cluster] [instance]  # 重载某个集群或实例的配置
+pg restart     [cluster] [instance]  # 重启某个集群或实例 
+pg reinit      [cluster] [instance]  # 重置某个集群中的实例（重新制作从库）
 
-pt pause       [cluster]             # 进入维护模式（不会触发自动故障切换，Patroni不再操作Postgres）
-pt resume      [cluster]             # 退出维护模式
+pg pause       [cluster]             # 进入维护模式（不会触发自动故障切换，Patroni不再操作Postgres）
+pg resume      [cluster]             # 退出维护模式
 
-pt failover    [cluster]             # 手工触发某集群的Failover
-pt switchover  [cluster]             # 手工触发某集群的Switchover
+pg failover    [cluster]             # 手工触发某集群的Failover
+pg switchover  [cluster]             # 手工触发某集群的Switchover
 ```
 
 ### 服务组件管理
@@ -99,7 +101,7 @@ systemctl reload grafana-server # 重载配置： Grafana
 
 当Patroni管理Postgres时，请不要使用 `pg_ctl` 直接操作数据库集簇 （`/pg/data`）。
 
-您可以通过`pt pause`进入维护模式后再对数据库进行手工管理。
+您可以通过`pg pause <cluster>`进入维护模式后再对数据库进行手工管理。
 
 ### 重置特定组件
 
@@ -181,7 +183,7 @@ Pigsty使用安全保险机制来避免误删运行中的数据库，请使用 [
 
 #### 常见问题2：数据库太大，等待从库上线超时
 
-当扩容操作卡在 `Wait for postgres replica online` 这一步并中止时，通常是因为已有数据库实例太大，超过了Ansible的超时等待时间。如果报错中止，该实例仍然会继续在后台拉起从库实例，您可以使用 `pt list pg-test` 命令列出集群当前状态，当新从库的状态为`running`时，可以使用以下命令，从中止的地方继续执行Ansible Playbook：
+当扩容操作卡在 `Wait for postgres replica online` 这一步并中止时，通常是因为已有数据库实例太大，超过了Ansible的超时等待时间。如果报错中止，该实例仍然会继续在后台拉起从库实例，您可以使用 `pg list pg-test` 命令列出集群当前状态，当新从库的状态为`running`时，可以使用以下命令，从中止的地方继续执行Ansible Playbook：
 
 ```bash
 ./pgsql.yml -l 10.10.10.13 --start-at-task 'Wait for postgres replica online'
@@ -199,9 +201,9 @@ Pigsty使用安全保险机制来避免误删运行中的数据库，请使用 [
 
 #### 常见问题3：集群处于维护模式 ，从库没有自动拉起
 
-解决方案1，使用`pt resume pg-test` 将集群配置为自动切换模式，再执行从库创建操作。
+解决方案1，使用`pg resume pg-test` 将集群配置为自动切换模式，再执行从库创建操作。
 
-解决方案2，使用`pt reinit pg-test pg-test-3`，手动完成实例初始化。该命令也可以用于**重做集群中的现有实例**。
+解决方案2，使用`pg reinit pg-test pg-test-3`，手动完成实例初始化。该命令也可以用于**重做集群中的现有实例**。
 
 
 
@@ -213,7 +215,7 @@ Pigsty使用安全保险机制来避免误删运行中的数据库，请使用 [
 sudo su postgres
 sed -ie 's/clonefrom: true/clonefrom: false/' /pg/bin/patroni.yml
 sudo systemctl reload patroni
-pt list -W # 查阅集群状态，确认故障实例没有clonefrom标签
+pg list -W # 查阅集群状态，确认故障实例没有clonefrom标签
 ```
 
 
@@ -290,11 +292,11 @@ BECOME password[defaults to SSH password]:
 
 ### 集群配置修改
 
-修改PostgreSQL集群配置需要通过 `pt edit-config <cluster>` 进行，特别是同步复制选项`synchronous_mode`，必须修改Patroni的配置项（`.synchronous_mode`），而非（`postgresql.parameters.synchronous_mode`等参数）。
+修改PostgreSQL集群配置需要通过 `pg edit-config <cluster>` 进行，特别是同步复制选项`synchronous_mode`，必须修改Patroni的配置项（`.synchronous_mode`），而非（`postgresql.parameters.synchronous_mode`等参数）。
 
 配置保存后，无需重启的配置可以通过确认生效。
 
-请注意，`pt edit-config`修改的参数为**集群参数**，单个实例范畴的配置参数（例如Patroni的Clonefrom标签等配置）需要直接修改Patroni配置文件（`/pg/bin/patroni.yml`）并`systemctl reload patroni`生效。
+请注意，`pg edit-config`修改的参数为**集群参数**，单个实例范畴的配置参数（例如Patroni的Clonefrom标签等配置）需要直接修改Patroni配置文件（`/pg/bin/patroni.yml`）并`systemctl reload patroni`生效。
 
 请注意，HBA规则由Pigsty自动创建，请不要使用Patroni来管理HBA规则。
 
@@ -303,10 +305,10 @@ BECOME password[defaults to SSH password]:
 需要重启的配置则需要安排数据库重启。重启集群可以使用以下命令进行：
 
 ```bash
-pt restart     [cluster] [instance]  # 重启某个集群或实例 
+pg restart [cluster] [instance]  # 重启某个集群或实例 
 ```
 
-带有需重启生效的实例，在`pt list`中会显示 `pending restart` 记号。
+带有需重启生效的实例，在`pg list <cluster>`中会显示 `pending restart` 记号。
 
 
 
@@ -587,7 +589,7 @@ rm -rf /etc/prometheus/targets/pgsql/pg-test-*.yml
 例如，想要在三节点演示集群 `pg-test` 上执行Failover，则可以执行以下命令：
 
 ```
-pt failover <cluster>
+pg failover <cluster>
 ```
 
 然后按照向导提示，执行Failover即可，集群Failover后，应当参考 [Case 8：集群角色调整](#case-8：集群角色调整) 中的说明，修正集群角色。
@@ -600,7 +602,7 @@ pt failover <cluster>
 
 ```bash
 [08-05 17:00:30] postgres@pg-meta-1:~
-$ pt list pg-test
+$ pg list pg-test
 + Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
 | Member    | Host        | Role    | State   | TL | Lag in MB | Pending restart | Tags            |
 +-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
@@ -610,7 +612,7 @@ $ pt list pg-test
 +-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
 
 [08-05 17:00:34] postgres@pg-meta-1:~
-$ pt failover pg-test
+$ pg failover pg-test
 Candidate ['pg-test-2', 'pg-test-3'] []: pg-test-3
 Current cluster topology
 + Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
@@ -631,7 +633,7 @@ Are you sure you want to failover cluster pg-test, demoting current master pg-te
 +-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
 
 [08-05 17:00:46] postgres@pg-meta-1:~
-$ pt list pg-test
+$ pg list pg-test
 + Cluster: pg-test (6988888117682961035) -----+----+-----------+-----------------+-----------------+
 | Member    | Host        | Role    | State   | TL | Lag in MB | Pending restart | Tags            |
 +-----------+-------------+---------+---------+----+-----------+-----------------+-----------------+
@@ -723,14 +725,14 @@ DCS（Consul/Etcd）本身是非常可靠的服务，一旦出现问题，其影
 
 ### **维护模式**
 
-除非当前集群处于“维护模式”（使用`pt pause <cluster>`进入，使用`pg resume <cluster>`退出）
+除非当前集群处于“维护模式”（使用`pg pause <cluster>`进入，使用`pg resume <cluster>`退出）
 
 ```bash
 # 使目标集群进入维护模式
-pt pause pg-test
+pg pause pg-test
 
 # 将目标集群恢复为自动故障切换模式（可选）
-pt resume pg-test
+pg resume pg-test
 ```
 
 

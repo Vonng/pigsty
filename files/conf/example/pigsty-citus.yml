@@ -11,14 +11,6 @@
 
 all: # top-level namespace
 
-  #==================================================================#
-  #                           Clusters                                #
-  #==================================================================#
-  # postgres database clusters are defined as kv pair in `all.children`
-  # where the key is cluster name and the value is the object consist
-  # of cluster members (hosts) and cluster specific variables (vars)
-  # meta nodes are defined in special group "meta" with `meta_node=true`
-
   children:
 
     #----------------------------------#
@@ -44,7 +36,7 @@ all: # top-level namespace
         pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus } ] } ]
 
-    pg-node-1:
+    pg-node1:
       hosts:
         10.10.10.11: { pg_seq: 1, pg_role: primary }
       vars:
@@ -53,7 +45,7 @@ all: # top-level namespace
         pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus } ] } ]
 
-    pg-node-2:
+    pg-node2:
       hosts:
         10.10.10.12: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
       vars:
@@ -62,7 +54,7 @@ all: # top-level namespace
         pg_users: [ { name: citus , password: citus , pgbouncer: true , roles: [ dbrole_admin ] } ]
         pg_databases: [ { name: meta , owner: citus , extensions: [ { name: citus } ] } ]
 
-    pg-node-3:
+    pg-node3:
       hosts:
         10.10.10.13: { pg_seq: 1, pg_role: primary  , pg_offline_query: true }
       vars:

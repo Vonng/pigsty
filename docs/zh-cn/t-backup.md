@@ -76,7 +76,7 @@ pg_basebackup: base backup completed
 
 ## 从备份中恢复
 
-需要使用该备份时，您需要将集群设置为维护模式（`pt pause`）并停止数据集群主库并清空数据集簇目录，然后备份文件解压至`/pg/data`中。
+需要使用该备份时，您需要将集群设置为维护模式（`pg pause <cluster>`）并停止数据集群主库并清空数据集簇目录，然后备份文件解压至`/pg/data`中。
 
 ```bash
 backup_dir="/pg/backup"

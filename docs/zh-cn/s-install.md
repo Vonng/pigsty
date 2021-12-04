@@ -133,7 +133,7 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 ```bash
 vagrant@meta:~/pigsty 
 $ ./configure
-configure pigsty v1.3.0 begin
+configure pigsty v1.3.1 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect

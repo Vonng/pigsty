@@ -1,6 +1,6 @@
 # Pigsty
 
-## Pigsty v1.3.0 Documentation
+## Pigsty v1.3.1 Documentation
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
