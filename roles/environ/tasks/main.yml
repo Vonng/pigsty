@@ -17,6 +17,35 @@
 
 
 #--------------------------------------------------------------#
+# Allow meta admin initiate patronictl commands
+#--------------------------------------------------------------#
+- name: Create patronictl resource
+  become: yes
+  tags: environ_patronictl
+  copy:
+    dest: /etc/pigsty/patronictl.yml
+    mode: 0644
+    content: |
+      ---
+      namespace: /pg/          # namespace
+
+      # - dcs - #
+      {% if dcs_type == 'consul' %}
+      consul:
+        host: 127.0.0.1:8500
+        consistency: default         # default|consistent|stale
+      {% endif %}
+
+      # - ctl - #
+      ctl:
+        optional:
+          insecure: true
+          # cacert: '/path/to/ca/cert'
+          # certfile: '/path/to/cert/file'
+          # keyfile: '/path/to/key/file'
+
+
+#--------------------------------------------------------------#
 # Make sure ssh credential exists (id_rsa.pub)
 #--------------------------------------------------------------#
 - name: Guarentee admin ssh crendential exists

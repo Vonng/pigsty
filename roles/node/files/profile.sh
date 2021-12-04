@@ -90,7 +90,7 @@ alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
 alias sc='sudo systemctl'
 alias st="sudo systemctl status "
-alias pg="/usr/pgsql/bin/pg_ctl"
+alias pg="patronictl -c /etc/pigsty/patronictl.yml"
 alias pt='patronictl -c /pg/bin/patroni.yml'
 alias ntpsync="sudo ntpdate pool.ntp.org"
 
@@ -99,6 +99,12 @@ alias cnode="consul catalog nodes -detailed"
 alias csvc="consul catalog services --tags"
 alias cst="systemctl status consul"
 alias cm="consul members"
+
+# pglist: list all pg cluster in consul
+function pglist() {
+  local filter=${1-'pg/'}
+  consul kv get -keys ${filter} | sort
+}
 # find node: fd <search>
 function fd() {
   local filter=${1-'pg'}
