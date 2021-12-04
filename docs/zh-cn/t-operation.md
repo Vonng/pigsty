@@ -485,7 +485,10 @@ bin/reloadha pg-test
 
 **1. 修改配置文件 pg_role**
 
-当集群发生了主从切换时，应当按照当前实际情况，调整集群成员的`pg_role`。例如，当`pg-test`发生了Failover或Switchover，导致`pg-test-3`实例变为新的集群领导者，则应当修改 `pg-test-3` 的角色为 `primary`，并将原主库 `pg_role` 配置为 `replica`。同时，您应当确保集群中至少存在一个实例能用于提供Offline服务，故为`pg-test-1`配置实例参数：`pg_offline_query: true`。
+当集群发生了主从切换时，应当按照当前实际情况，调整集群成员的`pg_role`。
+例如，当`pg-test`发生了Failover或Switchover，导致`pg-test-3`实例变为新的集群领导者，则应当修改 `pg-test-3` 的角色为 `primary`，并将原主库 `pg_role` 配置为 `replica`。
+同时，您应当确保集群中至少存在一个实例能用于提供Offline服务，故为`pg-test-1`配置实例参数：`pg_offline_query: true`。
+通常，非常不建议为集群配置一个以上的Offline实例，慢查询与长事务可能会导致在线只读流量受到影响。
 
 ```yaml
 10.10.10.11: { pg_seq: 1, pg_role: replica, pg_offline_query: true }

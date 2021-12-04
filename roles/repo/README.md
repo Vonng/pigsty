@@ -30,193 +30,84 @@ Mark repo cache as valid	TAGS: [infra, repo, repo_download]
 Related variables:
 
 ```yaml
----
 #------------------------------------------------------------------------------
-# REPO BUILD
+# NODE PROVISION
 #------------------------------------------------------------------------------
-# this section defines how to build a local yum repo including all packages needed
-# by this system. it's highly recommended to have a local yum repo on your meta node
+# this section defines how to provision nodes
+# nodename:                                   # if defined, node's hostname will be overwritten
+# meta_node: false                            # node with meta_node will be marked as admin node
 
-# - local yum repo - #
-repo_enabled: true                            # build local yum repo on meta nodes?
-repo_name: pigsty                             # local repo name
-repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
-repo_port: 80                                 # repo server listen address, must same as repo_address!
-repo_home: /www                               # default repo dir location
-repo_rebuild: false                           # force re-download packages
-repo_exist: false
+# - node dns - #
+node_dns_hosts:                               # static dns records in /etc/hosts
+  - 10.10.10.10 meta
+  - 10.10.10.10 pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
 
-# - upstream repo - #
-repo_remove: true                             # remove existing repos
-repo_upstreams:                               # additional repos to be installed before downloading
-  - name: base
-    description: CentOS-$releasever - Base
-    gpgcheck: no
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/ # tuna
-      - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
-      - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
-      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/    # aliyun
-      - http://mirror.centos.org/centos/$releasever/os/$basearch/             # official
+node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
+node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
+  - 10.10.10.10
+node_dns_options:                             # dns resolv options
+  - options single-request-reopen timeout:1 rotate
+  - domain service.consul
 
-  - name: updates
-    description: CentOS-$releasever - Updates
-    gpgcheck: no
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/ # tuna
-      - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
-      - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
-      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/    # aliyun
-      - http://mirror.centos.org/centos/$releasever/updates/$basearch/             # official
+# - node repo - #
+node_repo_method: local                       # none|local|public (use local repo for production env)
+node_repo_remove: true                        # whether remove existing repo
+node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
+  - http://pigsty/pigsty.repo
 
-  - name: extras
-    description: CentOS-$releasever - Extras
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/ # tuna
-      - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
-      - http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/
-      - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/    # aliyun
-      - http://mirror.centos.org/centos/$releasever/extras/$basearch/             # official
-    gpgcheck: no
-
-  - name: epel
-    description: CentOS $releasever - epel
-    gpgcheck: no
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch   # tuna
-      - http://mirrors.aliyun.com/epel/$releasever/$basearch              # aliyun
-      - http://download.fedoraproject.org/pub/epel/$releasever/$basearch  # official
-
-  - name: grafana
-    description: Grafana
-    enabled: yes
-    gpgcheck: no
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
-      - https://packages.grafana.com/oss/rpm                    # official
-
-  - name: prometheus
-    description: Prometheus and exporters
-    gpgcheck: no
-    baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch # no other mirrors, quite slow
-
-  - name: pgdg-common
-    description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
-    gpgcheck: no
-    baseurl:
-      - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
-      - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
-
-  - name: pgdg13
-    description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
-    gpgcheck: no
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
-      - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
-
-  - name: pgdg14-beta
-    description: PostgreSQL 14 beta for RHEL/CentOS $releasever - $basearch
-    enabled: yes
-    gpgcheck: no
-    baseurl:
-      - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/testing/14/redhat/rhel-$releasever-$basearch # tuna
-      - https://download.postgresql.org/pub/repos/yum/testing/14/redhat/rhel-$releasever-$basearch             # official
-
-  - name: centos-sclo
-    description: CentOS-$releasever - SCLo
-    gpgcheck: no
-    baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
-      - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
-      - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/
-
-  - name: centos-sclo-rh
-    description: CentOS-$releasever - SCLo rh
-    gpgcheck: no
-    baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
-      - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/
-      - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/rh/
-
-  - name: nginx
-    description: Nginx Official Yum Repo
-    skip_if_unavailable: true
-    gpgcheck: no
-    baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-
-  - name: haproxy
-    description: Copr repo for haproxy
-    skip_if_unavailable: true
-    gpgcheck: no
-    baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
-
-  # for latest consul & kubernetes
-  - name: harbottle
-    description: Copr repo for main owned by harbottle
-    skip_if_unavailable: true
-    gpgcheck: no
-    baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
+# - node packages - #
+node_packages:                                # common packages for all nodes
+  - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,ftp
+  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf
+  - readline,zlib,openssl,openssl-libs
+  - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
+  - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
+  - node_exporter,redis_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
+node_extra_packages:                          # extra packages for all nodes
+  - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
+node_meta_packages:                           # packages for meta nodes only
+  - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,redis
+  - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
+  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
+  - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
+node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
 
 
-# - what to download - #
-repo_packages:
-  # repo bootstrap packages
-  - epel-release nginx wget yum-utils yum createrepo sshpass unzip                        # bootstrap packages
+# - node features - #
+node_disable_numa: false                      # disable numa, reboot required
+node_disable_swap: false                      # disable swap, use with caution
+node_disable_firewall: true                   # disable firewall
+node_disable_selinux: true                    # disable selinux
+node_static_network: true                     # keep dns resolver settings after reboot
+node_disk_prefetch: false                     # setup disk prefetch on HDD to increase performance
 
-  # node basic packages
-  - ntp chrony uuid lz4 nc pv jq vim-enhanced make patch bash lsof wget git tuned         # basic system util
-  - readline zlib openssl libyaml libxml2 libxslt perl-ExtUtils-Embed ca-certificates     # basic pg dependency
-  - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet  # system utils
+# - node kernel modules - #
+node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
-  # dcs & monitor packages
-  - grafana prometheus2 pushgateway alertmanager                                          # monitor and ui
-  - node_exporter postgres_exporter nginx_exporter blackbox_exporter                      # exporter
-  - consul consul_exporter consul-template etcd                                           # dcs
+# - node tuned - #
+node_tune: tiny                               # install and activate tuned profile: none|oltp|olap|crit|tiny
+node_sysctl_params: { }                       # set additional sysctl parameters, k:v format
+# net.bridge.bridge-nf-call-iptables: 1       # example sysctl parameters
 
-  # python3 dependencies
-  - ansible python python-pip python-psycopg2 audit                                       # ansible & python
-  - python3 python3-psycopg2 python36-requests python3-etcd python3-consul                # python3
-  - python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography               # patroni extra deps
+# - node admin - #
+node_admin_setup: true                        # create a default admin user defined by `node_admin_*` ?
+node_admin_uid: 88                            # uid and gid for this admin user
+node_admin_username: dba                      # name of this admin user, dba by default
+node_admin_ssh_exchange: true                 # exchange admin ssh key among each pgsql cluster ?
+node_admin_pk_current: true                   # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
+node_admin_pks:                               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+  - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
-  # proxy and load balancer
-  - haproxy keepalived dnsmasq                                                            # proxy and dns
+# - node tz - #
+node_timezone: Asia/Hong_Kong                 # default node timezone, empty will not change
 
-  # postgres common Packages
-  - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity             # major components
-  - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel              # other common utils
-  - barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4 tail_n_mail
-
-  # postgres 13 packages
-  - postgresql13*                                                                          # postgresql 13 kernel
-  - postgresql13* postgis31* citus_13 timescaledb_13 pg_repack13 pg_squeeze13              # postgresql 13 extensions
-  - pg_qualstats13 pg_stat_kcache13 system_stats_13 bgw_replstatus13                        # stats extensions
-  - plr13 plsh13 plpgsql_check_13 plproxy13 plr13 plsh13 plpgsql_check_13 pldebugger13      # PL extensions
-  - hdfs_fdw_13 mongo_fdw13 mysql_fdw_13 ogr_fdw13 redis_fdw_13 pgbouncer_fdw13             # FDW extensions
-  - wal2json13 count_distinct13 ddlx_13 geoip13 orafce13                                    # MISC extensions
-  - rum_13 hypopg_13 ip4r13 jsquery_13 logerrors_13 periods_13 pg_auto_failover_13 pg_catcheck13
-  - pg_fkpart13 pg_jobmon13 pg_partman13 pg_prioritize_13 pg_track_settings13 pgaudit15_13
-  - pgcryptokey13 pgexportdoc13 pgimportdoc13 pgmemcache-13 pgmp13 pgq-13
-  - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
-
-  # build & devel packages (optional)
-  - gcc gcc-c++ clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools
-  - zlib-devel openssl-libs openssl-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
-
-repo_url_packages:
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter-0.4.0-1.el7.x86_64.rpm        # pg_exporter rpm
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0/vip-manager_1.0-1_amd64.rpm       # vip manger
-  - https://github.com/prometheus/node_exporter/releases/download/v1.2.2/node_exporter-1.1.2.linux-amd64.tar.gz # monitor binaries
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0beta/pg_exporter_v0.4.0_linux-amd64.tar.gz
-  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-linux-amd64.zip
-  - https://github.com/grafana/loki/releases/download/v2.2.1/promtail-linux-amd64.zip
-  - https://github.com/grafana/loki/releases/download/v2.2.1/logcli-linux-amd64.zip
-  - https://github.com/grafana/loki/releases/download/v2.2.1/loki-canary-linux-amd64.zip
-
-  # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter-0.3.2-1.el7.x86_64.rpm
-  # - https://github.com/cybertec-postgresql/vip-manager/releases/download/v0.6/vip-manager_0.6-1_amd64.rpm
-  # - https://github.com/Vonng/pg_exporter/releases/download/v0.3.2/pg_exporter_v0.3.2_linux-amd64.tar.gz
-
-  # mirror in mainland china (use commented packages to install from official site)
-  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/pg_exporter-0.3.2-1.el7.x86_64.rpm
-  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/vip-manager_0.6-1_amd64.rpm
-  # - http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg/polysh-0.4-1.noarch.rpm
-...
+# - node ntp - #
+node_ntp_config: true                         # config ntp service? false will leave it with system default
+node_ntp_service: ntp                         # ntp service provider: ntp|chrony
+node_ntp_servers:                             # default NTP servers
+  - pool cn.pool.ntp.org iburst
+  - pool pool.ntp.org iburst
+  - pool time.pool.aliyun.com iburst
+  - server 10.10.10.10 iburst
+  - server ntp.tuna.tsinghua.edu.cn iburst
 ```
