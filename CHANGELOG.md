@@ -1,3 +1,14 @@
+# v1.3.1 (TBD)
+
+* [FEATURE] `demo.yml` playbook for one-pass initialization
+* [FEATURE] `pg` alias on meta nodes to initiate control on pg clusters
+* [BUG FIX] fix `pg_instance` & `pg_service` in `register` role when start from middle of playbook
+* [CHANGE] reduce `max_locks_per_transactions` for all templates
+* [UPGRADE] Software upgrade:
+  * add all extensions from pgdg14 repo
+  * node_exporter: 1.3.0 
+  * grafana: 8.3.0
+
 # v1.3.0
 
 * [ENHANCEMENT] Redis Deployment (cluster,sentinel,standalone)
@@ -19,7 +30,7 @@
 
 * [ENHANCEMENT] monitor deploy 
   * Now grafana datasource is automatically registered during monly deployment
-* 
+
 * [ENHANCEMENT] software upgrade
   * add PostgreSQL 13 to default package list
   * upgrade to PostgreSQL 14.1 by default
