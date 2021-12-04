@@ -27,7 +27,7 @@
     mode: 0644
     content: |
       ---
-      namespace: /pg/          # namespace
+      namespace: {{ pg_namespace }}/          # namespace
 
       # - dcs - #
       {% if dcs_type == 'consul' %}
@@ -43,6 +43,13 @@
           # cacert: '/path/to/ca/cert'
           # certfile: '/path/to/cert/file'
           # keyfile: '/path/to/key/file'
+
+      # - auth - #
+      restapi:
+        authentication:
+          verify_client: none # none|optional|required
+          username: {{ pg_monitor_username }}
+          password: '{{ pg_monitor_password }}'
 
 
 #--------------------------------------------------------------#
