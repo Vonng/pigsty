@@ -1,5 +1,7 @@
 # 数据库常见故障诊断与处理
 
+
+
 ### 硬件故障
 
 | 编号 |        名称         |                症状                 | 处理 |
@@ -23,7 +25,7 @@
 
 | 编号 |          名称           |                             症状                             |                             处理                             |
 | :--: | :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| SP1  |     数据库进程中止      |             `ps aux | grep postgres` 找不到进程              |  检查Patroni状态<br />确认Failover结果，或手工执行Failover   |
+| SP1  |     数据库进程中止      |                 `ps aux` 找不到postgres进程                  | 检查Postgres，Patroni状态<br />确认Failover结果，或手工执行Failover |
 | SP2  |     连接池进程中止      |             `systemctl status pgbouncer` Failure             | [重启服务组件](t-operation#服务组件管理重启) 或 [重置服务组件](t-operation#case-11：重置组件) |
 | SP3  | Primary Patroni进程中止 |              `systemctl status patroni` Failure              |            同上，进入维护模式，重启或重置 Patroni            |
 | SP4  | Primary Consul进程中止  |              `systemctl status consul` Failure               |            同上，进入维护模式，重启或重置 Consul             |
