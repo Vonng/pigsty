@@ -9,7 +9,7 @@ Pigsty源码包：`pigsty.tgz` 可以从以下位置获取：
 * 如果用户需要进行离线安装，则可以预先从Github或其他渠道下载源码包与离线安装包，并通过scp，ftp等方式上传至服务器。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pigsty.tgz -o ~/pigsty.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pigsty.tgz -o ~/pigsty.tgz
 ```
 
 -----------
@@ -29,7 +29,7 @@ release版本号通常用于Bug修复与文档更新，Release版本号增长不
 如果用户需要在**没有互联网访问**，或Github访问受限的环境下进行安装，就需要自行下载并将其上传至目标服务器指定位置。
 
 ```bash  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 -----------

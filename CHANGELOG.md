@@ -1,15 +1,19 @@
-# v1.3.1 (TBD)
+# v1.3.1 
 
 * [FEATURE] `demo.yml` playbook for one-pass initialization
 * [FEATURE] `pg` alias on meta nodes to initiate control on pg clusters
 * [BUG FIX] fix `pg_instance` & `pg_service` in `register` role when start from middle of playbook
-* [CHANGE] reduce `max_locks_per_transactions` for all templates
+* [CHANGE] Change default parameters for all patroni templates
+  * reduce `max_locks_per_transactions` to proper value 
+  * add `citus.node_conninfo: 'sslmode=prefer'` for all citus nodes
 * [UPGRADE] Software upgrade:
   * add all extensions from pgdg14 repo
   * node_exporter: 1.3.0 
   * grafana: 8.3.0
 
-# v1.3.0
+
+
+# 1.3.0
 
 * [ENHANCEMENT] Redis Deployment (cluster,sentinel,standalone)
 * [ENHANCEMENT] Redis Monitor

@@ -7,8 +7,8 @@
 
 ```bash
 # 离线下载（没有Git时可以使用此curl代码下载）
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.0/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 
 # 常规安装
 git clone https://github.com/Vonng/pigsty && cd pigsty
