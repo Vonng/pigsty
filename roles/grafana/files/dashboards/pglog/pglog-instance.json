@@ -8,17 +8,22 @@
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Log for Single Instance",
     "editable": true,
-    "gnetId": null,
+    "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
     "id": null,
-    "iteration": 1626240109247,
+    "iteration": 1639048234670,
     "links": [
         {
             "asDropdown": true,
@@ -96,69 +101,24 @@
             "url": ""
         }
     ],
+    "liveNow": false,
     "panels": [
         {
-            "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
                 "y": 0
             },
-            "id": 17,
-            "panels": [],
-            "title": "README",
-            "type": "row"
-        },
-        {
-            "datasource": null,
-            "gridPos": {
-                "h": 4,
-                "w": 11,
-                "x": 0,
-                "y": 1
-            },
-            "id": 15,
-            "options": {
-                "content": "PGLOG requires **extra setup** to work, since logging system are optional.\n\n```bash\n./infra-loki.yml      # install loki on meta node\n./pgsql-promtail.yml  # deploy log agent on pgsql node\n```",
-                "mode": "markdown"
-            },
-            "pluginVersion": "8.0.5",
-            "transparent": true,
-            "type": "text"
-        },
-        {
-            "datasource": null,
-            "gridPos": {
-                "h": 4,
-                "w": 10,
-                "x": 14,
-                "y": 1
-            },
-            "id": 18,
-            "options": {
-                "content": "Select pgsql instance via `Instance`\n\nSelect log type (postgres|pgbouncer|patroni) by `Source`\n\nSearch keyword in logs with `Search` textbox.",
-                "mode": "markdown"
-            },
-            "pluginVersion": "8.0.5",
-            "transparent": true,
-            "type": "text"
-        },
-        {
-            "datasource": null,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 5
-            },
             "id": 11,
             "title": "Log Metrics",
             "type": "row"
         },
         {
-            "datasource": "Loki",
+            "datasource": {
+                "type": "loki",
+                "uid": "ds-loki"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -304,7 +264,7 @@
                 "h": 8,
                 "w": 8,
                 "x": 0,
-                "y": 6
+                "y": 1
             },
             "id": 9,
             "interval": "1s",
@@ -329,13 +289,14 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Logs",
             "type": "timeseries"
         },
         {
-            "datasource": "Loki",
+            "datasource": {
+                "type": "loki",
+                "uid": "ds-loki"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -496,7 +457,7 @@
                 "h": 8,
                 "w": 8,
                 "x": 8,
-                "y": 6
+                "y": 1
             },
             "id": 8,
             "interval": "1s",
@@ -521,13 +482,14 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Error Logs",
             "type": "timeseries"
         },
         {
-            "datasource": "Loki",
+            "datasource": {
+                "type": "loki",
+                "uid": "ds-loki"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -673,7 +635,7 @@
                 "h": 8,
                 "w": 8,
                 "x": 16,
-                "y": 6
+                "y": 1
             },
             "id": 7,
             "interval": "1s",
@@ -698,19 +660,16 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Searched Logs",
             "type": "timeseries"
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 14
+                "y": 9
             },
             "id": 13,
             "panels": [],
@@ -718,17 +677,22 @@
             "type": "row"
         },
         {
-            "datasource": "Loki",
+            "datasource": {
+                "type": "loki",
+                "uid": "ds-loki"
+            },
             "gridPos": {
                 "h": 18,
                 "w": 24,
                 "x": 0,
-                "y": 15
+                "y": 10
             },
             "id": 2,
             "options": {
                 "dedupStrategy": "none",
                 "enableLogDetails": true,
+                "prettifyLogMessage": false,
+                "showCommonLabels": false,
                 "showLabels": false,
                 "showTime": false,
                 "sortOrder": "Descending",
@@ -743,14 +707,58 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Rencent Logs",
             "type": "logs"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 28
+            },
+            "id": 17,
+            "panels": [
+                {
+                    "gridPos": {
+                        "h": 4,
+                        "w": 11,
+                        "x": 0,
+                        "y": 1
+                    },
+                    "id": 15,
+                    "options": {
+                        "content": "PGLOG requires **extra setup** to work, since logging system are optional.\n\n```bash\n./infra-loki.yml      # install loki on meta node\n./pgsql-promtail.yml  # deploy log agent on pgsql node\n```",
+                        "mode": "markdown"
+                    },
+                    "pluginVersion": "8.3.1",
+                    "transparent": true,
+                    "type": "text"
+                },
+                {
+                    "gridPos": {
+                        "h": 4,
+                        "w": 10,
+                        "x": 14,
+                        "y": 1
+                    },
+                    "id": 18,
+                    "options": {
+                        "content": "Select pgsql instance via `Instance`\n\nSelect log type (postgres|pgbouncer|patroni) by `Source`\n\nSearch keyword in logs with `Search` textbox.",
+                        "mode": "markdown"
+                    },
+                    "pluginVersion": "8.3.1",
+                    "transparent": true,
+                    "type": "text"
+                }
+            ],
+            "title": "README",
+            "type": "row"
         }
     ],
     "refresh": false,
-    "schemaVersion": 30,
+    "schemaVersion": 33,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -760,12 +768,12 @@
     "templating": {
         "list": [
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "Loki",
+                "datasource": {
+                    "type": "loki",
+                    "uid": "ds-loki"
+                },
                 "definition": "label_values(ins)",
-                "description": null,
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Instance",
@@ -785,10 +793,11 @@
             {
                 "allValue": ".*",
                 "current": {},
-                "datasource": "Loki",
+                "datasource": {
+                    "type": "loki",
+                    "uid": "ds-loki"
+                },
                 "definition": "label_values({ins=\"$ins\"}, src)",
-                "description": null,
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Source",
@@ -807,8 +816,6 @@
             },
             {
                 "current": {},
-                "description": null,
-                "error": null,
                 "hide": 0,
                 "label": "Search",
                 "name": "search",
@@ -833,5 +840,7 @@
     "timezone": "",
     "title": "PGLOG Instance",
     "uid": "pglog-instance",
-    "version": 1
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }

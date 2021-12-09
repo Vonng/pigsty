@@ -23,7 +23,7 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1639037677213,
+    "iteration": 1639051199085,
     "links": [
         {
             "asDropdown": true,
@@ -585,7 +585,23 @@
                     },
                     "unit": "ms"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "EXEC: sum"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 6,
@@ -735,25 +751,6 @@
                             "stddev_exec_time": "EXEC: \u03c3",
                             "total_exec_time": "EXEC: sum",
                             "value": "\u53d6\u503c"
-                        }
-                    }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Exec Time",
-                            "Last (not null)": "Value"
                         }
                     }
                 }
@@ -1015,7 +1012,23 @@
                     },
                     "unit": "ms"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PLAN: sum"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 6,
@@ -1169,25 +1182,6 @@
                             "total_exec_time": "",
                             "total_plan_time": "PLAN: sum",
                             "value": "\u53d6\u503c"
-                        }
-                    }
-                },
-                {
-                    "id": "reduce",
-                    "options": {
-                        "reducers": [
-                            "lastNotNull"
-                        ]
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "indexByName": {},
-                        "renameByName": {
-                            "Field": "Exec Time",
-                            "Last (not null)": "Value"
                         }
                     }
                 }
@@ -1982,7 +1976,7 @@
             "type": "table"
         },
         {
-            "collapsed": false,
+            "collapsed": true,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -1990,415 +1984,470 @@
                 "y": 26
             },
             "id": 55,
-            "panels": [],
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "${dsn}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "custom": {
+                                "align": "center",
+                                "displayMode": "color-background",
+                                "filterable": false
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#e3e3e3e0",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byRegexp",
+                                    "options": "(RT|RT:min|RT:max)"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "ms"
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-background-solid"
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "super-light-blue",
+                                                    "value": null
+                                                },
+                                                {
+                                                    "color": "blue",
+                                                    "value": 0.1
+                                                },
+                                                {
+                                                    "color": "light-green",
+                                                    "value": 1
+                                                },
+                                                {
+                                                    "color": "green",
+                                                    "value": 2
+                                                },
+                                                {
+                                                    "color": "yellow",
+                                                    "value": 10
+                                                },
+                                                {
+                                                    "color": "orange",
+                                                    "value": 100
+                                                },
+                                                {
+                                                    "color": "red",
+                                                    "value": 1000
+                                                },
+                                                {
+                                                    "color": "purple",
+                                                    "value": 60000
+                                                },
+                                                {
+                                                    "color": "rgb(80, 6, 94)",
+                                                    "value": 600000
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "decimals",
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Query"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 170
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "string"
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "${__data.fields.SQL}",
+                                                "url": "/d/pgcat-query?var-dsn=${dsn}&var-query=${__data.fields.Query}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 170
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGCAT Database for ${__data.fields.Database}",
+                                                "url": "/d/pgcat-database?var-dsn=${ins}.${__data.fields.Database}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "User"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 150
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "SQL"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "unit",
+                                        "value": "string"
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "json-view"
+                                    },
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 300
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Calls"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 111
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "locale"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Rows"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "short"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Time"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "ms"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "RT"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 77
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "WAL Recs"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "WAL FPIs"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 90
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "locale"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "WAL Bytes"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 90
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "decbytes"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Top"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 50
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "false": {
+                                                        "color": "orange",
+                                                        "index": 1,
+                                                        "text": "F"
+                                                    },
+                                                    "true": {
+                                                        "color": "green",
+                                                        "index": 0,
+                                                        "text": "T"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 14,
+                        "w": 24,
+                        "x": 0,
+                        "y": 27
+                    },
+                    "id": 87,
+                    "options": {
+                        "footer": {
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
+                        "showHeader": true,
+                        "sortBy": [
+                            {
+                                "desc": true,
+                                "displayName": "Calls"
+                            }
+                        ]
+                    },
+                    "pluginVersion": "8.3.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "postgres",
+                                "uid": "l60xgb27k"
+                            },
+                            "format": "table",
+                            "group": [],
+                            "metricColumn": "none",
+                            "rawQuery": true,
+                            "rawSql": "SELECT queryid::TEXT AS qid, d.datname, r.rolname, s.*\nFROM monitor.pg_stat_statements s\nLEFT JOIN pg_database d ON s.dbid = d.oid\n     LEFT JOIN pg_roles r ON s.userid = r.oid\nWHERE datname = '$datname'\nORDER BY rows DESC LIMIT 200;",
+                            "refId": "A",
+                            "select": [
+                                [
+                                    {
+                                        "params": [
+                                            "value"
+                                        ],
+                                        "type": "column"
+                                    }
+                                ]
+                            ],
+                            "timeColumn": "time",
+                            "where": [
+                                {
+                                    "name": "$__timeFilter",
+                                    "params": [],
+                                    "type": "macro"
+                                }
+                            ]
+                        }
+                    ],
+                    "title": "Query Statements",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "blk_read_time": true,
+                                    "blk_write_time": true,
+                                    "datname": true,
+                                    "dbid": true,
+                                    "local_blks_dirtied": true,
+                                    "local_blks_hit": true,
+                                    "local_blks_read": true,
+                                    "local_blks_written": true,
+                                    "max_plan_time": true,
+                                    "mean_plan_time": true,
+                                    "min_plan_time": true,
+                                    "plans": true,
+                                    "queryid": true,
+                                    "shared_blks_dirtied": true,
+                                    "shared_blks_hit": true,
+                                    "shared_blks_read": true,
+                                    "shared_blks_written": true,
+                                    "stddev_exec_time": true,
+                                    "stddev_plan_time": true,
+                                    "temp_blks_read": true,
+                                    "temp_blks_written": true,
+                                    "total_plan_time": true,
+                                    "userid": true
+                                },
+                                "indexByName": {
+                                    "blk_read_time": 30,
+                                    "blk_write_time": 31,
+                                    "calls": 7,
+                                    "datname": 2,
+                                    "dbid": 5,
+                                    "local_blks_dirtied": 26,
+                                    "local_blks_hit": 24,
+                                    "local_blks_read": 25,
+                                    "local_blks_written": 27,
+                                    "max_exec_time": 17,
+                                    "max_plan_time": 13,
+                                    "mean_exec_time": 16,
+                                    "mean_plan_time": 14,
+                                    "min_exec_time": 18,
+                                    "min_plan_time": 12,
+                                    "plans": 10,
+                                    "qid": 0,
+                                    "query": 1,
+                                    "queryid": 6,
+                                    "rolname": 3,
+                                    "rows": 8,
+                                    "shared_blks_dirtied": 22,
+                                    "shared_blks_hit": 20,
+                                    "shared_blks_read": 21,
+                                    "shared_blks_written": 23,
+                                    "stddev_exec_time": 19,
+                                    "stddev_plan_time": 15,
+                                    "temp_blks_read": 28,
+                                    "temp_blks_written": 29,
+                                    "toplevel": 35,
+                                    "total_exec_time": 9,
+                                    "total_plan_time": 11,
+                                    "userid": 4,
+                                    "wal_bytes": 34,
+                                    "wal_fpi": 33,
+                                    "wal_records": 32
+                                },
+                                "renameByName": {
+                                    "blk_read_time": "",
+                                    "calls": "Calls",
+                                    "datname": "Database",
+                                    "dbid": "DBID",
+                                    "max_exec_time": "RT:max",
+                                    "mean_exec_time": "RT",
+                                    "min_exec_time": "RT:min",
+                                    "plans": "",
+                                    "qid": "Query",
+                                    "query": "SQL",
+                                    "queryid": "QID",
+                                    "rolname": "User",
+                                    "rows": "Rows",
+                                    "stddev_exec_time": "",
+                                    "toplevel": "Top",
+                                    "total_exec_time": "Time",
+                                    "total_plan_time": "",
+                                    "userid": "UserID",
+                                    "wal_bytes": "WAL Bytes",
+                                    "wal_fpi": "WAL FPIs",
+                                    "wal_records": "WAL Recs"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
+                }
+            ],
             "title": "Overview",
             "type": "row"
-        },
-        {
-            "datasource": {
-                "uid": "${dsn}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Query"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "${__data.fields.SQL}",
-                                        "url": "/d/pgcat-query?var-dsn=${ins}.${datname}&var-query=${__data.fields.Query}"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 180
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "auto"
-                            },
-                            {
-                                "id": "unit",
-                                "value": "string"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "User"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 64
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/.*_time/"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "ms"
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-text"
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "blue",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": ""
-                                        },
-                                        {
-                                            "color": "green",
-                                            "value": 0.1
-                                        },
-                                        {
-                                            "color": "yellow",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 2
-                                        },
-                                        {
-                                            "color": "semi-dark-green",
-                                            "value": 4
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 8
-                                        },
-                                        {
-                                            "color": "purple",
-                                            "value": 60000
-                                        },
-                                        {
-                                            "color": "rgb(80, 6, 94)",
-                                            "value": 600000
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/.*_blks_.*/"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "SQL"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.displayMode",
-                                "value": "json-view"
-                            },
-                            {
-                                "id": "custom.align",
-                                "value": "left"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "calls"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "rows"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/wal_.*/"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 100
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "wal_bytes"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "decbytes"
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "TOP"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "false": {
-                                                "color": "yellow",
-                                                "index": 0,
-                                                "text": "F"
-                                            },
-                                            "true": {
-                                                "color": "green",
-                                                "index": 1,
-                                                "text": "T"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 14,
-                "w": 24,
-                "x": 0,
-                "y": 27
-            },
-            "id": 53,
-            "options": {
-                "footer": {
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": true,
-                        "displayName": "calls"
-                    }
-                ]
-            },
-            "pluginVersion": "8.3.1",
-            "targets": [
-                {
-                    "format": "table",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT queryid::TEXT AS qid, *\nFROM monitor.pg_stat_statements s\nWHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND\nuserid != 10 LIMIT 10;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Statements",
-            "transformations": [
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {
-                            "dbid": true,
-                            "local_blks_dirtied": true,
-                            "local_blks_hit": true,
-                            "local_blks_read": true,
-                            "local_blks_written": true,
-                            "max_plan_time": true,
-                            "mean_plan_time": true,
-                            "min_plan_time": true,
-                            "plans": true,
-                            "queryid": true,
-                            "shared_blks_dirtied": true,
-                            "shared_blks_hit": true,
-                            "shared_blks_read": true,
-                            "shared_blks_written": true,
-                            "stddev_exec_time": true,
-                            "stddev_plan_time": true,
-                            "temp_blks_read": true,
-                            "temp_blks_written": true,
-                            "total_plan_time": true,
-                            "userid": true
-                        },
-                        "indexByName": {
-                            "blk_read_time": 29,
-                            "blk_write_time": 30,
-                            "calls": 6,
-                            "datname": 1,
-                            "dbid": 3,
-                            "local_blks_dirtied": 25,
-                            "local_blks_hit": 23,
-                            "local_blks_read": 24,
-                            "local_blks_written": 26,
-                            "max_exec_time": 16,
-                            "max_plan_time": 11,
-                            "mean_exec_time": 17,
-                            "mean_plan_time": 12,
-                            "min_exec_time": 15,
-                            "min_plan_time": 10,
-                            "plans": 8,
-                            "qid": 0,
-                            "query": 5,
-                            "queryid": 4,
-                            "rows": 7,
-                            "shared_blks_dirtied": 21,
-                            "shared_blks_hit": 19,
-                            "shared_blks_read": 20,
-                            "shared_blks_written": 22,
-                            "stddev_exec_time": 18,
-                            "stddev_plan_time": 13,
-                            "temp_blks_read": 27,
-                            "temp_blks_written": 28,
-                            "total_exec_time": 14,
-                            "total_plan_time": 9,
-                            "userid": 2,
-                            "wal_bytes": 33,
-                            "wal_fpi": 32,
-                            "wal_records": 31
-                        },
-                        "renameByName": {
-                            "calls": "",
-                            "datname": "Database",
-                            "dbid": "DB",
-                            "plans": "",
-                            "qid": "Query",
-                            "query": "SQL",
-                            "queryid": "",
-                            "toplevel": "TOP",
-                            "total_plan_time": "",
-                            "userid": "User"
-                        }
-                    }
-                }
-            ],
-            "type": "table"
         }
     ],
     "refresh": "",

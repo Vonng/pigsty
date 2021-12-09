@@ -18,14 +18,13 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Redis Cluster Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "gnetId": 10819,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1638155398928,
+    "iteration": 1639054521154,
     "links": [
         {
             "asDropdown": false,
@@ -54,7 +53,6 @@
     "panels": [
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -67,7 +65,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
             "fieldConfig": {
                 "defaults": {
@@ -121,7 +118,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -153,7 +150,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Redis Mode: Cluster|Sentinel|Normal(standalone)",
             "fieldConfig": {
                 "defaults": {
@@ -213,7 +209,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -243,7 +239,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -365,10 +364,14 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "count(count by (cls) (redis_up{cls=\"$cls\"}))",
                     "hide": false,
                     "instant": true,
@@ -378,7 +381,11 @@
                     "refId": "A"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "count(count by (ip) (label_replace(redis_up{cls=\"$cls\"}, \"ip\", \"$1\", \"instance\", \"(.*)\\\\:\\\\d+\")))",
                     "hide": false,
                     "instant": true,
@@ -388,7 +395,11 @@
                     "refId": "L"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "count(redis_up{cls=\"$cls\"})",
                     "hide": false,
                     "instant": true,
@@ -398,7 +409,11 @@
                     "refId": "I"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "count(redis_instance_info{cls=\"$cls\", role=\"master\"})",
                     "hide": false,
                     "instant": true,
@@ -408,7 +423,11 @@
                     "refId": "G"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "count(redis_instance_info{cls=\"$cls\", role=\"slave\"})",
                     "hide": false,
                     "instant": true,
@@ -418,7 +437,11 @@
                     "refId": "H"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "count((count by (db) (redis_db_keys{cls=\"$cls\"})))",
                     "hide": false,
                     "instant": true,
@@ -428,7 +451,11 @@
                     "refId": "C"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "sum(max by (ip) (label_replace(redis_total_system_memory_bytes{cls=\"$cls\"}, \"ip\", \"$1\", \"instance\", \"(.*)\\\\:\\\\d+\")))",
                     "hide": false,
                     "instant": true,
@@ -438,12 +465,16 @@
                     "refId": "J"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "sum(redis_memory_max_bytes{cls=\"$cls\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Mem Alloc",
+                    "legendFormat": "Mem Max",
                     "queryType": "measurements",
                     "refId": "F"
                 }
@@ -452,7 +483,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Redis MaxMemory Policy:\nvolatile-lru\nallkeys-lru\nvolatile-lfu\nallkeys-lfu\nvolatile-random\nallkeys-random\nvolatile-ttl\nnoeviction",
             "fieldConfig": {
                 "defaults": {
@@ -512,7 +542,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -542,7 +572,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Redis Version",
             "fieldConfig": {
                 "defaults": {
@@ -602,7 +631,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -632,7 +661,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "All instances in pgsql cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -763,10 +795,17 @@
             },
             "id": 152,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -873,7 +912,10 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "All instances in pgsql cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -1225,6 +1267,13 @@
             },
             "id": 120,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -1233,7 +1282,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1378,7 +1427,6 @@
             "type": "table"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1449,7 +1497,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1463,7 +1511,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1534,7 +1581,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1548,7 +1595,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1610,7 +1656,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1623,7 +1669,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1704,7 +1749,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1721,7 +1766,10 @@
             "bars": false,
             "dashLength": 10,
             "dashes": false,
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "editable": true,
             "error": false,
             "fieldConfig": {
@@ -1768,7 +1816,7 @@
                 "alertThreshold": true
             },
             "percentage": false,
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "pointradius": 5,
             "points": false,
             "renderer": "flot",
@@ -1791,9 +1839,7 @@
                 }
             ],
             "thresholds": [],
-            "timeFrom": null,
             "timeRegions": [],
-            "timeShift": null,
             "title": "Instance QPS",
             "tooltip": {
                 "msResolution": false,
@@ -1803,9 +1849,7 @@
             },
             "type": "graph",
             "xaxis": {
-                "buckets": null,
                 "mode": "time",
-                "name": null,
                 "show": true,
                 "values": []
             },
@@ -1813,29 +1857,22 @@
                 {
                     "$$hashKey": "object:1345",
                     "format": "short",
-                    "label": null,
                     "logBase": 1,
-                    "max": null,
                     "min": "0",
                     "show": true
                 },
                 {
                     "$$hashKey": "object:1346",
                     "format": "short",
-                    "label": null,
                     "logBase": 1,
-                    "max": null,
-                    "min": null,
                     "show": false
                 }
             ],
             "yaxis": {
-                "align": false,
-                "alignLevel": null
+                "align": false
             }
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1939,7 +1976,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1960,7 +1997,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2030,7 +2066,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -2043,7 +2079,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
             "fieldConfig": {
                 "defaults": {
@@ -2221,7 +2256,10 @@
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "fieldConfig": {
                 "defaults": {
                     "mappings": [],
@@ -2364,7 +2402,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -2425,13 +2463,10 @@
                     "refId": "H"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "type": "stat"
         },
         {
-            "collapsed": false,
-            "datasource": null,
+            "collapsed": true,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2439,273 +2474,281 @@
                 "y": 35
             },
             "id": 151,
-            "panels": [],
-            "title": "Misc",
+            "panels": [
+                {
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue",
+                                        "value": null
+                                    }
+                                ]
+                            },
+                            "unit": "qps"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 18,
+                        "w": 5,
+                        "x": 0,
+                        "y": 36
+                    },
+                    "id": 144,
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "reduceOptions": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {},
+                        "textMode": "auto"
+                    },
+                    "pluginVersion": "8.3.1",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "redis:node:qps{cls=\"$cls\"}",
+                            "hide": false,
+                            "interval": "",
+                            "legendFormat": "{{ ip }}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Node QPS",
+                    "type": "stat"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "title": "Redis Instance: ${__field.labels.ins}",
+                                    "url": "/d/redis-instance?var-id=${__field.labels.ins}"
+                                }
+                            ],
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 0.1
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 0.3
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 0.5
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 0.7
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 0.9
+                                    },
+                                    {
+                                        "color": "text",
+                                        "value": 0.99
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 19,
+                        "x": 5,
+                        "y": 36
+                    },
+                    "id": 159,
+                    "links": [],
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "auto",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {},
+                        "textMode": "auto"
+                    },
+                    "pluginVersion": "8.3.1",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "redis:ins:cpu_usage{cls=\"$cls\"}",
+                            "format": "time_series",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }}",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 240,
+                            "target": ""
+                        }
+                    ],
+                    "title": "CPU Usage",
+                    "type": "stat"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "title": "Redis Instance : ${__field.labels.ins}",
+                                    "url": "/d/redis-instance?var-id=${__field.labels.ins}"
+                                }
+                            ],
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 0.5
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 0.6
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 0.7
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 0.8
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 0.9
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 19,
+                        "x": 5,
+                        "y": 45
+                    },
+                    "id": 91,
+                    "links": [],
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "auto",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {},
+                        "textMode": "auto"
+                    },
+                    "pluginVersion": "8.3.1",
+                    "targets": [
+                        {
+                            "expr": "redis:ins:mem_usage{cls=\"$cls\"}",
+                            "format": "time_series",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ins }}",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 240,
+                            "target": ""
+                        }
+                    ],
+                    "title": "MEM Usage",
+                    "type": "stat"
+                }
+            ],
+            "title": "Resource",
             "type": "row"
         },
         {
-            "datasource": null,
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "links": [],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "qps"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 18,
-                "w": 5,
-                "x": 0,
-                "y": 36
-            },
-            "id": 144,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "redis:node:qps{cls=\"$cls\"}",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "{{ ip }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "Node QPS",
-            "type": "stat"
-        },
-        {
-            "datasource": "Prometheus",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "title": "Redis Instance: ${__field.labels.ins}",
-                            "url": "/d/redis-instance?var-id=${__field.labels.ins}"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.3
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.7
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "text",
-                                "value": 0.99
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 9,
-                "w": 19,
-                "x": 5,
-                "y": 36
-            },
-            "id": 159,
-            "links": [],
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.5",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "redis:ins:cpu_usage{cls=\"$cls\"}",
-                    "format": "time_series",
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }}",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 240,
-                    "target": ""
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "CPU Usage",
-            "type": "stat"
-        },
-        {
-            "datasource": "Prometheus",
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "title": "Redis Instance : ${__field.labels.ins}",
-                            "url": "/d/redis-instance?var-id=${__field.labels.ins}"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.6
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.7
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.8
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.9
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 9,
-                "w": 19,
-                "x": 5,
-                "y": 45
-            },
-            "id": 91,
-            "links": [],
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.2.5",
-            "targets": [
-                {
-                    "expr": "redis:ins:mem_usage{cls=\"$cls\"}",
-                    "format": "time_series",
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ ins }}",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 240,
-                    "target": ""
-                }
-            ],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "MEM Usage",
-            "type": "stat"
-        },
-        {
             "collapsed": true,
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 54
+                "y": 36
             },
             "id": 25,
             "panels": [
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2780,7 +2823,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 53
+                        "y": 37
                     },
                     "id": 43,
                     "links": [],
@@ -2811,13 +2854,14 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "CPU Usage",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2892,7 +2936,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 53
+                        "y": 37
                     },
                     "id": 53,
                     "links": [],
@@ -2923,13 +2967,14 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "CPU Usage (Child)",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3032,7 +3077,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 60
+                        "y": 44
                     },
                     "id": 10,
                     "links": [],
@@ -3075,13 +3120,14 @@
                             "refId": "C"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Network I/O",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3155,7 +3201,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 60
+                        "y": 44
                     },
                     "id": 7,
                     "links": [],
@@ -3193,8 +3239,6 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Memory Usage",
                     "type": "timeseries"
                 }
@@ -3204,17 +3248,23 @@
         },
         {
             "collapsed": true,
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 55
+                "y": 37
             },
             "id": 31,
             "panels": [
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3225,7 +3275,7 @@
                                 "axisPlacement": "auto",
                                 "barAlignment": 0,
                                 "drawStyle": "line",
-                                "fillOpacity": 35,
+                                "fillOpacity": 0,
                                 "gradientMode": "none",
                                 "hideFrom": {
                                     "legend": false,
@@ -3255,8 +3305,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -3267,25 +3316,6 @@
                             "unit": "none"
                         },
                         "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "TPS"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "color",
-                                        "value": {
-                                            "fixedColor": "#A352CC",
-                                            "mode": "fixed"
-                                        }
-                                    },
-                                    {
-                                        "id": "custom.lineWidth",
-                                        "value": 2
-                                    }
-                                ]
-                            },
                             {
                                 "matcher": {
                                     "id": "byName",
@@ -3436,13 +3466,14 @@
                             "refId": "F"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Cluster QPS",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3453,7 +3484,7 @@
                                 "axisPlacement": "auto",
                                 "barAlignment": 0,
                                 "drawStyle": "line",
-                                "fillOpacity": 35,
+                                "fillOpacity": 0,
                                 "gradientMode": "none",
                                 "hideFrom": {
                                     "legend": false,
@@ -3482,12 +3513,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -3663,13 +3689,14 @@
                             "refId": "F"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Cluster RT",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3710,8 +3737,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -3756,13 +3782,14 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Command QPS",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3803,8 +3830,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -3850,13 +3876,14 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Instance RT",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3897,8 +3924,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -3943,14 +3969,14 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Instance-Command QPS",
                     "type": "timeseries"
                 },
                 {
-                    "cacheTimeout": null,
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3974,7 +4000,6 @@
                         "y": 18
                     },
                     "id": 66,
-                    "interval": null,
                     "links": [],
                     "maxDataPoints": 3,
                     "options": {
@@ -4007,13 +4032,14 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Command QPS Distribution",
                     "type": "piechart"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4053,8 +4079,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4101,8 +4126,6 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Command RT",
                     "type": "timeseries"
                 }
@@ -4112,17 +4135,23 @@
         },
         {
             "collapsed": true,
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 56
+                "y": 38
             },
             "id": 47,
             "panels": [
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4133,7 +4162,7 @@
                                 "axisPlacement": "auto",
                                 "barAlignment": 0,
                                 "drawStyle": "line",
-                                "fillOpacity": 9,
+                                "fillOpacity": 5,
                                 "gradientMode": "opacity",
                                 "hideFrom": {
                                     "legend": false,
@@ -4164,8 +4193,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4210,13 +4238,14 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Clients",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4258,8 +4287,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4304,13 +4332,14 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Connected Slaves",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4350,8 +4379,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4396,8 +4424,6 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Received Connection Rate",
                     "type": "timeseries"
                 },
@@ -4406,7 +4432,10 @@
                     "bars": true,
                     "dashLength": 10,
                     "dashes": false,
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "decimals": 0,
                     "editable": true,
                     "error": false,
@@ -4449,7 +4478,7 @@
                         "alertThreshold": true
                     },
                     "percentage": false,
-                    "pluginVersion": "8.2.5",
+                    "pluginVersion": "8.3.1",
                     "pointradius": 5,
                     "points": false,
                     "renderer": "flot",
@@ -4471,9 +4500,7 @@
                         }
                     ],
                     "thresholds": [],
-                    "timeFrom": null,
                     "timeRegions": [],
-                    "timeShift": null,
                     "title": "Incoming Connection 1 Day",
                     "tooltip": {
                         "msResolution": false,
@@ -4483,9 +4510,7 @@
                     },
                     "type": "graph",
                     "xaxis": {
-                        "buckets": null,
                         "mode": "series",
-                        "name": null,
                         "show": false,
                         "values": [
                             "total"
@@ -4496,29 +4521,26 @@
                             "$$hashKey": "object:203",
                             "decimals": 0,
                             "format": "none",
-                            "label": null,
                             "logBase": 1,
-                            "max": null,
                             "min": "0",
                             "show": true
                         },
                         {
                             "$$hashKey": "object:204",
                             "format": "none",
-                            "label": null,
                             "logBase": 1,
-                            "max": null,
-                            "min": null,
                             "show": false
                         }
                     ],
                     "yaxis": {
-                        "align": false,
-                        "alignLevel": null
+                        "align": false
                     }
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4559,8 +4581,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4605,8 +4626,6 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Reject Connection Rate",
                     "type": "timeseries"
                 },
@@ -4615,7 +4634,10 @@
                     "bars": false,
                     "dashLength": 10,
                     "dashes": false,
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "decimals": 0,
                     "editable": true,
                     "error": false,
@@ -4658,7 +4680,7 @@
                         "alertThreshold": true
                     },
                     "percentage": false,
-                    "pluginVersion": "8.2.5",
+                    "pluginVersion": "8.3.1",
                     "pointradius": 5,
                     "points": false,
                     "renderer": "flot",
@@ -4679,9 +4701,7 @@
                         }
                     ],
                     "thresholds": [],
-                    "timeFrom": null,
                     "timeRegions": [],
-                    "timeShift": null,
                     "title": "Blocked Client Rate",
                     "tooltip": {
                         "msResolution": false,
@@ -4691,9 +4711,7 @@
                     },
                     "type": "graph",
                     "xaxis": {
-                        "buckets": null,
                         "mode": "time",
-                        "name": null,
                         "show": true,
                         "values": []
                     },
@@ -4702,25 +4720,19 @@
                             "$$hashKey": "object:863",
                             "decimals": 0,
                             "format": "none",
-                            "label": null,
                             "logBase": 1,
-                            "max": null,
                             "min": "0",
                             "show": true
                         },
                         {
                             "$$hashKey": "object:864",
                             "format": "none",
-                            "label": null,
                             "logBase": 1,
-                            "max": null,
-                            "min": null,
                             "show": true
                         }
                     ],
                     "yaxis": {
-                        "align": false,
-                        "alignLevel": null
+                        "align": false
                     }
                 }
             ],
@@ -4729,17 +4741,23 @@
         },
         {
             "collapsed": true,
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 57
+                "y": 39
             },
             "id": 29,
             "panels": [
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4780,8 +4798,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4874,13 +4891,14 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Key Expired",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -4920,8 +4938,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4966,13 +4983,14 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Keys (per DB)",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -5013,8 +5031,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -5104,13 +5121,14 @@
                             "step": 240
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Key Evicted",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -5151,8 +5169,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -5197,8 +5214,6 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Keys (per Instance)",
                     "type": "timeseries"
                 },
@@ -5211,7 +5226,10 @@
                     "bars": false,
                     "dashLength": 10,
                     "dashes": false,
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "decimals": 1,
                     "editable": true,
                     "error": false,
@@ -5254,7 +5272,7 @@
                         "alertThreshold": true
                     },
                     "percentage": false,
-                    "pluginVersion": "8.2.5",
+                    "pluginVersion": "8.3.1",
                     "pointradius": 5,
                     "points": false,
                     "renderer": "flot",
@@ -5277,9 +5295,7 @@
                         }
                     ],
                     "thresholds": [],
-                    "timeFrom": null,
                     "timeRegions": [],
-                    "timeShift": null,
                     "title": "Average TTL",
                     "tooltip": {
                         "msResolution": false,
@@ -5289,9 +5305,7 @@
                     },
                     "type": "graph",
                     "xaxis": {
-                        "buckets": null,
                         "mode": "time",
-                        "name": null,
                         "show": true,
                         "values": []
                     },
@@ -5299,29 +5313,26 @@
                         {
                             "$$hashKey": "object:2127",
                             "format": "s",
-                            "label": null,
                             "logBase": 1,
-                            "max": null,
                             "min": "0",
                             "show": true
                         },
                         {
                             "$$hashKey": "object:2128",
                             "format": "short",
-                            "label": null,
                             "logBase": 1,
-                            "max": null,
-                            "min": null,
                             "show": false
                         }
                     ],
                     "yaxis": {
-                        "align": false,
-                        "alignLevel": null
+                        "align": false
                     }
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -5362,8 +5373,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -5410,8 +5420,6 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Key Hit Rate",
                     "type": "timeseries"
                 }
@@ -5421,18 +5429,23 @@
         },
         {
             "collapsed": true,
-            "datasource": "Prometheus",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 58
+                "y": 40
             },
             "id": 27,
             "panels": [
                 {
-                    "cacheTimeout": null,
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "custom": {
@@ -5445,8 +5458,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -5464,8 +5476,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green",
-                                                    "value": null
+                                                    "color": "green"
                                                 },
                                                 {
                                                     "color": "blue",
@@ -5565,15 +5576,22 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 59
+                        "y": 7
                     },
                     "id": 89,
                     "links": [],
                     "options": {
+                        "footer": {
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "8.2.5",
+                    "pluginVersion": "8.3.1",
                     "targets": [
                         {
                             "exemplar": true,
@@ -5588,8 +5606,6 @@
                             "step": 1800
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Replication",
                     "transformations": [
                         {
@@ -5635,7 +5651,10 @@
                     "type": "table"
                 },
                 {
-                    "datasource": "Prometheus",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -5676,8 +5695,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -5693,7 +5711,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 59
+                        "y": 7
                     },
                     "id": 57,
                     "links": [],
@@ -5724,8 +5742,6 @@
                             "target": ""
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "LSN Rate",
                     "type": "timeseries"
                 }
@@ -5735,7 +5751,7 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 32,
+    "schemaVersion": 33,
     "style": "dark",
     "tags": [
         "REDIS",
@@ -5744,12 +5760,12 @@
     "templating": {
         "list": [
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "Prometheus",
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ds-prometheus"
+                },
                 "definition": "label_values(redis_instance_info{job=\"redis\"}, cls)",
-                "description": null,
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Cluster",
@@ -5772,10 +5788,11 @@
             {
                 "allValue": ".*",
                 "current": {},
-                "datasource": "Prometheus",
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ds-prometheus"
+                },
                 "definition": "label_values(redis_instance_info{job=\"redis\", cls=\"$cls\"}, redis_mode)",
-                "description": null,
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Mode",
@@ -5828,5 +5845,7 @@
     "timezone": "browser",
     "title": "Redis Cluster",
     "uid": "redis-cluster",
-    "version": 1
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
