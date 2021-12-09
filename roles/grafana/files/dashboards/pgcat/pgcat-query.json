@@ -18,14 +18,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Catalog Explorer for Query",
     "editable": true,
     "fiscalYearStartMonth": 0,
-    "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1637241276136,
+    "iteration": 1639037677213,
     "links": [
         {
             "asDropdown": true,
@@ -106,7 +104,10 @@
     "liveNow": false,
     "panels": [
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
             "fieldConfig": {
                 "defaults": {
@@ -154,7 +155,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -186,7 +187,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "ins = ${ins}, used as unique instance identifier. Formed as {{ cls }}-{{ seq }}. ",
             "fieldConfig": {
                 "defaults": {
@@ -234,7 +238,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -264,7 +268,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Database name",
             "fieldConfig": {
                 "defaults": {
@@ -312,7 +319,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -344,7 +351,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Query identifier generated from plan",
             "fieldConfig": {
                 "defaults": {
@@ -392,7 +402,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -424,7 +434,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "gridPos": {
                 "h": 14,
                 "w": 14,
@@ -436,7 +445,7 @@
                 "content": "```sql\n${qs}\n```",
                 "mode": "markdown"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -450,7 +459,9 @@
             "type": "text"
         },
         {
-            "datasource": "${dsn}",
+            "datasource": {
+                "uid": "${dsn}"
+            },
             "description": "Users list that runs this query",
             "fieldConfig": {
                 "defaults": {
@@ -492,7 +503,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "format": "table",
@@ -525,13 +536,13 @@
             "type": "stat"
         },
         {
-            "datasource": "$dsn",
+            "datasource": {
+                "uid": "$dsn"
+            },
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [
                         {
@@ -547,73 +558,34 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "green",
                                 "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Exec Time"
-                        },
-                        "properties": [
+                            },
                             {
-                                "id": "custom.width",
-                                "value": 100
+                                "color": "#EAB839",
+                                "value": 1
+                            },
+                            {
+                                "color": "#EF843C",
+                                "value": 2
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
                             }
                         ]
                     },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "ms"
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "green",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "yellow",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 2
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 4
-                                        },
-                                        {
-                                            "color": "purple",
-                                            "value": 8
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-text"
-                            },
-                            {
-                                "id": "custom.width"
-                            }
-                        ]
-                    }
-                ]
+                    "unit": "ms"
+                },
+                "overrides": []
             },
             "gridPos": {
                 "h": 6,
@@ -624,10 +596,24 @@
             "id": 67,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 10
+                },
+                "textMode": "auto"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "format": "table",
@@ -656,8 +642,6 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "transformations": [
                 {
                     "id": "organize",
@@ -736,9 +720,9 @@
                         },
                         "renameByName": {
                             "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                            "max_exec_time": "max",
-                            "mean_exec_time": "\u00b5",
-                            "min_exec_time": "min",
+                            "max_exec_time": "EXEC: max",
+                            "mean_exec_time": "EXEC: \u00b5",
+                            "min_exec_time": "EXEC: min",
                             "oid": "Relation OID",
                             "relam": "Access Method ID",
                             "relfilenode": "Rel Filenode",
@@ -748,8 +732,8 @@
                             "reltablespace": "Tablespace OID",
                             "reltoastrelid": "Toast Table OID",
                             "reltype": "Reltype OID",
-                            "stddev_exec_time": "\u03c3",
-                            "total_exec_time": "sum",
+                            "stddev_exec_time": "EXEC: \u03c3",
+                            "total_exec_time": "EXEC: sum",
                             "value": "\u53d6\u503c"
                         }
                     }
@@ -774,16 +758,16 @@
                     }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
-            "datasource": "$dsn",
+            "datasource": {
+                "uid": "$dsn"
+            },
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [
                         {
@@ -799,26 +783,13 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "blue",
                                 "value": null
                             }
                         ]
                     }
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Metric"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 140
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 18,
@@ -829,10 +800,20 @@
             "id": 74,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "textMode": "auto"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "format": "table",
@@ -861,8 +842,6 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "transformations": [
                 {
                     "id": "organize",
@@ -984,16 +963,16 @@
                     }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
-            "datasource": "$dsn",
+            "datasource": {
+                "uid": "$dsn"
+            },
             "fieldConfig": {
                 "defaults": {
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "auto",
-                        "filterable": false
+                    "color": {
+                        "mode": "thresholds"
                     },
                     "mappings": [
                         {
@@ -1009,82 +988,34 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "orange",
+                                "color": "green",
                                 "value": null
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 1
+                            },
+                            {
+                                "color": "#EF843C",
+                                "value": 2
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
                             }
                         ]
-                    }
+                    },
+                    "unit": "ms"
                 },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Exec Time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 100
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "ms"
-                            },
-                            {
-                                "id": "thresholds",
-                                "value": {
-                                    "mode": "absolute",
-                                    "steps": [
-                                        {
-                                            "color": "green",
-                                            "value": null
-                                        },
-                                        {
-                                            "color": "yellow",
-                                            "value": 1
-                                        },
-                                        {
-                                            "color": "orange",
-                                            "value": 2
-                                        },
-                                        {
-                                            "color": "red",
-                                            "value": 4
-                                        },
-                                        {
-                                            "color": "purple",
-                                            "value": 8
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-text"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Plan Time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 95
-                            }
-                        ]
-                    }
-                ]
+                "overrides": []
             },
             "gridPos": {
                 "h": 6,
@@ -1092,13 +1023,27 @@
                 "x": 14,
                 "y": 10
             },
-            "id": 69,
+            "id": 83,
             "links": [],
             "options": {
-                "showHeader": true,
-                "sortBy": []
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 8
+                },
+                "textMode": "auto"
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "format": "table",
@@ -1127,8 +1072,6 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "transformations": [
                 {
                     "id": "organize",
@@ -1199,7 +1142,6 @@
                             "toplevel": 2,
                             "total_exec_time": 16,
                             "total_plan_time": 10,
-                            "usename": 33,
                             "userid": 0,
                             "wal_bytes": 32,
                             "wal_fpi": 31,
@@ -1207,12 +1149,12 @@
                         },
                         "renameByName": {
                             "key": "\u6807\u8bc6\u7b26\u540d\u79f0",
-                            "max_exec_time": "max",
-                            "max_plan_time": "max",
-                            "mean_exec_time": "\u00b5",
-                            "mean_plan_time": "\u00b5",
-                            "min_exec_time": "min",
-                            "min_plan_time": "min",
+                            "max_exec_time": "",
+                            "max_plan_time": "PLAN: max",
+                            "mean_exec_time": "",
+                            "mean_plan_time": "PLAN: \u00b5",
+                            "min_exec_time": "",
+                            "min_plan_time": "PLAN: min",
                             "oid": "Relation OID",
                             "relam": "Access Method ID",
                             "relfilenode": "Rel Filenode",
@@ -1222,10 +1164,10 @@
                             "reltablespace": "Tablespace OID",
                             "reltoastrelid": "Toast Table OID",
                             "reltype": "Reltype OID",
-                            "stddev_exec_time": "\u03c3",
-                            "stddev_plan_time": "\u03c3",
-                            "total_exec_time": "sum",
-                            "total_plan_time": "sum",
+                            "stddev_exec_time": "",
+                            "stddev_plan_time": "PLAN: \u03c3",
+                            "total_exec_time": "",
+                            "total_plan_time": "PLAN: sum",
                             "value": "\u53d6\u503c"
                         }
                     }
@@ -1244,16 +1186,19 @@
                         "excludeByName": {},
                         "indexByName": {},
                         "renameByName": {
-                            "Field": "Plan Time",
+                            "Field": "Exec Time",
                             "Last (not null)": "Value"
                         }
                     }
                 }
             ],
-            "type": "table"
+            "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -1418,13 +1363,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "QPS",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -1591,13 +1537,13 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "RT",
             "type": "timeseries"
         },
         {
-            "datasource": "${dsn}",
+            "datasource": {
+                "uid": "${dsn}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "custom": {
@@ -1908,6 +1854,13 @@
             },
             "id": 61,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -1916,7 +1869,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "format": "table",
@@ -1945,8 +1898,6 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Statements Stat for ${query}",
             "transformations": [
                 {
@@ -2032,7 +1983,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2045,7 +1995,9 @@
             "type": "row"
         },
         {
-            "datasource": "${dsn}",
+            "datasource": {
+                "uid": "${dsn}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "custom": {
@@ -2324,6 +2276,13 @@
             },
             "id": 53,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -2332,7 +2291,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.2.4",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "format": "table",
@@ -2361,8 +2320,6 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Statements",
             "transformations": [
                 {
@@ -2445,7 +2402,7 @@
         }
     ],
     "refresh": "",
-    "schemaVersion": 32,
+    "schemaVersion": 33,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -2458,7 +2415,6 @@
             {
                 "current": {},
                 "description": "Database Instance",
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Data Source",
@@ -2473,12 +2429,13 @@
                 "type": "datasource"
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "Meta",
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "ds-meta"
+                },
                 "definition": "SELECT '${dsn}';",
                 "description": "Instance",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Instance",
@@ -2496,12 +2453,12 @@
                 "useTags": false
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "$dsn",
+                "datasource": {
+                    "uid": "$dsn"
+                },
                 "definition": "SELECT '${dsn}';",
                 "description": "Database name of this table",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Database",
@@ -2519,12 +2476,12 @@
                 "useTags": false
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "$dsn",
+                "datasource": {
+                    "uid": "$dsn"
+                },
                 "definition": "SELECT distinct queryid::TEXT FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND userid != 10 LIMIT 1000;",
                 "description": "Query Identifier",
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Query",
@@ -2542,12 +2499,12 @@
                 "useTags": false
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "$dsn",
+                "datasource": {
+                    "uid": "$dsn"
+                },
                 "definition": "SELECT query FROM monitor.pg_stat_statements WHERE dbid = (SELECT oid FROM pg_database WHERE datname = '${datname}') AND queryid = '$query' LIMIT 1;",
                 "description": "Query SQL Content",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "",
@@ -2565,12 +2522,13 @@
                 "useTags": false
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "Meta",
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "ds-meta"
+                },
                 "definition": "SELECT '${dsn}';",
                 "description": "Cluster identifier",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Cluster",
@@ -2623,5 +2581,7 @@
     "timezone": "",
     "title": "PGCAT Query",
     "uid": "pgcat-query",
-    "version": 1
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }

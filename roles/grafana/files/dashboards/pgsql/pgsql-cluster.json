@@ -18,14 +18,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Cluster Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
-    "gnetId": null,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1637654808934,
+    "iteration": 1639037976797,
     "links": [
         {
             "asDropdown": true,
@@ -91,7 +89,10 @@
     "liveNow": false,
     "panels": [
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
             "fieldConfig": {
                 "defaults": {
@@ -145,7 +146,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -177,7 +178,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Leader of cluster ${cls} is ${primary}",
             "fieldConfig": {
                 "defaults": {
@@ -231,7 +235,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -261,7 +265,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "All instances among PostgreSQL cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -451,6 +458,13 @@
             },
             "id": 2,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -459,7 +473,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -530,7 +544,10 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Services in cluster ${cls}. On(green) means current instance are member of that service. Off(orange) means the opposite.",
             "fieldConfig": {
                 "defaults": {
@@ -611,6 +628,13 @@
             },
             "id": 4,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -619,10 +643,14 @@
                     }
                 ]
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "sum by (proxy) (haproxy_server_status{cls=\"$cls\"}) ",
                     "format": "table",
                     "instant": true,
@@ -642,6 +670,7 @@
                         "indexByName": {},
                         "renameByName": {
                             "Value": "\u23fb",
+                            "Value #A": "\u23fb",
                             "proxy": "Service"
                         }
                     }
@@ -650,7 +679,10 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "All haproxy instances in this cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -700,7 +732,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 120
+                                "value": 40
                             },
                             {
                                 "id": "mappings",
@@ -747,18 +779,24 @@
             },
             "id": 50,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": true,
-                        "displayName": "Session"
-                    }
-                ]
+                "sortBy": []
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "sum by (ins) (haproxy_backend_current_sessions{cls=\"$cls\", proxy!=\"stats\"})",
                     "format": "table",
                     "instant": true,
@@ -778,6 +816,7 @@
                         "renameByName": {
                             "Time": "",
                             "Value": "\u23fb",
+                            "Value #A": "\u23fb",
                             "ins": "Proxy"
                         }
                     }
@@ -786,7 +825,10 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "ip = ${ip}. Unique identifier for corresponding node",
             "fieldConfig": {
                 "defaults": {
@@ -829,7 +871,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -845,7 +887,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "node = ${node}. Node hostname",
             "fieldConfig": {
                 "defaults": {
@@ -887,7 +932,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -904,7 +949,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Cluster Status: 0 : Leaderless,  1 : OK,  2+ : Partitioned",
             "fieldConfig": {
                 "defaults": {
@@ -979,7 +1027,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -996,7 +1044,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Cluster size ",
             "fieldConfig": {
                 "defaults": {
@@ -1060,7 +1111,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1077,7 +1128,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Important configuration entries of this instance",
             "fieldConfig": {
                 "defaults": {
@@ -1139,9 +1189,16 @@
             },
             "id": 21,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": false
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1230,7 +1287,6 @@
             "type": "table"
         },
         {
-            "datasource": null,
             "description": "Database of this cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -1797,6 +1853,13 @@
             },
             "id": 66,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -1805,7 +1868,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1977,7 +2040,6 @@
             "type": "table"
         },
         {
-            "datasource": null,
             "description": "Replication Status among cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -2079,10 +2141,6 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.width",
-                                "value": null
-                            },
-                            {
                                 "id": "mappings",
                                 "value": [
                                     {
@@ -2120,6 +2178,10 @@
                             {
                                 "id": "custom.displayMode",
                                 "value": "color-text"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 120
                             }
                         ]
                     },
@@ -2185,13 +2247,24 @@
             },
             "id": 54,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
                     "expr": "pg:cls:sender{cls=\"$cls\"}",
                     "format": "table",
                     "instant": true,
@@ -2200,7 +2273,11 @@
                     "refId": "A"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
                     "expr": "pg:cls:receiver{cls=\"$cls\"}",
                     "format": "table",
                     "hide": false,
@@ -2274,7 +2351,6 @@
             "type": "table"
         },
         {
-            "datasource": null,
             "description": "Leadership shows who is in charge of this cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -2362,7 +2438,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2501,7 +2576,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -2538,7 +2613,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2610,7 +2684,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -2623,7 +2697,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Overall pressure for this PostgreSQL Node and Instance. \nmax(node:ins:cpu_usage, pg:ins:load, pgbouncer:ins:load)",
             "fieldConfig": {
                 "defaults": {
@@ -2807,7 +2880,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2879,7 +2951,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -2900,7 +2972,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2964,7 +3035,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -2977,7 +3048,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
             "fieldConfig": {
                 "defaults": {
@@ -3159,7 +3229,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3232,7 +3301,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3245,7 +3314,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3322,7 +3390,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3335,7 +3403,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3404,7 +3471,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3417,7 +3484,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3486,7 +3552,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3499,7 +3565,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3584,7 +3649,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3597,7 +3662,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3683,7 +3747,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3696,7 +3760,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3781,7 +3844,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3794,7 +3857,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3879,7 +3941,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3892,7 +3954,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3977,7 +4038,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3990,7 +4051,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -4063,7 +4123,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -4076,7 +4136,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -4163,7 +4222,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -4176,7 +4235,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -4263,7 +4321,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.2.5",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -4277,7 +4335,6 @@
         },
         {
             "collapsed": true,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -4287,7 +4344,6 @@
             "id": 82,
             "panels": [
                 {
-                    "datasource": null,
                     "description": "Cluster (5m) & Instance  (1m) CPU Usage",
                     "fieldConfig": {
                         "defaults": {
@@ -4333,8 +4389,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -4472,7 +4527,6 @@
                     "type": "timeseries"
                 },
                 {
-                    "datasource": null,
                     "description": "Replication Lag (WAL Replay Lag) measured in bytes",
                     "fieldConfig": {
                         "defaults": {
@@ -4519,8 +4573,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4567,7 +4620,10 @@
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "description": "Average transaction response time from pgbouncer\n(You can get from postgres directly after PG14)",
                     "fieldConfig": {
                         "defaults": {
@@ -4609,8 +4665,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4737,13 +4792,10 @@
                             "refId": "C"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "RT",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": null,
                     "description": "Number of backends for each instances among this cluster",
                     "fieldConfig": {
                         "defaults": {
@@ -4790,8 +4842,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -4830,7 +4881,10 @@
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "description": "Total transactions (commit + rollback) per second from PostgreSQL in last 5 minutes",
                     "fieldConfig": {
                         "defaults": {
@@ -4878,8 +4932,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -4988,13 +5041,14 @@
                             "refId": "C"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "TPS",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "description": "Tuples fetched, inserted, updated, delete among this cluster",
                     "fieldConfig": {
                         "defaults": {
@@ -5036,8 +5090,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             },
@@ -5178,13 +5231,14 @@
                             "refId": "D"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "CRUD",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "description": "Time spent per second for each query of each instances.",
                     "fieldConfig": {
                         "defaults": {
@@ -5231,8 +5285,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -5282,13 +5335,14 @@
                             "refId": "B"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Query Time Spent",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "description": "R\u25b2 for disk read bandwidth\nTX\u25b2 for network transmit bandwidth\nRX\u25bc for network receive bandwidth\nW\u25bc for disk write bandwidth",
                     "fieldConfig": {
                         "defaults": {
@@ -5328,8 +5382,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     },
                                     {
                                         "color": "red",
@@ -5393,13 +5446,14 @@
                             "refId": "D"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Disk / Network",
                     "type": "timeseries"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "description": "Ratio of XID used for each database among this cluster",
                     "fieldConfig": {
                         "defaults": {
@@ -5420,8 +5474,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -5484,13 +5537,14 @@
                             "refId": "A"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Age Usage",
                     "type": "bargauge"
                 },
                 {
-                    "datasource": "Prometheus-PgSQL",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -5510,8 +5564,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     },
                                     {
                                         "color": "green",
@@ -5574,8 +5627,6 @@
                             "refId": "A"
                         }
                     ],
-                    "timeFrom": null,
-                    "timeShift": null,
                     "title": "Space Usage",
                     "type": "bargauge"
                 }
@@ -5585,7 +5636,7 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 32,
+    "schemaVersion": 33,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -5595,12 +5646,9 @@
     "templating": {
         "list": [
             {
-                "allValue": null,
                 "current": {},
-                "datasource": null,
                 "definition": "label_values(pg_up, cls)",
                 "description": "Cluster identifier for this postgres instance, cls should be unique among entire environment. such as pg-meta, pg-test",
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Cluster",
@@ -5618,12 +5666,9 @@
                 "type": "query"
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": null,
                 "definition": "label_values(pg:cls:leader{cls=\"$cls\"}, ins)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Primary",
@@ -5650,5 +5695,7 @@
     "timezone": "",
     "title": "PGSQL Cluster",
     "uid": "pgsql-cluster",
-    "version": 1
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }

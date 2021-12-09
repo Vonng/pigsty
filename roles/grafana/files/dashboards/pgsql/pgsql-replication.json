@@ -8,17 +8,22 @@
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Replication of Single cluster",
     "editable": true,
-    "gnetId": null,
+    "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626959777051,
+    "iteration": 1639037731433,
     "links": [
         {
             "asDropdown": true,
@@ -81,10 +86,10 @@
             "url": ""
         }
     ],
+    "liveNow": false,
     "panels": [
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -97,7 +102,10 @@
             "type": "row"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
             "fieldConfig": {
                 "defaults": {
@@ -145,7 +153,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -177,7 +185,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Leader of cluster ${cls} is ${primary}",
             "fieldConfig": {
                 "defaults": {
@@ -225,7 +236,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -255,7 +266,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "All instances in pgsql cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -294,9 +308,6 @@
                                         "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
                                     }
                                 ]
-                            },
-                            {
-                                "id": "custom.width"
                             }
                         ]
                     },
@@ -329,7 +340,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 92
+                                "value": 70
                             },
                             {
                                 "id": "mappings",
@@ -347,12 +358,12 @@
                                                 "text": "primary"
                                             },
                                             "2": {
-                                                "color": "super-light-green",
+                                                "color": "green",
                                                 "index": 2,
                                                 "text": "replica"
                                             },
                                             "3": {
-                                                "color": "super-light-orange",
+                                                "color": "orange",
                                                 "index": 3,
                                                 "text": "primary"
                                             }
@@ -363,7 +374,7 @@
                             },
                             {
                                 "id": "custom.displayMode",
-                                "value": "color-background-solid"
+                                "value": "color-text"
                             },
                             {
                                 "id": "links",
@@ -398,7 +409,7 @@
                             },
                             {
                                 "id": "custom.width",
-                                "value": 160
+                                "value": 140
                             },
                             {
                                 "id": "thresholds",
@@ -435,10 +446,6 @@
                                         }
                                     ]
                                 }
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 1
                             }
                         ]
                     }
@@ -450,8 +457,15 @@
                 "x": 6,
                 "y": 1
             },
-            "id": 2,
+            "id": 108,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -460,10 +474,14 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "pg:ins:status{cls=\"$cls\"}",
                     "format": "table",
                     "instant": true,
@@ -472,7 +490,11 @@
                     "refId": "A"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "ins:pressure1{cls=\"$cls\"}",
                     "format": "table",
                     "hide": false,
@@ -482,7 +504,11 @@
                     "refId": "B"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": false,
                     "expr": "max by (ins, primary_conninfo) (pg_meta_info{cls=\"$cls\"})",
                     "format": "table",
                     "hide": false,
@@ -506,7 +532,6 @@
                             "Time": true,
                             "Time 1": true,
                             "Time 2": true,
-                            "Time 3": true,
                             "Value #A": false,
                             "Value #B": false,
                             "Value #C": true,
@@ -535,8 +560,7 @@
                             "Value #A": "Status",
                             "Value #B": "Pressure",
                             "ins": "Instance",
-                            "ip": "IP",
-                            "primary_conninfo": "Primary Connection"
+                            "ip": "IP"
                         }
                     }
                 }
@@ -544,7 +568,10 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "ip = ${ip}. Unique identifier for corresponding node",
             "fieldConfig": {
                 "defaults": {
@@ -587,7 +614,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -603,7 +630,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "node = ${node}. Node hostname",
             "fieldConfig": {
                 "defaults": {
@@ -645,7 +675,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -662,7 +692,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Cluster Status: 0 : Leaderless,  1 : OK,  2+ : Partitioned",
             "fieldConfig": {
                 "defaults": {
@@ -737,7 +770,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -754,7 +787,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "Cluster size ",
             "fieldConfig": {
                 "defaults": {
@@ -818,7 +854,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -835,7 +871,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "Leadership shows who is in charge of this cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -918,7 +953,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "Replication Status among cluster ${cls}",
             "fieldConfig": {
                 "defaults": {
@@ -1126,10 +1160,17 @@
             },
             "id": 54,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1219,7 +1260,6 @@
             "type": "table"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1304,7 +1344,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1392,7 +1431,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1477,7 +1515,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1490,7 +1528,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1575,7 +1612,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -1589,7 +1626,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -1602,7 +1638,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1690,7 +1725,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1778,7 +1812,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1888,7 +1921,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1971,7 +2003,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -1984,7 +2015,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2113,7 +2143,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2260,7 +2289,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "Rate of lsn in last minute",
             "fieldConfig": {
                 "defaults": {
@@ -2346,7 +2374,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2359,7 +2386,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2486,7 +2512,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2605,7 +2630,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2740,7 +2764,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2860,7 +2883,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2873,7 +2895,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3084,10 +3105,17 @@
             },
             "id": 100,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3187,7 +3215,6 @@
             "type": "table"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3274,7 +3301,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -3287,7 +3313,10 @@
             "type": "row"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3347,9 +3376,16 @@
             },
             "id": 106,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3466,7 +3502,10 @@
             "type": "table"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3687,7 +3726,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.0.6",
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "exemplar": true,
@@ -3714,7 +3753,6 @@
             "type": "stat"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3798,7 +3836,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "i = init , d = data sync , r = ready",
             "fieldConfig": {
                 "defaults": {
@@ -3884,7 +3921,7 @@
         }
     ],
     "refresh": "1m",
-    "schemaVersion": 30,
+    "schemaVersion": 33,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -3894,12 +3931,9 @@
     "templating": {
         "list": [
             {
-                "allValue": null,
                 "current": {},
-                "datasource": null,
                 "definition": "label_values(pg_up, cls)",
                 "description": "Cluster identifier for this postgres instance, cls should be unique among entire environment. such as pg-meta, pg-test",
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Cluster",
@@ -3917,12 +3951,9 @@
                 "type": "query"
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": null,
                 "definition": "label_values(pg:cls:leader{cls=\"$cls\"}, ins)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Primary",
@@ -3949,5 +3980,7 @@
     "timezone": "",
     "title": "PGSQL Replication",
     "uid": "pgsql-replication",
-    "version": 1
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
