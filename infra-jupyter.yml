@@ -1,0 +1,33 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   infra-jupyter.yml
+# Ctime     :   2021-04-13
+# Mtime     :   2021-12-09
+# Desc      :   install jupyter on meta node
+# Path      :   infra-jupyter.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#---------------------------------------------------------------
+# Jupyter: Notebook server
+#---------------------------------------------------------------
+- name: Jupyter Init         # init jupyter on meta node
+  become: yes
+  hosts: meta
+  gather_facts: no
+  vars:
+
+    # - jupyter - #
+    # jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
+    # jupyter_password: pigsty                      # jupyter password (very important if enabled!)
+
+  roles:
+    - role: jupyter
+      tags: jupyter
+
+#---------------------------------------------------------------
+# add new line to nginx_upstream if jupyter is enabled
+# { name: pgweb, domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
+#---------------------------------------------------------------
+...

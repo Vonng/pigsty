@@ -1,0 +1,32 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   infra-pgweb.yml
+# Ctime     :   2021-12-09
+# Mtime     :   2021-12-09
+# Desc      :   install pgweb on meta node
+# Path      :   infra-pgweb.yml
+# Copyright (C) 2018-2021 Ruohang Feng
+#==============================================================#
+
+#---------------------------------------------------------------
+# PGWEB: PostgreSQL Web Client User Interface
+#---------------------------------------------------------------
+- name: PGWeb Init         # init pgweb on meta node
+  become: yes
+  hosts: meta
+  gather_facts: no
+  vars:
+
+    # - pgweb - #
+    # pgweb_username: pgweb                         # os user name, special names: default|root (dangerous!)
+
+  roles:
+    - role: pgweb
+      tags: pgweb
+
+#---------------------------------------------------------------
+# add new line to nginx_upstream if pgweb is enabled
+# { name: pgweb, domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
+#---------------------------------------------------------------
+...

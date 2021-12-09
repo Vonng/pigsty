@@ -1,17 +1,23 @@
-# v1.3.1 
+# v1.3.1 Bug fix & Dashboard Adjust 
 
-* [FEATURE] `demo.yml` playbook for one-pass initialization
+* [FEATURE] `infra-demo.yml` playbook for one-pass initialization
 * [FEATURE] `pg` alias on meta nodes to initiate control on pg clusters
+* [DASHBOARD] pgsql & pgcat dashboard rework
+  * Merge PGCAT Bloat dashboard into PGCAT Database
+  * Add index & Fix query activity for PGCAT Database & PGCAT Instance
+  * Add key metrics for PGSQL instances. 
 * [BUG FIX] fix `pg_instance` & `pg_service` in `register` role when start from middle of playbook
+* [BUG FIX] fix dashboard style broken on grafana 8.1
 * [CHANGE] Change default parameters for all patroni templates
   * reduce `max_locks_per_transactions` to proper value 
   * add `citus.node_conninfo: 'sslmode=prefer'` for all citus nodes
+  * remove jupyterlab & pgweb from default installation, now they can be installed via contrib playbooks
 * [UPGRADE] Software upgrade:
-  * add all extensions from pgdg14 repo
-  * node_exporter: 1.3.0 
-  * grafana: 8.3.0
-
-
+  * Grafana: 8.3.1 (Fix high severity security [issue](https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/))
+  * Add all pgdg14 repo extensions into list 
+  * Upgrade node_exporter to 1.3.1
+  * Add postgrest v9.0.0 to package list
+  
 
 # 1.3.0
 
