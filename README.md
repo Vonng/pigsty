@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [1.3.1](https://github.com/Vonng/pigsty/releases/tag/1.3.1)  |  [Public Demo](http://home.pigsty.cc)
+> Latest Version: [1.3.1](https://github.com/Vonng/pigsty/releases/tag/v1.3.1)  |  [Public Demo](http://home.pigsty.cc)
 >
 > Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 
@@ -21,6 +21,20 @@
 * Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
 
 Pigsty can be used both for large-scale pg clusters management in real-world prod-env, and for launching versatile local pgsql sandbox for dev, test, demo & data analysis purpose.
+
+
+
+## TL;DR
+
+Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
+
+```bash
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~
+cd pigsty && ./configure
+make install
+``` 
+
+Check [public demo](http://demo.pigsty.cc) for what you will get, check [Get Started](#get-started) for more detail.
 
 
 
@@ -173,12 +187,65 @@ pg-meta:                                # required, ansible group name , pgsql c
 
 </details>
 
+<details>
+<summary>Example of Redis Cluster/Sentinel/Standalone</summary>
+
+```yaml
+#----------------------------------#
+# redis sentinel example           #
+#----------------------------------#
+redis-sentinel:
+  hosts:
+    10.10.10.10:
+      redis_node: 1
+      redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+  vars:
+    redis_cluster: redis-sentinel
+    redis_mode: sentinel
+    redis_max_memory: 128MB
+
+#----------------------------------#
+# redis cluster example            #
+#----------------------------------#
+redis-cluster:
+  hosts:
+    10.10.10.11:
+      redis_node: 1
+      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+    10.10.10.12:
+      redis_node: 2
+      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+  vars:
+    redis_cluster: redis-cluster        # name of this redis 'cluster'
+    redis_mode: cluster                 # standalone,cluster,sentinel
+    redis_max_memory: 64MB              # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru       # memory eviction policy
+
+#----------------------------------#
+# redis standalone example         #
+#----------------------------------#
+redis-standalone:
+  hosts:
+    10.10.10.13:
+      redis_node: 1
+      redis_instances:
+        6501: {}
+        6502: { replica_of: '10.10.10.13 6501' }
+        6503: { replica_of: '10.10.10.13 6501' }
+  vars:
+    redis_cluster: redis-standalone     # name of this redis 'cluster'
+    redis_mode: standalone              # standalone,cluster,sentinel
+    redis_max_memory: 64MB              # max memory used by each redis instance
+
+```
+
+</details>
 
 
 ## HA Clusters
 
 
-The clusters created by Pigsty are **distributed** HA postgres database cluster powered by Patroni & HAProxy.
+The clusters created by Pigsty are **distributive** HA postgres database cluster powered by Patroni & HAProxy.
 As long as any instance in the cluster survives, the cluster serves. Each instance is idempotent from application's point of view.
 
 
@@ -248,10 +315,8 @@ It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz
-git clone https://github.com/Vonng/pigsty && cd pigsty
-./configure
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~
+cd pigsty && ./configure
 make install
 ```
 

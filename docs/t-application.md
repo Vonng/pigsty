@@ -17,7 +17,7 @@ A Pigsty application typically includes at least one or all of the following.
 
 A Pigsty application will provide an installation script in the application root directory: `install` or a shortcut to it. You need to use [admin-user](t-prepare.md#manage application provisioning) to perform the installation at [admin-node](t-prepare.md#manage node provisioning). The installation script will check the current environment (get `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT`, etc. to perform the installation)
 
-You can download the application installation with the base data from https://github.com/Vonng/pigsty/releases/download/v1.0.0/app.tgz.
+You can download the application installation with the base data from https://github.com/Vonng/pigsty/releases/download/v1.3.1/app.tgz.
 
 
 

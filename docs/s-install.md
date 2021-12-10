@@ -7,8 +7,8 @@
 
 ```bash
 # download with curl (in case of git not available)
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 [Download](#download) & [Configure](#configure) & [Install](#install)
@@ -54,7 +54,7 @@ Source code `pigsty.tgz`（约500 KB）is **required**，can be obtained via `cu
 
 ```bash
 git clone https://github.com/Vonng/pigsty && cd pigsty
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz
 ```
 
 It's typical to unarchive source code to your home dir：`PIGSTY_HOME=~/pigsty`.
@@ -67,7 +67,7 @@ If you want to use the latest features, use Git to pull the code, or if you want
 Pigsty Offline Installation Package `pkg.tgz`（1GB）is **OPTIONAL**, which can be obtained via `curl` from Github.
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 Offline packages placed in the `/tmp/pkg.tgz` path of the target machine will be automatically recognized and used during the configuration process.

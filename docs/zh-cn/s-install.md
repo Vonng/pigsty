@@ -7,8 +7,8 @@
 
 ```bash
 # 离线下载（没有Git时可以使用此curl代码下载）
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 
 # 常规安装
 git clone https://github.com/Vonng/pigsty && cd pigsty
@@ -43,8 +43,8 @@ make install
 Pigsty的源码包`pigsty.tgz`（约500 KB）是**必选项**，可以通过`curl`、`git`从Github下载。
 
 ```bash
-git clone https://github.com/Vonng/pigsty && cd pigsty
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o ~/pigsty.tgz
+git clone https://github.com/Vonng/pigsty && cd pigsty # 如果没有git，也可以使用curl
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty
 ```
 
 建议解压于管理用户的家目录中，即：`PIGSTY_HOME=~/pigsty`。
@@ -57,7 +57,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pigsty.tgz -o 
 Pigsty的离线软件包`pkg.tgz`（约1 GB）是**可选项**，可以通过`curl` 从Github下载。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.0.0/pkg.tgz    -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 放置至目标机器的`/tmp/pkg.tgz`路径下的离线软件包会在配置过程中被自动识别并使用。

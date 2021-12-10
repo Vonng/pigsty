@@ -84,7 +84,7 @@ ssh 172.21.0.16 'sudo ls'
 
 ```bash
 git clone https://github.com/Vonng/pigsty
-curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz 
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz 
 ```
 
 如果您不能访问Github（在大陆是很常见的），也可以从别的地方[下载](t-prepare.md#pigsty源代码)（例如百度云盘），然后手工拷贝至服务器上：

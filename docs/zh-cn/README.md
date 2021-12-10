@@ -38,7 +38,17 @@ git clone https://github.com/Vonng/pigsty && cd pigsty
 make install
 ```
 
-安装Pigsty的细节请参考[快速上手](#快速上手)
+您也可以使用`curl`替代`git`下载源代码与离线软件包（CentOS 7.8.2003），以执行离线安装。
+
+```bash
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+./configure
+make install
+```
+
+更多安装Pigsty的细节，请参考[快速上手](#快速上手)。
+
 
 
 ## 亮点特性
@@ -345,8 +355,8 @@ Pigsty自带有两个样例：新冠疫情数据可视化 [`covid`](http://demo.
 
 ```bash
 # 离线下载
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/1.3.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
 
 # 常规安装
 git clone https://github.com/Vonng/pigsty && cd pigsty

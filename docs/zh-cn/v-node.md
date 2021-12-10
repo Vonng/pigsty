@@ -39,33 +39,26 @@
 ## 默认配置
 
 ```yaml
+---
 #------------------------------------------------------------------------------
 # NODE PROVISION
 #------------------------------------------------------------------------------
 # this section defines how to provision nodes
 # nodename:                                   # if defined, node's hostname will be overwritten
-# meta_node: false                            # node with meta_node will be marked as admin node
+meta_node: false                              # node with meta_node will be marked as admin node
 
 # - node dns - #
-node_dns_hosts:                               # static dns records in /etc/hosts
-  - 10.10.10.10 yum.pigsty
-  - 10.10.10.10 meta   pg-meta-1
-  - 10.10.10.11 node-1 pg-test-1
-  - 10.10.10.12 node-2 pg-test-2
-  - 10.10.10.13 node-2 pg-test-3
-
-node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
-node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
-  - 10.10.10.10
+node_dns_hosts: [ ]                            # static dns records in /etc/hosts
+node_dns_server: none                          # add (default) | none (skip) | overwrite (remove old settings)
+node_dns_servers: [ ]                          # dynamic nameserver in /etc/resolv.conf
 node_dns_options:                             # dns resolv options
   - options single-request-reopen timeout:1 rotate
   - domain service.consul
 
 # - node repo - #
-node_repo_method: local                       # none|local|public (use local repo for production env)
+node_repo_method: public                      # none|local|public (use local repo for production env)
 node_repo_remove: true                        # whether remove existing repo
-node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
-  - http://yum.pigsty/pigsty.repo
+node_local_repo_url: [ ]                      # local repo url (if method=local, make sure firewall is configured or disabled)
 
 # - node packages - #
 node_packages:                                # common packages for all nodes
@@ -73,17 +66,15 @@ node_packages:                                # common packages for all nodes
   - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
   - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
   - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
-  - node_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
+  - node_exporter,redis_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
 node_extra_packages:                          # extra packages for all nodes
   - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
 node_meta_packages:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-  - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
+  - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
   - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,libxml2-devel,libxslt-devel
-  # - pam-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
-
+  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
+node_meta_pip_install: ''                     # python3 to be install on meta node
 
 # - node features - #
 node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -107,19 +98,17 @@ node_admin_uid: 88                            # uid and gid for this admin user
 node_admin_username: dba                      # name of this admin user, dba by default
 node_admin_ssh_exchange: true                 # exchange admin ssh key among each pgsql cluster ?
 node_admin_pk_current: true                   # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-node_admin_pks:                               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
-  - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
+node_admin_pks: []                            # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+
+# - node tz - #
+node_timezone: ''                             # default node timezone, empty will not change it
 
 # - node ntp - #
 node_ntp_service: ntp                         # ntp service provider: ntp|chrony
 node_ntp_config: true                         # config ntp service? false will leave it with system default
-node_timezone: Asia/Hong_Kong                 # default node timezone
 node_ntp_servers:                             # default NTP servers
-  - pool cn.pool.ntp.org iburst
   - pool pool.ntp.org iburst
-  - pool time.pool.aliyun.com iburst
-  - server 10.10.10.10 iburst
-  - server ntp.tuna.tsinghua.edu.cn iburst
+...
 ```
 
 
