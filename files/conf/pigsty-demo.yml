@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node demo (default config)
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-11-28
+# Mtime     :   2021-12-09
 # Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -458,26 +458,25 @@ all: # top-level namespace
       - readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel
 
     repo_url_packages:
-      # monitor packages
-      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm       # vip-manager
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm                # pg_exporter rpm
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz             # pg_exporter binary
-      - https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz     # node_exporter binaries
+      # mandatory rpm
+      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm
+      - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+      - https://github.com/dalibo/pev2/releases/download/v0.23.0/pev2.tar.gz
+      - https://github.com/sosedoff/pgweb/releases/download/v0.11.9/pgweb_linux_amd64.zip
+      - https://github.com/PostgREST/postgrest/releases/download/v9.0.0/postgrest-v9.0.0-linux-static-x64.tar.xz
 
-      # extra components
+      # extra database support
+      - https://rpmfind.net/linux/remi/enterprise/7/remi/x86_64/redis-6.2.6-1.el7.remi.x86_64.rpm
+      - https://github.com/greenplum-db/gpdb/releases/download/6.18.2/open-source-greenplum-db-6.18.2-rhel7-x86_64.rpm
+
+      # binary install mode
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
+      - https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
       - https://github.com/grafana/loki/releases/download/v2.4.1/loki-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.4.1/promtail-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.4.1/logcli-linux-amd64.zip
       - https://github.com/grafana/loki/releases/download/v2.4.1/loki-canary-linux-amd64.zip
-      - https://github.com/dalibo/pev2/releases/download/v0.23.0/pev2.tar.gz
-      - https://github.com/sosedoff/pgweb/releases/download/v0.11.9/pgweb_linux_amd64.zip
-      - https://github.com/timescale/promscale/releases/download/0.7.1/promscale_0.7.1_Linux_x86_64.rpm                # promscale
-      - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
-
-      # extra databases support
-      - https://download.redis.io/releases/redis-6.2.6.tar.gz                                                          # redis src tarball
-      - https://rpmfind.net/linux/remi/enterprise/7/remi/x86_64/redis-6.2.6-1.el7.remi.x86_64.rpm                      # redis rpm
-      - https://github.com/greenplum-db/gpdb/releases/download/6.18.2/open-source-greenplum-db-6.18.2-rhel7-x86_64.rpm # greenplum
 
 
     #------------------------------------------------------------------------------
@@ -517,7 +516,7 @@ all: # top-level namespace
       - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,redis
-      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq
+      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh
       - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools,bison,flex
       - readline-devel,zlib-devel,uuid-devel,libuuid-devel,libxml2-devel,libxslt-devel,openssl-devel,libicu-devel
     node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
@@ -635,20 +634,6 @@ all: # top-level namespace
       - marcusolsson-treemap-panel
     grafana_git_plugins:                          # plugins that will be downloaded via git
       - https://github.com/Vonng/vonng-echarts-panel
-
-    # - loki - #                                  # note that loki is not installed by default
-    loki_clean: false                             # whether remove existing loki data
-    loki_data_dir: /data/loki                     # default loki data dir
-
-    # - jupyter - #
-    jupyter_enabled: true                         # setup jupyter lab server?
-    jupyter_username: jupyter                     # os user name, special names: default|root (dangerous!)
-    jupyter_password: pigsty                      # jupyter password (very important if enabled!)
-
-    # - pgweb - #
-    pgweb_enabled: true                           # setup pgweb server?
-    pgweb_username: pgweb                         # os user name, special names: default|root (dangerous!)
-
 
     #------------------------------------------------------------------------------
     # DCS PROVISION

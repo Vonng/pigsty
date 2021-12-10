@@ -52,7 +52,8 @@
   - [服务接入](v-service.md)
   - [Redis](v-redis.md)
 
-- 部署
+- 剧本
+  - [执行剧本](p-playbook.md)
   - [剧本：基础设施初始化](p-infra.md)
   - [剧本：数据库初始化](p-pgsql.md)
   - [剧本：业务用户创建](p-pgsql-createuser.md)  

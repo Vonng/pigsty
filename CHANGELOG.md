@@ -1,23 +1,33 @@
 # v1.3.1 Bug fix & Dashboard Adjust 
 
-* [FEATURE] `infra-demo.yml` playbook for one-pass initialization
-* [FEATURE] `pg` alias on meta nodes to initiate control on pg clusters
-* [DASHBOARD] pgsql & pgcat dashboard rework
-  * Merge PGCAT Bloat dashboard into PGCAT Database
-  * Add index & Fix query activity for PGCAT Database & PGCAT Instance
-  * Add key metrics for PGSQL instances. 
-* [BUG FIX] fix `pg_instance` & `pg_service` in `register` role when start from middle of playbook
-* [BUG FIX] fix dashboard style broken on grafana 8.1
-* [CHANGE] Change default parameters for all patroni templates
-  * reduce `max_locks_per_transactions` to proper value 
-  * add `citus.node_conninfo: 'sslmode=prefer'` for all citus nodes
-  * remove jupyterlab & pgweb from default installation, now they can be installed via contrib playbooks
-* [UPGRADE] Software upgrade:
-  * Grafana: 8.3.1 (Fix high severity security [issue](https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/))
-  * Add all pgdg14 repo extensions into list 
-  * Upgrade node_exporter to 1.3.1
-  * Add postgrest v9.0.0 to package list
-  
+[Monitor]
+* PGSQL & PGCAT Dashboard polish
+* optimize layout for pgcat instance & pgcat database
+* add key metrics panels to pgsql instance dashboard, keep consist with pgsql cluster
+* add table/index bloat panels to pgcat database, remove pgcat bloat dashboard.
+* add index information in pgcat database dashboard
+* fix broken panels in grafana 8.3
+* add redis index in nginx homepage 
+
+[Deploy]
+* New `infra-demo.yml` playbook for one-pass bootstrap
+* Use `infra-jupyter.yml` playbook to deploy optional jupyter lab server  
+* Use `infra-pgweb.yml` playbook to deploy optional pgweb server
+* New `pg` alias on meta node, can initiate postgres cluster from admin user (in addition to postgres)
+* Adjust all patroni conf templates's `max_locks_per_transactions` according to `timescaledb-tune` 's advise
+* Add `citus.node_conninfo: 'sslmode=prefer'` to conf templates in order to use citus without SSL
+* Add all extensions (except for pgrouting) in pgdg14 in package list
+* Upgrade node_exporter to v1.3.1
+* Add PostgREST v9.0.0 to package list. Generate API from postgres schema.
+
+
+[BugFix]
+* Grafana's security breach (upgrade to v8.3.1 [issue](https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/))
+* fix `pg_instance` & `pg_service` in `register` role when start from middle of playbook
+* Fix nginx homepage render issue when host without `pg_cluster` variable exists
+* Fix style issue when upgrading to grafana 8.3.1
+
+
 
 # 1.3.0
 
