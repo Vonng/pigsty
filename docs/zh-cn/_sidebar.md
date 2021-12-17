@@ -1,9 +1,10 @@
-- 上手
+- 概览
   - [上手指南](s-intro.md)
   - [安装部署](s-install.md)
-  - [本地沙箱](s-sandbox.md)
+  - [沙箱环境](s-sandbox.md)
   - [用户界面](s-interface.md)
   - [常见问题](s-faq.md)
+  - [产品价值](s-value.md)
 
 - 概念
   - [架构](c-arch.md)

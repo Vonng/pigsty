@@ -6,11 +6,10 @@
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [1.3.1](https://github.com/Vonng/pigsty/releases/tag/1.3.1)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
+> 最新版本: [v1.3.1](https://github.com/Vonng/pigsty/releases/tag/v1.3.1)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 >
-> 执行`make doc`可以在本地浏览器中阅览文档
 
 
 ## Pigsty是什么？
@@ -19,9 +18,9 @@
 
 * Pigsty是**全面专业的PostgreSQL[监控系统](#监控系统)**
 
-* Pigsty是**简单易用的PostgreSQL高可用[部署方案](#部署方案)**
+* Pigsty是**高可用的PostgreSQL[部署方案](#部署方案)**
 
-* Pigsty是**便捷全能的[本地沙箱](#沙箱环境)与[数据分析可视化环境](#数据分析与可视化)**
+* Pigsty是**用途广泛的PostgreSQL[沙箱环境](#用途广泛)**
 
 * Pigsty是**自由免费的开源软件，基于Apache 2.0协议开源**
 
@@ -47,23 +46,25 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | g
 make install
 ```
 
-更多安装Pigsty的细节，请参考[快速上手](#快速上手)。
+更多安装Pigsty的细节，请参考[安装部署](s-install.md)，置备虚拟机的细节可以参考：[沙箱环境](s-sandbox.md)。
 
 
 
 ## 亮点特性
 
-* **开箱即用**的软件系统，一键拉起生产环境所需的功能套件，**开源免费**。
+* [开箱即用](#开箱即用)的[发行版](#发行版)，一键拉起生产环境所需的功能套件，**开源免费**。
 * 全面专业的[监控系统](#监控系统)，基于 [Grafana](https://grafana.com/)、[Prometheus](https://prometheus.io/)与[pg_exporter](https://github.com/Vonng/pg_exporter) 等开源组件。
 * 简单易用的[部署方案](#部署方案)，基于[Ansible](https://docs.ansible.com/ansible/latest/index.html)的裸机部署，却提供类似Kubernetes的使用体验。
 * [高可用](#高可用集群)数据库集群[架构](c-arch.md)，基于Patroni实现，具有秒级故障自愈能力，久经生产环境考验。集成负载均衡，成员对外表现等价，提供类似分布式数据库的体验。
 * 基于DCS的[服务发现](m-discovery.md)与配置管理，维护管理自动化，智能化，无需人工维护元数据。
 * 无需互联网访问与代理的[离线安装](t-offline.md)模式，快速、安全、可靠。
 * [代码定义](v-config.md)的基础设施，可配置，可定制，可扩展。
+* 可基于Vagrant与Terraform快速部署本地/云端[沙箱环境](#沙箱环境)
 * 基于PostgreSQL 14（支持13/12），打包PostGIS，Timescale，Citus等强力扩展。 
 * 集成Echarts，Jupyterlab等工具，可作为数据分析与可视化的集成开发环境。
 * 架构方案经过长时间大规模的生产环境验证（200余节点 x 64C|400GB|3TB x 2年）
-* Pigsty提供基于裸机的**应用运行时**，可用于部署与监控其他数据库与应用，目前还对Redis提供原生部署监控支持
+* Pigsty提供基于裸机的**应用运行时**，可用于部署与监控其他数据库与应用，目前提供 [Redis支持](t-redis.md)
+
 
 ### 发行版
 
@@ -71,8 +72,22 @@ make install
 
 Pigsty将集群部署，扩容缩容，主从复制，故障切换，流量代理，连接池，服务发现，访问控制，监控系统，告警系统，日志采集等生产级成熟**解决方案**封装为发行版，一次性解决在生产环境与各类场景下使用 **世界上最先进的开源关系型数据库 —— [PostgreSQL](https://www.postgresql.org/)** 时会遇到的问题，真正做到开箱即用。
 
+
+### 开箱即用
+
+Pigsty将易用性做到极致：一条命令拉起所有组件，10分钟安装就绪，不依赖容器与Kubernetes，上手⻔槛极低。
+
+它既可用于大规模生产环境数据库管理，又可完整运行于本地单核虚拟机上。不操心，不折腾，一次性解决生产环境与个人使用PG的各类问题。
+
+单节点模式本身功能完备，可自我管理，并带有一个扩展⻬全，全副武装，准备就绪的PG数据库，
+可用于软件开发、测试、实验，演示；或者是数据的清洗，分析，可视化，存储，或者直接用于支持上层应用：Gitlab, Jira, Confluence, 用友，金蝶，群晖等等……
+
+更重要的是，Pigsty打包并提供了一套完整的应用运行时，用户可以使用该节点管理任意数量的数据库集群。
+您既可以使用它监控已有的数据库实例，也可以直接在其他节点上部署高可用故障自愈的PostgreSQL数据库集群（以及其他种类的应用或数据库，例如Redis）
+
 ![](../_media/infra.svg)
 
+此外，Pigsty还提供基于云虚拟机/本地虚拟机的[沙箱环境](s-sandbox.md)，准备虚拟机的工作也可以一键完成了。
 
 
 ### 监控系统
@@ -92,7 +107,7 @@ Pigsty监控系统由目前由三个紧密联系的应用共同组成：
 
 Pigsty监控系统基于业内最佳实践，采用Prometheus、Grafana作为监控基础设施。开源开放，定制便利，可复用，可移植，没有厂商锁定。
 Pigsty监控系统可独立使用，监控已有PostgreSQL数据库实例，详情参考[监控系统部署](t-monly.md)。
-Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis部署与监控](t-redis.md)的支持。
+Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis监控](t-redis.md)的支持。
 
 
 ### 部署方案
@@ -298,12 +313,12 @@ Pigsty允许用户通过配置灵活定义[服务](c-service.md)，并提供了�
 
 ### 沙箱环境
 
-使用PostgreSQL不仅仅是企业，还有许许多多多个人用户：用于软件的开发、测试、实验，演示；或者是数据的清洗，分析，可视化，存储。然而如何搭建环境往往成为用户面前的第一道拦路虎。
+Pigsty可以利用Vagrant与Virtualbox，在您自己的笔记本电脑上拉起安装所需的虚拟机环境，或通过Terraform，自动向云服务商申请ECS/VPC资源，一键创建，一键销毁。
 
-尽管Pigsty是针对大规模生产环境PostgreSQL数据库管理的解决方案，但它也可以完整运行于1核1GB的微型虚拟机中。
-Pigsty可以在您的笔记本或PC机上一键拉起完整的生产级PostgreSQL[沙箱](s-sandbox.md)，这是通过Vagrant调用Virtualbox自动创建虚拟机来实现的。
+沙箱环境中的虚拟机具有固定的资源名称与IP地址，非常适于软件开发测试、实验演示。
 
-默认沙箱配置为2核4GB的单节点，带有各类实用工具，可服务于各种用途。此外还有四节点版本的完整版沙箱，可用于充分展现Pigsty高可用架构与监控系统的能力，或用于生产仿真环境搭建。
+沙箱配置默认为2核4GB的单节点，IP地址 10.10.10.10，部署有一个名为`pg-meta-1`的单机数据库实例。
+此外还有四节点版本的完整版沙箱，带有额外三个数据库节点，可用于充分展现Pigsty高可用架构与监控系统的能力。
 
 ![](../_media/sandbox.svg)
 
@@ -325,11 +340,14 @@ Pigsty可以在您的笔记本或PC机上一键拉起完整的生产级PostgreSQ
 
 **四节点基本规格**
 
-* 管理节点要求同**单节点**
-* 将部署一个额外的三节点PostgreSQL数据库集群`pg-test`
-* 普通数据库节点，最低规格：1核，1GB，建议至少使用2GB内存。
+* 管理节点要求同**单节点**所述
+* 部署一个额外的三节点PostgreSQL数据库集群`pg-test`
+* 普通数据库节点，最低规格：1核，1GB，建议使用2GB内存。
+* 三节点的IP地址固定为：`10.10.10.11`, `10.10.10.12`, `10.10.10.13`
 
 </details>
+
+
 
 
 
@@ -341,54 +359,22 @@ Pigsty自带有两个样例：新冠疫情数据可视化 [`covid`](http://demo.
 
 ![](../_media/overview-covid.jpg)
 
-![](../_media/overview-isd.jpg)
-
-
-
-## 快速上手
-
-拉起Pigsty最少只需要三条命令：**下载**，**配置**与**安装**，详见[快速开始](s-install.md)。
-
-![](../_media/how-zh.svg)
-
-准备新机器一台：Linux x86_64 CentOS 7.8，配置免密码`sudo`与`ssh`登陆权限。
-
-```bash
-# 离线下载
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
-
-# 常规安装
-git clone https://github.com/Vonng/pigsty && cd pigsty
-./configure
-make install
-```
-
-如需运行[本地沙箱](s-sandbox.md)，可运行以下命令（MacOS）
-
-```bash
-make deps   # 安装homebrew，并通过homebrew安装vagrant与virtualbox（需重启）
-make dns    # 向本机/etc/hosts写入静态域名 (需sudo输入密码)
-make start  # 使用Vagrant拉起单个meta节点 (start4则为4个节点)
-make demo   # 使用单节点Demo配置并安装    (demo4则为4节点demo)
-```
-
-接下来，您可以参考 [快速上手-简介](s-intro.md) 探索更多关于Pigsty的内容。 
 
 
 ## Demo
 
-[http://demo.pigsty.cc](http://demo.pigsty.cc) 提供了公开的演示。您可以在这里浏览**Pigsty监控系统**提供的功能。Pigsty自带有两个有趣的数据应用：WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)，与全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)。
+Pigsty提供公开的演示环境：[http://demo.pigsty.cc](http://demo.pigsty.cc) 。
+您可以在这里浏览**Pigsty监控系统**提供的功能。
 
-
-Pigsty部署方案与其他功能则可以通过[**沙箱环境**](s-sandbox.md)在本机体验，教程 [【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会以一个具体的例子介绍Pigsty提供的管控功能。
+Pigsty部署方案与其他功能则可以通过[**沙箱环境**](s-sandbox.md)在本机体验，
+教程 [【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会以一个具体的例子介绍Pigsty提供的管控功能。
 
 
 ## 协议
 
 Pigsty基于Apache 2.0协议开源，可以免费用于商业目的。如需额外支持，请联系[作者](https://vonng.com/en/))
 
-改装与衍生需遵守[Apache License 2.0 ](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)的显著声明条款。
+改装与衍生需遵守[Apache License 2.0](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)的显著声明条款。
 
 
 ## 关于

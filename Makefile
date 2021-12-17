@@ -493,24 +493,19 @@ test-rb3:
 #------------------------------#
 # resource
 #------------------------------#
-# upload pigsty resource from your own host to vm
-upload:
-	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
+upload: upload-vagrant
+
+# upload pigsty resource from your own host to vagrant vms (ssh alias as 'meta')
+upload-vagrant:
+	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
 
-ut: upload-test
-upload-test: release
-	scp "dist/${VERSION}/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
-	ssh -t meta "cd pigsty && ./configure"
-
-ul: upload-latest
-upload-latest: release-latest
-	scp "dist/latest/pigsty.tgz" meta:/home/vagrant/pigsty.tgz
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	scp "dist/latest/pkg.tgz" meta:/tmp/pkg.tgz
+# upload pigsty resource to terraform vms (ssh alias as 'demo')
+upload-terraform:
+	scp "dist/${VERSION}/pigsty.tgz" demo:/root/pigsty.tgz
+	ssh -t demo 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	scp "dist/${VERSION}/pkg.tgz" demo:/tmp/pkg.tgz
 
 #------------------------------#
 # copy
