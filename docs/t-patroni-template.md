@@ -43,7 +43,7 @@ A typical Patroni configuration file (OLTP)
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
 # Note      :   Transactional Database Cluster Template
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
 # OLTP database are optimized for performance, rt latency

@@ -36,7 +36,7 @@
 # Desc      :   create user/role on existing cluster
 # Path      :   pgsql-createuser.yml
 # Deps      :   templates/pg-user.sql
-# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 

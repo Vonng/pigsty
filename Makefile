@@ -4,7 +4,7 @@
 # Mtime     :   2021-11-17
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
-# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 # pigsty version

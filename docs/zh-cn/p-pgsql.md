@@ -132,7 +132,7 @@
 # Mtime     :   2021-03-15
 # Desc      :   initialize pigsty cluster
 # Path      :   pgsql.yml
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
 

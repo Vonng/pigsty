@@ -56,7 +56,7 @@ Patroni中的模板变量请保留，否则相关参数可能无法正常工作�
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
 # Note      :   Transactional Database Cluster Template
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
-# Copyright (C) 2018-2021 Ruohang Feng
+# Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
 # OLTP database are optimized for performance, rt latency

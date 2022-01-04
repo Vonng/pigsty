@@ -6,7 +6,7 @@
 # Mtime     :   2021-07-05
 # Desc      :   pigsty node profile
 # Path      :   /etc/profile.d/profile.sh
-# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #==============================================================#

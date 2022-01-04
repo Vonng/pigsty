@@ -86,7 +86,7 @@ Common tags including:
 # Mtime     :   2021-07-07
 # Desc      :   init infrastructure on meta nodes
 # Path      :   infra.yml
-# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #==============================================================#

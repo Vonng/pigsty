@@ -42,7 +42,7 @@ bin/createdb <pg_cluster> <dbname>
 # Desc      :   create database on existing cluster
 # Deps      :   templates/pg-db.sql
 # Path      :   pgsql-createdb.yml
-# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #==============================================================#

@@ -48,7 +48,7 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 # Mtime     :   2021-07-06
 # Desc      :   remove pgsql from nodes
 # Path      :   pgsql-remove.yml
-# Copyright (C) 2018-2021 Ruohang Feng (rh@vonng.com)
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 

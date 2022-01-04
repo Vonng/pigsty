@@ -569,7 +569,7 @@ PG模板参数大多会通过`pg-init-template.sql`的方式渲染，`pg-meta`�
 -- Desc      :   init postgres cluster template
 -- Path      :   /pg/tmp/pg-init-template.sql
 -- Author    :   Vonng(fengruohang@outlook.com)
--- Copyright (C) 2018-2021 Ruohang Feng
+-- Copyright (C) 2018-2022 Ruohang Feng
 ----------------------------------------------------------------------
 
 
