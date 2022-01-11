@@ -1,0 +1,92 @@
+---
+#------------------------------------------------------------------------------
+# Install pg_exporter
+#------------------------------------------------------------------------------
+- name: Install pg_exporter
+  tags: [ pg_exporter, pg_exporter_install ]
+  when: (pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool) and exporter_install != 'none'
+  block:
+
+    # install via yum
+    # if exporter_repo_url is set, add that url repo to /etc/yum.repos.d first
+    - name: Add yum repo for pg_exporter
+      when: exporter_install == 'yum' and exporter_repo_url != ''
+      get_url:
+        url: "{{ exporter_repo_url }}"
+        dest: /etc/yum.repos.d/{{ item | basename }}
+
+    - name: Install pg_exporter via yum
+      when: and exporter_install == 'yum'
+      package: name=pg_exporter state=present
+
+    # install via copy binary
+    # the binary MUST be put into files/bin directory before running
+    - name: Install pg_exporter via binary
+      ignore_errors: true
+      when: exporter_install == 'binary'
+      copy: src=bin/pg_exporter dest=/usr/bin/pg_exporter owner=root mode=0755
+
+
+#------------------------------------------------------------------------------
+# Config pg_exporter
+#------------------------------------------------------------------------------
+- name: Setup pg_exporter
+  tags: [ pg_exporter, pg_exporter_config ]
+  block:
+
+    # common config
+    - name: Create /etc/pg_exporter conf dir
+      when: pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool
+      file: path=/etc/pg_exporter state=directory owner={{ pg_dbsu }} group=postgres mode=0775
+
+    - name: Copy default pg_exporter.yml config
+      when: pg_exporter_enabled|bool or pgbouncer_exporter_enabled|bool
+      copy: src={{ pg_exporter_config }} dest=/etc/pg_exporter/pg_exporter.yml owner=postgres group=postgres mode=0644
+
+    # pg_exporter systemd
+    - name: Config pg_exporter parameters
+      when: pg_exporter_enabled|bool
+      template: src=pg_exporter.j2 dest=/etc/default/pg_exporter owner={{ pg_dbsu }} group=postgres mode=0600
+
+    - name: Config pg_exporter systemd unit
+      when: pg_exporter_enabled|bool
+      template: src=pg_exporter.service.j2 dest=/usr/lib/systemd/system/pg_exporter.service
+
+    # pgbouncer_exporter systemd
+    - name: Config pgbouncer_exporter parameters
+      when: pgbouncer_exporter_enabled|bool
+      template: src=pgbouncer_exporter.j2 dest=/etc/default/pgbouncer_exporter owner={{ pg_dbsu }} group=postgres mode=0600
+
+    - name: Config pgbouncer_exporter systemd unit
+      when: pgbouncer_exporter_enabled|bool
+      template: src=pgbouncer_exporter.service.j2 dest=/usr/lib/systemd/system/pgbouncer_exporter.service
+
+
+#------------------------------------------------------------------------------
+# Launch pg_exporter
+#------------------------------------------------------------------------------
+- name: Launch pg_exporter
+  tags: [ pg_exporter, pg_exporter_launch ]
+  when: pg_exporter_enabled|bool
+  block:
+    - name: Launch pg_exporter systemd unit
+      systemd: name=pg_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pg_exporter online
+      wait_for: host=127.0.0.1 port={{ pg_exporter_port }} state=started timeout=10
+
+#------------------------------------------------------------------------------
+# Launch pgbouncer_exporter
+#------------------------------------------------------------------------------
+- name: Launch pg_exporter
+  tags: [ pg_exporter, pgbouncer_exporter_launch ]
+  when: pgbouncer_exporter_enabled|bool
+  block:
+    - name: Launch pgbouncer_exporter systemd unit
+      systemd: name=pgbouncer_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pgbouncer_exporter online
+      ignore_errors: true
+      wait_for: host=127.0.0.1 port={{ pgbouncer_exporter_port }} state=started timeout=10
+
+...

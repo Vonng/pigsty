@@ -1,6 +1,6 @@
 ---
 #------------------------------------------------------------------------------
-# MONITOR PROVISION
+# PG Exporter
 #------------------------------------------------------------------------------
 # - install - #
 exporter_install: none                        # none|yum|binary, none by default
@@ -9,15 +9,11 @@ exporter_repo_url: ''                         # if set, repo will be added to /e
 # - collect - #
 exporter_metrics_path: /metrics               # default metric path for pg related exporter
 
-# - node exporter - #
-node_exporter_enabled: true                   # setup node_exporter on instance
-node_exporter_port: 9100                      # default port for node exporter
-node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
-
 # - pg exporter - #
-pg_exporter_config: pg_exporter-demo.yaml     # default config files for pg_exporter
+pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter
 pg_exporter_enabled: true                     # setup pg_exporter on instance
 pg_exporter_port: 9630                        # default port for pg exporter
+pg_exporter_params: 'sslmode=disable'         # url query parameters for pg_exporter
 pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
 pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
 pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
@@ -31,11 +27,10 @@ pgbouncer_exporter_url: ''                    # optional, if not set, generate f
 pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
 
 # - postgres variables reference - #
-pg_dbsu: postgres
-pg_port: 5432
-pgbouncer_port: 6432
-pg_localhost: /var/run/postgresql
-pg_monitor_username: dbuser_monitor
-pg_monitor_password: DBUser.Monitor
-service_registry: consul
+pg_dbsu: postgres                             # who will run these exporters ?
+pg_port: 5432                                 # pg_exporter target port
+pgbouncer_port: 6432                          # pgbouncer_exporter target port
+pg_localhost: /var/run/postgresql             # access via unix socket
+pg_monitor_username: dbuser_monitor           # default monitor username
+pg_monitor_password: DBUser.Monitor           # default monitor password
 ...

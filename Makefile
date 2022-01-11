@@ -1,14 +1,14 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2019-04-13
-# Mtime     :   2021-11-17
+# Mtime     :   2022-01-11
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.3.1
+VERSION?=v1.3.2
 
 # pigsty cluster (meta by default)
 CLS?=meta
@@ -400,6 +400,7 @@ up4:
 	cd vagrant && vagrant up
 dw4:
 	cd vagrant && vagrant halt
+clean: del4
 del4:
 	cd vagrant && vagrant destroy -f
 new4: del4 up4
@@ -506,6 +507,27 @@ upload-terraform:
 	scp "dist/${VERSION}/pigsty.tgz" demo:/root/pigsty.tgz
 	ssh -t demo 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" demo:/tmp/pkg.tgz
+
+# run configure on pigsty vagrant demo
+config-vagrant:
+	ssh -t meta 'cd pigsty && ./configure'
+
+#------------------------------#
+# matrixdb
+#------------------------------#
+upload-matrix:
+	scp dist/matrix/matrix.tgz meta:/tmp/matrix.tgz
+	scp dist/matrix/matrix.repo meta:/tmp/matrix.repo
+
+# extract matrix resource to pigsty repo
+config-matrix:
+	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www;'
+	ssh meta 'sudo cp -f /tmp/matrix.repo /www/matrix.repo;'
+	scp files/conf/example/pigsty-mxdb.yml meta:~/pigsty/pigsty.yml
+
+# matrix: prepare matrix environment
+matrix: upload-vagrant upload-matrix config-vagrant config-matrix
+
 
 #------------------------------#
 # copy

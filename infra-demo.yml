@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   infra-demo.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2021-12-09
+# Mtime     :   2022-01-11
 # Desc      :   init demo on all nodes (one-pass bootstrap)
 # Path      :   infra-demo.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -16,7 +16,7 @@
 # It is used for 4-node demo, or in case that there are multiple
 # meta nodes also reused as common database nodes.
 #
-# to init multiple metea nodes, add their ip address to pigsty.yml
+# to init multiple meta nodes, add their ip address to pigsty.yml
 #   all.children.meta.hosts
 #
 # if offline installation packages is used, you can also copy them to
@@ -33,10 +33,10 @@
   tags: repos
   roles:
 
-    - role: environ     # init postgres pgbouncer patroni
+    - role: environ         # init postgres pgbouncer patroni
       tags: environ
 
-    - role: repo        # init local yum repo on meta node
+    - role: repo            # init local yum repo on meta node
       tags: repo
       when: repo_enabled|bool
 
@@ -48,12 +48,14 @@
   gather_facts: no
   roles:
 
-    - role: node        # init meta node
+    - role: node            # init meta node
       tags: node
 
-    - role: consul      # init dcs:consul (servers)
-      tags: [ dcs , consul ]
+    - role: node_exporter   # init node exporter
+      tags: node_exporter
 
+    - role: consul          # init dcs:consul (servers)
+      tags: dcs
 
 #---------------------------------------------------------------
 - name: Init Infrastructure on Meta Nodes
@@ -62,47 +64,55 @@
   tags: meta
   gather_facts: no
   roles:
-    - role: ca          # init certification infrastructure
+    - role: ca              # init ca-infrastructure
       tags: ca
 
-    - role: nameserver  # init dns nameserver
+    - role: nameserver      # init dns nameserver
       tags: nameserver
 
-    - role: nginx       # init nginx
+    - role: nginx           # init nginx
       tags: nginx
 
-    - role: prometheus  # init prometheus
+    - role: prometheus      # init prometheus
       tags: prometheus
 
-    - role: grafana     # init grafana
+    - role: grafana         # init grafana
       tags: grafana
 
-    # install jupyter & pgweb on demo env
-    - role: jupyter     # init jupyter lab
+    #---------------------------------------------------------------
+    # extra infra services
+    #---------------------------------------------------------------
+    - role: jupyter         # init jupyter lab
       tags: jupyter
+      ignore_errors: true
 
-    - role: pgweb       # init pgweb console
+    - role: pgweb           # init pgweb console
       tags: pgweb
+      ignore_errors: true
+
+    - role: loki            # init pgweb console
+      tags: loki
+      ignore_errors: true
 
 
 #---------------------------------------------------------------
-- name: Init All Postgres Instances   # init all postgres nodes
+- name: Init All Postgres Instances
   become: yes
   hosts: all
   gather_facts: no
   tags: pgsql
   roles:
 
-    - role: postgres   # init postgres pgbouncer patroni
+    - role: postgres        # init postgres pgbouncer patroni
       tags: postgres
 
-    - role: monitor    # init monitor exporters
-      tags: monitor
+    - role: pg_exporter     # init monitor exporters
+      tags: pg_exporter
 
-    - role: service    # init service , lb , vip
+    - role: service         # init service , lb , vip
       tags: service
 
-    - role: register   # register cluster/instance to infra
+    - role: register        # register cluster/instance to infra
       tags: register
 
 #---------------------------------------------------------------

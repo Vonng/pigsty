@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   infra.yml
 # Ctime     :   2020-04-13
-# Mtime     :   2021-07-07
+# Mtime     :   2021-01-11
 # Desc      :   init infrastructure on meta nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -43,58 +43,63 @@
 #==============================================================#
 
 #---------------------------------------------------------------
-- name: Infra Init      # init infra on meta node
+- name: Infra Init
   become: yes
   hosts: meta
   gather_facts: no
   tags: infra
   roles:
 
-    - role: environ     # init postgres pgbouncer patroni
+    - role: environ         # init postgres pgbouncer patroni
       tags: environ
 
-    - role: repo        # init local yum repo on meta node
+    - role: repo            # init local yum repo on meta node
       tags: repo
+      when: repo_enabled|bool
 
-    - role: node        # init meta node
+    - role: node            # init meta node
       tags: node
 
-    - role: consul      # init dcs:consul (servers)
-      tags: [ dcs , consul ]
+    - role: node_exporter   # init node exporter
+      tags: node_exporter
 
-    - role: ca          # init certification infrastructure
+    - role: consul          # init dcs:consul (servers)
+      tags: dcs
+
+    - role: ca              # init ca-infrastructure
       tags: ca
 
-    - role: nameserver  # init dns nameserver
+    - role: nameserver      # init dns nameserver
       tags: nameserver
 
-    - role: nginx       # init nginx
+    - role: nginx           # init nginx
       tags: nginx
 
-    - role: prometheus  # init prometheus
+    - role: prometheus      # init prometheus
       tags: prometheus
 
-    - role: grafana     # init grafana
+    - role: grafana         # init grafana
       tags: grafana
 
+
 #---------------------------------------------------------------
-- name: Pgsql Init      # init pgsql-cmdb on meta nodes
+- name: Pgsql Init          # init cmdb on meta nodes
   become: yes
   hosts: meta
   gather_facts: no
   tags: pgsql
   roles:
 
-    - role: postgres   # init postgres pgbouncer patroni
+    - role: postgres        # init postgres pgbouncer patroni
       tags: postgres
 
-    - role: monitor    # init monitor exporters
-      tags: monitor
+    - role: pg_exporter     # init monitor exporters
+      tags: pg_exporter
 
-    - role: service    # init service , lb , vip
+    - role: service         # init service , lb , vip
       tags: service
 
-    - role: register   # register cluster/instance to infra
+    - role: register        # register cluster/instance to infra
       tags: register
 
 #---------------------------------------------------------------
