@@ -9,9 +9,10 @@
 #==============================================================#
 
 ################################################################
-#                Derived Metrics Definition                    #
+#                          PGSQL Rules                         #
 ################################################################
 # Naming Pattern:
+#
 #     pg     :  ins  :   xact_commit _  15m
 #     ^          ^           ^          ^
 # <namespace>:<level>:<metrics_name>_<modifier>
@@ -21,7 +22,7 @@
 #   env                          -->    environment {job}
 #   ^--> cls                     -->    cluster     {job, cls}
 # -------|-----------------------------------------------------
-#        ^--> ins    -->   {job, cls, ins} + {instance,etc...}
+#        ^--> ins    -->   {job, cls, ins} + {instance,ip,etc...}
 # ------------|------------------------------------------------
 #             ^-- datname        -->  {datname}
 #                  ^---- pool    -->  {datname, user}
@@ -30,6 +31,27 @@
 #                  ^---- query   -->  {datname, query}
 #                  ^---- .....   -->  {datname, ...}
 #--------------------------------------------------------------#
+# Alert Rule Format:
+#
+# Level: three alert levels
+#   0 : CRIT System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : WARN Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : INFO Warning events that need attention         mail             5m
+
+# - alert: PostgresDown     <------- CamelCase Alert Name
+#   expr: pg_up < 1         <------- Expression
+#   for: 1m                 <------- Duration Threshold
+#        ^------- (omit) : Trigger immediately
+#   labels:
+#     level: 0              <------- numeric expression of severity 0,1,2
+#     severity: CRIT        <------- alert severity: fatal,error,event
+#     category: pgsql       <------- category: infra, node, pgsql, redis, ...
+#   annotations:            <------- short & detailed information about context
+#     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+#     description: |
+#       pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+################################################################
+
 
 groups:
 
@@ -49,7 +71,7 @@ groups:
         expr: |
           max by (id, ins, cls, job) (
             label_replace(pg_up, "id", "$1", "ins", "(.+)") OR
-            label_replace(pg_up, "id", "$1", "instance", "(.+)\\:\\d+")
+            label_replace(pg_up, "id", "$1", "ip", "(.+)")
           )
 
       # hold ip address of this instance (which assume it contains the actual ip)
@@ -58,11 +80,7 @@ groups:
 
       # Encoded leadership status: 0:follower[DOWN] 1:leader[DOWN] 2:follower 3:leader
       - record: pg:ins:status
-        expr: |
-          label_replace(
-            pg_up * 2 + (1 - pg_in_recovery)
-            , "ip", "$1", "instance", "(.*)\\:\\d+"
-          )
+        expr: pg_up * 2 + (1 - pg_in_recovery)
 
       # Leader among cluster, multiple record means brain split
       # {job,cls,ins,ip}
@@ -77,13 +95,6 @@ groups:
       - record: pg:cls:members
         expr: count by (job, cls, ins) (up{cls!="", ins!=""})
 
-
-      ################################################################
-      #                     PGSQL : Aliveness                        #
-      ################################################################
-      # if postgres instance is alive
-      - record: pg:ins:is_alive
-        expr: pg_up
 
 
       ################################################################
@@ -1296,6 +1307,180 @@ groups:
         expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_5m > pg:cls:saturation5 or pg:cls:saturation5), 0)
       - record: cls:pressure15
         expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_15m > pg:cls:saturation15 or pg:cls:saturation15), 0)
+
+
+
+      ################################################################
+      #                  HAProxy : Miscellaneous                     #
+      ################################################################
+      # cpu usage (busy ratio) of haproxy instance
+      - record: haproxy:ins:usage
+        expr: (100 - haproxy_process_idle_time_percent) / 100
+
+      - record: haproxy:cls:usage
+        expr: avg by (cls, job) (haproxy:ins:usage)
+
+      - record: haproxy:ins:uptime
+        expr: time() - haproxy_process_start_time_seconds
+
+
+
+  ################################################################
+  #                         PgSQL Alert                          #
+  ################################################################
+  - name: pgsql-alert
+    rules:
+
+      #==============================================================#
+      #                          Aliveness                           #
+      #==============================================================#
+
+      # database server down
+      - alert: PostgresDown
+        expr: pg_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+
+      # database connection pool down
+      - alert: PgbouncerDown
+        expr: pgbouncer_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresDown {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pgbouncer_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value }} < 1
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+      # database server restart (uptime < 5min)
+      - alert: PostgresRestart
+        expr: pg_uptime < 300
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresRestart {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg_uptime[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.1f" }} < 300
+            http://g.pigsty/d/pgsql-instance?var-ins={{ $labels.ins }}
+
+
+      #==============================================================#
+      #                         Leadership                           #
+      #==============================================================#
+      # cluster partition: split brain
+      - alert: PostgresPartition
+        expr: pg:cls:partition != 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresPartition {{ $labels.cls }}@{{ $labels.job }} {{ $value }}"
+          description: |
+            pg:cls:partition[cls={{ $labels.cls }}, job={{ $labels.job }}] = {{ $value }} != 1
+
+      # OPTIONAL: promotion
+      # OPTIONAL: timeline diverge
+
+
+      #==============================================================#
+      #                        Saturation                            #
+      #==============================================================#
+      # instance pressure higher than 70% for 1m triggers a P1 alert
+      - alert: PostgresPressureHigh
+        expr: ins:pressure1 > 0.70
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresPressureHigh: {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            ins:pressure1[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.3f" }} > 0.70
+
+
+      #==============================================================#
+      #                         Replication                          #
+      #==============================================================#
+      # replication break for 1m triggers a P1 alert (WARN: heal in 5m)
+      - alert: PostgresReplicationBreak
+        expr: changes(pg_downstream_count{state="streaming"}[5m]) > 0
+        # for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresReplicationBreak: {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            changes(pg_downstream_count{ins={{ $labels.ins }}, instance={{ $labels.instance }}, state="streaming"}[5m]) > 0
+
+
+      # replication lag bytes > 1MiB or lag seconds > 1s
+      - alert: PostgresReplicationLag
+        expr: pg:ins:lag_bytes > 1048576 or pg:ins:lag_seconds > 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresReplicationLag: {{ $labels.ins }}@{{ $labels.instance }}"
+          description: |
+            pg:ins:lag_bytes[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.0f" }} > 1048576 or
+            pg:ins:lag_seconds[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value | printf "%.2f" }} > 1
+
+
+      #==============================================================#
+      #                         Database                             #
+      #==============================================================#
+
+      # database age saturation > 80%
+      - alert: PostgresXidWarpAround
+        expr: pg:db:age > 0.80
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PostgresXidWarpAround: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pg:db:age[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 80%
+
+      # pgbouncer client queue exists
+      - alert: PgbouncerClientQueue
+        expr: pgbouncer:db:waiting_clients > 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: pgsql }
+        annotations:
+          summary: "CRIT PgbouncerClientQueue: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pgbouncer:db:waiting_clients[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 1
+
+      # pgbouncer avg response time > 16ms (database level)
+      - alert: PgbouncerQuerySlow
+        expr: pgbouncer:db:query_rt_1m > 0.016
+        for: 3m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PgbouncerQuerySlow: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pgbouncer:db:query_rt_1m[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.3f" }} > 0.016
+
+      # database connection usage > 70%
+      - alert: PostgresConnUsageHigh
+        expr: pg:db:conn_usage > 0.70
+        for: 3m
+        labels: { level: 1, severity: WARN, category: pgsql }
+        annotations:
+          summary: "WARN PostgresConnUsageHigh: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pg:db:conn_usage[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.3f" }} > 0.70
+
+      # database connection usage > 70%
+      - alert: PostgresIdleInXact
+        expr: pg:db:ixact_backends > 1
+        for: 3m
+        labels: { level: 2, severity: INFO, category: pgsql }
+        annotations:
+          summary: "Info PostgresIdleInXact: {{ $labels.ins }}@{{ $labels.instance }} [{{ $labels.datname }}]"
+          description: |
+            pg:db:ixact_backends[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 1
+
 
 
 ...

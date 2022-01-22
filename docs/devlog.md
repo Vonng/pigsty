@@ -1,11 +1,63 @@
 # Development Log
 
+#### 2022-01-22
+
+* Monitoring v9 Launch
+  * split nodes monitoring from infra & pgsql
+  * re-forge on labels, keys & etc..
+* Reforge prometheus rules: infra, nodes, pgsql, redis, ...
+
+
+#### 2022-01-21
+
+* split role monitor into pg_exporter & node_exporter
+* add new parameter: pg_exporter_params
+* upgrade default haproxy version from 2.2 to 2.5
+* bug fix: pip3 install jupyter failed
+  now a pip3 upgrade is performed before download & install
+
+#### 2021-12-29
+
+* disable repo on other meta nodes in infra-demo.yml
+  Now bootstrap on multiple meta nodes are much easier 
+* enhancement: remove Require=consul from patroni systemd service
+  Which makes dcs migration much easier
+* fix pg_exporter.yml pg_index column sequence
+  Which is a workaround for a known bug of PostgreSQL 
+
+#### 2021-12-17
+
+* Add terraform support for Aliyun
+
+#### 2021-12-09
+
+* Redis Dashboards Enhancement
+* PGCAT Dashboards Enhancement
+* Separate loki & pgweb from standard infra.yml playbook
+
+#### 2021-12-04
+
+* v1.3.1 Release
+* Bug fix
+  * configure check_bin software version
+  * add citus to pigsty-pub4 pg-meta cluster by default
+  * add auth parts to environ patronictl.yml
+* add option citus.node_conninfo: 'sslmode=prefer' for all conf template
+* add example configuration files: citus, dcs3, pub4
+* pg alias for patronictl on meta nodes
+* add patroni to prometheus targets (since 2.1.1)
+
+#### 2021-12-03
+
+* add ftp to package list
+* add one-pass init playbook (for 3-dcs x 3-node deploy)
+* add reloadha & reloadhba shell shortcuts
 
 #### 2021-11-29
 
-Add redis support for pigsty
-pgcat overhaul
-new key metrics panel for pgsql cluster & pgsql instance
+* Add redis support for pigsty
+* pgcat overhaul
+* new key metrics panel for pgsql cluster & pgsql instance
 ....
 
 

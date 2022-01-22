@@ -1,0 +1,133 @@
+---
+#==============================================================#
+# File      :   infra.yml
+# Ctime     :   2020-04-22
+# Mtime     :   2021-01-22
+# Desc      :   Infrastructure Rules
+# Path      :   /etc/prometheus/rules/infra.yml
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+################################################################
+#                     Alert Rule Format                        #
+################################################################
+# Level: three alert levels
+#   0 : CRIT  System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : WARN  Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : INFO  Warning events that need attention         mail             5m
+
+# - alert: InfraDown        <------- CamelCase Alert Name
+#   expr: infra_up < 1      <------- Expression
+#   for: 1m                 <------- Duration Threshold
+#        ^------- (omit) : Trigger immediately
+#   labels:
+#     level: 0              <------- numeric expression of severity 0,1,2
+#     severity: CRIT        <------- alert severity: fatal,error,event
+#     category: infra       <------- category: infra, node, pgsql, redis, ...
+#   annotations:            <------- short & detailed information about context
+#     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+#     description: |
+#       infra_up[instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
+################################################################
+
+
+groups:
+
+  ################################################################
+  #                Infrastructure Record Rules                   #
+  ################################################################
+  # prometheus & grafana & alertmanager & nginx & other infra services
+
+  - name: infra-rules
+    rules:
+
+      #==============================================================#
+      #                      Generic Aliveness                       #
+      #==============================================================#
+      # infra job monitoring target aliveness
+      - record: infra_up
+        expr: up{job="infra"}
+
+      # pgsql job related exporter aliveness
+      - record: agent_up
+        expr: up{job!="infra"}
+
+      #==============================================================#
+      #                     Exporter Aliveness                       #
+      #==============================================================#
+      # TODO: change this to your node exporter port  (9100 by default)
+      - record: node:ins:exporter_up
+        expr: up{instance=~".*:9100"}
+
+      # TODO: change this to your pg exporter port  (9630 by default)
+      - record: pg:ins:exporter_up
+        expr: up{instance=~".*:9630"}
+
+      # TODO: change this to your pgbouncer exporter port  (9631 by default)
+      - record: pgbouncer:ins:exporter_up
+        expr: up{instance=~".*:9631"}
+
+      # TODO: change this to your patroni exporter port  (8008 by default)
+      - record: patroni_up
+        expr: up{instance=~".*:8008"}
+
+      # TODO: change this yo your haproxy exporter port (9101 by default)
+      - record: haproxy_up
+        expr: up{instance=~".*:9101"}
+
+
+      #==============================================================#
+      #                       DCS : Consul                           #
+      #==============================================================#
+
+      #==============================================================#
+      #                        Prometheus                            #
+      #==============================================================#
+
+      #==============================================================#
+      #                          Grafana                             #
+      #==============================================================#
+
+      #==============================================================#
+      #                     Blackbox Exporter                        #
+      #==============================================================#
+
+
+  ################################################################
+  #                Infrastructure Alert Rules                    #
+  ################################################################
+  - name: infra-alert
+    rules:
+
+
+      #==============================================================#
+      #                       Infra Aliveness                        #
+      #==============================================================#
+      # infra components (prometheus,grafana) down for 1m triggers a P1 alert
+      - alert: InfraDown
+        expr: infra_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: infra }
+        annotations:
+          summary: "CRIT InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+          description: |
+            infra_up[type={{ $labels.type }}, instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
+            http://g.pigsty/d/pgsql-alert?viewPanel=32
+
+      #==============================================================#
+      #                       Agent Aliveness                        #
+      #==============================================================#
+
+      # agent aliveness are determined directly by exporter aliveness
+      # including: node_exporter, pg_exporter, pgbouncer_exporter, haproxy_exporter
+      - alert: AgentDown
+        expr: agent_up < 1
+        for: 1m
+        labels: { level: 0, severity: CRIT, category: infra }
+        annotations:
+          summary: 'CRIT AgentDown {{ $labels.ins }}@{{ $labels.instance }}'
+          description: |
+            agent_up[ins={{ $labels.ins }}, instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
+            http://g.pigsty/d/pgsql-alert?viewPanel=22
+
+...

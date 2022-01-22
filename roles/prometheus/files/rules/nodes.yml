@@ -1,75 +1,63 @@
 ---
 #==============================================================#
-# File      :   infra-rules.yml
+# File      :   nodes.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2021-06-28
-# Desc      :   Infrastructure Record Rules (Monitor,Node,Haproxy)
-# Path      :   /etc/prometheus/rules/infra-rules.yml
+# Mtime     :   2022-01-21
+# Desc      :   Nodes Record Rules (Node)
+# Path      :   /etc/prometheus/rules/nodes.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
 ################################################################
-#                Derived Metrics Definition                    #
-################################################################
 # Naming Pattern:
+#--------------------------------------------------------------#
 #    node    :  ins  :   cpu_usage     15m
 #     ^          ^           ^          ^
 # <namespace>:<level>:<metrics_name>_<modifier>
 #--------------------------------------------------------------#
 # Metrics Hierarchy
-#   env                  -->  environment    +{job}
-#   ^--> cls             -->  cluster        +{job,cls}
-#        ^--> ins        -->  instance       +{job,cls,ins}  +{instance,etc...}
-#             ^---- cpu  -->  cpu            +{cpu}  +{cpu,mode}
-#             ^---- dev  -->  disk           +{device}
-#             ^---- dev  -->  interface      +{device}
-#             ^---- fs   -->  filesystem     +{device, mountpoint, fstype}
+#  ins         -->  instance       +{ip}
+#   ^---- cpu  -->  cpu            +{cpu} | {cpu,mode}
+#   ^---- dev  -->  disk           +{device}
+#   ^---- dev  -->  interface      +{device}
+#   ^---- fs   -->  filesystem     +{device, mountpoint, fstype}
 #--------------------------------------------------------------#
+#                     Alert Rule Format                        #
+#--------------------------------------------------------------#
+# Level: three alert levels
+#   0 : CRIT  System failure needs immediate intervene   call  (e.g down) 1m
+#   1 : WARN  Anomalies could lead to failure soon       sms   (e.g high) 1m
+#   2 : INFO  Warning events that need attention         mail             5m
+
+# - alert: InfraDown        <------- CamelCase Alert Name
+#   expr: infra_up < 1      <------- Expression
+#   for: 1m                 <------- Duration Threshold
+#        ^------- (omit) : Trigger immediately
+#   labels:
+#     level: 0              <------- numeric expression of severity 0,1,2
+#     severity: CRIT        <------- alert severity: fatal,error,event
+#     category: infra       <------- category: infra, node, pgsql, redis, ...
+#   annotations:            <------- short & detailed information about context
+#     summary: "FATAL InfraDown {{ $labels.type }}@{{ $labels.instance }}"
+#     description: |
+#       infra_up[instance={{ $labels.instance }}] = {{ $value  | printf "%.2f" }} < 1
+################################################################
 
 groups:
 
   ################################################################
-  #              Infrastructure Derived Metrics                  #
+  #              Nodes Derived Metrics                  #
   ################################################################
   # node & load balancer (haproxy) are treated as infrastructure
   # monitoring components: prometheus, alertmanager, grafana
 
-  - name: infra-rules
+  - name: nodes-rules
     rules:
 
       ################################################################
       #                          Aliveness                           #
       ################################################################
 
-      #==============================================================#
-      #                      Generic Aliveness                       #
-      #==============================================================#
-      # infra job monitoring target aliveness
-      - record: infra:ins:up
-        expr: up{job="infra"}
-
-      # pgsql job related exporter aliveness
-      - record: agent:ins:up
-        expr: up{job="pgsql"}
-
-      #==============================================================#
-      #                     Exporter Aliveness                       #
-      #==============================================================#
-      # TODO: change this to your node exporter port  (9100 by default)
-      - record: node:ins:exporter_up
-        expr: up{instance=~".*:9100"}
-
-      # TODO: change this yo your haproxy exporter port (9101 by default)
-      - record: haproxy:ins:exporter_up
-        expr: up{instance=~".*:9101"}
-
-      # TODO: change this to your pg exporter port  (9630 by default)
-      - record: pg:ins:exporter_up
-        expr: up{instance=~".*:9630"}
-
-      # TODO: change this to your pgbouncer exporter port  (9631 by default)
-      - record: pgbouncer:ins:exporter_up
-        expr: up{instance=~".*:9631"}
 
       #==============================================================#
       #                      Node & LB Uptime                        #
@@ -78,22 +66,13 @@ groups:
       - record: node:ins:uptime
         expr: time() - node_boot_time_seconds
 
-      - record: haproxy:ins:uptime
-        expr: time() - haproxy_process_start_time_seconds
-
 
       ################################################################
       #                         Membership                           #
       ################################################################
       # node:ins holds identity mapping information ID(hostname,ins,ip) -> INS (instance identifier)
       - record: node:ins
-        expr: |
-          sum without (machine, release, version, sysname, domainname) (
-            label_replace(node_uname_info, "id", "$1", "nodename", "(.+)") OR
-            label_replace(node_uname_info, "id", "$1", "instance", "(.+)\\:\\d+") OR
-            label_replace(node_uname_info, "id", "$1", "ins", "(.+)")
-          )
-
+        expr: sum without (machine, release, version, sysname, domainname) (label_replace(node_uname_info, "id", "$1", "nodename", "(.+)") OR label_replace(node_uname_info, "id", "$1", "ip", "(.+)"))
 
 
       ################################################################
@@ -137,19 +116,12 @@ groups:
       - record: node:ins:cpu_count
         expr: count without (cpu) (node:cpu:usage)
 
-      # number of cpu cores of this cluster
-      - record: node:cls:cpu_count
-        expr: count by (cls, job) (node:cpu:usage)
-
       #--------------------------------#
       #      CPU Usage (Realtime)       #
       #--------------------------------#
       - record: node:ins:cpu_usage
         expr: avg without (cpu) (node:cpu:usage)
-      - record: node:cls:cpu_usage
-        expr: avg by (cls, job) (node:cpu:usage)
-      - record: node:env:cpu_usage
-        expr: sum by (job) (node:cls:cpu_usage * node:cls:cpu_count) / sum by (job) (node:cls:cpu_count)
+
 
       #--------------------------------#
       # CPU Usage (realtime|1m|5m|15m) #
@@ -162,26 +134,11 @@ groups:
       - record: node:ins:cpu_usage_15m
         expr: avg_over_time(node:ins:cpu_usage[15m])
 
-      # cpu usage of single cluster
-      - record: node:cls:cpu_usage_1m
-        expr: avg_over_time(node:cls:cpu_usage[1m])
-      - record: node:cls:cpu_usage_5m
-        expr: avg_over_time(node:cls:cpu_usage[5m])
-      - record: node:cls:cpu_usage_15m
-        expr: avg_over_time(node:cls:cpu_usage[15m])
-
-      # cpu usage of single environment (identified by job)
-      - record: node:env:cpu_usage_1m
-        expr: avg_over_time(node:env:cpu_usage[1m])
-      - record: node:env:cpu_usage_5m
-        expr: avg_over_time(node:env:cpu_usage[5m])
-      - record: node:env:cpu_usage_15m
-        expr: avg_over_time(node:env:cpu_usage[15m])
 
       #--------------------------------#
       #            Schedule            #
       #--------------------------------#
-      # cpu schedule time-slices by (cpu,ins,cls)
+      # cpu schedule time-slices by (cpu,ins)
       - record: node:cpu:sched_timeslices_rate1m
         expr: rate(node_schedstat_timeslices_total[1m])
       - record: node:ins:sched_timeslices_rate1m
@@ -212,18 +169,6 @@ groups:
       # normalized load 1,5,15 (load divide by cpu)
       - record: node:ins:stdload1
         expr: node_load1 / node:ins:cpu_count
-      - record: node:ins:stdload5
-        expr: node_load5 / on(cls,ins) node:ins:cpu_count
-      - record: node:ins:stdload15
-        expr: node_load15 / on(cls,ins) node:ins:cpu_count
-
-      - record: node:cls:stdload1
-        expr: sum by (cls, job) (node_load1) / node:cls:cpu_count
-      - record: node:cls:stdload5
-        expr: sum by (cls, job) (node_load5) / node:cls:cpu_count
-      - record: node:cls:stdload15
-        expr: sum by (cls, job) (node_load15) / node:cls:cpu_count
-
 
 
       ################################################################
@@ -255,10 +200,6 @@ groups:
       # memory usage by instance (application mem)
       - record: node:ins:mem_usage
         expr: node:ins:mem_app / node_memory_MemTotal_bytes
-
-      # memory usage by cluster (application mem)
-      - record: node:cls:mem_usage
-        expr: sum by (cls, job) (node:ins:mem_app) / sum by (cls, job) (node_memory_MemTotal_bytes)
 
       # commit ratio
       - record: node:ins:mem_commit_ratio
@@ -299,8 +240,6 @@ groups:
         expr: 1 - node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes
 
 
-
-
       ################################################################
       #                 Node : Disk & Filesystem                     #
       ################################################################
@@ -315,67 +254,50 @@ groups:
       - record: node:dev:disk_avg_queue_size
         expr: rate(node_disk_io_time_weighted_seconds_total{device=~"[a-zA-Z-_]+"}[1m])
 
-
       #--------------------------------#
       #        Disk Read/Writes        #
       #--------------------------------#
-
       # disk reads request per second in last 1 minute
       - record: node:dev:disk_reads_rate1m
         expr: rate(node_disk_reads_completed_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_reads_rate1m
         expr: sum without (device) (node:dev:disk_reads_rate1m)
-      - record: node:cls:disk_reads_rate1m
-        expr: sum by (cls, job) (node:ins:disk_reads_rate1m)
 
       # disk write request per second in last 1 minute
       - record: node:dev:disk_writes_rate1m
         expr: rate(node_disk_writes_completed_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_writes_rate1m
         expr: sum without (device) (node:dev:disk_writes_rate1m)
-      - record: node:cls:disk_writes_rate1m
-        expr: sum by (cls, job) (node:ins:disk_writes_rate1m)
 
       # disk merged reads request per second in last 1 minute
       - record: node:dev:disk_mreads_rate1m
         expr: rate(node_disk_reads_merged_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_mreads_rate1m
         expr: sum without (device) (node:dev:disk_mreads_rate1m)
-      - record: node:cls:disk_mreads_rate1m
-        expr: sum by (cls, job) (node:ins:disk_mreads_rate1m)
 
       # disk merged write request per second in last 1 minute
       - record: node:dev:disk_mwrites_rate1m
         expr: rate(node_disk_writes_merged_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_mwrites_rate1m
         expr: sum without (device) (node:dev:disk_mwrites_rate1m)
-      - record: node:cls:disk_mwrites_rate1m
-        expr: sum by (cls, job) (node:ins:disk_mwrites_rate1m)
 
       # disk i/o request per second in last 1 minute
       - record: node:dev:disk_iops_1m
         expr: node:dev:disk_reads_rate1m + node:dev:disk_writes_rate1m
       - record: node:ins:disk_iops_1m
         expr: node:ins:disk_reads_rate1m + node:ins:disk_writes_rate1m
-      - record: node:cls:disk_iops_1m
-        expr: node:cls:disk_reads_rate1m + node:cls:disk_writes_rate1m
 
       # merged read ratio
       - record: node:dev:disk_mreads_ratio1m
         expr: node:dev:disk_mreads_rate1m / (node:dev:disk_reads_rate1m + node:dev:disk_mreads_rate1m)
       - record: node:ins:disk_mreads_ratio1m
         expr: node:ins:disk_mreads_rate1m / (node:ins:disk_reads_rate1m + node:ins:disk_mreads_rate1m)
-      - record: node:cls:disk_mreads_ratio1m
-        expr: node:cls:disk_mreads_rate1m / (node:cls:disk_reads_rate1m + node:cls:disk_mreads_rate1m)
 
       # merged write ratio
       - record: node:dev:disk_mwrites_ratio1m
         expr: node:dev:disk_mwrites_rate1m / (node:dev:disk_writes_rate1m + node:dev:disk_mwrites_rate1m)
       - record: node:ins:disk_mwrites_ratio1m
         expr: node:ins:disk_mwrites_rate1m / (node:ins:disk_writes_rate1m + node:ins:disk_mwrites_rate1m)
-      - record: node:cls:disk_mwrites_ratio1m
-        expr: node:cls:disk_mwrites_rate1m / (node:cls:disk_writes_rate1m + node:cls:disk_mwrites_rate1m)
-
 
       #--------------------------------#
       #           Disk Bytes           #
@@ -385,24 +307,18 @@ groups:
         expr: rate(node_disk_read_bytes_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_read_bytes_rate1m
         expr: sum without (device) (node:dev:disk_read_bytes_rate1m)
-      - record: node:cls:disk_read_bytes_rate1m
-        expr: sum by (cls, job) (node:ins:disk_read_bytes_rate1m)
 
       # write bandwidth (rate1m)
       - record: node:dev:disk_write_bytes_rate1m
         expr: rate(node_disk_written_bytes_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_write_bytes_rate1m
         expr: sum without (device) (node:dev:disk_write_bytes_rate1m)
-      - record: node:cls:disk_write_bytes_rate1m
-        expr: sum by (cls, job) (node:ins:disk_write_bytes_rate1m)
 
       # io bandwidth (rate1m)
       - record: node:dev:disk_io_bytes_rate1m
         expr: node:dev:disk_read_bytes_rate1m + node:dev:disk_write_bytes_rate1m
       - record: node:ins:disk_io_bytes_rate1m
         expr: node:ins:disk_read_bytes_rate1m + node:ins:disk_write_bytes_rate1m
-      - record: node:cls:disk_io_bytes_rate1m
-        expr: node:cls:disk_read_bytes_rate1m + node:cls:disk_write_bytes_rate1m
 
       #--------------------------------#
       #           Disk Time            #
@@ -455,10 +371,6 @@ groups:
       # max space usage of a instance
       - record: node:ins:space_usage_max
         expr: max without (device, fstype, mountpoint) (node:fs:space_usage)
-
-      # max space usage of a cluster
-      - record: node:cls:space_usage_max
-        expr: max by (job, cls) (node:ins:space_usage_max)
 
       # space delta and prediction
       - record: node:fs:space_deriv1h
@@ -527,40 +439,30 @@ groups:
         expr: rate(node_network_transmit_packets_total[1m])
       - record: node:ins:network_tx_pps1m
         expr: sum without (device) (node:dev:network_tx_pps1m{device!~"lo|bond.*"})
-      - record: node:cls:network_tx_pps1m
-        expr: sum by (cls, job) (node:ins:network_tx_pps1m)
 
       # receive pps
       - record: node:dev:network_rx_pps1m
         expr: rate(node_network_receive_packets_total[1m])
       - record: node:ins:network_rx_pps1m
         expr: sum without (device) (node:dev:network_rx_pps1m{device!~"lo|bond.*"})
-      - record: node:cls:network_rx_pps1m
-        expr: sum by (cls, job) (node:ins:network_rx_pps1m)
 
       # transmit bandwidth (out)
       - record: node:dev:network_tx_bytes_rate1m
         expr: rate(node_network_transmit_bytes_total[1m])
       - record: node:ins:network_tx_bytes_rate1m
         expr: sum without (device) (node:dev:network_tx_bytes_rate1m{device!~"lo|bond.*"})
-      - record: node:cls:network_tx_bytes_rate1m
-        expr: sum by (cls, job) (node:ins:network_tx_bytes_rate1m)
 
       # receive bandwidth (in)
       - record: node:dev:network_rx_bytes_rate1m
         expr: rate(node_network_receive_bytes_total[1m])
       - record: node:ins:network_rx_bytes_rate1m
         expr: sum without (device) (node:dev:network_rx_bytes_rate1m{device!~"lo|bond.*"})
-      - record: node:cls:network_rx_bytes_rate1m
-        expr: sum by (cls, job) (node:ins:network_rx_bytes_rate1m)
 
       # io(tx+rx) bandwidth
       - record: node:dev:network_io_bytes_rate1m
         expr: node:dev:network_tx_bytes_rate1m + node:dev:network_rx_bytes_rate1m
       - record: node:ins:network_io_bytes_rate1m
         expr: node:ins:network_tx_bytes_rate1m + node:ins:network_rx_bytes_rate1m
-      - record: node:cls:network_io_bytes_rate1m
-        expr: node:cls:network_tx_bytes_rate1m + node:cls:network_rx_bytes_rate1m
 
 
       #--------------------------------#
@@ -628,45 +530,181 @@ groups:
       # udp segments out (rate1m)
       - record: node:ins:udp_out_rate1m
         expr: rate(node_netstat_Udp_OutDatagrams[1m])
+  
+  
+  
+  
+  ################################################################
+  #                         Nodes Alert                          #
+  ################################################################
+  # https://awesome-prometheus-alerts.grep.to/rules
+  - name: nodes-alert
+    rules:
+      
+      #==============================================================#
+      #                          Node : CPU                          #
+      #==============================================================#
+      # cpu usage high : 1m avg cpu usage > 70% for 3m
+      - alert: NodeCpuHigh
+        expr: node:ins:cpu_usage_1m > 0.70
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeCpuHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:cpu_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 70%
+
+      # OPTIONAL: one core high
+      # OPTIONAL: throttled
+      # OPTIONAL: frequency
+      # OPTIONAL: steal
+
+      #==============================================================#
+      #                       Node : Schedule                        #
+      #==============================================================#
+      # node load high : 1m avg standard load > 100% for 3m
+      - alert: NodeLoadHigh
+        expr: node:ins:stdload1 > 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeLoadHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:stdload1[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 100%
 
 
-      ################################################################
-      #                    Node : Miscellaneous                      #
-      ################################################################
+      #==============================================================#
+      #                        Node : Memory                         #
+      #==============================================================#
+      # available memory < 10%
+      - alert: NodeOutOfMem
+        expr: node:ins:mem_avail < 0.10
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeOutOfMem {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:mem_avail[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} < 10%
 
-      #--------------------------------#
-      #               NTP              #
-      #--------------------------------#
-      - record: node:cls:ntp_offset_max
-        expr: max by (cls, job) (node_ntp_offset_seconds)
+      # OPTIONAL: EDAC Errors
 
-      - record: node:cls:ntp_offset_min
-        expr: min by (cls, job) (node_ntp_offset_seconds)
+      #==============================================================#
+      #                        Node : Swap                           #
+      #==============================================================#
+      # swap usage > 1%
+      - alert: NodeMemSwapped
+        expr: node:ins:swap_usage > 0.01
+        for: 5m
+        labels: { level: 2, severity: INFO, category: nodes }
+        annotations:
+          summary: 'INFO NodeMemSwapped {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:swap_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 1%
 
-      - record: node:cls:ntp_offset_range
-        expr: max by (cls, job) (node_ntp_offset_seconds) - min by (cls, job) (node_ntp_offset_seconds)
+      #==============================================================#
+      #                     Node : File System                       #
+      #==============================================================#
+
+      # filesystem usage > 90%
+      - alert: NodeFsSpaceFull
+        expr: node:fs:space_usage > 0.90
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeFsSpaceFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:fs:space_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
+
+      # inode usage > 90%
+      - alert: NodeFsFilesFull
+        expr: node:fs:inode_usage > 0.90
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeFsFilesFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:fs:inode_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
+
+      # file descriptor usage > 90%
+      - alert: NodeFdFull
+        expr: node:ins:fd_usage > 0.90
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeFdFull {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            node:ins:fd_usage[ins={{ $labels.ins }}] = {{ $value  | printf "%.2f" }} > 90%
+
+      # OPTIONAL: space predict 1d
+      # OPTIONAL: filesystem read-only
+      # OPTIONAL: fast release on disk space
+
+      #==============================================================#
+      #                          Node : Disk                         #
+      #==============================================================#
+      # read latency > 32ms (typical on pci-e ssd: 100µs)
+      - alert: NodeDiskSlow
+        expr: node:dev:disk_read_rt_1m > 0.032 or node:dev:disk_write_rt_1m > 0.032
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeReadSlow {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
+          description: |
+            node:dev:disk_read_rt_1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 32ms
+
+      # OPTIONAL: raid card failure
+      # OPTIONAL: read/write traffic high
+      # OPTIONAL: read/write latency high
+
+      #==============================================================#
+      #                        Node : Network                        #
+      #==============================================================#
+      # OPTIONAL: unusual network traffic
+      # OPTIONAL: interface saturation high
+
+      #==============================================================#
+      #                        Node : Protocol                       #
+      #==============================================================#
+
+      # rate(node:ins:tcp_error[1m]) > 1
+      - alert: NodeTcpErrHigh
+        expr: rate(node:ins:tcp_error[1m]) > 1
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeTcpErrHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.2f" }}'
+          description: |
+            rate(node:ins:tcp_error{ins={{ $labels.ins }}}[1m]) = {{ $value  | printf "%.2f" }} > 1
+
+      # node:ins:tcp_retrans_ratio1m > 1e-4
+      - alert: NodeTcpRetransHigh
+        expr: node:ins:tcp_retrans_ratio1m > 1e-2
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'INFO NodeTcpRetransHigh {{ $labels.ins }}@{{ $labels.instance }} {{ $value  | printf "%.6f" }}'
+          description: |
+            node:ins:tcp_retrans_ratio1m[ins={{ $labels.ins }}] = {{ $value  | printf "%.6f" }} > 1%
+
+      # OPTIONAL: tcp conn high
+      # OPTIONAL: udp traffic high
+      # OPTIONAL: conn track
 
 
+      #==============================================================#
+      #                          Node : NTP                          #
+      #==============================================================#
 
-      ################################################################
-      #                  HAProxy : Miscellaneous                     #
-      ################################################################
-      # cpu usage (busy ratio) of haproxy instance
-      - record: haproxy:ins:usage
-        expr: (100 - haproxy_process_idle_time_percent) / 100
-
-      - record: haproxy:cls:usage
-        expr: avg by (cls, job) (haproxy:ins:usage)
-
-
-
-      ################################################################
-      #                         Prometheus                           #
-      ################################################################
+      # time offset > 50ms
+      - alert: NodeClockSkew
+        expr: abs(node_timex_offset_seconds) > 0.050
+        for: 1m
+        labels: { level: 1, severity: WARN, category: nodes }
+        annotations:
+          summary: 'WARN NodeClockSkew {{ $labels.ins }}@{{ $labels.instance }}'
+          description: |
+            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 50ms
 
 
-      ################################################################
-      #                           Grafana                            #
-      ################################################################
 
 ...
