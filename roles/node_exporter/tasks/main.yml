@@ -45,12 +45,33 @@
 #------------------------------------------------------------------------------
 - name: Launch node_exporter
   tags: [ node_exporter, node_exporter_launch ]
-  when: node_exporter_enabled|bool
   block:
     - name: Launch node_exporter systemd unit
       systemd: name=node_exporter state=restarted enabled=yes daemon_reload=yes
 
     - name: Wait for node_exporter online
       wait_for: host=127.0.0.1 port={{ node_exporter_port }} state=started timeout=10
+
+#------------------------------------------------------------------------------
+# Register node_exporter
+#------------------------------------------------------------------------------
+- name: Deregister node exporter from prometheus
+  tags: [ node_deregister ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  file: path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml state=absent
+
+# /etc/prometheus/targets/nodes/{{ ip }}.yml
+- name: Register node exporter as prometheus target
+  tags: [ node_exporter, node_register ]
+  when: node_exporter_enabled|bool
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  copy:
+    dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+    content: |
+      # {{ inventory_hostname }}
+      - labels: { ip: {{ inventory_hostname }} }
+        targets: [ {{ inventory_hostname }}:{{ node_exporter_port }} ]
 
 ...
