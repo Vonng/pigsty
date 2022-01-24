@@ -58,14 +58,14 @@
 # Register redis_exporter
 #------------------------------------------------------------------------------
 - name: Deregister redis exporter from prometheus
-  tags: [ redis_deregister ]
+  tags: [ redis_deregister, deregister_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   file: path=/etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml state=absent
 
 # /etc/prometheus/targets/redis/{{ redis_node }}.yml
 - name: Register redis exporter as prometheus target
-  tags: [ redis_exporter, redis_register ]
+  tags: [ redis_exporter, redis_register, register_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   become: yes

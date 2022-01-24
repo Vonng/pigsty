@@ -56,14 +56,14 @@
 # Register node_exporter
 #------------------------------------------------------------------------------
 - name: Deregister node exporter from prometheus
-  tags: [ node_deregister ]
+  tags: [ node_deregister, deregister_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   file: path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml state=absent
 
 # /etc/prometheus/targets/nodes/{{ ip }}.yml
 - name: Register node exporter as prometheus target
-  tags: [ node_exporter, node_register ]
+  tags: [ node_exporter, node_register, register_prometheus ]
   when: node_exporter_enabled|bool
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'

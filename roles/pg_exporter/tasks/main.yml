@@ -94,7 +94,7 @@
 # Register pg_exporter
 #--------------------------------------------------------------#
 - name: Deregister pgssql exporter from prometheus
-  tags: [ pg_deregister ]
+  tags: [ pg_deregister , deregister_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   file: path=/etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml state=absent
@@ -102,7 +102,7 @@
 # prometheus are idempotent on multiple meta nodes
 # /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
 - name: Register pgsql exporter as prometheus target
-  tags: [ pg_exporter, pg_register ]
+  tags: [ pg_exporter, pg_register, register_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
   copy:
