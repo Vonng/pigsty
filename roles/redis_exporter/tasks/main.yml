@@ -1,0 +1,83 @@
+---
+#------------------------------------------------------------------------------
+# Install redis_exporter
+#------------------------------------------------------------------------------
+- name: Install redis_exporter
+  tags: [ redis_exporter, redis_exporter_install ]
+  when: redis_exporter_enabled|bool and exporter_install != 'none'
+  block:
+
+    # install via yum
+    # if exporter_repo_url is set, add that url repo to /etc/yum.repos.d first
+    - name: Add yum repo for redis_exporter
+      when: exporter_install == 'yum' and exporter_repo_url != ''
+      get_url:
+        url: "{{ exporter_repo_url }}"
+        dest: /etc/yum.repos.d/{{ item | basename }}
+
+    - name: Install redis_exporter via yum
+      when: and exporter_install == 'yum'
+      package: name=redis_exporter state=present
+
+    # install via copy binary
+    # the binary MUST be put into files/bin directory before running
+    - name: Install redis_exporter via binary
+      ignore_errors: true
+      when: exporter_install == 'binary'
+      copy: src=bin/redis_exporter dest=/usr/bin/redis_exporter owner=root mode=0755
+
+
+#------------------------------------------------------------------------------
+# Config redis_exporter
+#------------------------------------------------------------------------------
+- name: Config redis_exporter service unit
+  tags: [ redis_exporter, redis_exporter_config ]
+  when: redis_exporter_enabled|bool
+  block:
+    - name: Config /etc/default/redis_exporter
+      template: src=redis_exporter.j2 dest=/etc/default/redis_exporter
+
+    - name: Config redis_exporter service unit
+      template: src=redis_exporter.service.j2 dest=/usr/lib/systemd/system/redis_exporter.service
+
+
+#------------------------------------------------------------------------------
+# Launch redis_exporter
+#------------------------------------------------------------------------------
+- name: Launch redis_exporter
+  tags: [ redis_exporter, redis_exporter_launch ]
+  block:
+    - name: Launch redis_exporter systemd service
+      systemd: name=redis_exporter state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for redis_exporter online
+      wait_for: host=127.0.0.1 port={{ redis_exporter_port }} state=started  timeout=10
+
+
+#------------------------------------------------------------------------------
+# Register redis_exporter
+#------------------------------------------------------------------------------
+- name: Deregister redis exporter from prometheus
+  tags: [ redis_deregister ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  file: path=/etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml state=absent
+
+# /etc/prometheus/targets/redis/{{ redis_node }}.yml
+- name: Register redis exporter as prometheus target
+  tags: [ redis_exporter, redis_register ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  become: yes
+  copy:
+    dest: /etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml
+    content: |
+      # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
+
+      {% for port in redis_instances %}
+      - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ redis_node }}-{{ port }}, instance: {{ inventory_hostname }}:{{ port }} }
+        targets: [ redis://{{ inventory_hostname }}:{{ port }} ]
+
+      {% endfor %}
+
+...

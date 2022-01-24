@@ -3,24 +3,31 @@
 #==============================================================#
 # File      :   redis.yml
 # Mtime     :   2020-11-22
-# Mtime     :   2021-12-09
+# Mtime     :   2022-01-22
 # Desc      :   init redis instance
 # Path      :   redis.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
-- name: Deploy Redis on Nodes
+- name: Setup Redis
   hosts: all
   become: true
   gather_facts: no
 
   roles:
-    - role: node      # node setup
-      tags: node
+    - role: node              # node setup
+      vars:                   # install redis on redis nodes
+        node_extra_packages: [ redis, redis_exporter ]
 
-    - role: redis     # redis setup
+    - role: node_exporter     # node exporter setup
+      tags: [ monitor , node_exporter ]
+
+    - role: redis             # redis setup
       tags: redis
+
+    - role: redis_exporter    # redis exporter setup
+      tags: [ monitor, redis_exporter ]
 
 #---------------------------------------------------------------
 
