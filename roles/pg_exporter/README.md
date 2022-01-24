@@ -1,42 +1,41 @@
-# Monitor (ansible role)
+# PG Exporter (ansible role)
 
-This role will install monitor component on target hosts
-* Install exporters
-* node_exporter
-* pg_exporter
-* pgbouncer_exporter
+This role will install pg_exporter on target hosts
+* pg_exporter for postgres
+* pgbouncer_exporter if enabled
+* register exporters to meta prometheus
 
 ### Tasks
 
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Install exporter yum repo	TAGS: [exporter_install, exporter_yum_install, monitor, pgsql]
-Install node_exporter and pg_exporter	TAGS: [exporter_install, exporter_yum_install, monitor, pgsql]
-Copy exporter binaries	TAGS: [exporter_binary_install, exporter_install, monitor, pgsql]
-Create /etc/pg_exporter conf dir	TAGS: [monitor, pg_exporter, pgsql]
-Copy default pg_exporter.yaml	TAGS: [monitor, pg_exporter, pgsql]
-Config /etc/default/pg_exporter	TAGS: [monitor, pg_exporter, pgsql]
-Config pg_exporter service unit	TAGS: [monitor, pg_exporter, pgsql]
-Launch pg_exporter systemd service	TAGS: [monitor, pg_exporter, pgsql]
-Wait for pg_exporter service online	TAGS: [monitor, pg_exporter, pgsql]
-Config pgbouncer_exporter opts	TAGS: [monitor, pgbouncer_exporter, pgsql]
-Config pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, pgsql]
-Launch pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, pgsql]
-Wait for pgbouncer_exporter online	TAGS: [monitor, pgbouncer_exporter, pgsql]
-Copy node_exporter systemd service	TAGS: [monitor, node_exporter, pgsql]
-Config default node_exporter options	TAGS: [monitor, node_exporter, pgsql]
-Launch node_exporter service unit	TAGS: [monitor, node_exporter, pgsql]
-Wait for node_exporter online	TAGS: [monitor, node_exporter, pgsql]
+Add yum repo for pg_exporter	TAGS: [pg_exporter, pg_exporter_install, pgsql]
+Install pg_exporter via yum	TAGS: [pg_exporter, pg_exporter_install, pgsql]
+Install pg_exporter via binary	TAGS: [pg_exporter, pg_exporter_install, pgsql]
+Create /etc/pg_exporter conf dir	TAGS: [pg_exporter, pg_exporter_config, pgsql]
+Copy default pg_exporter.yml config	TAGS: [pg_exporter, pg_exporter_config, pgsql]
+Config pg_exporter parameters	TAGS: [pg_exporter, pg_exporter_config, pgsql]
+Config pg_exporter systemd unit	TAGS: [pg_exporter, pg_exporter_config, pgsql]
+Config pgbouncer_exporter parameters	TAGS: [pg_exporter, pg_exporter_config, pgsql]
+Config pgbouncer_exporter systemd unit	TAGS: [pg_exporter, pg_exporter_config, pgsql]
+Launch pg_exporter systemd unit	TAGS: [pg_exporter, pg_exporter_launch, pgsql]
+Wait for pg_exporter online	TAGS: [pg_exporter, pg_exporter_launch, pgsql]
+Launch pgbouncer_exporter systemd unit	TAGS: [pg_exporter, pgbouncer_exporter_launch, pgsql]
+Wait for pgbouncer_exporter online	TAGS: [pg_exporter, pgbouncer_exporter_launch, pgsql]
+Deregister pgssql exporter from prometheus	TAGS: [pg_deregister, pg_exporter, pgsql]
+Register pgsql exporter as prometheus target	TAGS: [pg_exporter, pg_register, pgsql]
 ```
+
 
 ### Default variables
 
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
+---
 #------------------------------------------------------------------------------
-# MONITOR PROVISION
+# PG Exporter
 #------------------------------------------------------------------------------
 # - install - #
 exporter_install: none                        # none|yum|binary, none by default
@@ -45,15 +44,11 @@ exporter_repo_url: ''                         # if set, repo will be added to /e
 # - collect - #
 exporter_metrics_path: /metrics               # default metric path for pg related exporter
 
-# - node exporter - #
-node_exporter_enabled: true                   # setup node_exporter on instance
-node_exporter_port: 9100                      # default port for node exporter
-node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
-
 # - pg exporter - #
-pg_exporter_config: pg_exporter-demo.yaml     # default config files for pg_exporter
+pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter
 pg_exporter_enabled: true                     # setup pg_exporter on instance
 pg_exporter_port: 9630                        # default port for pg exporter
+pg_exporter_params: 'sslmode=disable'         # url query parameters for pg_exporter
 pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
 pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
 pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
@@ -67,11 +62,11 @@ pgbouncer_exporter_url: ''                    # optional, if not set, generate f
 pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
 
 # - postgres variables reference - #
-pg_dbsu: postgres
-pg_port: 5432
-pgbouncer_port: 6432
-pg_localhost: /var/run/postgresql
-pg_monitor_username: dbuser_monitor
-pg_monitor_password: DBUser.Monitor
-service_registry: consul
+pg_dbsu: postgres                             # who will run these exporters ?
+pg_port: 5432                                 # pg_exporter target port
+pgbouncer_port: 6432                          # pgbouncer_exporter target port
+pg_localhost: /var/run/postgresql             # access via unix socket
+pg_monitor_username: dbuser_monitor           # default monitor username
+pg_monitor_password: DBUser.Monitor           # default monitor password
+...
 ```
