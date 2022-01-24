@@ -1,5 +1,15 @@
 # Development Log
 
+
+#### 2022-01-24
+
+* Software upgrade
+  * HAProxy 2.2 -> 2.5
+  * Greenplum: 6.18 -> 6.19
+  * Pev2 : 0.23 -> 0.24
+  * pgweb : 0.11.9 -> 0.11.10
+  * loki, promtail, logcli, loki-canary: 2.4.1 -> 2.4.2
+
 #### 2022-01-22
 
 * Monitoring v9 Launch
