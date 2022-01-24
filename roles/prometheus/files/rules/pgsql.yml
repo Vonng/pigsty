@@ -1,10 +1,10 @@
 ---
 #==============================================================#
-# File      :   pgsql-rules.yml
+# File      :   pgsql.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2020-06-28
+# Mtime     :   2022-01-22
 # Desc      :   Rules for postgres & pgbouncer
-# Path      :   /etc/prometheus/rules/pgsql-rules.yml
+# Path      :   /etc/prometheus/rules/pgsql.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
@@ -61,97 +61,91 @@ groups:
   - name: pgsql-rules
     rules:
 
-      ################################################################
+
+      #==============================================================#
+      #                         Reference                            #
+      #==============================================================#
+      # these metrics are scrapped from node_exporter and join on ip
+
+      # cpu count for pg instance / cluster
+      - record: pg:ins:cpu_count
+        expr: node:ins:cpu_count + on(ip) group_right() pg_up * 0
+      - record: pg:cls:cpu_count
+        expr: sum by (job, cls) (pg:ins:cpu_count)
+      - record: pg:env:cpu_count
+        expr: sum by (job) (pg:cls:cpu_count)
+
+      # cpu usage for node instance
+      - record: pg:ins:cpu_usage
+        expr: node:ins:cpu_usage_1m + on(ip) group_right() pg_up * 0
+      - record: pg:ins:cpu_usage_1m
+        expr: node:ins:cpu_usage_1m + on(ip) group_right() pg_up * 0
+      - record: pg:ins:cpu_usage_5m
+        expr: node:ins:cpu_usage_5m + on(ip) group_right() pg_up * 0
+      - record: pg:ins:cpu_usage_15m
+        expr: node:ins:cpu_usage_15m + on(ip) group_right() pg_up * 0
+
+      # cpu usage for node cluster
+      - record: pg:cls:cpu_usage
+        expr: sum by (job, cls) (pg:ins:cpu_usage * pg:ins:cpu_count) / pg:cls:cpu_count
+      - record: pg:cls:cpu_usage_1m
+        expr: sum by (job, cls) (pg:ins:cpu_usage_1m * pg:ins:cpu_count) / pg:cls:cpu_count
+      - record: pg:cls:cpu_usage_5m
+        expr: sum by (job, cls) (pg:ins:cpu_usage_5m * pg:ins:cpu_count) / pg:cls:cpu_count
+      - record: pg:cls:cpu_usage_15m
+        expr: sum by (job, cls) (pg:ins:cpu_usage_15m * pg:ins:cpu_count) / pg:cls:cpu_count
+
+      # cpu usage for entire cpu
+      - record: pg:env:cpu_usage
+        expr: sum by (job) (pg:cls:cpu_usage * pg:cls:cpu_count) / pg:env:cpu_count
+      - record: pg:env:cpu_usage_1m
+        expr: sum by (job) (pg:cls:cpu_usage_1m * pg:cls:cpu_count) / pg:env:cpu_count
+      - record: pg:env:cpu_usage_5m
+        expr: sum by (job) (pg:cls:cpu_usage_5m * pg:cls:cpu_count) / pg:env:cpu_count
+      - record: pg:env:cpu_usage_15m
+        expr: sum by (job) (pg:cls:cpu_usage_15m * pg:cls:cpu_count) / pg:env:cpu_count
+
+      #==============================================================#
       #                     PGSQL : Identity                         #
-      ################################################################
-      # note identity metrics have different cardinal than other metrics
-
-      # pg:ins holds id(ins,ip) map to (ins,cls)
-      - record: pg:ins
-        expr: |
-          max by (id, ins, cls, job) (
-            label_replace(pg_up, "id", "$1", "ins", "(.+)") OR
-            label_replace(pg_up, "id", "$1", "ip", "(.+)")
-          )
-
-      # hold ip address of this instance (which assume it contains the actual ip)
-      - record: pg:ins:ip
-        expr: label_replace(pg_up, "ip", "$1", "instance", "(.*)\\:\\d+")
-
+      #==============================================================#
       # Encoded leadership status: 0:follower[DOWN] 1:leader[DOWN] 2:follower 3:leader
       - record: pg:ins:status
         expr: pg_up * 2 + (1 - pg_in_recovery)
 
-      # Leader among cluster, multiple record means brain split
-      # {job,cls,ins,ip}
-      - record: pg:cls:leader
-        expr: |
-          max by (job, cls, ins, ip) (label_replace(
-            max by (job,cls,ins,instance) (pg_in_recovery == 0)
-            , "ip", "$1", "instance", "(.*)\\:\\d+"
-          )) * 0 + 1
-
-      # Members among cluster, value means scraped services count {job, cls, ins}
-      - record: pg:cls:members
-        expr: count by (job, cls, ins) (up{cls!="", ins!=""})
-
-
-
-      ################################################################
-      #                        Leadership                            #
-      ################################################################
       # True(1) if this instance is leader
       - record: pg:ins:is_leader
         expr: 1 - pg_in_recovery
 
-      # True(1) if this instance is a follower (cls,ins,ip)
-      - record: pg:ins:is_follower
-        expr: pg_in_recovery
-
-
-      #==============================================================#
-      #                    Cluster Replication Topo                  #
-      #==============================================================#
-
-      # env wal sender among cluster (cls,appname,usename,address,pid,sync_state)
-      - record: pg:cls:sender
-        expr: max by (job, cls, ins, appname, usename, address, pid) (pg_repl_sync_state)
-
-      # env wal receiver among cluster (cls,appname,sender_host,sender_port,slot_name,state,tli)
-      - record: pg:cls:receiver
-        expr: |
-          max by ( job, cls, appname, sender_host, sender_port, slot_name, state ) (
-            label_replace(pg_recv_flush_tli, "appname" , "$1",  "ins", "(.*)" )
-          )
-
-
-
-      ################################################################
-      #                        Leadership                            #
-      ################################################################
+      # Leader among cluster, multiple record means brain split
+      - record: pg:cls:leader
+        expr: (pg_in_recovery == 0) * 0 + 1
 
       #--------------------------------#
-      #    Cluster Count Facts         #
+      #          Membership            #
       #--------------------------------#
-      # Number of network partition among this cluster
-      - record: pg:cls:partition
-        expr: count by (job, cls) (pg_in_recovery == 0 and pg_up == 1)
+      # number of scraped targets for one instance, job with pgsql as prefix are counted
+      - record: pg:ins:target_count
+        expr: count by (job, cls, ins) (up{cls!="", ins!="", job=~'pgsql.*'})
 
       # number of current cluster member
       - record: pg:cls:size
-        expr: count by (job, cls) (count by (job, cls, ins) (max_over_time(up{cls!=""}[15m])))
+        expr: sum by (job, cls) (group by (job, cls, ins, ip) (up{cls!="", ins!="", job=~'pgsql.*'}))
 
-      # number of alive instance among cluster
-      - record: pg:cls:alive_count
-        expr: count by (job, cls) (count by (cls, ins) (pg_up==1))
+      # number of current cluster member
+      - record: pg:cls:members
+        expr: group by (job, cls, ins, ip) (up{cls!="", ins!="", job=~'pgsql.*'})
 
       # Bridge instances among cluster, which are non-primary instances with descendant
       - record: pg:cls:bridges
         expr: count without(appname,usename,address,pid) (pg_repl_lsn) and (pg_in_recovery == 1)
 
-      # Max timeline among cluster
-      - record: pg:cls:timeline
-        expr: max by (job, cls) (max_over_time(pg_checkpoint_tli{}[1m]))
+      # Number of network partition among this cluster
+      - record: pg:cls:partition
+        expr: count by (job, cls) (pg_in_recovery == 0 and pg_up == 1)
+
+      # number of alive instance among cluster
+      - record: pg:cls:alive_count
+        expr: count by (job, cls) (count by (cls, ins) (pg_up==1))
 
       # Number of leader(primary) among cluster
       - record: pg:cls:primary_count
@@ -169,10 +163,38 @@ groups:
       - record: pg:cls:bridge_count
         expr: count by (job, cls) (pg:cls:bridges)
 
-      # Number of cascade instance among cluster
-      # - record: pg:cls:cascade_count
-      #   expr: count by (job, cls) (pg_repl_lsn{state="streaming", role!="primary"})
 
+
+      #==============================================================#
+      #                        Replication                           #
+      #==============================================================#
+
+      #--------------------------------#
+      #       Replication Topo         #
+      #--------------------------------#
+      # wal sender among cluster (job,cls,ins,ip,appname,usename,address,pid,sync_state)
+      - record: pg:cls:sender
+        expr: max by (job, cls, ins, ip, appname, usename, address, pid) (pg_repl_sync_state)
+
+      # wal receiver among cluster (job,cls,ip,appname,sender_host,sender_port,slot_name,state,tli)
+      - record: pg:cls:receiver
+        expr: |
+          max by ( job, cls, ip, appname, sender_host, sender_port, slot_name, state ) (
+            label_replace(pg_recv_flush_tli, "appname" , "$1",  "ins", "(.*)" )
+          )
+
+      #--------------------------------#
+      #           Timeline             #
+      #--------------------------------#
+      - record: pg:ins:timeline
+        expr: pg_checkpoint_tli
+      - record: pg:cls:timeline
+        expr: max by (job, cls) (max_over_time(pg_checkpoint_tli{}[30s]))
+
+
+      #--------------------------------#
+      #          Sync State            #
+      #--------------------------------#
       # sync status 0-3 for async|potential|sync|quorum, (-1 for unknown)
       - record: pg:ins:sync_state
         expr: max by (job,cls,ins,instance) (label_replace(pg_repl_sync_state, "ins", "$1", "appname", "(.+)"))
@@ -197,7 +219,7 @@ groups:
       - record: pg:env:lag_bytes
         expr: max by (job) (pg:cls:lag_bytes)
 
-      # lag in seconds from sender's view (roughly accurate)
+      # lag in seconds from sender's view (roughly accurate, )
       - record: pg:ins:lag_seconds
         expr: |
           max without (address, appname, usename, pid) (
@@ -530,9 +552,15 @@ groups:
       #--------------------------------#
       #              Age               #
       #--------------------------------#
-      # pg db age usage
+      # pg database age usage
       - record: pg:db:age
         expr: pg_db_age / 2147483647
+      - record: pg:ins:age
+        expr: max without (datname) (pg:db:age{datname!~"template[0-9]"})
+      - record: pg:cls:age
+        expr: max by (job, cls) (pg:ins:age)
+      - record: pg:env:age
+        expr: max by (job) (pg:cls:age)
 
       # age derive in last 1h
       - record: pg:db:age_deriv1h
@@ -542,14 +570,7 @@ groups:
       - record: pg:db:age_exhaust
         expr: (2147483648 - pg_db_age) / pg:db:age_deriv1h
 
-      - record: pg:ins:age
-        expr: max without (datname) (pg:db:age{datname!~"template[0-9]"})
 
-      - record: pg:cls:age
-        expr: max by (job, cls) (pg:ins:age)
-
-      - record: pg:env:age
-        expr: max by (job) (pg:cls:age)
 
 
       #--------------------------------#
@@ -721,6 +742,7 @@ groups:
       - record: pg:cls:buf_flush_backend_rate1m
         expr: sum by (job, cls) (pg:ins:buf_flush_backend_rate1m)
 
+      # buffer cleaned
       - record: pg:ins:buf_clean_rate1m
         expr: rate(pg_bgwriter_buffers_clean[1m])
       - record: pg:cls:buf_clean_rate1m
@@ -755,9 +777,7 @@ groups:
       - record: pg:ins:ckpt_1h
         expr: increase(pg_bgwriter_checkpoints_timed[1h]) + increase(pg_bgwriter_checkpoints_req[1h])
 
-      # current timeline
-      - record: pg:ins:timeline
-        expr: pg_checkpoint_tli
+
 
       # 1m wal rate of single instance
       - record: pg:ins:lsn_rate1m
@@ -1252,8 +1272,6 @@ groups:
 
 
 
-
-
       ################################################################
       #                   Saturation & Pressure                      #
       ################################################################
@@ -1294,19 +1312,19 @@ groups:
 
       # instance level pressure
       - record: ins:pressure1
-        expr: clamp_min(max without (instance) (node:ins:cpu_usage_1m > ignoring(instance) pg:ins:saturation1 or pg:ins:saturation1), 0)
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_1m > ignoring(instance) pg:ins:saturation1 or pg:ins:saturation1), 0)
       - record: ins:pressure5
-        expr: clamp_min(max without (instance) (node:ins:cpu_usage_5m > ignoring(instance) pg:ins:saturation5 or pg:ins:saturation5), 0)
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_5m > ignoring(instance) pg:ins:saturation5 or pg:ins:saturation5), 0)
       - record: ins:pressure15
-        expr: clamp_min(max without (instance) (node:ins:cpu_usage_15m > ignoring(instance) pg:ins:saturation15 or pg:ins:saturation15), 0)
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_15m > ignoring(instance) pg:ins:saturation15 or pg:ins:saturation15), 0)
 
       # cluster level pressure
       - record: cls:pressure1
-        expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_1m > pg:cls:saturation1 or pg:cls:saturation1), 0)
+        expr: clamp_min(max by (job, cls) (pg:cls:cpu_usage_1m > pg:cls:saturation1 or pg:cls:saturation1), 0)
       - record: cls:pressure5
-        expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_5m > pg:cls:saturation5 or pg:cls:saturation5), 0)
+        expr: clamp_min(max by (job, cls) (pg:cls:cpu_usage_5m > pg:cls:saturation5 or pg:cls:saturation5), 0)
       - record: cls:pressure15
-        expr: clamp_min(max by (job, cls) (node:cls:cpu_usage_15m > pg:cls:saturation15 or pg:cls:saturation15), 0)
+        expr: clamp_min(max by (job, cls) (pg:cls:cpu_usage_15m > pg:cls:saturation15 or pg:cls:saturation15), 0)
 
 
 
