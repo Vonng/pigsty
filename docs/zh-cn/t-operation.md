@@ -455,8 +455,11 @@ Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-service#haprox
 使用以下命令调整集群配置并生效。
 
 ```bash
-./pgsql.yml -l pg-test -t haproxy_config  # 重新生成 pg-test 的HAProxy配置（但没有应用）
-./pgsql.yml -l pg-test -t haproxy_reload  # 重新加载 pg-test 的HAProxy配置并启用生效
+# 重新生成 pg-test 的HAProxy配置（但没有应用）
+./pgsql.yml -l pg-test -t haproxy_config 
+
+# 重新加载 pg-test 的HAProxy配置并启用生效
+./pgsql.yml -l pg-test -t haproxy_config -e haproxy_reload=true 
 ```
 
 配置与生效命令可以合并简写为：
@@ -464,8 +467,6 @@ Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-service#haprox
 ```
 bin/reloadha pg-test
 ```
-
-
 
 
 

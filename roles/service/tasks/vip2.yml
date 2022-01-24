@@ -1,8 +1,9 @@
 ---
 #--------------------------------------------------------------#
-# vip-manager install
+# Install vip-manager
 #--------------------------------------------------------------#
 - name: Install vip-manager for l2 VIP
+  tags: vip2_install
   block:
     - name: Make sure vip-manager is installed
       package: name=vip-manager state=present
@@ -22,6 +23,20 @@
         content: |
           [Unit]
           After=consul.service
-          Requires=consul.service
         mode: 0644
+
+#--------------------------------------------------------------#
+# Config vip-manager
+#--------------------------------------------------------------#
+- name: Templating /etc/default/vip-manager.yml
+  tags: vip2_config
+  template: src=vip-manager.yml.j2 dest=/etc/default/vip-manager.yml
+
+#--------------------------------------------------------------#
+#  Reload vip-manager
+#--------------------------------------------------------------#
+- name: Templating /etc/default/vip-manager.yml
+  tags: vip2_reload
+  systemd: name=vip-manager state=restarted enabled=yes daemon_reload=true
+
 ...
