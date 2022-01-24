@@ -1,36 +1,66 @@
 ---
-
-###############################################################################
-# Setup Redis Nodes
-###############################################################################
-
 #------------------------------------------------------------------------------
-# Install
+# Install redis
 #------------------------------------------------------------------------------
-- import_tasks: node.yml
-  tags: [ redis_node  ]
+# redis_install = none   : redis is already installed somewhere
+# redis_install = yum    : redis is installed via yum
+# redis_install = binary : redis is installed via copy binary (files/bin)
 
-#------------------------------------------------------------------------------
-# Monitor (node_exporter & redis_exporter)
-#------------------------------------------------------------------------------
-- import_tasks: monitor.yml
-  tags: [ redis_monitor, redis_node ]
+- name: Install redis
+  tags: [ redis_install ]
+  when: redis_install != '' and ( redis_install == 'yum' or redis_install == 'binary' )
+  block:
+
+    # when redis_install = 'yum' (default)
+    - name: Install redis via yum
+      when: redis_install == 'yum'
+      package: name=redis state=present
+
+    # when redis_install = 'binary'
+    - name: Install redis via binaries
+      when: redis_install == 'binary'
+      copy: src={{ item.src }} dest={{ item.dest }} owner=root mode=0755
+      with_items:
+        - { src: bin/redis-server     , dest: /bin/redis-server     }
+        - { src: bin/redis-server     , dest: /bin/redis-server     }
+        - { src: bin/redis-cli        , dest: /bin/redis-cli        }
+        - { src: bin/redis-sentinel   , dest: /bin/redis-sentinel   }
+        - { src: bin/redis-check-rdb  , dest: /bin/redis-check-rdb  }
+        - { src: bin/redis-check-aof  , dest: /bin/redis-check-aof  }
+        - { src: bin/redis-benchmark  , dest: /bin/redis-benchmark  }
+        - { src: redis-shutdown , dest: /usr/libexec/redis-shutdown }
+
+- name: Create user redis
+  tags: [ redis_install , redis_user ]
+  user: name=redis home=/home/redis generate_ssh_key=yes
+
+- name: Create redis resource dir
+  tags: [ redis_install , redis_dir ]
+  become: yes
+  block:
+    - name: Make sure fs main dir exists
+      file: path={{ redis_fs_main }} state=directory owner=root mode=0777
+
+    - name: Make sure redis data dir exists
+      file: path={{ item }} state=directory owner=redis mode=0700
+      with_items:
+        - /etc/redis
+        - /var/log/redis/
+        - /var/run/redis/
+        - "{{ redis_fs_main }}/redis"
 
 
 
-
-###############################################################################
-# Setup Redis Instances
-###############################################################################
 
 #------------------------------------------------------------------------------
 # Assert before launch instances
 #------------------------------------------------------------------------------
 - name: Check necessary variables exists
-  tags: [ redis_ins ]
+  tags: redis_ins
   assert:
     that:
       - redis_cluster is defined and redis_cluster != ''
+      - redis_node is defined
       - redis_instances is defined
       - redis_instances | type_debug == "dict"
     fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
@@ -51,7 +81,7 @@
 #------------------------------------------------------------------------------
 - name: Join redis cluster
   when: redis_mode == 'cluster'
-  tags: [ redis_ins, redis_join ]
+  tags: redis_join
   delegate_to: '{{ groups["meta"][0] }}'
   run_once: true
   block:
@@ -82,29 +112,6 @@
 
 
 
-################################################################################
-## Register
-################################################################################
-
-#------------------------------------------------------------------------------
-# register redis targets to prometheus on meta nodes
-#------------------------------------------------------------------------------
-# /etc/prometheus/targets/redis/{{ redis_node }}.yml
-- name: Register redis instance as prometheus target
-  tags: [ redis_ins, redis_register, register_prometheus ]
-  delegate_to: '{{ item }}'
-  with_items: '{{ groups["meta"] }}'
-  become: yes
-  copy:
-    dest: /etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml
-    content: |
-      # {{ redis_cluster }}-{{ redis_node }} @ {{ inventory_hostname }}
-
-      {% for port in redis_instances %}
-      - labels: { cls: {{ redis_cluster }}, ins: {{ redis_cluster }}-{{ redis_node }}-{{ port }}, instance: {{ inventory_hostname }}:{{ port }} }
-        targets: [ redis://{{ inventory_hostname }}:{{ port }} ]
-
-      {% endfor %}
 
 
 ...

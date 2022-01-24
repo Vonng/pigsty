@@ -42,6 +42,9 @@ redis : Register redis instance as prometheus target	TAGS: [redis, redis_ins, re
 # redis_node: 1                     # redis node identifier, integer sequence @ node level
 # redis_instances: {}               # redis instances definition of this redis node @ node level
 
+# - install - #
+redis_install: yum                  # none|yum|binary, yum by default (install from yum repo)
+
 # - mode - #
 redis_mode: standalone              # standalone,cluster,sentinel
 redis_conf: redis.conf              # config template path (except sentinel)
@@ -60,28 +63,13 @@ redis_password: ''                  # masterauth & requirepass password, disable
 redis_rdb_save: ['1200 1']          # redis rdb save directives, disable with empty list
 redis_aof_enabled: false            # redis aof enabled
 redis_rename_commands: {}           # rename dangerous commands
-# redis_rename_commands:            # rename dangerous commands
 #   flushall: opflushall
 #   flushdb: opflushdb
 #   keys: opkeys
 redis_cluster_replicas: 1           # how many replicas for a master in redis cluster ?
 
-# - redis exporter - #
-redis_exporter_enabled: true        # install redis exporter on redis nodes ?
-redis_exporter_port: 9121           # default port for redis exporter
-redis_exporter_options: ''          # default cli args for redis exporter
-
-# - node exporter - #
-node_exporter_enabled: true         # setup node_exporter on instance
-node_exporter_port: 9100            # default port for node exporter
-node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
-
 # - reference - #
-redis_install: yum                  # none|yum|binary, yum by default (install from yum repo)
-exporter_install: none              # none|yum|binary, none by default (usually installed during node init)
-exporter_repo_url: ''               # if set, repo will be added to /etc/yum.repos.d/ before yum installation
-exporter_metrics_path: /metrics     # default metric path for pg related exporter
-service_registry: consul
+service_registry: consul            # which service registry to be used
 ...
 ```
 
