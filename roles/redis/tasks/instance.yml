@@ -82,19 +82,22 @@
 #------------------------------------------------------------------------------
 # if existing data dir not cleaned, it will RESTART with existing rdb file
 - name: Restart redis-server primary systemd service
-  tags: [ redis_ins, redis_primary ]
+  tags: [ redis_ins, redis_launch, redis_primary ]
   when: conf.replica_of is not defined
-  systemd:
-    name: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
-    daemon_reload: on
-    state: restarted
-    enabled: on
+  shell: systemctl daemon-reload;systemctl restart "{{ redis_cluster }}-{{ redis_node }}-{{ port }}"
+
+#  systemd:
+#    name: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}"
+#    daemon_reload: on
+#    state: restarted
+#    enabled: yes
 
 - name: Restart redis-server replica systemd service
-  tags: [ redis_ins, redis_replica ]
+  tags: [ redis_ins, redis_launch, redis_replica ]
   when: conf.replica_of is defined
-  service:
-    name: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
-    daemon_reload: on
-    state: restarted
-    enabled: on
+  shell: systemctl daemon-reload; systemctl restart "{{ redis_cluster }}-{{ redis_node }}-{{ port }}"
+#  systemd:
+#    name: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}"
+#    daemon_reload: yes
+#    state: restarted
+#    enabled: yes
