@@ -8,18 +8,53 @@
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Queries for single Instance",
     "editable": true,
-    "gnetId": null,
+    "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626942222571,
+    "iteration": 1643098995235,
     "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "PGCAT"
+            ],
+            "targetBlank": false,
+            "title": "PGCAT",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "PGLOG"
+            ],
+            "targetBlank": false,
+            "title": "PGLOG",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
         {
             "asDropdown": true,
             "icon": "external link",
@@ -81,10 +116,10 @@
             "url": ""
         }
     ],
+    "liveNow": false,
     "panels": [
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -97,7 +132,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "description": "Overall pressure for this PostgreSQL Node and Instance. \nmax(node:ins:cpu_usage, pg:ins:load, pgbouncer:ins:load)",
             "fieldConfig": {
                 "defaults": {
@@ -282,7 +316,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -440,23 +473,35 @@
             },
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "node:cls:cpu_usage_1m{cls=\"$cls\"}",
+                    "expr": "pg:cls:cpu_usage_1m{cls=\"$cls\"}",
                     "hide": false,
                     "interval": "",
                     "legendFormat": "cluster",
                     "refId": "C"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "node:ins:cpu_usage_1m{cls=\"$cls\", ins=\"$primary\"}",
+                    "expr": "pg:ins:cpu_usage_1m{cls=\"$cls\", ins=\"$primary\"}",
                     "interval": "",
                     "legendFormat": "{{ ins }} \u2b50\ufe0f",
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "node:ins:cpu_usage_1m{cls=\"$cls\", ins!=\"$primary\"}",
+                    "expr": "pg:ins:cpu_usage_1m{cls=\"$cls\", ins!=\"$primary\"}",
                     "hide": false,
                     "interval": "",
                     "legendFormat": "{{ ins }}",
@@ -467,7 +512,10 @@
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "\u25b2 for read bandwidth, \u25bc for write bandwidth",
             "fieldConfig": {
                 "defaults": {
@@ -548,27 +596,36 @@
             "pluginVersion": "8.0.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "node:ins:disk_read_bytes_rate1m{cls=\"$cls\"}",
+                    "expr": "pg_up{cls=\"$cls\"} * 0 + on(ip) node:ins:disk_read_bytes_rate1m",
                     "interval": "",
                     "legendFormat": "\u25b2{{ ins }}",
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "- node:ins:disk_write_bytes_rate1m{cls=\"$cls\"}",
+                    "expr": "pg_up{cls=\"$cls\"} * 0 - on(ip) node:ins:disk_write_bytes_rate1m",
                     "interval": "",
                     "legendFormat": "\u25bc{{ ins }}",
                     "refId": "B"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Read/Write Bandwidth",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "\u25b2 for transmit (out) and \u25bc for receive (in)",
             "fieldConfig": {
                 "defaults": {
@@ -645,28 +702,33 @@
             "pluginVersion": "8.0.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "node:ins:network_tx_bytes_rate1m{cls=\"$cls\"}",
+                    "expr": "node:ins:network_tx_bytes_rate1m{ip=~\"$members\"}",
                     "interval": "",
                     "legendFormat": "\u25b2{{ ins }}",
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
-                    "expr": "- node:ins:network_rx_bytes_rate1m{cls=\"$cls\"}",
+                    "expr": "- node:ins:network_rx_bytes_rate1m{ip=~\"$members\"}",
                     "interval": "",
                     "legendFormat": "\u25bc{{ ins }}",
                     "refId": "B"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Transmit/Receive Bandwidth (Interface)",
             "type": "timeseries"
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -679,7 +741,6 @@
             "type": "row"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -787,7 +848,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -895,7 +955,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -985,7 +1044,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1071,7 +1129,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1161,7 +1218,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1251,7 +1307,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1341,7 +1396,6 @@
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "description": "Session by postgres instance",
             "fieldConfig": {
                 "defaults": {
@@ -1431,13 +1485,10 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Proxy \u2794 Server Sessions",
             "type": "timeseries"
         },
         {
-            "datasource": null,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1528,7 +1579,6 @@
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -1541,7 +1591,10 @@
             "type": "row"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Postgres transactions per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -1711,13 +1764,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Cluster Xact Commit Rate",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Postgres rollbacked transactions per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -1887,13 +1941,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Cluster Xact Rollback",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2006,13 +2061,14 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Transaction Commit by Instances",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2116,13 +2172,14 @@
                     "refId": "B"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Transaction Commit by Database",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2226,13 +2283,14 @@
                     "refId": "B"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Transaction Commit by Instances (Stacked)",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2336,13 +2394,14 @@
                     "refId": "B"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Transaction Commit by Database (Stacked)",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Pgbouncer transactions per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -2512,13 +2571,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Cluster TPS (Pgbouncer)",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Pgbouncer average transaction response time in last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -2690,14 +2750,11 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Cluster Xact RT (Pgbouncer)",
             "type": "timeseries"
         },
         {
             "collapsed": false,
-            "datasource": null,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2710,7 +2767,10 @@
             "type": "row"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -2880,13 +2940,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Cluster QPS",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -3058,13 +3119,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Cluster Query RT",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Pgbouncer Queries per second according to last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -3232,13 +3294,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Leader ${primary} QPS",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "Pgbouncer query average response time in last 1m, 5m, 15m",
             "fieldConfig": {
                 "defaults": {
@@ -3408,13 +3471,14 @@
                     "refId": "C"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Leader ${primary} Query RT",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3529,13 +3593,14 @@
                     "refId": "A"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "QPS by Instance",
             "type": "timeseries"
         },
         {
-            "datasource": "Prometheus-PgSQL",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -3679,14 +3744,12 @@
                     "refId": "B"
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Query RT by Instance",
             "type": "timeseries"
         }
     ],
     "refresh": false,
-    "schemaVersion": 30,
+    "schemaVersion": 34,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -3696,12 +3759,28 @@
     "templating": {
         "list": [
             {
-                "allValue": null,
                 "current": {},
-                "datasource": null,
+                "description": "Prometheus datasource used by this dashboard",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Data Source",
+                "multi": false,
+                "name": "ds",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
                 "definition": "label_values(pg_up, cls)",
                 "description": "Cluster identifier for this postgres instance, cls should be unique among entire environment. such as pg-meta, pg-test",
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
                 "label": "Cluster",
@@ -3719,12 +3798,13 @@
                 "type": "query"
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": null,
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
                 "definition": "label_values(pg:cls:leader{cls=\"$cls\"}, ins)",
                 "description": "Unique instance identifier (e.g pg-meta-1)",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Primary",
@@ -3733,6 +3813,30 @@
                 "options": [],
                 "query": {
                     "query": "label_values(pg:cls:leader{cls=\"$cls\"}, ins)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(pg_up{cls=\"$cls\"}, ip)",
+                "description": "Unique instance identifier (e.g pg-meta-1)",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Primary",
+                "multi": true,
+                "name": "members",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up{cls=\"$cls\"}, ip)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
@@ -3751,5 +3855,7 @@
     "timezone": "",
     "title": "PGSQL Activity",
     "uid": "pgsql-activity",
-    "version": 1
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
