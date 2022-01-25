@@ -1,0 +1,20 @@
+---
+#--------------------------------------------------------------#
+# Register PGSQL Target to Prometheus
+#--------------------------------------------------------------#
+# prometheus are idempotent on multiple meta nodes
+
+# /etc/prometheus/targets/pgsql/{{ pg_instance }}.yml
+- name: Register pgsql instance as prometheus target
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  become: yes
+  copy:
+    dest: /etc/prometheus/targets/pgsql/{{ pg_cluster }}-{{ pg_seq }}.yml
+    content: |
+      # {{ pg_cluster }}-{{ pg_seq }} [{{ pg_role }}] @ {{ inventory_hostname }}
+      - labels: { cls: {{ pg_cluster }}, ins: {{ pg_cluster }}-{{ pg_seq }}, ip: {{ inventory_hostname }} }
+        # targets: [{{ inventory_hostname }}:{{ pg_exporter_port }}{% if node_exporter_enabled %}, {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}{% if pgbouncer_exporter_enabled %}, {{ inventory_hostname }}:{{ pgbouncer_exporter_port }}{% endif %}{% if haproxy_enabled %}, {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}{% if patroni_mode != 'remove' %}, {{ inventory_hostname }}:{{ patroni_port }}{% endif %}]
+        targets: [{{ inventory_hostname }}:{{ pg_exporter_port }}{% if pgbouncer_exporter_enabled %}, {{ inventory_hostname }}:{{ pgbouncer_exporter_port }}{% endif %}{% if haproxy_enabled %}, {{ inventory_hostname }}:{{ haproxy_exporter_port }}{% endif %}{% if patroni_mode != 'remove' %}, {{ inventory_hostname }}:{{ patroni_port }}{% endif %}]
+
+...
