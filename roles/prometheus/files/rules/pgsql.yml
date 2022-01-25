@@ -105,6 +105,13 @@ groups:
       - record: pg:env:cpu_usage_15m
         expr: sum by (job) (pg:cls:cpu_usage_15m * pg:cls:cpu_count) / pg:env:cpu_count
 
+      - record: pg:ins:mem_size
+        expr: node_memory_MemTotal_bytes + on(ip) group_right() pg_up * 0
+      - record: pg:ins:fs_size
+        expr: sum by (ip)(node_filesystem_size_bytes{fstype!~"(n|root|tmp)fs.*"}) + on(ip) group_right() pg_up * 0
+      - record: pg:ins:space_usage
+        expr: max by (ip)(node:fs:space_usage)+ on(ip) group_right() pg_up * 0
+
       #==============================================================#
       #                     PGSQL : Identity                         #
       #==============================================================#
@@ -470,19 +477,19 @@ groups:
       # instance level pg load 0,1,5,15
       # it will be -1 if not applicable
       - record: pg:ins:load1
-        expr: pg:ins:active_time_rate1m / on(ins) group_left node:ins:cpu_count or (0 * pg_up - 1)
+        expr: pg:ins:active_time_rate1m / pg:ins:cpu_count or (0 * pg_up - 1)
       - record: pg:ins:load5
-        expr: pg:ins:active_time_rate5m / on(ins) group_left node:ins:cpu_count or (0 * pg_up - 1)
+        expr: pg:ins:active_time_rate5m / pg:ins:cpu_count or (0 * pg_up - 1)
       - record: pg:ins:load15
-        expr: pg:ins:active_time_rate15m / on(ins) group_left node:ins:cpu_count or (0 * pg_up - 1)
+        expr: pg:ins:active_time_rate15m / pg:ins:cpu_count or (0 * pg_up - 1)
 
       # cluster level pg load: 0,1,5,15
       - record: pg:cls:load1
-        expr: pg:cls:active_time_rate1m / on(cls) group_left node:cls:cpu_count or (0 * pg:cls:size - 1)
+        expr: pg:cls:active_time_rate1m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
       - record: pg:cls:load5
-        expr: pg:cls:active_time_rate5m / on(cls) group_left node:cls:cpu_count or (0 * pg:cls:size - 1)
+        expr: pg:cls:active_time_rate5m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
       - record: pg:cls:load15
-        expr: pg:cls:active_time_rate15m / on(cls) group_left node:cls:cpu_count or (0 * pg:cls:size - 1)
+        expr: pg:cls:active_time_rate15m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
 
 
 
@@ -1253,19 +1260,19 @@ groups:
       #--------------------------------#
       # instance level pg load 0,1,5,15
       - record: pgbouncer:ins:load1
-        expr: pgbouncer:ins:query_time_rate1m / on(ins) group_left node:ins:cpu_count or (0 * pgbouncer_up - 1)
+        expr: pgbouncer:ins:query_time_rate1m / pg:ins:cpu_count or (0 * pgbouncer_up - 1)
       - record: pgbouncer:ins:load5
-        expr: pgbouncer:ins:query_time_rate5m / on(ins) group_left node:ins:cpu_count or (0 * pgbouncer_up - 1)
+        expr: pgbouncer:ins:query_time_rate5m / pg:ins:cpu_count or (0 * pgbouncer_up - 1)
       - record: pgbouncer:ins:load15
-        expr: pgbouncer:ins:query_time_rate15m / on(ins) group_left node:ins:cpu_count or (0 * pgbouncer_up - 1)
+        expr: pgbouncer:ins:query_time_rate15m / pg:ins:cpu_count or (0 * pgbouncer_up - 1)
 
       # cluster level pg load: 0,1,5,15
       - record: pgbouncer:cls:load1
-        expr: pgbouncer:cls:query_time_rate1m  / on(cls) group_left node:cls:cpu_count or (0 * pg:cls:size - 1)
+        expr: pgbouncer:cls:query_time_rate1m  / pg:cls:cpu_count or (0 * pg:cls:size - 1)
       - record: pgbouncer:cls:load5
-        expr: pgbouncer:cls:query_time_rate5m  / on(cls) group_left node:cls:cpu_count or (0 * pg:cls:size - 1)
+        expr: pgbouncer:cls:query_time_rate5m  / pg:cls:cpu_count or (0 * pg:cls:size - 1)
       - record: pgbouncer:cls:load15
-        expr: pgbouncer:cls:query_time_rate15m / on(cls) group_left node:cls:cpu_count or (0 * pg:cls:size - 1)
+        expr: pgbouncer:cls:query_time_rate15m / pg:cls:cpu_count or (0 * pg:cls:size - 1)
 
 
 
@@ -1275,8 +1282,8 @@ groups:
       ################################################################
       #                   Saturation & Pressure                      #
       ################################################################
-      # pg:ins:saturation = max( pg:ins:load, pgbouncer:ins:load )                        # database load
-      # pg:ins:pressure   = max( pg:ins:load, pgbouncer:ins:load , node:ins:cpu_usage )   # instance load
+      # pg:ins:saturation = max( pg:ins:load, pgbouncer:ins:load )                      # database load
+      # pg:ins:pressure   = max( pg:ins:load, pgbouncer:ins:load , pg:ins:cpu_usage )   # instance load
 
       #--------------------------------#
       #          Saturation            #
@@ -1312,11 +1319,11 @@ groups:
 
       # instance level pressure
       - record: ins:pressure1
-        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_1m > ignoring(instance) pg:ins:saturation1 or pg:ins:saturation1), 0)
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_1m > pg:ins:saturation1 or pg:ins:saturation1), 0)
       - record: ins:pressure5
-        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_5m > ignoring(instance) pg:ins:saturation5 or pg:ins:saturation5), 0)
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_5m > pg:ins:saturation5 or pg:ins:saturation5), 0)
       - record: ins:pressure15
-        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_15m > ignoring(instance) pg:ins:saturation15 or pg:ins:saturation15), 0)
+        expr: clamp_min(max without (instance) (pg:ins:cpu_usage_15m > pg:ins:saturation15 or pg:ins:saturation15), 0)
 
       # cluster level pressure
       - record: cls:pressure1
