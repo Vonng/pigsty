@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2021-06-23
+# Mtime     :   2022-01-22
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -12,19 +12,17 @@
 # Config FHS
 #------------------------------------------------------------------------------
 # /etc/prometheus/
-#  ^-----prometheus.yml              # prometheus main config file
-#  ^-----alertmanager.yml            # alertmanger main config file
-#  ^-----@bin                        # util scripts: check,reload,status,new
-#  ^-----@rules                      # record & alerting rules definition
-#            ^-----@infra-rules      # infrastructure metrics definition
-#            ^-----@infra-alert      # infrastructure alert definition
-#            ^-----@pgsql-rules      # database metrics definition
-#            ^-----@infra-alert      # database alert definition
-# /etc/pigsty/
-#  ^-----@targets                    # file based service discovery targets definition
-#            ^-----@infra            # infra static targets definition
-#            ^-----@pgsql            # pgsql static targets definition
-#            ^-----@redis (n/a)      # redis static targets definition (not exists for now)
+#  ^-----prometheus.yml    # prometheus main config file
+#  ^-----alertmanager.yml  # alertmanger main config file
+#  ^-----@bin              # util scripts: check,reload,status,new
+#  ^-----@rules            # record & alerting rules definition
+#  ^
+# /etc/prometheus/
+#  ^-----@targets          # file based service discovery targets definition
+#            ^-----@infra  # infra static targets definition
+#            ^-----@nodes  # pgsql static targets definition
+#            ^-----@pgsql  # pgsql static targets definition
+#            ^-----@redis  # redis static targets definition (not exists for now)
 #
 #------------------------------------------------------------------------------
 
@@ -55,12 +53,7 @@ alerting:
 # Rules
 #------------------------------------------------------------------------------
 rule_files:
-  - rules/infra-rules.yml
-  - rules/infra-alert.yml
-  - rules/pgsql-rules.yml
-  - rules/pgsql-alert.yml
-  - rules/redis-rules.yml
-  - rules/redis-alert.yml
+  - rules/*.yml
 
 {% if prometheus_sd_method == 'static' %}
 #------------------------------------------------------------------------------
@@ -70,7 +63,7 @@ rule_files:
 scrape_configs:
 
   #------------------------------------------------------------------------------
-  # job: infra (self monitoring)
+  # job: infra
   # targets: grafana | prometheus | altermanager | nginx | etc...
   # labels: [type, instance]
   # path: targets/infra/*.yml
@@ -82,9 +75,21 @@ scrape_configs:
         files: [ targets/infra/*.yml ]
 
   #------------------------------------------------------------------------------
-  # job: pgsql (database monitoring)
-  # node_exporter | pg_exporter | pgbouncer_exporter | haproxy(exporter)
-  # labels: [cls, ins, instance]
+  # job: nodes
+  # node_exporter
+  # labels: [ip]
+  # path: targets/pgsql/*.yml
+  #------------------------------------------------------------------------------
+  - job_name: nodes
+    metrics_path: {{ exporter_metrics_path }}
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/nodes/*.yml ]
+
+  #------------------------------------------------------------------------------
+  # job: pgsql
+  # node_exporter pg_exporter | pgbouncer_exporter | patroni | haproxy
+  # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/*.yml
   #------------------------------------------------------------------------------
   - job_name: pgsql
@@ -94,9 +99,9 @@ scrape_configs:
         files: [ targets/pgsql/*.yml ]
 
   #------------------------------------------------------------------------------
-  # job: redis (database monitoring)
+  # job: redis
   # multiple redis targets from redis_exporter @ target nodes
-  # labels: [cls, ins, instance]
+  # labels: [cls, ip, ins, instance]
   # path: targets/redis/*.yml
   #------------------------------------------------------------------------------
   - job_name: redis
@@ -111,6 +116,10 @@ scrape_configs:
         regex: ^redis://(.*):(\d+)$
         replacement: $1:$2
         target_label: instance
+      - source_labels: [__param_target]
+        regex: ^redis://(.*):(\d+)$
+        replacement: $1
+        target_label: ip
       # scrape redis_exporter on target node
       - source_labels: [__param_target]
         regex: ^redis://(.*):\d+$
