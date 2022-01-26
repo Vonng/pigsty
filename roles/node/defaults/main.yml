@@ -15,25 +15,23 @@ node_dns_options:                             # dns resolv options
   - domain service.consul
 
 # - node repo - #
-node_repo_method: public                      # none|local|public (use local repo for production env)
+node_repo_method: local                       # none|local|public (use local repo for production env)
 node_repo_remove: true                        # whether remove existing repo
-node_local_repo_url: [ ]                      # local repo url (if method=local, make sure firewall is configured or disabled)
+node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
+  - http://pigsty/pigsty.repo
 
 # - node packages - #
 node_packages:                                # common packages for all nodes
-  - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
-  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
-  - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
-  - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
-  - node_exporter,redis_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
-node_extra_packages:                          # extra packages for all nodes
-  - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
+  - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,ftp
+  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf
+  - readline,zlib,openssl,openssl-libs,python3,python36-requests,node_exporter,redis_exporter,consul,etcd
+node_extra_packages: [ ]                      # extra packages for all nodes
 node_meta_packages:                           # packages for meta nodes only
-  - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-  - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-node_meta_pip_install: ''                     # python3 to be install on meta node
+  - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
+  - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh
+  - clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools,bison,flex # gcc,gcc-c++
+  - readline-devel,zlib-devel,uuid-devel,libuuid-devel,libxml2-devel,libxslt-devel,openssl-devel,libicu-devel
+node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
 
 # - node features - #
 node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -70,7 +68,7 @@ node_ntp_servers:                             # default NTP servers
 
 # - foreign reference - #
 # this will be override by user provided repo list
-repo_upstreams:                               # additional repos to be installed before downloading
+repo_upstreams:
   - name: base
     description: CentOS-$releasever - Base
     gpgcheck: no
@@ -168,12 +166,6 @@ repo_upstreams:                               # additional repos to be installed
     skip_if_unavailable: true
     gpgcheck: no
     baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-
-  - name: haproxy
-    description: Copr repo for haproxy
-    skip_if_unavailable: true
-    gpgcheck: no
-    baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
 
   # for latest consul & kubernetes
   - name: harbottle
