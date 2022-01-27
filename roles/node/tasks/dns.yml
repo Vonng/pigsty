@@ -13,10 +13,18 @@
 
 
 # always write static DNS record
-- name: Write static dns records
+- name: Update node name
   tags: node_dns
-  lineinfile: path=/etc/hosts line="{{ item }}"
-  with_items: "{{ node_dns_hosts }}"
+  block:
+    - name: Write static dns records
+      when: node_dns_hosts is defined and node_dns_hosts|length > 0
+      lineinfile: path=/etc/hosts line="{{ item }}"
+      with_items: "{{ node_dns_hosts }}"
+
+    - name: Write extra static dns records
+      when: node_dns_hosts_extra is defined and node_dns_hosts_extra|length > 0
+      lineinfile: path=/etc/hosts line="{{ item }}"
+      with_items: "{{ node_dns_hosts_extra }}"
 
 
 # add static nameserver to resolv (if node_dns_server != 'none')
