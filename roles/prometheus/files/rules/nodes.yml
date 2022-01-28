@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   nodes.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2022-01-21
+# Mtime     :   2022-01-27
 # Desc      :   Nodes Record Rules (Node)
 # Path      :   /etc/prometheus/rules/nodes.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -115,13 +115,17 @@ groups:
       # number of cpu cores of this node
       - record: node:ins:cpu_count
         expr: count without (cpu) (node:cpu:usage)
+      - record: node:env:cpu_count
+        expr: sum by (job) (node:ins:cpu_count)
+
 
       #--------------------------------#
-      #      CPU Usage (Realtime)       #
+      #      CPU Usage (Realtime)      #
       #--------------------------------#
       - record: node:ins:cpu_usage
         expr: avg without (cpu) (node:cpu:usage)
-
+      - record: node:env:cpu_usage
+        expr: sum by (job) (node:ins:cpu_usage * node:ins:cpu_count) / node:env:cpu_count
 
       #--------------------------------#
       # CPU Usage (realtime|1m|5m|15m) #
@@ -169,6 +173,17 @@ groups:
       # normalized load 1,5,15 (load divide by cpu)
       - record: node:ins:stdload1
         expr: node_load1 / node:ins:cpu_count
+      - record: node:ins:stdload5
+        expr: node_load5 / node:ins:cpu_count
+      - record: node:ins:stdload15
+        expr: node_load15 / node:ins:cpu_count
+
+      - record: node:env:stdload1
+        expr: sum by (job) (node_load1) / node:env:cpu_count
+      - record: node:env:stdload5
+        expr: sum by (job) (node_load5) / node:env:cpu_count
+      - record: node:env:stdload15
+        expr: sum by (job) (node_load15) / node:env:cpu_count
 
 
       ################################################################
@@ -204,6 +219,14 @@ groups:
       # commit ratio
       - record: node:ins:mem_commit_ratio
         expr: node_memory_Committed_AS_bytes / node_memory_CommitLimit_bytes
+
+      # environment stats
+      - record: node:env:mem_total
+        expr: sum by (job) (node_memory_MemTotal_bytes)
+      - record: node:env:mem_app
+        expr: sum by (job) (node:ins:mem_app)
+      - record: node:env:mem_usage
+        expr: node:env:mem_app / node:env:mem_total
 
       #--------------------------------#
       #        Virtual  Memory         #
@@ -364,13 +387,37 @@ groups:
       - record: node:fs:size_bytes
         expr: node_filesystem_size_bytes{fstype!~"(n|root|tmp)fs.*"}
 
+      # instance level
+      - record: node:ins:free_bytes
+        expr: sum without(device,mountpoint,fstype) (node:fs:free_bytes)
+      - record: node:ins:avail_bytes
+        expr: sum without(device,mountpoint,fstype) (node:fs:avail_bytes)
+      - record: node:ins:size_bytes
+        expr: sum without(device,mountpoint,fstype) (node:fs:size_bytes)
+
+      # environment level
+      - record: node:env:free_bytes
+        expr: sum by(job) (node:ins:free_bytes)
+      - record: node:env:avail_bytes
+        expr: sum by(job) (node:ins:avail_bytes)
+      - record: node:env:size_bytes
+        expr: sum by(job) (node:ins:size_bytes)
+
       # filesystem space usage ( 1 - avail/total )
       - record: node:fs:space_usage
         expr: 1 - node:fs:avail_bytes / node:fs:size_bytes
 
-      # max space usage of a instance
+      - record: node:ins:space_usage
+        expr: 1 - node:ins:avail_bytes / node:ins:size_bytes
       - record: node:ins:space_usage_max
         expr: max without (device, fstype, mountpoint) (node:fs:space_usage)
+
+      - record: node:env:space_usage
+        expr: 1 - node:env:avail_bytes / node:env:size_bytes
+      - record: node:env:space_usage_max
+        expr: max by (job, device, fstype, mountpoint) (node:fs:space_usage)
+      # max space usage of a instance
+
 
       # space delta and prediction
       - record: node:fs:space_deriv1h
@@ -644,7 +691,7 @@ groups:
       #==============================================================#
       # read latency > 32ms (typical on pci-e ssd: 100µs)
       - alert: NodeDiskSlow
-        expr: node:dev:disk_read_rt_1m > 0.032 or node:dev:disk_write_rt_1m > 0.032
+        expr: node:dev:disk_read_rt_1m{device="dfa"} > 0.032 or node:dev:disk_write_rt_1m{device="dfa"} > 0.032
         for: 1m
         labels: { level: 1, severity: WARN, category: nodes }
         annotations:
