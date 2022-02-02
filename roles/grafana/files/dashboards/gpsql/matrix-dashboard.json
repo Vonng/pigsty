@@ -1,0 +1,2807 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "matrixdb-metrics",
+                "enable": false,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "limit": 100,
+                "name": "Annotations & Alerts",
+                "rawQuery": "SELECT 1\n",
+                "showIn": 0,
+                "type": "dashboard"
+            }
+        ]
+    },
+    "author": "Vonng (rh@vonng.com)",
+    "description": "MatrixDB Original Dashboard",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1643382622537,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [
+                "Dashboard"
+            ],
+            "targetBlank": false,
+            "title": "Dashboard",
+            "type": "dashboards"
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "tags": [
+                "Alert"
+            ],
+            "title": "Alert",
+            "type": "dashboards"
+        }
+    ],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null",
+                                "result": {
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 3,
+                "x": 0,
+                "y": 0
+            },
+            "id": 8,
+            "interval": "10m",
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^version$/",
+                    "limit": 1,
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "queryType": "randomWalk",
+                    "rawQuery": true,
+                    "rawSql": "SELECT Version[1] FROM (SELECT regexp_matches(VERSION(), '(MatrixDB[^)]*)') AS Version) A;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "MatrixDB Version",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0,
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "Normal"
+                                },
+                                "1": {
+                                    "text": "NoStandby"
+                                },
+                                "10": {
+                                    "text": "Unbalanced"
+                                },
+                                "11": {
+                                    "text": "Resyncing"
+                                },
+                                "12": {
+                                    "text": "Master Only"
+                                },
+                                "2": {
+                                    "text": "NoMirror"
+                                },
+                                "20": {
+                                    "text": "Segment Down"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "Unreachable",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#73BF69",
+                                "value": null
+                            },
+                            {
+                                "color": "rgba(237, 129, 40, 0.89)",
+                                "value": 10
+                            },
+                            {
+                                "color": "#F2495C",
+                                "value": 20
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 3,
+                "x": 3,
+                "y": 0
+            },
+            "id": 2,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  state AS \"time\",\n  state\nFROM ${cluster}.segstate\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "state"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.segstate",
+                    "timeColumn": "state",
+                    "timeColumnType": "int4",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "displayName": "${__field.name}",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 6,
+                "y": 0
+            },
+            "id": 10,
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "limit": 1,
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT COUNT(sess_id)-1 AS \"Connection(s)\" FROM pg_catalog.pg_stat_activity",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "cpu_user"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "gpcc_system_history_1_prt_2",
+                    "timeColumn": "ctime",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "decimals": 2,
+                    "displayName": "${__field.name}",
+                    "mappings": [],
+                    "noValue": "Unreachable",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 4,
+                "x": 8,
+                "y": 0
+            },
+            "id": 6,
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT EXTRACT(EPOCH FROM now() - pg_postmaster_start_time())::bigint AS \"MatrixDB\"",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "EXTRACT(EPOCH FROM now() - pg_postmaster_start_time())::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "DB"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "uptime",
+                    "timeColumn": "now()",
+                    "timeColumnType": "int4",
+                    "where": [
+                        {
+                            "datatype": "text",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "value"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                },
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n  uptime AS \"time\",\n  uptime AS \"OS Uptime\"\nFROM ${cluster}.os_uptime\nORDER BY 1",
+                    "refId": "B",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "uptime"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.os_uptime",
+                    "timeColumn": "uptime",
+                    "timeColumnType": "int8",
+                    "where": []
+                }
+            ],
+            "title": "Uptime (master)",
+            "type": "stat"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "decimals": 2,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 5,
+            "fillGradient": 0,
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "hiddenSeries": false,
+            "id": 32,
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "System",
+                    "color": "#B877D9",
+                    "linewidth": 0
+                },
+                {
+                    "alias": "User",
+                    "color": "#FF9830",
+                    "linewidth": 0
+                },
+                {
+                    "alias": "Other",
+                    "color": "#96D98D",
+                    "linewidth": 1
+                },
+                {
+                    "alias": "IOWait",
+                    "color": "#1F60C4",
+                    "linewidth": 1
+                },
+                {
+                    "alias": "Total",
+                    "color": "rgba(255, 255, 255, 0)",
+                    "legend": false,
+                    "lines": false,
+                    "stack": false
+                }
+            ],
+            "spaceLength": 10,
+            "stack": true,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [
+                        {
+                            "params": [
+                                "$__interval",
+                                "none"
+                            ],
+                            "type": "time"
+                        }
+                    ],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH org(t, o, u, s, w, a) AS (\n    SELECT\n      $__timeGroupAlias(ts,$__interval),\n      avg((metrics->>'usage_guest')::real + (metrics->>'usage_guest_nice')::real + (metrics->>'usage_steal')::real),\n      avg((metrics->>'usage_user')::real + (metrics->>'usage_nice')::real),\n      avg((metrics->>'usage_system')::real + (metrics->>'usage_irq')::real + (metrics->>'usage_softirq')::real),\n      avg((metrics->>'usage_iowait')::real),\n      avg(100 - (metrics->>'usage_idle')::real)\n    FROM ${cluster}.system\n    WHERE\n      $__timeFilter(ts) AND\n      category = 'cpu' AND\n      device = 'cpu-total' AND\n      host IN ($host)\n    GROUP BY 1\n)\nSELECT t AS \"time\"\n  , o AS \"Other\"\n  , s AS \"System\"\n  , u AS \"User\"\n  , w AS \"IOWait\"\n  , a As \"Total\"\nFROM org\nWHERE t <> (SELECT max(t) FROM org)\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'usage_user')::real"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "avg"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "User"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'usage_system')::real"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "avg"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "System"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'usage_system')::real + (metrics->>'usage_user')::real"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "avg"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Total"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "system",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "'cpu'"
+                            ],
+                            "type": "expression"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "device",
+                                "=",
+                                "'cpu-total'"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "CPU",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "format": "percent",
+                    "label": "",
+                    "logBase": 1,
+                    "max": "100",
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "percent",
+                    "logBase": 1,
+                    "max": "100",
+                    "min": "0",
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false
+            }
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0,
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "UP"
+                                },
+                                "10": {
+                                    "text": "Switched"
+                                },
+                                "11": {
+                                    "text": "Resync"
+                                },
+                                "20": {
+                                    "text": "Down"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "light-orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 20
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 12,
+                "x": 0,
+                "y": 3
+            },
+            "id": 41,
+            "interval": "",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  ts AS \"time\",\n  id,\n  state\nFROM ${cluster}.segdetails\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "state"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.segdetails",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamptz",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "decimals": 2,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 5,
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 5
+            },
+            "hiddenSeries": false,
+            "id": 34,
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "connected",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "Used",
+                    "color": "#56A64B",
+                    "stack": "A"
+                },
+                {
+                    "alias": "Buff",
+                    "color": "#5794F2",
+                    "stack": "A"
+                },
+                {
+                    "alias": "Cache",
+                    "color": "#FFEE52",
+                    "stack": "A"
+                }
+            ],
+            "spaceLength": 10,
+            "stack": true,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [
+                        {
+                            "params": [
+                                "$__interval",
+                                "none"
+                            ],
+                            "type": "time"
+                        }
+                    ],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH org(t, u, b, c) AS (\n    SELECT\n      $__timeGroupAlias(ts,$__interval),\n      avg(((metrics->>'total')::bigint - (metrics->>'free')::bigint - COALESCE((metrics->>'buffered')::bigint, 0) - COALESCE((metrics->>'cached')::bigint, 0) - COALESCE((metrics->>'sreclaimable')::bigint, 0)) / (metrics->>'total')::real * 100) AS \"Used\",\n      avg(COALESCE((metrics->>'buffered')::bigint, 0) / (metrics->>'total')::real * 100) AS \"Buff\",\n      avg((COALESCE((metrics->>'cached')::bigint, 0) + COALESCE((metrics->>'sreclaimable')::bigint, 0)) / (metrics->>'total')::real * 100) AS \"Cache\"\n    FROM ${cluster}.system\n    WHERE\n      $__timeFilter(ts) AND\n      category = 'mem' AND\n      host IN ($host)\n    GROUP BY 1\n)\nSELECT t AS \"time\"\n  , u AS \"Used\"\n  , b AS \"Buff\"\n  , c AS \"Cache\"\nFROM org\nWHERE t <> (SELECT max(t) FROM org)\nORDER BY 1\n;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "((metrics->>'total')::bigint - (metrics->>'free')::bigint - (metrics->>'buffered')::bigint - (metrics->>'cached')::bigint - (metrics->>'sreclaimable')::bigint) / (metrics->>'total')::real * 100"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "avg"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Used"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "((metrics->>'buffered')::bigint + (metrics->>'cached')::bigint + (metrics->>'sreclaimable')::bigint) / (metrics->>'total')::real * 100"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "avg"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Buff+Cache"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "system",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "'mem'"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "Memory",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "decimals": 0,
+                    "format": "percent",
+                    "label": "",
+                    "logBase": 1,
+                    "max": "100",
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false
+            }
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 10
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 20
+                            },
+                            {
+                                "color": "semi-dark-green",
+                                "value": 30
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 0,
+                "y": 6
+            },
+            "id": 21,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "displayMode": "basic",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "limit": 1,
+                    "values": true
+                },
+                "showUnfilled": true,
+                "text": {}
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  100 * free_bytes / total_bytes AS \"free_pct\"\nFROM ${cluster}.master_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "100 * free_bytes / total_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "free_pct"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.master_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "title": "Free Disk Space (Master Instances)",
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 2,
+                    "displayName": "Available",
+                    "mappings": [],
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#d44a3a",
+                                "value": null
+                            },
+                            {
+                                "color": "rgba(237, 129, 40, 0.89)",
+                                "value": 2000000000
+                            },
+                            {
+                                "color": "#299c46",
+                                "value": 10000000000
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 2,
+                "x": 4,
+                "y": 6
+            },
+            "id": 26,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  free_bytes AS \"free_bytes\"\nFROM ${cluster}.master_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "free_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "free_bytes"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.master_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "displayName": "",
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "orange",
+                                "value": 80
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 6,
+                "y": 6
+            },
+            "id": 22,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "displayMode": "gradient",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "showUnfilled": true,
+                "text": {}
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  100 * (total_bytes - free_bytes) / total_bytes AS \"used_pct\"\nFROM ${cluster}.master_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "100 * (total_bytes - free_bytes) / total_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "used_pct"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.master_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "title": "Disk Space in Use (Master Instances)",
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "decimals": 2,
+                    "displayName": "Used",
+                    "mappings": [],
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "rgb(255, 255, 255)",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 2,
+                "x": 10,
+                "y": 6
+            },
+            "id": 25,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  total_bytes - free_bytes AS \"used_bytes\"\nFROM ${cluster}.master_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "total_bytes - free_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "used_bytes"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.master_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "displayName": "",
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "orange",
+                                "value": 10
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 20
+                            },
+                            {
+                                "color": "semi-dark-green",
+                                "value": 30
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 0,
+                "y": 8
+            },
+            "id": 23,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "displayMode": "basic",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "limit": 1,
+                    "values": true
+                },
+                "showUnfilled": true,
+                "text": {}
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  100 * free_bytes / total_bytes AS \"free_pct\"\nFROM ${cluster}.seg_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "100 * free_bytes / total_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "free_pct"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.seg_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "title": "Free Disk Space (Segment Instances)",
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 2,
+                    "displayName": "Available",
+                    "mappings": [],
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#d44a3a",
+                                "value": null
+                            },
+                            {
+                                "color": "rgba(237, 129, 40, 0.89)",
+                                "value": 2000000000
+                            },
+                            {
+                                "color": "#299c46",
+                                "value": 10000000000
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 2,
+                "x": 4,
+                "y": 8
+            },
+            "id": 27,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  free_bytes\nFROM ${cluster}.seg_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "free_bytes"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.seg_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "displayName": "",
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "orange",
+                                "value": 80
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 4,
+                "x": 6,
+                "y": 8
+            },
+            "id": 24,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "displayMode": "gradient",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "showUnfilled": true,
+                "text": {}
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  100 * (total_bytes - free_bytes) / total_bytes AS \"used_pct\"\nFROM ${cluster}.seg_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "100 * (total_bytes - free_bytes) / total_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "used_pct"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.seg_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "title": "Disk Space in Use (Segment Instances)",
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "decimals": 2,
+                    "displayName": "Used",
+                    "mappings": [],
+                    "noValue": "Unknown",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "rgb(255, 255, 255)",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 2,
+                "w": 2,
+                "x": 10,
+                "y": 8
+            },
+            "id": 28,
+            "interval": "5m",
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": false,
+                    "rawSql": "SELECT\n  \"time\" AS \"time\",\n  total_bytes - free_bytes AS \"used_bytes\"\nFROM ${cluster}.seg_disk_usage\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "total_bytes - free_bytes"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "used_bytes"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.seg_disk_usage",
+                    "timeColumn": "\"time\"",
+                    "timeColumnType": "timestamp",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "decimals": 2,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 4,
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 0,
+                "y": 10
+            },
+            "hiddenSeries": false,
+            "id": 47,
+            "interval": "",
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "connected",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "Load1",
+                    "color": "rgb(143, 219, 255)"
+                },
+                {
+                    "alias": "Load5",
+                    "color": "#3274D9"
+                },
+                {
+                    "alias": "Load15",
+                    "color": "rgb(0, 26, 156)"
+                }
+            ],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [
+                        {
+                            "params": [
+                                "$__interval",
+                                "none"
+                            ],
+                            "type": "time"
+                        }
+                    ],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH org(t, h, m) AS (\n  SELECT $__timeGroupAlias(ts,$__interval)\n    , host\n    , metrics\n  FROM ${cluster}.system s\n  WHERE $__timeFilter(ts)\n    AND category = 'system'\n    AND host IN ($host)\n),\nper_host_per_t(t, l1, l5, l15) AS (\n    SELECT t\n      , avg((m->>'load1')::float)\n      , avg((m->>'load5')::float)\n      , avg((m->>'load15')::float)\n    FROM org\n    WHERE t <> (SELECT max(t) FROM org)\n    GROUP BY t, h\n)\nSELECT t AS \"time\", avg(l1) AS \"Load1\", avg(l5) AS \"Load5\", avg(l15) AS \"Load15\"\nFROM per_host_per_t\nGROUP BY 1\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'total')::bigint - (metrics->>'blocked')::bigint - (metrics->>'paging')::bigint - (metrics->>'running')::bigint - (metrics->>'sleeping')::bigint - (metrics->>'idle')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Other"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'blocked')::bigint + (metrics->>'paging')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Blocked"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'sleeping')::bigint + (metrics->>'idle')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Sleep"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'running')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Running"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "system",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "'processes'"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "Load",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "decimals": 2,
+                    "format": "none",
+                    "label": "",
+                    "logBase": 1,
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false
+            }
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "decimals": 2,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 5,
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 10
+            },
+            "hiddenSeries": false,
+            "id": 38,
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "connected",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "Read",
+                    "color": "#37872D"
+                },
+                {
+                    "alias": "Write",
+                    "color": "#8F3BB8",
+                    "transform": "negative-Y"
+                }
+            ],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [
+                        {
+                            "params": [
+                                "$__interval",
+                                "none"
+                            ],
+                            "type": "time"
+                        }
+                    ],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH org(t, h, d, m) AS (\n    SELECT\n      $__timeGroupAlias(ts, $__interval),\n      host,\n      device, -- diskio has device name\n      metrics\n    FROM ${cluster}.system\n    WHERE $__timeFilter(ts)\n      AND category = 'diskio'\n      AND host IN ($host)\n),\nper_tag_per_t(t, h, d, rb, wb) AS (\n    SELECT\n      t, h, d,\n      min(m->>'read_bytes')::bigint,\n      min(m->>'write_bytes')::bigint\n    FROM org\n    GROUP BY t, h, d\n),\ndelta(t, dt, drb, dwb, mint) AS (\n    SELECT t,\n      t - lag(t, 1) OVER (PARTITION BY h, d ORDER BY t) AS dt,\n      GREATEST(rb - lag(rb, 1) OVER (PARTITION BY h, d ORDER BY t), 0) AS drb,\n      GREATEST(wb - lag(wb, 1) OVER (PARTITION BY h, d ORDER BY t), 0) AS dwb,\n      first_value(t) OVER (PARTITION BY h, d ORDER BY t) AS mint\n    FROM per_tag_per_t\n),\nfilter(t, dt, drb, dwb) AS (\n    SELECT t, dt, drb, dwb\n    FROM delta\n    WHERE dt > 0\n      AND t <> mint\n)\nSELECT t AS \"time\"\n  , sum(drb/dt)::bigint AS \"Read\"\n  , sum(dwb/dt)::bigint AS \"Write\"\nFROM filter\nWHERE t <> (SELECT max(t) FROM filter)\nGROUP BY t\nORDER BY t",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'read_bytes')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Read"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'write_bytes')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Write"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "system",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "'diskio'"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "DiskIO",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "decimals": 2,
+                    "format": "Bps",
+                    "label": "",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "Bps",
+                    "label": "",
+                    "logBase": 1,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false,
+                "alignLevel": 0
+            }
+        },
+        {
+            "columns": [],
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fontSize": "100%",
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 0,
+                "y": 15
+            },
+            "id": 20,
+            "interval": "2m",
+            "showHeader": true,
+            "sort": {
+                "col": 0,
+                "desc": true
+            },
+            "styles": [
+                {
+                    "alias": "Timestamp",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "MM/DD/YY h:mm:ss a",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "time",
+                    "thresholds": [],
+                    "type": "date",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Severity",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "link": false,
+                    "mappingType": 1,
+                    "pattern": "logseverity",
+                    "preserveFormat": false,
+                    "sanitize": false,
+                    "thresholds": [
+                        ""
+                    ],
+                    "type": "string",
+                    "unit": "short",
+                    "valueMaps": []
+                },
+                {
+                    "alias": "Message",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "logmessage",
+                    "preserveFormat": false,
+                    "thresholds": [
+                        ""
+                    ],
+                    "type": "string",
+                    "unit": "short",
+                    "valueMaps": []
+                },
+                {
+                    "alias": "User",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "loguser",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Database",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "logdatabase",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Host",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "loghost",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Seg",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "logsegment",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short",
+                    "valueMaps": [
+                        {
+                            "text": "M",
+                            "value": "-1"
+                        }
+                    ]
+                }
+            ],
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n  logtime::timestamp with time zone AS \"time\",\n  replace(logsegment, 'seg', '') AS logsegment,\n  logseverity,\n  logmessage,\n  loguser,\n  logdatabase,\n  loghost\nFROM matrixmgr_internal.local_logs\nWHERE\n  logseverity IN ($severity_level_var)\nORDER BY 1 DESC\nLIMIT 100",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "logcursorpos"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "matrixmgr_internal.local_logs",
+                    "timeColumn": "logtime",
+                    "timeColumnType": "timestamptz",
+                    "where": []
+                }
+            ],
+            "title": "Database Log",
+            "transform": "table",
+            "type": "table-old"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "decimals": 2,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 5,
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 15
+            },
+            "hiddenSeries": false,
+            "id": 39,
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "connected",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "Recv",
+                    "color": "#5794F2"
+                },
+                {
+                    "alias": "Send",
+                    "color": "#FF9830",
+                    "transform": "negative-Y"
+                }
+            ],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [
+                        {
+                            "params": [
+                                "$__interval",
+                                "none"
+                            ],
+                            "type": "time"
+                        }
+                    ],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH org(t, h, d, m) AS (\n    SELECT\n      $__timeGroupAlias(ts, $__interval),\n      host,\n      device, -- diskio has device name\n      metrics\n    FROM ${cluster}.system\n    WHERE $__timeFilter(ts)\n      AND category = 'net'\n      AND device <> 'all'\n      AND host IN ($host)\n),\nper_tag_per_t(t, h, d, rb, wb) AS (\n    SELECT\n      t, h, d,\n      min(m->>'bytes_recv')::bigint,\n      min(m->>'bytes_sent')::bigint\n    FROM org\n    GROUP BY t, h, d\n),\ndelta(t, dt, drb, dwb, mint) AS (\n    SELECT t,\n      t - lag(t, 1) OVER (PARTITION BY h, d ORDER BY t) AS dt,\n      GREATEST(rb - lag(rb, 1) OVER (PARTITION BY h, d ORDER BY t), 0) AS drb,\n      GREATEST(wb - lag(wb, 1) OVER (PARTITION BY h, d ORDER BY t), 0) AS dwb,\n      first_value(t) OVER (PARTITION BY h, d ORDER BY t) AS mint\n    FROM per_tag_per_t\n),\nfilter(t, dt, drb, dwb) AS (\n    SELECT t, dt, drb, dwb\n    FROM delta\n    WHERE dt > 0\n      AND t <> mint\n)\nSELECT t AS \"time\"\n  , sum(drb/dt)::bigint AS \"Recv\"\n  , sum(dwb/dt)::bigint AS \"Send\"\nFROM filter\nWHERE t <> (SELECT max(t) FROM filter)\nGROUP BY t\nORDER BY t\n;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'read_bytes')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "ReadBytes"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'write_bytes')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "WriteBytes"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "system",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "'diskio'"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "Network",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "decimals": 2,
+                    "format": "Bps",
+                    "label": "",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false
+            }
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "decimals": 0,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 2,
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 20
+            },
+            "hiddenSeries": false,
+            "id": 42,
+            "interval": "",
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "connected",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "Sleep",
+                    "color": "#3274D9"
+                },
+                {
+                    "alias": "Running",
+                    "color": "#56A64B"
+                },
+                {
+                    "alias": "Blocked",
+                    "color": "#E02F44"
+                },
+                {
+                    "alias": "Other",
+                    "color": "#A352CC"
+                }
+            ],
+            "spaceLength": 10,
+            "stack": true,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [
+                        {
+                            "params": [
+                                "$__interval",
+                                "none"
+                            ],
+                            "type": "time"
+                        }
+                    ],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH org(t, h, m) AS (\n    SELECT\n      $__timeGroupAlias(ts, $__interval),\n      host,\n      metrics\n    FROM ${cluster}.system\n    WHERE $__timeFilter(ts)\n      AND category = 'processes'\n      AND host IN ($host)\n),\nper_tag_per_t(t, total, blocked, paging, running, sleeping, idle) AS (\n    SELECT\n      t,\n      avg((m->>'total')::bigint),\n      avg((m->>'blocked')::bigint),\n      avg((m->>'paging')::bigint),\n      avg((m->>'running')::bigint),\n      avg((m->>'sleeping')::bigint),\n      avg((m->>'idle')::bigint)\n    FROM org\n    GROUP BY t, h\n)\nSELECT\n  t AS \"time\",\n  sum(total - blocked - paging - running - sleeping - idle) AS \"Other\",\n  sum(blocked + paging) AS \"Blocked\",\n  sum(sleeping + idle) AS \"Sleep\",\n  sum(running) AS \"Running\"\nFROM per_tag_per_t\nWHERE t <> (SELECT max(t) FROM per_tag_per_t)\nGROUP BY 1\nORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'total')::bigint - (metrics->>'blocked')::bigint - (metrics->>'paging')::bigint - (metrics->>'running')::bigint - (metrics->>'sleeping')::bigint - (metrics->>'idle')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Other"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'blocked')::bigint + (metrics->>'paging')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Blocked"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'sleeping')::bigint + (metrics->>'idle')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Sleep"
+                                ],
+                                "type": "alias"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "(metrics->>'running')::bigint"
+                                ],
+                                "type": "column"
+                            },
+                            {
+                                "params": [
+                                    "sum"
+                                ],
+                                "type": "aggregate"
+                            },
+                            {
+                                "params": [
+                                    "Running"
+                                ],
+                                "type": "alias"
+                            }
+                        ]
+                    ],
+                    "table": "system",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        },
+                        {
+                            "datatype": "name",
+                            "name": "",
+                            "params": [
+                                "category",
+                                "=",
+                                "'processes'"
+                            ],
+                            "type": "expression"
+                        }
+                    ]
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "Process",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "decimals": 0,
+                    "format": "none",
+                    "label": "",
+                    "logBase": 1,
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false
+            }
+        }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 34,
+    "style": "dark",
+    "tags": [
+        "Pigsty",
+        "GPSQL"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {},
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "luFEGaxnz"
+                },
+                "definition": "SELECT n.nspname FROM pg_namespace n\nINNER JOIN pg_class c\nON c.relnamespace = n.oid\nAND c.relname = 'matrix_manager_config'",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Select Cluster to View",
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": "SELECT n.nspname FROM pg_namespace n\nINNER JOIN pg_class c\nON c.relnamespace = n.oid\nAND c.relname = 'matrix_manager_config'",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "luFEGaxnz"
+                },
+                "definition": "SELECT hostname FROM gp_segment_configuration GROUP BY hostname ORDER BY min(content)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Host",
+                "multi": true,
+                "name": "host",
+                "options": [],
+                "query": "SELECT hostname FROM gp_segment_configuration GROUP BY hostname ORDER BY min(content)",
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "current": {},
+                "hide": 0,
+                "includeAll": true,
+                "label": "Log Level",
+                "multi": true,
+                "name": "severity_level_var",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "All",
+                        "value": "$__all"
+                    },
+                    {
+                        "selected": false,
+                        "text": "PANIC",
+                        "value": "PANIC"
+                    },
+                    {
+                        "selected": false,
+                        "text": "FATAL",
+                        "value": "FATAL"
+                    },
+                    {
+                        "selected": false,
+                        "text": "ERROR",
+                        "value": "ERROR"
+                    },
+                    {
+                        "selected": false,
+                        "text": "WARNING",
+                        "value": "WARNING"
+                    }
+                ],
+                "query": "PANIC,FATAL,ERROR,WARNING",
+                "queryValue": "",
+                "skipUrlSync": false,
+                "type": "custom"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-3h",
+        "to": "now"
+    },
+    "timepicker": {
+        "hidden": false,
+        "nowDelay": "",
+        "refresh_intervals": [
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h"
+        ]
+    },
+    "timezone": "",
+    "title": "MatrixDB Dashboard",
+    "uid": "matrix-dashboard",
+    "version": 1,
+    "weekStart": ""
+}

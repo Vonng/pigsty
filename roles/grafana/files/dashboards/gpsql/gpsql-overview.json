@@ -1,0 +1,4325 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "PostgreSQL Cluster Dashboard",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1643532119436,
+    "links": [
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "GPSQL"
+            ],
+            "targetBlank": false,
+            "title": "GPSQL",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "PGCAT"
+            ],
+            "targetBlank": false,
+            "title": "PGCAT",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        },
+        {
+            "asDropdown": true,
+            "icon": "external link",
+            "includeVars": true,
+            "keepTime": true,
+            "tags": [
+                "Pigsty",
+                "PGLOG"
+            ],
+            "targetBlank": false,
+            "title": "PGLOG",
+            "tooltip": "",
+            "type": "dashboards",
+            "url": ""
+        }
+    ],
+    "liveNow": false,
+    "panels": [
+        {
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 139,
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 8,
+                "x": 0,
+                "y": 1
+            },
+            "id": 109,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "1",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Cluster Name",
+                    "queryType": "measurements",
+                    "refId": "A"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "",
+                            "Value": "${gp}"
+                        }
+                    }
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "max": 2.5,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/Mem|Disk|Data/"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "decbytes"
+                            },
+                            {
+                                "id": "decimals",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster",
+                                        "url": "/d/pgsql-cluster"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance",
+                                        "url": "/d/pgsql-instance"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Service",
+                                        "url": "/d/pgsql-service"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Node"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Node",
+                                        "url": "/d/pgsql-node"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DB"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Database",
+                                        "url": "/d/pgsql-database"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 16,
+                "x": 8,
+                "y": 1
+            },
+            "id": 111,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "vertical",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 16,
+                    "valueSize": 14
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "count(pg_up{cls=\"$cls\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Instance",
+                    "queryType": "measurements",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "count(count by (ip) (pg_up{cls=\"$cls\"}))",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Node",
+                    "queryType": "measurements",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "count(count by (proxy) (haproxy_server_status{cls=\"$cls\"}))",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Service",
+                    "queryType": "measurements",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "count(max by (cls,datname) (pg_db_age{cls=\"$cls\"}))",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "DB",
+                    "queryType": "measurements",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "sum(pg:cls:cpu_count{cls=\"$cls\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Core",
+                    "queryType": "measurements",
+                    "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "sum(node_memory_MemTotal_bytes{ip=~\"$members\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Mem",
+                    "queryType": "measurements",
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "sum(node:fs:size_bytes{ip=~\"$members\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Disk",
+                    "queryType": "measurements",
+                    "refId": "G"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "sum(max by (cls,datname)(pg_size_bytes{datname!~\"log|wal\", cls=\"$cls\"}))",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "Data",
+                    "queryType": "measurements",
+                    "refId": "H"
+                }
+            ],
+            "transformations": [],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null",
+                                "result": {
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 4,
+                "x": 0,
+                "y": 4
+            },
+            "id": 127,
+            "interval": "10m",
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^version$/",
+                    "limit": 1,
+                    "values": true
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "queryType": "randomWalk",
+                    "rawQuery": true,
+                    "rawSql": "SELECT Version[1] FROM (SELECT regexp_matches(VERSION(), '(MatrixDB[^)]*)') AS Version) A;\n",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "MatrixDB Version",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(128, 128, 128)",
+                        "mode": "fixed"
+                    },
+                    "displayName": "${__field.name}",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 4,
+                "x": 4,
+                "y": 4
+            },
+            "id": 131,
+            "links": [],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "limit": 1,
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT COUNT(sess_id)-1 AS \"Connection(s)\" FROM pg_catalog.pg_stat_activity",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "cpu_user"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "gpcc_system_history_1_prt_2",
+                    "timeColumn": "ctime",
+                    "timeColumnType": "timestamp",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Activity : Pressure for ${cls}",
+                            "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=104"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Commit"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 32
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 32000
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 100000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Activity : Pressure for ${cls}",
+                                        "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=104"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Rollback"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "green",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 4
+                                        },
+                                        {
+                                            "color": "red",
+                                            "value": 8
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Activity : Rollback for ${cls}",
+                                        "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=106"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TPS"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 32
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 32000
+                                        },
+                                        {
+                                            "color": "orange",
+                                            "value": 100000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Activity : TPS for ${cls}",
+                                        "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=148"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "QPS"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "blue",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 32
+                                        },
+                                        {
+                                            "color": "#EAB839",
+                                            "value": 32000
+                                        },
+                                        {
+                                            "color": "#EF843C",
+                                            "value": 100000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Activity : QPS for ${cls}",
+                                        "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=112"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 8,
+                "y": 4
+            },
+            "id": 121,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_xact_commit{cls=\"$cls\"}[1m]))\n# pg:cls:xact_commit_rate1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "Commit",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_xact_rollback{cls=\"$cls\"}[1m]))\n# pg:cls:xact_commit_rate1m{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Rollback",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum(rate(pgbouncer_stat_total_xact_count{cls=\"$cls\"}[1m])) \n# pgbouncer:cls:xact_rate1m{cls=\"$cls\"} ",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "TPS",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum(rate(pgbouncer_stat_total_query_count{cls=\"$cls\"}[1m])) \n# pgbouncer:cls:query_rate1m{cls=\"$cls\"} ",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "QPS",
+                    "refId": "D"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "links": [
+                        {
+                            "title": "PGSQL Persist : Age for ${cls}",
+                            "url": "/d/pgsql-persist?var-ins=${primary}&viewPanel=228"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "percentage",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 2
+                            },
+                            {
+                                "color": "orange",
+                                "value": 10
+                            },
+                            {
+                                "color": "red",
+                                "value": 30
+                            },
+                            {
+                                "color": "purple",
+                                "value": 90
+                            },
+                            {
+                                "color": "text",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 16,
+                "y": 4
+            },
+            "id": 63,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max by (cls) (pg_db_age{cls=\"$cls\", datname!~\"template[0-9]\"})  / 2147483647\n# pg:cls:age{cls=\"$cls\"} / 2147483647",
+                    "interval": "",
+                    "legendFormat": "Age",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Node : Space for ${primary}",
+                            "url": "/d/pgsql-node?var-ins=${primary}&viewPanel=199"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.85
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 18,
+                "y": 4
+            },
+            "id": 49,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "max(1 - node_filesystem_avail_bytes{ip=~\"$members\", fstype!~\"(n|root|tmp)fs.*\"} / node_filesystem_size_bytes{ip=~\"$members\", fstype!~\"(n|root|tmp)fs.*\"})\n# max(node:fs:space_usage{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Space",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Replication lag in bytes for Cluster ${cls}",
+                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=73"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1000
+                            },
+                            {
+                                "color": "orange",
+                                "value": 100000
+                            },
+                            {
+                                "color": "red",
+                                "value": 1000000
+                            },
+                            {
+                                "color": "purple",
+                                "value": 10000000
+                            },
+                            {
+                                "color": "text",
+                                "value": 100000000
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 20,
+                "y": 4
+            },
+            "id": 68,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max(pg_repl_replay_diff{cls=\"$cls\", appname!~'walreceiver|pg_receivewal'})\n# pg:cls:lag_bytes{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "Lag (B)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Replication Detail in seconds for Cluster ${cls}",
+                            "url": "/d/pgsql-replication?var-cls=${cls}&viewPanel=74"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 16
+                            },
+                            {
+                                "color": "text",
+                                "value": 64
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 22,
+                "y": 4
+            },
+            "id": 70,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "max(pg_repl_replay_lag{cls=\"$cls\", appname!~'walreceiver|pg_receivewal'})\n# pg:cls:lag_seconds{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "Lag (s)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0,
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "Normal"
+                                },
+                                "1": {
+                                    "text": "NoStandby"
+                                },
+                                "10": {
+                                    "text": "Unbalanced"
+                                },
+                                "11": {
+                                    "text": "Resyncing"
+                                },
+                                "12": {
+                                    "text": "Master Only"
+                                },
+                                "2": {
+                                    "text": "NoMirror"
+                                },
+                                "20": {
+                                    "text": "Segment Down"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "Unreachable",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#73BF69",
+                                "value": null
+                            },
+                            {
+                                "color": "rgba(237, 129, 40, 0.89)",
+                                "value": 10
+                            },
+                            {
+                                "color": "#F2495C",
+                                "value": 20
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 8,
+                "x": 0,
+                "y": 7
+            },
+            "id": 129,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "luFEGaxnz"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT state AS \"time\", state FROM local.segstate ORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "state"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.segstate",
+                    "timeColumn": "state",
+                    "timeColumnType": "int4",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Activity : Session for ${cls}",
+                            "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=146"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 4
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2000
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 16,
+                "y": 7
+            },
+            "id": 64,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum by (cls) (pg_db_numbackends{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "Backend",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Activity : Pgbouncer Queue for ${cls}",
+                            "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=145"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 18,
+                "y": 7
+            },
+            "id": 44,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum by (cls) (pgbouncer_pool_waiting_clients{cls=\"$cls\"})\n# pgbouncer:cls:waiting_clients{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "Queue",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Activity : RT for ${cls}",
+                            "url": "/d/pgsql-activity?var-cls=${cls}&viewPanel=113"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 20,
+                "y": 7
+            },
+            "id": 59,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pgbouncer_stat_total_query_time{cls=\"$cls\"}[1m])) / sum(rate(pgbouncer_stat_total_query_count{cls=\"$cls\"}[1m])) / 1000000\n# pgbouncer:cls:query_rt_1m{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "Cluster RT",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Queries: RT for Primary ${primary}",
+                            "url": "/d/pgsql-queries?var-ins=${primary}&viewPanel=68"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "color": "gray",
+                                    "index": 0,
+                                    "text": "\u2205"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "min": 0,
+                    "noValue": "\u2205",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 4
+                            },
+                            {
+                                "color": "purple",
+                                "value": 8
+                            },
+                            {
+                                "color": "text",
+                                "value": 16
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 2,
+                "x": 22,
+                "y": 7
+            },
+            "id": 62,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 18
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pgbouncer_stat_total_query_time{cls=\"$cls\", ins=\"$primary\"}[1m])) / sum(rate(pgbouncer_stat_total_query_count{cls=\"$cls\", ins=\"$primary\"}[1m])) / 1000000\n\n# pgbouncer:ins:query_rt_1m{ins=\"$primary\"}",
+                    "interval": "",
+                    "legendFormat": "Primary RT",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0,
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "UP"
+                                },
+                                "10": {
+                                    "text": "Switched"
+                                },
+                                "11": {
+                                    "text": "Resync"
+                                },
+                                "20": {
+                                    "text": "Down"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "light-orange",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 20
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 0,
+                "y": 10
+            },
+            "id": 137,
+            "interval": "",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "luFEGaxnz"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT ts AS \"time\", id, state FROM local.segdetails ORDER BY 1",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "id"
+                                ],
+                                "type": "column"
+                            }
+                        ],
+                        [
+                            {
+                                "params": [
+                                    "state"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "${cluster}.segdetails",
+                    "timeColumn": "ts",
+                    "timeColumnType": "timestamptz",
+                    "where": []
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "links": [
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.ins}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.3
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.5
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "text",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 8,
+                "x": 8,
+                "y": 10
+            },
+            "id": 72,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "ins:pressure1{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }} @ {{ ip }} \u2b50\ufe0f",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "ins:pressure1{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }} @ {{ ip }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "Instance",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "description": "Alerting event graph. Each stripe represent an alerting Event. Gray transparent stipe are pending alerts.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 98,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${cls}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${cls}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.ins}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                        },
+                        {
+                            "title": "PGSQL Node for ${__field.labels.ins}",
+                            "url": "/d/pgsql-node?var-ins=${__field.labels.ins}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 25
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.6)",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "gray",
+                                                "index": 0,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 8,
+                "x": 16,
+                "y": 10
+            },
+            "id": 78,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "ALERTS{cls=\"$cls\", alertstate=\"firing\"}",
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}\ud83d\udd25] {{alertname}}  @ {{ ins }}",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "ALERTS{cls=\"$cls\", alertstate=\"pending\"} ",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}\u23f0] {{alertname}}  @ {{ ins }}",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "0",
+                    "hide": true,
+                    "interval": "",
+                    "legendFormat": "Alert",
+                    "refId": "C"
+                }
+            ],
+            "type": "timeseries"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Node for ${__field.labels.ip}",
+                            "url": "/d/pgsql-node?var-id=${__field.labels.ip}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "orange",
+                                "value": 100
+                            },
+                            {
+                                "color": "red",
+                                "value": 400
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 4,
+                "x": 0,
+                "y": 16
+            },
+            "id": 116,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum by (ip) (pg_db_numbackends{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "{{ proxy }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Nodes",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Database for ${primary}.${__field.labels.datname}",
+                            "url": "/d/pgsql-database?var-ins=${primary}&var-datname=${__field.labels.datname}"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#6e6e6ebf",
+                                "value": null
+                            },
+                            {
+                                "color": "blue",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 4,
+                "x": 4,
+                "y": 16
+            },
+            "id": 113,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "max by (datname) (pg_size_bytes{cls=\"$cls\", datname!~\"wal|log|postgres|template\\\\d\"})",
+                    "interval": "",
+                    "legendFormat": "{{ proxy }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Database",
+            "transparent": true,
+            "type": "stat"
+        },
+        {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "decimals": 2,
+            "fieldConfig": {
+                "defaults": {
+                    "links": []
+                },
+                "overrides": []
+            },
+            "fill": 1,
+            "fillGradient": 4,
+            "gridPos": {
+                "h": 8,
+                "w": 11,
+                "x": 0,
+                "y": 22
+            },
+            "hiddenSeries": false,
+            "id": 135,
+            "interval": "",
+            "legend": {
+                "alignAsTable": true,
+                "avg": false,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 250,
+                "total": false,
+                "values": true
+            },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "connected",
+            "options": {
+                "alertThreshold": true
+            },
+            "percentage": false,
+            "pluginVersion": "8.3.4",
+            "pointradius": 2,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+                {
+                    "alias": "Load1",
+                    "color": "rgb(143, 219, 255)"
+                },
+                {
+                    "alias": "Load5",
+                    "color": "#3274D9"
+                },
+                {
+                    "alias": "Load15",
+                    "color": "rgb(0, 26, 156)"
+                }
+            ],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "node:ins:cpu_usage",
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "thresholds": [],
+            "timeRegions": [],
+            "title": "Load",
+            "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+                "mode": "time",
+                "show": true,
+                "values": []
+            },
+            "yaxes": [
+                {
+                    "decimals": 2,
+                    "format": "none",
+                    "label": "",
+                    "logBase": 1,
+                    "min": "0",
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": false
+                }
+            ],
+            "yaxis": {
+                "align": false
+            }
+        },
+        {
+            "description": "Overall pressure for this PostgreSQL Node and Instance. \nmax(node:ins:cpu_usage, pg:ins:load, pgbouncer:ins:load)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "orange",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster Primary Instance ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.drawStyle",
+                                "value": "line"
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 30
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.2)",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster follower instance ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 13,
+                "x": 11,
+                "y": 22
+            },
+            "id": 75,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "cls:pressure1{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "cluster",
+                    "refId": "C"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "ins:pressure1{cls=\"$cls\", ins=\"$primary\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }} \u2b50\ufe0f",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "ins:pressure1{cls=\"$cls\", ins!=\"$primary\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}",
+                    "refId": "B"
+                }
+            ],
+            "type": "timeseries"
+        },
+        {
+            "columns": [],
+            "datasource": {
+                "type": "postgres",
+                "uid": "luFEGaxnz"
+            },
+            "fontSize": "100%",
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 30
+            },
+            "id": 133,
+            "interval": "2m",
+            "showHeader": true,
+            "sort": {
+                "col": 0,
+                "desc": true
+            },
+            "styles": [
+                {
+                    "alias": "Timestamp",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "MM/DD/YY h:mm:ss a",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "time",
+                    "thresholds": [],
+                    "type": "date",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Severity",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "link": false,
+                    "mappingType": 1,
+                    "pattern": "logseverity",
+                    "preserveFormat": false,
+                    "sanitize": false,
+                    "thresholds": [
+                        ""
+                    ],
+                    "type": "string",
+                    "unit": "short",
+                    "valueMaps": []
+                },
+                {
+                    "alias": "Message",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "logmessage",
+                    "preserveFormat": false,
+                    "thresholds": [
+                        ""
+                    ],
+                    "type": "string",
+                    "unit": "short",
+                    "valueMaps": []
+                },
+                {
+                    "alias": "User",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "loguser",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Database",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "logdatabase",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Host",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "loghost",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short"
+                },
+                {
+                    "alias": "Seg",
+                    "align": "auto",
+                    "colors": [
+                        "rgba(245, 54, 54, 0.9)",
+                        "rgba(237, 129, 40, 0.89)",
+                        "rgba(50, 172, 45, 0.97)"
+                    ],
+                    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                    "decimals": 2,
+                    "mappingType": 1,
+                    "pattern": "logsegment",
+                    "thresholds": [],
+                    "type": "string",
+                    "unit": "short",
+                    "valueMaps": [
+                        {
+                            "text": "M",
+                            "value": "-1"
+                        }
+                    ]
+                }
+            ],
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "luFEGaxnz"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n  logtime::timestamp with time zone AS \"time\",\n  replace(logsegment, 'seg', '') AS logsegment,\n  logseverity,\n  logmessage,\n  loguser,\n  logdatabase,\n  loghost\nFROM matrixmgr_internal.local_logs\nORDER BY 1 DESC\nLIMIT 100",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "logcursorpos"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "matrixmgr_internal.local_logs",
+                    "timeColumn": "logtime",
+                    "timeColumnType": "timestamptz",
+                    "where": []
+                }
+            ],
+            "title": "Database Log",
+            "transform": "table",
+            "type": "table-old"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 39
+            },
+            "id": 82,
+            "panels": [],
+            "title": "Key Metrics",
+            "type": "row"
+        },
+        {
+            "description": "Cluster (5m) & Instance  (1m) CPU Usage",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "area"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.7
+                            },
+                            {
+                                "color": "purple",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "orange",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster Primary Instance ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "global"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.drawStyle",
+                                "value": "line"
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 30
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgba(128, 128, 128, 0.2)",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster follower instance ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}&var-cls=${cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 40
+            },
+            "id": 98,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max",
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "sum(pg:cls:cpu_usage_5m{cls=~\"$gp.*\"} * pg:cls:cpu_count{cls=~\"$gp.*\"}) / sum(pg:cls:cpu_count{cls=~\"$gp.*\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "global",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "pg:cls:cpu_usage_1m{cls=\"$master\"}",
+                    "interval": "",
+                    "legendFormat": "{{ cls }} \u2b50\ufe0f",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": true,
+                    "expr": "pg:cls:cpu_usage_1m{cls=~\"$gp.*\", cls!=\"$master\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "CPU Usage",
+            "type": "timeseries"
+        },
+        {
+            "description": "Replication Lag (WAL Replay Lag) measured in bytes",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 30,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 2,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "always",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Instance for ${__field.labels.appname}",
+                            "url": "/d/pgsql-instance?var-ins=${__field.labels.appname}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 40
+            },
+            "id": 84,
+            "links": [
+                {
+                    "title": "PGSQL Replication for Cluster: ${cls}",
+                    "url": "/d/pgsql-replication?var-cls=${cls}"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max",
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg_repl_replay_diff{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }} \u2192 {{ usename }}:{{ appname }}@{{ address }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Replication Lag",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "description": "Average transaction response time from pgbouncer\n(You can get from postgres directly after PG14)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 10
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.gradientMode",
+                                "value": "hue"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster for ${__field.labels.cls}",
+                                        "url": "/d/pgsql-instance?var-cls=${__field.labels.cls}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "C"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${__field.labels.ins}",
+                                        "url": "/d/pgsql-instance?var-ins=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 47
+            },
+            "id": 100,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0-beta2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "pgbouncer:cls:xact_rt_1m{cls=\"$cls\"}\n# pg:cls:active_time_rate1m{cls=\"$cls\"} / pg:cls:xact_total_rate1m{cls=\"$cls\"} # PG14",
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "cluster",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "pgbouncer:ins:xact_rt_1m{cls=\"$cls\", ins=\"$primary\"}\n# pg:ins:active_time_rate1m{cls=\"$cls\"} / pg:ins:xact_total_rate1m{cls=\"$cls\"} # PG14",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{ ins }} \u2b50\ufe0f",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "pgbouncer:ins:xact_rt_1m{cls=\"$cls\", ins!=\"$primary\"}",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{ ins }}",
+                    "refId": "C"
+                }
+            ],
+            "title": "RT",
+            "type": "timeseries"
+        },
+        {
+            "description": "Number of backends for each instances among this cluster",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 60,
+                        "gradientMode": "hue",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 1,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Session for ${__field.labels.ins}",
+                            "url": "/d/pgsql-session?var-ins=${__field.labels.ins}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 47
+            },
+            "id": 88,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum by (ins) (pg_activity_count{cls=\"$cls\"})",
+                    "interval": "",
+                    "legendFormat": "{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Session",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "description": "Total transactions (commit + rollback) per second from PostgreSQL in last 5 minutes",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 5,
+                        "gradientMode": "hue",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Xacts for ${__field.labels.ins}",
+                            "url": "/d/pgsql-xacts?var-ins=${__field.labels.ins}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 20
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Activity for ${cls}",
+                                        "url": "/d/pgsql-activity?var-cls=${cls}"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "orange",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 54
+            },
+            "id": 90,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0-beta2",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_xact_total{cls=\"$cls\"}[5m])) \n# pg:cls:xact_commit_rate1m{cls=\"$cls\", ins=\"$primary\"}",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "cluster",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum by (ins) (rate(pg_db_xact_total{cls=\"$cls\", ins=\"$primary\"}[5m])) \n# pg:cls:xact_commit_rate1m{cls=\"$cls\", ins=\"$primary\"}",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{ ins }} \u2b50\ufe0f",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum by (ins) (rate(pg_db_xact_total{cls=\"$cls\", ins!=\"$primary\"}[5m])) \n# pg:cls:xact_commit_rate1m{cls=\"$cls\", ins=\"$primary\"}",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{ ins }}",
+                    "refId": "C"
+                }
+            ],
+            "title": "TPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "description": "Tuples fetched, inserted, updated, delete among this cluster",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 50,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "cps"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DELETED"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "INSERTED"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "UPDATED"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "yellow",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 54
+            },
+            "id": 104,
+            "links": [
+                {
+                    "title": "PGSQL Database : CRUD for ${primary}",
+                    "url": "/d/pgsql-database?var-ins=${primary}"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_tup_fetched{cls=\"$cls\"}[1m]))",
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "SELECT",
+                    "refId": "B"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_tup_inserted{cls=\"$cls\"}[1m]))",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "INSERTED",
+                    "refId": "A"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_tup_updated{cls=\"$cls\"}[1m]))",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "UPDATED",
+                    "refId": "C"
+                },
+                {
+                    "exemplar": true,
+                    "expr": "sum(rate(pg_db_tup_deleted{cls=\"$cls\"}[1m]))",
+                    "hide": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "DELETED",
+                    "refId": "D"
+                }
+            ],
+            "title": "CRUD",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "description": "Time spent per second for each query of each instances.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 40,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "title": "PGSQL Query for ${__field.labels.query}",
+                            "url": "/d/pgsql-query?var-ins=${__field.labels.ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 17,
+                "x": 0,
+                "y": 61
+            },
+            "id": 86,
+            "links": [
+                {
+                    "title": "PGSQL Queries for Cluster Leader: ${primary}",
+                    "url": "/d/pgsql-queries?var-ins=${primary}"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "max",
+                        "mean",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "rate(pg_query_exec_time{cls=\"$cls\"}[5m]) / 1000",
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ ins }}-{{ query }}",
+                    "refId": "B"
+                }
+            ],
+            "title": "Query Time Spent",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "description": "Ratio of XID used for each database among this cluster",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [
+                        {
+                            "title": "PGSQL Persist : Age for ${__field.labels.ins}.${__field.labels.datname}",
+                            "url": "/d/pgsql-persist?var-ins=${__field.labels.ins}&viewPanel=228"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.85
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "text",
+                                "value": 0.99
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 7,
+                "x": 17,
+                "y": 61
+            },
+            "id": 102,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "exemplar": true,
+                    "expr": "pg_db_age{cls=\"$cls\", datname!~\"template[0-9]\"} / 2147483647",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}.{{ datname }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "XID Usage",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "description": "R\u25b2 for disk read bandwidth\nTX\u25b2 for network transmit bandwidth\nRX\u25bc for network receive bandwidth\nW\u25bc for disk write bandwidth",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 17,
+                "x": 0,
+                "y": 70
+            },
+            "id": 107,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            },
+            "pluginVersion": "8.0.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "node:ins:disk_read_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
+                    "interval": "",
+                    "legendFormat": "{{ ins }}-R\u25b2",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "node:ins:network_tx_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}-TX\u25b2",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "- node:ins:network_rx_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}-RX\u25bc",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "- node:ins:disk_write_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ ins }}-W\u25bc",
+                    "refId": "D"
+                }
+            ],
+            "title": "Disk / Network",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus-pgsql"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [
+                        {
+                            "title": "PGSQL Node : Disk for ${__field.labels.ins}:${__field.labels.mountpoint}",
+                            "url": "/d/pgsql-node?var-id=${__field.labels.ins}&viewPanel=199"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 0.1
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "orange",
+                                "value": 0.85
+                            },
+                            {
+                                "color": "#E24D42",
+                                "value": 0.9
+                            },
+                            {
+                                "color": "purple",
+                                "value": 0.95
+                            },
+                            {
+                                "color": "text",
+                                "value": 0.99
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 7,
+                "x": 17,
+                "y": 70
+            },
+            "id": 105,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
+                    "exemplar": true,
+                    "expr": "node:fs:space_usage{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ mountpoint }}@{{ ins }}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Space Usage",
+            "type": "stat"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 34,
+    "style": "light",
+    "tags": [
+        "Pigsty",
+        "GPSQL"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {},
+                "description": "Prometheus datasource used by this dashboard",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Data Source",
+                "multi": false,
+                "name": "ds",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(pg_up, cls)",
+                "description": "Greenplum Cluster Name",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Greenplum",
+                "multi": false,
+                "name": "gp",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up, cls)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "(\\w+)-.*",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(pg_up{cls=~'$gp.*', cls=~'.*mdw.*'}, cls)",
+                "description": "Master cluster of Greenplum",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Master",
+                "multi": false,
+                "name": "master",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up{cls=~'$gp.*', cls=~'.*mdw.*'}, cls)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(pg_up{cls=~'$gp.*(seg|sdw).*'}, cls)",
+                "description": "Segments cluster names of Greenplum",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Segments",
+                "multi": true,
+                "name": "segments",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up{cls=~'$gp.*(seg|sdw).*'}, cls)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(pg_up{cls=~\"$gp.*\"}, ip)",
+                "description": "Unique instance identifier (e.g pg-meta-1)",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Primary",
+                "multi": true,
+                "name": "members",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up{cls=~\"$gp.*\"}, ip)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
+                "definition": "label_values(pg_up{cls=~'$gp.*', cls=~'.*mdw.*'}, ins)",
+                "description": "Unique instance identifier (e.g pg-meta-1)",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Primary",
+                "multi": false,
+                "name": "primary",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up{cls=~'$gp.*', cls=~'.*mdw.*'}, ins)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "GPSQL Overview",
+    "uid": "gpsql-overview",
+    "version": 1,
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
+}
