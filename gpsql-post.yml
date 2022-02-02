@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   gpsql-post.yml
+# Ctime     :   2021-01-19
+# Mtime     :   2022-01-28
+# Desc      :   post init matrixdb on 4-nodes
+# Path      :   gpsql-post.yml
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+
+#---------------------------------------------------------------
+- name: Setup monitor for Segments
+  become: yes
+  hosts: all
+  gather_facts: no
+  roles:
+
+    - role: gp_provision
+      when: gp_role == 'master'
+      tags: gp_provision
+
+    - role: gp_exporter     # init gp_exporter for gp segment
+      when: gp_role == 'segment'
+      tags: gp_exporter
+
+...
