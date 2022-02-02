@@ -1,0 +1,143 @@
+#!/bin/bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-import
+# Mtime     :   2019-03-08
+# Desc      :   Catalog given url to CMDB
+# Path      :   /pg/bin/catalog.sh
+# Author    :   Vonng(fengruohang@outlook.com)
+# Note: This will import foreign database schema into CMDB:
+#         * pg_catalog (pg_statistics not included)
+#         * monitor
+#       All table are organized into a schema named with node id
+#
+#       The default example is
+#       <class{w4}><group{d3}><role{w}><index{d1}> test001m01
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+# module info
+__MODULE_CATALOG="pg-import"
+
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PROG_NAME="$(basename $0)"
+
+
+#--------------------------------------------------------------#
+# Name: import_foreign_schema
+# Desc: Import remote pg_catalog into a meta database
+# Arg1: CMDB postgres url   (default to local database named meta)
+# Arg2: target postgres url (with id as query parameter)
+# Note: Run this as root
+#--------------------------------------------------------------#
+function import_foreign_schema(){
+	# parse pg url style argument
+	local meta=${1-"meta"}
+	local pgurl=${2}
+
+
+	local proto="$(echo ${pgurl} | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+	local urlbody="$(echo ${pgurl/${proto}/})"
+	proto=${proto%%"://"}
+	local user="$(echo ${urlbody} | grep @ | cut -d@ -f1)"
+	local host="$(echo ${urlbody/${user}@/} | cut -d/ -f1)"
+	local pass=$(echo ${user} | grep : | cut -d: -f2)
+	[[ -n "${pass}" ]] && user=$(echo ${user} | grep : | cut -d: -f1)
+	local port="$(echo ${host} | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+	host=${host%%":${port}"}
+	local urlpath="$(echo ${urlbody} | grep / | cut -d/ -f2-)"
+	local queries="$(echo ${urlpath} | grep '?' | cut -d'?' -f2)"
+	[[ -n "${queries}" ]] && urlpath="$(echo ${urlpath} | grep '?' | cut -d'?' -f1)"
+
+	local node_id=$(echo ${queries} | grep -Eo 'id=([^&]*)')
+	node_id=${node_id##'id='}
+
+	if [[ -z "${node_id}" ]]; then
+		echo "error: node_id is required to import remote catalog"
+		return 1
+	fi
+
+	if [[ -z ${host} ]]; then
+		echo "error: hostname is required to import remote catalog"
+		return 2
+	fi
+
+	local dbname=${urlpath-'postgres'}
+	[[ -z "${user}" ]] && user="postgres"
+	[[ -z "${pass}" ]] && pass="postgres"
+	[[ -z "${port}" ]] && port="5432"
+
+
+	psql -1qAt ${meta} <<- SQL
+	CREATE SCHEMA IF NOT EXISTS "${node_id}";
+
+	CREATE SERVER IF NOT EXISTS "${node_id}"
+	FOREIGN DATA WRAPPER postgres_fdw
+	OPTIONS (host '${host}', port '${port}', dbname '${dbname}');
+
+	CREATE USER MAPPING IF NOT EXISTS FOR postgres
+	SERVER "${node_id}" OPTIONS (user '${user}', password '${pass}');
+
+	IMPORT FOREIGN SCHEMA pg_catalog
+	EXCEPT (pg_attribute, pg_replication_slots, pg_statistic, pg_stats)
+	FROM SERVER "${node_id}" INTO "${node_id}";
+
+	IMPORT FOREIGN SCHEMA monitor
+	FROM SERVER "${node_id}" INTO "${node_id}";
+
+	CREATE FOREIGN TABLE IF NOT EXISTS "${node_id}".pg_replication_slots(
+	  slot_name           name,
+	  plugin              name,
+	  slot_type           text,
+	  datoid              oid,
+	  database            name,
+	  temporary           boolean,
+	  active              boolean,
+	  active_pid          integer,
+	  catalog_xmin        text,
+	  restart_lsn         pg_lsn,
+	  confirmed_flush_lsn pg_lsn
+	) SERVER "${node_id}" OPTIONS (schema_name 'pg_catalog', table_name 'pg_replication_slots');
+
+
+	CREATE FOREIGN TABLE IF NOT EXISTS "${node_id}".pg_stats(
+	  schemaname  name,
+	  tablename   name,
+	  attname     name,
+	  inherited   boolean,
+	  null_frac   real,
+	  avg_width   integer,
+	  n_distinct  real,
+	  correlation real
+	) SERVER "${node_id}" OPTIONS (schema_name 'pg_catalog', table_name 'pg_stats');
+
+	CREATE MATERIALIZED VIEW IF NOT EXISTS "${node_id}".pg_logs AS
+	SELECT * FROM "${node_id}".pg_log ORDER BY log_time;
+
+	INSERT INTO nodes (id, name, port, dbname, username, password) VALUES
+	('${node_id}', '${host}', '${port}', '${dbname}', '${user}', '${pass}')
+	ON CONFLICT(id) DO NOTHING;
+
+	SQL
+	return $?
+}
+
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+import_foreign_schema $@
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+# Example usage:
+#   catalog.sh meta 'postgres://postgres:postgres@primary.test.pg:5432/test?id=test001m01'
+#   catalog.sh meta 'postgres://postgres:postgres@standby.test.pg:5432/test?id=test001s01'
+#   catalog.sh meta 'postgres://postgres:postgres@offline.test.pg:5432/test?id=test001o01'
+
+# Args:
+#   $1  CMDB URL   (use meta)
+#   $2  Target URL
+#
+#==============================================================#

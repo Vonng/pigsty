@@ -1,0 +1,78 @@
+---
+#------------------------------------------------------------------------------
+# postgres
+#------------------------------------------------------------------------------
+- name: Write default userpass to .pgpass
+  tags: pg_pass
+  become_user: "{{ pg_dbsu }}"
+  when: gp_role == 'master'
+  block:
+    - name: Add dbsu password to pgpass if exists
+      when: pg_dbsu_password is defined and pg_dbsu_password != ''
+      shell: /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
+
+    - name: Add system user to pgpass
+      shell: /pg/bin/pg-pass-add "{{ item.username }}" "{{ item.password }}"
+      with_items:
+        - { username: "{{ pg_replication_username }}", password: "{{ pg_replication_password }}" }
+        - { username: "{{ pg_monitor_username }}" ,password: "{{ pg_monitor_password }}" }
+        - { username: "{{ pg_admin_username }}", password: "{{ pg_admin_password }}" }
+
+
+#------------------------------------------------------------------------------
+# PG Default Roles
+#------------------------------------------------------------------------------
+- include_tasks: createuser.yml
+  tags: pg_role
+  when: gp_role == 'master'
+  vars:
+    user: "{{ item }}"
+  with_items: "{{ pg_default_roles }}"
+
+#------------------------------------------------------------------------------
+# Users
+#------------------------------------------------------------------------------
+- include_tasks: createuser.yml
+  tags: pg_user
+  when: gp_role == 'master'
+  vars:
+    user: "{{ item }}"
+  with_items: "{{ pg_users }}"
+
+
+##------------------------------------------------------------------------------
+## Databases
+##------------------------------------------------------------------------------
+- include_tasks: createdb.yml
+  tags: pg_db
+  vars:
+    database: "{{ item }}"
+  with_items: "{{ pg_databases }}"
+
+
+
+##------------------------------------------------------------------------------
+## Write HBA
+##------------------------------------------------------------------------------
+#- name: Write HBA Rules
+#  tags: pg_hba
+#  become_user: "{{ pg_dbsu }}"
+#  when: gp_role == 'master'
+#  block:
+#    - name: Render hba rules
+#      template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
+#
+#    - name: Reload hba rules
+#      when: pg_reload|bool
+#      shell: |
+#        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload
+#
+#
+##------------------------------------------------------------------------------
+## Pgbouncer Reload
+##------------------------------------------------------------------------------
+#- name: Reload pgbouncer to add db and users
+#  tags: pgbouncer_reload
+#  systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
+
+...

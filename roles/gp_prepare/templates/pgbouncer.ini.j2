@@ -1,0 +1,30 @@
+# PGBOUNCER CONFIGURATION FILE
+# FILE PATH : /etc/pgbouncer/pgbouncer.ini
+
+[databases]
+%include /etc/pgbouncer/database.txt
+
+
+[pgbouncer]
+pool_mode                   = {{ pgbouncer_poolmode }}
+listen_addr                 = *
+listen_port                 = {{ pgbouncer_port }}
+auth_type                   = hba
+auth_file                   = /etc/pgbouncer/userlist.txt
+auth_hba_file               = /etc/pgbouncer/pgb_hba.conf
+pidfile                     = /var/run/postgresql/pgbouncer.pid
+logfile                     = /var/log/pgbouncer/pgbouncer.log
+unix_socket_dir             = {% if pg_localhost == '/tmp' %}/tmp{% else %}/var/run/postgresql{% endif %}
+
+admin_users                 = {{ pg_dbsu }}, {{ pg_admin_username }}
+stats_users                 = {{ pg_dbsu }}, {{ pg_monitor_username }}
+server_reset_query          =
+application_name_add_host   = 1
+max_client_conn             = 20000
+default_pool_size           = 64
+reserve_pool_size           = 32
+reserve_pool_timeout        = 5
+max_db_connections          = {{ pgbouncer_max_db_conn }}
+log_connections             = 0
+log_disconnections          = 0
+ignore_startup_parameters   = extra_float_digits

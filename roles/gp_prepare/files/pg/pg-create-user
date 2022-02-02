@@ -1,0 +1,91 @@
+#!/bin/bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-create-user
+# Ctime     :   2020-12-16
+# Mtime     :   2020-12-17
+# Desc      :   create postgres user
+# Path      :   /pg/bin/pg-create-user
+# Depend    :   psql
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+			pg-create-user   -- create postgres user
+
+		SYNOPSIS
+			pg-create-user <username> [password] [option] [comments]
+
+		DESCRIPTION
+			pg-create-user will assure given user exists with given options and password
+
+		EXAMPLES
+			pg-create-user dbuser_admin Admin.Password 'BYPASSRLS' 'role for admin'
+
+	EOF
+	exit 1
+}
+
+#--------------------------------------------------------------#
+# Name: pg-create-user
+# Arg1: username	: username
+# Arg2: password	: 'NULL' to unset, 'KEEP' to retain, 'AUTO' to generate
+# Arg3: options		: NOINHERIT LOGIN, etc...
+# Arg4: comment
+# Note: if user already exists, it still change options (compare to createuser)
+#--------------------------------------------------------------#
+function pg-create-user(){
+	local username=${1}
+	local password=${2-''}
+	local options=${3-'NOINHERIT LOGIN'}
+	local comments=${4-"pgsql user ${username}"}
+
+	# normalize option: force overwrite login option
+	options=$(echo " ${options}" | sed 's/ LOGIN/ /Ig' | sed 's/ NOLOGIN/ /Ig')
+	options="${options} LOGIN"
+
+	# set password to null if empty password is given
+	local password_string="'${password}'"
+	if [[ -z "${password}" ]] || [[ "${password}" == "NULL" ]]; then
+		password_string='NULL'
+	fi
+
+	local role_exists=$(psql -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '${username}' LIMIT 1)")
+	if [[ -z "${role_exists}" ]]; then
+		echo "CREATE USER ${username} ${options} PASSWORD ${password_string}; -- ${comments}"
+		psql -AXtwq postgres <<-EOF
+			CREATE USER "${username}";
+			ALTER ROLE "${username}" PASSWORD ${password_string} ${options};
+			COMMENT ON ROLE "${username}" IS '${comments}';
+		EOF
+	else
+		echo "ALTER USER ${username} ${options} PASSWORD ${password_string}; -- ${comments}"
+		psql -AXtwq postgres <<-EOF
+			ALTER USER "${username}" PASSWORD ${password_string} ${options};
+			COMMENT ON ROLE "${username}" IS '${comments}';
+		EOF
+	fi
+}
+
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+if (( $# < 1 )); then
+	usage
+fi
+case "$1" in
+	-h | --help) usage ;;
+esac
+
+pg-create-user "$@"

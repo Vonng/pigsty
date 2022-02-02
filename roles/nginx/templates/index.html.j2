@@ -135,77 +135,7 @@
         </div>
         </br>
 
-        </br>
-        <details>
-        <summary>PgSQL Inventory</summary>
 
-        <div align=center>
-
-            <table>
-                <thead>
-                <tr>
-                    <th align="center">Instance</th>
-                    <th align="center" width="180px">Node IP</th>
-                    <th align="center">Traffic</th>
-                </tr>
-                </thead>
-                <tbody>
-{% for ip in hostvars  if 'pg_cluster' in hostvars[ip] %}
-{% set instance = hostvars[ip] %}
-                        <tr>
-                        <td align="center" margin-left="40px"><a href="{{ grafana_domain }}/d/pgsql-cluster?var-cls={{ instance.pg_cluster }}"><code style="color: #3c5aa1">{{ instance.pg_cluster }}</code></a>-
-                            {% if instance.pg_role == 'primary' %}
-                            <a href="{{ grafana_domain }}/d/pgsql-instance?var-ins={{ instance.pg_cluster }}-{{ instance.pg_seq }}"><code style="color: #ad7022">{{ instance.pg_seq }}</code></a></td>
-                        {% else %}
-                        <a href="{{ grafana_domain }}/d/pgsql-instance?var-ins={{ instance.pg_cluster }}-{{ instance.pg_seq }}"><code style="color: #608248">{{ instance.pg_seq }}</code></a></td>
-                        {% endif %}
-                        <td align="center" margin-left="40px"><a href="{{ grafana_domain }}/d/pgsql-node?var-ip={{ instance.inventory_hostname }}"><code>{{ instance.inventory_hostname }}</code></a></td>
-                        <td align="center" margin-left="40px"><a href="{{ home_domain }}/{{ instance.pg_cluster }}-{{ instance.pg_seq }}/"><code style="color: #873244">⏻</code></a></td>
-                        </tr>
-{% endfor %}
-                </tbody>
-            </table>
-        </div>
-        </details>
-
-
-        </br>
-        <details>
-        <summary>Redis Inventory</summary>
-
-        <div align=center>
-
-            <table>
-                <thead>
-                <tr>
-                    <th align="center">Redis Node</th>
-                    <th align="center" width="180px">Node IP</th>
-                    <th align="center">Instances</th>
-                </tr>
-                </thead>
-                <tbody>
-{% for ip in hostvars  if 'redis_cluster' in hostvars[ip] %}
-{% set instance = hostvars[ip] %}
-                        <tr>
-                        <td align="center" margin-left="40px"><a href="{{ grafana_domain }}/d/redis-cluster?var-cls={{ instance.redis_cluster }}"><code style="color: #3c5aa1">{{ instance.redis_cluster }}</code></a>-
-                        <a href="{{ grafana_domain }}/d/redis-cluster?var-cls={{ instance.redis_cluster }}"><code style="color: #608248">{{ instance.redis_node }}</code></a></td>
-                        <td align="center" margin-left="40px"><a href="{{ grafana_domain }}/d/pgsql-node?var-ip={{ instance.inventory_hostname }}"><code>{{ instance.inventory_hostname }}</code></a></td>
-                        <td align="center" margin-left="40px">
-                        {% for ins_port in instance.redis_instances if 'redis_instances' in instance %}
-                        <a href="{{ grafana_domain }}/d/redis-instance?var-ins={{ instance.redis_cluster }}-{{ instance.redis_node }}-{{ ins_port }}"><code style="color: #873244">{{ ins_port }}</code></a>
-                        {% endfor %}
-                        </td>
-
-                        </tr>
-{% endfor %}
-                </tbody>
-            </table>
-        </div>
-        </details>
-
-
-
-        </br>
         <p><a href="https://pigsty.cc">Document</a><a href="http://{{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}">Monitoring</a></p>
 
 

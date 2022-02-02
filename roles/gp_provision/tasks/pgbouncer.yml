@@ -1,0 +1,102 @@
+---
+#------------------------------------------------------------------------------
+# Check pgbouncer installed
+#------------------------------------------------------------------------------
+- name: Check pgbouncer is installed
+  tags: pgbouncer_check
+  shell: "[[ -f /bin/pgbouncer ]]"
+
+
+#------------------------------------------------------------------------------
+# Cleanup existing pgbouncer
+#------------------------------------------------------------------------------
+- name: Clean existing pgbouncer
+  tags: pgbouncer_clean
+  block:
+    - name: Stop existing pgbouncer service
+      ignore_errors: true
+      systemd: name=pgbouncer state=stopped enabled=no daemon_reload=yes
+
+    - name: Remove existing pgbouncer dirs
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/pgbouncer
+        - /var/log/pgbouncer
+        - /var/run/pgbouncer
+
+    - name: Recreate dirs with owner postgres
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
+      with_items:
+        - /etc/pgbouncer
+        - /var/log/pgbouncer
+        - /var/run/pgbouncer
+
+
+#------------------------------------------------------------------------------
+# Config pgbouncer
+#------------------------------------------------------------------------------
+- name: Config pgbouncer
+  tags: pgbouncer_config
+  block:
+    - name: Copy /etc/pgbouncer/pgbouncer.ini
+      tags: pgbouncer_ini
+      template: src=pgbouncer.ini.j2 dest=/etc/pgbouncer/pgbouncer.ini owner={{ pg_dbsu }} group=postgres mode=0600
+
+    - name: Copy /etc/pgbouncer/pgb_hba.conf
+      tags: pgbouncer_hba
+      template: src=pgb_hba.conf.j2 dest=/etc/pgbouncer/pgb_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
+
+    - name: Touch userlist and database list
+      file: path=/etc/pgbouncer/{{ item }} state=touch owner={{ pg_dbsu }} group=postgres mode=0600
+      with_items:
+        - database.txt
+        - userlist.txt
+
+    - name: Add default users to pgbouncer
+      become_user: "{{ pg_dbsu }}"
+      shell: |
+        /pg/bin/pgbouncer-create-user "{{ pg_dbsu }}"  NULL
+        /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" "{{ pg_monitor_password }}"
+        /pg/bin/pgbouncer-create-user "{{ pg_admin_username }}" "{{ pg_admin_password }}"
+
+    - name: Init pgbouncer business database list
+      tags: pgbouncer_db
+      ignore_errors: true
+      become_user: "{{ pg_dbsu }}"
+      shell: /pg/bin/pgbouncer-create-db '{{ database.name }}'
+      vars:
+        database: "{{ item }}"
+      with_items: "{{ pg_databases }}"
+
+    - name: Init pgbouncer business user list
+      tags: pgbouncer_user
+      when: user.pgbouncer is defined and user.pgbouncer|bool
+      ignore_errors: true
+      become_user: "{{ pg_dbsu }}"
+      shell: /pg/bin/pgbouncer-create-user '{{ user.name }}' '{% if 'password' in user %}{{ user.password }}{% else %}auto{% endif %}'
+      vars:
+        user: "{{ item }}"
+      with_items: "{{ pg_users }}"
+
+
+#------------------------------------------------------------------------------
+# Launch pgbouncer
+#------------------------------------------------------------------------------
+- name: Launch pgbouncer
+  tags: pgbouncer_launch
+  block:
+    # pgbouncer systemd services
+    - name: Copy pgbouncer systemd service
+      template: src=pgbouncer.service.j2 dest=/etc/systemd/system/pgbouncer.service owner=root mode=0644
+
+    - name: Launch pgbouncer pool service
+      systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pgbouncer service online
+      wait_for: host=127.0.0.1 port={{ pgbouncer_port }} state=started timeout=10
+
+    - name: Check pgbouncer service is ready
+      become_user: "{{ pg_dbsu }}"
+      command: /usr/pgsql/bin/pg_isready -p {{ pgbouncer_port }}
+
+...

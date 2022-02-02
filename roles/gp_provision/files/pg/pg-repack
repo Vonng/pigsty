@@ -1,0 +1,261 @@
+#!/bin/bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-repack
+# Ctime     :   2018-05-18
+# Mtime     :   2020-12-17
+# Desc      :   repack bloat tables and indexes
+# Path      :   /pg/bin/pg-repack
+# Depend    :   pg_repack, psql, monitor views
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+# psql & pg_repack PATH
+export PATH=/usr/pgsql/bin:${PATH}
+
+#==============================================================#
+#                             Utils                            #
+#==============================================================#
+# logger functions
+function log_debug() {
+    [ -t 2 ] && printf "\033[0;34m[$(date "+%Y-%m-%d %H:%M:%S")][DEBUG] $*\033[0m\n" >&2 ||\
+     printf "[$(date "+%Y-%m-%d %H:%M:%S")][DEBUG] $*\n" >&2
+}
+function log_info() {
+    [ -t 2 ] && printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\033[0m\n" >&2 ||\
+     printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" >&2
+}
+function log_warn() {
+    [ -t 2 ] && printf "\033[0;33m[$(date "+%Y-%m-%d %H:%M:%S")][WARN] $*\033[0m\n" >&2 ||\
+     printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" >&2
+}
+function log_error() {
+    [ -t 2 ] && printf "\033[0;31m[$(date "+%Y-%m-%d %H:%M:%S")][ERROR] $*\033[0m\n" >&2 ||\
+     printf "[$(date "+%Y-%m-%d %H:%M:%S")][INFO] $*\n" >&2
+}
+
+# get primary IP address
+function local_ip(){
+    # ip range in 10.xxx.xxx.xx
+    echo $(/sbin/ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '10\.([0-9]*\.){2}[0-9]*')
+}
+
+
+# send mail via mail service
+function send_mail(){
+    local subject=$1
+    local content=$2
+    local to=${3-"fengruohang@p1.com"}
+    local mail_service="http://10.191.167.134:28888/v1/sendmail/"
+
+    curl -s -d "subject=${subject}&content=${content}&to=${to}" ${mail_service} > /dev/null
+}
+
+# slave returns 't', psql access required
+function is_slave(){
+    local db=$1
+    echo $(psql ${db} -Atqc "SELECT pg_is_in_recovery();")
+}
+
+# kill vacuum queries to avoid contention, psql access required
+function kill_queries(){
+    local db=$1
+    kill_count=$(psql ${db} -qAt <<-'EOF'
+    SELECT count(pg_cancel_backend(pid))
+    FROM pg_stat_activity
+    WHERE state <> 'idle' AND pid <> pg_backend_pid()
+          AND (query ~* 'vacuum' or query ~* 'analyze');
+EOF
+2>/dev/null)
+    echo ${kill_count}
+}
+
+#==============================================================#
+#                         Repack Tables                        #
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: repack_tables
+# Desc: repack table via fullname
+# Arg1: database_name
+# Argv: list of table full name
+# Deps: psql
+#--------------------------------------------------------------#
+# repack single table
+function repack_tables(){
+    local db=$1
+    shift
+
+    log_info "repack ${db} tables begin"
+    log_info "repack table list: $@"
+
+    for relname in $@
+    do
+        old_size=$(psql ${db} -AXtqc "SELECT pg_size_pretty(pg_relation_size('${relname}'));")
+        # kill_queries ${db}
+        log_info "repack table ${relname} begin, old size: ${old_size}"
+        pg_repack ${db} -T 10 -j 6 -t ${relname}
+        new_size=$(psql ${db} -AXtqc "SELECT pg_size_pretty(pg_relation_size('${relname}'));")
+        log_info "repack table ${relname} done , new size: ${old_size} -> ${new_size}"
+    done
+
+    log_info "repack ${db} tables done"
+}
+
+
+#--------------------------------------------------------------#
+# Name: get_bloat_tables
+# Desc: find bloat tables in given database match some condition
+# Arg1: database_name
+# Echo: list of full table name
+# Deps: psql, monitor.pg_table_bloat
+#--------------------------------------------------------------#
+function get_bloat_tables(){
+    echo $(psql ${1} -AXtq <<-'EOF'
+WITH bloat_tables AS (
+    SELECT
+    nspname || '.' || relname as relname,
+    size / 1024 AS actual_mb,
+    ratio AS bloat_pct
+    FROM monitor.pg_table_bloat
+    WHERE nspname NOT IN ('dba', 'monitor', 'trash')
+    ORDER BY 2 DESC,3 DESC
+)
+-- 64 small + 16 medium + 4 large
+(SELECT relname FROM bloat_tables WHERE actual_mb < 256 AND bloat_pct > 40 ORDER BY bloat_pct DESC LIMIT 64) UNION
+(SELECT relname FROM bloat_tables WHERE actual_mb BETWEEN 256 AND 1024  AND bloat_pct > 30 ORDER BY bloat_pct DESC LIMIT 16) UNION
+(SELECT relname FROM bloat_tables WHERE actual_mb BETWEEN 1024 AND 4096  AND bloat_pct > 20 ORDER BY bloat_pct DESC  LIMIT 4);
+EOF
+)
+}
+
+#==============================================================#
+#                        Repack Indexes                        #
+#==============================================================#
+
+
+#--------------------------------------------------------------#
+# Name: repack_indexes
+# Desc: repack index via fullname
+# Arg1: database_name
+# Argv: list of index full name
+# Deps: psql
+#--------------------------------------------------------------#
+# repack single table
+function repack_indexes(){
+    local db=$1
+    shift
+
+    log_info "repack ${db} indexes begin"
+    log_info "repack index list: $@"
+
+    for fullname in $@
+    do
+        local nspname=$(echo $2 | awk -F'.' '{print $1}')
+        local idxname=$(echo $2 | awk -F'.' '{print $2}')
+
+        old_size=$(psql ${db} -AXtqc "SELECT pg_size_pretty(pg_relation_size('${fullname}'));")
+        log_info "repack index ${nspname}.${idxname} begin, old size: ${old_size}"
+
+        # drop possible repack remains & kill auto maintain tasks
+        indexrelid=$(psql $db -AXtqc "SELECT indexrelid FROM pg_stat_user_indexes WHERE schemaname='$nspname' AND indexrelname = '$idxname';")
+        log_warn "remove possible repack legacy index ${nspname}.index_${indexrelid}"
+        psql ${db} -qAtc "DROP INDEX CONCURRENTLY IF EXISTS ${nspname}.index_${indexrelid}" 1> /dev/null 2> /dev/null
+        kill_count=$(kill_queries ${db})
+        log_warn "kill ${kill_count} queries before repack index ${fullname}"
+
+        pg_repack ${db} -T 10 -i ${fullname}
+        new_size=$(psql ${db} -AXtqc "SELECT pg_size_pretty(pg_relation_size('${fullname}'));")
+        log_info "repack index ${fullname} done , new size: ${old_size} -> ${new_size}"
+    done
+
+    log_info "repack ${db} indexes done"
+}
+
+
+
+
+#--------------------------------------------------------------#
+# Name: get_bloat_indexes
+# Desc: find bloat index in given database match some condition
+# Arg1: database_name
+# Echo: list of full index name
+# Deps: psql, monitor.pg_index_bloat
+#--------------------------------------------------------------#
+function get_bloat_indexes(){
+    echo $(psql ${1} -AXtq <<-'EOF'
+WITH indexes_bloat AS (
+    SELECT
+        nspname || '.' || relname as idx_name,
+        size / 1024 AS actual_mb,
+        ratio AS bloat_pct
+    FROM monitor.pg_index_bloat
+    WHERE nspname NOT IN ('dba', 'monitor')
+    ORDER BY 2 DESC,3 DESC
+)
+-- 64 small + 16 medium + 4 large + 1 top + custom
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb < 128 AND bloat_pct > 40 ORDER BY bloat_pct DESC LIMIT 64) UNION
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 128 AND 512 AND bloat_pct > 35 ORDER BY bloat_pct DESC LIMIT 16) UNION
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 512 AND 2048 AND bloat_pct > 30 ORDER BY bloat_pct DESC LIMIT 4) UNION
+(SELECT idx_name FROM indexes_bloat WHERE actual_mb BETWEEN 2048 AND 4096 AND bloat_pct > 25 ORDER BY bloat_pct DESC LIMIT 1);
+EOF
+)
+}
+
+#--------------------------------------------------------------#
+# Name: repack
+# Desc: repack top table & index in given database
+# Arg1: database_name
+#--------------------------------------------------------------#
+function repack_database(){
+    local db=$1
+
+    if [[ $(is_slave ${db}) == "t" ]]; then
+        log_error "slave can't perform repack. do it on master"
+        exit
+    fi
+
+    log_info "repack database ${db} begin"
+
+    repack_tables ${db} $(get_bloat_tables ${db})
+    repack_indexes ${db} $(get_bloat_indexes ${db})
+
+    log_info "repack database ${db} done"
+}
+
+#--------------------------------------------------------------#
+# Name: repack
+# Desc: repack all database in local cluster
+#--------------------------------------------------------------#
+function repack(){
+    local lock_path="/tmp/repack.lock"
+    log_info "rountine repack begin, lock @ ${lock_path}"
+
+    if [ -e ${lock_path} ] && kill -0 $(cat ${lock_path}); then
+        log_error "repack already running: $(cat ${lock_path})"
+        exit
+    fi
+    trap "rm -f ${lock_path}; exit" INT TERM EXIT
+    echo $$ > ${lock_path}
+
+
+    local databases=$(psql -AXtqc "SELECT datname FROM pg_database WHERE datname NOT IN ('template0','template1','postgres');")
+    log_info "repack all database in local cluster: ${databases}"
+    for database in ${databases}
+    do
+        repack_database ${database}
+    done
+
+    # remove lock
+    rm -f ${lock_path}
+    log_info "routine repack done"
+}
+
+
+repack

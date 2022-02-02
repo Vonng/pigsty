@@ -1,0 +1,41 @@
+#!/bin/bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-cluster
+# Ctime     :   2020-12-17
+# Mtime     :   2020-12-17
+# Desc      :   return pgsql cluster name
+# Path      :   /pg/bin/pg-cluster
+# Depend    :   psql
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+
+# get pg_cluster from local conn or meta file
+function pg-cluster() {
+	local cluster_name=$(psql -AXtwqc "SHOW cluster_name")
+	if [[ ! -z "${cluster_name}" ]]; then
+		echo ${cluster_name}
+		return 0
+	fi
+
+	cluster_name=$(cat /pg/meta/cluster)
+	if [[ ! -z "${cluster_name}" ]]; then
+		echo ${cluster_name}
+		return 0
+	fi
+    return 1
+}
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+pg-cluster

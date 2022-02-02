@@ -1,0 +1,90 @@
+#!/bin/bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pgbouncer-create-user
+# Mtime     :   2021-03-29
+# Desc      :   add user to pgbouncer pool
+# Path      :   /pg/bin/pgbouncer-create-user
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+#--------------------------------------------------------------#
+# use AUTO or "" as password will fetch from database
+# use NULL as password will set empty password ""
+# md5 password will be used directly
+# other password will be calc by pg md5 salt algorithm
+#--------------------------------------------------------------#
+
+#--------------------------------------------------------------#
+# Test Cases
+# pgbouncer-create-user dbp_vonng
+# pgbouncer-create-user dbp_vonng auto
+# pgbouncer-create-user dbp_vonngNE auto  # Not Exist Error
+# pgbouncer-create-user dbp_vonng null
+# pgbouncer-create-user dbp_vonng md596bceae83ba2937778af09adf00ae738
+# pgbouncer-create-user dbp_vonng md596bceae83ba29377
+# pgbouncer-create-user dbp_vonng Test.Password
+#--------------------------------------------------------------#
+
+
+#--------------------------------------------------------------#
+# Name: pgbouncer-create-user
+# Desc: Add or modify pgbouncer userlist
+# Arg1: username (required)
+# Arg2: password (optional)
+# Note: Run this as dbsu (postgres)
+#--------------------------------------------------------------#
+function pgbouncer-create-user() {
+    local username=$1
+    local password=${2-''}
+    local userlist=${3-'/etc/pgbouncer/userlist.txt'}
+    local entry="\"${username}\" \"\""         # "username" ""
+    mkdir -p /etc/pgbouncer/
+    touch ${userlist}
+
+    case ${password} in
+    NULL | null) # force empty password
+        entry="\"${username}\" \"\""             # "username" ""
+        echo "use nil md5pwd: ${entry}"
+        ;;
+    AUTO | auto | "") # fetch db password
+        entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE usename = '${username}'" 2>/dev/null)
+        if [[ ! -z ${entry} ]]; then
+            echo "md5pwd fetched via postgres: ${entry}"
+        else        # recursive and try other method
+            if [[ -z ${password} ]]; then             # error: user not found
+                echo "ERROR: empty password is given and user ${username} not found"
+                exit 1
+            elif [[ ${password} == md5* ]] && [[ ${#password} == 35 ]]; then
+                entry="\"${username}\" \"${password}\""
+                echo "fallback on given md5pwd: ${entry}"
+            else
+                local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
+                entry="\"${username}\" \"${md5_mon_pass}\""
+                echo "fallback on calc md5pwd: ${entry}"
+            fi
+        fi
+        ;;
+    *)
+        if [[ ${password} == md5* ]] && [[ ${#password} == 35 ]]; then # just use the md5password
+            entry="\"${username}\" \"${password}\""
+            echo "md5pwd given: ${entry}"
+        else
+            local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
+            entry="\"${username}\" \"${md5_mon_pass}\""
+            echo "md5pwd calculated: ${entry}"
+        fi
+        ;;
+    esac
+
+    # if username already exists
+    if grep -q ${username} ${userlist}; then
+        sed -i "/^\"${username}\"[[:blank:]]*.*$/d" ${userlist}
+    fi
+    # write "username" "md5password" to userlist
+    echo "${entry}" >> ${userlist}
+}
+
+pgbouncer-create-user $@
+

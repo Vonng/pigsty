@@ -1,0 +1,78 @@
+#!/bin/bash
+set -uo pipefail
+
+#==============================================================#
+# File      :   pg-create-schema
+# Ctime     :   2020-12-16
+# Mtime     :   2020-12-17
+# Desc      :   create schema in target database
+# Path      :   /pg/bin/pg-create-schema
+# Depend    :   psql
+# Author    :   Vonng(fengruohang@outlook.com)
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+PROG_NAME="$(basename $0))"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+
+
+#==============================================================#
+#                             Usage                            #
+#==============================================================#
+function usage() {
+	cat <<-'EOF'
+		NAME
+			pg-create-schema   -- create schema in target database and target schema
+
+		SYNOPSIS
+			pg-create-schema <database> <schema>...
+
+		DESCRIPTION
+			pg-create-schema will create schema(s) in target databases
+
+		EXAMPLES
+			pg-create-schema template1 public,monitor,
+			pg-create-schema postgres public,monitor
+
+
+	EOF
+	exit 1
+}
+
+
+
+#--------------------------------------------------------------#
+# Name: pg-create-schema
+# Desc: create schema in target database and target schema
+# Arg1: database name, template1 by default
+# ArgN: schema name, public by default
+#--------------------------------------------------------------#
+function pg-create-schema(){
+	local database=${1-'template1'}
+	shift
+	if (( $# == 0 )); then
+		echo "at least one schema is needed"
+		return 1
+	fi
+
+	echo "CREATE SCHEMA $@;"
+	for schema_name in "$@"
+	do
+		psql -qAXtw "${database}" <<-EOF
+			CREATE SCHEMA IF NOT EXISTS "${schema_name}";
+		EOF
+	done
+}
+
+
+#==============================================================#
+#                             Main                             #
+#==============================================================#
+if (( $# <= 1 )); then
+	usage
+fi
+case "$1" in
+	-h | --help) usage ;;
+esac
+
+pg-create-schema "$@"
