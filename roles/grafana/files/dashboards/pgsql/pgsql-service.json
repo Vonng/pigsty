@@ -18,13 +18,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Postgres Cluster Service",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1643098546932,
+    "iteration": 1644917618883,
     "links": [
         {
             "asDropdown": true,
@@ -153,7 +152,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -353,7 +352,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -668,7 +667,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -809,7 +808,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -887,7 +886,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -986,7 +985,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -1070,11 +1069,15 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus-pgsql"
+                    },
                     "exemplar": true,
-                    "expr": "max(count(haproxy_server_check_status{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
+                    "expr": "max(count(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "{{ cls }}",
@@ -1127,7 +1130,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -1403,7 +1406,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "exemplar": true,
@@ -1492,15 +1495,24 @@
                     },
                     "custom": {
                         "align": "center",
-                        "displayMode": "auto"
+                        "displayMode": "color-background",
+                        "minWidth": 60
                     },
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green",
+                                "color": "#e3e3e3e0",
                                 "value": null
+                            },
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": 0
+                            },
+                            {
+                                "color": "#e02f44bf",
+                                "value": 1
                             }
                         ]
                     }
@@ -1524,55 +1536,10 @@
                                         "url": "/d/pgsql-instance?var-ins=${__data.fields.Server}"
                                     }
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "number"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "blue",
-                                                "index": 1,
-                                                "text": "\u23fb"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "match": "null+nan",
-                                            "result": {
-                                                "color": "gray",
-                                                "index": 0,
-                                                "text": "No Route"
-                                            }
-                                        },
-                                        "type": "special"
-                                    },
-                                    {
-                                        "options": {
-                                            "from": 1,
-                                            "result": {
-                                                "color": "green",
-                                                "index": 2
-                                            },
-                                            "to": 9999999
-                                        },
-                                        "type": "range"
-                                    }
-                                ]
                             },
                             {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
+                                "id": "custom.minWidth",
+                                "value": 100
                             }
                         ]
                     },
@@ -1588,14 +1555,8 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#ff738380",
-                                                "index": 1,
-                                                "text": "\u23fb"
-                                            },
-                                            "1": {
-                                                "color": "dark-orange",
-                                                "index": 2,
-                                                "text": "Primary"
+                                                "color": "#e3e3e3e0",
+                                                "index": 1
                                             }
                                         },
                                         "type": "value"
@@ -1610,6 +1571,17 @@
                                             }
                                         },
                                         "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "#3275d9bf",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
+                                        },
+                                        "type": "range"
                                     }
                                 ]
                             }
@@ -1627,14 +1599,8 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#ffee5280",
-                                                "index": 1,
-                                                "text": "\u23fb"
-                                            },
-                                            "1": {
-                                                "color": "semi-dark-yellow",
-                                                "index": 2,
-                                                "text": "Offline"
+                                                "color": "#e3e3e3e0",
+                                                "index": 1
                                             }
                                         },
                                         "type": "value"
@@ -1649,6 +1615,17 @@
                                             }
                                         },
                                         "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "#f2cc0cbf",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
+                                        },
+                                        "type": "range"
                                     }
                                 ]
                             }
@@ -1666,14 +1643,8 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#ffb35780",
-                                                "index": 1,
-                                                "text": "\u23fb"
-                                            },
-                                            "1": {
-                                                "color": "orange",
-                                                "index": 2,
-                                                "text": "Default"
+                                                "color": "#e3e3e3e0",
+                                                "index": 1
                                             }
                                         },
                                         "type": "value"
@@ -1688,45 +1659,17 @@
                                             }
                                         },
                                         "type": "special"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byRegexp",
-                            "options": "/standby/"
-                        },
-                        "properties": [
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "blue",
-                                                "index": 1,
-                                                "text": "\u23fb"
-                                            },
-                                            "1": {
-                                                "color": "orange",
-                                                "index": 2,
-                                                "text": "Standby"
-                                            }
-                                        },
-                                        "type": "value"
                                     },
                                     {
                                         "options": {
-                                            "match": "null+nan",
+                                            "from": 1,
                                             "result": {
-                                                "color": "gray",
-                                                "index": 0,
-                                                "text": "\u2205"
-                                            }
+                                                "color": "#ff780abf",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
                                         },
-                                        "type": "special"
+                                        "type": "range"
                                     }
                                 ]
                             }
@@ -1744,14 +1687,8 @@
                                     {
                                         "options": {
                                             "0": {
-                                                "color": "#96d98d80",
-                                                "index": 1,
-                                                "text": "\u23fb"
-                                            },
-                                            "1": {
-                                                "color": "green",
-                                                "index": 2,
-                                                "text": "Replica"
+                                                "color": "#e3e3e3e0",
+                                                "index": 1
                                             }
                                         },
                                         "type": "value"
@@ -1766,6 +1703,59 @@
                                             }
                                         },
                                         "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "#55a64bbf",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
+                                        },
+                                        "type": "range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/standby/"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "index": 1
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "options": {
+                                            "match": "null+nan",
+                                            "result": {
+                                                "index": 0,
+                                                "text": "\u2205"
+                                            }
+                                        },
+                                        "type": "special"
+                                    },
+                                    {
+                                        "options": {
+                                            "from": 1,
+                                            "result": {
+                                                "color": "#a352ccb3",
+                                                "index": 2
+                                            },
+                                            "to": 9999999
+                                        },
+                                        "type": "range"
                                     }
                                 ]
                             }
@@ -1779,7 +1769,7 @@
                 "x": 13,
                 "y": 7
             },
-            "id": 79,
+            "id": 94,
             "options": {
                 "footer": {
                     "fields": "",
@@ -1796,7 +1786,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.3.6",
             "targets": [
                 {
                     "datasource": {
@@ -1804,7 +1794,7 @@
                         "uid": "ds-prometheus"
                     },
                     "exemplar": false,
-                    "expr": "max by (proxy,server) (haproxy_server_status{cls=\"$cls\", state=\"UP\"})",
+                    "expr": "max by (proxy,server) (\n    haproxy_server_current_sessions{cls=\"$cls\"}\n)",
                     "format": "time_series",
                     "instant": true,
                     "interval": "",
@@ -2660,5 +2650,6 @@
     "title": "PGSQL Service",
     "uid": "pgsql-service",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
