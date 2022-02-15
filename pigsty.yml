@@ -189,10 +189,10 @@ all: # top-level namespace
           - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
             src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
             src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
-            dst_port: postgres              # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+            dst_port: pgbouncer             # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
             check_method: http              # optional, health check method: http is the only available method for now
             check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-            check_url: /read-only?lag=0     # optional, health check url path, / by default
+            check_url: /sync                # optional, health check url path, /read-only?lag=0 by default
             check_code: 200                 # optional, health check expected http code, 200 by default
             selector: "[]"                  # required, JMESPath to filter inventory ()
             selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
