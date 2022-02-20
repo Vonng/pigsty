@@ -1,5 +1,34 @@
 # Development Log
 
+#### 2022-02-15
+
+* software upgrade
+  * postgres minor version update: 14.1 -> 14.2, 13.5 -> 13.6
+  * prometheus version 2.32
+
+
+#### 2022-02-14
+
+* PGSQL Overview Dashboard Rework
+* PGSQL Cluster Dashboard Reforge
+
+#### 2022-02-13
+
+* Node Overview Dashboard
+* Node Instance Dashboard
+
+#### 2022-02-02
+
+* Add matrixdb support
+
+#### 2022-01-28
+
+* Dashboard adjustment for new label structure
+
+#### 2022-01-25
+
+* Redesign ip based node metrics
+* refactor on pg_exporter node_exporter deployment
 
 #### 2022-01-24
 

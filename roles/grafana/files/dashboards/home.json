@@ -23,7 +23,7 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1644918126869,
+    "iteration": 1645341127502,
     "links": [
         {
             "asDropdown": true,
@@ -133,7 +133,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "blue",
+                                    "fixedColor": "#3274D9",
                                     "mode": "fixed"
                                 }
                             },
@@ -571,8 +571,8 @@
                     "expr": "1",
                     "hide": false,
                     "interval": "",
-                    "legendFormat": "GPSQL",
-                    "refId": "C"
+                    "legendFormat": "REDIS",
+                    "refId": "D"
                 },
                 {
                     "datasource": {
@@ -583,8 +583,8 @@
                     "expr": "1",
                     "hide": false,
                     "interval": "",
-                    "legendFormat": "REDIS",
-                    "refId": "D"
+                    "legendFormat": "GPSQL",
+                    "refId": "C"
                 },
                 {
                     "datasource": {
@@ -1014,11 +1014,11 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red",
+                                "color": "text",
                                 "value": null
                             },
                             {
-                                "color": "blue",
+                                "color": "#3274D9",
                                 "value": 1
                             }
                         ]
@@ -1037,7 +1037,7 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "red",
+                                            "color": "text",
                                             "value": null
                                         },
                                         {
@@ -1061,11 +1061,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "red",
+                                            "color": "text",
                                             "value": null
                                         },
                                         {
-                                            "color": "blue",
+                                            "color": "#3c6388",
                                             "value": 1
                                         }
                                     ]
@@ -1094,11 +1094,11 @@
                                     "mode": "absolute",
                                     "steps": [
                                         {
-                                            "color": "red",
+                                            "color": "text",
                                             "value": null
                                         },
                                         {
-                                            "color": "#3275d9d6",
+                                            "color": "#c13d30",
                                             "value": 1
                                         }
                                     ]
@@ -1110,6 +1110,39 @@
                                     {
                                         "title": "Redis Instance ${__field.labels.ins} @ ${__field.labels.instance}",
                                         "url": "/d/redis-instance?var-ins=${__field.labels.ins}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "D"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "#000000",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "#cc9d00",
+                                            "value": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Nodes Instance : ${__field.labels.ip}",
+                                        "url": "/d/nodes-instance?var-id=${__field.labels.ip}"
                                     }
                                 ]
                             }
@@ -1142,7 +1175,11 @@
             "pluginVersion": "8.3.6",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
                     "expr": "max by (type,instance) (up{job=\"infra\"})",
                     "instant": true,
                     "interval": "",
@@ -1150,7 +1187,11 @@
                     "refId": "A"
                 },
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
                     "expr": "min by (ins) (up{job=\"pgsql\"})",
                     "hide": false,
                     "instant": true,
@@ -1159,8 +1200,12 @@
                     "refId": "B"
                 },
                 {
-                    "exemplar": true,
-                    "expr": "max by (instance,ins) (up{job=\"redis\"})",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "min by (ins) (up{job=\"redis\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
@@ -1168,13 +1213,30 @@
                     "refId": "C"
                 },
                 {
-                    "exemplar": true,
-                    "expr": "max by (instance) (up{job!~\"(infra|pgsql|redis)\"})",
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "min by (ip) (up{job=\"nodes\"})",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "{{ ip }}",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
+                    "expr": "max by (instance) (up{job!~\"(infra|pgsql|redis|nodes)\"})",
                     "hide": false,
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ instance }}",
-                    "refId": "D"
+                    "refId": "E"
                 }
             ],
             "title": "Instances",
