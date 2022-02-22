@@ -1,0 +1,72 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   node.yml
+# Mtime     :   2020-05-12
+# Mtime     :   2022-02-22
+# Desc      :   init node
+# Path      :   node.yml
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#---------------------------------------------------------------
+# node identity
+#---------------------------------------------------------------
+# pg_hostname: use pgsql identity as node identity if applicable
+# if node identity is leaving blank, and pgsql identity exists
+# pgsql instance's cls & ins will be used as node identity too
+#---------------------------------------------------------------
+- name: Node Identity
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: node-id
+  tasks:
+    - name: Overwrite node_cluster with pg_cluster if applicable
+      when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
+      set_fact:
+        node_cluster: "{{ pg_cluster }}"    # use pg_cluster as non-trivial node_cluster name
+
+    - name: Overwrite nodename with pg_cluster and pg_seq if applicable
+      when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
+      set_fact:
+        nodename: "{{ pg_cluster }}-{{ pg_seq }}"
+
+    - debug:
+        msg: "node identity, ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
+
+#---------------------------------------------------------------
+# init node & dcs
+#---------------------------------------------------------------
+- name: Node Init
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: node-init
+  roles:
+
+    # prepare node for use
+    - role: node
+      tags: node
+
+    # init dcs:consul server/agent
+    - role: consul
+      tags: [ dcs, consul ]
+
+
+#---------------------------------------------------------------
+# init monitor for node
+#---------------------------------------------------------------
+- name: Node Monitor
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: node-monitor
+  roles:
+
+    # init & register node exporter
+    - role: node_exporter
+      tags: node_exporter
+
+#---------------------------------------------------------------
+...
