@@ -1,0 +1,32 @@
+---
+#-------------------------------------------------------------------------
+# Overwrite nodename
+#-------------------------------------------------------------------------
+# Setup node name if var nodename is provided
+- name: Setup node name
+  tags: node_name
+  when: nodename is defined and nodename != ''
+  hostname: name="{{ nodename }}"
+
+
+#-------------------------------------------------------------------------
+# Exchange Node name
+#-------------------------------------------------------------------------
+- name: Exchange node name
+  tags: node_name
+  when: node_name_exchange|bool
+  ignore_errors: true
+  block:
+
+    - name: Fetch hostname from server
+      shell: echo $HOSTNAME
+      register: hostname_result
+
+    - name: Exchange hostname among servers
+      lineinfile: path=/etc/hosts line="{{ inventory_hostname }} {{ item[0] }}"
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ hostname_result.stdout }}"
+        - "{{ play_hosts }}"
+
+...

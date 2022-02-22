@@ -1,7 +1,7 @@
 ---
 
 #--------------------------------------------------------------#
-# 0. Setup node timezone (if given)
+# 1. Setup node timezone (if given)
 #--------------------------------------------------------------#
 - name: Setup default node timezone
   tags: node_timezone
@@ -9,7 +9,7 @@
   timezone: name={{ node_timezone }}
 
 #--------------------------------------------------------------#
-# 1. Make sure ntp/chrony package installed
+# 2. Make sure ntp/chrony package installed
 #--------------------------------------------------------------#
 - name: Install ntp or chrony
   tags: [ node_ntp, ntp_config ]
@@ -24,7 +24,7 @@
       package: name=chrony state=present
 
 #--------------------------------------------------------------#
-# 2. Config ntp (when node_ntp_setup is true)
+# 3. Config ntp (when node_ntp_setup is true)
 # if you already have ntp & chronyd settled, use node_ntp_setup = false
 #--------------------------------------------------------------#
 - name: Config ntpd and chronyd service
@@ -38,7 +38,7 @@
       template: src=chrony.conf.j2 dest=/etc/chrony.conf
 
 #--------------------------------------------------------------#
-# 3. Launch ntp
+# 4. Launch ntp
 #--------------------------------------------------------------#
 - name: Launch ntpd and chrony service
   tags: [ node_ntp, ntp_launch ]

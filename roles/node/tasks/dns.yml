@@ -1,37 +1,34 @@
 ---
-
-# update node hostname if specified via host variable
-- name: Update node name
-  tags: node_name
-  when: nodename is defined
-  block:
-    - name: Update node hostname
-      hostname: name="{{ nodename }}"
-
-    - name: Add new hostname to /etc/hosts
-      lineinfile: path=/etc/hosts line="{{ inventory_hostname }} {{ nodename }}"
-
-
-# always write static DNS record
-- name: Update node name
+#------------------------------------------------------------------------------
+# Setup DNS
+#------------------------------------------------------------------------------
+- name: Setup node dns records
   tags: node_dns
   block:
-    - name: Write static dns records
+    - name: Write local nodename to /etc/hosts
+      when: nodename is defined and nodename != ''
+      lineinfile: path=/etc/hosts line="127.0.0.1 {{ nodename }}"
+
+    - name: Write static dns records to /etc/hosts
       when: node_dns_hosts is defined and node_dns_hosts|length > 0
       lineinfile: path=/etc/hosts line="{{ item }}"
       with_items: "{{ node_dns_hosts }}"
 
-    - name: Write extra static dns records
+    - name: Write extra static dns records to /etc/hosts
       when: node_dns_hosts_extra is defined and node_dns_hosts_extra|length > 0
       lineinfile: path=/etc/hosts line="{{ item }}"
       with_items: "{{ node_dns_hosts_extra }}"
 
 
+#------------------------------------------------------------------------------
+# Setup Resolver
+#------------------------------------------------------------------------------
 # add static nameserver to resolv (if node_dns_server != 'none')
-- name: Setup dns resolver
+- name: Setup node dns resolver
   tags: node_resolv
   when: node_dns_server is defined and node_dns_server != 'none'
   block:
+    # add new nameservers to existing nameservers
     - name: Get old nameservers
       when: node_dns_server == 'add'
       shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
