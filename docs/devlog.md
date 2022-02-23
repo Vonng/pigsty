@@ -1,10 +1,15 @@
 # Development Log
 
-#### 2022-02-15
+#### 2022-02-22
 
 * software upgrade
-  * postgres minor version update: 14.1 -> 14.2, 13.5 -> 13.6
-  * prometheus version 2.32
+  * postgres minor version update: 14.1 -> 14.2 
+  * prometheus version 2.3
+  * timescaledb 2.6.0
+  * postgis 3.2
+  * grafana 8.4
+
+* add ins , cls label to node metrics
 
 
 #### 2022-02-14

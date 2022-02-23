@@ -407,6 +407,8 @@ new4: del4 up4
 s4: sync4
 sync4:  # sync time
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
+ss:
+	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u ntp.aliyun.com'; true
 
 #------------------------------#
 # misc vm shortcuts
@@ -501,6 +503,7 @@ upload-vagrant:
 	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
+	ssh -t meta 'sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 # upload pigsty resource to terraform vms (ssh alias as 'demo')
 upload-terraform:
