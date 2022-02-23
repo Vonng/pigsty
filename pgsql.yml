@@ -11,7 +11,7 @@
 
 
 #==============================================================#
-# Playbook : Init PGSQL Cluster/Instance
+# Playbook : Init PGSQL Cluster/Instance on Pigsty Node
 #==============================================================#
 #  Init cluster `pg-test`
 #     pgsql.yml -l pg-test
@@ -42,30 +42,12 @@
 #     pgsql.yml --tags=register_nginx       # haproxy admin page
 #==============================================================#
 
-
-#---------------------------------------------------------------
-- name: Infra Init          # init infra on common database node
+# init postgres cluster/instance
+- name: Pgsql Init
   become: yes
   hosts: all
   gather_facts: no
-  tags: infra
-  roles:
-
-    - role: node            # init common database node
-      tags: node
-
-    - role: node_exporter   # init node exporter
-      tags: node_exporter
-
-    - role: consul          # init dcs:consul clients
-      tags: dcs
-
-#---------------------------------------------------------------
-- name: Pgsql Init          # init postgres cluster/instance
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: pgsql
+  tags: pgsql-init
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
@@ -77,8 +59,8 @@
     - role: pg_exporter     # init monitor exporters
       tags: pg_exporter
 
-    - role: pgsql_register  # register postgres cluster/instance to infra
-      tags: register
+    - role: pg_register     # register postgres cluster/instance to infra
+      tags: pg_register
 
 #---------------------------------------------------------------
 ...

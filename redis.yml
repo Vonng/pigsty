@@ -3,34 +3,52 @@
 #==============================================================#
 # File      :   redis.yml
 # Mtime     :   2020-11-22
-# Mtime     :   2022-01-22
-# Desc      :   init redis instance
+# Mtime     :   2022-02-22
+# Desc      :   init redis instance on pigsty nodes
 # Path      :   redis.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
+# install redis on target nodes
+#---------------------------------------------------------------
+- name: Install Redis
+  hosts: all
+  become: true
+  gather_facts: no
+  tags: redis-install
+  tasks:
+    - name: Install redis and exporter
+      package: name={{ item }} state=present
+      with_items: [ redis , redis_exporter ]
+
+
+#---------------------------------------------------------------
+# launch redis instance on nodes
+#---------------------------------------------------------------
 - name: Setup Redis
   hosts: all
   become: true
   gather_facts: no
-
+  tags: redis-setup
   roles:
-    - role: node              # node setup
-      tags: node
-      vars:                   # install redis on redis nodes
-        node_extra_packages: [ redis, redis_exporter ]
-
-    - role: node_exporter     # node exporter setup
-      tags: [ monitor , node_exporter ]
-
     - role: redis             # redis setup
       tags: redis
 
-    - role: redis_exporter    # redis exporter setup
-      tags: [ redis, monitor, redis_exporter ]
 
 #---------------------------------------------------------------
+# setup monitor for redis instances
+#---------------------------------------------------------------
+- name: Monitor Redis
+  hosts: all
+  become: true
+  gather_facts: no
+  tags: redis-monitor
+  roles:
+    - role: redis_exporter    # redis exporter setup
+      tags: [ redis, monitor, redis_exporter ]
+#---------------------------------------------------------------
+
 
 ################################################################
 # Tutorial
