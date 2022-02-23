@@ -89,20 +89,13 @@
       set_fact:
         dcs_nodename={{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}
         dcs_role=server
-
     # for dcs agents, use nodename if defined first
     - name: Get dcs node name from var nodename
       when: (dcs_nodename is not defined or dcs_nodename == '') and nodename is defined
       connection: local
       set_fact: dcs_nodename={{ nodename }}
 
-    # for dcs agents, if pg_hostname is true, use pg_cluster and pg_seq if defined
-    - name: Get dcs node name from pgsql ins name
-      when: (dcs_nodename is not defined or dcs_nodename == '') and pg_nodename is defined and pg_nodename|bool and pg_cluster is defined and pg_seq is defined
-      connection: local
-      set_fact: dcs_nodename="{{ pg_cluster }}-{{ pg_seq }}"
-
-    # if nodename and pg_cluster/pg_seq not defined, fallback to node's origin hostname
+    # if nodename is not defined , use hostname instead
     - name: Fetch hostname as dcs node name
       when: dcs_nodename is not defined or dcs_nodename == ''
       shell: echo $HOSTNAME
@@ -111,6 +104,10 @@
       when: dcs_nodename is not defined or dcs_nodename == ''
       connection: local
       set_fact: dcs_nodename={{ hostname_result.stdout }}
+
+    # remove hcl format config
+    - name: Make sure consul hcl absent
+      file: path=/etc/consul.d/consul.hcl state=absent
 
     # render consul configs
     - name: Copy /etc/consul.d/consul.json
