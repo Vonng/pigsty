@@ -1,0 +1,131 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   meta.yml
+# Ctime     :   2022-02-22
+# Mtime     :   2022-02-22
+# Desc      :   init pigsty meta node
+# Path      :   meta.yml
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#---------------------------------------------------------------
+# setup meta node identity
+#---------------------------------------------------------------
+- name: Node Identity
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: [ always, node-id ]
+  connection: local
+  tasks:
+    - name: Overwrite node_cluster
+      when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
+      set_fact:
+        node_cluster: "{{ pg_cluster }}"    # use pg_cluster as non-trivial node_cluster name
+
+    - name: Overwrite nodename
+      when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
+      set_fact:
+        nodename: "{{ pg_cluster }}-{{ pg_seq }}"
+
+    - debug:
+        msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
+
+#---------------------------------------------------------------
+# bootstrap meta node with local yum repo
+#---------------------------------------------------------------
+- name: Meta Bootstrap
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: meta-boot
+  roles:
+    - role: environ             # setup environment on meta nodes
+      tags: environ
+
+    - role: repo                # setup local yum repo on meta nodes
+      tags: repo                # you can disable repo on extra meta nodes with repo_enabled: false
+      when: repo_enabled|bool
+
+#---------------------------------------------------------------
+# pigsty meta nodes setup
+#---------------------------------------------------------------
+- name: Meta Node
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: meta-node
+  roles:
+    - role: ca              # init ca-infrastructure
+      tags: ca
+
+    - role: node            # init meta node itself
+      tags: node
+
+    - role: consul          # init dcs:consul (servers)
+      tags: [ consul , dcs ]
+
+
+#---------------------------------------------------------------
+# init infrastructure on meta nodes
+#---------------------------------------------------------------
+- name: Meta Infrastructure
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: meta-infra
+  roles:
+
+    - role: nameserver      # init dns nameserver
+      tags: nameserver
+
+    - role: nginx           # init nginx
+      tags: nginx
+
+    - role: prometheus      # init prometheus
+      tags: prometheus
+
+    - role: grafana         # init grafana
+      tags: grafana
+
+#---------------------------------------------------------------
+# init meta monitoring
+#---------------------------------------------------------------
+- name: Meta Monitor
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: meta-monitor
+  roles:
+
+    - role: node_exporter   # init node exporter on meta nodes
+      tags: node_exporter
+
+    # TODO: consul exporter & blackbox exporter
+
+
+#---------------------------------------------------------------
+# init cmdb(s) on meta nodes
+#---------------------------------------------------------------
+- name: Meta PGSQL           # init pgsql cmdb on meta nodes
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: meta-pgsql
+  roles:
+
+    - role: postgres        # init postgres pgbouncer patroni
+      tags: postgres
+
+    - role: service         # init service , haproxy , vip
+      tags: service
+
+    - role: pg_exporter     # init monitor exporters
+      tags: pg_exporter
+
+    - role: pg_register     # register cluster/instance to infra
+      tags: pg_register
+
+#---------------------------------------------------------------
+...
