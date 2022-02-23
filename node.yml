@@ -20,20 +20,20 @@
   become: yes
   hosts: all
   gather_facts: no
-  tags: node-id
+  tags: [ always, node-id ]
   tasks:
-    - name: Overwrite node_cluster with pg_cluster if applicable
+    - name: Overwrite node_cluster
       when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
       set_fact:
         node_cluster: "{{ pg_cluster }}"    # use pg_cluster as non-trivial node_cluster name
 
-    - name: Overwrite nodename with pg_cluster and pg_seq if applicable
+    - name: Overwrite nodename
       when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
       set_fact:
         nodename: "{{ pg_cluster }}-{{ pg_seq }}"
 
     - debug:
-        msg: "node identity, ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
+        msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
 
 #---------------------------------------------------------------
 # init node & dcs

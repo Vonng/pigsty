@@ -4,7 +4,7 @@ set -euo pipefail
 #==============================================================#
 # File      :   bin/createpg
 # Ctime     :   2021-07-15
-# Mtime     :   2021-07-20
+# Mtime     :   2022-02-22
 # Desc      :   Wrapper of pgsql playbook
 # Usage     :   bin/createpg <cluster> [...tasks]
 # Path      :   bin/createpg
@@ -62,7 +62,13 @@ fi
 
 
 #==============================================================#
-log_info "init pgsql ${PG_CLUSTER} with: ${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
-#==============================================================#
 cd ${PIGSTY_HOME} >/dev/null
+#==============================================================#
+log_info "init nodes for ${PG_CLUSTER} : ${PIGSTY_HOME}/node.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
+#==============================================================#
+${PIGSTY_HOME}/node.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
+
+#==============================================================#
+log_info "init pgsql ${PG_CLUSTER} : ${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}"
 ${PIGSTY_HOME}/pgsql.yml -l ${PG_CLUSTER} ${PLAYBOOK_TAGS}
+#==============================================================#
