@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   nodes.yml
 # Ctime     :   2020-04-22
-# Mtime     :   2022-01-27
+# Mtime     :   2022-02-22
 # Desc      :   Nodes Record Rules (Node)
 # Path      :   /etc/prometheus/rules/nodes.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -16,7 +16,11 @@
 # <namespace>:<level>:<metrics_name>_<modifier>
 #--------------------------------------------------------------#
 # Metrics Hierarchy
-#  ins         -->  instance       +{ip}
+#   env                  -->  environment    +{job}
+#   ^--> cls             -->  cluster        +{job,cls}
+#        ^--> ins        -->  instance       +{job,cls,ins,ip}+{instance,etc...}
+# -------------------------------------------------------------#
+#  ins         -->  instance       {job,cls,ins,ip}
 #   ^---- cpu  -->  cpu            +{cpu} | {cpu,mode}
 #   ^---- dev  -->  disk           +{device}
 #   ^---- dev  -->  interface      +{device}
@@ -72,7 +76,12 @@ groups:
       ################################################################
       # node:ins holds identity mapping information ID(hostname,ins,ip) -> INS (instance identifier)
       - record: node:ins
-        expr: sum without (machine, release, version, sysname, domainname) (label_replace(node_uname_info, "id", "$1", "nodename", "(.+)") OR label_replace(node_uname_info, "id", "$1", "ip", "(.+)"))
+        expr: |
+          sum without (machine, release, version, sysname, domainname) (
+            label_replace(node_uname_info, "id", "$1", "nodename", "(.+)") OR
+            label_replace(node_uname_info, "id", "$1", "instance", "(.+)\\:\\d+") OR
+            label_replace(node_uname_info, "id", "$1", "ins", "(.+)")
+          )
 
 
       ################################################################
@@ -115,17 +124,20 @@ groups:
       # number of cpu cores of this node
       - record: node:ins:cpu_count
         expr: count without (cpu) (node:cpu:usage)
+      - record: node:cls:cpu_count
+        expr: sum by (cls, job) (node:ins:cpu_count)
       - record: node:env:cpu_count
         expr: sum by (job) (node:ins:cpu_count)
-
 
       #--------------------------------#
       #      CPU Usage (Realtime)      #
       #--------------------------------#
       - record: node:ins:cpu_usage
         expr: avg without (cpu) (node:cpu:usage)
+      - record: node:cls:cpu_usage
+        expr: avg by (cls, job) (node:cpu:usage)
       - record: node:env:cpu_usage
-        expr: sum by (job) (node:ins:cpu_usage * node:ins:cpu_count) / node:env:cpu_count
+        expr: sum by (job) (node:cls:cpu_usage * node:cls:cpu_count) / sum by (job) (node:cls:cpu_count)
 
       #--------------------------------#
       # CPU Usage (realtime|1m|5m|15m) #
@@ -138,6 +150,21 @@ groups:
       - record: node:ins:cpu_usage_15m
         expr: avg_over_time(node:ins:cpu_usage[15m])
 
+      # cpu usage of single cluster
+      - record: node:cls:cpu_usage_1m
+        expr: avg_over_time(node:cls:cpu_usage[1m])
+      - record: node:cls:cpu_usage_5m
+        expr: avg_over_time(node:cls:cpu_usage[5m])
+      - record: node:cls:cpu_usage_15m
+        expr: avg_over_time(node:cls:cpu_usage[15m])
+
+      # cpu usage of single environment (identified by job)
+      - record: node:env:cpu_usage_1m
+        expr: avg_over_time(node:env:cpu_usage[1m])
+      - record: node:env:cpu_usage_5m
+        expr: avg_over_time(node:env:cpu_usage[5m])
+      - record: node:env:cpu_usage_15m
+        expr: avg_over_time(node:env:cpu_usage[15m])
 
       #--------------------------------#
       #            Schedule            #
@@ -178,12 +205,19 @@ groups:
       - record: node:ins:stdload15
         expr: node_load15 / node:ins:cpu_count
 
+      - record: node:cls:stdload1
+        expr: sum by (cls, job) (node_load1) / node:cls:cpu_count
+      - record: node:cls:stdload5
+        expr: sum by (cls, job) (node_load5) / node:cls:cpu_count
+      - record: node:cls:stdload15
+        expr: sum by (cls, job) (node_load15) / node:cls:cpu_count
+
       - record: node:env:stdload1
-        expr: sum by (job) (node_load1) / node:env:cpu_count
+        expr: sum by (job) (node:cls:stdload1) / node:env:cpu_count
       - record: node:env:stdload5
-        expr: sum by (job) (node_load5) / node:env:cpu_count
+        expr: sum by (job) (node:cls:stdload5) / node:env:cpu_count
       - record: node:env:stdload15
-        expr: sum by (job) (node_load15) / node:env:cpu_count
+        expr: sum by (job) (node:cls:stdload15) / node:env:cpu_count
 
 
       ################################################################
@@ -215,6 +249,10 @@ groups:
       # memory usage by instance (application mem)
       - record: node:ins:mem_usage
         expr: node:ins:mem_app / node_memory_MemTotal_bytes
+
+      # memory usage by cluster (application mem)
+      - record: node:cls:mem_usage
+        expr: sum by (cls, job) (node:ins:mem_app) / sum by (cls, job) (node_memory_MemTotal_bytes)
 
       # commit ratio
       - record: node:ins:mem_commit_ratio
@@ -277,50 +315,67 @@ groups:
       - record: node:dev:disk_avg_queue_size
         expr: rate(node_disk_io_time_weighted_seconds_total{device=~"[a-zA-Z-_]+"}[1m])
 
+
       #--------------------------------#
       #        Disk Read/Writes        #
       #--------------------------------#
+
       # disk reads request per second in last 1 minute
       - record: node:dev:disk_reads_rate1m
         expr: rate(node_disk_reads_completed_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_reads_rate1m
         expr: sum without (device) (node:dev:disk_reads_rate1m)
+      - record: node:cls:disk_reads_rate1m
+        expr: sum by (cls, job) (node:ins:disk_reads_rate1m)
 
       # disk write request per second in last 1 minute
       - record: node:dev:disk_writes_rate1m
         expr: rate(node_disk_writes_completed_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_writes_rate1m
         expr: sum without (device) (node:dev:disk_writes_rate1m)
+      - record: node:cls:disk_writes_rate1m
+        expr: sum by (cls, job) (node:ins:disk_writes_rate1m)
 
       # disk merged reads request per second in last 1 minute
       - record: node:dev:disk_mreads_rate1m
         expr: rate(node_disk_reads_merged_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_mreads_rate1m
         expr: sum without (device) (node:dev:disk_mreads_rate1m)
+      - record: node:cls:disk_mreads_rate1m
+        expr: sum by (cls, job) (node:ins:disk_mreads_rate1m)
 
       # disk merged write request per second in last 1 minute
       - record: node:dev:disk_mwrites_rate1m
         expr: rate(node_disk_writes_merged_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_mwrites_rate1m
         expr: sum without (device) (node:dev:disk_mwrites_rate1m)
+      - record: node:cls:disk_mwrites_rate1m
+        expr: sum by (cls, job) (node:ins:disk_mwrites_rate1m)
 
       # disk i/o request per second in last 1 minute
       - record: node:dev:disk_iops_1m
         expr: node:dev:disk_reads_rate1m + node:dev:disk_writes_rate1m
       - record: node:ins:disk_iops_1m
         expr: node:ins:disk_reads_rate1m + node:ins:disk_writes_rate1m
+      - record: node:cls:disk_iops_1m
+        expr: node:cls:disk_reads_rate1m + node:cls:disk_writes_rate1m
 
       # merged read ratio
       - record: node:dev:disk_mreads_ratio1m
         expr: node:dev:disk_mreads_rate1m / (node:dev:disk_reads_rate1m + node:dev:disk_mreads_rate1m)
       - record: node:ins:disk_mreads_ratio1m
         expr: node:ins:disk_mreads_rate1m / (node:ins:disk_reads_rate1m + node:ins:disk_mreads_rate1m)
+      - record: node:cls:disk_mreads_ratio1m
+        expr: node:cls:disk_mreads_rate1m / (node:cls:disk_reads_rate1m + node:cls:disk_mreads_rate1m)
 
       # merged write ratio
       - record: node:dev:disk_mwrites_ratio1m
         expr: node:dev:disk_mwrites_rate1m / (node:dev:disk_writes_rate1m + node:dev:disk_mwrites_rate1m)
       - record: node:ins:disk_mwrites_ratio1m
         expr: node:ins:disk_mwrites_rate1m / (node:ins:disk_writes_rate1m + node:ins:disk_mwrites_rate1m)
+      - record: node:cls:disk_mwrites_ratio1m
+        expr: node:cls:disk_mwrites_rate1m / (node:cls:disk_writes_rate1m + node:cls:disk_mwrites_rate1m)
+
 
       #--------------------------------#
       #           Disk Bytes           #
@@ -330,18 +385,24 @@ groups:
         expr: rate(node_disk_read_bytes_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_read_bytes_rate1m
         expr: sum without (device) (node:dev:disk_read_bytes_rate1m)
+      - record: node:cls:disk_read_bytes_rate1m
+        expr: sum by (cls, job) (node:ins:disk_read_bytes_rate1m)
 
       # write bandwidth (rate1m)
       - record: node:dev:disk_write_bytes_rate1m
         expr: rate(node_disk_written_bytes_total{device=~"[a-zA-Z-_]+"}[1m])
       - record: node:ins:disk_write_bytes_rate1m
         expr: sum without (device) (node:dev:disk_write_bytes_rate1m)
+      - record: node:cls:disk_write_bytes_rate1m
+        expr: sum by (cls, job) (node:ins:disk_write_bytes_rate1m)
 
       # io bandwidth (rate1m)
       - record: node:dev:disk_io_bytes_rate1m
         expr: node:dev:disk_read_bytes_rate1m + node:dev:disk_write_bytes_rate1m
       - record: node:ins:disk_io_bytes_rate1m
         expr: node:ins:disk_read_bytes_rate1m + node:ins:disk_write_bytes_rate1m
+      - record: node:cls:disk_io_bytes_rate1m
+        expr: node:cls:disk_read_bytes_rate1m + node:cls:disk_write_bytes_rate1m
 
       #--------------------------------#
       #           Disk Time            #
@@ -373,9 +434,6 @@ groups:
       - record: node:dev:disk_io_batch_1m
         expr: node:dev:disk_io_bytes_rate1m / node:dev:disk_iops_1m
 
-
-
-
       #--------------------------------#
       #           Filesystem           #
       #--------------------------------#
@@ -395,6 +453,14 @@ groups:
       - record: node:ins:size_bytes
         expr: sum without(device,mountpoint,fstype) (node:fs:size_bytes)
 
+      # cluster level
+      - record: node:cls:free_bytes
+        expr: sum by (job,cls) (node:ins:free_bytes)
+      - record: node:cls:avail_bytes
+        expr: sum by (job,cls) (node:ins:avail_bytes)
+      - record: node:cls:size_bytes
+        expr: sum by (job,cls) (node:ins:size_bytes)
+
       # environment level
       - record: node:env:free_bytes
         expr: sum by(job) (node:ins:free_bytes)
@@ -406,18 +472,20 @@ groups:
       # filesystem space usage ( 1 - avail/total )
       - record: node:fs:space_usage
         expr: 1 - node:fs:avail_bytes / node:fs:size_bytes
-
-      - record: node:ins:space_usage
-        expr: 1 - node:ins:avail_bytes / node:ins:size_bytes
-      - record: node:ins:space_usage_max
-        expr: max without (device, fstype, mountpoint) (node:fs:space_usage)
-
+      - record: node:cls:space_usage
+        expr: 1 - node:cls:avail_bytes / node:cls:size_bytes
       - record: node:env:space_usage
         expr: 1 - node:env:avail_bytes / node:env:size_bytes
-      - record: node:env:space_usage_max
-        expr: max by (job, device, fstype, mountpoint) (node:fs:space_usage)
-      # max space usage of a instance
 
+      # max space usage
+      - record: node:ins:space_usage_max
+        expr: max without (device, fstype, mountpoint) (node:fs:space_usage)
+      - record: node:cls:space_usage_max
+        expr: max by (job, cls) (node:ins:space_usage_max)
+
+      # max space usage by device
+      - record: node:env:device_space_usage_max
+        expr: max by (job, device, fstype, mountpoint) (node:fs:space_usage)
 
       # space delta and prediction
       - record: node:fs:space_deriv1h
@@ -486,31 +554,40 @@ groups:
         expr: rate(node_network_transmit_packets_total[1m])
       - record: node:ins:network_tx_pps1m
         expr: sum without (device) (node:dev:network_tx_pps1m{device!~"lo|bond.*"})
+      - record: node:cls:network_tx_pps1m
+        expr: sum by (cls, job) (node:ins:network_tx_pps1m)
 
       # receive pps
       - record: node:dev:network_rx_pps1m
         expr: rate(node_network_receive_packets_total[1m])
       - record: node:ins:network_rx_pps1m
         expr: sum without (device) (node:dev:network_rx_pps1m{device!~"lo|bond.*"})
+      - record: node:cls:network_rx_pps1m
+        expr: sum by (cls, job) (node:ins:network_rx_pps1m)
 
       # transmit bandwidth (out)
       - record: node:dev:network_tx_bytes_rate1m
         expr: rate(node_network_transmit_bytes_total[1m])
       - record: node:ins:network_tx_bytes_rate1m
         expr: sum without (device) (node:dev:network_tx_bytes_rate1m{device!~"lo|bond.*"})
+      - record: node:cls:network_tx_bytes_rate1m
+        expr: sum by (cls, job) (node:ins:network_tx_bytes_rate1m)
 
       # receive bandwidth (in)
       - record: node:dev:network_rx_bytes_rate1m
         expr: rate(node_network_receive_bytes_total[1m])
       - record: node:ins:network_rx_bytes_rate1m
         expr: sum without (device) (node:dev:network_rx_bytes_rate1m{device!~"lo|bond.*"})
+      - record: node:cls:network_rx_bytes_rate1m
+        expr: sum by (cls, job) (node:ins:network_rx_bytes_rate1m)
 
       # io(tx+rx) bandwidth
       - record: node:dev:network_io_bytes_rate1m
         expr: node:dev:network_tx_bytes_rate1m + node:dev:network_rx_bytes_rate1m
       - record: node:ins:network_io_bytes_rate1m
         expr: node:ins:network_tx_bytes_rate1m + node:ins:network_rx_bytes_rate1m
-
+      - record: node:cls:network_io_bytes_rate1m
+        expr: node:cls:network_tx_bytes_rate1m + node:cls:network_rx_bytes_rate1m
 
       #--------------------------------#
       #        TCP/IP Protocol         #
@@ -577,10 +654,26 @@ groups:
       # udp segments out (rate1m)
       - record: node:ins:udp_out_rate1m
         expr: rate(node_netstat_Udp_OutDatagrams[1m])
-  
-  
-  
-  
+
+      ################################################################
+      #                    Node : Miscellaneous                      #
+      ################################################################
+
+      #--------------------------------#
+      #              Time              #
+      #--------------------------------#
+      - record: node:ins:time_drift
+        expr: abs(node_timex_offset_seconds)
+
+      - record: node:cls:time_drift_max
+        expr: max by (cls, job) (node:ins:time_drift)
+
+      - record: node:cls:time_drift_range
+        expr: max by (cls, job) (node_ntp_offset_seconds) - min by (cls, job) (node_ntp_offset_seconds)
+
+
+
+
   ################################################################
   #                         Nodes Alert                          #
   ################################################################
@@ -737,20 +830,19 @@ groups:
       # OPTIONAL: udp traffic high
       # OPTIONAL: conn track
 
-
       #==============================================================#
-      #                          Node : NTP                          #
+      #                          Node : Time                         #
       #==============================================================#
 
-      # time offset > 50ms
-      - alert: NodeClockSkew
-        expr: abs(node_timex_offset_seconds) > 0.050
+      # time drift > 64ms
+      - alert: NodeTimeDrift
+        expr: node:ins:time_drift > 0.064
         for: 1m
         labels: { level: 1, severity: WARN, category: nodes }
         annotations:
-          summary: 'WARN NodeClockSkew {{ $labels.ins }}@{{ $labels.instance }}'
+          summary: 'WARN NodeTimeDrift {{ $labels.ins }}@{{ $labels.instance }}'
           description: |
-            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 50ms
+            abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf "%.6f" }} > 60ms
 
 
 
