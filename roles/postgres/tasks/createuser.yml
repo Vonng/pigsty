@@ -20,7 +20,7 @@
 
 - name: Add business user to pgbouncer
   tags: pg_user_pgbouncer
-  when: user.pgbouncer is defined and user.pgbouncer|bool
+  when: pgbouncer_enabled|bool and user.pgbouncer is defined and user.pgbouncer|bool
   ignore_errors: true
   become_user: "{{ pg_dbsu }}"
   shell: /bin/bash /pg/bin/pgbouncer-create-user '{{ user.name }}' '{% if 'password' in user %}{{ user.password }}{% else %}auto{% endif %}'

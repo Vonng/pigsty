@@ -10,13 +10,13 @@ pg_dbsu_home: /var/lib/pgsql                  # postgresql home directory
 pg_dbsu_ssh_exchange: true                    # exchange postgres dbsu ssh key among same cluster ?
 
 # - postgres packages - #
-pg_version: 13                                # default postgresql version to be installed
+pg_version: 14                                # default postgresql version to be installed (14 by default)
 pgdg_repo: false                              # add pgdg official repo before install (in case of no local repo available)
 pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
 pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
 pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
   - postgresql${pg_version}*                  # postgresql kernel packages
-  - postgis31_${pg_version}*                  # postgis
+  - postgis32_${pg_version}*                  # postgis (3.2 by default for 14)
   - pgbouncer patroni pg_exporter pgbadger    # 3rd utils
   - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity
   - python3 python3-psycopg2 python36-requests python3-etcd python3-consul
@@ -41,10 +41,7 @@ pg_extensions:                                # postgresql extensions. `${pg_ver
 # pg_role: replica                            # [REQUIRED] service role (instance level, validated during pg_preflight)
 # pg_shard:                                   # [OPTIONAL] shard name  (cluster level)
 # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
-
-# - identity option -#
 pg_hostname: false                            # overwrite node hostname with pg instance name
-pg_nodename: true                             # overwrite consul nodename with pg instance name
 
 # - retention - #
 # pg_exists_action, available options: abort|clean|skip
@@ -69,6 +66,7 @@ pg_localhost: /var/run/postgresql             # localhost unix socket dir for co
 # Set on primary instance will transform this cluster into a standby cluster
 
 # - patroni - #
+patroni_enabled: true                         # if not enabled, no postgres cluster will be created
 # patroni_mode, available options: default|pause|remove
 #   - default: default ha mode
 #   - pause:   into maintenance mode
@@ -92,6 +90,7 @@ pg_lc_collate: C                              # database cluster collate, C by d
 pg_lc_ctype: en_US.UTF8                       # database character type, en_US.UTF8 by default (for i18n full-text search)
 
 # - pgbouncer - #
+pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
 pgbouncer_port: 6432                          # pgbouncer port, 6432 by default
 pgbouncer_poolmode: transaction               # pooling mode: session|transaction|statement, transaction pooling by default
 pgbouncer_max_db_conn: 100                    # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit

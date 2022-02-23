@@ -10,7 +10,7 @@
 #------------------------------------------------------------------------------
 # check and set inventory variables
 - import_tasks: preflight.yml
-  tags: preflight
+  tags: [ always, preflight ]
 
 #------------------------------------------------------------------------------
 # Prepare
@@ -22,9 +22,10 @@
 #------------------------------------------------------------------------------
 # postgres
 #------------------------------------------------------------------------------
-# bootstrap postgres cluster with patroni
+# bootstrap postgres cluster with patroni (skip if patroni_enabled = false)
 - import_tasks: patroni.yml
   tags: patroni
+  when: patroni_enabled|bool
 
 #------------------------------------------------------------------------------
 # Pgbouncer
@@ -32,6 +33,7 @@
 # install connection pooling middleware
 - import_tasks: pgbouncer.yml
   tags: pgbouncer
+  when: pgbouncer_enabled|bool
 
 #------------------------------------------------------------------------------
 # Users
@@ -57,6 +59,7 @@
 #------------------------------------------------------------------------------
 - name: Reload pgbouncer to add db and users
   tags: pgbouncer_reload
+  when: pgbouncer_enabled|bool
   systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
 
 ...
