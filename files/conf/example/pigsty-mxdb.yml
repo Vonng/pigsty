@@ -15,17 +15,13 @@
 ######################################################################
 
 ######################################################################
-# 1. mx-mdw-1 : 10.10.10.10 (2 Core | 4GB)
-# 2. mx-sdw-1 : 10.10.10.11 (1 Core | 1GB)
-# 3. mx-sdw-2 : 10.10.10.12 (1 Core | 1GB)
-# 4. mx-sdw-3 : 10.10.10.13 (1 Core | 1GB)
+# 1. mx-mdw-1 : 10.10.10.10 (2 Core | 4GB)  mx-mdw-1(m)
+# 2. mx-sdw-1 : 10.10.10.11 (1 Core | 1GB)  mx-seg1-1(p) mx-seg2-1(r)
+# 3. mx-sdw-2 : 10.10.10.12 (1 Core | 1GB)  mx-seg2-1(p) mx-seg3-1(r)
+# 4. mx-sdw-3 : 10.10.10.13 (1 Core | 1GB)  mx-seg3-1(p) mx-seg1-2(r)
 ######################################################################
-
-
 all:
   children:
-
-    # admin node
     meta:
       vars: { meta_node: true , ansible_group_priority: 99 }
       hosts: { 10.10.10.10: { } }
@@ -37,27 +33,23 @@ all:
       vars:
         gp_cluster: mx                            # greenplum cluster name (this indicates a greenplum cluster)
         gp_role: master                           # greenplum role: master/segment
-
-        # greenplum/matrixdb master/standby just like a common pg cluster
         pg_cluster: mx-mdw                        # master pg cluster name
-        pg_databases:
-          - name: matrixmgr                       # default admin database
-            extensions: [ { name: matrixdbts } ]
-          - name: meta                            # default test database
-        pg_users:
-          - name: meta
-            password: DBUser.Meta
-            pgbouncer: true
+        pg_databases: [ { name: matrixmgr , extensions: [ { name: matrixdbts } ] } ]
+        pg_users: [ { name: meta , password: DBUser.Meta , pgbouncer: true } ]
 
-        patroni_mode: remove                      # disable patroni monitor on master
-        haproxy_enabled: false                    # disable haproxy monitor on master
+        node_name_exchange: true
+        patroni_enabled: false                    # do not pull up normal postgres with patroni
+        pgbouncer_enabled: true                   # enable pgbouncer for greenplum master
+        haproxy_enabled: false                    # disable haproxy monitor on greenplum
         pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
+        pg_packages: ['matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+
 
     # segments primary/mirror
     mx-sdw:
       hosts:
         10.10.10.11:
-          nodename: mx-sdw-1        # greenplum segment node
+          nodename: mx-sdw-1        # greenplum segment nodename
           pg_instances:             # greenplum segment instances
             6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
@@ -71,13 +63,22 @@ all:
           pg_instances:
             6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
-
       vars:
-        gp_cluster: mx                                                        # greenplum cluster name
-        gp_role: segment                                                      # these are nodes for gp segments
+        gp_cluster: mx                            # greenplum cluster name
+        gp_role: segment                          # these are nodes for gp segments
+        node_cluster: mx-sdw                      # node cluster name
+
+        node_name_exchange: true
+        pg_packages: ['matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+        patroni_enabled: false                    # do not pull up normal postgres with patroni
+        pgbouncer_enabled: false                  # disable pgbouncer for greenplum segments
+        haproxy_enabled: false                    # disable haproxy monitor on greenplum
+
         pg_localhost: /tmp                                                    # connect to segments via /tmp unix socket
-        pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid server crash
+        pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
         pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
+
+
 
   #==================================================================#
   #                           Globals                                #

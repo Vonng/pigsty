@@ -4,7 +4,7 @@
 # Desc      :   Pigsty Auto-Generated Config Template
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-01-26
+# Mtime     :   2022-02-22
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -77,6 +77,7 @@ all:
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
+
 
 
     #------------------------------------------------------------------------------
@@ -168,7 +169,7 @@ all:
           - https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch                # official
 
       - name: timescaledb
-        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+        description: TimescaleDB for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
         baseurl:
           - https://packagecloud.io/timescale/timescaledb/el/7/$basearch
@@ -243,7 +244,7 @@ all:
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
       # postgres 14 packages
-      - postgresql14* postgis31_14* citus_14* pg_repack_14 pglogical_14* timescaledb-2-postgresql-14
+      - postgresql14* postgis31_14* postgis32_14* citus_14* pg_repack_14 pglogical_14* timescaledb-2-postgresql-14
       - pg_repack_14 wal2json_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14
       - pg_top_14 pg_statement_rollback_14 system_stats_14 pg_track_settings_14 pg_wait_sampling_14
       - plproxy_14 plr_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14
@@ -289,12 +290,16 @@ all:
     #------------------------------------------------------------------------------
     # this section defines how to provision nodes
     # nodename:                                   # if defined, node's hostname will be overwritten
-    # meta_node: false                            # node with meta_node will be marked as admin node
+    node_cluster: nodes                           # define default node cluster name
+    node_name_exchange: false                     # exchange hostname among play hosts ?
+
+    meta_node: false                              # node with meta_node will be marked as admin node
+    pg_hostname: false                            # overwrite node hostname with pg instance name
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
-      - 10.10.10.10 meta
-      - 10.10.10.10 pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
+      - 10.10.10.10 meta pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
+    node_dns_hosts_extra: []                      # extra static dns records in /etc/hosts
 
     node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -452,7 +457,7 @@ all:
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*                  # postgresql kernel packages
-      - postgis31_${pg_version}*                  # postgis
+      - postgis32_${pg_version}*                  # postgis
       - citus_${pg_version}*                      # citus
       - timescaledb-2-postgresql-${pg_version}    # timescaledb
       - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
@@ -473,9 +478,9 @@ all:
     # pg_shard:                                   # [OPTIONAL] shard name  (cluster level)
     # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
 
-    # - identity option -#
-    pg_hostname: false                            # overwrite node hostname with pg instance name
-    pg_nodename: true                             # overwrite consul nodename with pg instance name
+    # pg_hostname: true                           # use postgres instance name as node hostname?
+    patroni_enabled: true                         # if not enabled, no postgres cluster will be created
+    pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
 
     # - retention - #
     # pg_exists_action, available options: abort|clean|skip
@@ -713,7 +718,8 @@ all:
         dst_port: pgbouncer
         check_url: /read-only   # read-only health check. (including primary)
         selector: "[]"          # select all instance as replica service candidate
-        selector_backup: "[? pg_role == `primary`]"   # primary are used as backup server in replica service
+        selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
+        # primary are used as backup server in replica service
 
       # default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
       - name: default           # service's actual name is {{ pg_cluster }}-default
@@ -763,4 +769,3 @@ all:
     # dns_selector: '[]'                          # if dns_mode == vip, filter instances been resolved
 
 ...
-
