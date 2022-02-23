@@ -1,4 +1,4 @@
-# Remove (Ansible role)
+# PG Remove (Ansible role)
 
 Remove pgsql cluster/instance
 
@@ -19,9 +19,6 @@ Remove pgsql cluster/instance
 
 * Remove pgbouncer
 * Remove postgres
-* Remove dcs
-  * consul
-
 * Remove postgres data 
 * Remove postgres packages
 
@@ -137,10 +134,6 @@ Stop and disable leader patroni service	TAGS: [postgres, remove]
 Stop and disable leader postgres service	TAGS: [postgres, remove]
 Force leader postgres shutdown	TAGS: [postgres, remove]
 Remove consul metadata about pgsql cluster	TAGS: [postgres, remove]
-Avoid removing dcs servers	TAGS: [consul, dcs, remove]
-Consul leave cluster	TAGS: [consul, dcs, remove]
-Stop and disable consul	TAGS: [consul, dcs, remove]
-Remove consul config and data	TAGS: [consul, dcs, remove]
 Remove postgres data	TAGS: [pgdata, remove]
 Remove pg packages	TAGS: [pgpkgs, remove]
 Remove pg extensions	TAGS: [pgpkgs, remove]

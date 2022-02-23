@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-remove.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2021-07-06
+# Mtime     :   2022-02-23
 # Desc      :   remove pgsql from nodes
 # Path      :   pgsql-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -19,7 +19,7 @@
 #  Remove instance (10.10.10.13) among cluster `pg-test`
 #     pgsql-remove.yml -l 10.10.10.13
 #
-#  Remove postgres data along with packages
+#  Remove postgres data along with pg_packages
 #     pgsql-remove.yml -e rm_pgdata=true -e rm_pgpkgs=true
 #
 #  Register cluster/instance to infrastructure
@@ -28,15 +28,13 @@
 #     pgsql-remove.yml --tags=monitor   # pg_exporter, pgbouncer_exporter, node_exporter, promtail
 #     pgsql-remove.yml --tags=pgbouncer # pgbouncer
 #     pgsql-remove.yml --tags=postgres  # postgres
-#==============================================================#
-
 #     pgsql-remove.yml --tags=haproxy              # remove haproxy
+#==============================================================#
 
 #------------------------------------------------------------------------------
 # De-Register Cluster/Instance
 #------------------------------------------------------------------------------
-
-- name: Remove pgsql
+- name: PGSQL Remove
   become: yes
   hosts: all
   tags: remove
@@ -48,12 +46,9 @@
     rm_pgdata: false        # remove postgres data? false by default
     rm_pgpkgs: false        # uninstall pg_packages? false by default
 
-    # dcs_exists_action: clean     # abort|skip|clean if dcs server already exists
-    # dcs_disable_purge: false     # set to true to disable purge functionality for good (force dcs_exists_action = abort)
     # pg_exists_action: clean      # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
     # pg_disable_purge: false      # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
 
   roles:
-    - role: remove
-
+    - role: pg_remove
 ...
