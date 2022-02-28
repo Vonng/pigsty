@@ -1,0 +1,77 @@
+#!/usr/bin/env ansible-playbook
+---
+#==============================================================#
+# File      :   meta-remove.yml
+# Ctime     :   2022-02-22
+# Mtime     :   2022-02-28
+# Desc      :   uninstall pigsty from meta nodes
+# Path      :   meta-remove.yml
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#------------------------------------------------------------------------------
+# Remove Meta CMDB Cluster
+#------------------------------------------------------------------------------
+- name: PGSQL Remove
+  become: yes
+  hosts: meta
+  tags: pgsql-remove
+  gather_facts: no
+  ignore_errors: yes
+  vars:
+    rm_dcs_server: true     # remove dcs server? false by default
+    rm_pgdata: false        # remove postgres data? false by default
+    rm_pgpkgs: true         # uninstall pg_packages? false by default
+  roles:
+    - role: pg_remove
+
+#------------------------------------------------------------------------------
+# Remove Infra And Data
+#------------------------------------------------------------------------------
+- name: Infra Remove
+  become: yes
+  hosts: meta
+  tags: datak-remove
+  gather_facts: no
+  ignore_errors: yes
+  tasks:
+
+    #---------------------------------------------
+    # Stop Service
+    #---------------------------------------------
+    - name: Stop and disable systemd infra service
+      systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      with_items:
+        - grafana-server
+        - prometheus
+        - alertmanager
+        - node_exporter
+        - consul
+
+    #---------------------------------------------
+    # Cleanse Data
+    #---------------------------------------------
+    - name: Remove infra data on meta nodes
+      file: state=absent path="{{ item }}"
+      with_items:
+        - /etc/pigsty
+        - /etc/prometheus/targets
+        - /etc/nginx/conf.d/
+        - /var/lib/grafana
+        - "{{ repo_home }}"
+        - "{{ pg_data }}"
+        - "{{ prometheus_data_dir }}"
+        - "{{ consul_data_dir }}"
+
+    #---------------------------------------------
+    # Remove Packages
+    #---------------------------------------------
+    - name: Uninstall meta packages
+      yum: name={{ item }} state=removed
+      with_items:
+        - prometheus2
+        - grafana
+        - alertmanager
+        - nginx
+
+...
