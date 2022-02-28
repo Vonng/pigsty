@@ -3,8 +3,8 @@
 #==============================================================#
 # File      :   gpsql.yml
 # Ctime     :   2022-01-19
-# Mtime     :   2022-01-27
-# Desc      :   install gpsql (1 of 2)
+# Mtime     :   2022-02-28
+# Desc      :   init gpsql
 # Path      :   gpsql.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
@@ -26,157 +26,106 @@
     - name: Check greenplum inventory
       assert:
         that:
-          - gp_cluster is defined and gp_cluster != ''
-          - nodename is defined # you have to explict set hostname for gp members
+          - nodename is defined    # you have to explict set hostname for gp members
           - gp_role is defined and (gp_role == 'master' or gp_role == 'segment')
           - gp_role == 'master' or (gp_role == 'segment' and pg_instances is defined and pg_instances|length > 0)
 
 #---------------------------------------------------------------
-- name: Init Infrastructure
-  become: yes
-  hosts: meta
-  gather_facts: no
-  tags: repos
-  roles:
-
-    - role: environ         # init postgres pgbouncer patroni
-      tags: environ
-
-    - role: repo            # init local yum repo on meta node
-      tags: repo
-      when: repo_enabled|bool
-
-    - role: node            # init meta node
-      tags: node
-
-    - role: ca              # init ca-infrastructure
-      tags: ca
-
-    - role: nameserver      # init dns nameserver
-      tags: nameserver
-
-    - role: nginx           # init nginx
-      tags: nginx
-
-    - role: prometheus      # init prometheus
-      tags: prometheus
-
-    - role: grafana         # init grafana
-      tags: grafana
-
-
+# init greenplum/matrixdb master cluster
 #---------------------------------------------------------------
-- name: Init All Nodes
+- name: GP Master Init
   become: yes
   hosts: all
   gather_facts: no
-  tags: nodes
+  tags: gp-master-init
+  vars:
+
+    pg_dbsu: mxadmin              # matrixdb dbsu
+    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
+    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
+    patroni_enabled: false        # do not pull up normal postgres with patroni
+    pgbouncer_enabled: true       # enable pgbouncer for greenplum master
+    pg_provision: false           # provision postgres template & database & user
+    haproxy_enabled: false        # disable haproxy monitor on greenplum
+    pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
+    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+    pg_extensions: [ ]
+
   roles:
-
-    - role: node            # init all node
-    - role: node_exporter   # init all node exporter
-
-#---------------------------------------------------------------
-- name: Install Greenplum / MatrixDB
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: gpdb
-  roles:
-    - role: gp_prepare          # prepare for greenplum installation
-
-    - role: pg_exporter         # prepare pg_exporter for gp master
+    - role: postgres
       when: gp_role == 'master'
 
 
-
 #---------------------------------------------------------------
-- name: Prepare MatrixDB Credential
+# register greenplum master databases to grafana
+#---------------------------------------------------------------
+- name: GP Master Register
   become: yes
   hosts: all
   gather_facts: no
-  tags: gp_credential
+  tags: gp-master-grafana
   tasks:
-
-    - name: Fetch matrixdb password
+    - include_tasks: roles/pg_register/tasks/grafana.yml
       when: gp_role == 'master'
-      shell: /bin/cat /etc/matrixdb/auth.conf | grep -Eo 'Password = "(.*)"' | grep -Eo '"(.*)"'
-      register: matrixdb_auth_credential
-
-    - name: 'Visit http://matrix.pigsty with password:'
-      debug: msg={{ matrixdb_auth_credential.stdout | replace('"', '' ) }}
-      when: gp_role == 'master'
-
+      ignore_errors: true
 
 #---------------------------------------------------------------
-- name: Register MatrixDB to Grafana
+# init greenplum/matrixdb segments cluster
+#---------------------------------------------------------------
+- name: GP Segment Init
   become: yes
   hosts: all
   gather_facts: no
-  tags: gp_register
-  tasks:
+  tags: gp-segment-init
+  vars:
 
-    #--------------------------------------------------------------#
-    # Register MatrixDB Mgr Datasource to Grafana
-    #--------------------------------------------------------------#
-    - name: Register pgsql datasources to grafana
-      when: gp_role == 'master'
-      block:
+    pg_preflight_skip: true             # skip preflight check on segments (since pg_instances are used instead)
+    pg_dbsu: mxadmin                    # matrixdb dbsu
+    pg_dbsu_uid: 1226                   # matrixdb dbsu uid & gid
+    pg_dbsu_home: /home/mxadmin         # matrixdb dbsu homedir
+    node_name_exchange: true            # exchange node names among cluster
+    patroni_enabled: false              # do not pull up normal postgres with patroni
+    pgbouncer_enabled: false            # enable pgbouncer for greenplum master
+    pg_provision: false                 # provision postgres template & database & user
+    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+    pg_extensions: [ ]
 
-        #--------------------------------------------------------------#
-        # render datasource definition to:
-        # /etc/pigsty/datasources/{{ pg_instance }}.{{ datname }}.json
-        #--------------------------------------------------------------#
-        - name: Render datasource definition on meta node
-          delegate_to: meta
-          run_once: true
-          copy:
-            dest: "/etc/pigsty/datasources/{{ insdb }}.json"
-            content: |
-              {
-                "type": "postgres",
-                "access": "proxy",
-                "name": "matrixdb-metrics",
-                "url": "{{ inventory_hostname }}:{{ pg_port }}",
-                "user": "{{ pg_monitor_username }}",
-                "database": "{{ datname }}",
-                "typeLogoUrl": "",
-                "basicAuth": false,
-                "basicAuthUser": "",
-                "basicAuthPassword": "",
-                "withCredentials": false,
-                "isDefault": false,
-                "jsonData": {
-                  "connMaxLifetime": 3600,
-                  "maxIdleConns": 1,
-                  "maxOpenConns": 8,
-                  "postgresVersion": 1200,
-                  "sslmode": "disable",
-                  "tlsAuth": false,
-                  "tlsAuthWithCACert": false
-                },
-                "secureJsonData":{
-                  "password": "{{ pg_monitor_password }}"
-                }
-              }
-            mode: 0600
-          vars:
-            datname: "{{ item.name }}"
-            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
-          with_items: "{{ pg_databases }}"
+  roles:
+    - role: postgres
+      when: gp_role == 'segment'
 
 
-        #--------------------------------------------------------------#
-        # upsert datasource using grafana datasource API
-        #--------------------------------------------------------------#
-        - name: Load grafana datasource on meta node
-          delegate_to: meta
-          shell: |
-            curl -X DELETE "{{ grafana_endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
-            curl -X POST   "{{ grafana_endpoint }}/api/datasources/" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' -d @/etc/pigsty/datasources/{{ insdb }}.json || true
-          vars:
-            datname: "{{ item.name }}"
-            insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
-          with_items: "{{ pg_databases }}"
 
-...
+#---------------------------------------------------------------
+# init greenplum/matrixdb segments monitor
+#---------------------------------------------------------------
+- name: GP Segment Monitor
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: gp-segment-monitor
+  vars:
+    pg_dbsu: mxadmin                          # matrixdb dbsu
+    haproxy_enabled: false                    # disable haproxy monitor on greenplum
+    pgbouncer_exporter_enabled: false         # pgbouncer not enabled
+    pg_exporter_config: pg_exporter_basic.yml # use basic config to avoid segment server crash
+    pg_exporter_params: 'host=/tmp&options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
+    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+  roles:
+
+    # prepare pg_exporter for multiple greenplum segments instances
+    - role: pg_exporters
+      when: gp_role == 'segment'
+
+
+#---------------------------------------------------------------
+# master provision
+#---------------------------------------------------------------
+- name: GP Master Provisioning
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: gp-segment-provision
+  roles: [ ]
+
