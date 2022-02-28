@@ -1,7 +1,6 @@
-# PG Exporter Extra (ansible role)
+# PG Exporters (ansible role)
 
-This role will setup extra pg_exporter on target hosts
-
+This role will setup mutliple pg_exporter on target hosts
 
 ### Tasks
 
@@ -35,12 +34,6 @@ Register pgsql exporter as prometheus target	TAGS: [pg_exporter, pg_register, pg
 #------------------------------------------------------------------------------
 # PG Exporter
 #------------------------------------------------------------------------------
-# - install - #
-exporter_install: none                        # none|yum|binary, none by default
-exporter_repo_url: ''                         # if set, repo will be added to /etc/yum.repos.d/ before yum installation
-
-# - collect - #
-exporter_metrics_path: /metrics               # default metric path for pg related exporter
 
 # - pg exporter - #
 pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter
@@ -52,12 +45,6 @@ pg_exporter_auto_discovery: true              # optional, discovery available da
 pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
 pg_exporter_include_database: ''                             # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
 pg_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
-
-# - pgbouncer exporter - #
-pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
-pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
-pgbouncer_exporter_url: ''                    # optional, if not set, generate from reference parameters
-pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
 
 # - postgres variables reference - #
 pg_dbsu: postgres                             # who will run these exporters ?
