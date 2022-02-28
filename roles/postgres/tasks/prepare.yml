@@ -77,7 +77,6 @@
       ignore_errors: yes
       shell: |
         rm -rf /etc/consul.d/svc-*.json
-        rm -rf /etc/consul.d/node-meta.json*
         /usr/bin/consul reload
         exit 0
 
@@ -147,7 +146,7 @@
         - "{{ pg_backup_dir }}/remote"
 
     - name: Create pgbouncer directory structure
-      file: path={{ item }} state=directory owner={{ pg_dbsu }} group={{ pg_dbsu }} mode=0750
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
       with_items:
         - /etc/pgbouncer
         - /var/log/pgbouncer
@@ -183,13 +182,14 @@
 - name: Create pgsql meta data
   tags: pg_meta
   become: yes
+  ignore_errors: yes
   block:
     - name: Copy pg_cluster to /pg/meta/cluster
       copy: content={{ pg_cluster }} dest=/pg/meta/cluster owner={{ pg_dbsu }} group=postgres mode=0660
     - name: Copy pg_version to /pg/meta/version
       copy: content={{ pg_version }} dest=/pg/meta/version owner={{ pg_dbsu }} group=postgres mode=0660
     - name: Copy pg_instance to /pg/meta/instance
-      copy: content={{ pg_instance }} dest=/pg/meta/instance owner={{ pg_dbsu }} group=postgres mode=0660
+      copy: content={{ pg_cluster }}-{{ pg_seq }} dest=/pg/meta/instance owner={{ pg_dbsu }} group=postgres mode=0660
     - name: Copy pg_seq to /pg/meta/sequence
       copy: content={{ pg_seq }} dest=/pg/meta/sequence owner={{ pg_dbsu }} group=postgres mode=0660
     - name: Copy pg_role to /pg/meta/role
@@ -210,34 +210,6 @@
       copy: src=pg-alias.sh dest=/etc/profile.d/pg-alias.sh mode=0755
 
     - name: Copy psqlrc to postgres home
-      copy: src=psqlrc dest="{{ pg_dbsu_home }}/.psqlrc" owner=postgres mode=0600
-
-
-#------------------------------------------------------------------------------
-# Update hostname
-#------------------------------------------------------------------------------
-- name: Setup hostname to pg instance name
-  tags: pg_hostname
-  when: pg_hostname|bool
-  hostname: name={{ pg_instance }}
-
-
-#------------------------------------------------------------------------------
-# register consul service
-#------------------------------------------------------------------------------
-- name: Register consul node meta
-  tags: pg_nodemeta
-  when: dcs_type == 'consul'
-  block:
-    - name: Copy consul node-meta definition
-      template:
-        src: node-meta.json.j2
-        dest: /etc/consul.d/node-meta.json
-        owner: consul
-        group: postgres
-        mode: 0644
-
-    - name: Restart consul to load new node-meta
-      systemd: name=consul state=restarted
+      copy: src=psqlrc dest="{{ pg_dbsu_home }}/.psqlrc" owner={{ pg_dbsu }} group=postgres mode=0600
 
 ...

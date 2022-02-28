@@ -117,6 +117,32 @@
     - name: Copy consul agent service
       copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
 
+
+    #------------------------------------------------------------------------------
+    # register consul service
+    #------------------------------------------------------------------------------
+    - name: Render consul node meta
+      tags: consul_meta
+      when: dcs_type == 'consul'
+      block:
+        - name: Copy consul node-meta definition
+          copy:
+            dest: /etc/consul.d/node-meta.json
+            owner: consul
+            mode: 0644
+            content: |
+              {
+                "node_meta": {
+                  "cluster": "{{ node_cluster|default('nodes') }}",
+                  "instance": "{{ dcs_nodename }}"
+                }
+              }
+
+        - name: Restart consul to load new node-meta
+          systemd: name=consul state=restarted
+
+
+
 #------------------------------------------------------------------------------
 # Launch consul server first
 #------------------------------------------------------------------------------
