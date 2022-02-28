@@ -10,6 +10,7 @@
 #------------------------------------------------------------------------------
 # check and set inventory variables
 - import_tasks: preflight.yml
+  when: not pg_preflight_skip|bool
   tags: [ always, preflight ]
 
 #------------------------------------------------------------------------------
@@ -40,6 +41,7 @@
 #------------------------------------------------------------------------------
 - include_tasks: createuser.yml
   tags: pg_user
+  when: pg_provision|bool
   vars:
     user: "{{ item }}"
   with_items: "{{ pg_users }}"
@@ -48,6 +50,7 @@
 # Databases
 #------------------------------------------------------------------------------
 - include_tasks: createdb.yml
+  when: pg_provision|bool
   tags: pg_db
   vars:
     database: "{{ item }}"
@@ -59,7 +62,7 @@
 #------------------------------------------------------------------------------
 - name: Reload pgbouncer to add db and users
   tags: pgbouncer_reload
-  when: pgbouncer_enabled|bool
+  when: pgbouncer_enabled|bool and pg_provision|bool
   systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
 
 ...
