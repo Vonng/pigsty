@@ -51,13 +51,13 @@ all: # top-level namespace
       hosts:                               # add meta nodes here
         10.10.10.10: { }                   # 10.10.10.10 is the default meta node
 
-#    node-test:                                 # define new nodes
-#      hosts:
-#        10.10.10.11: { nodename: pg-test-1 }   # primary instance, leader of cluster
-#        10.10.10.12: { nodename: pg-test-2 }   # replica instance, follower of leader
-#        10.10.10.13: { nodename: pg-test-3 }   # offline instance, replica that allow offline access
-#      vars:
-#        node_cluster: pg-test
+    #    node-test:                                 # define new nodes
+    #      hosts:
+    #        10.10.10.11: { nodename: pg-test-1 }   # primary instance, leader of cluster
+    #        10.10.10.12: { nodename: pg-test-2 }   # replica instance, follower of leader
+    #        10.10.10.13: { nodename: pg-test-3 }   # offline instance, replica that allow offline access
+    #      vars:
+    #        node_cluster: pg-test
 
 
     #----------------------------------#
@@ -488,12 +488,14 @@ all: # top-level namespace
     # NODE PROVISION
     #------------------------------------------------------------------------------
     # this section defines how to provision nodes
-    # nodename:                                   # if defined, node's hostname will be overwritten
-    node_cluster: nodes                           # define default node cluster name
-    node_name_exchange: false                     # exchange hostname among play hosts ?
 
-    meta_node: false                              # node with meta_node will be marked as admin node
-    pg_hostname: true                             # overwrite node hostname with pg instance name
+    # - node flag - #
+    meta_node: false                              # node with meta_node will be marked as admin nod
+
+    # - node identity - #
+    # nodename:                                   # if provided, node's hostname will be overwritten
+    node_cluster: nodes                           # node's cluster label will be set to this (nodes by default)
+    node_name_exchange: false                     # exchange hostname among play hosts ?
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
@@ -585,6 +587,7 @@ all: # top-level namespace
       - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
       - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
       - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+      - { name: matrix,        domain: matrix.pigsty, endpoint: "10.10.10.10:8240" }   # jupyter lab (8888)
 
     # - app - #
     app_list:                                      # show extra application links on home page
@@ -692,10 +695,7 @@ all: # top-level namespace
     # pg_role: replica                            # [REQUIRED] service role (instance level, validated during pg_preflight)
     # pg_shard:                                   # [OPTIONAL] shard name  (cluster level)
     # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
-
     # pg_hostname: true                           # use postgres instance name as node hostname?
-    patroni_enabled: true                         # if not enabled, no postgres cluster will be created
-    pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
 
     # - retention - #
     # pg_exists_action, available options: abort|clean|skip
@@ -718,7 +718,9 @@ all: # top-level namespace
     pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
     # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
     # Set on primary instance will transform this cluster into a standby cluster
+
     # - patroni - #
+    patroni_enabled: true                         # if not enabled, no postgres cluster will be created
     # patroni_mode, available options: default|pause|remove
     #   - default: default ha mode
     #   - pause:   into maintenance mode
@@ -744,6 +746,7 @@ all: # top-level namespace
     pg_lc_ctype: en_US.UTF8                       # database character type, en_US.UTF8 by default (for i18n full-text search)
 
     # - pgbouncer - #
+    pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
     pgbouncer_port: 6432                          # pgbouncer port, 6432 by default
     pgbouncer_poolmode: transaction               # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_max_db_conn: 100                    # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
@@ -752,6 +755,8 @@ all: # top-level namespace
     #------------------------------------------------------------------------------
     # POSTGRES TEMPLATE
     #------------------------------------------------------------------------------
+    pg_provision: true                            # whether provisioning postgres cluster
+
     # - template - #
     pg_init: pg-init                              # init script for cluster template
 

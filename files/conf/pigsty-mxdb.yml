@@ -1,84 +1,119 @@
 ---
 ######################################################################
-# File      :   pigsty-mxdb.yml
-# Desc      :   Pigsty 4-node demo for matrixdb
+# File      :   pigsty.yml
+# Desc      :   Pigsty 4-node matrixdb demo
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2021-01-26
+# Mtime     :   2022-02-22
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
 ######################################################################
-#                        Before Running                              #
-#====================================================================#
-# make matrix         # (copy matrixdb offline repo to vagrant node) #
+# 1. mx-mdw-1 : 10.10.10.10 (2 Core | 4GB)  meta
+# 2. mx-sdw-1 : 10.10.10.11 (1 Core | 1GB)  mx-mdw-1(m)
+# 3. mx-sdw-2 : 10.10.10.12 (1 Core | 1GB)  mx-seg1-1(p) mx-seg2-1(r)
+# 4. mx-sdw-3 : 10.10.10.13 (1 Core | 1GB)  mx-seg2-1(p) mx-seg1-2(r)
 ######################################################################
 
-######################################################################
-# 1. mx-mdw-1 : 10.10.10.10 (2 Core | 4GB)  mx-mdw-1(m)
-# 2. mx-sdw-1 : 10.10.10.11 (1 Core | 1GB)  mx-seg1-1(p) mx-seg2-1(r)
-# 3. mx-sdw-2 : 10.10.10.12 (1 Core | 1GB)  mx-seg2-1(p) mx-seg3-1(r)
-# 4. mx-sdw-3 : 10.10.10.13 (1 Core | 1GB)  mx-seg3-1(p) mx-seg1-2(r)
-######################################################################
 all:
   children:
     meta:
       vars: { meta_node: true , ansible_group_priority: 99 }
       hosts: { 10.10.10.10: { } }
 
-    # master/standby cluster for greenplum deployment
+    #----------------------------------#
+    # cluster: pg-meta (default cmdb)
+    #----------------------------------#
+    pg-meta:
+      hosts:
+        10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
+      vars:
+        pg_cluster: pg-meta
+        pg_users:
+          - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
+          - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
+        pg_databases:
+          - name: meta
+            baseline: cmdb.sql
+            comment: pigsty meta database
+            connlimit: -1
+            schemas: [ pigsty ]
+            extensions:
+              - { name: adminpack, schema: pg_catalog }
+              - { name: postgis, schema: public }
+              - { name: timescaledb }
+
+
+    #----------------------------------#
+    # cluster: mx-mdw (gp master)
+    #----------------------------------#
     mx-mdw:
       hosts:
-        10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
+        10.10.10.11: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
       vars:
-        gp_cluster: mx                            # greenplum cluster name (this indicates a greenplum cluster)
-        gp_role: master                           # greenplum role: master/segment
-        pg_cluster: mx-mdw                        # master pg cluster name
+        gp_role: master          # this cluster is used as greenplum master
+        pg_cluster: mx-mdw       # this master cluster name is mx-mdw
         pg_databases: [ { name: matrixmgr , extensions: [ { name: matrixdbts } ] } ]
         pg_users: [ { name: meta , password: DBUser.Meta , pgbouncer: true } ]
 
-        node_name_exchange: true
-        patroni_enabled: false                    # do not pull up normal postgres with patroni
-        pgbouncer_enabled: true                   # enable pgbouncer for greenplum master
-        haproxy_enabled: false                    # disable haproxy monitor on greenplum
+        pg_dbsu: mxadmin              # matrixdb dbsu
+        pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
+        pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
+        node_name_exchange: true      # exchange node names among cluster
+        patroni_enabled: false        # do not pull up normal postgres with patroni
+        pgbouncer_enabled: true       # enable pgbouncer for greenplum master
+        pg_provision: false           # provision postgres template & database & user
+        haproxy_enabled: false        # disable haproxy monitor on greenplum
         pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
-        pg_packages: ['matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+        pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+        pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+        pg_extensions: [ ]
+        node_local_repo_url: # local repo url (if method=local, make sure firewall is configured or disabled)
+          - http://pigsty/pigsty.repo
+          - http://pigsty/matrix.repo
 
-
-    # segments primary/mirror
+    #----------------------------------#
+    # cluster: mx-sdw (gp master)
+    #----------------------------------#
     mx-sdw:
       hosts:
-        10.10.10.11:
-          nodename: mx-sdw-1        # greenplum segment nodename
-          pg_instances:             # greenplum segment instances
+        10.10.10.12:
+          nodename: mx-sdw-1
+          pg_seq: 1
+          pg_instances:
             6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
-        10.10.10.12:
-          nodename: mx-sdw-2
-          pg_instances:
-            6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633  }
-            6001: { pg_cluster: mx-seg3, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634  }
         10.10.10.13:
-          nodename: mx-sdw-3
+          nodename: mx-sdw-2
+          pg_seq: 2
           pg_instances:
-            6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+            6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
       vars:
-        gp_cluster: mx                            # greenplum cluster name
-        gp_role: segment                          # these are nodes for gp segments
-        node_cluster: mx-sdw                      # node cluster name
+        gp_cluster: mx                 # greenplum cluster name
+        pg_cluster: mx-sdw
+        gp_role: segment               # these are nodes for gp segments
+        node_cluster: mx-sdw           # node cluster name of sdw nodes
 
-        node_name_exchange: true
-        pg_packages: ['matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-        patroni_enabled: false                    # do not pull up normal postgres with patroni
-        pgbouncer_enabled: false                  # disable pgbouncer for greenplum segments
-        haproxy_enabled: false                    # disable haproxy monitor on greenplum
-
+        pg_preflight_skip: true       # skip preflight check
+        pg_dbsu: mxadmin              # matrixdb dbsu
+        pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
+        pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
+        node_name_exchange: true      # exchange node names among cluster
+        patroni_enabled: false        # do not pull up normal postgres with patroni
+        pgbouncer_enabled: false      # enable pgbouncer for greenplum master
+        pgbouncer_exporter_enabled: false      # enable pgbouncer for greenplum master
+        pg_provision: false           # provision postgres template & database & user
+        haproxy_enabled: false        # disable haproxy monitor on greenplum
         pg_localhost: /tmp                                                    # connect to segments via /tmp unix socket
         pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
         pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
-
-
+        pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+        pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+        pg_extensions: [ ]
+        node_local_repo_url: # local repo url (if method=local, make sure firewall is configured or disabled)
+          - http://pigsty/pigsty.repo
+          - http://pigsty/matrix.repo
 
   #==================================================================#
   #                           Globals                                #
@@ -99,6 +134,7 @@ all:
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
+
 
 
     #------------------------------------------------------------------------------
@@ -190,7 +226,7 @@ all:
           - https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch                # official
 
       - name: timescaledb
-        description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+        description: TimescaleDB for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
         baseurl:
           - https://packagecloud.io/timescale/timescaledb/el/7/$basearch
@@ -265,7 +301,7 @@ all:
       - pguint13 pguri13 prefix13  safeupdate_13 semver13  table_version13 tdigest13
 
       # postgres 14 packages
-      - postgresql14* postgis31_14* citus_14* pg_repack_14 pglogical_14* timescaledb-2-postgresql-14
+      - postgresql14* postgis31_14* postgis32_14* citus_14* pg_repack_14 pglogical_14* timescaledb-2-postgresql-14
       - pg_repack_14 wal2json_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14
       - pg_top_14 pg_statement_rollback_14 system_stats_14 pg_track_settings_14 pg_wait_sampling_14
       - plproxy_14 plr_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14
@@ -310,18 +346,19 @@ all:
     # NODE PROVISION
     #------------------------------------------------------------------------------
     # this section defines how to provision nodes
-    # nodename:                                   # if defined, node's hostname will be overwritten
-    # meta_node: false                            # node with meta_node will be marked as admin node
+
+    # - node flag - #
+    meta_node: false                              # node with meta_node will be marked as admin nod
+
+    # - node identity - #
+    # nodename:                                   # if provided, node's hostname will be overwritten
+    node_cluster: nodes                           # node's cluster label will be set to this (nodes by default)
+    node_name_exchange: false                     # exchange hostname among play hosts ?
 
     # - node dns - #
-    node_dns_hosts:
+    node_dns_hosts:                               # static dns records in /etc/hosts
       - 10.10.10.10 meta pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
-
-    node_dns_hosts_extra:
-      - 10.10.10.10 mx-mdw-1
-      - 10.10.10.11 mx-sdw-1
-      - 10.10.10.12 mx-sdw-2
-      - 10.10.10.13 mx-sdw-3
+    node_dns_hosts_extra: []                      # extra static dns records in /etc/hosts
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:                             # dynamic nameserver in /etc/resolv.conf
@@ -335,7 +372,6 @@ all:
     node_repo_remove: true                        # whether remove existing repo
     node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
       - http://pigsty/pigsty.repo
-      - http://pigsty/matrix.repo
 
     # - node packages - #
     node_packages:                                # common packages for all nodes
@@ -405,12 +441,11 @@ all:
       - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
       - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
       - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
-      - { name: matrix,        domain: matrix.pigsty, endpoint: "10.10.10.10:8240" }   # jupyter lab (8888)
       # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
       - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
       - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
       - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
-
+      - { name: matrix,        domain: matrix.pigsty, endpoint: "10.10.10.11:8240" }   # matrixdb
 
     # - app - #
     app_list:                                      # show extra application links on home page
@@ -419,15 +454,26 @@ all:
       - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
       - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
       - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
-      - { name: Matrix Pkgs    , url : '/matrix'      , comment: 'local yum repo packages' }
-      - { name: Matrix Repo    , url : '/matrix.repo' , comment: 'local yum repo file' }
+      - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
+      - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+      - { name: Applog  , url : '${grafana}/d/applog-overview', comment: 'apple privacy log analysis' }
 
     docs_enabled: true                            # setup local document under default server?
     pev2_enabled: true                            # setup pev2 explain visualizer under default server?
     pgbadger_enabled: true                        # setup pgbadger under default server?
 
     # - nameserver - #
-    dns_records: [ ]                              # dynamic dns record resolved by dnsmasq
+    dns_records:                                  # dynamic dns record resolved by dnsmasq
+      - 10.10.10.2  pg-meta    # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test    # sandbox vip for pg-test
+      - 10.10.10.10 meta-1     # sandbox node meta-1
+      - 10.10.10.11 node-1     # sandbox node node-1
+      - 10.10.10.12 node-2     # sandbox node node-2
+      - 10.10.10.13 node-3     # sandbox node node-3
+      - 10.10.10.10 pg-meta-1  # sandbox instance pg-meta-1
+      - 10.10.10.11 pg-test-1  # sandbox instance node-1
+      - 10.10.10.12 pg-test-2  # sandbox instance node-2
+      - 10.10.10.13 pg-test-3  # sandbox instance node-3
 
     # - prometheus - #
     prometheus_data_dir: /data/prometheus/data    # prometheus data dir
@@ -466,18 +512,18 @@ all:
       # pg-meta-3: 10.10.10.12                    # 3 or 5 dcs nodes are recommended for production environment
     dcs_exists_action: clean                      # abort|skip|clean if dcs server already exists
     dcs_disable_purge: false                      # set to true to disable purge functionality for good (force dcs_exists_action = abort)
-    consul_data_dir: /data/consul                 # consul data dir (/var/lib/consul by default)
-    etcd_data_dir: /data/etcd                     # etcd data dir (/var/lib/consul by default)
+    consul_data_dir: /var/lib/consul              # consul data dir (/var/lib/consul by default)
+    etcd_data_dir: /var/lib/etcd                  # etcd data dir (/var/lib/consul by default)
 
 
     #------------------------------------------------------------------------------
     # POSTGRES INSTALLATION
     #------------------------------------------------------------------------------
     # - dbsu - #
-    pg_dbsu: mxadmin                              # os user for database, postgres by default (unwise to change it)
-    pg_dbsu_uid: 1226                             # os dbsu uid and gid, 26 for default postgres users and groups
+    pg_dbsu: postgres                             # os user for database, postgres by default (unwise to change it)
+    pg_dbsu_uid: 26                               # os dbsu uid and gid, 26 for default postgres users and groups
     pg_dbsu_sudo: limit                           # dbsu sudo privilege: none|limit|all|nopass, limit by default
-    pg_dbsu_home: /home/mxadmin                   # postgresql home directory
+    pg_dbsu_home: /var/lib/pgsql                  # postgresql home directory
     pg_dbsu_ssh_exchange: true                    # exchange postgres dbsu ssh key among same cluster ?
 
     # - postgres packages - #                     # `${pg_version} will be replaced by actual `pg_version`
@@ -486,11 +532,17 @@ all:
     pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}*                  # postgresql cli
-      - matrixdb                                  # matrixdb
-      - pgbouncer pg_exporter node_exporter consul haproxy vip-manager pgbadger pg_activity
+      - postgresql${pg_version}*                  # postgresql kernel packages
+      - postgis32_${pg_version}*                  # postgis
+      - citus_${pg_version}*                      # citus
+      - timescaledb-2-postgresql-${pg_version}    # timescaledb
+      - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
+      - patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd
+      - python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
 
-    pg_extensions: [ ]
+    pg_extensions:                                # postgresql extensions. `${pg_version} will be replaced by `pg_version`
+      - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
+
 
     #------------------------------------------------------------------------------
     # POSTGRES PROVISION
@@ -501,9 +553,7 @@ all:
     # pg_role: replica                            # [REQUIRED] service role (instance level, validated during pg_preflight)
     # pg_shard:                                   # [OPTIONAL] shard name  (cluster level)
     # pg_sindex:                                  # [OPTIONAl] shard index (cluster level)
-
-    patroni_enabled: true                         # if not enabled, no postgres cluster will be created
-    pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
+    pg_hostname: true                             # use postgres instance name as node hostname?
 
     # - retention - #
     # pg_exists_action, available options: abort|clean|skip
@@ -523,10 +573,12 @@ all:
     # - connection - #
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
     pg_port: 5432                                 # postgres port, 5432 by default
-    pg_localhost: /tmp                            # localhost unix socket dir for connection
+    pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
     # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
     # Set on primary instance will transform this cluster into a standby cluster
+
     # - patroni - #
+    patroni_enabled: true                         # if not enabled, no postgres cluster will be created
     # patroni_mode, available options: default|pause|remove
     #   - default: default ha mode
     #   - pause:   into maintenance mode
@@ -552,6 +604,7 @@ all:
     pg_lc_ctype: en_US.UTF8                       # database character type, en_US.UTF8 by default (for i18n full-text search)
 
     # - pgbouncer - #
+    pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
     pgbouncer_port: 6432                          # pgbouncer port, 6432 by default
     pgbouncer_poolmode: transaction               # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_max_db_conn: 100                    # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
@@ -560,16 +613,18 @@ all:
     #------------------------------------------------------------------------------
     # POSTGRES TEMPLATE
     #------------------------------------------------------------------------------
+    pg_provision: true                            # whether provisioning postgres cluster
+
     # - template - #
     pg_init: pg-init                              # init script for cluster template
 
     # - system roles - #
     pg_replication_username: replicator           # system replication user
     pg_replication_password: DBUser.Replicator    # system replication password
-    pg_monitor_username: mxadmin                  # system monitor user
-    pg_monitor_password: mxadmin                  # system monitor password
-    pg_admin_username: mxadmin                    # system admin user
-    pg_admin_password: mxadmin                    # system admin password
+    pg_monitor_username: dbuser_monitor           # system monitor user
+    pg_monitor_password: DBUser.Monitor           # system monitor password
+    pg_admin_username: dbuser_dba                 # system admin user
+    pg_admin_password: DBUser.DBA                 # system admin password
 
     # - default roles - #
     pg_default_roles:
@@ -699,10 +754,10 @@ all:
     pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter
     pg_exporter_enabled: true                     # setup pg_exporter on instance
     pg_exporter_port: 9630                        # default port for pg exporter
-    pg_exporter_params: 'sslmode=disable'         # url query parameters for pg_exporter
+    pg_exporter_params: 'host=/var/run/postgresql&sslmode=disable' # url query parameters for pg_exporter
     pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
     pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
-    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+    pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
     pg_exporter_include_database: ''             # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
     pg_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
 
@@ -741,7 +796,8 @@ all:
         dst_port: pgbouncer
         check_url: /read-only   # read-only health check. (including primary)
         selector: "[]"          # select all instance as replica service candidate
-        selector_backup: "[? pg_role == `primary`]"   # primary are used as backup server in replica service
+        selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
+        # primary are used as backup server in replica service
 
       # default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
       - name: default           # service's actual name is {{ pg_cluster }}-default
@@ -791,4 +847,3 @@ all:
     # dns_selector: '[]'                          # if dns_mode == vip, filter instances been resolved
 
 ...
-
