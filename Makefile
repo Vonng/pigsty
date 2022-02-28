@@ -503,7 +503,6 @@ upload-vagrant:
 	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
-	ssh -t meta 'sudo rm -rf /www/pigsty; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 # upload pigsty resource to terraform vms (ssh alias as 'demo')
 upload-terraform:
