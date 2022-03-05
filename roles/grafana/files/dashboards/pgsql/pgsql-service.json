@@ -93,7 +93,7 @@
             "collapsed": false,
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "gridPos": {
                 "h": 1,
@@ -109,7 +109,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Service = ${svc}. Which is unique identifier of service",
             "fieldConfig": {
@@ -187,7 +187,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Service among cluster. Number of routes from proxy to server",
             "fieldConfig": {
@@ -413,7 +413,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "All haproxy instances in this cluster ${cls}",
             "fieldConfig": {
@@ -673,7 +673,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum without (proxy) (haproxy_backend_current_sessions{cls=\"$cls\", proxy=\"$svc\"})",
@@ -687,7 +687,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (ins) (haproxy_server_status{cls=\"$cls\", proxy=\"$svc\"})",
@@ -701,7 +701,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (ins) ((100 - haproxy_process_idle_time_percent{cls=\"$cls\", proxy=\"$svc\"}))  / 100",
@@ -760,7 +760,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
             "fieldConfig": {
@@ -843,7 +843,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Role is service identifier among cluster. e.g primary, replica, standby, offline, delayed, etc....",
             "fieldConfig": {
@@ -921,7 +921,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Number of haproxy instance among this cluster that provide service for ${svc}",
             "fieldConfig": {
@@ -1005,7 +1005,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Number of postgres instance among this cluster that provide service ${svc}",
             "fieldConfig": {
@@ -1075,7 +1075,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "max(count(haproxy_server_current_sessions{cls=\"$cls\", proxy=\"$svc\"}) by (ins))",
@@ -1162,7 +1162,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "All postgres instance among this cluster",
             "fieldConfig": {
@@ -1792,7 +1792,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (proxy,server) (\n    haproxy_server_current_sessions{cls=\"$cls\"}\n)",
@@ -2146,7 +2146,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "HAProxy CPU Usage (busy ratio)",
             "fieldConfig": {
@@ -2244,7 +2244,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "PostgreSQL Instance CPU Usage (busy ratio)",
             "fieldConfig": {
@@ -2548,9 +2548,24 @@
         "list": [
             {
                 "current": {},
+                "description": "Prometheus datasource used by this dashboard",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Source",
+                "multi": false,
+                "name": "ds",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "ds-prometheus-pgsql"
+                    "uid": "${ds}"
                 },
                 "definition": "label_values(haproxy_server_check_status, proxy)",
                 "description": "",
@@ -2577,7 +2592,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "ds-prometheus-pgsql"
+                    "uid": "${ds}"
                 },
                 "definition": "label_values(haproxy_server_check_status{proxy='$svc'}, cls)",
                 "hide": 2,
@@ -2603,7 +2618,7 @@
                 "current": {},
                 "datasource": {
                     "type": "prometheus",
-                    "uid": "ds-prometheus-pgsql"
+                    "uid": "${ds}"
                 },
                 "definition": "label_values(haproxy_server_check_status{proxy='$svc'}, proxy)",
                 "hide": 2,

@@ -18,6 +18,7 @@
             }
         ]
     },
+    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Cluster Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
@@ -235,7 +236,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node for ${__field.labels.ins}",
-                            "url": "/d/pgsql-node?var-id=${__field.labels.ins}"
+                            "url": "/d/nodes-instance?var-id=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [
@@ -676,7 +677,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node for ${primary}",
-                                        "url": "/d/pgsql-node?var-ins=${primary}"
+                                        "url": "/d/nodes-instance?var-ins=${primary}"
                                     }
                                 ]
                             }
@@ -1052,7 +1053,7 @@
                         },
                         {
                             "title": "PGSQL Node for ${__field.labels.ins}",
-                            "url": "/d/pgsql-node?var-ins=${__field.labels.ins}"
+                            "url": "/d/nodes-instance?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [],
@@ -2269,7 +2270,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node : Space for ${primary}",
-                            "url": "/d/pgsql-node?var-ins=${primary}&viewPanel=199"
+                            "url": "/d/nodes-instance?var-ins=${primary}&viewPanel=199"
                         }
                     ],
                     "mappings": [
@@ -3833,7 +3834,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node for ${__data.fields.IP}",
-                                        "url": "/d/pgsql-node?var-id=${__data.fields.IP}"
+                                        "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
                                     }
                                 ]
                             }
@@ -4857,7 +4858,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node",
-                                        "url": "/d/pgsql-node"
+                                        "url": "/d/nodes-instance"
                                     }
                                 ]
                             }
@@ -6467,7 +6468,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node : ${__data.fields[\"SRC IP\"]}",
-                                        "url": "/d/pgsql-node?var-id=${__data.fields[\"SRC IP\"]}"
+                                        "url": "/d/nodes-instance?var-id=${__data.fields[\"SRC IP\"]}"
                                     }
                                 ]
                             }
@@ -6488,7 +6489,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Nodes : ${__data.fields[\"DST IP\"]}",
-                                        "url": "/d/pgsql-nodes?var-id=${__data.fields[\"DST IP\"]}"
+                                        "url": "/d/nodes-instance?var-id=${__data.fields[\"DST IP\"]}"
                                     }
                                 ]
                             }
@@ -6787,7 +6788,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "pg:cls:cpu_usage_5m{cls=\"$cls\"}",
@@ -6799,7 +6800,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "pg:ins:cpu_usage_1m{cls=\"$cls\", ins=\"$primary\"}",
@@ -6810,7 +6811,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "pg:ins:cpu_usage_1m{cls=\"$cls\", ins!=\"$primary\"}",
@@ -6920,7 +6921,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "description": "Average transaction response time from pgbouncer\n(You can get from postgres directly after PG14)",
                     "fieldConfig": {
@@ -7067,7 +7068,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "pgbouncer:cls:xact_rt_1m{cls=\"$cls\"}\n# pg:cls:active_time_rate1m{cls=\"$cls\"} / pg:cls:xact_total_rate1m{cls=\"$cls\"} # PG14",
@@ -7079,7 +7080,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "pgbouncer:ins:xact_rt_1m{cls=\"$cls\", ins=\"$primary\"}\n# pg:ins:active_time_rate1m{cls=\"$cls\"} / pg:ins:xact_total_rate1m{cls=\"$cls\"} # PG14",
@@ -7092,7 +7093,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "pgbouncer:ins:xact_rt_1m{cls=\"$cls\", ins!=\"$primary\"}",
@@ -7195,7 +7196,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "description": "Total transactions (commit + rollback) per second from PostgreSQL in last 5 minutes",
                     "fieldConfig": {
@@ -7360,7 +7361,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "description": "Tuples fetched, inserted, updated, delete among this cluster",
                     "fieldConfig": {
@@ -7525,7 +7526,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "description": "Time spent per second for each query of each instances.",
                     "fieldConfig": {
@@ -7630,7 +7631,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "description": "Ratio of XID used for each database among this cluster",
                     "fieldConfig": {
@@ -7722,7 +7723,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "description": "R\u25b2 for disk read bandwidth\nTX\u25b2 for network transmit bandwidth\nRX\u25bc for network receive bandwidth\nW\u25bc for disk write bandwidth",
                     "fieldConfig": {
@@ -7800,7 +7801,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "node:ins:disk_read_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
@@ -7811,7 +7812,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "node:ins:network_tx_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
@@ -7823,7 +7824,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "- node:ins:network_rx_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
@@ -7835,7 +7836,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "- node:ins:disk_write_bytes_rate1m{ip=~\"$members\"} * on(ip) group_right pg_up{cls=\"$cls\"}",
@@ -7851,7 +7852,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "fieldConfig": {
                         "defaults": {
@@ -7862,7 +7863,7 @@
                             "links": [
                                 {
                                     "title": "PGSQL Node : Disk for ${__field.labels.ins}:${__field.labels.mountpoint}",
-                                    "url": "/d/pgsql-node?var-id=${__field.labels.ins}&viewPanel=199"
+                                    "url": "/d/nodes-instance?var-id=${__field.labels.ins}&viewPanel=199"
                                 }
                             ],
                             "mappings": [],
@@ -7930,7 +7931,7 @@
                         {
                             "datasource": {
                                 "type": "prometheus",
-                                "uid": "ds-prometheus-pgsql"
+                                "uid": "${ds}"
                             },
                             "exemplar": true,
                             "expr": "max by (mountpoint) (node:fs:space_usage{ip=~\"$members\"})",
@@ -8057,6 +8058,5 @@
     "title": "PGSQL Cluster",
     "uid": "pgsql-cluster",
     "version": 1,
-    "weekStart": "",
-    "author": "Vonng (rh@vonng.com)"
+    "weekStart": ""
 }

@@ -105,7 +105,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "cls = ${cls}. Used as an unique cluster identifier and resource namespace.",
             "fieldConfig": {
@@ -194,7 +194,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "ins = ${ins}, used as unique instance identifier. ",
             "fieldConfig": {
@@ -281,7 +281,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "All instances among PostgreSQL cluster ${cls}",
             "fieldConfig": {
@@ -339,7 +339,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node for ${__data.fields.IP}",
-                                        "url": "/d/pgsql-node?var-id=${__data.fields.IP}"
+                                        "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
                                     }
                                 ]
                             }
@@ -492,7 +492,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "pg:ins:status{cls=\"$cls\"}",
@@ -505,7 +505,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "ins:pressure1{cls=\"$cls\"}",
@@ -578,7 +578,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Services in cluster ${cls}. On(green) means current instance are member of that service. Off(orange) means the opposite.",
             "fieldConfig": {
@@ -683,7 +683,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (proxy) (haproxy_server_status{cls=\"$cls\", server=\"$ins\"})",
@@ -716,7 +716,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "node = ${node}. Node hostname",
             "fieldConfig": {
@@ -804,7 +804,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "ip = ${ip}. Unique identifier for corresponding node",
             "fieldConfig": {
@@ -815,7 +815,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node of ${ip}",
-                            "url": "/d/pgsql-node?var-ip=${ip}"
+                            "url": "/d/nodes-instance?var-ip=${ip}"
                         }
                     ],
                     "mappings": [],
@@ -841,7 +841,7 @@
             "links": [
                 {
                     "title": "PGSQL Node : ${ip}",
-                    "url": "/d/pgsql-node?var-id=${ip}&var-ip=${ip}"
+                    "url": "/d/nodes-instance?var-id=${ip}&var-ip=${ip}"
                 }
             ],
             "options": {
@@ -892,7 +892,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Hostname = ${node}",
             "fieldConfig": {
@@ -903,7 +903,7 @@
                     "links": [
                         {
                             "title": "PGSQL Node of ${node}",
-                            "url": "/d/pgsql-node?var-id=${node}"
+                            "url": "/d/nodes-instance?var-id=${node}"
                         }
                     ],
                     "mappings": [],
@@ -929,7 +929,7 @@
             "links": [
                 {
                     "title": "PGSQL Node : ${node}",
-                    "url": "/d/pgsql-node?var-id=${node}&var-node=${node}"
+                    "url": "/d/nodes-instance?var-id=${node}&var-node=${node}"
                 }
             ],
             "options": {
@@ -1697,7 +1697,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (datname) (pg_size_bytes{ins=\"$ins\", datname!~\"wal|log\"})",
@@ -1710,7 +1710,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (datname) (pg:db:age{ins=\"$ins\"})",
@@ -1724,7 +1724,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (datname) (1 - pg_db_is_template{ins=\"$ins\"} + pg_db_allow_conn{ins=\"$primary\"} * 2)",
@@ -1738,7 +1738,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (datname) (pg_activity_count{ins=\"$ins\"})",
@@ -1752,7 +1752,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (datname) (pg:db:xact_commit_rate1m{ins=\"$ins\"})",
@@ -1766,7 +1766,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (datname) (pg_db_conn_limit{ins=\"$ins\"})",
@@ -1780,7 +1780,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (datname) (pgbouncer:db:conn_usage{ins=\"$ins\"})",
@@ -1794,7 +1794,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "max by (datname) (pg:db:conn_usage{ins=\"$ins\"})",
@@ -1808,7 +1808,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (datname) (pgbouncer_database_disabled{ins=\"$ins\", datname!=\"pgbouncer\"})",
@@ -1822,7 +1822,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (datname) (pgbouncer_database_paused{ins=\"$ins\", datname!=\"pgbouncer\"})",
@@ -1904,7 +1904,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Aliveness of major components on instance ${ins}\nuptime of node and database. aliveness of postgres, pgbouncer, node and haproxy",
             "fieldConfig": {
@@ -1996,7 +1996,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node for ${ins}",
-                                        "url": "/d/pgsql-node?var-ins=${ins}"
+                                        "url": "/d/nodes-instance?var-ins=${ins}"
                                     }
                                 ]
                             }
@@ -2115,7 +2115,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Replication Facts about this instance: In recovery, In sync commit mode, has replication descendant. has publication, has subscription",
             "fieldConfig": {
@@ -2504,7 +2504,7 @@
                                 "value": [
                                     {
                                         "title": "PGSQL Node for ${ins}",
-                                        "url": "/d/pgsql-node?var-ins=${ins}"
+                                        "url": "/d/nodes-instance?var-ins=${ins}"
                                     }
                                 ]
                             }
@@ -3038,7 +3038,7 @@
                     "links": [
                         {
                             "title": "PGSQL FS Space Usage for ${ins}",
-                            "url": "/d/pgsql-node?var-ins=${ins}&viewPanel=199"
+                            "url": "/d/nodes-instance?var-ins=${ins}&viewPanel=199"
                         }
                     ],
                     "mappings": [
@@ -3456,7 +3456,7 @@
                         },
                         {
                             "title": "PGSQL Node for ${__field.labels.ins}",
-                            "url": "/d/pgsql-node?var-ins=${__field.labels.ins}"
+                            "url": "/d/nodes-instance?var-ins=${__field.labels.ins}"
                         }
                     ],
                     "mappings": [],
@@ -3597,7 +3597,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -3677,7 +3677,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "node:cpu:usage{ip=\"$ip\"}",
@@ -3762,7 +3762,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "pg_repl_replay_lag{cls=\"$cls\", appname=\"$ins\"}",
@@ -3773,7 +3773,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "pg_lag{ins=\"$ins\"}",
@@ -3789,7 +3789,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Average transaction response time from Pgbouncer.\nYou can use PostgreSQL metric after PG14",
             "fieldConfig": {
@@ -3909,7 +3909,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "#pgbouncer:ins:xact_rt_1m{ins=\"$ins\"}\npg:ins:active_time_rate1m{ins=\"$ins\"} / pg:ins:xact_total_rate1m{ins=\"$ins\"} # PG14",
@@ -3921,7 +3921,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "# pgbouncer:db:xact_rt_1m{ins=\"$ins\"}\npg:db:active_time_rate1m{ins=\"$ins\", datname!~'template\\\\d'} / pg:db:xact_total_rate1m{ins=\"$ins\", datname!~'template\\\\d'} # PG14",
@@ -4083,7 +4083,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "pg_db_numbackends{ins=\"$ins\", datname!~'template\\\\d'}",
@@ -4095,7 +4095,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "pg_backend_count{ins=\"$ins\", type!=\"client backend\"}",
@@ -4110,7 +4110,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Transactions per seconds for each database in Last 5 minutes",
             "fieldConfig": {
@@ -4205,7 +4205,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Tuples fetched, inserted, updated, delete among this cluster",
             "fieldConfig": {
@@ -4331,7 +4331,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "sum(rate(pg_db_tup_fetched{ins=\"$ins\"}[1m]))",
@@ -4343,7 +4343,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "sum(rate(pg_db_tup_inserted{ins=\"$ins\"}[1m]))",
@@ -4356,7 +4356,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "sum(rate(pg_db_tup_updated{ins=\"$ins\"}[1m]))",
@@ -4369,7 +4369,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "sum(rate(pg_db_tup_deleted{ins=\"$ins\"}[1m]))",
@@ -4386,7 +4386,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "Time spent per second for each query of each instances.",
             "fieldConfig": {
@@ -4475,7 +4475,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "rate(pg_query_exec_time{ins=\"$ins\"}[5m]) / 1000",
@@ -4491,7 +4491,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "R\u25b2 for disk read bandwidth\nTX\u25b2 for network transmit bandwidth\nRX\u25bc for network receive bandwidth\nW\u25bc for disk write bandwidth",
             "fieldConfig": {
@@ -4569,7 +4569,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "node:dev:disk_read_bytes_rate1m{ip=\"$ip\"}",
@@ -4580,7 +4580,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "node:dev:network_tx_bytes_rate1m{ip=\"$ip\"}",
@@ -4592,7 +4592,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "- node:dev:network_rx_bytes_rate1m{ip=\"$ip\"}",
@@ -4604,7 +4604,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "- node:dev:disk_write_bytes_rate1m{ip=\"$ip\"}",
@@ -4627,6 +4627,21 @@
     ],
     "templating": {
         "list": [
+            {
+                "current": {},
+                "description": "Prometheus datasource used by this dashboard",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Source",
+                "multi": false,
+                "name": "ds",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
             {
                 "current": {},
                 "definition": "label_values(pg_up, ins)",
