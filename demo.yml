@@ -1,20 +1,35 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   meta.yml
-# Ctime     :   2022-02-22
-# Mtime     :   2022-02-22
-# Desc      :   init pigsty meta node
-# Path      :   meta.yml
+# File      :   demo.yml
+# Ctime     :   2021-01-19
+# Mtime     :   2022-03-01
+# Desc      :   init demo on sandbox nodes (one-pass bootstrap)
+# Path      :   demo.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
+
+#---------------------------------------------------------------
+# Notice
+#---------------------------------------------------------------
+# This is a special playbook that interleave meta.yml & pgsql.yml
+# It is used for 4-node demo, or in case that there are multiple
+# meta nodes also reused as common database nodes.
+#
+# to init multiple meta nodes, add their ip address to pigsty.yml
+#   all.children.meta.hosts
+#
+# if offline installation packages is used, you can also copy them to
+#   copy /www/pigsty to all meta nodes before run ./demo.yml
+#
+#---------------------------------------------------------------
 
 #---------------------------------------------------------------
 # setup meta node identity
 #---------------------------------------------------------------
 - name: Node Identity
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
   tags: [ always, node-id ]
   connection: local
@@ -48,33 +63,35 @@
       tags: repo                # you can disable repo on extra meta nodes with repo_enabled: false
       when: repo_enabled|bool
 
+
 #---------------------------------------------------------------
-# pigsty meta nodes setup
+# init node & dcs
 #---------------------------------------------------------------
-- name: Meta Node
+- name: Node Init
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
-  tags: meta-node
+  tags: node-init
   roles:
 
-    - role: node            # init meta node itself
+    # prepare node for use
+    - role: node
       tags: node
 
-    - role: consul          # init dcs:consul (servers)
-      tags: [ consul , dcs ]
+    # init dcs:consul server/agent
+    - role: consul
+      tags: [ dcs, consul ]
 
 
 #---------------------------------------------------------------
-# init infrastructure on meta nodes
+# Meta Infra
 #---------------------------------------------------------------
-- name: Meta Infrastructure
+- name: Init Infrastructure on Meta Nodes
   become: yes
   hosts: meta
-  gather_facts: no
   tags: meta-infra
+  gather_facts: no
   roles:
-
     - role: ca              # init ca-infrastructure
       tags: ca
 
@@ -90,30 +107,43 @@
     - role: grafana         # init grafana
       tags: grafana
 
+    #---------------------------------------------------------------
+    # extra infra services
+    #---------------------------------------------------------------
+    - role: jupyter         # init jupyter lab
+      tags: jupyter
+      ignore_errors: true
+
+    - role: pgweb           # init pgweb console
+      tags: pgweb
+      ignore_errors: true
+
+    - role: loki            # init pgweb console
+      tags: loki
+      ignore_errors: true
+
 #---------------------------------------------------------------
-# init meta monitoring
+# Node Monitor
 #---------------------------------------------------------------
-- name: Meta Monitor
+- name: Node Monitor
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
-  tags: meta-monitor
+  tags: node-monitor
   roles:
 
-    - role: node_exporter   # init node exporter on meta nodes
+    # init & register node exporter
+    - role: node_exporter
       tags: node_exporter
 
-    # TODO: consul exporter & blackbox exporter
-
-
 #---------------------------------------------------------------
-# init cmdb(s) on meta nodes
+# PostgreSQL
 #---------------------------------------------------------------
-- name: Meta PGSQL           # init pgsql cmdb on meta nodes
+- name: Pgsql Init
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
-  tags: meta-pgsql
+  tags: pgsql-init
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
@@ -125,8 +155,9 @@
     - role: pg_exporter     # init monitor exporters
       tags: pg_exporter
 
-    - role: pg_register     # register cluster/instance to infra
+    - role: pg_register     # register postgres cluster/instance to infra
       tags: pg_register
+
 
 #---------------------------------------------------------------
 ...

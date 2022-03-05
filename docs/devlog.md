@@ -1,13 +1,23 @@
 # Development Log
 
+#### 2022-03-05
+
+* Overhaul dashboards
+  * Nodes Cluster / Nodes Instance / Nodes Overview
+  * Add ds datasource variable to all dashboards (so you can change prometheus datasource by select hidden variables)  
+  * Reforge PGSQL Cluster Dashboards
+  * Add new dashboards: PGSQL Databases which focus on database dimension among cluster
+  * Adjust links for pgsql-node to nodes-instance
+  * Add database & service nav for pgsql-overview
+
 #### 2022-02-22
 
 * software upgrade
   * postgres minor version update: 14.1 -> 14.2 
-  * prometheus version 2.3
+  * prometheus version 2.33
   * timescaledb 2.6.0
   * postgis 3.2
-  * grafana 8.4
+  * grafana 8.4.2
 
 * add ins , cls label to node metrics
 
