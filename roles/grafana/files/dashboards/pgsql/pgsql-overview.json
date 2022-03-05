@@ -18,13 +18,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Monitoring Home Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1644549305208,
+    "iteration": 1646448071954,
     "links": [
         {
             "asDropdown": true,
@@ -92,7 +91,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "",
             "fieldConfig": {
@@ -100,7 +99,12 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "links": [],
+                    "links": [
+                        {
+                            "title": "Nodes Overview",
+                            "url": "/d/nodes-overview"
+                        }
+                    ],
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
@@ -136,10 +140,14 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
                     "expr": "1",
                     "format": "table",
                     "instant": true,
@@ -169,7 +177,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "",
             "fieldConfig": {
@@ -319,12 +327,12 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "count(count by (cls) (pg_up{job=\"$job\"}))",
@@ -338,7 +346,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "count(pg_up{job=\"$job\"})",
@@ -352,7 +360,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "count(pg_in_recovery{job=\"$job\"} == 1)",
@@ -366,7 +374,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "count(count by (proxy) (haproxy_server_status{job=\"$job\"}))",
@@ -380,7 +388,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "count(count(pg_up{job=\"$job\"}) by (ip))",
@@ -393,7 +401,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "count(max by (cls,datname) (pg_db_age{job=\"$job\"}))",
@@ -407,7 +415,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum(pg:cls:cpu_count{job=\"$job\"})",
@@ -421,7 +429,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum(pg:ins:mem_size{job=\"$job\"})",
@@ -435,7 +443,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum(pg:ins:fs_size{job=\"$job\"})",
@@ -449,7 +457,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum(max by (cls,datname)(pg_size_bytes{datname!~\"log|wal\", job=\"$job\"}))",
@@ -465,6 +473,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -552,12 +564,12 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "pg:env:cpu_usage{job=\"$job\"}",
@@ -569,6 +581,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -633,9 +649,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "sum(pg:cls:num_backends{job=\"$job\"})",
                     "interval": "",
@@ -646,6 +666,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -710,9 +734,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "pg:env:xact_commit_rate1m{job=\"$job\"}",
                     "interval": "",
@@ -723,6 +751,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -791,9 +823,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "pg:env:xact_rollback_rate1m{job=\"$job\"}",
                     "interval": "",
@@ -804,6 +840,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -868,9 +908,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "pgbouncer:env:query_rate1m{job=\"$job\"}",
                     "interval": "",
@@ -881,6 +925,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -946,9 +994,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "pg:env:lsn_rate1m{job=\"$job\"}",
                     "interval": "",
@@ -959,6 +1011,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1045,12 +1101,12 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "max(pg:ins:space_usage{job=\"$job\"})",
@@ -1062,6 +1118,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1149,9 +1209,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "pg:env:age{job=\"$job\"}",
                     "interval": "",
@@ -1162,6 +1226,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1246,9 +1314,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "max(pg:cls:lag_bytes{job=\"$job\"})",
                     "interval": "",
@@ -1259,6 +1331,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1331,9 +1407,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "max(pg:cls:ixact_backends{job=\"$job\"})",
                     "interval": "",
@@ -1344,6 +1424,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1430,9 +1514,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "max(pg:ins:conn_usage{job=\"$job\"})",
                     "instant": false,
@@ -1444,6 +1532,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1516,9 +1608,13 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "max(pgbouncer:cls:waiting_clients{job=\"$job\"})",
                     "interval": "",
@@ -1531,7 +1627,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1627,9 +1723,13 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "cls:pressure1{job=\"$job\"}",
                     "interval": "",
@@ -1642,7 +1742,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "description": "All instances in pgsql cluster ${cls}",
             "fieldConfig": {
@@ -1986,12 +2086,12 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "pg:ins:status{job=\"$job\"}",
@@ -2004,7 +2104,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "ins:pressure1{job=\"$job\"}",
@@ -2018,7 +2118,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "pg:ins:space_usage{job=\"$job\"}",
@@ -2032,7 +2132,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": false,
                     "expr": "sum by (ins) (haproxy_backend_current_sessions{job=\"$job\", proxy!=\"stats\"})",
@@ -2123,6 +2223,10 @@
             "type": "table"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2226,9 +2330,13 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"$job\"}) or on() vector(0)",
                     "interval": "",
@@ -2236,6 +2344,10 @@
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "count(ALERTS{alertstate=\"pending\", job=\"$job\"})",
                     "hide": false,
@@ -2247,6 +2359,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2316,9 +2432,13 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"$job\"}) by (alertname, severity)",
                     "interval": "",
@@ -2329,6 +2449,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2409,6 +2533,18 @@
                                 "value": 66
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "auto"
+                            }
+                        ]
                     }
                 ]
             },
@@ -2428,11 +2564,16 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\", job=\"$job\"})",
                     "interval": "",
@@ -2440,6 +2581,10 @@
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "0",
                     "hide": true,
@@ -2454,7 +2599,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2571,12 +2716,17 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "cls:pressure5{job=\"$job\"} != -1",
                     "interval": "",
@@ -2589,7 +2739,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "ds-prometheus-pgsql"
+                "uid": "${ds}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -2706,7 +2856,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
@@ -2714,7 +2865,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "ds-prometheus-pgsql"
+                        "uid": "${ds}"
                     },
                     "exemplar": true,
                     "expr": "ins:pressure5{job=\"$job\"}",
@@ -2724,10 +2875,414 @@
                 }
             ],
             "type": "timeseries"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 32
+            },
+            "id": 108,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "Business Database among this cluster\nValue means current connections\n\nClick goes to PGSQL Database Dashboard",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "custom": {
+                                "align": "center",
+                                "displayMode": "auto"
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue"
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Session"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "blue"
+                                                },
+                                                {
+                                                    "color": "green",
+                                                    "value": 4
+                                                },
+                                                {
+                                                    "color": "yellow",
+                                                    "value": 64
+                                                },
+                                                {
+                                                    "color": "orange",
+                                                    "value": 256
+                                                },
+                                                {
+                                                    "color": "red",
+                                                    "value": 512
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "color": "#808080",
+                                                        "index": 0,
+                                                        "text": "0"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null+nan",
+                                                    "result": {
+                                                        "index": 1,
+                                                        "text": "-"
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-text"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Databases : ${__data.fields.Database} on ${__data.fields.Cluster}\ufeff",
+                                                "url": "/d/pgsql-databases?var-cls=${__data.fields.Cluster}&var-datname=${__data.fields.Database}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Cluster"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Cluster : ${__data.fields.Cluster}\ufeff",
+                                                "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 100
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 12,
+                        "x": 0,
+                        "y": 33
+                    },
+                    "id": 110,
+                    "options": {
+                        "footer": {
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
+                        "showHeader": true,
+                        "sortBy": [
+                            {
+                                "desc": true,
+                                "displayName": "Session"
+                            }
+                        ]
+                    },
+                    "pluginVersion": "8.4.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "sum by (cls,datname) (pg_db_numbackends{job=\"$job\", datname!~\"wal|log|postgres|template\\\\d\"})",
+                            "format": "table",
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "{{ datname }} @ {{ cls }}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Database",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "Time": true
+                                },
+                                "indexByName": {
+                                    "Time": 3,
+                                    "Value": 2,
+                                    "cls": 1,
+                                    "datname": 0
+                                },
+                                "renameByName": {
+                                    "Value": "Session",
+                                    "cls": "Cluster",
+                                    "datname": "Database"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "Service among this environment",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "custom": {
+                                "align": "center",
+                                "displayMode": "auto"
+                            },
+                            "links": [],
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue"
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 1
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 1000
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Session"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "thresholds",
+                                        "value": {
+                                            "mode": "absolute",
+                                            "steps": [
+                                                {
+                                                    "color": "blue"
+                                                },
+                                                {
+                                                    "color": "green",
+                                                    "value": 8
+                                                },
+                                                {
+                                                    "color": "yellow",
+                                                    "value": 2048
+                                                },
+                                                {
+                                                    "color": "orange",
+                                                    "value": 8192
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "color": "#80808080",
+                                                        "index": 0,
+                                                        "text": "0"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            },
+                                            {
+                                                "options": {
+                                                    "match": "null+nan",
+                                                    "result": {
+                                                        "color": "#808080",
+                                                        "index": 1,
+                                                        "text": "-"
+                                                    }
+                                                },
+                                                "type": "special"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-text"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Service"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.minWidth",
+                                        "value": 150
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Service : ${__data.fields.Service}",
+                                                "url": "/d/pgsql-service?var-svc=${__data.fields.Service}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 12,
+                        "x": 12,
+                        "y": 33
+                    },
+                    "id": 111,
+                    "options": {
+                        "footer": {
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
+                        "showHeader": true,
+                        "sortBy": [
+                            {
+                                "desc": true,
+                                "displayName": "Session"
+                            }
+                        ]
+                    },
+                    "pluginVersion": "8.4.2",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "sum by (proxy) (haproxy_backend_current_sessions{job=\"$job\", proxy!=\"stats\"})",
+                            "format": "table",
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "{{ datname }} @ {{ cls }}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Service",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "Time": true
+                                },
+                                "indexByName": {
+                                    "Time": 2,
+                                    "Value": 1,
+                                    "proxy": 0
+                                },
+                                "renameByName": {
+                                    "Value": "Session",
+                                    "cls": "Cluster",
+                                    "datname": "Database",
+                                    "proxy": "Service"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
+                }
+            ],
+            "title": "Databases & Services",
+            "type": "row"
         }
     ],
     "refresh": false,
-    "schemaVersion": 34,
+    "schemaVersion": 35,
     "style": "light",
     "tags": [
         "Pigsty",
@@ -2740,7 +3295,7 @@
                 "current": {},
                 "definition": "label_values(pg_up, job)",
                 "description": "Environment identifier (pgsql by default)",
-                "hide": 0,
+                "hide": 2,
                 "includeAll": false,
                 "label": "Environment",
                 "multi": false,
@@ -2755,6 +3310,21 @@
                 "skipUrlSync": false,
                 "sort": 1,
                 "type": "query"
+            },
+            {
+                "current": {},
+                "description": "Prometheus datasource used by this dashboard",
+                "hide": 2,
+                "includeAll": false,
+                "label": "Source",
+                "multi": false,
+                "name": "ds",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
             }
         ]
     },
@@ -2767,5 +3337,6 @@
     "title": "PGSQL Overview",
     "uid": "pgsql-overview",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
