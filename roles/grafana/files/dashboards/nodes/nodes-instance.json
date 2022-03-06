@@ -18,13 +18,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Nodes: Instance Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1646200740510,
+    "iteration": 1646466517237,
     "links": [
         {
             "asDropdown": true,
@@ -70,8 +69,16 @@
                     },
                     "links": [
                         {
-                            "title": "PGSQL Cluster for ${cls}",
+                            "title": "Nodes Cluster : ${cls}",
+                            "url": "/d/nodes-cluster?var-cls=${cls}"
+                        },
+                        {
+                            "title": "Postgres Cluster : ${cls}",
                             "url": "/d/pgsql-cluster?var-cls=${cls}"
+                        },
+                        {
+                            "title": "Redis Cluster : ${cls}",
+                            "url": "/d/redis-cluster?var-cls=${cls}"
                         }
                     ],
                     "mappings": [],
@@ -246,7 +253,7 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "All nodes among environment ${job}",
+            "description": "Siblings of this node",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -873,7 +880,7 @@
                     "refId": "G"
                 }
             ],
-            "title": "Nodes",
+            "title": "Nodes Clusters",
             "transformations": [
                 {
                     "id": "seriesToColumns",
@@ -4345,7 +4352,7 @@
             "type": "timeseries"
         },
         {
-            "collapsed": false,
+            "collapsed": true,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -4353,649 +4360,646 @@
                 "y": 22
             },
             "id": 163,
-            "panels": [],
-            "title": "Processor",
-            "type": "row"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
                     },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "opacity",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "smooth",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "15m"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
-                                "value": 20
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
                             },
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 1
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "blue",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "5m"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 2
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "green",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "1m"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "yellow",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Realtime"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "orange",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 0,
-                "y": 23
-            },
-            "id": 172,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "last"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.0-beta2",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "node:ins:cpu_usage{ip=\"$ip\"}",
-                    "interval": "",
-                    "intervalFactor": 1,
-                    "legendFormat": "Realtime",
-                    "refId": "A"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "node:ins:cpu_usage_1m{ip=\"$ip\"}",
-                    "interval": "",
-                    "intervalFactor": 1,
-                    "legendFormat": "1m",
-                    "refId": "B"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "node:ins:cpu_usage_5m{ip=\"$ip\"}",
-                    "interval": "",
-                    "intervalFactor": 1,
-                    "legendFormat": "5m",
-                    "refId": "C"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "node:ins:cpu_usage_15m{ip=\"$ip\"}",
-                    "hide": false,
-                    "interval": "",
-                    "intervalFactor": 1,
-                    "legendFormat": "15m",
-                    "refId": "D"
-                }
-            ],
-            "title": "Node CPU Usage",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "Sum of all state will approximately to the number of cpu core",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "hidden",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 40,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 0,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "idle"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "rgba(180, 180, 180, 0.5)",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "iowait"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "purple",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "irq"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "nice"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "super-light-yellow",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "softirq"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "super-light-red",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "steal"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "semi-dark-yellow",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "system"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "blue",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "user"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "light-green",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "CPU Count"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.stacking",
-                                "value": {
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "opacity",
+                                "hideFrom": {
+                                    "graph": false,
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "smooth",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
                                     "group": "A",
                                     "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
                                 }
                             },
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": [
                             {
-                                "id": "custom.fillOpacity",
-                                "value": 0
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "15m"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 20
+                                    },
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 1
+                                    },
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "blue",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                "id": "custom.lineWidth",
-                                "value": 1
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "5m"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 2
+                                    },
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "green",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                "id": "unit",
-                                "value": "none"
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "1m"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "yellow",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "orange",
-                                    "mode": "fixed"
-                                }
-                            },
-                            {
-                                "id": "decimals",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "hidden"
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Realtime"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "orange",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "auto"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 12,
-                "y": 23
-            },
-            "id": 36,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.0-beta2",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "sum by (mode) (rate(node_cpu_seconds_total{ip=\"$ip\"}[1m]))",
-                    "interval": "",
-                    "intervalFactor": 1,
-                    "legendFormat": "{{ mode }}",
-                    "refId": "A"
-                },
-                {
-                    "exemplar": true,
-                    "expr": "sum(node:ins:cpu_count{ip=\"$ip\"})",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "CPU Count",
-                    "refId": "B"
-                }
-            ],
-            "title": "CPU Time by State (per Second)",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 0,
+                        "y": 23
                     },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "graph": false,
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
+                    "id": 172,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "last"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
                         },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
+                        "tooltip": {
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
+                    "pluginVersion": "8.0.0-beta2",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "node:ins:cpu_usage{ip=\"$ip\"}",
+                            "interval": "",
+                            "intervalFactor": 1,
+                            "legendFormat": "Realtime",
+                            "refId": "A"
+                        },
+                        {
+                            "exemplar": true,
+                            "expr": "node:ins:cpu_usage_1m{ip=\"$ip\"}",
+                            "interval": "",
+                            "intervalFactor": 1,
+                            "legendFormat": "1m",
+                            "refId": "B"
+                        },
+                        {
+                            "exemplar": true,
+                            "expr": "node:ins:cpu_usage_5m{ip=\"$ip\"}",
+                            "interval": "",
+                            "intervalFactor": 1,
+                            "legendFormat": "5m",
+                            "refId": "C"
+                        },
+                        {
+                            "exemplar": true,
+                            "expr": "node:ins:cpu_usage_15m{ip=\"$ip\"}",
+                            "hide": false,
+                            "interval": "",
+                            "intervalFactor": 1,
+                            "legendFormat": "15m",
+                            "refId": "D"
+                        }
+                    ],
+                    "title": "Node CPU Usage",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "Sum of all state will approximately to the number of cpu core",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "hidden",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 40,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "graph": false,
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 0,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "normal"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": [
                             {
-                                "color": "green",
-                                "value": null
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "idle"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "rgba(180, 180, 180, 0.5)",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
                             },
                             {
-                                "color": "red",
-                                "value": 80
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "iowait"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "purple",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "irq"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "red",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "nice"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "super-light-yellow",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "softirq"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "super-light-red",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "steal"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "semi-dark-yellow",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "system"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "blue",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "user"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "light-green",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "CPU Count"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.stacking",
+                                        "value": {
+                                            "group": "A",
+                                            "mode": "none"
+                                        }
+                                    },
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 0
+                                    },
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 1
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "none"
+                                    },
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "orange",
+                                            "mode": "fixed"
+                                        }
+                                    },
+                                    {
+                                        "id": "decimals",
+                                        "value": 0
+                                    },
+                                    {
+                                        "id": "custom.axisPlacement",
+                                        "value": "hidden"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byType",
+                                    "options": "time"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.axisPlacement",
+                                        "value": "auto"
+                                    }
+                                ]
                             }
                         ]
                     },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 9,
-                "w": 16,
-                "x": 0,
-                "y": 29
-            },
-            "id": 35,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.0-beta2",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "node:cpu:usage{ip=\"$ip\"}",
-                    "interval": "",
-                    "intervalFactor": 2,
-                    "legendFormat": "CPU {{ cpu }}",
-                    "refId": "A"
-                }
-            ],
-            "title": "Core Usage Realtime",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 12,
+                        "y": 23
                     },
-                    "decimals": 0,
+                    "id": 36,
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.0.0-beta2",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "sum by (mode) (rate(node_cpu_seconds_total{ip=\"$ip\"}[1m]))",
+                            "interval": "",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ mode }}",
+                            "refId": "A"
+                        },
+                        {
+                            "exemplar": true,
+                            "expr": "sum(node:ins:cpu_count{ip=\"$ip\"})",
+                            "hide": false,
+                            "interval": "",
+                            "legendFormat": "CPU Count",
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "CPU Time by State (per Second)",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "graph": false,
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "auto",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 16,
+                        "x": 0,
+                        "y": 29
+                    },
+                    "id": 35,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "single",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.0.0-beta2",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "node:cpu:usage{ip=\"$ip\"}",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "CPU {{ cpu }}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Core Usage Realtime",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 0,
+                            "links": [],
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "noValue": "\u00d8",
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue"
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 0.1
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 0.3
+                                    },
+                                    {
+                                        "color": "rgba(237, 129, 40, 0.89)",
+                                        "value": 0.5
+                                    },
+                                    {
+                                        "color": "#d44a3a",
+                                        "value": 0.7
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 0.9
+                                    },
+                                    {
+                                        "color": "rgba(0, 0, 0, 0.7)",
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 8,
+                        "x": 16,
+                        "y": 29
+                    },
+                    "id": 180,
                     "links": [],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "\u00d8",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.3
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "#d44a3a",
-                                "value": 0.7
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "rgba(0, 0, 0, 0.7)",
-                                "value": 1
-                            }
-                        ]
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "auto",
+                        "reduceOptions": {
+                            "calcs": [
+                                "mean"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {},
+                        "textMode": "value_and_name"
                     },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 16,
-                "y": 29
-            },
-            "id": 180,
-            "links": [],
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "reduceOptions": {
-                    "calcs": [
-                        "mean"
+                    "pluginVersion": "8.4.2",
+                    "targets": [
+                        {
+                            "exemplar": true,
+                            "expr": "node:cpu:usage_avg15m{ip=\"$ip\"}",
+                            "instant": false,
+                            "interval": "",
+                            "legendFormat": "C{{ cpu }}",
+                            "refId": "A"
+                        }
                     ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "value_and_name"
-            },
-            "pluginVersion": "8.4.2",
-            "targets": [
-                {
-                    "exemplar": true,
-                    "expr": "node:cpu:usage_avg15m{ip=\"$ip\"}",
-                    "instant": false,
-                    "interval": "",
-                    "legendFormat": "C{{ cpu }}",
-                    "refId": "A"
+                    "type": "stat"
                 }
             ],
-            "type": "stat"
+            "title": "Processor",
+            "type": "row"
         },
         {
             "collapsed": true,
@@ -5003,7 +5007,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 23
             },
             "id": 191,
             "panels": [
@@ -6273,7 +6277,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 39
+                "y": 24
             },
             "id": 165,
             "panels": [
@@ -7880,7 +7884,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 40
+                "y": 25
             },
             "id": 167,
             "panels": [
@@ -9280,7 +9284,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 41
+                "y": 26
             },
             "id": 193,
             "panels": [
@@ -10573,7 +10577,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 42
+                "y": 27
             },
             "id": 169,
             "panels": [
@@ -11450,7 +11454,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 43
+                "y": 28
             },
             "id": 197,
             "panels": [
@@ -12299,7 +12303,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 44
+                "y": 29
             },
             "id": 171,
             "panels": [
@@ -12995,5 +12999,6 @@
     "title": "Nodes Instance",
     "uid": "nodes-instance",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }

@@ -18,14 +18,13 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Redis Cluster Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "gnetId": 10819,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1643102005511,
+    "iteration": 1646465588662,
     "links": [
         {
             "asDropdown": false,
@@ -99,10 +98,14 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
-                    "exemplar": true,
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "exemplar": false,
                     "expr": "1",
                     "format": "table",
                     "instant": true,
@@ -254,7 +257,7 @@
                 },
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "datasource": {
@@ -498,7 +501,7 @@
                 "text": {},
                 "textMode": "value_and_name"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "exemplar": true,
@@ -563,7 +566,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Address"
+                            "options": "IP"
                         },
                         "properties": [
                             {
@@ -574,7 +577,7 @@
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "PGSQL Node for ${__data.fields.IP}",
+                                        "title": "Node Instance : ${__data.fields.IP}",
                                         "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
                                     }
                                 ]
@@ -816,21 +819,16 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "IP"
+                            "options": "Address"
                         },
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 90
+                                "value": 140
                             },
                             {
                                 "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Redis Node : ${__data.fields.IP}",
-                                        "url": "/d/node?var-ip=${__data.fields.IP}"
-                                    }
-                                ]
+                                "value": []
                             }
                         ]
                     }
@@ -854,7 +852,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
                     "datasource": {
@@ -996,6 +994,10 @@
             "type": "table"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1099,9 +1101,13 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"$job\"}) or on() vector(0)",
                     "interval": "",
@@ -1109,6 +1115,10 @@
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "count(ALERTS{alertstate=\"pending\", job=\"$job\"})",
                     "hide": false,
@@ -1120,6 +1130,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1189,9 +1203,13 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.4",
+            "pluginVersion": "8.4.2",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "count(ALERTS{alertstate=\"firing\", job=\"$job\"}) by (alertname, severity)",
                     "interval": "",
@@ -1202,6 +1220,10 @@
             "type": "stat"
         },
         {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1282,6 +1304,18 @@
                                 "value": 66
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "auto"
+                            }
+                        ]
                     }
                 ]
             },
@@ -1301,11 +1335,16 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\", job=\"$job\"})",
                     "interval": "",
@@ -1313,6 +1352,10 @@
                     "refId": "A"
                 },
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
                     "exemplar": true,
                     "expr": "0",
                     "hide": true,
@@ -1444,7 +1487,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
@@ -1579,7 +1623,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0",
@@ -1695,7 +1740,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -1806,7 +1852,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -1931,7 +1978,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2048,7 +2096,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2264,7 +2313,8 @@
                             "placement": "bottom"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2496,7 +2546,8 @@
                             "placement": "bottom"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2618,7 +2669,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2704,7 +2756,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2790,7 +2843,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2877,7 +2931,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -2963,7 +3018,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -3050,7 +3106,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -3137,7 +3194,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -3224,7 +3282,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -4595,7 +4654,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 34
+                        "y": 69
                     },
                     "id": 57,
                     "links": [],
@@ -4608,7 +4667,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -4689,7 +4749,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 34
+                        "y": 69
                     },
                     "id": 56,
                     "links": [],
@@ -4702,7 +4762,8 @@
                             "placement": "right"
                         },
                         "tooltip": {
-                            "mode": "single"
+                            "mode": "single",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.5",
@@ -4728,7 +4789,7 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 34,
+    "schemaVersion": 35,
     "style": "dark",
     "tags": [
         "REDIS",
@@ -4753,9 +4814,13 @@
             },
             {
                 "current": {},
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${ds}"
+                },
                 "definition": "label_values(redis_up, job)",
                 "description": "Environment identifier (redis by default)",
-                "hide": 0,
+                "hide": 2,
                 "includeAll": false,
                 "label": "Environment",
                 "multi": false,
@@ -4805,5 +4870,6 @@
     "title": "Redis Overview",
     "uid": "redis-overview",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
