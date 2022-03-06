@@ -533,8 +533,8 @@ sshpass -p ${ssh_pass} ssh-copy-id demo
 标准安装使用以下命令即可
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```
@@ -543,8 +543,8 @@ make install
 
 ```bash
 make upload-terraform  #  将本地 dist/ 目录中的 pigsty.tgz pkg.tgz 上传，等效于以下命令
-scp dist/v1.3.1/pigsty.tgz demo:~/
-scp dist/v1.3.1/pkg.tgz demo:/tmp/pkg.tgz
+scp dist/v1.4.0/pigsty.tgz demo:~/
+scp dist/v1.4.0/pkg.tgz demo:/tmp/pkg.tgz
 ```
 
 接下来执行常规的`configure`，`install` 流程即可

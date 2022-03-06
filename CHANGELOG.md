@@ -1,3 +1,18 @@
+# v1.4.0 Nodes Monitor & MatrixDB Support
+
+[Monitor]
+
+
+[Deploy]
+* New `infra-demo.yml` playbook for one-pass bootstrap
+* Use `infra-jupyter.yml` playbook to deploy optional jupyter lab server
+
+
+[BugFix]
+* Grafana's security breach (upgrade to v8.3.1 [issue](https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/))
+
+
+
 # v1.3.1 Bug fix & Dashboard Adjust 
 
 [Monitor]

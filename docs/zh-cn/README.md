@@ -1,12 +1,12 @@
 # Pigsty
 
-## v1.3.1 中文文档
+## v1.4.0 中文文档
 
 **开箱即用**的**开源**PostgreSQL**发行版**
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.3.1](https://github.com/Vonng/pigsty/releases/tag/v1.3.1)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
+> 最新版本: [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 >
@@ -40,8 +40,8 @@ make install
 您也可以使用`curl`替代`git`下载源代码与离线软件包（CentOS 7.8.2003），以执行离线安装。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```

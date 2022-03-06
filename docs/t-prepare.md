@@ -125,7 +125,7 @@ git clone https://github.com/Vonng/pigsty && cd pigsty # Get the latest code
 If you don't have `git`, you can use `curl` to download it. It is recommended to use this method to download a fixed version: `1.3.1` is the specific version number.
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # Download a specific version of the code (recommended)
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # Download a specific version of the code (recommended)
 ```
 
 Or download the source code from Baidu.com: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (extraction code: `8su9`)
@@ -143,7 +143,7 @@ The official offline package is based on CentOS 7.8.2003 operating system enviro
 Offline packages can be downloaded from the Github Release page, `1.3.1` is the specific version number, the package should be consistent with the source code version.
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
 ```
 
 Baidu.com also provides ``pkg.tgz`` for download from the same address as the Pigsty source code.

@@ -1,6 +1,6 @@
 # Pigsty
 
-## Pigsty v1.3.1 Documentation
+## Pigsty v1.4.0 Documentation
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
@@ -33,8 +33,8 @@ make install
 You can also download source & packages via `curl` instead of git: 
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```
@@ -264,8 +264,8 @@ It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.3.1/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
 git clone https://github.com/Vonng/pigsty && cd pigsty
 ./configure
 make install
