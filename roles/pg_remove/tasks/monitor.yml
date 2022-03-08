@@ -53,36 +53,6 @@
 
 
 #------------------------------------------------------------------------------
-# Remove Node Exporter
-#------------------------------------------------------------------------------
-- name: Remove Node Exporter
-  tags: node_exporter
-  become: yes
-  ignore_errors: yes
-  block:
-
-    #---------------------------------------------
-    # Deregister Service
-    #---------------------------------------------
-    - name: Remove node_exporter service from consul
-      tags: consul_registry
-      when: service_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-node-exporter.json
-        state: absent
-
-    - name: Reload consul to dereigster node_exporter
-      when: service_registry == 'consul'
-      systemd: name=consul state=reloaded
-
-    #---------------------------------------------
-    # Stop Service
-    #---------------------------------------------
-    - name: Stop and disable node_exporter service
-      systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
-
-
-#------------------------------------------------------------------------------
 # Remove Promtail (if exists)
 #------------------------------------------------------------------------------
 - name: Stop and disable promtail service
