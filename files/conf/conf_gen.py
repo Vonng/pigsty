@@ -9,8 +9,8 @@ pigsty_yml = os.path.abspath(os.path.join(script_dir, '..', '..', 'pigsty.yml'))
 print("load config from %s" % pigsty_yml)
 raw_config = open(pigsty_yml, 'r').readlines()
 
-# pigsty-demo.yml is exact same as pigsty.yml (default config for demo environment)
-dst_path = os.path.join(script_dir, "pigsty-demo.yml")
+# pigsty.yml is exact same as pigsty.yml (default config)
+dst_path = os.path.join(script_dir, "pigsty.yml")
 print("generate %s" % dst_path)
 with open(dst_path, 'w') as dst:
     for line in raw_config:
