@@ -4,15 +4,15 @@
 # Desc      :   Pigsty 4-node matrixdb config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-02-22
+# Mtime     :   2022-03-08
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
 ######################################################################
-# 1. mx-mdw-1 : 10.10.10.10 (2 Core | 4GB)  meta
-# 2. mx-sdw-1 : 10.10.10.11 (1 Core | 1GB)  mx-mdw-1(m)
-# 3. mx-sdw-2 : 10.10.10.12 (1 Core | 1GB)  mx-seg1-1(p) mx-seg2-1(r)
-# 4. mx-sdw-3 : 10.10.10.13 (1 Core | 1GB)  mx-seg2-1(p) mx-seg1-2(r)
+# 1. mx-mdw-1 : 10.10.10.10 (2 Core | 4GB)  mx-mdw-1(m)
+# 2. mx-sdw-1 : 10.10.10.11 (1 Core | 1GB)  mx-seg1-1(p) mx-seg2-2(r)
+# 3. mx-sdw-2 : 10.10.10.12 (1 Core | 1GB)  mx-seg2-1(p) mx-seg3-2(r)
+# 4. mx-sdw-3 : 10.10.10.13 (1 Core | 1GB)  mx-seg3-1(p) mx-seg1-2(r)
 ######################################################################
 
 all:
@@ -22,43 +22,25 @@ all:
       hosts: { 10.10.10.10: { } }
 
     #----------------------------------#
-    # cluster: pg-meta (default cmdb)
-    #----------------------------------#
-    pg-meta:
-      hosts:
-        10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true }
-      vars:
-        pg_cluster: pg-meta
-        pg_users:
-          - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
-          - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
-        pg_databases:
-          - name: meta
-            baseline: cmdb.sql
-            comment: pigsty meta database
-            connlimit: -1
-            schemas: [ pigsty ]
-            extensions:
-              - { name: adminpack, schema: pg_catalog }
-              - { name: postgis, schema: public }
-              - { name: timescaledb }
-
-
-    #----------------------------------#
     # cluster: mx-mdw (gp master)
     #----------------------------------#
     mx-mdw:
       hosts:
-        10.10.10.11: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
+        10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
       vars:
         gp_role: master          # this cluster is used as greenplum master
         pg_cluster: mx-mdw       # this master cluster name is mx-mdw
-        pg_databases: [ { name: matrixmgr , extensions: [ { name: matrixdbts } ] } ]
-        pg_users: [ { name: meta , password: DBUser.Meta , pgbouncer: true } ]
+        pg_databases:
+          - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
+          - { name: meta }
+        pg_users:
+          - { name: meta , password: DBUser.Meta , pgbouncer: true }
+          - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
 
         pg_dbsu: mxadmin              # matrixdb dbsu
         pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
         pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
+        pg_localhost: /tmp            # default unix socket dir
         node_name_exchange: true      # exchange node names among cluster
         patroni_enabled: false        # do not pull up normal postgres with patroni
         pgbouncer_enabled: true       # enable pgbouncer for greenplum master
@@ -77,17 +59,20 @@ all:
     #----------------------------------#
     mx-sdw:
       hosts:
-        10.10.10.12:
-          nodename: mx-sdw-1
-          pg_seq: 1
-          pg_instances:
+        10.10.10.11:
+          nodename: mx-sdw-1        # greenplum segment node
+          pg_instances:             # greenplum segment instances
             6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
-        10.10.10.13:
+        10.10.10.12:
           nodename: mx-sdw-2
-          pg_seq: 2
           pg_instances:
-            6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+            6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633  }
+            6001: { pg_cluster: mx-seg3, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634  }
+        10.10.10.13:
+          nodename: mx-sdw-3
+          pg_instances:
+            6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
       vars:
         gp_cluster: mx                 # greenplum cluster name
@@ -105,7 +90,9 @@ all:
         pgbouncer_exporter_enabled: false      # enable pgbouncer for greenplum master
         pg_provision: false           # provision postgres template & database & user
         haproxy_enabled: false        # disable haproxy monitor on greenplum
-        pg_localhost: /tmp                                                    # connect to segments via /tmp unix socket
+        pg_localhost: /tmp            # connect to segments via /tmp unix socket
+        pg_monitor_username: mxadmin  # use default dbsu as monitor username (not recommended in production env)
+        pg_monitor_password: mxadmin  # use default dbsu name as monitor password (strongly not recommended in production env)
         pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
         pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
         pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
@@ -321,7 +308,7 @@ all:
     repo_url_packages:
       # mandatory rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter-0.4.0-1.el7.x86_64.rpm
+      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/init/haproxy-2.5.1-1.el7.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/init/haproxy-debuginfo-2.5.1-1.el7.x86_64.rpm
 
@@ -445,7 +432,7 @@ all:
       - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
       - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
       - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
-      - { name: matrix,        domain: matrix.pigsty, endpoint: "10.10.10.11:8240" }   # matrixdb
+      - { name: matrix,        domain: matrix.pigsty, endpoint: "10.10.10.10:8240" }   # matrixdb
 
     # - app - #
     app_list:                                      # show extra application links on home page
@@ -619,12 +606,12 @@ all:
     pg_init: pg-init                              # init script for cluster template
 
     # - system roles - #
-    pg_replication_username: replicator           # system replication user
-    pg_replication_password: DBUser.Replicator    # system replication password
-    pg_monitor_username: dbuser_monitor           # system monitor user
-    pg_monitor_password: DBUser.Monitor           # system monitor password
-    pg_admin_username: dbuser_dba                 # system admin user
-    pg_admin_password: DBUser.DBA                 # system admin password
+    pg_replication_username: mxadmin              # system replication user
+    pg_replication_password: mxadmin              # system replication password
+    pg_monitor_username: mxadmin                  # use default dbsu as monitor username (not recommended in production env)
+    pg_monitor_password: mxadmin                  # use default dbsu name as monitor password (strongly not recommended in production env)
+    pg_admin_username: mxadmin                    # system admin user
+    pg_admin_password: mxadmin                    # system admin password
 
     # - default roles - #
     pg_default_roles:

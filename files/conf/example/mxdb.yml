@@ -3,7 +3,7 @@
 #----------------------------------#
 mx-mdw:
   hosts:
-    10.10.10.11: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
+    10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
   vars:
     gp_role: master          # this cluster is used as greenplum master
     pg_cluster: mx-mdw       # this master cluster name is mx-mdw
@@ -31,17 +31,20 @@ mx-mdw:
 #----------------------------------#
 mx-sdw:
   hosts:
-    10.10.10.12:
-      nodename: mx-sdw-1
-      pg_seq: 1
-      pg_instances:
+    10.10.10.11:
+      nodename: mx-sdw-1        # greenplum segment node
+      pg_instances:             # greenplum segment instances
         6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
         6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
-    10.10.10.13:
+    10.10.10.12:
       nodename: mx-sdw-2
-      pg_seq: 2
       pg_instances:
-        6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+        6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633  }
+        6001: { pg_cluster: mx-seg3, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634  }
+    10.10.10.13:
+      nodename: mx-sdw-3
+      pg_instances:
+        6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
         6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
   vars:
     gp_cluster: mx                 # greenplum cluster name

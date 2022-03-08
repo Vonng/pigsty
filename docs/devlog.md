@@ -1,5 +1,20 @@
 # Development Log
 
+#### 2022-03-08
+
+* Greenplum/MatrixDB Support finished!
+  * Simplify `gpsql.yml` playbook
+  * Remove role `gp_prepare` & `gp_provision`
+  * Remove playbook `gpsql-post.yml`
+  * Update default pigsty-mxdb.yml example
+* Fix all example configs
+* Add `-d postgres` when execute `pgsql-createuser.yml` 
+* Software update:
+  * pg_exporter v0.4.1 : new timeout parameter, bug fix, pgbouncer v1.16 support, etc...
+  * greenplum 6.19.1 -> 6.19.3o
+  * grafana 8.4.2 -> 8.4.3
+
+
 #### 2022-03-05
 
 * Overhaul dashboards

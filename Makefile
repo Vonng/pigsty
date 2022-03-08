@@ -42,7 +42,7 @@ config:
 
 # (3). INSTALL    pigsty on current node
 install:
-	./infra.yml -l ${CLS}
+	./meta.yml -l ${CLS}
 ###############################################################
 
 
@@ -145,7 +145,7 @@ conf:
 
 # install pigsty on meta nodes
 infra:
-	./infra.yml -l ${CLS}
+	./meta.yml -l ${CLS}
 
 # create new pgsql cluster  (e.g:  CLS=pg-test make pgsql)
 pgsql:
@@ -168,34 +168,34 @@ logging: loki pgsql-promtail
 #------------------------------#
 # init local yum repo
 repo:
-	./infra.yml -l ${CLS} --tags=repo
+	./meta.yml -l ${CLS} --tags=repo
 
 # re-install upstream yum repo
 repo-upstream:
-	./infra.yml -l ${CLS} --tags=repo_upstream
+	./meta.yml -l ${CLS} --tags=repo_upstream
 
 # repo-download will re-download missing packages
 repo-download:
 	sudo rm -rf /www/pigsty/repo_complete
-	./infra.yml -l ${CLS} --tags=repo_download
+	./meta.yml -l ${CLS} --tags=repo_download
 
 #------------------------------#
 # prometheus
 #------------------------------#
 # init prometheus
 prometheus:
-	./infra.yml -l ${CLS} --tags=prometheus
+	./meta.yml -l ${CLS} --tags=prometheus
 
 # refresh monitoring targets
 refresh:
-	./infra.yml -l ${CLS} --tags=prometheus_targets,prometheus_reload
+	./meta.yml -l ${CLS} --tags=prometheus_targets,prometheus_reload
 
 #------------------------------#
 # grafana
 #------------------------------#
 # init grafana
 grafana:
-	./infra.yml -l ${CLS} --tags=grafana
+	./meta.yml -l ${CLS} --tags=grafana
 
 # init loki (additional logging service)
 loki:
@@ -228,14 +228,6 @@ prometheus-target:
 #------------------------------#
 # construction
 #------------------------------#
-# init database cluster  (force-clean)
-pgsql-init:
-	./infra.yml -l ${CLS} --tags=pgsql -e pg_exists_action=clean
-
-# init node
-pgsql-node:
-	./pgsql.yml -l ${CLS} --tags=node
-
 # init dcs service
 pgsql-dcs:
 	./pgsql.yml -l ${CLS} --tags=dcs -e dcs_exists_action=clean
@@ -525,7 +517,7 @@ upload-matrix:
 config-matrix:
 	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www;'
 	ssh meta 'sudo cp -f /tmp/matrix.repo /www/matrix.repo;'
-	scp files/conf/example/pigsty-mxdb.yml meta:~/pigsty/pigsty.yml
+	scp files/conf/pigsty-mxdb.yml meta:~/pigsty/pigsty.yml
 
 # matrix: prepare matrix environment
 matrix: upload-vagrant upload-matrix config-vagrant config-matrix

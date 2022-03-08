@@ -137,27 +137,32 @@
       tags: node_exporter
 
 #---------------------------------------------------------------
-# PostgreSQL
+# init postgres on all nodes
 #---------------------------------------------------------------
-- name: Pgsql Init
+- name: Meta PGSQL           # init pgsql cmdb on meta nodes
   become: yes
-  hosts: all
+  hosts: meta
   gather_facts: no
-  tags: pgsql-init
+  tags: meta-pgsql
+  vars:
+    no_cmdb: false          # command line args
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
+      when: not no_cmdb|bool
       tags: postgres
 
     - role: service         # init service , haproxy , vip
+      when: not no_cmdb|bool
       tags: service
 
     - role: pg_exporter     # init monitor exporters
+      when: not no_cmdb|bool
       tags: pg_exporter
 
-    - role: pg_register     # register postgres cluster/instance to infra
+    - role: pg_register     # register cluster/instance to infra
+      when: not no_cmdb|bool
       tags: pg_register
-
 
 #---------------------------------------------------------------
 ...
