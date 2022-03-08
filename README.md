@@ -315,7 +315,7 @@ It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/pigsty.tgz | gzip -d | tar -xC ~
 cd pigsty && ./configure
 make install
 ```

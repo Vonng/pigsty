@@ -11,7 +11,7 @@
 * Add `-d postgres` when execute `pgsql-createuser.yml` 
 * Software update:
   * pg_exporter v0.4.1 : new timeout parameter, bug fix, pgbouncer v1.16 support, etc...
-  * greenplum 6.19.1 -> 6.19.3o
+  * greenplum 6.19.1 -> 6.19.3
   * grafana 8.4.2 -> 8.4.3
 
 
