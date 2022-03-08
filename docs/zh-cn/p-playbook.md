@@ -10,11 +10,11 @@ Pigsty提供了以下预置剧本
 
 **基础设施初始化**
 
-* [`infra.yml`](https://github.com/vonng/pigsty/blob/master/infra.yml) ：基础设施初始化
-* [`infra-demo.yml`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml) ：基础设施初始化（一趟完成管理节点与数据库节点的完整初始化）
-* [`infra-jupyter.yml`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml) ：基础设施：可选数据分析服务组件组件Jupyter Lab安装
-* [`infra-loki.yml`](https://github.com/vonng/pigsty/blob/master/infra-loki.yml) ：基础设施：可选日志收集组件Loki安装
-* [`infra-pgweb.yml`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml) ：基础设施：可选的Web客户端工具PGWeb安装
+* [`meta.yml`](https://github.com/vonng/pigsty/blob/master/meta.yml) ：基础设施初始化
+* [`meta-demo.yml`](https://github.com/vonng/pigsty/blob/master/demo.yml) ：基础设施初始化（一趟完成管理节点与数据库节点的完整初始化）
+* [`meta-jupyter.yml`](https://github.com/vonng/pigsty/blob/master/meta-jupyter.yml) ：基础设施：可选数据分析服务组件组件Jupyter Lab安装
+* [`meta-loki.yml`](https://github.com/vonng/pigsty/blob/master/meta-loki.yml) ：基础设施：可选日志收集组件Loki安装
+* [`meta-pgweb.yml`](https://github.com/vonng/pigsty/blob/master/meta-pgweb.yml) ：基础设施：可选的Web客户端工具PGWeb安装
 
 
 **PostgreSQL初始化**

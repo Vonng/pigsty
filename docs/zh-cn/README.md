@@ -15,38 +15,47 @@
 ## Pigsty是什么？
 
 * Pigsty是**开箱即用的PostgreSQL[发行版](#发行版)**
-
 * Pigsty是**全面专业的PostgreSQL[监控系统](#监控系统)**
-
 * Pigsty是**高可用的PostgreSQL[部署方案](#部署方案)**
-
 * Pigsty是**用途广泛的PostgreSQL[沙箱环境](#用途广泛)**
-
 * Pigsty是**自由免费的开源软件，基于Apache 2.0协议开源**
+* Pigsty不仅支持PostgreSQL，现已支持 [**Redis**](t-redis.md) 与 [**MatrixDB**](t-gpsql.md) （Greenplum7）的部署与监控
 
 
 ![](../_media/what-zh.svg)
 
 ## 太长；不看
 
-准备新机器一台：Linux x86_64 CentOS 7.8，配置免密码`sudo`与`ssh`登陆权限，执行以下命令在本机完成Pigsty安装。
+准备全新机器节点一台，操作系统为Linux x86_64 CentOS 7.8，确保您可以登陆该节点并免密码执行`sudo`命令。
 
 ```bash
-git clone https://github.com/Vonng/pigsty && cd pigsty
+git clone https://github.com/Vonng/pigsty && cd pigsty # 下载
+./configure                                            # 配置
+make install                                           # 安装
+```
+
+建议下载指定版本号的Release与配套离线软件包以加速安装，使用`curl`提前下载并安装特定版本的Pigsty：
+
+```bash
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```
 
-您也可以使用`curl`替代`git`下载源代码与离线软件包（CentOS 7.8.2003），以执行离线安装。
+执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库服务，80端口对外提供所有UI类服务。
+
+您可以从这台机器发起管理控制，将更多的[机器节点](t-node.yml)纳入Pigsty的管理与监控中，并在这些节点上部署额外的，不同种类的数据库集群，例如 [PostgreSQL](p-pgsql.md)，[Redis](t-redis.md)，与[MatrixDB](t-gpsql.md)。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
-./configure
-make install
+# 在四节点本地沙箱/云端演示环境中，可以使用以下命令在其他三台节点上部署数据库集群
+./node.yml  -l pg-test       # 初始化PostgreSQL数据库集群pg-test包含的三台机器节点（配置节点+纳入监控）
+./pgsql.yml -l pg-test       # 初始化高可用PostgreSQL数据库集群pg-test
+./redis.yml -l redis-cluster # 初始化Redis集群 redis-cluster
+./gpsql.yml -l mx-mdw,mx-sdw # 初始化MatrixDB集群Master与Segments
 ```
 
-更多安装Pigsty的细节，请参考[安装部署](s-install.md)，置备虚拟机的细节可以参考：[沙箱环境](s-sandbox.md)。
+安装Pigsty的细节请参考[安装部署](s-install.md)，在本地或云端准备虚拟机环境可以参考：[沙箱环境](s-sandbox.md)。
 
 
 
@@ -239,11 +248,11 @@ pg-meta:                                # required, ansible group name , pgsql c
 </details>
 
 
-此外，除了PostgreSQL外，从Pigsty v1.3开始，还提供了对Redis部署与监控的支持，更多的数据库类型将在后续逐渐加入。
+此外，除了PostgreSQL外，从Pigsty v1.3开始，还提供了对Redis部署与监控的支持
 <details>
 <summary>样例：定制不同类型的Redis集群</summary>
 
-```bash
+```yaml
 #----------------------------------#
 # sentinel example                 #
 #----------------------------------#
@@ -292,6 +301,98 @@ redis-standalone:
 ```
 
 </details>
+
+
+从Pigsty v1.4开始，提供了对MatrixDB (Greenplum7) 的初步支持
+<details>
+<summary>样例：安装并监控一套MatrixDB集群</summary>
+
+```yaml
+#----------------------------------#
+# cluster: mx-mdw (gp master)
+#----------------------------------#
+mx-mdw:
+  hosts:
+    10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
+  vars:
+    gp_role: master          # this cluster is used as greenplum master
+    pg_cluster: mx-mdw       # this master cluster name is mx-mdw
+    pg_databases:
+      - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
+      - { name: meta }
+    pg_users:
+      - { name: meta , password: DBUser.Meta , pgbouncer: true }
+      - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
+
+    pg_dbsu: mxadmin              # matrixdb dbsu
+    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
+    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
+    pg_localhost: /tmp            # default unix socket dir
+    node_name_exchange: true      # exchange node names among cluster
+    patroni_enabled: false        # do not pull up normal postgres with patroni
+    pgbouncer_enabled: true       # enable pgbouncer for greenplum master
+    pg_provision: false           # provision postgres template & database & user
+    haproxy_enabled: false        # disable haproxy monitor on greenplum
+    pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
+    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+    pg_extensions: [ ]
+    node_local_repo_url:          # local repo url (if method=local, make sure firewall is configured or disabled)
+      - http://pigsty/pigsty.repo
+      - http://pigsty/matrix.repo
+
+#----------------------------------#
+# cluster: mx-sdw (gp master)
+#----------------------------------#
+mx-sdw:
+  hosts:
+    10.10.10.11:
+      nodename: mx-sdw-1        # greenplum segment node
+      pg_instances:             # greenplum segment instances
+        6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+        6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
+    10.10.10.12:
+      nodename: mx-sdw-2
+      pg_instances:
+        6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633  }
+        6001: { pg_cluster: mx-seg3, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634  }
+    10.10.10.13:
+      nodename: mx-sdw-3
+      pg_instances:
+        6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+        6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
+  vars:
+    gp_cluster: mx                 # greenplum cluster name
+    pg_cluster: mx-sdw
+    gp_role: segment               # these are nodes for gp segments
+    node_cluster: mx-sdw           # node cluster name of sdw nodes
+
+    pg_preflight_skip: true       # skip preflight check
+    pg_dbsu: mxadmin              # matrixdb dbsu
+    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
+    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
+    node_name_exchange: true      # exchange node names among cluster
+    patroni_enabled: false        # do not pull up normal postgres with patroni
+    pgbouncer_enabled: false      # enable pgbouncer for greenplum master
+    pgbouncer_exporter_enabled: false      # enable pgbouncer for greenplum master
+    pg_provision: false           # provision postgres template & database & user
+    haproxy_enabled: false        # disable haproxy monitor on greenplum
+    pg_localhost: /tmp            # connect to segments via /tmp unix socket
+    pg_monitor_username: mxadmin  # use default dbsu as monitor username (not recommended in production env)
+    pg_monitor_password: mxadmin  # use default dbsu name as monitor password (strongly not recommended in production env)
+    pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
+    pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
+    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+    pg_extensions: [ ]
+    node_local_repo_url: # local repo url (if method=local, make sure firewall is configured or disabled)
+      - http://pigsty/pigsty.repo
+      - http://pigsty/matrix.repo
+```
+
+</details>
+
+
 
 
 ### 高可用集群

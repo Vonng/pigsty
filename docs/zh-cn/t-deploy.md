@@ -35,7 +35,7 @@ Pigsty在部署前需要进行一些[准备工作](t-prepare.md)：配置带有�
 
 ## 执行剧本
 
-* [基础设施初始化](p-infra.md)
+* [基础设施初始化](p-meta.md)
 * [数据库初始化](p-pgsql.md) （集群创建，新增实例）
 * [数据库下线](p-pgsql-remove.md)（移除实例，移除集群）
 * [创建业务用户](p-pgsql-createuser.md)

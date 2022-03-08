@@ -162,7 +162,7 @@ It depends on the complexity of the user database (workload), for reference: 200
 
 For details, please refer to [system architecture](c-arch.md)
 
-! [](... /_media/infra.svg)
+![](_media/meta.svg)
 
 Pigsty is a database solution with a full runtime. On the local machine, Pigsty can be used as a development, testing, and data analysis environment. In a production environment, Pigsty can be used to deploy, manage, and monitor large-scale PostgreSQL clusters.
 

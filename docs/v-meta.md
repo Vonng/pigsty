@@ -413,14 +413,14 @@ grafana_git_plugins: # plugins that will be downloaded via git
 bool type, indicate whether setup loki during infra initialization
 
 Loki is not part of the default installation of monitoring components,
-and this parameter is currently only used by the `infra-loki.yml` script.
+and this parameter is currently only used by the `meta-loki.yml` script.
 
 
 ### loki_clean
 
 bool type, command line parameter to indicate whether to clean the Loki data directory first when installing Loki?
 
-Loki is not part of the default installation of monitoring components, and this parameter is currently only used by the `infra-loki.yml` script.
+Loki is not part of the default installation of monitoring components, and this parameter is currently only used by the `meta-loki.yml` script.
 
 
 
@@ -430,7 +430,7 @@ String type, filesystem path to specify the Loki data directory location.
 
 The default location is `/export/loki/`
 
-Loki is not part of the default installed monitoring component, this parameter is currently only used by the `infra-loki.yml` script.
+Loki is not part of the default installed monitoring component, this parameter is currently only used by the `meta-loki.yml` script.
 
 
 

@@ -1,7 +1,6 @@
-# 基础设施初始化
+# 元节点初始化（Pigsty安装）
 
 > 如何使用剧本初始化基础设施
-
 
 
 ## 概览
@@ -22,7 +21,7 @@
 
 ![](../_media/playbook/infra.svg)
 
-**管理节点**可以当作**普通节点复用**，即在管理节点上也可以定义并创建PostgreSQL数据库。Infra剧本默认会在在管理节点上创建一个[`pg-meta`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L43)元数据库，用于承载Pigsty高级特性。
+**管理节点**可以当作**普通节点复用**，即在管理节点上也可以定义并创建PostgreSQL数据库。Meta 剧本默认会在在管理节点上创建一个[`pg-meta`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L43)元数据库，用于承载Pigsty高级特性。
 
 `meta.yml`覆盖了[`pgsql.yml`](p-pgsql.md)的所有内容，因此`meta.yml`如果可以在管理节点上成功执行完毕，那么则在相同状态的普通节点上一定可以成功完成数据库部署。
 

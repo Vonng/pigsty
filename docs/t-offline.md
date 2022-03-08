@@ -24,7 +24,7 @@ If you wish to skip the long download process, or if the execution control meta-
 
 To **quickly** pull up Pigsty, it is **recommended** to use the offline download package and upload method to complete the installation.
 
-The offline installer includes all packages from the local Yum repository. By default, Pigsty is installed at [Infra Init](p-infra/) when the local Yum repository is created.
+The offline installer includes all packages from the local Yum repository. By default, Pigsty is installed at [Infra Init](p-meta/) when the local Yum repository is created.
 
 ```
 {{ repo_home }}

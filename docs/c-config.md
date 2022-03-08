@@ -17,10 +17,10 @@ Most of them can be directly used with default values, and the rest can be custo
 | No | Group | Category | Quantity | Function |
 | :--: | :-------------------------------: | :------: | :--: | -------------------------------------- |
 | 1 | [connect](v-connect.md) | infra | 1 | Proxy server configuration, connection information for managed objects |
-| 2 | [repo](v-repo.md) | infra | 10 | Customize local Yum sources, install packages offline |
-| 3 | [node](v-node.md) | infra | 31 | Configuring infrastructure on a normal node |
-| 4 | [meta](v-meta.md) | infra | 26 | Installing and enabling infrastructure services on a meta node |
-| 5 | [dcs](v-dcs.md) | infra | 8 | Configure DCS services (consul/etcd) on all nodes |
+| 2 | [repo](v-repo.md) | meta | 10 | Customize local Yum sources, install packages offline |
+| 3 | [meta](v-meta.md) | meta | 26 | Installing and enabling infrastructure services on a meta node |
+| 4 | [node](v-node.md) | node | 31 | Configuring infrastructure on a normal node |
+| 5 | [dcs](v-dcs.md) | node | 8 | Configure DCS services (consul/etcd) on all nodes |
 | 6 | [pg-install](v-pg-install.md) | pgsql | 11 | Installing the PostgreSQL database |
 | 7 | [pg-provision](v-pg-provision.md) | pgsql | 33 | Pulling up a PostgreSQL database cluster |
 | 8 | [pg-template](v-pg-template.md) | pgsql | 19 | Customizing PostgreSQL database content |

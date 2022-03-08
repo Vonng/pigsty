@@ -20,7 +20,7 @@ Pigsty提供了一个**可选**的实时日志收集方案，基于  [loki](http
 为了启用日志收集功能，您需要执行以下两个剧本。
 
 ```bash
-./infra-loki.yml         # 在管理节点上安装loki(日志服务器)
+./meta-loki.yml         # 在管理节点上安装loki(日志服务器)
 ./pgsql-promtail.yml     # 在数据库节点上安装promtail (日志Agent)
 ```
 

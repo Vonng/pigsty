@@ -179,7 +179,7 @@ make install
 
 ```bash
 [root@VM-0-11-centos pigsty]# make install
-./infra.yml -l meta
+./meta.yml -l meta
 [WARNING]: Invalid characters were found in group names but not replaced, use -vvvv to see details
 
 PLAY [Infra Init] *************************************************************************************************************************************************************

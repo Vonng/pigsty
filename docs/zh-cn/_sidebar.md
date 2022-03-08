@@ -1,4 +1,4 @@
-- 概览
+- [概览](README.md)
   - [上手指南](s-intro.md)
   - [安装部署](s-install.md)
   - [沙箱环境](s-sandbox.md)
@@ -26,8 +26,9 @@
   - [常见故障诊断与处理](t-failure.md)
   - [数据库备份与恢复](t-backup.md)
   - [使用与制作离线安装包](t-offline.md)
-  - [Redis集群部署与监控](t-redis.md)
-  - [部署日志收集服务](t-logging.md)
+  - [Redis集群部署](t-redis.md)
+  - [MatrixDB集群部署](t-gpsql.md)
+  - [日志收集](t-logging.md)
   - [数据库迁移](t-migration.md)
   - [安装Pigsty扩展应用](t-application.md)
   - [定制Patroni配置模板](t-patroni-template.md)
@@ -55,7 +56,7 @@
 
 - 剧本
   - [执行剧本](p-playbook.md)
-  - [剧本：基础设施初始化](p-infra.md)
+  - [剧本：基础设施初始化](p-meta.md)
   - [剧本：数据库初始化](p-pgsql.md)
   - [剧本：业务用户创建](p-pgsql-createuser.md)  
   - [剧本：业务数据库创建](p-pgsql-createdb.md)

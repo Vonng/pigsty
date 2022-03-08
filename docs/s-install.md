@@ -172,7 +172,7 @@ configure pigsty done. Use 'make install' to proceed
 make install
 ```
 
-It actually invokes ansible playbook [`infra.yml`](p-infra.md) on `meta` group. 
+It actually invokes ansible playbook [`meta.yml`](p-meta.md) on `meta` group. 
 Which will init infrastructure and a full-featured `pg-meta` postgres cluster.
 
 The installation procedure took about 10 minutes (offline installation, sandbox, 2C|4GB)
@@ -210,7 +210,7 @@ Pigsty comes with a realtime logging collection solution based on [loki](https:/
 It's optional, and not enabled by default. But you can deploy and enable it with two commands:
 
 ```bash
-./infra-loki.yml        # Install loki     (logging server) on meta node
+./meta-loki.yml        # Install loki     (logging server) on meta node
 ./pgsql-promtail.yml    # Install promtail (logging agent) on database node
 ```
 

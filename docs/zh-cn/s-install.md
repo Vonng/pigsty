@@ -133,7 +133,7 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 ```bash
 vagrant@meta:~/pigsty 
 $ ./configure
-configure pigsty v1.4.0 begin
+configure pigsty v1.4.0-beta begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect
@@ -167,7 +167,7 @@ configure pigsty done. Use 'make install' to proceed
 make install
 ```
 
-它实际上调用Ansible执行[`infra.yml`](p-infra.md)剧本，在`meta`分组上完成安装。
+它实际上调用Ansible执行[`meta.yml`](p-meta.md)剧本，在`meta`分组上完成安装。
 
 在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
 

@@ -106,11 +106,11 @@ systemctl reload grafana-server # 重载配置： Grafana
 ### 重置特定组件
 
 ```bash
-./infra.yml -t repo_upstream       # 重新在管理节点上添加上游repo
-./infra.yml -t repo_download       # 重新在管理节点上下载软件包
-./infra.yml -t nginx_home          # 重新生成Nginx首页内容
-./infra.yml -t prometheus_config   # 重置Prometheus配置
-./infra.yml -t grafana_provision   # 重置Grafana监控面板
+./meta.yml -t repo_upstream       # 重新在管理节点上添加上游repo
+./meta.yml -t repo_download       # 重新在管理节点上下载软件包
+./meta.yml -t nginx_home          # 重新生成Nginx首页内容
+./meta.yml -t prometheus_config   # 重置Prometheus配置
+./meta.yml -t grafana_provision   # 重置Grafana监控面板
 ```
 
 ```bash
@@ -658,28 +658,28 @@ $ pg list pg-test
 
 > 俗话说，重启可以解决90%的问题，而重装可以解决剩下的10%。
 
-面对疑难杂症，重置问题组件是一种简单有效的止损手段。使用Pigsty的初始化剧本 [`infra.yml`](p-infra) 与 [`pgsql.yml `](p-pgsql)可以重置基础设施与数据库集群，但通常我们只需要使用特定的子任务来重置特定组件即可。
+面对疑难杂症，重置问题组件是一种简单有效的止损手段。使用Pigsty的初始化剧本 [`meta.yml`](p-meta) 与 [`pgsql.yml `](p-pgsql)可以重置基础设施与数据库集群，但通常我们只需要使用特定的子任务来重置特定组件即可。
 
 ### 基础设施重置
 
 常用的基础设施重新配置命令包括：
 
 ```bash
-./infra.yml -t repo_upstream       # 重新在管理节点上添加上游repo
-./infra.yml -t repo_download       # 重新在管理节点上下载软件包
-./infra.yml -t nginx_home          # 重新生成Nginx首页内容
-./infra.yml -t prometheus_config   # 重置Prometheus配置
-./infra.yml -t grafana_provision   # 重置Grafana监控面板
+./meta.yml -t repo_upstream       # 重新在管理节点上添加上游repo
+./meta.yml -t repo_download       # 重新在管理节点上下载软件包
+./meta.yml -t nginx_home          # 重新生成Nginx首页内容
+./meta.yml -t prometheus_config   # 重置Prometheus配置
+./meta.yml -t grafana_provision   # 重置Grafana监控面板
 ```
 
 您也可以强行重新安装这些组件
 
 ```bash
-./infra.yml -t nginx      # 重新配置Nginx
-./infra.yml -t prometheus # 重新配置Prometheus
-./infra.yml -t grafana    # 重新配置Grafana
-./infra.yml -t jupyter    # 重置Jupyterlab
-./infra.yml -t pgweb      # 重置PGWeb
+./meta.yml -t nginx      # 重新配置Nginx
+./meta.yml -t prometheus # 重新配置Prometheus
+./meta.yml -t grafana    # 重新配置Grafana
+./meta.yml -t jupyter    # 重置Jupyterlab
+./meta.yml -t pgweb      # 重置PGWeb
 ```
 
 此外，您可以以下命令使用重置数据库节点上的具体组件

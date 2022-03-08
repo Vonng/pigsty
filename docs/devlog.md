@@ -102,7 +102,7 @@
 
 * Redis Dashboards Enhancement
 * PGCAT Dashboards Enhancement
-* Separate loki & pgweb from standard infra.yml playbook
+* Separate loki & pgweb from standard meta.yml playbook
 
 #### 2021-12-04
 
