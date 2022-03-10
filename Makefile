@@ -510,14 +510,11 @@ config-vagrant:
 # matrixdb
 #------------------------------#
 upload-matrix:
-	scp dist/matrix/matrix.tgz meta:/tmp/matrix.tgz
-	scp dist/matrix/matrix.repo meta:/tmp/matrix.repo
+	scp dist/matrix.tgz meta:/tmp/matrix.tgz
 
 # extract matrix resource to pigsty repo
 config-matrix:
 	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www;'
-	ssh meta 'sudo cp -f /tmp/matrix.repo /www/matrix.repo;'
-	scp files/conf/pigsty-mxdb.yml meta:~/pigsty/pigsty.yml
 
 # matrix: prepare matrix environment
 matrix: upload-vagrant upload-matrix config-vagrant config-matrix

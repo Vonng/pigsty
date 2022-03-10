@@ -29,6 +29,7 @@ all:
         10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
       vars:
         gp_role: master          # this cluster is used as greenplum master
+        gp_cluster: mx           # greenplum cluster name
         pg_cluster: mx-mdw       # this master cluster name is mx-mdw
         pg_databases:
           - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
@@ -37,22 +38,9 @@ all:
           - { name: meta , password: DBUser.Meta , pgbouncer: true }
           - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
 
-        pg_dbsu: mxadmin              # matrixdb dbsu
-        pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
-        pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
-        pg_localhost: /tmp            # default unix socket dir
-        node_name_exchange: true      # exchange node names among cluster
-        patroni_enabled: false        # do not pull up normal postgres with patroni
-        pgbouncer_enabled: true       # enable pgbouncer for greenplum master
-        pg_provision: false           # provision postgres template & database & user
-        haproxy_enabled: false        # disable haproxy monitor on greenplum
+        pgbouncer_enabled: true                # enable pgbouncer for greenplum master
+        pgbouncer_exporter_enabled: false      # enable pgbouncer_exporter for greenplum master
         pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
-        pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-        pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-        pg_extensions: [ ]
-        node_local_repo_url:          # local repo url (if method=local, make sure firewall is configured or disabled)
-          - http://pigsty/pigsty.repo
-          - http://pigsty/matrix.repo
 
     #----------------------------------#
     # cluster: mx-sdw (gp master)
@@ -75,32 +63,13 @@ all:
             6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
             6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
       vars:
-        gp_cluster: mx                 # greenplum cluster name
-        pg_cluster: mx-sdw
         gp_role: segment               # these are nodes for gp segments
-        node_cluster: mx-sdw           # node cluster name of sdw nodes
-
-        pg_preflight_skip: true       # skip preflight check
-        pg_dbsu: mxadmin              # matrixdb dbsu
-        pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
-        pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
-        node_name_exchange: true      # exchange node names among cluster
-        patroni_enabled: false        # do not pull up normal postgres with patroni
-        pgbouncer_enabled: false      # enable pgbouncer for greenplum master
-        pgbouncer_exporter_enabled: false      # enable pgbouncer for greenplum master
-        pg_provision: false           # provision postgres template & database & user
-        haproxy_enabled: false        # disable haproxy monitor on greenplum
-        pg_localhost: /tmp            # connect to segments via /tmp unix socket
-        pg_monitor_username: mxadmin  # use default dbsu as monitor username (not recommended in production env)
-        pg_monitor_password: mxadmin  # use default dbsu name as monitor password (strongly not recommended in production env)
+        gp_cluster: mx                 # greenplum cluster name
+        pg_cluster: mx-sdw             # these segment clusters name is mx-sdw
+        pg_preflight_skip: true        # skip preflight check (since pg_seq & pg_role & pg_cluster not exists)
         pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
         pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
-        pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-        pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-        pg_extensions: [ ]
-        node_local_repo_url: # local repo url (if method=local, make sure firewall is configured or disabled)
-          - http://pigsty/pigsty.repo
-          - http://pigsty/matrix.repo
+
 
   #==================================================================#
   #                           Globals                                #
@@ -357,8 +326,9 @@ all:
     # - node repo - #
     node_repo_method: local                       # none|local|public (use local repo for production env)
     node_repo_remove: true                        # whether remove existing repo
-    node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
+    node_local_repo_url:                        # local repo url
       - http://pigsty/pigsty.repo
+      - http://pigsty/matrix.repo               # extra repo for matrixdb
 
     # - node packages - #
     node_packages:                                # common packages for all nodes
@@ -507,10 +477,10 @@ all:
     # POSTGRES INSTALLATION
     #------------------------------------------------------------------------------
     # - dbsu - #
-    pg_dbsu: postgres                             # os user for database, postgres by default (unwise to change it)
-    pg_dbsu_uid: 26                               # os dbsu uid and gid, 26 for default postgres users and groups
+    pg_dbsu: mxadmin                              # os user for database, postgres by default (unwise to change it)
+    pg_dbsu_uid: 1226                             # os dbsu uid and gid, 26 for default postgres users and groups
     pg_dbsu_sudo: limit                           # dbsu sudo privilege: none|limit|all|nopass, limit by default
-    pg_dbsu_home: /var/lib/pgsql                  # postgresql home directory
+    pg_dbsu_home: /home/mxadmin                   # postgresql home directory
     pg_dbsu_ssh_exchange: true                    # exchange postgres dbsu ssh key among same cluster ?
 
     # - postgres packages - #                     # `${pg_version} will be replaced by actual `pg_version`
@@ -518,17 +488,8 @@ all:
     pgdg_repo: false                              # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                            # add postgres related repo before install (useful if you want a simple install)
     pg_bin_dir: /usr/pgsql/bin                    # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
-    pg_packages:                                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}*                  # postgresql kernel packages
-      - postgis32_${pg_version}*                  # postgis
-      - citus_${pg_version}*                      # citus
-      - timescaledb-2-postgresql-${pg_version}    # timescaledb
-      - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
-      - patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd
-      - python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
-
-    pg_extensions:                                # postgresql extensions. `${pg_version} will be replaced by `pg_version`
-      - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
+    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
+    pg_extensions: [ ]
 
 
     #------------------------------------------------------------------------------
@@ -560,12 +521,12 @@ all:
     # - connection - #
     pg_listen: '0.0.0.0'                          # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
     pg_port: 5432                                 # postgres port, 5432 by default
-    pg_localhost: /var/run/postgresql             # localhost unix socket dir for connection
+    pg_localhost: /tmp                            # use /tmp localhost unix socket dir for matrixdb
     # pg_upstream:                                # [OPTIONAL] specify replication upstream, instance level
     # Set on primary instance will transform this cluster into a standby cluster
 
     # - patroni - #
-    patroni_enabled: true                         # if not enabled, no postgres cluster will be created
+    patroni_enabled: false                        # disable patroni & raw postgres, prepare for matrixdb
     # patroni_mode, available options: default|pause|remove
     #   - default: default ha mode
     #   - pause:   into maintenance mode
@@ -591,16 +552,16 @@ all:
     pg_lc_ctype: en_US.UTF8                       # database character type, en_US.UTF8 by default (for i18n full-text search)
 
     # - pgbouncer - #
-    pgbouncer_enabled: true                       # if not enabled, pgbouncer will not be created
+    pgbouncer_enabled: false                      # disable pgbouncer for matrixdb nodes (except master)
     pgbouncer_port: 6432                          # pgbouncer port, 6432 by default
-    pgbouncer_poolmode: transaction               # pooling mode: session|transaction|statement, transaction pooling by default
+    pgbouncer_poolmode: session                   # use session pooling for matrixdb
     pgbouncer_max_db_conn: 100                    # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
 
 
     #------------------------------------------------------------------------------
     # POSTGRES TEMPLATE
     #------------------------------------------------------------------------------
-    pg_provision: true                            # whether provisioning postgres cluster
+    pg_provision: false                           # not provision for matrixdb
 
     # - template - #
     pg_init: pg-init                              # init script for cluster template
@@ -612,115 +573,6 @@ all:
     pg_monitor_password: mxadmin                  # use default dbsu name as monitor password (strongly not recommended in production env)
     pg_admin_username: mxadmin                    # system admin user
     pg_admin_password: mxadmin                    # system admin password
-
-    # - default roles - #
-    pg_default_roles:
-      # default roles
-      - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
-      - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }  # production read-write role
-      - { name: dbrole_offline , login: false , comment: role for restricted read-only access (offline instance) }        # restricted-read-only role
-      - { name: dbrole_admin , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation }  # production DDL change role
-
-      # default users
-      - { name: postgres , superuser: true , comment: system superuser }                             # system dbsu, name is designated by `pg_dbsu`
-      - { name: dbuser_dba , superuser: true , roles: [dbrole_admin] , comment: system admin user }  # admin dbsu, name is designated by `pg_admin_username`
-      - { name: replicator , replication: true , bypassrls: true , roles: [pg_monitor, dbrole_readonly] , comment: system replicator }                   # replicator
-      - { name: dbuser_monitor , roles: [pg_monitor, dbrole_readonly] , comment: system monitor user , parameters: {log_min_duration_statement: 1000 } } # monitor user
-      - { name: dbuser_stats , password: DBUser.Stats , roles: [dbrole_offline] , comment: business offline user for offline queries and ETL }           # ETL user
-
-    # - privileges - #
-    # object created by dbsu and admin will have their privileges properly set
-    pg_default_privileges:
-      - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
-      - GRANT SELECT                        ON TABLES    TO dbrole_readonly
-      - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
-      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
-      - GRANT USAGE                         ON SCHEMAS   TO dbrole_offline
-      - GRANT SELECT                        ON TABLES    TO dbrole_offline
-      - GRANT SELECT                        ON SEQUENCES TO dbrole_offline
-      - GRANT EXECUTE                       ON FUNCTIONS TO dbrole_offline
-      - GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
-      - GRANT USAGE, UPDATE                 ON SEQUENCES TO dbrole_readwrite
-      - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
-      - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
-
-    # - schemas - #
-    pg_default_schemas: [ monitor ]               # default schemas to be created
-
-    # - extension - #
-    pg_default_extensions:                        # default extensions to be created
-      - { name: 'pg_stat_statements', schema: 'monitor' }
-      - { name: 'pgstattuple',        schema: 'monitor' }
-      - { name: 'pg_qualstats',       schema: 'monitor' }
-      - { name: 'pg_buffercache',     schema: 'monitor' }
-      - { name: 'pageinspect',        schema: 'monitor' }
-      - { name: 'pg_prewarm',         schema: 'monitor' }
-      - { name: 'pg_visibility',      schema: 'monitor' }
-      - { name: 'pg_freespacemap',    schema: 'monitor' }
-      - { name: 'pg_repack',          schema: 'monitor' }
-      - name: postgres_fdw
-      - name: file_fdw
-      - name: btree_gist
-      - name: btree_gin
-      - name: pg_trgm
-      - name: intagg
-      - name: intarray
-
-    # - hba - #
-    pg_offline_query: false                       # set to true to enable offline query on this instance (instance level)
-    pg_reload: true                               # reload postgres after hba changes
-    pg_hba_rules:                                 # postgres host-based authentication rules
-      - title: allow meta node password access
-        role: common
-        rules:
-          - host    all     all                         10.10.10.10/32      md5
-
-      - title: allow intranet admin password access
-        role: common
-        rules:
-          - host    all     +dbrole_admin               10.0.0.0/8          md5
-          - host    all     +dbrole_admin               172.16.0.0/12       md5
-          - host    all     +dbrole_admin               192.168.0.0/16      md5
-
-      - title: allow intranet password access
-        role: common
-        rules:
-          - host    all             all                 10.0.0.0/8          md5
-          - host    all             all                 172.16.0.0/12       md5
-          - host    all             all                 192.168.0.0/16      md5
-
-      - title: allow local read/write (local production user via pgbouncer)
-        role: common
-        rules:
-          - local   all     +dbrole_readonly                                md5
-          - host    all     +dbrole_readonly           127.0.0.1/32         md5
-
-      - title: allow offline query (ETL,SAGA,Interactive) on offline instance
-        role: offline
-        rules:
-          - host    all     +dbrole_offline               10.0.0.0/8        md5
-          - host    all     +dbrole_offline               172.16.0.0/12     md5
-          - host    all     +dbrole_offline               192.168.0.0/16    md5
-
-    pg_hba_rules_extra: []                        # extra hba rules (overwrite by cluster/instance level config)
-
-    pgbouncer_hba_rules:                          # pgbouncer host-based authentication rules
-      - title: local password access
-        role: common
-        rules:
-          - local  all          all                                     md5
-          - host   all          all                     127.0.0.1/32    md5
-
-      - title: intranet password access
-        role: common
-        rules:
-          - host   all          all                     10.0.0.0/8      md5
-          - host   all          all                     172.16.0.0/12   md5
-          - host   all          all                     192.168.0.0/16  md5
-
-    pgbouncer_hba_rules_extra: []                 # extra pgbouncer hba rules (overwrite by cluster/instance level config)
-    # pg_users: []                                # business users
-    # pg_databases: []                            # business databases
 
     #------------------------------------------------------------------------------
     # MONITOR PROVISION
@@ -744,12 +596,12 @@ all:
     pg_exporter_params: 'host=/var/run/postgresql&sslmode=disable' # url query parameters for pg_exporter
     pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
     pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
-    pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
+    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # exclude matrixmgr for matrixdb
     pg_exporter_include_database: ''             # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
     pg_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
 
     # - pgbouncer exporter - #
-    pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
+    pgbouncer_exporter_enabled: false             # disable pgbouncer_exporter for matrixdb nodes (except master)
     pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
     pgbouncer_exporter_url: ''                    # optional, if not set, generate from reference parameters
     pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
@@ -761,76 +613,5 @@ all:
     promtail_status_file: /tmp/promtail-status.yml
     promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
 
-    #------------------------------------------------------------------------------
-    # SERVICE PROVISION
-    #------------------------------------------------------------------------------
-    pg_weight: 100              # default load balance weight (instance level)
-
-    # - service - #
-    pg_services:               # how to expose postgres service in cluster?
-      # primary service will route {ip|name}:5433 to primary pgbouncer (5433->6432 rw)
-      - name: primary           # service name {{ pg_cluster }}-primary
-        src_ip: "*"
-        src_port: 5433
-        dst_port: pgbouncer     # 5433 route to pgbouncer
-        check_url: /primary     # primary health check, success when instance is primary
-        selector: "[]"          # select all instance as primary service candidate
-
-      # replica service will route {ip|name}:5434 to replica pgbouncer (5434->6432 ro)
-      - name: replica           # service name {{ pg_cluster }}-replica
-        src_ip: "*"
-        src_port: 5434
-        dst_port: pgbouncer
-        check_url: /read-only   # read-only health check. (including primary)
-        selector: "[]"          # select all instance as replica service candidate
-        selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
-        # primary are used as backup server in replica service
-
-      # default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
-      - name: default           # service's actual name is {{ pg_cluster }}-default
-        src_ip: "*"             # service bind ip address, * for all, vip for cluster virtual ip address
-        src_port: 5436          # bind port, mandatory
-        dst_port: postgres      # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
-        check_method: http      # health check method: only http is available for now
-        check_port: patroni     # health check port:  patroni|pg_exporter|port_number , patroni by default
-        check_url: /primary     # health check url path, / as default
-        check_code: 200         # health check http code, 200 as default
-        selector: "[]"          # instance selector
-        haproxy:                # haproxy specific fields
-          maxconn: 3000         # default front-end connection
-          balance: roundrobin   # load balance algorithm (roundrobin by default)
-          default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-
-      # offline service will route {ip|name}:5438 to offline postgres (5438->5432 offline)
-      - name: offline           # service name {{ pg_cluster }}-offline
-        src_ip: "*"
-        src_port: 5438
-        dst_port: postgres
-        check_url: /replica     # offline MUST be a replica
-        selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
-        selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
-
-    pg_services_extra: []        # extra services to be added
-
-    # - haproxy - #
-    haproxy_enabled: true                         # enable haproxy among every cluster members
-    haproxy_reload: true                          # reload haproxy after config
-    haproxy_admin_auth_enabled: false             # enable authentication for haproxy admin?
-    haproxy_admin_username: admin                 # default haproxy admin username
-    haproxy_admin_password: pigsty                # default haproxy admin password
-    haproxy_exporter_port: 9101                   # default admin/exporter port
-    haproxy_client_timeout: 24h                   # client side connection timeout
-    haproxy_server_timeout: 24h                   # server side connection timeout
-
-    # - vip - #
-    vip_mode: none                                # none | l2 | l4
-    vip_reload: true                              # whether reload service after config
-    # vip_address: 127.0.0.1                      # virtual ip address ip (l2 or l4)
-    # vip_cidrmask: 24                            # virtual ip address cidr mask (l2 only)
-    # vip_interface: eth0                         # virtual ip network interface (l2 only)
-
-    # - dns - #                                   # NOT IMPLEMENTED
-    # dns_mode: vip                               # vip|all|selector: how to resolve cluster DNS?
-    # dns_selector: '[]'                          # if dns_mode == vip, filter instances been resolved
 
 ...

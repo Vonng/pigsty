@@ -24,9 +24,20 @@
 
 ![](../_media/what-zh.svg)
 
+Pigsty有两种典型使用模式：**单机**与**集群**。
+
+* **单机**：在单个/多个节点上安装Pigsty，将其作为开箱即用的Postgres数据库使用
+* **集群**：在单机部署的基础上，部署、监控、管理其他节点与多种不同种类的数据库
+
+在一台节点上安装Pigsty时，Pigsty会在该节点上部署完整的**基础设施运行时** 与 一个单节点PostgreSQL**数据库集群**。对于个人用户、简单场景、小微企业来说，您可以直接开箱使用此数据库。
+
+Pigsty还可以用作大规模生产环境的集群/数据库管理。您可以从安装Pigsty的节点上发起控制，将更多节点纳入Pigsty的管理中。更重要的是，Pigsty还可以在这些节点上部署并管理各式各样的数据库集群与应用：创建高可用的PostgreSQL数据库集群；创建不同类型的Redis集簇；部署 Greenplum / MatrixDB 数据仓库，并获取关于节点、数据库与应用的实时洞察。
+
+
+
 ## 太长；不看
 
-准备全新机器节点一台，操作系统为Linux x86_64 CentOS 7.8，确保您可以登陆该节点并免密码执行`sudo`命令。
+准备全新机器节点一台，**Linux x86_64 CentOS 7.8**，确保您可以登陆该节点并免密码执行`sudo`命令。
 
 ```bash
 git clone https://github.com/Vonng/pigsty && cd pigsty # 下载
@@ -43,7 +54,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/pigsty.tg
 make install
 ```
 
-执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库服务，80端口对外提供所有UI类服务。
+执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库服务，80端口对外提供所有UI类服务。如果您对
 
 您可以从这台机器发起管理控制，将更多的[机器节点](t-node.yml)纳入Pigsty的管理与监控中，并在这些节点上部署额外的，不同种类的数据库集群，例如 [PostgreSQL](p-pgsql.md)，[Redis](t-redis.md)，与[MatrixDB](t-gpsql.md)。
 

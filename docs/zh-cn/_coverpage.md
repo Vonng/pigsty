@@ -9,7 +9,7 @@
 - 简单易用的PostgreSQL部署管控置备方案
 - 一键拉起的PostgreSQL全能本地沙箱环境
 - 基于Apache License 2 的开源免费软件
-- 现已支持Redis & Greenplum监控部署!
+- 现已支持Redis & MatrixDB监控部署!
 
 
 [Documentation](/)
