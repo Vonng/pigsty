@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   loki.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2021-04-25
+# Mtime     :   2022-03-18
 # Desc      :   Loki configuration file
 # Path      :   /etc/loki.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -61,8 +61,27 @@ chunk_store_config:
   max_look_back_period: 0s
 
 table_manager:
-  retention_deletes_enabled: false
-  retention_period: 0s
+  index_tables_provisioning:
+    enable_ondemand_throughput_mode: true
+    enable_inactive_throughput_on_demand_mode: true
+  chunk_tables_provisioning:
+    enable_ondemand_throughput_mode: true
+    enable_inactive_throughput_on_demand_mode: true
+  retention_deletes_enabled: true
+  retention_period: {{ loki_retention_peroid }}
+
+query_range:
+  align_queries_with_step: true
+  parallelise_shardable_queries: false
+  max_retries: 5
+  split_queries_by_interval: 15m
+  cache_results: true
+  results_cache:
+    cache:
+      enable_fifocache: true
+      fifocache:
+        max_size_items: 1024
+        validity: 24h
 
 ruler:
   storage:
@@ -75,3 +94,6 @@ ruler:
     kvstore:
       store: inmemory
   enable_api: true
+
+frontend:
+  max_outstanding_per_tenant: 4096
