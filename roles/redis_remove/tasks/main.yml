@@ -1,0 +1,55 @@
+---
+
+#------------------------------------------------------------------------------
+# Assert before remove instances
+#------------------------------------------------------------------------------
+- name: Check necessary variables exists
+  tags: redis_ins
+  assert:
+    that:
+      - redis_cluster is defined and redis_cluster != ''
+      - redis_node is defined
+      - redis_instances is defined
+      - redis_instances | type_debug == "dict"
+    fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
+
+
+#------------------------------------------------------------------------------
+# Remove redis instances one by one for the node
+#------------------------------------------------------------------------------
+- include_tasks: instance.yml
+  tags: redis_ins
+  vars:
+    port: "{{ item.key }}"
+    conf: "{{ item.value|default({}) }}"
+  with_dict: "{{ redis_instances }}"
+
+
+#------------------------------------------------------------------------------
+# Deregister Redis Node
+#------------------------------------------------------------------------------
+- name: Deregister redis exporter from prometheus
+  tags: [ register, redis_deregister, deregister_prometheus ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  file: path=/etc/prometheus/targets/redis/{{ redis_cluster }}-{{ redis_node }}.yml state=absent
+
+- name: Remove redis resource dir
+  tags: redis_dir
+  become: yes
+  block:
+
+    - name: Make sure redis data dir exists
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/redis
+        - /var/log/redis/
+        - /var/run/redis/
+        - "{{ redis_fs_main }}/redis"
+
+    - name: Make sure fs main dir exists
+      file: path={{ redis_fs_main }} state=absent owner=root mode=0777
+
+
+...
+
