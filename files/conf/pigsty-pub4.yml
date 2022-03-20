@@ -100,8 +100,8 @@ all: # top-level namespace
               - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
 
           # define an additional database named grafana & prometheus (optional)
-          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
+          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
+          - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
 
         #---------------
         # biz users                         # Defining Business Users (Optional)
@@ -129,8 +129,8 @@ all: # top-level namespace
           - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
 
           # define additional business users for prometheus & grafana (optional)
-          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
+          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
 
         #---------------
         # hba rules                                         # Defining extra HBA rules on this cluster (Optional)
@@ -263,7 +263,6 @@ all: # top-level namespace
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
-
 
 
     #------------------------------------------------------------------------------
@@ -448,27 +447,18 @@ all: # top-level namespace
       - readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel
 
     repo_url_packages:
-      # mandatory rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/init/haproxy-2.5.1-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/init/haproxy-debuginfo-2.5.1-1.el7.x86_64.rpm
-
-      # extra database support
-      - https://rpmfind.net/linux/remi/enterprise/7/remi/x86_64/redis-6.2.6-1.el7.remi.x86_64.rpm
-      - https://github.com/greenplum-db/gpdb/releases/download/6.19.1/open-source-greenplum-db-6.19.1-rhel7-x86_64.rpm
-      - http://guichaz.free.fr/polysh/files/polysh-0.4-1.noarch.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
+      - https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/loki-2.4.2-1.el7.x86_64.rpm
+      - https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/promtail-2.4.2-1.el7.x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/postgrest/postgrest-9.0.0-1.el7.x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
       - https://github.com/sosedoff/pgweb/releases/download/v0.11.10/pgweb_linux_amd64.zip
-      - https://github.com/PostgREST/postgrest/releases/download/v9.0.0/postgrest-v9.0.0-linux-static-x64.tar.xz
-
-      # binary install mode
-      - https://github.com/Vonng/pg_exporter/releases/download/v0.4.0/pg_exporter_v0.4.0_linux-amd64.tar.gz
-      - https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
-      - https://github.com/grafana/loki/releases/download/v2.4.2/loki-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.4.2/promtail-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.4.2/logcli-linux-amd64.zip
-      - https://github.com/grafana/loki/releases/download/v2.4.2/loki-canary-linux-amd64.zip
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/open-source-greenplum-db-6.19.4-rhel7-x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/matrixdb-4.4.0.community-1.el7.x86_64.rpm
 
 
     #------------------------------------------------------------------------------
@@ -486,7 +476,7 @@ all: # top-level namespace
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
-      - 172.21.0.11 meta pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
+      - 172.21.0.11 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
     node_dns_hosts_extra: []                      # extra static dns records in /etc/hosts
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
@@ -506,10 +496,10 @@ all: # top-level namespace
     node_packages:                                # common packages for all nodes
       - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,ftp
       - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf
-      - readline,zlib,openssl,openssl-libs,python3,python36-requests,node_exporter,redis_exporter,consul,etcd
+      - readline,zlib,openssl,openssl-libs,python3,python36-requests,node_exporter,redis_exporter,consul,etcd,promtail
     node_extra_packages: [ ]                      # extra packages for all nodes
     node_meta_packages:                           # packages for meta nodes only
-      - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
+      - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
       - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh
       - clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools,bison,flex # gcc,gcc-c++
       - readline-devel,zlib-devel,uuid-devel,libuuid-devel,libxml2-devel,libxslt-devel,openssl-devel,libicu-devel
@@ -568,6 +558,7 @@ all: # top-level namespace
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
       - { name: home,          domain: home.pigsty.cc, endpoint: "172.21.0.11:80" }     # default -> index.html (80)
       - { name: grafana,       domain: demo.pigsty.cc, endpoint: "172.21.0.11:3000" }   # pigsty grafana (3000)
+      - { name: loki,          domain: l.pigsty.cc,    endpoint: "172.21.0.11:3100" }   # pigsty loki (3100)
       - { name: prometheus,    domain: p.pigsty.cc,    endpoint: "172.21.0.11:9090" }   # pigsty prometheus (9090)
       - { name: alertmanager,  domain: a.pigsty.cc,    endpoint: "172.21.0.11:9093" }   # pigsty alertmanager (9093)
       # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
@@ -899,8 +890,10 @@ all: # top-level namespace
     promtail_enabled: true                        # enable promtail logging collector?
     promtail_clean: false                         # remove promtail status file? false by default
     promtail_port: 9080                           # default listen address for promtail
-    promtail_status_file: /tmp/promtail-status.yml
-    promtail_send_url: http://172.21.0.11:3100/loki/api/v1/push  # loki url to receive logs
+    promtail_options: '-config.file=/etc/promtail.yml -config.expand-env=true'
+    promtail_positions: /var/log/positions.yaml   # position status for promtail
+    promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
+
 
     #------------------------------------------------------------------------------
     # SERVICE PROVISION
@@ -964,7 +957,7 @@ all: # top-level namespace
     haproxy_server_timeout: 24h                   # server side connection timeout
 
     # - vip - #
-    vip_mode: none                                # none | l2 | l4
+    vip_mode: none                                # none | l2 | l4 (l4 not implemented)
     vip_reload: true                              # whether reload service after config
     # vip_address: 127.0.0.1                      # virtual ip address ip (l2 or l4)
     # vip_cidrmask: 24                            # virtual ip address cidr mask (l2 only)
