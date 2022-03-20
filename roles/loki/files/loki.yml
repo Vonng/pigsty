@@ -1,0 +1,105 @@
+#==============================================================#
+# File      :   loki.yml
+# Ctime     :   2021-04-03
+# Mtime     :   2022-03-19
+# Desc      :   Loki configuration file
+# Path      :   /etc/loki.yml
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+# LOKI_DATA: /tmp/loki
+# LOKI_RETENTION_PERIOD: 15d
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+ingester:
+  wal:
+    enabled: true
+    dir: ${LOKI_DATA:/tmp/loki}/wal
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 1h       # Any chunk not receiving new logs in this time will be flushed
+  max_chunk_age: 1h           # All chunks will be flushed when they hit this age, default is 1h
+  chunk_target_size: 1048576  # Loki will attempt to build chunks up to 1.5MB, flushing first if chunk_idle_period or max_chunk_age is reached first
+  chunk_retain_period: 30s    # Must be greater than index read cache TTL if using an index cache (Default index read cache TTL is 5m)
+  max_transfer_retries: 0     # Chunk transfers disabled
+
+
+schema_config:
+  configs:
+    - from: 2022-02-22
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: ${LOKI_DATA:/tmp/loki}/data/boltdb-shipper-active
+    cache_location: ${LOKI_DATA:/tmp/loki}/data/boltdb-shipper-cache
+    cache_ttl: 24h   # Can be increased for faster performance over longer query periods, uses more disk space
+    shared_store: filesystem
+
+  filesystem:
+    directory: ${LOKI_DATA:/tmp/loki}/chunks
+
+compactor:
+  working_directory: ${LOKI_DATA:/tmp/loki}/tmp/boltdb-shipper-compactor
+  shared_store: filesystem
+
+limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+
+chunk_store_config:
+  max_look_back_period: 0s
+
+table_manager:
+  index_tables_provisioning:
+    enable_ondemand_throughput_mode: true
+    enable_inactive_throughput_on_demand_mode: true
+  chunk_tables_provisioning:
+    enable_ondemand_throughput_mode: true
+    enable_inactive_throughput_on_demand_mode: true
+  retention_deletes_enabled: true
+  retention_period: ${LOKI_RETENTION_PERIOD:15d}
+
+frontend:
+  max_outstanding_per_tenant: 2048
+
+query_range:
+  align_queries_with_step: true
+  parallelise_shardable_queries: false
+  max_retries: 5
+  split_queries_by_interval: 15m
+  cache_results: true
+  results_cache:
+    cache:
+      enable_fifocache: true
+      fifocache:
+        max_size_items: 1024
+        validity: 24h
+
+ruler:
+  storage:
+    type: local
+    local:
+      directory: ${LOKI_DATA:/tmp/loki}/data/rules
+  rule_path: ${LOKI_DATA:/tmp/loki}/data/rules-temp
+  # alertmanager_url: http://127.0.0.1:9093
+  ring:
+    kvstore:
+      store: inmemory
+  enable_api: true

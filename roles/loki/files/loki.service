@@ -1,3 +1,5 @@
+# -*- mode: conf -*-
+
 [Unit]
 Description=The Loki Logging Service
 Documentation=https://grafana.com/docs/loki/latest/
@@ -5,7 +7,8 @@ After=network.target
 
 [Service]
 User=prometheus
-ExecStart=/usr/bin/loki -config.file=/etc/loki.yml
+EnvironmentFile=-/etc/default/loki
+ExecStart=/usr/bin/loki $LOKI_OPTS
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=5s

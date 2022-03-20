@@ -20,13 +20,20 @@
   tags: loki_config
   block:
 
-    - name: Render loki config
-      template: src=loki.yml.j2 dest=/etc/loki.yml owner=prometheus
-
     - name: Copy loki systemd service
+      copy: src=loki.service dest=/usr/lib/systemd/system/loki.service
+
+    - name: Copy loki.yml main config
+      copy: src=loki.yml dest=/etc/loki.yml owner=prometheus
+
+    - name: Render loki default config
       copy:
-        src: loki.service
-        dest: /usr/lib/systemd/system/loki.service
+        dest: /etc/default/loki owner=prometheus
+        content: |
+          LOKI_OPTS='{{ loki_options }}'
+          LOKI_DATA={{ loki_data_dir }}
+          LOKI_RETENTION_PERIOD={{ loki_retention }}
+
 
 #------------------------------------------------------------------------------
 # Launch
