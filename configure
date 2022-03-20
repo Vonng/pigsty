@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2021-11-02
+# Mtime     :   2022-03-20
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
@@ -24,7 +24,7 @@
 # const
 #==============================================================#
 # pigsty version string
-VERSION=v1.4.0-beta
+VERSION=v1.4.0-rc
 
 # where to download pkg.tgz ?
 DEFAULT_SRC_URL="https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz"
@@ -484,26 +484,6 @@ EOF
     sudo yum makecache -q
 }
 
-#----------------------------------------------#
-# check bin files
-#----------------------------------------------#
-function check_bin(){
-    local pigsty_home=${1-${PIGSTY_HOME}}
-    local repo_dir=${2-${REPO_DIR}}
-    local target_dir="${pigsty_home:?}/files/bin"
-    if [[ ! -f ${repo_dir}/repo_complete ]]; then
-        log_warn "bin = skip repo extraction"
-        return 0
-    fi
-    log_info "bin = extract from ${repo_dir}"
-    mkdir -p ${target_dir}
-    sudo ${pigsty_home}/bin/get_node_exporter -t ${repo_dir}  -v 1.3.1  -p ${target_dir}/node_exporter
-    sudo ${pigsty_home}/bin/get_pg_exporter   -t ${repo_dir}  -v 0.4.1  -p ${target_dir}/pg_exporter
-    sudo ${pigsty_home}/bin/get_loki          -t ${repo_dir}  -v 2.4.1  -p ${target_dir}
-    sudo chown ${pigsty_home}/files -Rv --reference=${pigsty_home} 2>/dev/null 1>/dev/null
-}
-
-
 
 #----------------------------------------------#
 # check utils
@@ -571,7 +551,6 @@ function main(){
     check_repo       # create repo from pkg.tgz if exists
     check_repo_file  # create local file repo file if repo exists
     check_utils      # check ansible sshpass and other utils installed
-    check_bin >/dev/null # check special bin files in pigsty/bin (loki,exporter) (require utils installed)
 
     log_hint "configure pigsty done. Use 'make install' to proceed\n"
 }

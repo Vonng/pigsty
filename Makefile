@@ -1,20 +1,17 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2019-04-13
-# Mtime     :   2022-01-11
+# Mtime     :   2022-03-20
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.4.0-beta
+VERSION?=v1.4.0-rc
 
-# pigsty cluster (meta by default)
+# target cluster (meta by default)
 CLS?=meta
-
-# pigsty release (pigsty.tgz)
-SRC?=pigsty.tgz
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -42,11 +39,8 @@ config:
 
 # (3). INSTALL    pigsty on current node
 install:
-	./meta.yml -l ${CLS}
+	./infra.yml
 ###############################################################
-
-
-
 
 
 
@@ -66,57 +60,30 @@ install:
 
 
 
-
-
-
 ###############################################################
 #                      2. Download                            #
 ###############################################################
 # There are two things needs to be downloaded:
 #    pigsty.tgz    :   source code
-#    pkg.tgz       :   offline install packages (under 7.8)
+#    pkg.tgz       :   offline rpm packages (build under 7.8)
 #
-# Besides, some binaries needs to be downloaded alone (no rpm)
-# they can be downloaded via internet or extract from pkg.tgz
-
-#------------------------------#
-# -- software -- #
-#------------------------------#
-# download pkg.tgz to /tmp/pkg.tgz
-pkg:
-	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz
-
-# download binaries from internet (to files/bin)
-# (if /www/pigsty exists, extract from it)
-bin:
-	bin/get_node_exporter -t /www/pigsty  -v 1.1.2  -p files/bin/node_exporter
-	bin/get_pg_exporter   -t /www/pigsty  -v 0.4.0  -p files/bin/pg_exporter
-	bin/get_loki          -t /www/pigsty  -v 2.2.1  -p files/bin/
-	chown files/bin/* -Rv --reference=files
-
-#------------------------------#
-# source code                  #
-#------------------------------#
-# official: https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz
-
 # get latest stable version to ~/pigsty
 src:
 	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz -o ~/pigsty.tgz
 
+# download pkg.tgz to /tmp/pkg.tgz
+pkg:
+	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz
 ###############################################################
-
-
-
-
-
 
 
 
 ###############################################################
 #                      3. Configure                           #
 ###############################################################
-# there are several things needs to be configured before install
-# use ./configure or `make c` to run interactive config wizard
+# there are several things needs to be checked before install
+# use ./configure or `make config` to run interactive wizard
+# it will install ansible (from offline rpm repo if available)
 
 # common interactive configuration procedure
 c: configure
@@ -125,169 +92,50 @@ c: configure
 # IP=10.10.10.10 MODE=oltp make conf
 conf:
 	./configure --ip ${IP} --mode ${MODE} --download
-
 ###############################################################
-
-
-
-
-
-
-
 
 
 
 ###############################################################
 #                      4. Install                             #
 ###############################################################
-# installation are executed via ansible-playbook
-# it's CRUCIAL to LIMIT execution hosts! (THINK BEFORE YOU TYPE!)
+# pigsty is installed via ansible-playbook
 
 # install pigsty on meta nodes
 infra:
-	./meta.yml -l ${CLS}
+	./infra.yml
 
-# create new pgsql cluster  (e.g:  CLS=pg-test make pgsql)
+# reinit pgsql cmdb
 pgsql:
-	./pgsql.yml -l ${CLS}
+	./infra.yml --tags=cmdb -e pg_exists_action=clean
 
-#------------------------------#
-# add-on installation
-#------------------------------#
-# install additional logging components
-logging: loki pgsql-promtail
-
-
-#==============================================================#
-#                      Infra Sub Tasks                         #
-#==============================================================#
-# shortcuts for managing pigsty meta (admin) node
-
-#------------------------------#
-# repo
-#------------------------------#
-# init local yum repo
+# rebuild repo
 repo:
-	./meta.yml -l ${CLS} --tags=repo
+	./infra.yml --tags=repo
 
-# re-install upstream yum repo
+# write upstream repo to /etc/yum.repos.d
 repo-upstream:
-	./meta.yml -l ${CLS} --tags=repo_upstream
+	./infra.yml --tags=repo_upstream
 
-# repo-download will re-download missing packages
+# download repo packages
 repo-download:
 	sudo rm -rf /www/pigsty/repo_complete
-	./meta.yml -l ${CLS} --tags=repo_download
+	./infra.yml --tags=repo_upstream,repo_download
 
-#------------------------------#
-# prometheus
-#------------------------------#
 # init prometheus
 prometheus:
-	./meta.yml -l ${CLS} --tags=prometheus
+	./infra.yml --tags=prometheus
 
-# refresh monitoring targets
-refresh:
-	./meta.yml -l ${CLS} --tags=prometheus_targets,prometheus_reload
-
-#------------------------------#
-# grafana
-#------------------------------#
 # init grafana
 grafana:
-	./meta.yml -l ${CLS} --tags=grafana
+	./infra.yml --tags=grafana
 
-# init loki (additional logging service)
+# init loki
 loki:
-	./infra-loki.yml -l ${CLS}
+	./infra.yml --tags=loki -e loki_clean=true
 
-
-#==============================================================#
-#                      PGSQL Sub Tasks                         #
-#==============================================================#
-# shortcuts for manage pgsql clusters
-
-#------------------------------#
-# register
-#------------------------------#
-# register all haproxy index proxy to meta nginx
-ha: haproxy-index
-haproxy-index:
-	./pgsql.yml -t register_nginx
-
-# register all pgsql datasource to meta grafana
-gf: grafana-datasource
-grafana-datasource:
-	./pgsql.yml -t register_grafana
-
-# register all monitoring targets to meta prometheus
-pmdst: prometheus-target
-prometheus-target:
-	./pgsql.yml -t register_prometheus
-
-#------------------------------#
-# construction
-#------------------------------#
-# init dcs service
-pgsql-dcs:
-	./pgsql.yml -l ${CLS} --tags=dcs -e dcs_exists_action=clean
-
-# init postgres
-pgsql-postgres:
-	./pgsql.yml -l ${CLS} --tags=postgres
-
-# init pgbouncer
-pgsql-pgbouncer:
-	./pgsql.yml -l ${CLS} --tags=pgbouncer
-
-# init business (user & database)
-pgsql-business:
-	./pgsql.yml -l ${CLS} --tags=pg_user,pg_db
-
-# init monitor
-pgsql-monitor:
-	./pgsql.yml -l ${CLS} --tags=monitor
-
-# init service
-pgsql-service:
-	./pgsql.yml -l ${CLS} --tags=service
-
-# init register
-pgsql-register:
-	./pgsql.yml -l ${CLS} --tags=register
-
-# install promtail (logging agent)
-pgsql-promtail:
-	./pgsql-promtail.yml -l ${CLS} --tags=service
-
-
-#------------------------------#
-# destruction
-#------------------------------#
-# remove postgres service
-pgsql-remove:
-	./pgsql-remove.yml -l ${CLS}
-
-#------------------------------#
-# management
-#------------------------------#
-# create (or update) biz user on pg-meta
-# usage: CLS=pg-meta USER=dbuser_pigsty make pg-user
-pg-user:
-	./pgsql-createuser.yml -l ${CLS} -e pg_user=${USER}
-
-# create (or update) biz db on pg-meta
-# (define in pg-meta.vars.pg_databases with name designated via env DB)
-# usage: CLS=pg-meta DB=meta make pg-db
-pg-db:
-	./pgsql-createdb.yml  -l ${CLS}  -e pg_database=${DB} -l pg-meta
 
 ###############################################################
-
-
-
-
-
 
 
 
@@ -335,31 +183,35 @@ ssh:               # add node ssh config to your ~/.ssh/config
 	bin/ssh
 
 #------------------------------#
-# demo
+# 4. demo
 #------------------------------#
-# tips: (make fetch & make upload will accelerate next vm bootstrap)
+# launch one-node demo
+demo: demo-prepare
+	ssh meta 'cd ~/pigsty; ./infra.yml'
 
-# ssh meta and run standard install procedure same as Quick-Start
-demo:
+# launch four-node demo
+demo4: demo-prepare
+	ssh meta 'cd ~/pigsty; ./infra-demo.yml'
+
+# prepare demo resource by download|upload
+demo-prepare: demo-upload
+
+# download demo pkg.tgz from github
+demo-download:
 	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty"
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download'
-	ssh meta 'cd ~/pigsty; make install'
+	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download -m demo'
 
-# 4-node version
-demo4:
-	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty"
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download'
-	ssh meta 'cd ~/pigsty; make install'
-	ssh meta 'cd ~/pigsty; ./pgsql.yml -l pg-test'
-
-
-#==============================================================#
-#                       VM Management                          #
-#==============================================================#
+# upload demo pkg.tgz from local dist dir
+demo-upload:
+	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
+	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
+	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive -m demo'
 
 #------------------------------#
-# single node (meta)
+# vagrant vm management
 #------------------------------#
+# default node (meta)
 up:
 	cd vagrant && vagrant up meta
 dw:
@@ -367,13 +219,8 @@ dw:
 del:
 	cd vagrant && vagrant destroy -f meta
 new: del up
-s:sync
-sync:  # sync time
-	ssh meta 'sudo ntpdate -u pool.ntp.org'; true
-
 #------------------------------#
-# pg-test nodes (node-{1,2,3})
-#------------------------------#
+# extra nodes: node-{1,2,3}
 up-test:
 	cd vagrant && vagrant up node-1 node-2 node-3
 dw-test:
@@ -381,30 +228,18 @@ dw-test:
 del-test:
 	cd vagrant && vagrant destroy -f node-1 node-2 node-3
 new-test: del-test up-test
-s-test: sync-test
-sync-test:  # sync time
-	echo node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
-
 #------------------------------#
-# all nodes (4)
-#------------------------------#
+# all nodes (meta, node-1, node-2, node-3)
 up4:
 	cd vagrant && vagrant up
 dw4:
 	cd vagrant && vagrant halt
-clean: del4
 del4:
 	cd vagrant && vagrant destroy -f
 new4: del4 up4
-s4: sync4
-sync4:  # sync time
-	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
-ss:
-	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u ntp.aliyun.com'; true
-
+clean: del4
 #------------------------------#
-# misc vm shortcuts
-#------------------------------#
+# status
 st: status
 status:
 	cd vagrant && vagrant status
@@ -413,22 +248,36 @@ suspend:
 resume:
 	cd vagrant && vagrant resume
 
+#------------------------------#
+# time sync
+#------------------------------#
+# sync meta node time
+s:sync
+sync:  # sync time
+	ssh meta 'sudo ntpdate -u pool.ntp.org'; true
+
+# sync 4 node time
+s4: sync4
+sync4:  # sync time
+	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
+ss:     # sync time with aliyun ntp service
+	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u ntp.aliyun.com'; true
 ###############################################################
-
-
-
-
-
-
 
 
 
 ###############################################################
 #                       6. Testing                            #
 ###############################################################
-# shortcuts for demo testing
-
-# run pgbench on meta database
+# Convenient shortcuts for add traffic to sandbox pgsql clusters
+#  ri  test-ri   :  init pgbench on meta or pg-test cluster
+#  rw  test-rw   :  read-write pgbench traffic on meta or pg-test
+#  ro  test-ro   :  read-only pgbench traffic on meta or pg-test
+#  rc  test-rc   :  clean-up pgbench tables on meta or pg-test
+#  test-rw2 & test-ro2 : heavy load version of test-rw, test-ro
+#  test-rb{1,2,3} : reboot node 1,2,3
+#=============================================================#
+# meta cmdb bench
 ri:
 	pgbench -is10 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta
 rc:
@@ -438,31 +287,26 @@ rw:
 ro:
 	while true; do pgbench -nv -P1 -c8 --rate=256 --select-only -T10 postgres://dbuser_meta:DBUser.Meta@meta:5434/meta; done
 
-# run tests on pg-test cluster (3-node on sandbox demo)
-# list pg-test clusters
-test-list:
-	ssh -t node-1 "sudo -iu postgres patronictl -c /pg/bin/patroni.yml list -W"
+# pg-test cluster benchmark
 
-# pgbench init, read, write
 test-ri:
 	pgbench -is10  postgres://test:test@pg-test:5436/test
-
-# pgbench cleanup
 test-rc:
 	psql -AXtw postgres://test:test@pg-test:5433/test -c 'DROP TABLE IF EXISTS pgbench_accounts, pgbench_branches, pgbench_history, pgbench_tellers;'
-
 # pgbench small read-write / read-only traffic (rw=64TPS, ro=512QPS)
 test-rw:
 	while true; do pgbench -nv -P1 -c4 --rate=64 -T10 postgres://test:test@pg-test:5433/test; done
 test-ro:
 	while true; do pgbench -nv -P1 -c8 --select-only --rate=512 -T10 postgres://test:test@pg-test:5434/test; done
-
 # pgbench read-write / read-only traffic (maximum speed)
 test-rw2:
 	while true; do pgbench -nv -P1 -c16 -T10 postgres://test:test@pg-test:5433/test; done
 test-ro2:
 	while true; do pgbench -nv -P1 -c64 -T10 --select-only postgres://test:test@pg-test:5434/test; done
-
+#------------------------------#
+# show patroni status for pg-test cluster
+test-st:
+	ssh -t node-1 "sudo -iu postgres patronictl -c /pg/bin/patroni.yml list -W"
 # reboot node 1,2,3
 test-rb1:
 	ssh -t node-1 "sudo reboot"
@@ -470,45 +314,37 @@ test-rb2:
 	ssh -t node-2 "sudo reboot"
 test-rb3:
 	ssh -t node-3 "sudo reboot"
-
 ###############################################################
-
-
-
-
-
-
 
 
 
 ###############################################################
 #                       7. Develop                            #
 ###############################################################
+#  other shortcuts for development
+#=============================================================#
 
 #------------------------------#
-# resource
+# grafana dashboard management
 #------------------------------#
-upload: upload-vagrant
+di: dashboard-init                    # init grafana dashboards
+dashboard-init:
+	cd roles/grafana/files/dashboards/ && ./grafana.py init
 
-# upload pigsty resource from your own host to vagrant vms (ssh alias as 'meta')
-upload-vagrant:
-	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
+dd: dashboard-dump                    # dump grafana dashboards
+dashboard-dump:
+	cd roles/grafana/files/dashboards/ && ./grafana.py dump
 
-# upload pigsty resource to terraform vms (ssh alias as 'demo')
-upload-terraform:
-	scp "dist/${VERSION}/pigsty.tgz" demo:/root/pigsty.tgz
-	ssh -t demo 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	scp "dist/${VERSION}/pkg.tgz" demo:/tmp/pkg.tgz
-
-# run configure on pigsty vagrant demo
-config-vagrant:
-	ssh -t meta 'cd pigsty && ./configure'
+dc: dashboard-clean                   # cleanup grafana dashboards
+dashboard-clean:
+	cd files/ui && ./grafana.py clean
 
 #------------------------------#
-# matrixdb
+# matrixdb resource management
 #------------------------------#
+# matrix: prepare matrix environment
+matrix: upload-vagrant upload-matrix
+
 upload-matrix:
 	scp dist/matrix.tgz meta:/tmp/matrix.tgz
 
@@ -516,15 +352,12 @@ upload-matrix:
 config-matrix:
 	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www;'
 
-# matrix: prepare matrix environment
-matrix: upload-vagrant upload-matrix config-vagrant config-matrix
-
 
 #------------------------------#
-# copy
+# copy source & packages
 #------------------------------#
 # copy latest pro source code
-copy: release copy-pro
+copy: release copy-src
 
 # copy pigsty.tgz and pkg.tgz to sandbox meta node
 copy-all: copy-src copy-pkg
@@ -543,17 +376,7 @@ copy-app:
 	scp dist/${VERSION}/app.tgz meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
 
-# dump grafana dashboards
-dd: dashboard-dump
-dashboard-dump:
-	cd files/ui && ./grafana.py dump
-
 ###############################################################
-
-
-
-
-
 
 
 
@@ -575,21 +398,12 @@ p: release publish
 publish:
 	bin/publish ${VERSION}
 
-# publish-beta will publish pigsty-beta.tgz packages
-pb: release publish-beta
-publish-beta:
-	bin/publish ${VERSION} beta
-
 # create pkg.tgz on initialized meta node
 cache:
 	scp bin/cache meta:/tmp/cache
 	ssh meta "sudo bash /tmp/cache"
 
 ###############################################################
-
-
-
-
 
 
 
@@ -609,30 +423,21 @@ doc:
 
 
 
-
-
-
 ###############################################################
 #                         Appendix                            #
 ###############################################################
 .PHONY: default tip all download config install \
-        pkg bin src beta pro ver \
+        src pkg \
         c conf \
-        infra pgsql logging \
+        infra pgsql repo repo-upstream repo-download prometheus grafana loki \
         repo repo-upstream repo prometheus grafana loki \
-        ha haproxy-index gf grafana-datasource pm prometheus-target \
-        pgsql-init pgsql-node pgsql-dcs pgsql-postgres pgsql-pgbouncer \
-        pgsql-business pgsql-monitor pgsql-service pgsql-register pgsql-promtail \
-        pgsql-remove \
-        pg-user pg-db \
-        deps dns start start4 ssh demo demo4 \
-        up dw del new s sync up-test dw-test del-test new-test s-test sync sync-test \
-        up4 dw4 del4 new4 s4 sync4 \
-        st status suspend resume \
-        ri rc rw ro test-list test-ri test-rc test-rw test-ro test-rw2 test-ro2 test-rb1 test-rb2 test-rb3 \
-        fetch upload ut upload-test ul upload-latest \
+        deps dns start start4 ssh demo demo4 demo-prepare demo-download demo-upload \
+        up dw del new up-test dw-test del-test new-test up4 dw4 del4 new4 clean \
+        st status suspend resume s sync s4 sync4 ss \
+        ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
+        di dd dc dashboard-init dashboard-dump dashboard-clean \
+        matrix upload-matrix config-matrix \
         copy copy-all cs copy-src copy-pkg copy-app \
-        r releast rp release-pkg p publish pb publish-beta cache \
-        svg doc d docsify
-
+        r releast rp release-pkg p publish cache \
+        svg doc d
 ###############################################################
