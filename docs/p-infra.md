@@ -5,15 +5,15 @@
 
 ## Overview
 
-Infrastructure initialization is done via [`meta.yml`](https://github.com/Vonng/pigsty/blob/master/meta.yml). 
+Infrastructure initialization is done via [`infra.yml`](https://github.com/Vonng/pigsty/blob/master/infra.yml). 
 This playbook will complete the installation and deployment of [infrastructure](c-arch.md#infrastructure) on [meta node](c-arch.md#meta-node).
 
-The `meta.yml` uses the management node (default group name `meta`) as the deployment target.
+The `infra.yml` uses the management node (default group name `meta`) as the deployment target.
 
 A complete execution of the initialization process can take 2 to 8 minutes, depending on the node sepc.
 
 ```bash
-./meta.yml
+./infra.yml
 ```
 
 !> You MUST finish meta node infra init before pgsql init ❗️
@@ -24,7 +24,7 @@ A complete execution of the initialization process can take 2 to 8 minutes, depe
 
 The **management node** can be reused as a **normal node**, i.e. a PostgreSQL database can be defined and created on the management node as well. The Infra script creates a [`pg-meta`](https://github.com/Vonng/pigsty/blob/master/) on the management node by default pigsty.yml#L43) metadatabase on the admin node to host Pigsty advanced features.
 
-`meta.yml` overwrites all the contents of [`pgsql.yml`](p-pgsql.md), so if `meta.yml` can be successfully executed on the admin node, then the database deployment must be successfully completed on the normal node in the same state.
+`infra.yml` overwrites all the contents of [`pgsql.yml`](p-pgsql.md), so if `infra.yml` can be successfully executed on the admin node, then the database deployment must be successfully completed on the normal node in the same state.
 
 
 
@@ -37,7 +37,7 @@ As an example, if you want to update local yum repo on meta node:
 
 
 ```bash
-./meta.yml --tags=repo
+./infra.yml --tags=repo
 ```
 
 Check [**Tasks**](#tasks) for available tags.
@@ -45,11 +45,11 @@ Check [**Tasks**](#tasks) for available tags.
 Common tags including:
 
 ```bash
-./meta.yml --tags=environ                       # re-configure environment on meta nodes
-./meta.yml --tags=repo -e repo_rebuild=true     # re-create local yum repo
-./meta.yml --tags=repo_upstream                 # add upstream yum repo to meta node 
-./meta.yml --tags=prometheus                    # re-create Prometheus
-./meta.yml --tags=nginx_config,nginx_restart    # re-generate Nginx config & restart
+./infra.yml --tags=environ                       # re-configure environment on meta nodes
+./infra.yml --tags=repo -e repo_rebuild=true     # re-create local yum repo
+./infra.yml --tags=repo_upstream                 # add upstream yum repo to meta node 
+./infra.yml --tags=prometheus                    # re-create Prometheus
+./infra.yml --tags=nginx_config,nginx_restart    # re-generate Nginx config & restart
 ……
 ```
 
@@ -58,7 +58,7 @@ Common tags including:
 
 ## Description
 
-[`meta.yml`](https://github.com/Vonng/pigsty/blob/master/meta.yml) mainly accomplishes the following
+[`infra.yml`](https://github.com/Vonng/pigsty/blob/master/infra.yml) mainly accomplishes the following
 
 * Configure the management node environment: directories, variables, credentials, etc.
 * Deploy and enable local sources
@@ -81,11 +81,11 @@ Common tags including:
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   meta.yml
+# File      :   infra.yml
 # Ctime     :   2020-04-13
 # Mtime     :   2021-07-07
 # Desc      :   init infrastructure on meta nodes
-# Path      :   meta.yml
+# Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
@@ -93,31 +93,31 @@ Common tags including:
 # Playbook : Init Meta Node
 #==============================================================#
 #  Init infra on meta nodes (special group 'meta')
-#     meta.yml
+#     infra.yml
 #
 #  Setup environment on meta node (dir, ssh, pgpass, env)
-#     meta.yml -t environ
+#     infra.yml -t environ
 #
 #  Setup local yum repo
-#     meta.yml -t repo
+#     infra.yml -t repo
 #
 #  Setup prometheus
-#     meta.yml -t prometheus
+#     infra.yml -t prometheus
 #
 #  Setup grafana
-#     meta.yml -t grafana
+#     infra.yml -t grafana
 #
 #  Setup nginx
-#     meta.yml -t nginx
+#     infra.yml -t nginx
 #
 #  Setup cmdb on meta nodes
-#     meta.yml -t pgsql
+#     infra.yml -t pgsql
 #
 #  Sync dashboards baseline to grafana
-#     meta.yml -t dashboard
+#     infra.yml -t dashboard
 #
 #  Upgrade grafana with postgres as primary database
-#     meta.yml -t grafana -e grafana_database=postgres
+#     infra.yml -t grafana -e grafana_database=postgres
 #     ssh meta rm -rf /etc/grafana/provisioning/dashboards/pigsty.yml
 #
 #==============================================================#
@@ -191,13 +191,13 @@ Common tags including:
 List available tasks & tags with following commands
 
 ```bash
-./meta.yml --list-tasks
+./infra.yml --list-tasks
 ```
 
 <details>
 
 ```yaml
-playbook: ./meta.yml
+playbook: ./infra.yml
 
   play #1 (meta): Infra Init	TAGS: [infra]
     tasks:

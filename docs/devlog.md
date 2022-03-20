@@ -1,5 +1,18 @@
 # Development Log
 
+#### 2022-03-20
+* Now playbooks are divided into 4 major groups: `infra`, `nodes`, `pgsql`, `redis`
+* add promtail to `infra.yml`, `nodes.yml`, etc...
+
+
+#### 2022-03-19
+
+* build haproxy , loki, promtail rpm for pigsty
+* enable loki by default
+* enable promtail by default
+* promtail now collect nodes
+
+
 #### 2022-03-08
 
 * Greenplum/MatrixDB Support finished!
@@ -102,7 +115,7 @@
 
 * Redis Dashboards Enhancement
 * PGCAT Dashboards Enhancement
-* Separate loki & pgweb from standard meta.yml playbook
+* Separate loki & pgweb from standard infra.yml playbook
 
 #### 2021-12-04
 

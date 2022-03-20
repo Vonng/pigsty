@@ -172,7 +172,7 @@ configure pigsty done. Use 'make install' to proceed
 make install
 ```
 
-It actually invokes ansible playbook [`meta.yml`](p-meta.md) on `meta` group. 
+It actually invokes ansible playbook [`infra.yml`](p-infra.md) on `meta` group. 
 Which will init infrastructure and a full-featured `pg-meta` postgres cluster.
 
 The installation procedure took about 10 minutes (offline installation, sandbox, 2C|4GB)

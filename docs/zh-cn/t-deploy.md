@@ -6,9 +6,10 @@ Pigsty在部署前需要进行一些[准备工作](t-prepare.md)：配置带有�
 
 ## 部署方式
 
-* [标准部署](t-deploy.md)：在准备好的机器节点上完成标准Pigsty部署流程。
-* [沙箱部署](s-sandbox.md) ： 通过`vagrant`自动准备环境确定的虚拟机资源，极大简化了Pigsty部署流程。
-* [仅监控部署](t-monly.md) ： 使用Pigsty监控现有数据库集群的特殊部署模式。
+* [标准部署](t-deploy.md)：您自己准备全新节点，完成标准Pigsty部署流程。
+* [沙箱部署](s-sandbox.md) ： 通过预制的`vagrant`模板一键拉起本地虚拟机沙箱环境。
+* 多云部署：使用`terraform`模板在云服务供应商处拉起所需虚拟机资源，并执行部署。
+* [仅监控部署](t-monly.md) ： 使用单节点Pigsty监控现有数据库集群。
 
 无论何种部署，其流程都分为三步：[准备资源](t-prepare.md)，[修改配置](c-config.md)，[执行剧本](p-playbook.md)。Pigsty在部署前需要进行一些[准备工作](t-prepare.md)：配置带有正确权限配置的节点，下载安装相关软件。置备完成后，用户应当按照自己的需求[修改配置](c-config.md)，并[执行剧本](p-playbook.md)将系统调整至配置描述的状态。其中准备与执行这两个步骤非常简单，**配置** 是部署Pigsty的关键点所在。
 
@@ -35,7 +36,7 @@ Pigsty在部署前需要进行一些[准备工作](t-prepare.md)：配置带有�
 
 ## 执行剧本
 
-* [基础设施初始化](p-meta.md)
+* [基础设施初始化](p-infra.md)
 * [数据库初始化](p-pgsql.md) （集群创建，新增实例）
 * [数据库下线](p-pgsql-remove.md)（移除实例，移除集群）
 * [创建业务用户](p-pgsql-createuser.md)

@@ -83,7 +83,7 @@ DCS服务器名称与地址，采用字典格式，Key为DCS服务器实例名�
 
 您可以使用外部的已有DCS服务器（推荐），也可以在目标机器上初始化新的DCS服务器。
 
-如果采用初始化新DCS实例的方式，建议先在所有DCS Server（通常也是元节点）上完成DCS初始化（[`meta.yml`](p-meta.md)）。
+如果采用初始化新DCS实例的方式，建议先在所有DCS Server（通常也是元节点）上完成DCS初始化（[`infra.yml`](p-infra.md)）。
 
 尽管您也可以一次性初始化所有的DCS Server与DCS Agent，但必须在完整初始化时将所有Server囊括在内。
 此时所有IP地址匹配`dcs_servers`项的目标机器将会在DCS初始化过程中被初始化为DCS Server。

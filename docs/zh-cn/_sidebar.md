@@ -47,21 +47,18 @@
   - [节点供给](v-node.md)
   - [基础设施](v-meta.md)
   - [元数据库](v-dcs.md)
-  - [数据库安装](v-pg-install.md)
-  - [数据库部署](v-pg-provision.md)
-  - [数据库定制](v-pg-template.md)
-  - [监控系统](v-monitor.md)
-  - [服务接入](v-service.md)
-  - [Redis](v-redis.md)
+  - [PgSQL部署](v-pgsql.md)
+  - [Redis部署](v-redis.md)
+  - [MatrixDB部署](v-pgsql.md)
+
 
 - 剧本
-  - [执行剧本](p-playbook.md)
-  - [剧本：基础设施初始化](p-meta.md)
-  - [剧本：数据库初始化](p-pgsql.md)
-  - [剧本：业务用户创建](p-pgsql-createuser.md)  
-  - [剧本：业务数据库创建](p-pgsql-createdb.md)
-  - [剧本：数据库下线](p-pgsql-remove.md)
-  
+  - [剧本：总览](p-playbook.md)
+  - [剧本：Infra](p-infra.md)
+  - [剧本：Nodes](p-nodes.md)
+  - [剧本：PgSQL](p-pgsql.md)
+  - [剧本：Redis](p-redis.md)
+
 - 参考
   - [报警规则](r-alert.md)
   - [文件目录结构](r-fhs.md)

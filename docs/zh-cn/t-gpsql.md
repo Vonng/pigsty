@@ -51,8 +51,8 @@ sudo tar -xf /tmp/matrix.tgz -C /www/     # 将 matrix.repo 与 matrix 目录解
 在四节点沙箱环境中部署MatrixDB，注意，默认将使用DBSU `mxadmin:mxadmin` 作为监控用户名与密码
 
 ```bash
-./meta.yml -e no_cmdb=true   # 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项
-./node.yml   # 初始化集群的节点，纳入监控
+./infra.yml -e no_cmdb=true   # 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项
+./nodes.yml   # 初始化集群的节点，纳入监控
 ./gpsql.yml  # 完成MatrixDB安装准备与监控
 ```
 

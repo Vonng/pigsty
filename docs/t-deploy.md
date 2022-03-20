@@ -35,7 +35,7 @@ No matter which deployment type is used, It always takes 3 steps:
 
 ## Execution
 
-- [Infrastructure initialization](p-meta.md)
+- [Infrastructure initialization](p-infra.md)
 - [database initialization](p-pgsql.md) (cluster creation, new instances)
 - [Database offline](p-pgsql-remove.md) (Remove instance, remove cluster)
 - [create business user](p-pgsql-createuser.md)

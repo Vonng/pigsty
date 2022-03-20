@@ -4,7 +4,7 @@
 
 ## Overview
 
-After [**infra init**](p-meta.md), you can use [ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) to init postgres on it.
+After [**infra init**](p-infra.md), you can use [ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) to init postgres on it.
 
 First, define new database cluster on [config](c-config.md) file, then apply changes with:
 

@@ -1,80 +1,145 @@
-# 节点初始化
+# 节点参数
+
+Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-node.md) 剧本即可将对应节点配置为对应状态，并纳入Pigsty监控系统。
+
+默认情况下，Pigsty将在节点上配置身份，DNS记录与解析，设置Yum源，安装RPM软件包，启用内核模块，应用参数配置与调优模板，创建管理员，配置时间与时区同步服务。
+Pigsty还会在节点上安装DCS（Consul Agent）与监控组件。对于元节点而言，还会安装额外的RPM与PIP软件包。
 
 ## 参数概览
 
-|                        名称                         |    类型    | 层级  | 说明                                      |
-| :-------------------------------------------------: | :--------: | :---: | ----------------------------------------- |
-|                [nodename](#nodename)                |  `string`  |   I   | 若指定，覆盖机器HOSTNAME         |
-|          [node_dns_hosts](#node_dns_hosts)          | `string[]` |   G   | 写入机器的静态DNS解析             |
-|         [node_dns_server](#node_dns_server)         |   `enum`   |   G   | 如何配置DNS服务器？              |
-|        [node_dns_servers](#node_dns_servers)        | `string[]` |   G   | 配置动态DNS服务器               |
-|        [node_dns_options](#node_dns_options)        | `string[]` |   G   | 配置/etc/resolv.conf       |
-|        [node_repo_method](#node_repo_method)        |   `enum`   |   G   | 节点使用Yum源的方式              |
-|        [node_repo_remove](#node_repo_remove)        |   `bool`   |   G   | 是否移除节点已有Yum源             |
-|     [node_local_repo_url](#node_local_repo_url)     | `string[]` |   G   | 本地源的URL地址                |
-|           [node_packages](#node_packages)           | `string[]` |   G   | 节点安装软件列表                 |
-|     [node_extra_packages](#node_extra_packages)     | `string[]` | C/I/A | 节点额外安装的软件列表              |
-|      [node_meta_packages](#node_meta_packages)      | `string[]` |   G   | 元节点所需的软件列表               |
-|  [node_meta_pip_install](#node_meta_pip_install)     |  `string`  |  G  | 元节点上通过pip3安装的软件包           |
-|       [node_disable_numa](#node_disable_numa)       |   `bool`   |   G   | 关闭节点NUMA                 |
-|       [node_disable_swap](#node_disable_swap)       |   `bool`   |   G   | 关闭节点SWAP                 |
-|   [node_disable_firewall](#node_disable_firewall)   |   `bool`   |   G   | 关闭节点防火墙                  |
-|    [node_disable_selinux](#node_disable_selinux)    |   `bool`   |   G   | 关闭节点SELINUX              |
-|     [node_static_network](#node_static_network)     |   `bool`   |   G   | 是否使用静态DNS服务器             |
-|      [node_disk_prefetch](#node_disk_prefetch)      |  `bool`  |   G   | 是否启用磁盘预读                 |
-|     [node_kernel_modules](#node_kernel_modules)     | `string[]` |   G   | 启用的内核模块                  |
-|               [node_tune](#node_tune)               |   `enum`   |   G   | 节点调优模式]                  |
-|      [node_sysctl_params](#node_sysctl_params)      |   `dict`   |   G   | 操作系统内核参数                 |
-|        [node_admin_setup](#node_admin_setup)        |   `bool`   |   G   | 是否创建管理员用户                |
-|          [node_admin_uid](#node_admin_uid)          |  `number`  |   G   | 管理员用户UID                 |
-|     [node_admin_username](#node_admin_username)     |  `string`  |   G   | 管理员用户名                   |
-| [node_admin_ssh_exchange](#node_admin_ssh_exchange) |   `bool`   |   G   | 在实例间交换管理员SSH密钥           |
-|          [node_admin_pks](#node_admin_pks)          | `string[]` |   G   | 可登陆管理员的公钥列表              |
-|  [node_admin_pk_current](#node_admin_pk_current)    | `bool` |   A   |  是否将当前用户的公钥加入管理员账户           |
-|        [node_ntp_service](#node_ntp_service)        |   `enum`   |   G   | NTP服务类型：ntp或chrony       |
-|         [node_ntp_config](#node_ntp_config)         |   `bool`   |   G   | 是否配置NTP服务？               |
-|           [node_timezone](#node_timezone)           |  `string`  |   G   | NTP时区设置                  |
-|        [node_ntp_servers](#node_ntp_servers)        | `string[]` |   G   | NTP服务器列表                 |
+|                         名称                          |     类型     |  层级   | 说明                 |
+|:---------------------------------------------------:|:----------:|:-----:|--------------------|
+|               [meta_node](#meta_node)               |   `bool`   |  I/C  | 表示此节点为元节点          |
+|                [nodename](#nodename)                |  `string`  |   I   | 若指定，覆盖机器HOSTNAME   |
+|            [node_cluster](#node_cluster)            |  `string`  |   C   | 节点集群名，默认名为`nodes`  |
+|      [node_name_exchange](#node_name_exchange)      |   `bool`   | I/C/G | 是否在剧本节点间交换主机名      |
+|          [node_dns_hosts](#node_dns_hosts)          | `string[]` |   G   | 写入机器的静态DNS解析       |
+|    [node_dns_hosts_extra](#node_dns_hosts_extra)    | `string[]` |  I/C  | 同上，用于集群实例层级        |
+|         [node_dns_server](#node_dns_server)         |   `enum`   |   G   | 如何配置DNS服务器？        |
+|        [node_dns_servers](#node_dns_servers)        | `string[]` |   G   | 配置动态DNS服务器         |
+|        [node_dns_options](#node_dns_options)        | `string[]` |   G   | 配置/etc/resolv.conf |
+|        [node_repo_method](#node_repo_method)        |   `enum`   |   G   | 节点使用Yum源的方式        |
+|        [node_repo_remove](#node_repo_remove)        |   `bool`   |   G   | 是否移除节点已有Yum源       |
+|     [node_local_repo_url](#node_local_repo_url)     | `string[]` |   G   | 本地源的URL地址          |
+|           [node_packages](#node_packages)           | `string[]` |   G   | 节点安装软件列表           |
+|     [node_extra_packages](#node_extra_packages)     | `string[]` | C/I/A | 节点额外安装的软件列表        |
+|      [node_meta_packages](#node_meta_packages)      | `string[]` |   G   | 元节点所需的软件列表         |
+|   [node_meta_pip_install](#node_meta_pip_install)   |  `string`  |   G   | 元节点上通过pip3安装的软件包   |
+|       [node_disable_numa](#node_disable_numa)       |   `bool`   |   G   | 关闭节点NUMA           |
+|       [node_disable_swap](#node_disable_swap)       |   `bool`   |   G   | 关闭节点SWAP           |
+|   [node_disable_firewall](#node_disable_firewall)   |   `bool`   |   G   | 关闭节点防火墙            |
+|    [node_disable_selinux](#node_disable_selinux)    |   `bool`   |   G   | 关闭节点SELINUX        |
+|     [node_static_network](#node_static_network)     |   `bool`   |   G   | 是否使用静态DNS服务器       |
+|      [node_disk_prefetch](#node_disk_prefetch)      |   `bool`   |   G   | 是否启用磁盘预读           |
+|     [node_kernel_modules](#node_kernel_modules)     | `string[]` |   G   | 启用的内核模块            |
+|               [node_tune](#node_tune)               |   `enum`   |   G   | 节点调优模式            |
+|      [node_sysctl_params](#node_sysctl_params)      |   `dict`   |   G   | 操作系统内核参数           |
+|        [node_admin_setup](#node_admin_setup)        |   `bool`   |   G   | 是否创建管理员用户          |
+|          [node_admin_uid](#node_admin_uid)          |  `number`  |   G   | 管理员用户UID           |
+|     [node_admin_username](#node_admin_username)     |  `string`  |   G   | 管理员用户名             |
+| [node_admin_ssh_exchange](#node_admin_ssh_exchange) |   `bool`   |   G   | 在实例间交换管理员SSH密钥     |
+|          [node_admin_pks](#node_admin_pks)          | `string[]` |   G   | 可登陆管理员的公钥列表        |
+|   [node_admin_pk_current](#node_admin_pk_current)   |   `bool`   |   A   | 是否将当前用户的公钥加入管理员账户  |
+|        [node_ntp_service](#node_ntp_service)        |   `enum`   |   G   | NTP服务类型：ntp或chrony |
+|         [node_ntp_config](#node_ntp_config)         |   `bool`   |   G   | 是否配置NTP服务？         |
+|           [node_timezone](#node_timezone)           |  `string`  |   G   | NTP时区设置            |
+|        [node_ntp_servers](#node_ntp_servers)        | `string[]` |   G   | NTP服务器列表           |
+|        [service_registry](#service_registry)        |   `enum`    | G/C/I | 服务注册的位置           |
+|                [dcs_type](#dcs_type)                |   `enum`    |   G   | 使用的DCS类型          |
+|                [dcs_name](#dcs_name)                |  `string`   |   G   | DCS集群名称           |
+|             [dcs_servers](#dcs_servers)             |   `dict`    |   G   | DCS服务器名称:IP列表     |
+|       [dcs_exists_action](#dcs_exists_action)       |   `enum`    |  G/A  | 若DCS实例存在如何处理      |
+|       [dcs_disable_purge](#dcs_disable_purge)       |   `bool`    | G/C/I | 完全禁止清理DCS实例       |
+|         [consul_data_dir](#consul_data_dir)         |  `string`   |   G   | Consul数据目录        |
+|           [etcd_data_dir](#etcd_data_dir)           |  `string`   |   G   | Etcd数据目录          |
+|           [exporter_install](#exporter_install)           |  `enum`  | G/C  | 安装监控组件的方式             |
+|          [exporter_repo_url](#exporter_repo_url)          | `string` | G/C  | 监控组件的YumRepo              |
+|      [exporter_metrics_path](#exporter_metrics_path)      | `string` | G/C  | 监控暴露的URL Path             |
+|      [node_exporter_enabled](#node_exporter_enabled)      |  `bool`  | G/C  | 启用节点指标收集器             |
+|         [node_exporter_port](#node_exporter_port)         | `number` | G/C  | 节点指标暴露端口               |
+|      [node_exporter_options](#node_exporter_options)      | `string` | G/C  | 节点指标采集选项               |
+
+
+
+## 身份参数
+
+每个节点都有**身份参数**，通过在`<cluster>.hosts`与`<cluster>.vars`中的相关参数进行配置
+
+|                   名称                    |   类型   | 层级  | 必要性   | 说明             |
+| :---------------------------------------: | :------: | :---: | -------- | ---------------- |
+| [inventory_hostname](#inventory_hostname) | `string` | **-** | **必选** | **节点IP地址**   |
+|           [nodename](#nodename)           | `string` | **I** | 可选     | **节点名称**     |
+|       [node_cluster](#node_cluster)       | `string` | **C** | 可选     | **节点集群名称** |
+
+`inventory_hostname` 是节点的IP地址，是必选项，体现为`<cluster>.hosts`对象中的`key`。
+`nodename`与`node_cluster`为可选项，分别在实例级别与集群级别进行配置，如果不指定将使用合理的默认值。
+以下集群配置声明了一个三节点节点集群：
+
+```yaml
+node-test:
+  hosts:
+    10.10.10.11: { nodename: node-test-1 }
+    10.10.10.12: { nodename: node-test-2 }
+    10.10.10.13: { nodename: node-test-3 }
+  vars:
+    node_cluster: node-test
+```
+
+节点的主机名将用作监控系统中的`ins`标签，集群名将用作`cls`标签，一些典型的监控指标数据将如下所示：
+
+```bash
+node:ins:cpu_usage{ins=}
+
+```
+
+
 
 ## 默认配置
 
+节点相关配置
+
 ```yaml
----
 #------------------------------------------------------------------------------
 # NODE PROVISION
 #------------------------------------------------------------------------------
 # this section defines how to provision nodes
-# nodename:                                   # if defined, node's hostname will be overwritten
-meta_node: false                              # node with meta_node will be marked as admin node
+
+# - node flag - #
+meta_node: false                              # node with meta_node will be marked as admin nod
+
+# - node identity - #
+# nodename:                                   # if provided, node's hostname will be overwritten
+node_cluster: nodes                           # node's cluster label will be set to this (nodes by default)
+node_name_exchange: false                     # exchange hostname among play hosts ?
 
 # - node dns - #
-node_dns_hosts: [ ]                            # static dns records in /etc/hosts
-node_dns_server: none                          # add (default) | none (skip) | overwrite (remove old settings)
-node_dns_servers: [ ]                          # dynamic nameserver in /etc/resolv.conf
+node_dns_hosts: [ ]                           # static dns records in /etc/hosts
+node_dns_hosts_extra: []                      # extra static dns records in /etc/hosts
+
+node_dns_server: none                         # add (default) | none (skip) | overwrite (remove old settings)
+node_dns_servers: [ ]                         # dynamic nameserver in /etc/resolv.conf
 node_dns_options:                             # dns resolv options
   - options single-request-reopen timeout:1 rotate
   - domain service.consul
 
 # - node repo - #
-node_repo_method: public                      # none|local|public (use local repo for production env)
+node_repo_method: local                       # none|local|public (use local repo for production env)
 node_repo_remove: true                        # whether remove existing repo
-node_local_repo_url: [ ]                      # local repo url (if method=local, make sure firewall is configured or disabled)
+node_local_repo_url:                          # local repo url (if method=local, make sure firewall is configured or disabled)
+  - http://pigsty/pigsty.repo
 
 # - node packages - #
 node_packages:                                # common packages for all nodes
-  - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,readline,zlib,openssl
-  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq
-  - python3,python3-psycopg2,python36-requests,python3-etcd,python3-consul
-  - python36-urllib3,python36-idna,python36-pyOpenSSL,python36-cryptography
-  - node_exporter,redis_exporter,consul,consul-template,etcd,haproxy,keepalived,vip-manager
-node_extra_packages:                          # extra packages for all nodes
-  - patroni,patroni-consul,patroni-etcd,pgbouncer,pgbadger,pg_activity
+  - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,ftp
+  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf
+  - readline,zlib,openssl,openssl-libs,python3,python36-requests,node_exporter,redis_exporter,consul,etcd
+node_extra_packages: [ ]                      # extra packages for all nodes
 node_meta_packages:                           # packages for meta nodes only
-  - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway
-  - dnsmasq,nginx,ansible,pgbadger,python-psycopg2
-  - gcc,gcc-c++,clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools
-  - zlib-devel,openssl-libs,openssl-devel,pam-devel,libxml2-devel,libxslt-devel,openldap-devel,systemd-devel,tcl-devel,python-devel
-node_meta_pip_install: ''                     # python3 to be install on meta node
+  - grafana,prometheus2,alertmanager,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
+  - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh
+  - clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools,bison,flex # gcc,gcc-c++
+  - readline-devel,zlib-devel,uuid-devel,libuuid-devel,libxml2-devel,libxslt-devel,openssl-devel,libicu-devel
+node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
 
 # - node features - #
 node_disable_numa: false                      # disable numa, important for production database, reboot required
@@ -108,7 +173,6 @@ node_ntp_service: ntp                         # ntp service provider: ntp|chrony
 node_ntp_config: true                         # config ntp service? false will leave it with system default
 node_ntp_servers:                             # default NTP servers
   - pool pool.ntp.org iburst
-...
 ```
 
 
@@ -117,12 +181,42 @@ node_ntp_servers:                             # default NTP servers
 
 ## 参数详解
 
+### meta_node
+
+Bool类型标记，元节点为真，其他节点为假。
+
+在配置清单中，`meta`分组下的节点默认带有此标记。
+
+带有此标记的节点会在节点置备时进行额外的配置：安装[`node_meta_packages`](#node_meta_packages)指定的RPM软件包，并安装[`node_meta_pip_install`](#node_meta_pip_install)指定的Python软件包。
+
+
 ### nodename
 
-如果配置了该参数，那么实例的`HOSTNAM`将会被该名称覆盖。
+该选项可为节点显式指定名称。如果配置了该参数，那么实例的主机名（`HOSTNAME`）将会被该名称覆盖。 如果该参数未定义，为空或为空字符串，则不会对主机名进行修改。
 
-该选项可用于为节点显式指定名称。如果要使用PG的实例名称作为节点名称，可以使用`pg_hostname`选项
+在Pigsty监控系统中，主机名将被用作为监控数据的`ins`标签。
 
+备注：如果要使用PostgreSQL的实例名称作为节点名称，可以指定使用`pg_hostname`选项，则初始化节点时，PG实例名会被设置为主机节点名。
+
+
+### node_cluster
+
+该选项可为节点指定一个集群名，如果不指定，将使用默认的节点集群名`nodes`。
+
+节点集群是一个Pigsty中的虚拟概念，在Pigsty监控系统中，将对归属于同一集群的节点计算额外的监控指标，例如整个集群的CPU使用率等。
+
+备注：如果要使用PostgreSQL的集群名称作为节点集群名称，可以指定使用`pg_hostname`选项，则初始化节点时，当前节点上定义的唯一PG实例的集群名，会被设置为节点的集群名。
+
+例如，以下配置项声明了一个名为`app-payment
+
+```yaml
+app-payment:
+  hosts:
+    10.10.10.10: { nodename: app-payment-1 }
+    10.10.10.11: { nodename: app-payment-1 }
+  vars:
+    node_cluster: app-payment
+```
 
 
 ### node_dns_hosts

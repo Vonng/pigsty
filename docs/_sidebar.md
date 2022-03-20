@@ -53,7 +53,7 @@
   - [Redis](v-redis.md)
 
 - Playbook
-  - [Meta Init](p-meta.md)
+  - [Meta Init](p-infra.md)
   - [PgSQL Init](p-pgsql.md)
   - [PgSQL Remove](p-pgsql-remove.md)
   - [PgUser Init](p-pgsql-createuser.md)

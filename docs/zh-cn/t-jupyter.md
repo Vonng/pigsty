@@ -4,6 +4,8 @@ Jupyter Lab 是非常实用的Python数据分析环境。
 
 默认情况下，Demo环境，单机配置模板中会启用 JupyterLab，生产环境部署模版中默认不会启用JupyterLab
 
+
+
 ## 启用Jupyter
 
 要启用Jupyter Lab，用户需要设置 [`jupyter_enabled`](v-meta.md#jupyter_enabled) 参数为`true`。
@@ -27,5 +29,4 @@ nginx_upstream:                               # domain names that will be used f
 访问需要使用密码，由参数 [`jupyter_password`](v-meta.md#jupyter_password) 指定。
 
 !> 如果您在生产环境中启用了Jupyter，请务必修改Jupyter的密码
-
 

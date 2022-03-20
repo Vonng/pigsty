@@ -18,6 +18,12 @@
 ./pgsql-createuser.yml -l pg-test -e pg_user=test
 ```
 
+可以使用包装脚本简化命令：
+
+```bash
+bin/createuser <pg_cluster> <username>
+```
+
 请注意，`pg_user` 指定的用户，**必须**已经存在于集群`pg_users`的定义中，否则会报错。这意味着用户必须先定义，再创建。
 
 ## 剧本说明

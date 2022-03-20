@@ -1,8 +1,6 @@
 # 数据库集群与实例下线
 
 
-
-
 ## 剧本概览
 
 数据库下线：可以**移除**现有的数据库集群或实例，回收节点：[`pgsql-remove.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-remove.yml)
@@ -13,7 +11,6 @@
 * 停止负载均衡器，服务组件（`service`）
 * 移除监控系统组件（`monitor`）
 * 移除Pgbouncer，Patroni，Postgres（`postgres`）
-* DCS下线（DCS Server除外）（`dcs`）
 * 移除数据库目录（`rm_pgdata: true`）
 * 移除软件包（`rm_pkgs: true`）
 
@@ -31,8 +28,10 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 ## 日常管理
 
 ```bash
-./pgsql-remove.yml -l pg-test     # 下线 pg-test 集群
-./pgsql-remove.yml -l 10.10.10.13 # 下线实例 10.10.10.13 (实际上是pg-test.pg-test-3)
+./pgsql-remove.yml -l pg-test          # 下线 pg-test 集群
+./pgsql-remove.yml -l 10.10.10.13      # 下线实例 10.10.10.13 (实际上是pg-test.pg-test-3)
+./pgsql-remove.yml -l 10.10.10.13 -e rm_pgdata=true # 下线，一并移除数据目录（可能较慢）
+./pgsql-remove.yml -l 10.10.10.13 -e rm_pkgs=true   # 下线，一并移除安装的PG相关软件包
 ```
 
 

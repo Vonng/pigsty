@@ -44,7 +44,7 @@ Operations personnel are more concerned with the details of implementing the dep
 * [Pigsty Deployment](t-deploy.md)
 * [Preparation](t-prepare.md)
 * [Offline Installation](t-offline.md)
-* [Init Infrastructure](p-meta.md)
+* [Init Infrastructure](p-infra.md)
 * [Init PgSQL Clusters](p-pgsql.md)
 
 Besides, the tutorial [Upgrade Grafana Backend Database](t-grafana-upgrade.md) shows a complete example of 

@@ -7,7 +7,7 @@ CMDB Inventory enables integration with external admin tools, such as [`pigsty-c
 
 ### 1. Load Config
 
-After `meta.yml` complete, use `bin/load_conf.py` to upgrade static config file to cmdb dynamic inventory
+After `infra.yml` complete, use `bin/load_conf.py` to upgrade static config file to cmdb dynamic inventory
 
 ```bash 
 usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]

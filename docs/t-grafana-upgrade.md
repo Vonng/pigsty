@@ -321,6 +321,6 @@ grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
 Then re-execute the `grafana` task in [`infral.yml`](p-meta) to complete the Grafana upgrade
 
 ```bash
-./meta.yml -t grafana
+./infra.yml -t grafana
 ```
 

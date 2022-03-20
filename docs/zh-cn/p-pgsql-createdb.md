@@ -1,33 +1,5 @@
 # 创建业务数据库
 
-## 剧本概览
-
-[**创建业务数据库**](pgsql-createdb)：可以在现有集群中创建新的数据库或修改现有**数据库**：[`pgsql-createdb.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createdb.yml)
-
-![](../_media/playbook/pgsql-createdb.svg)
-
-强烈建议通过剧本或包装脚本与工具在已有集群中创建新数据库，这样可以确保：
-
-* 配置文件清单与实际情况保持一致
-* Pgbouncer连接池与数据库保持一致
-* Grafana中所注册的数据源与实际情况保持一致。
-
-
-
-## 日常管理
-
-数据库的创建请参考 [数据库](c-database.md#创建数据库) 一节。
-
-```bash
-# 在 pg-test 集群创建名为 test 的数据库
-./pgsql-createdb.yml -l pg-test -e pg_database=test
-```
-
-另外，有一个简单的包装脚本可以使用：
-
-```bash
-bin/createdb <pg_cluster> <dbname>
-```
 
 
 

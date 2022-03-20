@@ -6,7 +6,6 @@
 准备好**新装**机器（Linux x86_64 CentOS 7.8.2003）一台，配置ssh本机访问，以**root**或**sudo**用户执行以下命令。
 
 ```bash
-# 离线下载（没有Git时可以使用此curl代码下载）
 # curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz  
 # curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
 
@@ -167,7 +166,7 @@ configure pigsty done. Use 'make install' to proceed
 make install
 ```
 
-它实际上调用Ansible执行[`meta.yml`](p-meta.md)剧本，在`meta`分组上完成安装。
+它实际上调用Ansible执行[`infra.yml`](p-infra.md)剧本，在`meta`分组上完成安装。
 
 在沙箱环境2核4GB虚拟机中，完整安装耗时约10分钟。
 

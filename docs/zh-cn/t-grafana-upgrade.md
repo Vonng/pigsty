@@ -298,6 +298,6 @@ grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
 然后重新执行 [`infral.yml`](p-meta)中的`grafana`任务，即可完成Grafana升级
 
 ```bash
-./meta.yml -t grafana
+./infra.yml -t grafana
 ```
 
