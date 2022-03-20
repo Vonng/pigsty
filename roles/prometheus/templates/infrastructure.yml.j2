@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   infrastructure.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2021-06-23
+# Mtime     :   2022-03-20
 # Desc      :   Infrastructure Targets definition for prometheus
 # Path      :   /etc/prometheus/targets/infra/targets.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -10,13 +10,19 @@
 
 # TODO: Change this file according to your need
 
-
 #------------------------------------------------------------------------------
 # Grafana (3000)
 #------------------------------------------------------------------------------
 - labels: { type: grafana }
   targets: # [ 127.0.0.1:3000 ]
     - {{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first }}
+
+#------------------------------------------------------------------------------
+# Loki (3100)
+#------------------------------------------------------------------------------
+- labels: { type: loki }
+  targets: [ 127.0.0.1:3100 ]
+  # - {{ nginx_upstream | json_query('[?name==`loki`].endpoint') | first }}
 
 #------------------------------------------------------------------------------
 # Prometheus (9090)
