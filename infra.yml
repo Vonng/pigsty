@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   meta.yml
+# File      :   infra.yml
 # Ctime     :   2022-02-22
-# Mtime     :   2022-02-22
-# Desc      :   init pigsty meta node
-# Path      :   meta.yml
+# Mtime     :   2022-03-20
+# Desc      :   init infrastructure on pigsty meta nodes
+# Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
@@ -35,11 +35,11 @@
 #---------------------------------------------------------------
 # bootstrap meta node with local yum repo
 #---------------------------------------------------------------
-- name: Meta Bootstrap
+- name: Infra Bootstrap
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta-boot
+  tags: infra-boot
   roles:
     - role: environ             # setup environment on meta nodes
       tags: environ
@@ -51,11 +51,11 @@
 #---------------------------------------------------------------
 # pigsty meta nodes setup
 #---------------------------------------------------------------
-- name: Meta Node
+- name: Meta Node Init
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta-node
+  tags: infra-node
   roles:
 
     - role: node            # init meta node itself
@@ -68,11 +68,11 @@
 #---------------------------------------------------------------
 # init infrastructure on meta nodes
 #---------------------------------------------------------------
-- name: Meta Infrastructure
+- name: Setup Infrastructure on meta nodes
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta-infra
+  tags: infra-svcs
   roles:
 
     - role: ca              # init ca-infrastructure
@@ -93,35 +93,46 @@
     - role: loki            # init loki
       tags: loki
 
+    #---------------------------------------------------------------
+    # beta infra services (enabled in demo)
+    #---------------------------------------------------------------
+    # - role: jupyter         # init jupyter lab
+    #   tags: jupyter
+    #   ignore_errors: true
+
+    # - role: pgweb           # init pgweb console
+    #   tags: pgweb
+    #   ignore_errors: true
+
+
 #---------------------------------------------------------------
-# init meta monitoring
+# Meta Node Monitor
 #---------------------------------------------------------------
-- name: Meta Monitor
+- name: Meta Node Monitor
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta-monitor
+  tags: infra-monitor
   roles:
 
     - role: node_exporter   # init node exporter on meta nodes
-      tags: node_exporter
+      tags: node-exporter
 
     # init & register promtail log agent
     - role: promtail
       tags: promtail
 
 
-
 #---------------------------------------------------------------
 # init cmdb(s) on meta nodes
 #---------------------------------------------------------------
-- name: Meta PGSQL           # init pgsql cmdb on meta nodes
+- name: Meta PGSQL Init     # init pgsql cmdb on meta nodes
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta-pgsql
+  tags: [ infra-cmdb, pgsql-init ]
   vars:
-    no_cmdb: false          # command line args
+    no_cmdb: false          # command line args (-e no_cmdb=true)
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni

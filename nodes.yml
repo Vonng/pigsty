@@ -1,20 +1,41 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   node.yml
+# File      :   nodes.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2022-02-22
-# Desc      :   init node
-# Path      :   node.yml
+# Mtime     :   2022-03-20
+# Desc      :   init nodes for pigsty
+# Path      :   nodes.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
+# usage
+#---------------------------------------------------------------
+# 1. make sure you have nopass ssh & sudo access to target nodes
+# 2. make sure you have defined these nodes in your inventory
+# 3. run ./nodes.yml -l <selector> to finish nodes provisioning
+#--------------------------------------------------------------
+# ./nodes.yml -t node-id          # print node identity
+# ./nodes.yml -t node-exporter    # deploy and register node-exporter
+# ./nodes.yml -t node_register    # register node-exporter to prometheus
+# ./nodes.yml -t node_admin       # create admin user for nodes
+# ...
+# ./nodes.yml -t dcs -e dcs_exists_action=clean  # force reinstall consul
+# ./nodes.yml -t node_admin -k -K -e ansible_user=<another admin>
+# ...
+#--------------------------------------------------------------
+
+#---------------------------------------------------------------
 # node identity
 #---------------------------------------------------------------
-# pg_hostname: use pgsql identity as node identity if applicable
-# if node identity is leaving blank, and pgsql identity exists
-# pgsql instance's cls & ins will be used as node identity too
+# nodename : optional, used as node identity, default to existing name
+# node_cluster : optional, used as node identity, default to `nodes`
+#
+#  nodename -> ins  ,  node_cluster  -> cls
+#
+# you can overwrite node identity with pgsql identity on 1:1 deployment
+# with option `pg_hostname: true`
 #---------------------------------------------------------------
 - name: Node Identity
   become: yes
@@ -22,18 +43,17 @@
   gather_facts: no
   tags: [ always, node-id ]
   tasks:
+
+    # overwrite nodes identity with pgsql identity if pg_hostname is true
     - name: Overwrite node_cluster
       when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
-      set_fact:
-        node_cluster: "{{ pg_cluster }}"    # use pg_cluster as non-trivial node_cluster name
+      set_fact: { node_cluster: "{{ pg_cluster }}" }  # use pg_cluster as non-trivial node_cluster name
 
     - name: Overwrite nodename
       when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
-      set_fact:
-        nodename: "{{ pg_cluster }}-{{ pg_seq }}"
+      set_fact: { nodename: "{{ pg_cluster }}-{{ pg_seq }}" }
 
-    - debug:
-        msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
+    - debug: { msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}" }
 
 #---------------------------------------------------------------
 # init node
@@ -45,7 +65,7 @@
   tags: node-init
   roles:
 
-    # prepare node for use
+    # prepare node for pigsty
     - role: node
       tags: node
 
@@ -59,11 +79,10 @@
   gather_facts: no
   tags: dcs-init
   roles:
+
     # init dcs:consul server/agent
     - role: consul
-      tags: consul
-
-    # TODO: other dcs init (etcd...)
+      tags: [ dcs, consul ]
 
 
 #---------------------------------------------------------------

@@ -1,21 +1,33 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   meta-remove.yml
+# File      :   infra-remove.yml
 # Ctime     :   2022-02-22
-# Mtime     :   2022-02-28
+# Mtime     :   2022-03-20
 # Desc      :   uninstall pigsty from meta nodes
-# Path      :   meta-remove.yml
+# Path      :   infra-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
+#---------------------------------------------------------------
+# Usage
+#---------------------------------------------------------------
+# ./infra-remove.yml -t pgsql     # remove cmdb on meta node
+#
+# ./infra-remove.yml -t infra     # remove infra on meta node
+# ./infra-remove.yml -t infra-svc # stop & disable meta services
+# ./infra-remove.yml -e rm_metadata=true   # remove pigsty data
+# ./infra-remove.yml -e rm_metadpkgs=true  # remove meta pkgs too
+# ./infra-remove.yml -e rm_metadata=true -e rm_metadpkgs=true  #
+#---------------------------------------------------------------
+
 #------------------------------------------------------------------------------
-# Remove Meta CMDB Cluster
+# Remove CMDB
 #------------------------------------------------------------------------------
 - name: PGSQL Remove
   become: yes
   hosts: meta
-  tags: pgsql-remove
+  tags:  [ cmdb , pgsql-remove ]
   gather_facts: no
   ignore_errors: yes
   vars:
@@ -24,18 +36,21 @@
     rm_pgpkgs: true         # uninstall pg_packages? false by default
   roles:
     - role: pg_remove
-      tags: [ pg-remove , cmdb ]
-
+      tags: pg-remove
 
 #------------------------------------------------------------------------------
-# Remove Infra components
+# Remove Infrastructure
 #------------------------------------------------------------------------------
 - name: Infra Remove
   become: yes
   hosts: meta
-  tags: meta-remove
+  tags: infra
   gather_facts: no
   ignore_errors: yes
+  vars:
+    rm_metadata: false        # remove metadata on meta nodes? false by default
+    rm_metapkgs: false        # uninstall node_meta_packages? false by default
+
   tasks:
 
     #---------------------------------------------
@@ -43,7 +58,7 @@
     #---------------------------------------------
     - name: Stop and disable systemd infra service
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
-      tags: meta-svcs
+      tags: infra-svcs
       with_items:
         - grafana-server
         - prometheus
@@ -56,11 +71,12 @@
         - promtail
 
     #---------------------------------------------
-    # Cleanse Data
+    # Remove Data
     #---------------------------------------------
     - name: Remove infra data on meta nodes
       file: state=absent path="{{ item }}"
-      tags: meta-data
+      tags: infra-data
+      when: rm_metadata|bool
       with_items:
         - /etc/pigsty
         - /etc/prometheus/targets
@@ -76,7 +92,8 @@
     #---------------------------------------------
     - name: Uninstall meta packages
       yum: name={{ item }} state=removed
-      tags: meta-pkgs
+      tags: infra-pkgs
+      when: rm_metapkgs|bool
       with_items:
         - prometheus2
         - grafana

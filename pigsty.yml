@@ -108,7 +108,7 @@ all: # top-level namespace
               - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
 
           # define an additional database named grafana & prometheus (optional)
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
+          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
           # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
 
         #---------------
@@ -434,7 +434,7 @@ all: # top-level namespace
 
     # - node dns - #
     node_dns_hosts:                               # static dns records in /etc/hosts
-      - 10.10.10.10 meta pigsty c.pigsty g.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty
+      - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
     node_dns_hosts_extra: []                      # extra static dns records in /etc/hosts
 
     node_dns_server: add                          # add (default) | none (skip) | overwrite (remove old settings)
@@ -516,6 +516,7 @@ all: # top-level namespace
     nginx_upstream:                               # domain names that will be used for accessing pigsty services
       - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
       - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
+      - { name: loki,          domain: l.pigsty,      endpoint: "10.10.10.10:3100" }   # pigsty loki (3100)
       - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
       - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
       # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)

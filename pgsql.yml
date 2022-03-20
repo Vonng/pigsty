@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2021-01-14
+# Mtime     :   2021-03-20
 # Desc      :   init postgres cluster/instance
 # Path      :   pgsql.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -13,6 +13,11 @@
 #==============================================================#
 # Playbook : Init PGSQL Cluster/Instance on Pigsty Node
 #==============================================================#
+#  Warning: You have to run this playbook on provisioned nodes
+#  which should be provisioned by ./nodes.yml playbook ahead
+#  you can run both at once with bin/createpg <cluster|ip>
+#    bin/createpg pg-test
+#
 #  Init cluster `pg-test`
 #     pgsql.yml -l pg-test
 #
@@ -29,10 +34,10 @@
 #     pgsql.yml --tags=monitor -e exporter_install=binary
 #
 #  Refresh (haproxy) services
-#     pgsql.yml --tags=service
+#     pgsql.yml --tags=service (or bin/reloadha <cluster>)
 #
 #  Refresh HBA rules
-#     pgsql.yml --tags=pg_hba
+#     pgsql.yml --tags=pg_hba  (or bin/reloadhba <cluster>)
 #
 #  Register cluster/instance to infrastructure
 #     pgsql.yml --tags=register             # register all
@@ -57,10 +62,10 @@
       tags: service
 
     - role: pg_exporter     # init monitor exporters
-      tags: pg_exporter
+      tags: pg-exporter
 
     - role: pg_register     # register postgres cluster/instance to infra
-      tags: pg_register
+      tags: pg-register
 
 #---------------------------------------------------------------
 ...

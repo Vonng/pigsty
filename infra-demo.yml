@@ -1,18 +1,18 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   demo.yml
+# File      :   infra-demo.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-03-01
+# Mtime     :   2022-03-20
 # Desc      :   init demo on sandbox nodes (one-pass bootstrap)
-# Path      :   demo.yml
+# Path      :   infra-demo.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
 # Notice
 #---------------------------------------------------------------
-# This is a special playbook that interleave meta.yml & pgsql.yml
+# This is a special playbook that interleave infra.yml & pgsql.yml
 # It is used for 4-node demo, or in case that there are multiple
 # meta nodes also reused as common database nodes.
 #
@@ -50,11 +50,11 @@
 #---------------------------------------------------------------
 # bootstrap meta node with local yum repo
 #---------------------------------------------------------------
-- name: Meta Bootstrap
+- name: Infra Bootstrap
   become: yes
   hosts: meta
   gather_facts: no
-  tags: meta-boot
+  tags: infra-boot
   roles:
     - role: environ             # setup environment on meta nodes
       tags: environ
@@ -84,14 +84,15 @@
 
 
 #---------------------------------------------------------------
-# Meta Infra
+# init infrastructure on meta nodes
 #---------------------------------------------------------------
-- name: Init Infrastructure on Meta Nodes
+- name: Setup Infrastructure on meta nodes
   become: yes
   hosts: meta
-  tags: meta-infra
   gather_facts: no
+  tags: infra
   roles:
+
     - role: ca              # init ca-infrastructure
       tags: ca
 
@@ -107,11 +108,11 @@
     - role: grafana         # init grafana
       tags: grafana
 
-    - role: loki            # init pgweb console
+    - role: loki            # init loki
       tags: loki
 
     #---------------------------------------------------------------
-    # extra infra services
+    # beta infra services
     #---------------------------------------------------------------
     - role: jupyter         # init jupyter lab
       tags: jupyter
@@ -144,13 +145,13 @@
 #---------------------------------------------------------------
 # init postgres on all nodes
 #---------------------------------------------------------------
-- name: PGSQL Init               # init pgsql cmdb on meta nodes
+- name: PGSQL Init          # init pgsql cmdb on all nodes
   become: yes
   hosts: all
   gather_facts: no
   tags: pgsql-init
   vars:
-    no_cmdb: false          # command line args
+    no_cmdb: false          # command line args (-e no_cmdb=true)
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
