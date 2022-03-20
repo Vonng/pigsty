@@ -36,7 +36,7 @@
         msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
 
 #---------------------------------------------------------------
-# init node & dcs
+# init node
 #---------------------------------------------------------------
 - name: Node Init
   become: yes
@@ -49,9 +49,21 @@
     - role: node
       tags: node
 
+
+#---------------------------------------------------------------
+# init dcs
+#---------------------------------------------------------------
+- name: DCS Init
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: dcs-init
+  roles:
     # init dcs:consul server/agent
     - role: consul
-      tags: [ dcs, consul ]
+      tags: consul
+
+    # TODO: other dcs init (etcd...)
 
 
 #---------------------------------------------------------------
@@ -66,7 +78,11 @@
 
     # init & register node exporter
     - role: node_exporter
-      tags: node_exporter
+      tags: node-exporter
+
+    # init & register promtail log agent
+    - role: promtail
+      tags: promtail
 
 #---------------------------------------------------------------
 ...

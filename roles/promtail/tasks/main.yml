@@ -2,42 +2,57 @@
 #------------------------------------------------------------------------------
 # Install
 #------------------------------------------------------------------------------
-# install promtail via copy binary
-# the binary MUST be put into files/bin directory before running this playbook
-# you can download promtail and related binaries with bin/get_loki
-- name: Install promtail binary
+- name: Install promtail via yum
   tags: promtail_install
-  copy: src=bin/promtail dest=/usr/bin/promtail owner=root mode=0755
-  with_items:
-    - promtail
+  when: promtail_enabled|bool
+  package: name=promtail state=present
 
 #------------------------------------------------------------------------------
 # Cleanup
 #------------------------------------------------------------------------------
-- name: Cleanup promtail
+- name: Cleanup promtail positions
   tags: promtail_clean
-  when: promtail_clean|bool
-  file: path={{ promtail_status_file }} state=absent
+  when: promtail_enabled|bool and promtail_clean|bool
+  file: path= state=absent
 
 #------------------------------------------------------------------------------
 # Config
 #------------------------------------------------------------------------------
 - name: Config promtail
   tags: promtail_config
+  when: promtail_enabled|bool
   block:
-    - name: Render promtail config
+    - name: Copy promtail systemd service
+      copy: src=promtail.service dest=/usr/lib/systemd/system/promtail.service
+
+    # use hostname as nodename if not provided
+    - name: Fetch hostname from server if no node name is given
+      when: nodename is not defined or nodename == ''
+      shell: echo $HOSTNAME
+      register: hostname_result
+
+    - name: Setup nodename according to hostname
+      when: nodename is not defined or nodename == ''
+      set_fact:
+        nodename: "{{ hostname_result.stdout }}"
+
+    - name: Render promtail main config
       template: src=promtail.yml.j2 dest=/etc/promtail.yml
 
-    - name: Copy promtail systemd service
+    - name: Render promtail default config
       copy:
-        src: promtail.service
-        dest: /usr/lib/systemd/system/promtail.service
+        dest: /etc/default/promtail owner=root
+        content: |
+          PROMTAIL_OPTS='{{ promtail_options }}'
+          PROMTAIL_POSITIONS={{ promtail_positions }}
+          PROMTAIL_SEND_URL='{{ promtail_send_url }}'
 
 #------------------------------------------------------------------------------
 # Launch
 #------------------------------------------------------------------------------
 - name: Launch promtail
   tags: promtail_launch
+  when: promtail_enabled|bool
   block:
     - name: Launch promtail
       systemd: name=promtail state=restarted enabled=yes daemon_reload=yes

@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   promtail.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2021-07-06
+# Mtime     :   2022-03-19
 # Desc      :   Promtail logging collector agent
 # Path      :   /etc/promtail.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -9,20 +9,83 @@
 
 server:
   http_listen_port: {{ promtail_port|default(9080) }}
-  grpc_listen_port: 0
+  grpc_listen_port: 9097
 
-positions:
-  filename: {{ promtail_status_file }}
+positions:                     # location of position status file
+  filename: {{ promtail_positions }}
+  sync_period: 10s             # How often to update the positions file
+  ignore_invalid_yaml: true    # Whether to ignore & later overwrite positions files that are corrupted
 
 clients:
   - url:   {{ promtail_send_url }}
     external_labels:
       ip:  {{ inventory_hostname }}
-      cls: {{ pg_cluster }}
-      ins: {{ pg_cluster }}-{{ pg_seq }}
+      cls: {{ node_cluster|default('nodes') }}
+      ins: {{ nodename }}
 
 scrape_configs:
 
+  ################################################################
+  #                        Nodes Logs                            #
+  ################################################################
+  # collect /var/log/messages dmesg cron logs on all nodes
+  - job_name: nodes
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          src: syslog
+          job: nodes
+          __path__: /var/log/messages
+
+      - targets:
+          - localhost
+        labels:
+          src: crontab
+          job: nodes
+          __path__: /var/log/cron
+
+      - targets:
+          - localhost
+        labels:
+          src: dmesg
+          job: nodes
+          __path__: /var/log/dmesg
+
+
+{% if meta_node is defined and meta_node|bool %}
+  ################################################################
+  #                       Infra Log                              #
+  ################################################################
+  # collect nginx & grafana logs on meta nodes
+
+  - job_name: infra
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          src: nginx-access
+          job: infra
+          __path__: /var/log/nginx/access.log
+
+      - targets:
+          - localhost
+        labels:
+          src: nginx-error
+          job: infra
+          __path__: /var/log/nginx/error.log
+
+      - targets:
+          - localhost
+        labels:
+          src: grafana
+          job: infra
+          __path__: /var/log/grafana/grafana.log
+
+{% endif %}
+
+
+{% if pg_cluster is defined and pg_seq is defined %}
   ################################################################
   #                      PostgreSQL Logs                         #
   ################################################################
@@ -33,6 +96,8 @@ scrape_configs:
         labels:
           src: postgres
           job: pgsql
+          cls: {{ pg_cluster }}
+          ins: {{ pg_cluster }}-{{ pg_seq }}
           __path__: /pg/data/log/*.csv
 
     pipeline_stages:
@@ -52,9 +117,40 @@ scrape_configs:
                 source: ts
                 format: '2006-01-02 15:04:05 MST'
 
-  ################################################################
+
+  #==============================================================#
+  #                        Patroni Logs                          #
+  #==============================================================#
+{% if patroni_enabled is defined and patroni_enabled|bool %}
+  - job_name: patroni
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          src: patroni
+          job: pgsql
+          cls: {{ pg_cluster }}
+          ins: {{ pg_cluster }}-{{ pg_seq }}
+          __path__: /pg/log/patroni.log
+
+    pipeline_stages:
+      - match:
+          selector: '{job="patroni"}'
+          stages:
+            - regex:
+                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4}) (?P<level>\w+): (?P<message>.*)'
+            - labels:
+                level:
+            - timestamp:
+                source: ts
+                format: '2006-01-02 15:04:05 -0700'
+
+{% endif %}
+
+  #==============================================================#
   #                      Pgbouncer Logs                          #
-  ################################################################
+  #==============================================================#
+{% if pgbouncer_enabled is defined and pgbouncer_enabled|bool %}
   - job_name: pgbouncer
     static_configs:
       - targets:
@@ -62,6 +158,8 @@ scrape_configs:
         labels:
           src: pgbouncer
           job: pgsql
+          cls: {{ pg_cluster }}
+          ins: {{ pg_cluster }}-{{ pg_seq }}
           __path__: /var/log/pgbouncer/pgbouncer.log
 
     pipeline_stages:
@@ -79,41 +177,24 @@ scrape_configs:
             - timestamp:
                 source: ts
                 format: '2006-01-02 15:04:05 MST'
+{% endif %}
+
+{% endif %}
 
 
+{% if redis_cluster is defined and redis_node is defined %}
   ################################################################
-  #                        Patroni Logs                          #
+  #                         Redis Logs                           #
   ################################################################
-  - job_name: patroni
+  - job_name: redis
     static_configs:
       - targets:
           - localhost
         labels:
-          src: patroni
-          job: pgsql
-          __path__: /pg/log/patroni.log
+          src: redis
+          job: redis
+          cls: {{ redis_cluster }}
+          ins: {{ redis_cluster }}-{{ redis_node }}
+          __path__: /var/log/redis/*.log
 
-    pipeline_stages:
-      - match:
-          selector: '{job="patroni"}'
-          stages:
-            - regex:
-                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4}) (?P<level>\w+): (?P<message>.*)'
-            - labels:
-                level:
-            - timestamp:
-                source: ts
-                format: '2006-01-02 15:04:05 -0700'
-
-
-  ################################################################
-  #                      Syslog (Optional)                       #
-  ################################################################
-  #  # collect /var/log/messages
-  #  - job_name: syslog
-  #    static_configs:
-  #      - targets:
-  #          - localhost
-  #        labels:
-  #          job: syslog
-  #          __path__: /var/log/messages
+{% endif %}

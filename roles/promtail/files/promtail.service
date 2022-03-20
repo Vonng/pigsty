@@ -1,4 +1,5 @@
-# /usr/lib/systemd/system/promtail.service
+# -*- mode: conf -*-
+
 [Unit]
 Description=Promtail Log Agent
 Documentation=https://grafana.com/docs/loki/latest/clients/promtail/
@@ -6,7 +7,8 @@ After=network.target
 
 [Service]
 User=root
-ExecStart=/usr/bin/promtail -config.file=/etc/promtail.yml
+EnvironmentFile=-/etc/default/promtail
+ExecStart=/usr/bin/promtail $PROMTAIL_OPTS
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=5s

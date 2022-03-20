@@ -57,20 +57,34 @@
   become: yes
   hosts: all
   gather_facts: no
-  tags: node_exporter
+  tags: node-exporter
   ignore_errors: yes
   tasks:
     - name: Stop and disable node_exporter service
       systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
 
-
-#---------------------------------------------------------------
-# Remove Consul
-#---------------------------------------------------------------
-- name: Consul Remove
+#------------------------------------------------------------------------------
+# Remove Promtail
+#------------------------------------------------------------------------------
+- name: Promtail Agent Remove
   become: yes
   hosts: all
   gather_facts: no
+  tags: promtail
+  ignore_errors: yes
+  tasks:
+    - name: Stop and disable promtail service
+      systemd: name=promtail state=stopped enabled=no daemon_reload=yes
+
+
+#---------------------------------------------------------------
+# Remove DCS:Consul
+#---------------------------------------------------------------
+- name: DCS Remove
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: dcs
   vars:
     rm_dcs_server: false    # override this with command line args  e.g.
                             #./node-remove.yml -e rm_dcs_server=true

@@ -24,14 +24,16 @@
     rm_pgpkgs: true         # uninstall pg_packages? false by default
   roles:
     - role: pg_remove
+      tags: [ pg-remove , cmdb ]
+
 
 #------------------------------------------------------------------------------
-# Remove Infra And Data
+# Remove Infra components
 #------------------------------------------------------------------------------
 - name: Infra Remove
   become: yes
   hosts: meta
-  tags: datak-remove
+  tags: meta-remove
   gather_facts: no
   ignore_errors: yes
   tasks:
@@ -41,6 +43,7 @@
     #---------------------------------------------
     - name: Stop and disable systemd infra service
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
+      tags: meta-svcs
       with_items:
         - grafana-server
         - prometheus
@@ -50,12 +53,14 @@
         - jupyter
         - pgweb
         - loki
+        - promtail
 
     #---------------------------------------------
     # Cleanse Data
     #---------------------------------------------
     - name: Remove infra data on meta nodes
       file: state=absent path="{{ item }}"
+      tags: meta-data
       with_items:
         - /etc/pigsty
         - /etc/prometheus/targets
@@ -71,10 +76,13 @@
     #---------------------------------------------
     - name: Uninstall meta packages
       yum: name={{ item }} state=removed
+      tags: meta-pkgs
       with_items:
         - prometheus2
         - grafana
         - alertmanager
+        - loki
         - nginx
+        - consul
 
 ...
