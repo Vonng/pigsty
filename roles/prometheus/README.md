@@ -66,7 +66,7 @@ bin/new
 * [`alertmanager.yml`](files/alertmanager.yml) Major alertmanager configuration
 * [`rules`](files/rules/) Prometheus rules
   * [`pgsql.yml`](files/rules/alert.yaml) postgres record and alert rules 
-  * [`node.yaml`](files/rules/node.yml) node record and alert rules
+  * [`nodes.yml`](files/rules/nodes.yml) node record and alert rules
 
 
 ### Tasks
