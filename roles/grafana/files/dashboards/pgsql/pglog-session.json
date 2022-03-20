@@ -9,6 +9,12 @@
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "limit": 100,
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             },
             {
@@ -30,10 +36,10 @@
     "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL Log Analysis for single session",
     "editable": true,
-    "gnetId": null,
+    "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1626353292010,
+    "iteration": 1647610886100,
     "links": [
         {
             "asDropdown": false,
@@ -75,6 +81,7 @@
             "url": ""
         }
     ],
+    "liveNow": false,
     "panels": [
         {
             "datasource": {
@@ -92,7 +99,10 @@
             "type": "row"
         },
         {
-            "datasource": "Meta",
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -207,7 +217,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.5",
@@ -239,13 +250,14 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Log Events (All)",
             "type": "timeseries"
         },
         {
-            "datasource": "Meta",
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -381,8 +393,14 @@
                 "y": 1
             },
             "id": 23,
-            "interval": null,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -391,7 +409,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -420,8 +438,6 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "transformations": [
                 {
                     "id": "organize",
@@ -440,7 +456,10 @@
             "type": "table"
         },
         {
-            "datasource": "Meta",
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -555,7 +574,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.5",
@@ -587,13 +607,14 @@
                     ]
                 }
             ],
-            "timeFrom": null,
-            "timeShift": null,
             "title": "Log Events (Current Session)",
             "type": "timeseries"
         },
         {
-            "datasource": "Meta",
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -725,7 +746,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -841,7 +862,10 @@
             "type": "stat"
         },
         {
-            "datasource": "Meta",
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1266,6 +1290,13 @@
             },
             "id": 29,
             "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
                 "showHeader": true,
                 "sortBy": [
                     {
@@ -1274,7 +1305,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.0.5",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -1377,13 +1408,12 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 30,
+    "schemaVersion": 35,
     "style": "dark",
     "tags": [
         "Pigsty",
-        "PGSQL",
-        "PGLOG",
-        "Analysis"
+        "LOGS",
+        "PGLOG"
     ],
     "templating": {
         "list": [
@@ -1404,7 +1434,6 @@
             },
             {
                 "description": "Schema qualified csv log table",
-                "error": null,
                 "hide": 2,
                 "label": "Log Table",
                 "name": "log",
@@ -1415,13 +1444,12 @@
             {
                 "current": {},
                 "description": "Session ID from log sample",
-                "error": null,
                 "hide": 0,
                 "label": "Session ID",
                 "name": "sid",
                 "options": [
                     {
-                        "selected": false,
+                        "selected": true,
                         "text": "60f01952.988",
                         "value": "60f01952.988"
                     }
@@ -1431,12 +1459,13 @@
                 "type": "textbox"
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "Meta",
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "ds-meta"
+                },
                 "definition": "SELECT min(ts) - '5s'::INTERVAL FROM ${log} WHERE sid = '$sid';",
                 "description": "First log timestamp of this session",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Time Begin",
@@ -1451,12 +1480,13 @@
                 "type": "query"
             },
             {
-                "allValue": null,
                 "current": {},
-                "datasource": "Meta",
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "ds-meta"
+                },
                 "definition": "SELECT max(ts) + '5s'::INTERVAL FROM ${log} WHERE sid = '$sid';",
                 "description": "Last log timestamp of this session",
-                "error": null,
                 "hide": 2,
                 "includeAll": false,
                 "label": "Time End",
@@ -1480,5 +1510,6 @@
     "timezone": "",
     "title": "PGLOG Session",
     "uid": "pglog-session",
-    "version": 1
+    "version": 1,
+    "weekStart": ""
 }

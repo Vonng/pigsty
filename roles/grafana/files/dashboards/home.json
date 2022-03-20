@@ -18,13 +18,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Home Dashboards for Pigsty",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1646755943087,
+    "iteration": 1647743090071,
     "links": [
         {
             "asDropdown": true,
@@ -32,6 +31,7 @@
             "includeVars": false,
             "keepTime": true,
             "tags": [
+                "Pigsty",
                 "PGSQL"
             ],
             "targetBlank": false,
@@ -46,6 +46,7 @@
             "includeVars": false,
             "keepTime": true,
             "tags": [
+                "Pigsty",
                 "NODES"
             ],
             "targetBlank": false,
@@ -60,6 +61,7 @@
             "includeVars": false,
             "keepTime": true,
             "tags": [
+                "Pigsty",
                 "REDIS"
             ],
             "targetBlank": false,
@@ -74,10 +76,11 @@
             "includeVars": false,
             "keepTime": true,
             "tags": [
-                "GPSQL"
+                "Pigsty",
+                "INFRA"
             ],
             "targetBlank": false,
-            "title": "GPSQL",
+            "title": "INFRA",
             "tooltip": "",
             "type": "dashboards",
             "url": ""
@@ -209,7 +212,7 @@
                             {
                                 "id": "color",
                                 "value": {
-                                    "fixedColor": "super-light-orange",
+                                    "fixedColor": "#f2495cd1",
                                     "mode": "fixed"
                                 }
                             }
@@ -493,15 +496,15 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "GPSQL"
+                            "options": "INFRA"
                         },
                         "properties": [
                             {
                                 "id": "links",
                                 "value": [
                                     {
-                                        "title": "Greenplum Overview",
-                                        "url": "/d/gpsql-overview"
+                                        "title": "Infra Overview",
+                                        "url": "/d/infra-overview"
                                     }
                                 ]
                             },
@@ -573,17 +576,6 @@
                     },
                     "exemplar": true,
                     "expr": "1",
-                    "interval": "",
-                    "legendFormat": "NODES",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": true,
-                    "expr": "1",
                     "hide": false,
                     "interval": "",
                     "legendFormat": "PGSQL",
@@ -608,9 +600,20 @@
                     },
                     "exemplar": true,
                     "expr": "1",
+                    "interval": "",
+                    "legendFormat": "NODES",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "1",
                     "hide": false,
                     "interval": "",
-                    "legendFormat": "GPSQL",
+                    "legendFormat": "INFRA",
                     "refId": "C"
                 }
             ],
@@ -727,6 +730,23 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "C"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Nodes Cluster : ${__field.labels.cls}",
+                                        "url": "/d/nodes-cluster?var-cls=${__field.labels.cls}"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -762,7 +782,7 @@
                     "exemplar": true,
                     "expr": "cls:pressure1{job=\"pgsql\"}",
                     "interval": "",
-                    "legendFormat": "{{ cls }}",
+                    "legendFormat": "{{ cls }} \u24df",
                     "refId": "A"
                 },
                 {
@@ -774,8 +794,20 @@
                     "expr": "redis:cls:cpu_usage{job=\"redis\"}",
                     "hide": false,
                     "interval": "",
-                    "legendFormat": "{{ cls }}",
+                    "legendFormat": "{{ cls }} \u24e1",
                     "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "node:cls:cpu_usage{job=\"nodes\"}",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "{{ cls }} \u24dd",
+                    "refId": "C"
                 }
             ],
             "title": "Clusters",
@@ -811,15 +843,21 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
+                        "fixedColor": "blue",
+                        "mode": "fixed"
                     },
-                    "links": [],
+                    "links": [
+                        {
+                            "title": "Pigsty Home",
+                            "url": "http://pigsty"
+                        }
+                    ],
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "blue",
+                                "color": "text",
                                 "value": null
                             }
                         ]
@@ -828,99 +866,49 @@
                 "overrides": [
                     {
                         "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "B"
+                            "id": "byName",
+                            "options": "Documentation"
                         },
                         "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Pigsty MetaDB Cluster",
-                                        "url": "/d/pgsql-cluster?var-cls=pg-meta"
-                                    }
-                                ]
-                            },
                             {
                                 "id": "color",
                                 "value": {
                                     "fixedColor": "green",
                                     "mode": "fixed"
                                 }
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Official Document Site",
+                                        "url": "https://pigsty.cc"
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
                         "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "A"
+                            "id": "byName",
+                            "options": "Github Repo"
                         },
                         "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-orange",
+                                    "mode": "fixed"
+                                }
+                            },
                             {
                                 "id": "links",
                                 "value": [
                                     {
-                                        "targetBlank": true,
-                                        "title": "Pigsty Official Site",
-                                        "url": "https://pigsty.cc/"
+                                        "title": "Github Repo : https://github.com/Vonng/pigsty",
+                                        "url": "https://github.com/Vonng/pigsty"
                                     }
                                 ]
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "blue",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "C"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "Pigsty Grafana",
-                                        "url": "/?kiosk"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "orange",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "D"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "targetBlank": true,
-                                        "title": "Pigsty Prometheus",
-                                        "url": "http://p.pigsty"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "red",
-                                    "mode": "fixed"
-                                }
                             }
                         ]
                     }
@@ -932,7 +920,7 @@
                 "x": 0,
                 "y": 4
             },
-            "id": 24,
+            "id": 50,
             "options": {
                 "colorMode": "background",
                 "graphMode": "none",
@@ -946,8 +934,7 @@
                     "values": false
                 },
                 "text": {
-                    "titleSize": 13,
-                    "valueSize": 13
+                    "valueSize": 16
                 },
                 "textMode": "name"
             },
@@ -958,13 +945,11 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "exemplar": false,
-                    "expr": "grafana_build_info",
-                    "format": "time_series",
-                    "instant": true,
+                    "exemplar": true,
+                    "expr": "1",
+                    "hide": false,
                     "interval": "",
                     "legendFormat": "Pigsty v1.4.0",
-                    "queryType": "measurements",
                     "refId": "A"
                 },
                 {
@@ -972,14 +957,11 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "exemplar": false,
-                    "expr": "pg_meta_info{ins=\"pg-meta-1\"}",
-                    "format": "time_series",
+                    "exemplar": true,
+                    "expr": "1",
                     "hide": false,
-                    "instant": true,
                     "interval": "",
-                    "legendFormat": "Postgres v{{ version }}",
-                    "queryType": "measurements",
+                    "legendFormat": "Documentation",
                     "refId": "B"
                 },
                 {
@@ -987,30 +969,12 @@
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "exemplar": false,
-                    "expr": "grafana_build_info",
-                    "format": "time_series",
+                    "exemplar": true,
+                    "expr": "1",
                     "hide": false,
-                    "instant": true,
                     "interval": "",
-                    "legendFormat": "Grafana v{{ version }}",
-                    "queryType": "measurements",
+                    "legendFormat": "Github Repo",
                     "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "prometheus_build_info",
-                    "format": "time_series",
-                    "hide": false,
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "Prometheus v{{ version }}",
-                    "queryType": "measurements",
-                    "refId": "D"
                 }
             ],
             "transformations": [],
@@ -1147,7 +1111,7 @@
                                             "value": null
                                         },
                                         {
-                                            "color": "#cc9d00",
+                                            "color": "#cc9c00bf",
                                             "value": 1
                                         }
                                     ]
@@ -1668,5 +1632,6 @@
     "title": "Home",
     "uid": "home",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }

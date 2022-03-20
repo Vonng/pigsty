@@ -24,7 +24,7 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1639051937516,
+    "iteration": 1647739582946,
     "links": [
         {
             "asDropdown": true,
@@ -175,7 +175,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "exemplar": true,
@@ -743,7 +743,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -963,7 +963,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -1119,7 +1119,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -1287,7 +1287,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "exemplar": true,
@@ -1387,7 +1387,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -1478,7 +1478,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "exemplar": true,
@@ -1584,7 +1584,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -1658,7 +1658,7 @@
                 "text": {},
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -1765,7 +1765,7 @@
                 "text": {},
                 "textMode": "value"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -2149,7 +2149,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.4.3",
             "targets": [
                 {
                     "format": "table",
@@ -2886,15 +2886,20 @@
                             }
                         ]
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
+                            "exemplar": false,
+                            "expr": "SELECT * FROM pg_class;",
                             "format": "table",
                             "group": [],
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "",
                             "metricColumn": "none",
                             "rawQuery": true,
                             "rawSql": "SELECT c.oid                                                AS \"OID\",\n       n.nspname                                            as \"Schema\",\n       n.nspname || '.' || c.relname                        as \"Name\",\n       CASE WHEN relispartition THEN 'P' ELSE c.relkind END AS \"Kind\",\n       age(c.relfrozenxid)::FLOAT / 2147483648              AS relage,\n       reltuples,\n       relpages,\n       relfilenode,\n       pg_table_size(c.oid)                                 AS \"Size\",\n       relnatts, s.*\nFROM pg_catalog.pg_class c\n         LEFT JOIN pg_namespace n ON n.oid = c.relnamespace\n         LEFT JOIN pg_stat_user_tables s ON c.oid = s.relid\nWHERE c.relkind IN ('r', 'p', '')\n  AND n.nspname <> 'pg_catalog'\n  AND n.nspname !~ '^pg_toast'\n  AND n.nspname <> 'information_schema'\nORDER BY 1, 2;",
@@ -3098,7 +3103,7 @@
                 {
                     "datasource": {
                         "type": "postgres",
-                        "uid": "$dsn"
+                        "uid": "${dsn}"
                     },
                     "fieldConfig": {
                         "defaults": {
@@ -3274,12 +3279,12 @@
                             }
                         ]
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
                             "format": "table",
                             "group": [],
@@ -3362,6 +3367,7 @@
             "panels": [
                 {
                     "datasource": {
+                        "type": "postgres",
                         "uid": "${dsn}"
                     },
                     "description": "Bloat ratio & wasted bytes estimation of all heap tables",
@@ -3558,7 +3564,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 0,
-                        "y": 34
+                        "y": 23
                     },
                     "id": 167,
                     "options": {
@@ -3577,9 +3583,13 @@
                             }
                         ]
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
+                            "datasource": {
+                                "type": "postgres",
+                                "uid": "${dsn}"
+                            },
                             "format": "table",
                             "group": [],
                             "metricColumn": "none",
@@ -3835,7 +3845,7 @@
                         "h": 12,
                         "w": 12,
                         "x": 12,
-                        "y": 34
+                        "y": 23
                     },
                     "id": 181,
                     "options": {
@@ -3854,12 +3864,12 @@
                             }
                         ]
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
                             "format": "table",
                             "group": [],
@@ -4038,7 +4048,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 46
+                        "y": 35
                     },
                     "id": 169,
                     "options": {
@@ -4229,7 +4239,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 46
+                        "y": 35
                     },
                     "id": 182,
                     "options": {
@@ -4244,7 +4254,7 @@
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
                             "format": "table",
                             "group": [],
@@ -4346,7 +4356,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "super-light-green",
@@ -4454,7 +4465,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-green"
+                                                    "color": "super-light-green",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -4565,7 +4577,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#55a64bb3"
+                                                    "color": "#55a64bb3",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -4627,7 +4640,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green"
+                                                    "color": "green",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -4689,7 +4703,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#00000000"
+                                                    "color": "#00000000",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "green",
@@ -4791,7 +4806,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "#80808080"
+                                                    "color": "#80808080",
+                                                    "value": null
                                                 }
                                             ]
                                         }
@@ -5004,7 +5020,8 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "super-light-blue"
+                                                    "color": "super-light-blue",
+                                                    "value": null
                                                 },
                                                 {
                                                     "color": "light-blue",
@@ -5180,7 +5197,7 @@
                         "h": 11,
                         "w": 24,
                         "x": 0,
-                        "y": 8
+                        "y": 25
                     },
                     "id": 59,
                     "options": {
@@ -5199,7 +5216,7 @@
                             }
                         ]
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "format": "table",
@@ -5512,7 +5529,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 0,
-                        "y": 19
+                        "y": 36
                     },
                     "id": 105,
                     "options": {
@@ -5533,7 +5550,8 @@
                             "values": false
                         },
                         "tooltip": {
-                            "mode": "multi"
+                            "mode": "multi",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.2",
@@ -5638,7 +5656,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 8,
-                        "y": 19
+                        "y": 36
                     },
                     "id": 104,
                     "options": {
@@ -5659,7 +5677,8 @@
                             "values": false
                         },
                         "tooltip": {
-                            "mode": "multi"
+                            "mode": "multi",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.2",
@@ -5734,7 +5753,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 16,
-                        "y": 19
+                        "y": 36
                     },
                     "id": 103,
                     "options": {
@@ -5755,7 +5774,8 @@
                             "values": false
                         },
                         "tooltip": {
-                            "mode": "multi"
+                            "mode": "multi",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.2",
@@ -5905,7 +5925,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 0,
-                        "y": 26
+                        "y": 43
                     },
                     "id": 107,
                     "options": {
@@ -5926,7 +5946,8 @@
                             "values": false
                         },
                         "tooltip": {
-                            "mode": "multi"
+                            "mode": "multi",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.2",
@@ -6091,7 +6112,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 8,
-                        "y": 26
+                        "y": 43
                     },
                     "id": 109,
                     "options": {
@@ -6112,7 +6133,8 @@
                             "values": false
                         },
                         "tooltip": {
-                            "mode": "multi"
+                            "mode": "multi",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.2",
@@ -6262,7 +6284,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 16,
-                        "y": 26
+                        "y": 43
                     },
                     "id": 106,
                     "options": {
@@ -6283,7 +6305,8 @@
                             "values": false
                         },
                         "tooltip": {
-                            "mode": "multi"
+                            "mode": "multi",
+                            "sort": "none"
                         }
                     },
                     "pluginVersion": "8.2.2",
@@ -6642,7 +6665,7 @@
                         "h": 14,
                         "w": 24,
                         "x": 0,
-                        "y": 9
+                        "y": 7
                     },
                     "id": 173,
                     "options": {
@@ -6661,12 +6684,12 @@
                             }
                         ]
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
                             "format": "table",
                             "group": [],
@@ -6894,7 +6917,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 0,
-                        "y": 23
+                        "y": 21
                     },
                     "id": 179,
                     "options": {
@@ -6909,7 +6932,7 @@
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
                             "format": "table",
                             "group": [],
@@ -7070,7 +7093,7 @@
                         "h": 10,
                         "w": 12,
                         "x": 12,
-                        "y": 23
+                        "y": 21
                     },
                     "id": 177,
                     "options": {
@@ -7085,7 +7108,7 @@
                         {
                             "datasource": {
                                 "type": "postgres",
-                                "uid": "l60xgb27k"
+                                "uid": "${dsn}"
                             },
                             "format": "table",
                             "group": [],
@@ -7163,8 +7186,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green",
-                                        "value": null
+                                        "color": "green"
                                     }
                                 ]
                             }
@@ -7186,8 +7208,7 @@
                                             "mode": "absolute",
                                             "steps": [
                                                 {
-                                                    "color": "green",
-                                                    "value": null
+                                                    "color": "green"
                                                 },
                                                 {
                                                     "color": "orange",
@@ -7435,7 +7456,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 27
+                        "y": 8
                     },
                     "id": 144,
                     "options": {
@@ -7449,7 +7470,7 @@
                         "showHeader": true,
                         "sortBy": []
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "format": "table",
@@ -7559,8 +7580,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     }
                                 ]
                             }
@@ -7571,7 +7591,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 0,
-                        "y": 33
+                        "y": 14
                     },
                     "id": 147,
                     "links": [],
@@ -7590,7 +7610,7 @@
                         "text": {},
                         "textMode": "auto"
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "format": "table",
@@ -7649,8 +7669,7 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "blue",
-                                        "value": null
+                                        "color": "blue"
                                     }
                                 ]
                             }
@@ -7661,7 +7680,7 @@
                         "h": 9,
                         "w": 12,
                         "x": 12,
-                        "y": 33
+                        "y": 14
                     },
                     "id": 148,
                     "links": [],
@@ -7680,7 +7699,7 @@
                         "text": {},
                         "textMode": "auto"
                     },
-                    "pluginVersion": "8.3.1",
+                    "pluginVersion": "8.4.3",
                     "targets": [
                         {
                             "format": "table",
@@ -7730,7 +7749,7 @@
         }
     ],
     "refresh": "",
-    "schemaVersion": 33,
+    "schemaVersion": 35,
     "style": "light",
     "tags": [
         "Pigsty",
