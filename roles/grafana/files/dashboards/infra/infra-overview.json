@@ -23,6 +23,7 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
+    "iteration": 1647759621448,
     "links": [
         {
             "asDropdown": true,
@@ -237,7 +238,7 @@
                 ]
             },
             "gridPos": {
-                "h": 10,
+                "h": 6,
                 "w": 19,
                 "x": 0,
                 "y": 1
@@ -261,7 +262,7 @@
                 },
                 "textMode": "name"
             },
-            "pluginVersion": "8.4.3",
+            "pluginVersion": "8.4.4",
             "targets": [
                 {
                     "datasource": {
@@ -375,7 +376,7 @@
         {
             "description": "",
             "gridPos": {
-                "h": 10,
+                "h": 13,
                 "w": 5,
                 "x": 19,
                 "y": 1
@@ -392,9 +393,851 @@
                     "INFRA"
                 ]
             },
-            "pluginVersion": "8.4.3",
-            "title": "Infrastructure Dashboards",
+            "pluginVersion": "8.4.4",
+            "title": "Infra Dashboards",
             "type": "dashlist"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Alertmanager",
+                            "url": "http://a.pigsty/#/alerts"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "purple",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 2,
+                "x": 0,
+                "y": 7
+            },
+            "id": 38,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.4.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"firing\"}) or on() vector(0)",
+                    "interval": "",
+                    "legendFormat": "Firing",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"pending\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Pending",
+                    "refId": "B"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
+                        }
+                    ],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "noValue": "OK",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            },
+                            {
+                                "color": "purple",
+                                "value": 4
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 4,
+                "x": 2,
+                "y": 7
+            },
+            "id": 40,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.4.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "count(ALERTS{alertstate=\"firing\"}) by (alertname, severity)",
+                    "interval": "",
+                    "legendFormat": "{{ alertname }}",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "hidden",
+                        "axisSoftMax": 1.2,
+                        "axisSoftMin": 0,
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 98,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "graph": false,
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "stepBefore",
+                        "lineWidth": 0,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "targetBlank": true,
+                            "title": "Silence ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                        },
+                        {
+                            "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
+                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}&viewPanel=78"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 66
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "auto"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 13,
+                "x": 6,
+                "y": 7
+            },
+            "id": 34,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
+                    "interval": "",
+                    "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": true,
+                    "expr": "0",
+                    "hide": true,
+                    "interval": "",
+                    "legendFormat": "Alert",
+                    "refId": "C"
+                }
+            ],
+            "title": "Firing Alerts",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "color-background"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "max": -4,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "#e3e3e3e0",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alert"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "AlertInfo for ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                                        "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "State"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 66
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "firing": {
+                                                "color": "light-red",
+                                                "index": 0,
+                                                "text": "Firing\ud83d\udd25"
+                                            },
+                                            "pending": {
+                                                "color": "light-orange",
+                                                "index": 1,
+                                                "text": "Pend\u23f0"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Level"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "P0"
+                                            },
+                                            "1": {
+                                                "color": "orange",
+                                                "index": 1,
+                                                "text": "P1"
+                                            },
+                                            "2": {
+                                                "color": "yellow",
+                                                "index": 2,
+                                                "text": "P2"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Severity"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 60
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "CRIT": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "Critical \u26a1\ufe0f"
+                                            },
+                                            "INFO": {
+                                                "color": "light-yellow",
+                                                "index": 2,
+                                                "text": "Info \u2139\ufe0f"
+                                            },
+                                            "WARN": {
+                                                "color": "super-light-orange",
+                                                "index": 1,
+                                                "text": "Warning \u26a0\ufe0f"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Category"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 80
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "infra": {
+                                                "color": "orange",
+                                                "index": 2,
+                                                "text": "INFRA"
+                                            },
+                                            "node": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "NODE"
+                                            },
+                                            "pgsql": {
+                                                "color": "light-blue",
+                                                "index": 0,
+                                                "text": "PGSQL"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.displayMode",
+                                "value": "color-background"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Ins"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 98
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Active"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 66
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Severity"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Cluster"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Cluster for ${cls}",
+                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Instance for ${__data.fields.Instance}",
+                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 79
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Database for ${__data.fields.Database} on ${__data.fields.Instance}",
+                                        "url": "/d/pgsql-database?var-ins=${__data.fields.Instance}&var-datname=${__data.fields.Database}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Silence"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Silence ${__data.fields.Alert} on Cluster ${__data.fields.Cluster}",
+                                        "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "index": 0,
+                                                "text": "silence"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 70
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Agent"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 126
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "PGSQL Nodes: ${__data.fields.IP}",
+                                        "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 19,
+                "x": 0,
+                "y": 14
+            },
+            "id": 36,
+            "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Level"
+                    }
+                ]
+            },
+            "pluginVersion": "8.4.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "exemplar": false,
+                    "expr": "ALERTS",
+                    "format": "table",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Active Alerts",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Value": false,
+                            "__name__": true,
+                            "job": true
+                        },
+                        "indexByName": {
+                            "Time": 11,
+                            "Value": 10,
+                            "__name__": 13,
+                            "alertname": 0,
+                            "alertstate": 1,
+                            "category": 4,
+                            "cls": 5,
+                            "datname": 8,
+                            "ins": 6,
+                            "instance": 9,
+                            "ip": 7,
+                            "job": 12,
+                            "level": 2,
+                            "severity": 3
+                        },
+                        "renameByName": {
+                            "Value": "Silence",
+                            "Value #A": "Silence",
+                            "alertname": "Alert",
+                            "alertstate": "State",
+                            "category": "Category",
+                            "cls": "Cluster",
+                            "datname": "Database",
+                            "ins": "Instance",
+                            "instance": "Agent",
+                            "ip": "IP",
+                            "job": "",
+                            "level": "Level",
+                            "severity": "Severity"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "gridPos": {
+                "h": 9,
+                "w": 5,
+                "x": 19,
+                "y": 14
+            },
+            "id": 42,
+            "options": {
+                "alertInstanceLabelFilter": "",
+                "alertName": "",
+                "dashboardAlerts": false,
+                "dashboardTitle": "",
+                "groupBy": [],
+                "groupMode": "default",
+                "maxItems": 20,
+                "showInstances": false,
+                "showOptions": "current",
+                "sortOrder": 1,
+                "stateFilter": {
+                    "alerting": true,
+                    "error": true,
+                    "execution_error": true,
+                    "firing": true,
+                    "inactive": false,
+                    "noData": false,
+                    "no_data": true,
+                    "normal": false,
+                    "ok": true,
+                    "paused": true,
+                    "pending": true
+                },
+                "tags": []
+            },
+            "pluginVersion": "8.3.1",
+            "title": "Grafana Alert",
+            "type": "alertlist"
         },
         {
             "collapsed": true,
@@ -402,7 +1245,157 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 11
+                "y": 23
+            },
+            "id": 10,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "ds-loki"
+                    },
+                    "gridPos": {
+                        "h": 10,
+                        "w": 24,
+                        "x": 0,
+                        "y": 24
+                    },
+                    "id": 21,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "dedupStrategy": "none",
+                        "enableLogDetails": false,
+                        "prettifyLogMessage": false,
+                        "showCommonLabels": false,
+                        "showLabels": true,
+                        "showTime": true,
+                        "sortOrder": "Descending",
+                        "wrapLogMessage": false
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "loki",
+                                "uid": "ds-loki"
+                            },
+                            "expr": "{job=\"nodes\"}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Node Syslog",
+                    "type": "logs"
+                }
+            ],
+            "title": "NODES",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 24
+            },
+            "id": 12,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "ds-loki"
+                    },
+                    "gridPos": {
+                        "h": 10,
+                        "w": 24,
+                        "x": 0,
+                        "y": 18
+                    },
+                    "id": 23,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "dedupStrategy": "none",
+                        "enableLogDetails": false,
+                        "prettifyLogMessage": false,
+                        "showCommonLabels": false,
+                        "showLabels": true,
+                        "showTime": true,
+                        "sortOrder": "Descending",
+                        "wrapLogMessage": false
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "loki",
+                                "uid": "ds-loki"
+                            },
+                            "expr": "{src=\"postgres\"}  |~ \"ERROR\"",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "PostgreSQL Error Logs",
+                    "type": "logs"
+                }
+            ],
+            "title": "PGSQL",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 25
+            },
+            "id": 14,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "ds-loki"
+                    },
+                    "gridPos": {
+                        "h": 10,
+                        "w": 24,
+                        "x": 0,
+                        "y": 7
+                    },
+                    "id": 22,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "dedupStrategy": "none",
+                        "enableLogDetails": false,
+                        "prettifyLogMessage": false,
+                        "showCommonLabels": false,
+                        "showLabels": true,
+                        "showTime": true,
+                        "sortOrder": "Descending",
+                        "wrapLogMessage": false
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "loki",
+                                "uid": "ds-loki"
+                            },
+                            "expr": "{job=\"redis\"}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Redis Log",
+                    "type": "logs"
+                }
+            ],
+            "title": "REDIS",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 26
             },
             "id": 4,
             "panels": [
@@ -633,7 +1626,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 12
+                "y": 27
             },
             "id": 6,
             "panels": [
@@ -773,7 +1766,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 13
+                "y": 28
             },
             "id": 8,
             "panels": [
@@ -816,159 +1809,9 @@
             ],
             "title": "Infra - Grafana",
             "type": "row"
-        },
-        {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 14
-            },
-            "id": 10,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "loki",
-                        "uid": "ds-loki"
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 24,
-                        "x": 0,
-                        "y": 15
-                    },
-                    "id": 21,
-                    "maxDataPoints": 100,
-                    "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": false,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": true,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
-                    },
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
-                            },
-                            "expr": "{job=\"nodes\"}",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "Node Syslog",
-                    "type": "logs"
-                }
-            ],
-            "title": "NODES",
-            "type": "row"
-        },
-        {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 15
-            },
-            "id": 12,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "loki",
-                        "uid": "ds-loki"
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 24,
-                        "x": 0,
-                        "y": 16
-                    },
-                    "id": 23,
-                    "maxDataPoints": 100,
-                    "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": false,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": true,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
-                    },
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
-                            },
-                            "expr": "{src=\"postgres\"}  |~ \"ERROR\"",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "PostgreSQL Error Logs",
-                    "type": "logs"
-                }
-            ],
-            "title": "PGSQL",
-            "type": "row"
-        },
-        {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 16
-            },
-            "id": 14,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "loki",
-                        "uid": "ds-loki"
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 24,
-                        "x": 0,
-                        "y": 7
-                    },
-                    "id": 22,
-                    "maxDataPoints": 100,
-                    "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": false,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": true,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
-                    },
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
-                            },
-                            "expr": "{job=\"redis\"}",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "Redis Log",
-                    "type": "logs"
-                }
-            ],
-            "title": "REDIS",
-            "type": "row"
         }
     ],
-    "refresh": "5s",
+    "refresh": false,
     "schemaVersion": 35,
     "style": "dark",
     "tags": [
