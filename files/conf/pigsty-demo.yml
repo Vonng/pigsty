@@ -418,7 +418,7 @@ all: # top-level namespace
       - pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
       - pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
-      - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                       # - build utils -#
+      - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
 
     repo_url_packages:
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
@@ -444,7 +444,8 @@ all: # top-level namespace
     meta_node: false                              # node with meta_node will be marked as admin nod
 
     # - node identity - #
-    # nodename:                                   # if provided, node's hostname will be overwritten
+    # nodename:                                   # if not provided, node's hostname will be use as nodename
+    nodename_overwrite: true                      # if set, node's hostname will be set to nodename
     node_cluster: nodes                           # node's cluster label will be set to this (nodes by default)
     node_name_exchange: false                     # exchange hostname among play hosts ?
 
@@ -468,15 +469,15 @@ all: # top-level namespace
 
     # - node packages - #
     node_packages:                                # common packages for all nodes
-      - wget,yum-utils,sshpass,ntp,chrony,tuned,uuid,lz4,vim-minimal,make,patch,bash,lsof,wget,unzip,git,ftp
-      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf
-      - readline,zlib,openssl,openssl-libs,python3,python36-requests,node_exporter,redis_exporter,consul,etcd,promtail
+      - wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal
+      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf,ca-certificates
+      - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,redis_exporter,consul,etcd,promtail
     node_extra_packages: [ ]                      # extra packages for all nodes
     node_meta_packages:                           # packages for meta nodes only
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
-      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh
-      - clang,coreutils,diffutils,rpm-build,rpm-devel,rpmlint,rpmdevtools,bison,flex # gcc,gcc-c++
-      - readline-devel,zlib-devel,uuid-devel,libuuid-devel,libxml2-devel,libxslt-devel,openssl-devel,libicu-devel
+      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh
+      # - clang,rpm-build,rpm-devel,rpmlint,rpmdevtools,bison,flex # gcc,gcc-c++
+      # - readline-devel,zlib-devel,uuid-devel,libuuid-devel,libxml2-devel,libxslt-devel,openssl-devel,libicu-devel
     node_meta_pip_install: 'jupyterlab'           # pip packages installed on meta
 
     # - node features - #
