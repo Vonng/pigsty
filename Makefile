@@ -339,42 +339,32 @@ dc: dashboard-clean                   # cleanup grafana dashboards
 dashboard-clean:
 	cd files/ui && ./grafana.py clean
 
-#------------------------------#
-# matrixdb resource management
-#------------------------------#
-# matrix: prepare matrix environment
-matrix: upload-vagrant upload-matrix
-
-upload-matrix:
-	scp dist/matrix.tgz meta:/tmp/matrix.tgz
-
-# extract matrix resource to pigsty repo
-config-matrix:
-	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www;'
-
+du: dashboard-clean dashboard-init    # update grafana dashboards
 
 #------------------------------#
 # copy source & packages
 #------------------------------#
 # copy latest pro source code
-copy: release copy-src
-
-# copy pigsty.tgz and pkg.tgz to sandbox meta node
-copy-all: copy-src copy-pkg
+copy: release copy-src copy-pkg use-src use-pkg
+copy2: release copy-src copy-pkg2 use-src use-pkg
 
 # copy pigsty source code
-cs: copy-src
 copy-src:
 	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-
-# copy pkg.tgz to vm node
 copy-pkg:
 	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
-
+copy-pkg2:
+	scp dist/${VERSION}/pkg-matrix.tgz meta:/tmp/pkg.tgz
 copy-app:
 	scp dist/${VERSION}/app.tgz meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
+copy-all: copy-src copy-pkg
+
+use-src:
+	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
+use-pkg:
+	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download -m demo'
+use-all: use-src use-pkg
 
 ###############################################################
 
@@ -392,6 +382,11 @@ release:
 rp: release-pkg
 release-pkg: cache
 	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg.tgz
+
+# release
+rp2: release-matrix-pkg
+release-matrix-pkg: cache
+	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg-matrix.tgz
 
 # publish will publish pigsty packages
 p: release publish
@@ -437,7 +432,7 @@ doc:
         ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc dashboard-init dashboard-dump dashboard-clean \
         matrix upload-matrix config-matrix \
-        copy copy-all cs copy-src copy-pkg copy-app \
-        r releast rp release-pkg p publish cache \
+        copy copy2 copy-src copy-pkg copy-pkg2 copy-app copy-all use-src use-pkg use-all  \
+        r releast rp release-pkg rp2 release-matrix-pkg p publish cache \
         svg doc d
 ###############################################################
