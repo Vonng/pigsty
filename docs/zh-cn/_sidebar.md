@@ -16,7 +16,20 @@
   - [权限](c-privilege.md)
   - [认证](c-auth.md)
   - [接入](c-access.md)  
-  
+
+- [剧本](p-playbook.md)
+  - [剧本：INFRA](p-infra.md)
+  - [剧本：NODES](p-nodes.md)
+  - [剧本：PGSQL](p-pgsql.md)
+  - [剧本：REDIS](p-redis.md)
+
+- [配置](v-config.md)
+  - [剧本：INFRA](v-infra.md)
+  - [剧本：NODES](v-nodes.md)
+  - [剧本：PGSQL](v-pgsql.md)
+  - [剧本：REDIS](v-redis.md)
+
+
 - 教程
   - [部署教程](t-deploy.md)
   - [资源准备](t-prepare.md)
@@ -52,12 +65,7 @@
   - [MatrixDB部署](v-pgsql.md)
 
 
-- 剧本
-  - [剧本：总览](p-playbook.md)
-  - [剧本：Infra](p-infra.md)
-  - [剧本：Nodes](p-nodes.md)
-  - [剧本：PgSQL](p-pgsql.md)
-  - [剧本：Redis](p-redis.md)
+
 
 - 参考
   - [报警规则](r-alert.md)

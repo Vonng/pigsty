@@ -81,13 +81,15 @@ Pigsty已经尽可能使用国内yum镜像进行下载，然而少量软件包�
 Pigsty沙箱默认使用CentOS 7虚拟机，Vagrant首次启动虚拟机时，会下载`CentOS/7`的ISO镜像Box，尺寸不小。（当然用户也可以选择自行下载CentOS 7 安装盘ISO安装）。
 使用代理会提高下载速度，下载CentOS7 Box只需要在首次启动沙箱时进行，后续重建沙箱时会直接复用。
 
-
 -----------
 
-#### 1.0 GA意味着什么？
+#### **在阿里云标准CentOS 7虚拟机上部署安装RPM报错**
 
-Pigsty从0.3版本开始就实际应用于真实世界的生产环境中，并不是1.0才真正General Available。
-1.0是一个里程碑节点，对监控系统进行了彻底的升级改造，1.0后的新版本都会给出版本升级方案指导。
+阿里云的CentOS 7.8 服务器镜像默认安装了 `nscd` ，锁死了 glibc 版本，会导致安装时出现RPM依赖错误。
+
+`"Error: Package: nscd-2.17-307.el7.1.x86_64 (@base)`
+
+在所有机器上执行 `yum remove -y nscd` 即可解决此问题，或者使用`ansible all -b -a 'yum remove -y nscd'`。
 
 
 -----------
