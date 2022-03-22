@@ -288,7 +288,7 @@ export NGINX_UPSTREAM_HAPROXY=h.pigsty
 
 ## 一步到位更新Grafana
 
-您可以直接通过修改Pigsty配置文件，更改Grafana使用的后端数据源，一步到位的完成切换Grafana后端数据库的工作。编辑`pigsty.yml`中[`grafana_database`](v-meta.md#grafana_database)与[`grafana_pgurl`](v-meta.md#grafana_pgurl)参数，将其修改为：
+您可以直接通过修改Pigsty配置文件，更改Grafana使用的后端数据源，一步到位的完成切换Grafana后端数据库的工作。编辑`pigsty.yml`中[`grafana_database`](v-infra.md#grafana_database)与[`grafana_pgurl`](v-infra.md#grafana_pgurl)参数，将其修改为：
 
 ```yaml
 grafana_database: postgres

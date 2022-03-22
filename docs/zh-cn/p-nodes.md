@@ -4,10 +4,6 @@
 
 节点系列剧本用于将更多节点纳入Pigsty管理，在管理节点上发起，针对配置中声明的节点执行。
 
-* [`nodes.yml`](https://github.com/vonng/pigsty/blob/master/nodes.yml) ：节点置备，将节点纳入Pigsty管理，可用于后续部署其他数据库集群。
-* [`node-remove.yml`](https://github.com/vonng/pigsty/blob/master/node-remove.yml) ：将节点移除出Pigsty管理，下线监控。
-
-
 | 剧本                                           | 功能                                                           | 链接                                                         |
 |----------------------------------------------|----------------------------------------------------------------| ------------------------------------------------------------ |
 | [`nodes`](p-nodes.md#nodes)                   |        **节点置备，将节点纳入Pigsty管理，可用于后续数据库部署**                    |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
@@ -15,10 +11,9 @@
 
 
 
-
 ## 概览
 
-当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 本剧本 [`nodes.yml`](p-node.md) 将更多节点添加至Pigsty中。
+当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 本剧本 [`nodes.yml`](p-nodes.md) 将更多节点添加至Pigsty中。
 
 此剧本可以将目标机器节点调整至配置清单所描述的状态，安装Consul服务，并将其纳入Pigsty监控系统，并允许您在这些置备好的节点上进一步部署不同类型的数据库集群。
 
@@ -46,7 +41,7 @@
 
 
 
-nodes.yml 剧本的行为由 [节点配置](v-node.md) 决定，在使用本地源的情况下，完整执行此剧本可能耗时1～3分钟，视机器配置而异。
+`nodes.yml` 剧本的行为由 [节点配置](v-nodes.md) 决定，在使用本地源的情况下，完整执行此剧本可能耗时1～3分钟，视机器配置而异。
 
 ```bash
 ./nodes.yml                      # 初始化所有清单中的节点（危险！）
@@ -58,7 +53,7 @@ nodes.yml 剧本的行为由 [节点配置](v-node.md) 决定，在使用本地�
 !> **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
 
 节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
-[dcs_exists_action](v-node.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
+[dcs_exists_action](v-nodes.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
 尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
 
 

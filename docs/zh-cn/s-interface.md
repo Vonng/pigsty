@@ -18,6 +18,7 @@ Pigsty会通过一系列端口对外提供服务，Web服务会通过Nginx 80端
 | :-----------: | :--: | :----------: | ------------------------------- |
 |    Grafana    | 3000 |  `g.pigsty`  | Pigsty监控系统图形界面          |
 |  Prometheus   | 9090 |  `p.pigsty`  | 监控时序数据库                  |
+|  Loki         | 3100 |  `l.pigsty`  | 日志收集服务端（无界面） |
 | AlertManager  | 9093 |  `a.pigsty`  | 报警聚合管理组件                |
 |    Consul     | 8500 |  `c.pigsty`  | 分布式配置管理，服务发现        |
 |  Consul DNS   | 8600 |      -       | Consul提供的DNS服务             |

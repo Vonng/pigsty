@@ -2,7 +2,7 @@
 
 Pigsty使用Patroni管理与初始化Postgres数据库集群。
 
-Pigsty使用Patroni完成供给的主体工作，即使用户选择了 [无Patroni模式](v-pg-provision#patroni_mode)，拉起数据库集群也会由Patroni负责，并在创建完成后移除Patroni组件。
+Pigsty使用Patroni完成供给的主体工作，即使用户选择了 [无Patroni模式](v-pgsql.md#patroni_mode)，拉起数据库集群也会由Patroni负责，并在创建完成后移除Patroni组件。
 
 用户可以通过Patroni配置文件，完成大部分的PostgreSQL集群定制工作，Patroni配置文件格式详情请参考 [**Patroni官方文档**](https://patroni.readthedocs.io/en/latest/SETTINGS.html)。
 
@@ -15,9 +15,9 @@ Pigsty提供了四种预定义的初始化模板，初始化模板是用于初�
 - [`crit.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/crit.yml)) 核心业务模板，基于OLTP模板针对RPO、安全性、数据完整性进行优化，启用同步复制与数据校验和。
 - [`tiny.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/tiny.yml) 微型数据库模板，针对低资源场景进行优化，例如运行于虚拟机中的演示数据库集群。
 
-通过 [`pg_conf`](v-pg-provision.md#pg_conf) 参数指定所需使用的模板路径，如果使用预制模板，则只需填入模板文件名称即可。
+通过 [`pg_conf`](v-pgsql.md#pg_conf) 参数指定所需使用的模板路径，如果使用预制模板，则只需填入模板文件名称即可。
 
-如果使用定制的 [Patroni配置模板](v-pg-provision.md#pg_conf)，通常也应当针对机器节点使用配套的 [节点优化模板](v-node#node_tune)。
+如果使用定制的 [Patroni配置模板](v-pgsql.md#pg_conf)，通常也应当针对机器节点使用配套的 [节点优化模板](v-nodes.md#node_tune)。
 
 其他可用配置参考：
 
@@ -29,7 +29,7 @@ Pigsty提供了四种预定义的初始化模板，初始化模板是用于初�
 |     `medium`     |  8   | 16GB  | 500GB |
 |     `large`      |  16  | 32GB  |  1TB  |
 |     `xlarge`     |  32  | 64GB  |  2TB  |
-| `oltp|crit|olap` |  64  | 400GB |  4TB  |
+| `oltp/crit/olap` |  64  | 400GB |  4TB  |
 
 
 

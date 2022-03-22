@@ -51,7 +51,7 @@ Pigsty的四类核心实体可以分别向上向下扩展出**完整实体模型
 **扩展实体说明**
 
 * **环境（Environment）** ，或曰 **部署（Deployment）** 是一套完整的Pigsty系统。
-* 每一套环境都有一份 [配置](c-config.md)（Config），与一套 [基础设施](c-arch.md#基础设施)（Infrastructure），管理有多套[数据库集群](c-arch.md#数据库集群)
+* 每一套环境都有一份 [配置](v-config.md)（Config），与一套 [基础设施](c-arch.md#基础设施)（Infrastructure），管理有多套[数据库集群](c-arch.md#数据库集群)
 * 每一个数据库实例上有若干个[**业务数据库**](c-database.md)（Database），作为逻辑层面的顶级命名空间
 * 每一个数据库内都会有各种**数据库对象**，例如表、索引、序列号、函数等。
 
@@ -82,13 +82,13 @@ Pigsty标识符最具代表型的实现，就是Prometheus中时序数据的**�
 | Database     |           | `test`                               | `{..., datname}`           |
 | Object       |           | `public.pgbench_accounts`            | `{..., datname, <object>}` |
 
-最为关键的 **集群标识符（cls）** 与 **实例标识符（ins）** 通过集群配置中的[身份参数](c-config.md#身份参数)自动生成，包括：
+最为关键的 **集群标识符（cls）** 与 **实例标识符（ins）** 通过集群配置中的[身份参数](v-config.md#身份参数)自动生成，包括：
 
 |                    名称                     |        属性        |   说明   |         例子         |
 | :-----------------------------------------: | :----------------: | :------: | :------------------: |
-| [`pg_cluster`](v-pg-provision.md#pg_cluster) | **必选**，集群级别 |  集群名  |      `pg-test`       |
-|    [`pg_role`](v-pg-provision.md#pg_role)    | **必选**，实例级别 | 实例角色 | `primary`, `replica` |
-|     [`pg_seq`](v-pg-provision.md#pg_seq)     | **必选**，实例级别 | 实例序号 | `1`, `2`, `3`,`...`  |
+| [`pg_cluster`](v-pgsql.md#pg_cluster) | **必选**，集群级别 |  集群名  |      `pg-test`       |
+|    [`pg_role`](v-pgsql.md#pg_role)    | **必选**，实例级别 | 实例角色 | `primary`, `replica` |
+|     [`pg_seq`](v-pgsql.md#pg_seq)     | **必选**，实例级别 | 实例序号 | `1`, `2`, `3`,`...`  |
 
 身份参数是定义数据库集群所需的**最小必须参数集**，核心身份参数**必须显式指定**，不可忽略。
 

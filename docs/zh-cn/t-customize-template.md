@@ -4,31 +4,31 @@
 
 ## 相关参数
 
-可以使用 [PG模板](v-pg-template) 配置项，对集群中的模板数据库 `template1` 进行定制。
+可以使用 [PG模板](v-pgsql.md) 配置项，对集群中的模板数据库 `template1` 进行定制。
 
 通过这种方式确保任何在该数据库集群中**新创建**的数据库都带有相同的默认配置：模式，扩展，默认权限。
 
 |                             名称                             |     类型      | 层级  | 说明                      |
 | :----------------------------------------------------------: | :-----------: | :---: | ------------------------- |
-|             [pg_init](v-pg-template.md#pg_init)              |   `string`    |  G/C  | 自定义PG初始化脚本        |
-| [pg_replication_username](v-pg-template.md#pg_replication_username) |   `string`    |   G   | PG复制用户                |
-| [pg_replication_password](v-pg-template.md#pg_replication_password) |   `string`    |   G   | PG复制用户的密码          |
-| [pg_monitor_username](v-pg-template.md#pg_monitor_username)  |   `string`    |   G   | PG监控用户                |
-| [pg_monitor_password](v-pg-template.md#pg_monitor_password)  |   `string`    |   G   | PG监控用户密码            |
-|   [pg_admin_username](v-pg-template.md#pg_admin_username)    |   `string`    |   G   | PG管理用户                |
-|   [pg_admin_password](v-pg-template.md#pg_admin_password)    |   `string`    |   G   | PG管理用户密码            |
-|    [pg_default_roles](v-pg-template.md#pg_default_roles)     |   `role[]`    |   G   | 默认创建的角色与用户      |
-| [pg_default_privilegs](v-pg-template.md#pg_default_privilegs) |  `string[]`   |   G   | 数据库默认权限配置        |
-|  [pg_default_schemas](v-pg-template.md#pg_default_schemas)   |  `string[]`   |   G   | 默认创建的模式            |
-| [pg_default_extensions](v-pg-template.md#pg_default_extensions) | `extension[]` |   G   | 默认安装的扩展            |
-|    [pg_offline_query](v-pg-template.md#pg_offline_query)     |    `bool`     | **I** | 是否允许**离线**查询      |
-|           [pg_reload](v-pg-template.md#pg_reload)            |    `bool`     | **A** | 是否重载数据库配置（HBA） |
-|        [pg_hba_rules](v-pg-template.md#pg_hba_rules)         |   `rule[]`    |   G   | 全局HBA规则               |
-|  [pg_hba_rules_extra](v-pg-template.md#pg_hba_rules_extra)   |   `rule[]`    |  C/I  | 集群/实例特定的HBA规则    |
-| [pgbouncer_hba_rules](v-pg-template.md#pgbouncer_hba_rules)  |   `rule[]`    |  G/C  | Pgbouncer全局HBA规则      |
-| [pgbouncer_hba_rules_extra](v-pg-template.md#pgbouncer_hba_rules_extra) |   `rule[]`    |  G/C  | Pgbounce特定HBA规则       |
-|        [pg_databases](v-pg-template.md#pg_databases)         | `database[]`  |  G/C  | **业务数据库定义**        |
-|            [pg_users](v-pg-template.md#pg_users)             |   `user[]`    |  G/C  | **业务用户定义**          |
+|             [pg_init](v-pgsql.md#pg_init)              |   `string`    |  G/C  | 自定义PG初始化脚本        |
+| [pg_replication_username](v-pgsql.md#pg_replication_username) |   `string`    |   G   | PG复制用户                |
+| [pg_replication_password](v-pgsql.md#pg_replication_password) |   `string`    |   G   | PG复制用户的密码          |
+| [pg_monitor_username](v-pgsql.md#pg_monitor_username)  |   `string`    |   G   | PG监控用户                |
+| [pg_monitor_password](v-pgsql.md#pg_monitor_password)  |   `string`    |   G   | PG监控用户密码            |
+|   [pg_admin_username](v-pgsql.md#pg_admin_username)    |   `string`    |   G   | PG管理用户                |
+|   [pg_admin_password](v-pgsql.md#pg_admin_password)    |   `string`    |   G   | PG管理用户密码            |
+|    [pg_default_roles](v-pgsql.md#pg_default_roles)     |   `role[]`    |   G   | 默认创建的角色与用户      |
+| [pg_default_privilegs](v-pgsql.md#pg_default_privilegs) |  `string[]`   |   G   | 数据库默认权限配置        |
+|  [pg_default_schemas](v-pgsql.md#pg_default_schemas)   |  `string[]`   |   G   | 默认创建的模式            |
+| [pg_default_extensions](v-pgsql.md#pg_default_extensions) | `extension[]` |   G   | 默认安装的扩展            |
+|    [pg_offline_query](v-pgsql.md#pg_offline_query)     |    `bool`     | **I** | 是否允许**离线**查询      |
+|           [pg_reload](v-pgsql.md#pg_reload)            |    `bool`     | **A** | 是否重载数据库配置（HBA） |
+|        [pg_hba_rules](v-pgsql.md#pg_hba_rules)         |   `rule[]`    |   G   | 全局HBA规则               |
+|  [pg_hba_rules_extra](v-pgsql.md#pg_hba_rules_extra)   |   `rule[]`    |  C/I  | 集群/实例特定的HBA规则    |
+| [pgbouncer_hba_rules](v-pgsql.md#pgbouncer_hba_rules)  |   `rule[]`    |  G/C  | Pgbouncer全局HBA规则      |
+| [pgbouncer_hba_rules_extra](v-pgsql.md#pgbouncer_hba_rules_extra) |   `rule[]`    |  G/C  | Pgbounce特定HBA规则       |
+|        [pg_databases](v-pgsql.md#pg_databases)         | `database[]`  |  G/C  | **业务数据库定义**        |
+|            [pg_users](v-pgsql.md#pg_users)             |   `user[]`    |  G/C  | **业务用户定义**          |
 
 
 
@@ -49,9 +49,9 @@
 ^-------------(5)--- /pg/tmp/pg-db-{{ db.name }}.sql
 ```
 
-## [pg-init](v-pg-template.md#pg_init)
+## [pg-init](v-pgsql.md#pg_init)
 
-[`pg-init`](v-pg-template.md#pg_init)是用于自定义初始化模板的Shell脚本路径，该脚本将以postgres用户身份，**仅在主库上执行**，执行时数据库集群主库已经被拉起，可以执行任意Shell命令，或通过psql执行任意SQL命令。
+[`pg-init`](v-pgsql.md#pg_init)是用于自定义初始化模板的Shell脚本路径，该脚本将以postgres用户身份，**仅在主库上执行**，执行时数据库集群主库已经被拉起，可以执行任意Shell命令，或通过psql执行任意SQL命令。
 
 如果不指定该配置项，Pigsty会使用默认的[`pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/pg-init) Shell脚本，如下所示。
 
@@ -89,7 +89,7 @@ psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
 
 ## `pg-init-roles.sql`
 
-在 [`pg_default_roles` ](v-pg-template.md#pg_default_roles)中可以自定义**全局统一**的角色体系。其中的定义会被渲染为`/pg/tmp/pg-init-roles.sql`，`pg-meta`集群中的渲染样例如下所示：
+在 [`pg_default_roles` ](v-pgsql.md#pg_default_roles)中可以自定义**全局统一**的角色体系。其中的定义会被渲染为`/pg/tmp/pg-init-roles.sql`，`pg-meta`集群中的渲染样例如下所示：
 
 ```sql
 ----------------------------------------------------------------------

@@ -56,10 +56,10 @@ Pigsty需要一个**管理用户**，该用户能够**从管理节点上SSH登�
 
 如果您只能使用ssh密码和sudo密码，那么必须在所有剧本执行时添加额外的参数`--ask-pass|-k`与`--ask-become-pass|-K`，并在提示出现时输入ssh密码与sudo密码。您可以使用[`pgsql.yml`](p-pgsql)中创建管理员用户的功能，使用当前用户创建一个**专用管理员用户**，以下参数用于创建默认的管理员用户：
 
-* [`node_admin_setup`](v-node#node_admin_setup)
-* [`node_admin_uid`](v-node#node_admin_uid)
-* [`node_admin_username`](v-node#node_admin_username)
-* [`node_admin_pks`](v-node#node_admin_pks)
+* [`node_admin_setup`](v-nodes.md#node_admin_setup)
+* [`node_admin_uid`](v-nodes.md#node_admin_uid)
+* [`node_admin_username`](v-nodes.md#node_admin_username)
+* [`node_admin_pks`](v-nodes.md#node_admin_pks)
 
 ```bash
 ./pgsql.yml -t node_admin -l <目标机器> --ask-pass --ask-become-pass
@@ -109,10 +109,10 @@ Pigsty需要一个**管理用户**，该用户能够**从管理节点上SSH登�
 git clone https://github.com/Vonng/pigsty && cd pigsty # 获取最新代码 
 ```
 
-如果没有`git`，可以使用`curl`下载。建议使用此种方式下载固定版本：`1.3.1`为具体版本号。
+如果没有`git`，可以使用`curl`下载。建议使用此种方式下载固定版本：`1.4.0`为具体版本号。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # 下载特定版本的代码（推荐）
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # 下载特定版本的代码（推荐）
 ```
 
 或从百度网盘下载源代码：https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (提取码: `8su9`）
@@ -127,10 +127,10 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o 
 
 官方离线软件包基于CentOS 7.8.2003操作系统环境制作，如果您使用的操作系统并非此版本，出现依赖错漏问题，请参考文档在带有互联网（Github）访问的，装有同样操作系统机器上[制作离线安装包](t-offline.md)。
 
-离线软件包可从Github Release页面下载，`1.3.1`为具体的版本号，软件包与源代码的版本应当保持一致。
+离线软件包可从Github Release页面下载，`1.4.0`为具体的版本号，软件包与源代码的版本应当保持一致。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 百度网盘亦提供`pkg.tgz`的下载，地址同Pigsty源代码。

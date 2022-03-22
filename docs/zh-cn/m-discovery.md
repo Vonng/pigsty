@@ -17,7 +17,7 @@
 
 所有的实例都具有**身份（Identity）**，**身份标识**（Identifier）是与实例关联的**元数据**，用于标识实例。
 
-[**身份参数**](c-config.md#身份参数)是任何集群与实例都必须定义的唯一标识符。
+[**身份参数**](v-config.md#身份参数)是任何集群与实例都必须定义的唯一标识符。
 
 | 名称 |     变量      | 缩写   | 类型             | 说明                                          |
 | :--: | :-----------: | ------ | ---------------- | --------------------------------------------- |
@@ -101,7 +101,21 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
 ```
 
 
+### 默认采集对象
+每一个被管理的Postgres实例都包括有几个采集端口：
+* 采集机器节点指标的 [Node Exporter](https://github.com/prometheus/node_exporter)
+* 采集数据库指标的 [PG Exporter](https://github.com/Vonng/pg_exporter)
+* 采集连接池指标的 [PGBouncer Exporter](https://github.com/Vonng/pg_exporter) （与PG Exporter使用同一二进制）
+* 采集高可用组件的 [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3)
+* 采集负载均衡器指标的 [HAProxy](https://github.com/Vonng/haproxy-rpm) （内建支持，无需单独部署）
 
+![](../_media/nodes.svg)
+
+这些采集端口会被[管理节点](c-arch.md#管理节点)上的Prometheus所采集。
+此外，可选的Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。
+
+默认情况下，所有监控端点都会被注册至Consul，但Prometheus默认会通过静态文件服务发现的方式管理这些任务。
+用户可以通过配置 [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) 为 `consul` 来使用Consul服务发现，动态管理实例
 
 
 

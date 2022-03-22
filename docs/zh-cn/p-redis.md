@@ -12,8 +12,15 @@
 
 ## `redis`
 
-
+```bash
+./redis.yml -l <redis_cluster>
+```
 
 ------------------
 
 ## `redis-remove`
+
+```bash
+./redis-remove.yml -l <redis_cluster>
+./redis-remove.yml -l <redis_node>
+```

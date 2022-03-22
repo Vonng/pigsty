@@ -29,9 +29,9 @@ Pigsty还可以用作大规模生产环境的集群/数据库管理。您可以�
 
 Pigsty针对易用性进行了大量优化，在全新CentOS 7.8节点上，[无需互联网访问](t-offline.md)即可完成一键安装。
 
-Pigsty提供了预置的 vagrant & terraform 模板，用于在本地x86笔记本/PC或云上一键拉起4台虚拟机，部署[沙箱环境](s-sandbox.md)。
+Pigsty提供了预置的 vagrant & terraform 模板，用于在本地x86笔记本/PC或云上一键拉起4台虚拟机，部署[沙箱环境](d-sandbox.md.md)。
 
-用户也可以自行[准备](t-prepare.md)虚拟机，云虚拟机，或生产物理机器来进行标准[部署](t-deploy.md)流程。
+用户也可以自行[准备](d-prepare.md)虚拟机，云虚拟机，或生产物理机器来进行标准[部署](d-deploy.md)流程。
 
 Pigsty中的数据库，对外以[服务](c-service.md)的方式交付，用户通过PG连接串进行[接入](c-access.md)。
 
@@ -40,20 +40,20 @@ Pigsty中的数据库，对外以[服务](c-service.md)的方式交付，用户�
 如果您想要深入了解Pigsty本身的设计与架构，可以参考**概念**一章中的主题：
    * [架构](c-arch.md)
    * [实体](c-entity.md)
-   * [服务](c-service.md)
-   * [接入](c-access.md)
-   * [权限](c-privilege.md)
-   * [认证](c-auth.md)
-   * [配置](c-config.md)
-   * [业务用户](c-user.md)
-   * [业务数据库](c-database.md)
+   * [服务](c-service.md#服务)
+   * [接入](c-service.md#接入)
+   * [权限](c-privilege.md#权限)
+   * [认证](c-privilege.md#认证)
+   * [配置](v-config.md)
+   * [业务用户](c-pgdbuser.md#用户)
+   * [业务数据库](c-pgdbuser.md#数据库)
 
 ## 运维人员 （OPS）
 
 运维人员更关注实施部署的细节，以下教程将介绍Pigsty安装部署的细节：
 
-   * [Pigsty部署](t-deploy.md)
-   * [Pigsty资源准备](t-prepare.md)
+   * [Pigsty部署](d-deploy.md)
+   * [Pigsty资源准备](d-prepare.md)
    * [制作离线安装包](t-offline.md)
    * [基础设施初始化](p-infra.md)
    * [数据库初始化](p-pgsql.md)

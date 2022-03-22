@@ -1,12 +1,12 @@
 # Pigsty
 
-## v1.4.0 中文文档
+## v1.4.0-rc 中文文档
 
 **开箱即用**的**开源**PostgreSQL**发行版**
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.4.0-beta](https://github.com/Vonng/pigsty/releases/tag/v1.4.0-beta)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
+> 最新版本: [v1.4.0-rc](https://github.com/Vonng/pigsty/releases/tag/v1.4.0-rc)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 >
@@ -46,8 +46,8 @@ make install                                           # 安装
 建议下载指定版本号的Release与配套离线软件包以加速安装，使用`curl`提前下载并安装特定版本的Pigsty：
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```
@@ -64,7 +64,7 @@ make install
 ./gpsql.yml -l mx-mdw,mx-sdw # 初始化MatrixDB集群Master与Segments
 ```
 
-安装Pigsty的细节请参考[安装部署](s-install.md)，在本地或云端准备虚拟机环境可以参考：[沙箱环境](s-sandbox.md)。
+安装Pigsty的细节请参考[安装部署](s-install.md)，在本地或云端准备虚拟机环境可以参考：[沙箱环境](d-sandbox.md.md)。
 
 
 
@@ -130,7 +130,7 @@ Pigsty的监控系统目前支持4类监控：主机节点监控，PGSQL数据�
 
 Pigsty监控系统基于业内最佳实践，采用Prometheus、Grafana作为监控基础设施。开源开放，定制便利，可复用，可移植，没有厂商锁定。
 
-Pigsty监控系统可独立使用，监控已有PostgreSQL数据库实例，详情参考[监控系统部署](t-monly.md)。Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis监控](t-redis.md)的支持。
+Pigsty监控系统可独立使用，监控已有PostgreSQL数据库实例，详情参考[监控系统部署](d-monly)。Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis监控](t-redis.md)的支持。
 
 
 
@@ -480,7 +480,7 @@ Pigsty自带两个样例：新冠疫情数据可视化 [`covid`](http://demo.pig
 
 Pigsty提供公开的演示环境：[http://demo.pigsty.cc](http://demo.pigsty.cc) 。您可以在这里浏览**Pigsty监控系统**提供的功能。
 
-Pigsty部署方案与其他功能则可以通过[**沙箱环境**](s-sandbox.md)在本机体验，教程 [【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会以一个具体的例子介绍Pigsty提供的管控功能。
+Pigsty部署方案与其他功能则可以通过[**沙箱环境**](d-sandbox.md.md)在本机体验，教程 [【使用Postgres作为Grafana后端数据库】](t-grafana-upgrade.md)将会以一个具体的例子介绍Pigsty提供的管控功能。
 
 
 ## 协议

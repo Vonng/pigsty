@@ -28,7 +28,7 @@ MatrixDB在逻辑上由两部分组成，Master与Segments，两者均由Postgre
 Pigsty提供了社区版MatrixDB的预制软件包，您可以下载并解压至 `/www` ，供本地yum源使用。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-beta/matrix.tgz -o /tmp/matrix.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/matrix.tgz -o /tmp/matrix.tgz
 sudo mkdir -p /www
 sudo tar -xf /tmp/matrix.tgz -C /www/     # 将 matrix.repo 与 matrix 目录解压至 Nginx Home
 ```
@@ -38,9 +38,6 @@ sudo tar -xf /tmp/matrix.tgz -C /www/     # 将 matrix.repo 与 matrix 目录解
 <details>
 <summary>在4节点沙箱上安装MatrixDB的配置文件</summary>
 
-```
-
-```
 
 </details>
 

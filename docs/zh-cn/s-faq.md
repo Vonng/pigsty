@@ -9,7 +9,7 @@ Pigsty源码包：`pigsty.tgz` 可以从以下位置获取：
 * 如果用户需要进行离线安装，则可以预先从Github或其他渠道下载源码包与离线安装包，并通过scp，ftp等方式上传至服务器。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz -o ~/pigsty.tgz
 ```
 
 -----------
@@ -29,7 +29,7 @@ release版本号通常用于Bug修复与文档更新，Release版本号增长不
 如果用户需要在**没有互联网访问**，或Github访问受限的环境下进行安装，就需要自行下载并将其上传至目标服务器指定位置。
 
 ```bash  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 -----------
@@ -46,7 +46,7 @@ release版本号通常用于Bug修复与文档更新，Release版本号增长不
 
 离线安装包中包含了从各路Yum源与Github Release中收集下载的软件包，用户也可以选择不使用预先打包好的离线安装包，而是直接从原始上游下载。
 
-当`/www/pigsty/`目录不存在，或者标记文件 `/www/pigsty/repo_complete`不存在时，Pigsty会从 [`repo_upsteram`](v-repo#repo_upstream) 指定的原始上游下载所有软件依赖。
+当`/www/pigsty/`目录不存在，或者标记文件 `/www/pigsty/repo_complete`不存在时，Pigsty会从 [`repo_upsteram`](v-infra.md#repo_upstream) 指定的原始上游下载所有软件依赖。
 
 不使用离线安装包只需要在`configure`过程中提示下载时选择否 `n`即可。
 
@@ -71,7 +71,7 @@ Pigsty已经尽可能使用国内yum镜像进行下载，然而少量软件包�
 
 1. Pigsty提供**离线软件安装包**，预先打包了所有软件及其依赖。在`configure`时会自动提示下载。
 
-2. 通过[`proxy_env`](v-connect#proxy_env)指定代理服务器，通过代理服务器下载，或直接使用墙外服务器。
+2. 通过[`proxy_env`](v-infra.md#proxy_env)指定代理服务器，通过代理服务器下载，或直接使用墙外服务器。
 
 
 -----------
@@ -150,7 +150,7 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 
 #### **是否可以监控已有的PG实例？**
 
-对于非Pigsty供给方案创建的外部数据库，可以使用[仅监控模式](t-monly.md)部署，详情请参考文档。
+对于非Pigsty供给方案创建的外部数据库，可以使用[仅监控模式](d-monly)部署，详情请参考文档。
 
 如果该实例可以被Pigsty管理，您可以考虑采用与标准部署相同的方式，在目标节点上部署 node_exporter, pg_exporter 等组件。
 
@@ -159,7 +159,7 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 
 #### **是否可以使用已有的DCS集群**
 
-当然可以，只需要在 [`dcs_servers`](v-meta.md#dcs_servers)) 中填入对应的集群，即可使用外部DCS集群。
+当然可以，只需要在 [`dcs_servers`](v-infra.md#dcs_servers)) 中填入对应的集群，即可使用外部DCS集群。
 
 
 #### **是否可以使用已有的Grafana与Prometheus实例**
@@ -174,15 +174,6 @@ Pigsty在安装过程中会直接在管理节点上安装与配置Prometheus与G
 
 ## 监控系统问题
 
------------
-
-#### **为什么PGLOG Instance面板没有数据？**
-
-日志收集目前是一个Beta特性，需要额外的安装步骤。执行`make logging`会安装`loki`与`promtail`，执行后该面板方可用。
-
-详情请参考：[启用实时日志收集](t-logging.md)
-
-loki是比较新的日志收集方案，不是所有人都愿意接受，因此作为选装项目。
 
 -----------
 
@@ -193,6 +184,11 @@ loki是比较新的日志收集方案，不是所有人都愿意接受，因此�
 -----------
 
 
+#### **监控系统的性能冲击有多大？**
+
+一个典型的生产实例，产出5千个时间序列，一次抓取大约耗时 200ms 左右，相比抓取周期15s，几乎微不足道。
+
+-----------
 
 
 ## 架构问题
@@ -210,7 +206,7 @@ Pigsty是一套带有完整运行时的数据库解决方案。在本机上，Pi
 
 #### **Pigsty数据库如何保证高可用**
 
-Patroni 2.0作为HA Agent，Consul作为DCS，Haproxy作为默认流量分发器。Pigsty的数据库集群成员在使用上幂等：只要集群还有任意一个实例存活，读写与只读流量都可以继续工作。
+Patroni 作为HA Agent，Consul作为DCS，Haproxy作为默认流量分发器。Pigsty的数据库集群成员在使用上幂等：只要集群还有任意一个实例存活，读写与只读流量都可以继续工作。
 
 DCS自身的可用性通过多节点共识保证，故生产环境中建议部署3个或更多管理节点，或使用外部的DCS集群。
 
@@ -221,24 +217,16 @@ DCS自身的可用性通过多节点共识保证，故生产环境中建议部�
 ## 软件问题
 
 
-#### 使用**ipython**时报错。
-
-这是因为当前版本`pip3`默认安装的ipython版本存在BUG：其依赖`jedi`的版本过高（`0.18`）。您需要手动安装低版本的`jedi`（`0.17`）：
-
-```bash
-pip3 install jedi==0.17.2
-```
-
 -----------
 
 #### 关机后虚拟机内没有监控数据
 
-Virtualbox虚拟机关机后虚拟机内时间可能与宿主机不一致。
-
-可以尝试使用以下命令：`make sync`，强制执行NTP时间同步。
+Virtualbox虚拟机关机后虚拟机内时间可能与宿主机不一致。可以尝试使用以下命令：`make sync`，强制执行NTP时间同步。
 
 ```bash
 sudo ntpdate -u pool.ntp.org
+make sync4 #  时间同步快捷方式
+make ss
 ```
 
 即可解决长时间休眠或关机重启后监控系统没有数据的问题。
@@ -252,15 +240,16 @@ sudo ntpdate -u pool.ntp.org
 
 
 -----------
+
 #### Abort because consul instance already exists
 
 在执行数据库&基础设施初始化时，为了避免误删库，提供了一个保护机制。
 
-当Pigsty发现Consul已经在运行时，会根据参数 [`dcs_exists_action`](v-dcs.md#dcs_exists_action) 来采取不同的行为
+当Pigsty发现Consul已经在运行时，会根据参数 [`dcs_exists_action`](v-infra.md#dcs_exists_action) 来采取不同的行为
 
 默认 `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
 
-此外，若参数 [`dcs_disable_purge`](v-dcs.md#dcs_disable_purge) 为真，则 `dcs_exists_action` 将会强制配置为 `abort`，以免误删DCS实例。
+此外，若参数 [`dcs_disable_purge`](v-infra.md#dcs_disable_purge) 为真，则 `dcs_exists_action` 将会强制配置为 `abort`，以免误删DCS实例。
 
 
 -----------
@@ -274,11 +263,11 @@ sudo ntpdate -u pool.ntp.org
 
 在执行数据库&基础设施初始化时，为了避免误删Postgres实例，提供了一个保护机制。
 
-当Pigsty发现Postgres已经在运行时，会根据参数 [`pg_exists_action`](v-pg-provision.md#pg_exists_action) 来采取不同的行为
+当Pigsty发现Postgres已经在运行时，会根据参数 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 来采取不同的行为
 
 默认 `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
 
-此外，若参数 [`pg_disable_purge`](v-pg-provision.md#pg_disable_purge) 为真，则 `pg_exists_action` 将会强制配置为 `abort`，以免误删数据库实例。
+此外，若参数 [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) 为真，则 `pg_exists_action` 将会强制配置为 `abort`，以免误删数据库实例。
 
 
 -----------

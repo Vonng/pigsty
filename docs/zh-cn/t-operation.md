@@ -63,7 +63,7 @@ pg switchover  [cluster]             # 手工触发某集群的Switchover
 
 在Pigsty的部署中，所有组件均由`systemd`管理；PostgreSQL除外，PostgreSQL由Patroni管理。
 
-> 例外的例外：当 [`patroni_mode`](v-pg-provision.md#patroni_mode) 为 `remove` 时例外，Pigsty将直接使用`systemd`管理Postgres
+> 例外的例外：当 [`patroni_mode`](v-pgsql.md#patroni_mode) 为 `remove` 时例外，Pigsty将直接使用`systemd`管理Postgres
 
 ```bash
 systemctl stop patroni               # 关闭 Patroni & Postgres
@@ -392,7 +392,7 @@ bin/createdb   pg-test test  # 在 pg-test 集群创建名为 test 的数据库
 
 Pigsty强烈建议使用配置文件自动管理HBA规则，除非您清楚的知道自己在做什么。
 
-HBA配置由 [`pg_hba_rules`](v-pg-template#pg_hba_rules) 与 [`pg_hba_rules_extra`](v-pg-template#pg_hba_rules_extra) 合并生成，两者都是由规则配置对象组成的数组。样例如下：
+HBA配置由 [`pg_hba_rules`](v-pgsql.md#pg_hba_rules) 与 [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra) 合并生成，两者都是由规则配置对象组成的数组。样例如下：
 
 ```yaml
 - title: allow internal infra service direct access
@@ -432,7 +432,7 @@ Pigsty中PostgreSQL的集群流量默认由HAProxy控制，用户可以直接通
 
 **使用HAProxy Admin UI控制流量**
 
-Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-service#haproxy_exporter_port)）提供了管理UI，该管理UI默认可以通过Pigsty的默认域名后缀以实例名（`pg_cluster-pg_seq`）访问。管理界面带有可选的认证选项，由参数（[`haproxy_admin_auth_enabled`](v-service#haproxy_admin_auth_enabled)）启用。管理界面认证默认不启用，启用时则需要使用由 [`haproxy_admin_username`](v-service#haproxy_admin_username) 与 [`haproxy_admin_password`](v-service#haproxy_admin_password)的用户名与密码登陆。
+Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-pgsql#haproxy_exporter_port)）提供了管理UI，该管理UI默认可以通过Pigsty的默认域名后缀以实例名（`pg_cluster-pg_seq`）访问。管理界面带有可选的认证选项，由参数（[`haproxy_admin_auth_enabled`](v-pgsql#haproxy_admin_auth_enabled)）启用。管理界面认证默认不启用，启用时则需要使用由 [`haproxy_admin_username`](v-pgsql#haproxy_admin_username) 与 [`haproxy_admin_password`](v-pgsql#haproxy_admin_password)的用户名与密码登陆。
 
 使用浏览器访问 `http://pigsty/<ins>`（该域名因配置而变化，亦可从PGSQL Cluster Dashboard中点击前往），即可访问对应实例上的负载均衡器管理界面。[样例界面](http://home.pigsty.cc/pg-meta-1/)
 
@@ -444,7 +444,7 @@ Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-service#haprox
 
 当集群发生成员变更时，您应当在合适的时候调整集群中所有成员的负载均衡配置，以如实反映集群架构变化，例如当发生主从切换后。
 
-此外通过配置 [`pg_weight`](v-service.md#pg_weight) 参数，您可以显式地控制集群中各实例承担的负载比例，该变更需要重新生成集群中HAProxy的配置文件，并reload重载生效。例如，此配置将2号实例在所有服务中的相对权重从默认的100降为0
+此外通过配置 [`pg_weight`](v-pgsql.md#pg_weight) 参数，您可以显式地控制集群中各实例承担的负载比例，该变更需要重新生成集群中HAProxy的配置文件，并reload重载生效。例如，此配置将2号实例在所有服务中的相对权重从默认的100降为0
 
 ```
 10.10.10.11: { pg_seq: 1, pg_role: primary}

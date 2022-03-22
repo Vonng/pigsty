@@ -1,22 +1,25 @@
 - [概览](README.md)
   - [上手指南](s-intro.md)
   - [安装部署](s-install.md)
-  - [沙箱环境](s-sandbox.md)
+  - [沙箱环境](d-sandbox.md.md)
   - [用户界面](s-interface.md)
   - [常见问题](s-faq.md)
   - [产品价值](s-value.md)
 
 - 概念
-  - [架构](c-arch.md)
-  - [实体](c-entity.md)
-  - [配置](c-config.md)
-  - [服务](c-service.md)
-  - [数据库](c-database.md)
-  - [用户](c-user.md)
-  - [权限](c-privilege.md)
-  - [认证](c-auth.md)
-  - [接入](c-access.md)  
+  - [系统架构](c-arch.md)
+  - [实体与标识模型](c-entity.md)
+  - [PGSQL 服务/接入](c-service.md)
+  - [PGSQL 数据库/用户](c-pgdbuser.md)
+  - [PGSQL 权限/认证](c-privilege.md)
 
+- [部署](d-deploy.md)
+  - [资源准备](d-prepare.md)
+  - [沙箱环境](d-sandbox.md)
+  - [仅监控部署](d-monly.md)
+  - [REDIS集群部署](t-redis.md)
+  - [GPSQL集群部署](t-gpsql.md)
+  
 - [剧本](p-playbook.md)
   - [剧本：INFRA](p-infra.md)
   - [剧本：NODES](p-nodes.md)
@@ -24,59 +27,36 @@
   - [剧本：REDIS](p-redis.md)
 
 - [配置](v-config.md)
-  - [剧本：INFRA](v-infra.md)
-  - [剧本：NODES](v-nodes.md)
-  - [剧本：PGSQL](v-pgsql.md)
-  - [剧本：REDIS](v-redis.md)
-
-
-- 教程
-  - [部署教程](t-deploy.md)
-  - [资源准备](t-prepare.md)
-  - [监控系统部署](t-monly.md)
-  - [常用操作命令](t-operation.md)
-  - [数据库高可用演练](t-ha-drill.md)
-  - [常见故障诊断与处理](t-failure.md)
-  - [数据库备份与恢复](t-backup.md)
-  - [使用与制作离线安装包](t-offline.md)
-  - [Redis集群部署](t-redis.md)
-  - [MatrixDB集群部署](t-gpsql.md)
-  - [日志收集](t-logging.md)
-  - [数据库迁移](t-migration.md)
-  - [安装Pigsty扩展应用](t-application.md)
-  - [定制Patroni配置模板](t-patroni-template.md)
-  - [深度定制数据库模板](t-customize-template.md)
+  - [配置：INFRA](v-infra.md)
+  - [配置：NODES](v-nodes.md)
+  - [配置：PGSQL](v-pgsql.md)
+  - [配置：REDIS](v-redis.md)
 
 - 监控
   - [监控面板](m-dashboard.md)
   - [服务发现](m-discovery.md)
   - [监控指标](m-metric.md)
   - [告警系统](m-alert.md)
-
-- 配置
-  - [配置总览](v-config.md)
-  - [连接参数](v-connect.md)
-  - [本地仓库](v-repo.md)
-  - [节点供给](v-node.md)
-  - [基础设施](v-meta.md)
-  - [元数据库](v-dcs.md)
-  - [PgSQL部署](v-pgsql.md)
-  - [Redis部署](v-redis.md)
-  - [MatrixDB部署](v-pgsql.md)
-
-
-
-
+  
+- 管理
+  - [常用操作命令/SOP](t-operation.md)
+  - [数据库备份与恢复](t-backup.md)
+  - [使用与制作离线安装包](t-offline.md)
+  - [数据库高可用演练](t-ha-drill.md)
+  - [常见故障诊断与处理](t-failure.md)
+  - [使用CMDB替换静态配置](t-cmdb.md)
+  - [升级Grafana后端数据库](t-grafana-upgrade.md)
+  - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
+  - [数据库迁移](t-migration.md)
+  - [安装Pigsty扩展应用](t-application.md)
+  - [定制Patroni配置模板](t-patroni-template.md)
+  - [深度定制数据库模板](t-customize-template.md)
+  
 - 参考
   - [报警规则](r-alert.md)
   - [文件目录结构](r-fhs.md)
   - [分析CSV日志样本](t-log-analysis.md)
-  - [使用CMDB替换静态配置](t-cmdb.md)
-  - [升级Grafana后端数据库](t-grafana-upgrade.md)
-  - [配置Prometheus远程存储](t-promscale.md)
-  - [使用Jupyter进行数据分析](t-jupyter.md)
-  - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
-
+  
 
 - [社区交流](community.md)
 - [路线规划](../roadmap.md)

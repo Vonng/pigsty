@@ -56,7 +56,7 @@ Pigsty沙箱底层依托于是 [Vagrant](https://www.vagrantup.com/) 托管的 [
 
 使用Pigsty沙箱前，您需要在操作系统中安装 Vagrant 与 Virtualbox，两者都是免费的跨平台开源软件。
 
-您也可以选择自己使用喜爱的虚拟机软件（Parallel Desktop，VMWare）自行创建虚拟机，或直接使用云虚拟机，进行[标准安装部署](t-deploy.md)。
+您也可以选择自己使用喜爱的虚拟机软件（Parallel Desktop，VMWare）自行创建虚拟机，或直接使用云虚拟机，进行[标准安装部署](d-deploy.md)。
 
 Pigsty沙箱有单节点与四节点两种不同规格，单节点沙箱为默认配置。
 单节点沙箱则适合用于个人开发、实验、学习；作为数据分析与可视化的环境；以及设计、演示、分发交互式数据应用，
@@ -533,8 +533,8 @@ sshpass -p ${ssh_pass} ssh-copy-id demo
 标准安装使用以下命令即可
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```
@@ -543,8 +543,8 @@ make install
 
 ```bash
 make upload-terraform  #  将本地 dist/ 目录中的 pigsty.tgz pkg.tgz 上传，等效于以下命令
-scp dist/v1.4.0/pigsty.tgz demo:~/
-scp dist/v1.4.0/pkg.tgz demo:/tmp/pkg.tgz
+scp dist/v1.4.0-rc/pigsty.tgz demo:~/
+scp dist/v1.4.0-rc/pkg.tgz demo:/tmp/pkg.tgz
 ```
 
 接下来执行常规的`configure`，`install` 流程即可

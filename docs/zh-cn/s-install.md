@@ -6,8 +6,8 @@
 准备好**新装**机器（Linux x86_64 CentOS 7.8.2003）一台，配置ssh本机访问，以**root**或**sudo**用户执行以下命令。
 
 ```bash
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz -o ~/pigsty.tgz  
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz    -o /tmp/pkg.tgz
 
 # 常规安装
 git clone https://github.com/Vonng/pigsty && cd pigsty
@@ -18,7 +18,7 @@ make install
 安装完毕后，可通过本地域名 http://g.pigsty 或管理节点3000端口访问Pigsty图形界面。默认管理员：`admin`: `pigsty`。
 
 
-> 如果您没有可用机器节点，但有可用的Macbook/PC/笔记本，可使用[沙箱环境](s-sandbox.md)在本机自动创建虚拟机。
+> 如果您没有可用机器节点，但有可用的Macbook/PC/笔记本，可使用[沙箱环境](d-sandbox.md.md)在本机自动创建虚拟机。
 
 
 ----------------
@@ -26,10 +26,10 @@ make install
 
 ## 准备
 
-安装Pigsty需要[准备](t-prepare.md)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。并需要一个可以SSH登陆并带有sudo权限的[管理用户](t-prepare.md#管理用户置备)。
+安装Pigsty需要[准备](d-prepare.md)一个机器节点：规格至少为1核2GB，采用Linux内核，安装CentOS 7发行版，处理器为x86_64架构。并需要一个可以SSH登陆并带有sudo权限的[管理用户](d-prepare.md#管理用户置备)。
 该机器将作为 [管理节点](c-arch.md#管理节点)(meta node) ，发出控制命令，采集监控数据，运行定时任务。
 
-**Pigsty默认以单机模式运行在管理节点上**，您可以额外准备任意数量的普通节点，用于部署额外的数据库实例与集群。例如在[Pigsty沙箱](s-sandbox.md) 有一种4节点版本，会使用额外的三个节点部署一套 1主2从 的测试集群 `pg-test`。
+**Pigsty默认以单机模式运行在管理节点上**，您可以额外准备任意数量的普通节点，用于部署额外的数据库实例与集群。例如在[Pigsty沙箱](d-sandbox.md.md) 有一种4节点版本，会使用额外的三个节点部署一套 1主2从 的测试集群 `pg-test`。
 
 在大规模生产环境中，通常会部署3个或更多的管理节点，用于提供冗余。
 
@@ -37,13 +37,13 @@ make install
 
 ## 下载
 
-**源码包 [`pigsty.tgz`](t-prepare.md#pigsty源代码)**
+**源码包 [`pigsty.tgz`](d-prepare.md#pigsty源代码)**
 
 Pigsty的源码包`pigsty.tgz`（约500 KB）是**必选项**，可以通过`curl`、`git`从Github下载。
 
 ```bash
 git clone https://github.com/Vonng/pigsty && cd pigsty # 如果没有git，也可以使用curl
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty
 ```
 
 建议解压于管理用户的家目录中，即：`PIGSTY_HOME=~/pigsty`。
@@ -51,12 +51,12 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | g
 如果您希望使用最新的功能，请使用Git方式拉取代码，如果您希望保持环境稳定，使用`curl`下载固定版本即可。
 
 
-**软件包 [`pkg.tgz`](t-prepare.md#pigsty离线软件包)**
+**软件包 [`pkg.tgz`](d-prepare.md#pigsty离线软件包)**
 
 Pigsty的离线软件包`pkg.tgz`（约1 GB）是**可选项**，可以通过`curl` 从Github下载。
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz    -o /tmp/pkg.tgz
 ```
 
 放置至目标机器的`/tmp/pkg.tgz`路径下的离线软件包会在配置过程中被自动识别并使用。
@@ -132,7 +132,7 @@ check_bin        # check special bin files in pigsty/bin (loki,exporter) (requir
 ```bash
 vagrant@meta:~/pigsty 
 $ ./configure
-configure pigsty v1.4.0-beta begin
+configure pigsty v1.4.0-rc begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect

@@ -11,6 +11,12 @@
 | [`infra-pgweb`](p-infra.md#infra-pgweb)     | 在管理节点上加装**可选**的Web客户端工具PGWeb         | [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)   |
 
 
+
+
+
+
+
+
 ---------------
 
 ## `infra`
@@ -71,6 +77,11 @@
 
 
 
+
+
+
+
+
 ---------------
 
 ## `infra-demo`
@@ -92,13 +103,21 @@
 
 
 
+
+
+
+
+
+
 ---------------
 
 ## `infra-remove`
 
 [`infra-remove.yml`](https://github.com/Vonng/pigsty/blob/master/infra-remove.yml) 剧本是 [infra](#infra) 剧本的反向操作。
 
-会将Pigsty从管理节点卸载
+会将Pigsty从管理节点卸载。
+
+
 
 ---------------
 
@@ -109,9 +128,9 @@
 Jupyter Lab 是非常实用的Python数据分析环境，但自带WebShell，风险较大。
 因此默认情况下，Demo环境，单机配置模板中会启用 JupyterLab，生产环境部署模版中默认不会启用JupyterLab
 
-要启用Jupyter Lab，用户需要设置 [`jupyter_enabled`](v-meta.md#jupyter_enabled) 参数为`true`。
-Pigsty会使用[`jupyter_username`](v-meta.md#jupyter_username) 参数指定的用户运行本地Notebook服务器。
-此外，需要配置[`node_meta_pip_install`](v-node.md#node_meta_pip_install) 参数，在元数据库初始化时正确通过pip安装。（默认值为 `'jupyterlab'`，无需修改）
+要启用Jupyter Lab，用户需要设置 [`jupyter_enabled`](v-infra.md#jupyter_enabled) 参数为`true`。
+Pigsty会使用[`jupyter_username`](v-infra.md#jupyter_username) 参数指定的用户运行本地Notebook服务器。
+此外，需要配置[`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) 参数，在元数据库初始化时正确通过pip安装。（默认值为 `'jupyterlab'`，无需修改）
 
 
 Jupyter Lab可以从Pigsty首页导航进入，或通过默认域名 `lab.pigsty` 访问。
@@ -122,7 +141,7 @@ nginx_upstream:                               # domain names that will be used f
   - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
 ```
 
-访问需要使用密码，由参数 [`jupyter_password`](v-meta.md#jupyter_password) 指定。
+访问需要使用密码，由参数 [`jupyter_password`](v-infra.md#jupyter_password) 指定。
 
 !> 如果您在生产环境中启用了Jupyter，请务必修改Jupyter的密码
 
@@ -132,16 +151,8 @@ nginx_upstream:                               # domain names that will be used f
 
 ## `infra-pgweb`
 
-
-
-基础设施初始化通过 完成。该剧本会在**管理节点** 上完成**基础设施**的安装与部署。
-
-`infra.yml` 将管理节点（默认分组名为`meta`）作为部署目标。
-
-完整执行一遍初始化流程可能花费2～8分钟，视机器配置而异。
-
 ```bash
-./infra.yml
+./infra-pgweb.yml
 ```
 
 !> 必须完成管理节点的初始化后，才能正常执行数据库节点的初始化❗️
