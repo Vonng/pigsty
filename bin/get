@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   get
+# Ctime     :   2022-03-24
+# Mtime     :   2022-03-24
+# Desc      :   get latest pigsty source code from CDN
+# Usage     :   bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+# Note      :   run as admin user
+# Path      :   http://download.pigsty.cc/get
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+# Usage
+# bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+
+VERSION=v1.4.0-rc
+BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
+PIGSTY_URL=${BASEURL_CHINA}/pigsty.tgz
+
+echo "[INFO] download pigsty.tgz from ${PIGSTY_URL}"
+curl -L ${PIGSTY_URL} -o /tmp/pigsty.tgz
+
+# extract to home dir
+if [[ ! -d ~/pigsty ]]; then
+	echo "[INFO] extract /tmp/pigsty.tgz to ${HOME}/pigsty"
+	tar -xf /tmp/pigsty.tgz -C ~
+	echo "[HINT] proceed with cd ~/pigsty; ./configure; ./infra.yml;"
+else
+	echo "[WARN] ${HOME}/pigsty exists, skip extracting, proceed with:"
+	echo "[HINT] rm -rf ${HOME}/pigsty; tar -xf /tmp/pigsty.tgz -C ~;"
+fi

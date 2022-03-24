@@ -29,9 +29,9 @@ Pigsty can be used both for large-scale pg clusters management in real-world pro
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz | gzip -d | tar -xC ~
-cd pigsty && ./configure
-make install
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
+cd ~/pigsty && ./configure                             # pre-check and config templating 
+./infra.yml                                            # install pigsty on current node
 ``` 
 
 Check [public demo](http://demo.pigsty.cc) for what you will get, check [Get Started](#get-started) for more detail.

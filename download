@@ -1,0 +1,250 @@
+#!/bin/bash
+
+#==============================================================#
+# File      :   download
+# Ctime     :   2022-03-23
+# Mtime     :   2022-03-23
+# Desc      :   download pigsty source and software packages
+# Usage     :   ./download pigsty pkg
+# Note      :   run as admin user (nopass sudo)
+# Path      :   http://download.pigsty.cc/v1.4.0-rc/download
+# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+#==============================================================#
+
+#----------------------------------------------#
+# variables
+#----------------------------------------------#
+VERSION=v1.4.0-rc
+BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
+BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
+
+REPO_NAME=pigsty
+REPO_HOME=/www
+REPO_DIR=${REPO_HOME}/${REPO_NAME}
+
+#----------------------------------------------#
+# usage & exit
+#----------------------------------------------#
+function usage() {
+	cat <<-EOF
+		    download and extract pigsty packages: pigsty.tgz pkg.tgz app.tgz matrix.tgz
+		    usage:
+		        download pigsty pkg   # download pigsty essentials
+
+		        download pigsty.tgz   # download pigsty source tarball
+		        download pkg.tgz      # download pigsty offline pkgs
+		        download app.tgz      # download extra pigsty apps
+		        download matrix.tgz   # download matrixdb packages
+
+		        download pigsty       # download and extract pigsty to ~/pigsty
+		        download pkg          # download and extract pkg    to /www/pigsty
+		        download app          # download and extract app    to ~/app
+		        download matrix       # download and extract matrix to /www/matrix
+		       ...
+	EOF
+	exit 1
+}
+
+#----------------------------------------------#
+# color util
+#----------------------------------------------#
+__CN='\033[0m'    # no color
+__CB='\033[0;30m' # black
+__CR='\033[0;31m' # red
+__CG='\033[0;32m' # green
+__CY='\033[0;33m' # yellow
+__CB='\033[0;34m' # blue
+__CM='\033[0;35m' # magenta
+function log_info() { printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n"; }
+function log_warn() { printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n"; }
+function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n"; }
+function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
+function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
+function log_hint() { printf "${__CB}$*${__CN}\n"; }
+#----------------------------------------------#
+
+#----------------------------------------------#
+# extract pkg.tgz to /www/pigsty
+#----------------------------------------------#
+# nopass sudo required
+function extract_pkg() {
+	local pkg_path=${1-/tmp/pkg.tgz} # default download path : /tmp/pkg.tgz
+	local repo_dir=${2-${REPO_DIR}}  # default repo directory: /www/pigsty
+	local repo_home=$(dirname ${repo_dir})
+	local repo_name=$(basename ${repo_dir})
+	if [[ -f ${repo_dir}/repo_complete ]]; then
+		log_info "repo = ${repo_dir} ok"
+		return 0
+	fi
+	if [[ ! -f ${pkg_path} ]]; then
+		log_warn "repo = skip (${pkg_path} not exists)"
+		return 0
+	fi
+	sudo mkdir -p ${repo_home}
+	if [[ -d ${repo_dir} ]]; then
+		log_warn "repo = invalid, remove"
+		sudo rm -rf ${repo_dir}
+	fi
+	log_info "repo = extract from ${pkg_path}"
+	sudo tar -xf ${pkg_path} -C ${repo_home} # extract to /www/pigsty
+
+	# write static repofile
+	local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
+	if [[ ! -f ${repo_home}/${repo_name}/repo_complete ]]; then
+		log_warn "repo file = skip due to repo not exists"
+		return 0
+	else
+		log_info "repo file = ${repo_file}"
+	fi
+	cat >/tmp/pigsty-local.repo <<-EOF
+		[${repo_name}-local]
+		name=${repo_name} local \$releasever - \$basearch
+		baseurl=file://${repo_home}/${repo_name}/
+		enabled=1
+		gpgcheck=0
+	EOF
+	sudo cp -f /tmp/pigsty-local.repo ${repo_file}
+}
+
+#----------------------------------------------#
+# extract matrix.tgz to /www/pigsty
+#----------------------------------------------#
+# nopass sudo required
+function extract_matrix() {
+	local pkg_path=${1-'/tmp/matrix.tgz'} # default download path : /tmp/matrix.tgz
+	local repo_dir=${2-'/www/matrix'}     # default repo directory: /www/matrix
+	local repo_home=$(dirname ${repo_dir})
+	local repo_name="matrix"
+	sudo mkdir -p ${repo_home}
+	if [[ -d ${repo_dir} ]]; then
+		log_warn "remove existing repo ${repo_dir}"
+		sudo rm -rf ${repo_dir}
+	fi
+	log_info "matrix = extract from ${pkg_path}"
+	sudo tar -xf ${pkg_path} -C ${repo_home} # extract to /www/pigsty
+
+	cat >/tmp/matrix-local.repo <<-EOF
+		[${repo_name}-local]
+		name=${repo_name} local \$releasever - \$basearch
+		baseurl=file://${repo_home}/${repo_name}/
+		enabled=1
+		gpgcheck=0
+	EOF
+	sudo cp -f /tmp/matrix-local.repo /etc/yum.repos.d/matrix-local.repo
+}
+
+#----------------------------------------------#
+# gfw test by curl google
+#----------------------------------------------#
+# return 0 if behind gfw (inside mainland china), otherwise 1
+function behind_gfw() {
+	local timeout=1
+	local target=www.google.com
+	local return_code=$(curl -I -s --connect-timeout ${timeout} ${target} -w %{http_code} | tail -n1)
+	if [ "${return_code}" = "200" ]; then
+		return 1
+	fi
+	return 0
+}
+
+#----------------------------------------------#
+# download
+#----------------------------------------------#
+# download tarball from github or CDN
+function download() {
+	local pkg=${1}
+	local dir=${2-"/tmp"}
+	local extract=false
+
+	case ${pkg} in
+	pigsty.tgz) ;;
+	pkg.tgz) ;;
+	app.tgz) ;;
+	matrix.tgz) ;;
+	pigsty) pkg=pigsty.tgz ;;
+	pkg) pkg=pkg.tgz ;;
+	app) pkg=app.tgz ;;
+	matrix) pkg=matrix.tgz ;;
+	*) usage ;;
+	esac
+
+	local pkg_path="${dir}/${pkg}"
+	if [[ $pkg == "pkg.tgz" ]]; then
+		if (($(stat -c%s ${pkg_path})>409600000)); then
+			log_warn "${pkg_path} exists but invalid, remove"
+			rm -rf "${pkg_path}"
+		fi
+	fi
+
+	# if pkg already exists, skip downloading. TODO: validate checksum
+	if [[ ! -f ${dir}/${pkg} ]]; then
+		local url=${BASEURL_GITHUB}/${pkg}
+		if behind_gfw; then
+			url=${BASEURL_CHINA}/${pkg}
+			log_info "download from CDN ${url} to ${dir}/${pkg}"
+		else
+			log_info "download from Github ${url} to ${dir}/${pkg}"
+		fi
+		curl -L ${url} -o ${dir}/${pkg}
+	else
+		log_info "${dir}/${pkg} exists, skip download"
+	fi
+}
+
+#----------------------------------------------#
+# extract
+#----------------------------------------------#
+# extract tarball from github or CDN
+function extract() {
+	local pkg=${1}
+	local dir=${2-"/tmp"}
+
+	case ${pkg} in
+	pigsty)
+		if [[ ! -d ~/pigsty ]]; then
+			log_info "extract ${dir}/pigsty.tgz to ${HOME}/pigsty"
+			tar -xf ${dir}/pigsty.tgz -C ~
+		else
+			log_warn "${HOME}/pigsty exists, skip extracting"
+			log_hint "[HINT] rm -rf ${HOME}/pigsty; tar -xf ${dir}/pigsty.tgz -C ${HOME};"
+		fi
+		;;
+	pkg)
+		extract_pkg ${dir}/pkg.tgz ${REPO_DIR}
+		;;
+	app)
+		if [[ ! -d ~/app ]]; then
+			log_info "extract ${dir}/app.tgz to ${HOME}/app"
+			tar -xf ${dir}/app.tgz -C ~
+		else
+			log_warn "${HOME}/app exists, overwrite"
+			rm -rf ~/app
+			tar -xf ${dir}/app.tgz -C ~
+		fi
+		;;
+	matrix)
+		extract_matrix ${dir}/matrix.tgz ${REPO_HOME}/matrix
+		;;
+	pigsty.tgz | pkg.tgz | app.tgz | matrix.tgz) ;;
+	*) usage ;;
+	esac
+
+}
+
+#----------------------------------------------#
+# main
+#----------------------------------------------#
+# print usage when no args provided
+if [ "$#" -eq 0 ]; then
+	usage
+else
+	# download pkg one by one via args
+	for ((i = 1; i <= $#; i++)); do
+		download ${!i}
+	done
+
+	# and extract them one by one, may require no pass sudo
+	for ((i = 1; i <= $#; i++)); do
+		extract ${!i}
+	done
+fi

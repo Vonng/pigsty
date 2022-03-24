@@ -20,18 +20,30 @@ CLS?=meta
 default: tip
 tip:
 	@echo "# Run on Linux x86_64 CentOS 7.8 node with sudo & ssh access"
-	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"
+	@echo "./download pigsty pkg     # download pigsty source & pkgs"
+	@echo "./configure               # pre-check and templating config"
+	@echo "./infra.yml               # install pigsty on current node"
+
+# print pkg download links
+link:
+	@echo "[Github Download]"
 	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty"
-	@echo ./configure
-	@echo make install
+	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"
+	@echo "[CDN Download]"
+	@echo "curl -SL http://download.pigsty.cc/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty"
+	@echo "curl -SL http://download.pigsty.cc/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"
+
+# get pigsty source from CDN
+get:
+	bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
 
 #-------------------------------------------------------------#
 # there are 3 steps launching pigsty:
 all: download configure install
 
-# (1). DOWNLOAD   pigsty source code to ~/pigsty
+# (1). DOWNLOAD   pigsty source code to ~/pigsty, pkg to /tmp/pkg.tgz
 download:
-	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty
+	./download pigsty pkg
 
 # (2). CONFIGURE  pigsty in interactive mode
 config:
@@ -86,7 +98,7 @@ pkg:
 # it will install ansible (from offline rpm repo if available)
 
 # common interactive configuration procedure
-c: configure
+c: config
 
 # config with parameters
 # IP=10.10.10.10 MODE=oltp make conf
@@ -346,7 +358,6 @@ du: dashboard-clean dashboard-init    # update grafana dashboards
 #------------------------------#
 # copy latest pro source code
 copy: release copy-src copy-pkg use-src use-pkg
-copy2: release copy-src copy-pkg2 use-src use-pkg
 
 # copy pigsty source code
 copy-src:
@@ -354,7 +365,7 @@ copy-src:
 copy-pkg:
 	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
 copy-pkg2:
-	scp dist/${VERSION}/pkg-matrix.tgz meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/matrix.tgz meta:/tmp/matrix.tgz
 copy-app:
 	scp dist/${VERSION}/app.tgz meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
@@ -364,7 +375,12 @@ use-src:
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 use-pkg:
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download -m demo'
+use-pkg2:
+	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www'
+	scp files/matrix.repo meta:/tmp/matrix.repo
+	ssh meta sudo mv -f /tmp/matrix.repo /www/matrix.repo
 use-all: use-src use-pkg
+use-matrix: copy-pkg2 use-pkg2
 
 ###############################################################
 
@@ -385,8 +401,10 @@ release-pkg: cache
 
 # release
 rp2: release-matrix-pkg
-release-matrix-pkg: cache
-	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg-matrix.tgz
+release-matrix-pkg:
+	#ssh meta 'sudo cp -r /www/matrix /tmp/matrix; sudo chmod -R a+r /www/matrix'
+	ssh meta sudo tar zcvf /tmp/matrix.tgz -C /www matrix
+	scp meta:/tmp/matrix.tgz dist/${VERSION}/matrix.tgz
 
 # publish will publish pigsty packages
 p: release publish
@@ -421,7 +439,7 @@ doc:
 ###############################################################
 #                         Appendix                            #
 ###############################################################
-.PHONY: default tip all download config install \
+.PHONY: default tip link all download config install \
         src pkg \
         c conf \
         infra pgsql repo repo-upstream repo-download prometheus grafana loki \
@@ -431,8 +449,7 @@ doc:
         st status suspend resume s sync s4 sync4 ss \
         ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc dashboard-init dashboard-dump dashboard-clean \
-        matrix upload-matrix config-matrix \
-        copy copy2 copy-src copy-pkg copy-pkg2 copy-app copy-all use-src use-pkg use-all  \
+        copy copy2 copy-src copy-pkg copy-pkg2 copy-app copy-all use-src use-pkg use-pkg2 use-all  \
         r releast rp release-pkg rp2 release-matrix-pkg p publish cache \
         svg doc d
 ###############################################################
