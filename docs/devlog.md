@@ -1,6 +1,15 @@
 # Development Log
 
+
+#### 2022-03-24
+
+* Get the latest source with `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`
+* add download script to get pigsty/pkg/app/matrix packages from github
+* if Github is not viable, use CDN instead.
+ 
+
 #### 2022-03-20
+
 * Now playbooks are divided into 4 major groups: `infra`, `nodes`, `pgsql`, `redis`
 * add promtail to `infra.yml`, `nodes.yml`, etc...
 
@@ -16,7 +25,7 @@
 #### 2022-03-08
 
 * Greenplum/MatrixDB Support finished!
-  * Simplify `gpsql.yml` playbook
+  * Simplify `pigsty-matrix.yml` playbook
   * Remove role `gp_prepare` & `gp_provision`
   * Remove playbook `gpsql-post.yml`
   * Update default pigsty-mxdb.yml example

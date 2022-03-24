@@ -292,7 +292,7 @@ ssh 10.10.10.3 'sudo systemctl stop patroni'
 
 !> 这种情况需要特别关注！
 
-果使用Kill -9 强行杀死主库Patroni，则主库Patroni有大概率无法关停所管理的PostgreSQL主库实例。这会导致 原主库 PostgreSQL 实例在Patroni死亡后继续存活，而剩余的集群从库则会进行领导选举选出新的主库来，**从而导致脑裂**。
+如果使用Kill -9 强行杀死主库Patroni，则主库Patroni有大概率无法关停所管理的PostgreSQL主库实例。这会导致原主库PostgreSQL 实例在Patroni死亡后继续存活，而剩余的集群从库则会进行领导选举选出新的主库来，**从而导致脑裂**。
 
 **操作说明**
 
@@ -306,9 +306,9 @@ ssh 10.10.10.3 'sudo kill -9 723'
 
 该操作可能导致集群脑裂：因为Patroni暴死，无暇杀死自己管理的PostgreSQL进程。而其他集群成员则会在TTL超时后进行新一轮选举，选出新的主库。
 
-如果您采用标准的基于负载均衡健康检查的服务[接入](c-access)机制，**不会有问题**，因为原主库 Patroni已死，健康检查为假。即使该主库存活，负载均衡器也不会将流量分发至此实例。但如果您通过其他方式继续写入该主库，**则可能会出现脑裂**！
+如果您采用标准的基于负载均衡健康检查的服务[接入](c-service#接入)机制，**不会有问题**，因为原主库 Patroni已死，健康检查为假。即使该主库存活，负载均衡器也不会将流量分发至此实例。但如果您通过其他方式继续写入该主库，**则可能会出现脑裂**！
 
-Patroni使用Watchdog机制对这种情况进行兜底，您需要视情况使用（参数 [`patroni_watchdog_mode`](#patroni_watchdog_mode) ）。启用watchdog时，如果原主库因为各种原因（Patroni暴死，机器负载假死，虚拟机调度，PG关机太慢）等原因，无法在Failover中及时关停PG主库以避免脑裂，则会使用Linux内核模块`softdog`强制关机以免脑裂。
+Patroni使用Watchdog机制对这种情况进行兜底，您需要视情况使用（参数 [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode) ）。启用watchdog时，如果原主库因为各种原因（Patroni暴死，机器负载假死，虚拟机调度，PG关机太慢）等原因，无法在Failover中及时关停PG主库以避免脑裂，则会使用Linux内核模块`softdog`强制关机以免脑裂。
 
 <details><summary>patronictl list 结果</summary>
 
@@ -370,7 +370,7 @@ systemctl restart patroni
 
 
 
-> 参数 [`patroni_watchdog_mode`](#patroni_watchdog_mode)  的说明：
+> 参数 [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)  的说明：
 >
 > * 如果模式为 `required`，但`/dev/watchdog`不可用，不会影响Patroni启动，只会影响当前实例的领导候选人资格。
 > * 如果模式为 `required`，但`/dev/watchdog`不可用，那么该实例无法作为合格的主库候选人，即无法参与Failover，即使手工强制指定也不行：会出现`Switchover failed, details: 412, switchover is not possible: no good candidates have been found` 的错误。若想解决此问题，修改`/pg/bin/patroni.yml`文件的`patroni_watchdog`选项为`automatic|off`即可。
@@ -384,16 +384,25 @@ systemctl restart patroni
 
 ### 5A-主库DCS Agent不可用
 
+在这种情况下，主库上的Patroni会因为无法连接至DCS服务，将自身降级为普通从库，但如果从库Patroni仍然意识到主库存活（例如，流复制仍然正常进行），并不会触发Failover！
+
+在这种情况下，Pigsty的接入机制会因为原主库健康检查为假，**而导致整个集群进入无主状态，无法写入，需要特别关注**！
+
+
+在维护模式下，不会有变化发生。
 
 
 
 ### 6A-主库负载打满，假死
 
+TBD
 
 ### 7A-主库网络抖动
 
 
 ### 8A-误删主库数据目录
+
+
 
 -----------------------
 
@@ -482,7 +491,7 @@ ssh 10.10.10.3 'sudo kill -9 $(sudo cat /pg/data/postmaster.pid | head -n1)'
 
 
 
-关停 Consul  后，**所有** 启用高可用自动切换模式的数据库集群主库会触发降级逻辑（因为主库的Patroni意识不到其他集群成员的存在，须假定其他从库已经构成一个法定多数的分区并进行选举，因而要将自身降级为从库避免脑裂）
+关停 Consul 后，**所有** 启用高可用自动切换模式的数据库集群主库会触发降级逻辑（因为主库的Patroni意识不到其他集群成员的存在，须假定其他从库已经构成一个法定多数的分区并进行选举，因而要将自身降级为从库避免脑裂）
 
 **操作说明**
 
@@ -496,7 +505,7 @@ systemctl stop consul
 
 1. 在维护模式下，用户失去了自动Failover的能力，但DCS故障不会导致主库不可写入。（仍可以手工快速切换）
 2. 使用更多的DCS实例确保DCS的可用性（DCS本身便是为了解决此问题而生）
-3. 为Patroni配置足够长的超时重试时间，为DCS故障设置最高的响应优先级，确保
+3. 为Patroni配置足够长的超时重试时间，并为DCS故障设置最高的响应优先级
 
 
 

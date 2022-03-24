@@ -7,7 +7,7 @@ Pigsty有两种典型使用模式：**单机**与**集群**。
 
 在一台节点上安装Pigsty时，Pigsty会执行 [`infra.yml`](p-infra.md) 剧本，在该节点上部署**基础设施** 与 一个单节点PostgreSQL**数据库集群**。对于个人用户、简单场景、小微企业来说，您可以直接开箱使用此数据库。完整安装Pigsty的节点称为[管理节点/元节点](#管理节点)（Meta）。
 
-但Pigsty的能力不只于此，它还可以用于监控管理更多的节点与数据库。您可以从管理节点上发起控制，通过 `nodes.yml` 剧本将其他节点纳入Pigsty管理中，获取主机监控能力。您也可以在这些节点上部署管理各种各样的数据库与应用：例如使用 `pgsql.yml` 创建高可用的PostgreSQL数据库集群，使用`redis.yml`创建主从、集群、哨兵模式的Redis集簇，使用`gpsql.yml` 部署 Greenplum/MatrixDB 数据仓库。
+但Pigsty的能力不只于此，它还可以用于监控管理更多的节点与数据库。您可以从管理节点上发起控制，通过 `nodes.yml` 剧本将其他节点纳入Pigsty管理中，获取主机监控能力。您也可以在这些节点上部署管理各种各样的数据库与应用：例如使用 `pgsql.yml` 创建高可用的PostgreSQL数据库集群，使用`redis.yml`创建主从、集群、哨兵模式的Redis集簇，使用`pigsty-matrix.yml` 部署 Greenplum/MatrixDB 数据仓库。
 
 
 

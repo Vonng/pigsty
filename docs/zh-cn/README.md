@@ -61,7 +61,7 @@ make install
 ./nodes.yml  -l pg-test # 初始化PostgreSQL数据库集群pg-test包含的三台机器节点（配置节点+纳入监控）
 ./pgsql.yml -l pg-test       # 初始化高可用PostgreSQL数据库集群pg-test
 ./redis.yml -l redis-cluster # 初始化Redis集群 redis-cluster
-./gpsql.yml -l mx-mdw,mx-sdw # 初始化MatrixDB集群Master与Segments
+./pigsty-matrix.yml -l mx-mdw,mx-sdw # 初始化MatrixDB集群Master与Segments
 ```
 
 安装Pigsty的细节请参考[安装部署](s-install.md)，在本地或云端准备虚拟机环境可以参考：[沙箱环境](d-sandbox.md.md)。

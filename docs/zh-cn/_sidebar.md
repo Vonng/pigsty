@@ -1,7 +1,6 @@
 - [概览](README.md)
   - [上手指南](s-intro.md)
   - [安装部署](s-install.md)
-  - [沙箱环境](d-sandbox.md.md)
   - [用户界面](s-interface.md)
   - [常见问题](s-faq.md)
   - [产品价值](s-value.md)
@@ -19,7 +18,7 @@
   - [仅监控部署](d-monly.md)
   - [REDIS集群部署](t-redis.md)
   - [GPSQL集群部署](t-gpsql.md)
-  
+
 - [剧本](p-playbook.md)
   - [剧本：INFRA](p-infra.md)
   - [剧本：NODES](p-nodes.md)
@@ -31,13 +30,9 @@
   - [配置：NODES](v-nodes.md)
   - [配置：PGSQL](v-pgsql.md)
   - [配置：REDIS](v-redis.md)
+  - [定制Patroni配置模板](t-patroni-template.md)
+  - [深度定制数据库模板](t-customize-template.md)
 
-- 监控
-  - [监控面板](m-dashboard.md)
-  - [服务发现](m-discovery.md)
-  - [监控指标](m-metric.md)
-  - [告警系统](m-alert.md)
-  
 - 管理
   - [常用操作命令/SOP](t-operation.md)
   - [数据库备份与恢复](t-backup.md)
@@ -49,8 +44,15 @@
   - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
   - [数据库迁移](t-migration.md)
   - [安装Pigsty扩展应用](t-application.md)
-  - [定制Patroni配置模板](t-patroni-template.md)
-  - [深度定制数据库模板](t-customize-template.md)
+
+
+- 监控
+  - [监控面板](m-dashboard.md)
+  - [服务发现](m-discovery.md)
+  - [监控指标](m-metric.md)
+  - [告警系统](m-alert.md)
+  
+
   
 - 参考
   - [报警规则](r-alert.md)
