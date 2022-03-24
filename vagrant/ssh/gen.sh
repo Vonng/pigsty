@@ -8,7 +8,7 @@
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
-PROG_NAME="$(basename $0))"
+PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 
 # generate new ssh key in this dir
