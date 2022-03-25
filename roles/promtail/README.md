@@ -55,5 +55,10 @@ promtail_clean: false            # remove promtail status file? false by default
 promtail_port: 9080              # default listen address for promtail
 promtail_options: '-config.file=/etc/promtail.yml -config.expand-env=true'
 promtail_positions: /var/log/positions.yaml   # position status for promtail
-promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
+
+
+#------------------------------------------------------------------------------
+# LOKI (Reference)
+#------------------------------------------------------------------------------
+loki_endpoint: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
 ```
