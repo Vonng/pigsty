@@ -14,8 +14,6 @@ Remove pgsql cluster/instance
 * Remove monitor service
   * pg_exporter
   * pgbouncer_exporter
-  * node_exporter
-  * promtail
 
 * Remove pgbouncer
 * Remove postgres
@@ -24,6 +22,7 @@ Remove pgsql cluster/instance
 
 
 ```yaml
+---
 ---
 #--------------------------------------------------------------#
 # remove exporter targets from prometheus
@@ -68,12 +67,6 @@ Remove pgsql cluster/instance
   tags: [ postgres ]
 
 #--------------------------------------------------------------#
-# remove dcs
-#--------------------------------------------------------------#
-- import_tasks: dcs.yml
-  tags: [ dcs ]
-
-#--------------------------------------------------------------#
 # remove data
 #--------------------------------------------------------------#
 - import_tasks: pgdata.yml
@@ -95,48 +88,45 @@ Remove pgsql cluster/instance
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Remove pgsql target from prometheus	TAGS: [prometheus, register, remove]
-Remove grafana datasource on meta node	TAGS: [grafana, register, remove]
-Remove haproxy upstream from nginx	TAGS: [nginx, register, remove]
-Remove haproxy url location from nginx	TAGS: [nginx, register, remove]
-Reload nginx to remove haproxy upstream	TAGS: [nginx, register, remove]
-Remove cluster service from consul	TAGS: [consul_registry, haproxy, remove, service]
-Remove haproxy service from consul	TAGS: [consul_registry, haproxy, remove, service]
-Reload consul to dereigster haproxy	TAGS: [haproxy, remove, service]
-Stop and disable haproxy load balancer	TAGS: [haproxy, remove, service]
-Stop and disable vip-manager	TAGS: [remove, service, vip]
-Remove pg_exporter service from consul	TAGS: [consul_registry, monitor, pg_exporter, remove]
-Reload consul to dereigster pg_exporter	TAGS: [monitor, pg_exporter, remove]
-Stop and disable pg_exporter service	TAGS: [monitor, pg_exporter, remove]
-Remove pgbouncer_exporter service from consul	TAGS: [consul_registry, monitor, pgbouncer_exporter, remove]
-Reload consul to dereigster pgbouncer_exporter	TAGS: [monitor, pgbouncer_exporter, remove]
-Stop and disable pgbouncer_exporter service	TAGS: [monitor, pgbouncer_exporter, remove]
-Remove node_exporter service from consul	TAGS: [consul_registry, monitor, node_exporter, remove]
-Reload consul to dereigster node_exporter	TAGS: [monitor, node_exporter, remove]
-Stop and disable node_exporter service	TAGS: [monitor, node_exporter, remove]
-Stop and disable promtail service	TAGS: [monitor, promtail, remove]
-Remove pgbouncer service from consul	TAGS: [consul_registry, pgbouncer, remove]
-Reload consul to dereigster pgbouncer	TAGS: [pgbouncer, remove]
-Stop and disable pgbouncer service	TAGS: [pgbouncer, remove]
-Get actuall pg_role	TAGS: [postgres, remove]
-Get pg_role from result	TAGS: [postgres, remove]
-Set pg_role if applicable	TAGS: [postgres, remove]
-Remove follower postgres service from consul	TAGS: [consul_registry, postgres, remove]
-Remove follower patroni service from consul	TAGS: [consul_registry, postgres, remove]
-Reload follower consul to dereigster postgres & patroni	TAGS: [postgres, remove]
-Stop and disable follower patroni service	TAGS: [postgres, remove]
-Stop and disable follower postgres service	TAGS: [postgres, remove]
-Force follower postgres shutdown	TAGS: [postgres, remove]
-Remove leader postgres service from consul	TAGS: [consul_registry, postgres, remove]
-Remove leader patroni service from consul	TAGS: [consul_registry, postgres, remove]
-Reload leader consul to dereigster postgres & patroni	TAGS: [postgres, remove]
-Stop and disable leader patroni service	TAGS: [postgres, remove]
-Stop and disable leader postgres service	TAGS: [postgres, remove]
-Force leader postgres shutdown	TAGS: [postgres, remove]
-Remove consul metadata about pgsql cluster	TAGS: [postgres, remove]
-Remove postgres data	TAGS: [pgdata, remove]
-Remove pg packages	TAGS: [pgpkgs, remove]
-Remove pg extensions	TAGS: [pgpkgs, remove]
+Remove pgsql target from prometheus	TAGS: [pg-remove, prometheus, register]
+Remove grafana datasource on meta node	TAGS: [grafana, pg-remove, register]
+Remove haproxy upstream from nginx	TAGS: [nginx, pg-remove, register]
+Remove haproxy url location from nginx	TAGS: [nginx, pg-remove, register]
+Reload nginx to remove haproxy upstream	TAGS: [nginx, pg-remove, register]
+Remove cluster service from consul	TAGS: [consul_registry, haproxy, pg-remove, service]
+Remove haproxy service from consul	TAGS: [consul_registry, haproxy, pg-remove, service]
+Reload consul to dereigster haproxy	TAGS: [haproxy, pg-remove, service]
+Stop and disable haproxy load balancer	TAGS: [haproxy, pg-remove, service]
+Stop and disable vip-manager	TAGS: [pg-remove, service, vip]
+Remove pg_exporter service from consul	TAGS: [consul_registry, monitor, pg-remove, pg_exporter]
+Reload consul to dereigster pg_exporter	TAGS: [monitor, pg-remove, pg_exporter]
+Stop and disable pg_exporter service	TAGS: [monitor, pg-remove, pg_exporter]
+Remove pgbouncer_exporter service from consul	TAGS: [consul_registry, monitor, pg-remove, pgbouncer_exporter]
+Reload consul to dereigster pgbouncer_exporter	TAGS: [monitor, pg-remove, pgbouncer_exporter]
+Stop and disable pgbouncer_exporter service	TAGS: [monitor, pg-remove, pgbouncer_exporter]
+Stop and disable promtail service	TAGS: [monitor, pg-remove, promtail]
+Remove pgbouncer service from consul	TAGS: [consul_registry, pg-remove, pgbouncer]
+Reload consul to dereigster pgbouncer	TAGS: [pg-remove, pgbouncer]
+Stop and disable pgbouncer service	TAGS: [pg-remove, pgbouncer]
+Get actuall pg_role	TAGS: [pg-remove, postgres]
+Get pg_role from result	TAGS: [pg-remove, postgres]
+Set pg_role if applicable	TAGS: [pg-remove, postgres]
+Remove follower postgres service from consul	TAGS: [consul_registry, pg-remove, postgres]
+Remove follower patroni service from consul	TAGS: [consul_registry, pg-remove, postgres]
+Reload follower consul to dereigster postgres & patroni	TAGS: [pg-remove, postgres]
+Stop and disable follower patroni service	TAGS: [pg-remove, postgres]
+Stop and disable follower postgres service	TAGS: [pg-remove, postgres]
+Force follower postgres shutdown	TAGS: [pg-remove, postgres]
+Remove leader postgres service from consul	TAGS: [consul_registry, pg-remove, postgres]
+Remove leader patroni service from consul	TAGS: [consul_registry, pg-remove, postgres]
+Reload leader consul to dereigster postgres & patroni	TAGS: [pg-remove, postgres]
+Stop and disable leader patroni service	TAGS: [pg-remove, postgres]
+Stop and disable leader postgres service	TAGS: [pg-remove, postgres]
+Force leader postgres shutdown	TAGS: [pg-remove, postgres]
+Remove consul metadata about pgsql cluster	TAGS: [pg-remove, postgres]
+Remove postgres data	TAGS: [pg-remove, pgdata]
+Remove pg packages	TAGS: [pg-remove, pgpkgs]
+Remove pg extensions	TAGS: [pg-remove, pgpkgs]
 ```
 
 ### Default variables

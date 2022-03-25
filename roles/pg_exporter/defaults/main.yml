@@ -1,36 +1,43 @@
 ---
-#------------------------------------------------------------------------------
-# PG Exporter
-#------------------------------------------------------------------------------
-# - install - #
-exporter_install: none                        # none|yum|binary, none by default
-exporter_repo_url: ''                         # if set, repo will be added to /etc/yum.repos.d/ before yum installation
-
-# - collect - #
-exporter_metrics_path: /metrics               # default metric path for pg related exporter
-
-# - pg exporter - #
-pg_exporter_config: pg_exporter.yml           # default config files for pg_exporter
-pg_exporter_enabled: true                     # setup pg_exporter on instance
-pg_exporter_port: 9630                        # default port for pg exporter
-pg_exporter_params: 'sslmode=disable'         # url query parameters for pg_exporter
-pg_exporter_url: ''                           # optional, if not set, generate from reference parameters
-pg_exporter_auto_discovery: true              # optional, discovery available database on target instance ?
+#-----------------------------------------------------------------
+# PG_EXPORTER
+#-----------------------------------------------------------------
+pg_exporter_config: pg_exporter.yml    # default config files for pg_exporter
+pg_exporter_enabled: true              # setup pg_exporter on instance
+pg_exporter_port: 9630                 # pg_exporter listen port
+pg_exporter_params: 'sslmode=disable'  # url query parameters for pg_exporter
+pg_exporter_url: ''                    # optional, overwrite auto-generate postgres connstr
+pg_exporter_auto_discovery: true       # optional, discovery available database on target instance ?
 pg_exporter_exclude_database: 'template0,template1,postgres' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-pg_exporter_include_database: ''                             # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
+pg_exporter_include_database: ''       # optional, comma separated list of database that WILL BE monitored when auto-discovery enabled, empty string will disable include mode
 pg_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pg_exporter&local=7"'
-
-# - pgbouncer exporter - #
-pgbouncer_exporter_enabled: true              # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
-pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
-pgbouncer_exporter_url: ''                    # optional, if not set, generate from reference parameters
+pgbouncer_exporter_enabled: true       # setup pgbouncer_exporter on instance (if you don't have pgbouncer, disable it)
+pgbouncer_exporter_port: 9631          # pgbouncer_exporter listen port
+pgbouncer_exporter_url: ''             # optional, overwrite auto-generate pgbouncer connstr
 pgbouncer_exporter_options: '--log.level=info --log.format="logger:syslog?appname=pgbouncer_exporter&local=7"'
 
-# - postgres variables reference - #
-pg_dbsu: postgres                             # who will run these exporters ?
-pg_port: 5432                                 # pg_exporter target port
-pgbouncer_port: 6432                          # pgbouncer_exporter target port
-pg_localhost: /var/run/postgresql             # access via unix socket
-pg_monitor_username: dbuser_monitor           # default monitor username
-pg_monitor_password: DBUser.Monitor           # default monitor password
+#-----------------------------------------------------------------
+# EXPORTER (Reference)
+#-----------------------------------------------------------------
+exporter_install: none           # none|yum|binary, none by default
+exporter_repo_url: ''            # if set, repo will be added to /etc/yum.repos.d/ before yum installation
+exporter_metrics_path: /metrics  # default metric path for pg related exporter
+
+#-----------------------------------------------------------------
+# PG_BUSINESS
+#-----------------------------------------------------------------
+pg_monitor_username: dbuser_monitor
+pg_monitor_password: DBUser.Monitor
+
+#-----------------------------------------------------------------
+# PG_INSTALL (Reference)
+#-----------------------------------------------------------------
+pg_dbsu: postgres                # os user for database, postgres by default (unwise to change it)
+
+#-----------------------------------------------------------------
+# PG_BOOTSTRAP (Reference)
+#-----------------------------------------------------------------
+pg_port: 5432                    # postgres port, 5432 by default
+pgbouncer_port: 6432             # pgbouncer port, 6432 by default
+pg_localhost: /var/run/postgresql # localhost unix socket dir for connection
 ...

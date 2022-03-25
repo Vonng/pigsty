@@ -1,21 +1,15 @@
 ---
-#------------------------------------------------------------------------------
-# REPO PROVISION
-#------------------------------------------------------------------------------
-# - internal flag - #
-repo_exists: false
-
-# - repo basic - #
-repo_enabled: true                            # build local yum repo on meta nodes?
-repo_name: pigsty                             # local repo name (do not change)
-repo_address: pigsty                          # repo external address (ip:port or url)
-repo_port: 80                                 # listen address, must same as repo_address
-repo_home: /www                               # default repo dir location
-repo_rebuild: false                           # force re-download packages
-repo_remove: true                             # remove existing repos
-
-# - where to download - #
-repo_upstreams:
+#-----------------------------------------------------------------
+# REPO
+#-----------------------------------------------------------------
+repo_enabled: true               # build local repo on this node
+repo_name: pigsty                # repo name, pigsty by default
+repo_address: pigsty             # external address to this repo (ip:port or url)
+repo_port: 80                    # repo listen address, must same as repo_address
+repo_home: /www                  # default repo home dir
+repo_rebuild: false              # force re-download packages
+repo_remove: true                # remove existing upstream repo
+repo_upstreams:                  # where to download packages?
   - name: base
     description: CentOS-$releasever - Base
     gpgcheck: no
@@ -25,7 +19,6 @@ repo_upstreams:
       - http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
       - http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/    # aliyun
       - http://mirror.centos.org/centos/$releasever/os/$basearch/             # official
-
   - name: updates
     description: CentOS-$releasever - Updates
     gpgcheck: no
@@ -35,7 +28,6 @@ repo_upstreams:
       - http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
       - http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/    # aliyun
       - http://mirror.centos.org/centos/$releasever/updates/$basearch/             # official
-
   - name: extras
     description: CentOS-$releasever - Extras
     baseurl:
@@ -45,7 +37,6 @@ repo_upstreams:
       - http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/    # aliyun
       - http://mirror.centos.org/centos/$releasever/extras/$basearch/             # official
     gpgcheck: no
-
   - name: epel
     description: CentOS $releasever - epel
     gpgcheck: no
@@ -53,7 +44,6 @@ repo_upstreams:
       - https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch   # tuna
       - http://mirrors.aliyun.com/epel/$releasever/$basearch              # aliyun
       - http://download.fedoraproject.org/pub/epel/$releasever/$basearch  # official
-
   - name: grafana
     description: Grafana
     enabled: yes
@@ -61,74 +51,57 @@ repo_upstreams:
     baseurl:
       - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm    # tuna mirror
       - https://packages.grafana.com/oss/rpm                    # official
-
   - name: prometheus
     description: Prometheus and exporters
     gpgcheck: no
     baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch # no other mirrors, quite slow
-
   - name: pgdg-common
     description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
     gpgcheck: no
     baseurl:
       - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch  # tuna
       - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch             # official
-
   - name: pgdg13
     description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
     gpgcheck: no
     baseurl:
       - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch    # tuna
       - https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch                # official
-
   - name: pgdg14
     description: PostgreSQL 14 for RHEL/CentOS $releasever - $basearch
     gpgcheck: no
     baseurl:
       - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch    # tuna
       - https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch                # official
-
   - name: timescaledb
-    description: PostgreSQL 13 for RHEL/CentOS $releasever - $basearch
+    description: TimescaleDB for RHEL/CentOS $releasever - $basearch
     gpgcheck: no
     baseurl:
       - https://packagecloud.io/timescale/timescaledb/el/7/$basearch
-
   - name: centos-sclo
     description: CentOS-$releasever - SCLo
     gpgcheck: no
     baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
       - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
       - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/
-
   - name: centos-sclo-rh
     description: CentOS-$releasever - SCLo rh
     gpgcheck: no
     baseurl: # mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
       - http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/
       - http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/rh/
-
   - name: nginx
     description: Nginx Official Yum Repo
     skip_if_unavailable: true
     gpgcheck: no
     baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-
-  - name: haproxy
-    description: Copr repo for haproxy
-    skip_if_unavailable: true
-    gpgcheck: no
-    baseurl: https://download.copr.fedorainfracloud.org/results/roidelapluie/haproxy/epel-$releasever-$basearch/
-
-  # for latest consul & kubernetes
-  - name: harbottle
+  - name: harbottle              # for latest consul & kubernetes
     description: Copr repo for main owned by harbottle
     skip_if_unavailable: true
     gpgcheck: no
     baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
 
-
-repo_packages:                                                                                                      #  what to download #
+repo_packages:                   # which packages to be included                                                                                  #  what to download #
   - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
   - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
   - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
@@ -154,15 +127,6 @@ repo_packages:                                                                  
   - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
   - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
 
-repo_url_packages:
-  - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
-  - https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm
-  - https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
-  - https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/loki-2.4.2-1.el7.x86_64.rpm
-  - https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/promtail-2.4.2-1.el7.x86_64.rpm
-  - https://github.com/Vonng/pigsty-pkg/releases/download/postgrest/postgrest-9.0.0-1.el7.x86_64.rpm
-  - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
-  - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
-  - https://github.com/sosedoff/pgweb/releases/download/v0.11.10/pgweb_linux_amd64.zip
-  - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm
+repo_url_packages: [ ]
+
 ...

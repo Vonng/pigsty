@@ -2,18 +2,22 @@
 #-------------------------------------------------------------------------
 # Overwrite nodename
 #-------------------------------------------------------------------------
-# Setup node name if var nodename is provided and nodename_overwrite is set
-- name: Setup node name
+
+# Setup node hostname if
+#   1. nodename_overwrite is true
+#   2. nodename is provided
+
+- name: Set hostname from nodename
   tags: node_name
   when: nodename_overwrite|bool and nodename is defined and nodename != ''
   hostname: name="{{ nodename }}"
 
 #-------------------------------------------------------------------------
-# Exchange Node name
+# Exchange hostname
 #-------------------------------------------------------------------------
-- name: Exchange node name
+- name: Exchange nodename
   tags: node_name
-  when: node_name_exchange|bool
+  when: nodename_exchange|bool
   ignore_errors: true
   block:
 

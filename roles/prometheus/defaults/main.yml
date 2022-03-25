@@ -1,21 +1,34 @@
 ---
-#------------------------------------------------------------------------------
-# Prometheus
-#------------------------------------------------------------------------------
-# - prometheus - #
-prometheus_data_dir: /data/prometheus/data    # prometheus data dir
-prometheus_options: '--storage.tsdb.retention=30d'
-prometheus_reload: false                      # reload prometheus instead of recreate it
-prometheus_sd_method: static                  # service discovery method: static|consul|etcd
-prometheus_scrape_interval: 10s               # global scrape & evaluation interval
-prometheus_scrape_timeout: 8s                 # scrape timeout
-prometheus_sd_interval: 10s                   # service discovery refresh interval
+#-----------------------------------------------------------------
+# PROMETHEUS
+#-----------------------------------------------------------------
+prometheus_data_dir: /data/prometheus/data
+prometheus_options: '--storage.tsdb.retention=15d --enable-feature=promql-negative-offset'
+prometheus_reload: false        # reload prometheus instead of recreate it?
+prometheus_sd_method: static    # service discovery method: static|consul
+prometheus_scrape_interval: 10s # global scrape & evaluation interval
+prometheus_scrape_timeout: 8s   # scrape timeout
+prometheus_sd_interval: 10s     # service discovery refresh interval
 
-# reference
-exporter_metrics_path: /metrics                 # default metrics path (only for job 'pg')
-node_exporter_port: 9100                      # default port for node exporter
-pg_exporter_port: 9630                        # default port for pg exporter
-pgbouncer_exporter_port: 9631                 # default port for pgbouncer exporter
+#-----------------------------------------------------------------
+# EXPORTER (Reference)
+#-----------------------------------------------------------------
+exporter_metrics_path: /metrics  # default metric path for pg related exporter
+#-----------------------------------------------------------------
+# NODE_EXPORTER (Reference)
+#-----------------------------------------------------------------
+node_exporter_port: 9100         # default port for node exporter
+#-----------------------------------------------------------------
+# PG_EXPORTER (Reference)
+#-----------------------------------------------------------------
+pg_exporter_port: 9630           # pg_exporter listen port
+pgbouncer_exporter_port: 9631    # pgbouncer_exporter listen port
+#-----------------------------------------------------------------
+# PG_SERVICE (Reference)
+#-----------------------------------------------------------------
 haproxy_exporter_port: 9101                   # default admin/exporter port
-service_registry: consul                      # none | consul | etcd | both
+#-----------------------------------------------------------------
+# DCS Servers (Reference)
+#-----------------------------------------------------------------
+service_registry: consul        # where to register services: none | consul | etcd | both
 ...

@@ -15,8 +15,7 @@ This role will install consul on hosts
 ### Tricks
 
 ```
-./infra.yml --tags=dcs
-
+./infra.yml --tags=dcs -e dcs_exists_action=clean
 ```
 
 ### Tasks
@@ -24,28 +23,31 @@ This role will install consul on hosts
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Check for existing consul	TAGS: [consul, consul_check, dcs, infra]
-Consul exists flag fact set	TAGS: [consul, consul_check, dcs, infra]
-Abort due to consul exists	TAGS: [consul, consul_check, dcs, infra]
-Clean existing consul instance	TAGS: [consul, consul_clean, dcs, infra]
-Stop any running consul instance	TAGS: [consul, consul_clean, dcs, infra]
-Remove existing consul dir	TAGS: [consul, consul_clean, dcs, infra]
-Recreate consul dir	TAGS: [consul, consul_clean, dcs, infra]
-Make sure consul is installed	TAGS: [consul, consul_install, dcs, infra]
-Make sure consul dir exists	TAGS: [consul, consul_config, dcs, infra]
-Get dcs server node names	TAGS: [consul, consul_config, dcs, infra]
-Get dcs node name from var nodename	TAGS: [consul, consul_config, dcs, infra]
-Get dcs node name from pgsql ins name	TAGS: [consul, consul_config, dcs, infra]
-Fetch hostname as dcs node name	TAGS: [consul, consul_config, dcs, infra]
-Get dcs name from hostname	TAGS: [consul, consul_config, dcs, infra]
-Copy /etc/consul.d/consul.json	TAGS: [consul, consul_config, dcs, infra]
-Copy consul agent service	TAGS: [consul, consul_config, dcs, infra]
-Get dcs bootstrap expect quroum	TAGS: [consul, consul_server, dcs, infra]
-Copy consul server service unit	TAGS: [consul, consul_server, dcs, infra]
-Launch consul server service	TAGS: [consul, consul_server, dcs, infra]
-Wait for consul server online	TAGS: [consul, consul_server, dcs, infra]
-Launch consul agent service	TAGS: [consul, consul_agent, dcs, infra]
-Wait for consul agent online	TAGS: [consul, consul_agent, dcs, infra]
+Check for existing consul	TAGS: [consul, consul_check, dcs, infra-node]
+Consul exists flag fact set	TAGS: [consul, consul_check, dcs, infra-node]
+Abort due to consul exists	TAGS: [consul, consul_check, dcs, infra-node]
+Skip due to consul exists	TAGS: [consul, consul_check, dcs, infra-node]
+Clean existing consul instance	TAGS: [consul, consul_clean, dcs, infra-node]
+Stop any running consul instance	TAGS: [consul, consul_clean, dcs, infra-node]
+Remove existing consul dir	TAGS: [consul, consul_clean, dcs, infra-node]
+Recreate consul dir	TAGS: [consul, consul_clean, dcs, infra-node]
+Make sure consul is installed	TAGS: [consul, consul_install, dcs, infra-node]
+Make sure consul dir exists	TAGS: [consul, consul_config, dcs, infra-node]
+Get dcs server node names	TAGS: [consul, consul_config, dcs, infra-node]
+Get dcs node name from var nodename	TAGS: [consul, consul_config, dcs, infra-node]
+Fetch hostname as dcs node name	TAGS: [consul, consul_config, dcs, infra-node]
+Get dcs name from hostname	TAGS: [consul, consul_config, dcs, infra-node]
+Make sure consul hcl absent	TAGS: [consul, consul_config, dcs, infra-node]
+Copy /etc/consul.d/consul.json	TAGS: [consul, consul_config, dcs, infra-node]
+Copy consul agent service	TAGS: [consul, consul_config, dcs, infra-node]
+Copy consul node-meta definition	TAGS: [consul, consul_config, consul_meta, dcs, infra-node]
+Restart consul to load new node-meta	TAGS: [consul, consul_config, consul_meta, dcs, infra-node]
+Get dcs bootstrap expect quroum	TAGS: [consul, consul_server, dcs, infra-node]
+Copy consul server service unit	TAGS: [consul, consul_server, dcs, infra-node]
+Launch consul server service	TAGS: [consul, consul_server, dcs, infra-node]
+Wait for consul server online	TAGS: [consul, consul_server, dcs, infra-node]
+Launch consul agent service	TAGS: [consul, consul_agent, dcs, infra-node]
+Wait for consul agent online	TAGS: [consul, consul_agent, dcs, infra-node]
 ```
 
 ### Default variables
@@ -53,15 +55,20 @@ Wait for consul agent online	TAGS: [consul, consul_agent, dcs, infra]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
-dcs_type: consul                  # consul | etcd | both
-dcs_name: pigsty                  # consul dc name | etcd initial cluster token
-dcs_servers: {}                   # dcs name:ip dict (e.g: pg-meta-1: 10.10.10.10)
-dcs_exists_action: skip           # skip|abort|clean if dcs server already exists
-dcs_disable_purge: false          # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+#-----------------------------------------------------------------
+# DCS
+#-----------------------------------------------------------------
+dcs_servers:                    # dcs server dict in name:ip format
+  meta-1: 10.10.10.10           # using existing external dcs cluster is recommended for HA
+  # pg-meta-2: 10.10.10.11      # node with ip in dcs_servers will be initialized as dcs servers
+  # pg-meta-3: 10.10.10.12      # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
 
-consul_data_dir: /var/lib/consul  # default data directory
-consul_exists: false              # default value for inner variable (DO NOT CHANGE!)
-
-# where or whether to register services definition
-service_registry: consul          # none | consul | etcd | both
+service_registry: consul        # where to register services: none | consul | etcd | both
+dcs_type: consul                 # consul | etcd | both
+dcs_name: pigsty                 # consul dc name | etcd initial cluster token
+dcs_exists_action: abort         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
+dcs_disable_purge: false         # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+consul_data_dir: /var/lib/consul # consul data dir (/var/lib/consul by default)
+consul_exists: false             # internal flag that indicate consul existence (DO NOT CHANGE!)
+etcd_data_dir: /var/lib/etcd     # etcd data dir (/var/lib/consul by default)
 ```

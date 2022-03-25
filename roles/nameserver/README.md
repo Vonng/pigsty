@@ -1,7 +1,7 @@
 # Nameserver (ansible role)
 
 This role will provision nameserver on given hosts
-* handler DNS request on 53
+* handler DNS request on port 53
 * serve dynamic DNS records via dnsmasq
 
 
@@ -10,13 +10,13 @@ This role will provision nameserver on given hosts
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Make sure dnsmasq package installed		  TAGS: [dnsmasq]
-Copy dnsmasq /etc/dnsmasq.d/config		  TAGS: [dnsmasq]
-Add dynamic dns records to meta			  TAGS: [dnsmasq]
-Launch meta dnsmasq service				  TAGS: [dnsmasq]
-Wait for meta dnsmasq online			  TAGS: [dnsmasq]
-Register consul dnsmasq service			  TAGS: [dnsmasq]
-Reload consul							  TAGS: [dnsmasq]
+ Make sure dnsmasq package installed	TAGS: [infra-svcs, nameserver]
+ Copy dnsmasq /etc/dnsmasq.d/config	TAGS: [infra-svcs, nameserver]
+ Add dynamic dns records to meta	TAGS: [infra-svcs, nameserver]
+ Launch meta dnsmasq service	TAGS: [infra-svcs, nameserver]
+ Wait for meta dnsmasq online	TAGS: [infra-svcs, nameserver]
+ Register consul dnsmasq service	TAGS: [infra-svcs, nameserver]
+ Reload consul	TAGS: [infra-svcs, nameserver]
 ```
 
 ### Default variables
@@ -24,11 +24,13 @@ Reload consul							  TAGS: [dnsmasq]
 [defaults/main.yml](defaults/main.yml)
 
 ```yaml
-dns_records:
-  - 10.10.10.10 pigsty y.pigsty yum.pigsty
+#-----------------------------------------------------------------
+# NAMESERVER
+#-----------------------------------------------------------------
+dns_records: [ ]                      # dynamic dns record resolved by dnsmasq
 
-# - reference : dcs metadata - #
-dcs_type: consul                  # default dcs server type: consul
-consul_check_interval: 15s        # default service check interval
-consul_check_timeout:  1s         # default service check timeout
+#-----------------------------------------------------------------
+# DCS (Reference)
+#-----------------------------------------------------------------
+service_registry: consul              # none | consul | etcd | both
 ```

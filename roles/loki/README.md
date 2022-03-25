@@ -7,12 +7,13 @@ Install loki on meta nodes
 [tasks/main.yml](tasks/main.yml)
 
 ```yaml
-Copy loki binaries to /usr/bin	TAGS: [loki, loki_install]
-Cleanup loki	TAGS: [loki, loki_clean]
-Render loki config	TAGS: [loki, loki_config]
-Copy loki systemd service	TAGS: [loki, loki_config]
-Launch Loki	TAGS: [loki, loki_launch]
-Wait for loki online	TAGS: [loki, loki_launch]
+Install loki via yum	TAGS: [infra-svcs, loki, loki_install]
+Cleanup loki	TAGS: [infra-svcs, loki, loki_clean]
+Copy loki systemd service	TAGS: [infra-svcs, loki, loki_config]
+Copy loki.yml main config	TAGS: [infra-svcs, loki, loki_config]
+Render loki default config	TAGS: [infra-svcs, loki, loki_config]
+Launch Loki	TAGS: [infra-svcs, loki, loki_launch]
+Wait for loki online	TAGS: [infra-svcs, loki, loki_launch]
 ```
 
 ### Default variables
@@ -21,7 +22,11 @@ Wait for loki online	TAGS: [loki, loki_launch]
 
 
 ```bash
-# - loki - #
-loki_clean: false                             # whether remove existing loki data
-loki_data_dir: /data/loki                     # default loki data dir
+#-----------------------------------------------------------------
+# LOKI
+#-----------------------------------------------------------------
+loki_clean: false               # whether remove existing loki data
+loki_options: '-config.file=/etc/loki.yml -config.expand-env=true'
+loki_data_dir: /data/loki       # default loki data dir
+loki_retention: 15d             # log retention period
 ```

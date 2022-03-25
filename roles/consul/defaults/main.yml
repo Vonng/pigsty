@@ -1,13 +1,18 @@
 ---
-dcs_type: consul                  # consul | etcd | both
-dcs_name: pigsty                  # consul dc name | etcd initial cluster token
-dcs_servers: {}                   # dcs name:ip dict (e.g: pg-meta-1: 10.10.10.10)
-dcs_exists_action: skip           # skip|abort|clean if dcs server already exists
-dcs_disable_purge: false          # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+#-----------------------------------------------------------------
+# DCS
+#-----------------------------------------------------------------
+dcs_servers:                    # dcs server dict in name:ip format
+  meta-1: 10.10.10.10           # using existing external dcs cluster is recommended for HA
+  # pg-meta-2: 10.10.10.11      # node with ip in dcs_servers will be initialized as dcs servers
+  # pg-meta-3: 10.10.10.12      # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
 
-consul_data_dir: /var/lib/consul  # default data directory
-consul_exists: false              # default value for inner variable (DO NOT CHANGE!)
-
-# where or whether to register services definition
-service_registry: consul          # none | consul | etcd | both
+service_registry: consul        # where to register services: none | consul | etcd | both
+dcs_type: consul                 # consul | etcd | both
+dcs_name: pigsty                 # consul dc name | etcd initial cluster token
+dcs_exists_action: abort         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
+dcs_disable_purge: false         # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+consul_data_dir: /var/lib/consul # consul data dir (/var/lib/consul by default)
+consul_exists: false             # internal flag that indicate consul existence (DO NOT CHANGE!)
+etcd_data_dir: /var/lib/etcd     # etcd data dir (/var/lib/consul by default)
 ...

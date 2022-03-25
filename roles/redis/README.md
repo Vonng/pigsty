@@ -5,32 +5,17 @@ Deploy redis on target hosts
 ## Tasks
 
 ```tasks
-redis : Install extra yum repo for redis	TAGS: [redis, redis_install, redis_node]
-redis : Install redis via yum	TAGS: [redis, redis_install, redis_node]
-redis : Install redis via binaries	TAGS: [redis, redis_install, redis_node]
-redis : Install redis monitor via yum	TAGS: [redis, redis_monitor_install, redis_node]
-redis : Install redis monitor via binaries	TAGS: [redis, redis_monitor_install, redis_node]
-redis : Create user redis	TAGS: [redis, redis_node, redis_user]
-redis : Make sure fs main dir exists	TAGS: [redis, redis_dir, redis_node]
-redis : Make sure redis data dir exists	TAGS: [redis, redis_dir, redis_node]
-redis : Render redis systemd service template	TAGS: [redis, redis_node, redis_systemd]
-redis : Render redis-sentinel systemd service template	TAGS: [redis, redis_node, redis_systemd]
-redis : Reload systemd daemon	TAGS: [redis, redis_node, redis_systemd]
-redis : Install node_exporter & redis_exporter	TAGS: [exporter_install, redis, redis_monitor, redis_node]
-redis : Copy node_exporter systemd service	TAGS: [node_exporter, redis, redis_monitor, redis_node]
-redis : Config default node_exporter options	TAGS: [node_exporter, redis, redis_monitor, redis_node]
-redis : Launch node_exporter service unit	TAGS: [node_exporter, redis, redis_monitor, redis_node]
-redis : Wait for node_exporter online	TAGS: [node_exporter, redis, redis_monitor, redis_node]
-redis : Config /etc/default/redis_exporter	TAGS: [redis, redis_exporter, redis_monitor, redis_node]
-redis : Config redis_exporter service unit	TAGS: [redis, redis_exporter, redis_monitor, redis_node]
-redis : Launch redis_exporter systemd service	TAGS: [redis, redis_exporter, redis_monitor, redis_node]
-redis : Wait for redis_exporter service online	TAGS: [redis, redis_exporter, redis_monitor, redis_node]
-redis : Check necessary variables exists	TAGS: [redis, redis_ins]
-include_tasks	TAGS: [redis, redis_ins]
-redis : Fetch redis cluster memberships	TAGS: [redis, redis_ins, redis_join]
-redis : Render redis cluster join script	TAGS: [redis, redis_ins, redis_join]
-redis : Join redis clusters	TAGS: [redis, redis_ins, redis_join]
-redis : Register redis instance as prometheus target	TAGS: [redis, redis_ins, redis_register, register_prometheus]
+Install redis via yum	TAGS: [redis, redis-setup, redis_install]
+Create user redis	TAGS: [redis, redis-setup, redis_install, redis_user]
+Make sure fs main dir exists	TAGS: [redis, redis-setup, redis_dir, redis_install]
+Make sure redis data dir exists	TAGS: [redis, redis-setup, redis_dir, redis_install]
+Check necessary variables exists	TAGS: [redis, redis-setup, redis_ins]
+
+include_tasks	TAGS: [redis, redis-setup, redis_ins]
+
+Fetch redis cluster memberships	TAGS: [redis, redis-setup, redis_join]
+Render redis cluster join script	TAGS: [redis, redis-setup, redis_join]
+Join redis clusters	TAGS: [redis, redis-setup, redis_join]
 ```
 
 ## Defaults

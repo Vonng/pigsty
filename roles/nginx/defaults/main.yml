@@ -1,34 +1,36 @@
 ---
-# - nginx - #
-nginx_upstream:                               # domain names that will be used for accessing pigsty services
-  - { name: home,          domain: pigsty,        endpoint: "10.10.10.10:80" }     # default -> index.html (80)
-  - { name: grafana,       domain: g.pigsty,      endpoint: "10.10.10.10:3000" }   # pigsty grafana (3000)
-  - { name: loki,          domain: l.pigsty,      endpoint: "10.10.10.10:3100" }   # pigsty loki (3100)
-  - { name: prometheus,    domain: p.pigsty,      endpoint: "10.10.10.10:9090" }   # pigsty prometheus (9090)
-  - { name: alertmanager,  domain: a.pigsty,      endpoint: "10.10.10.10:9093" }   # pigsty alertmanager (9093)
-  # some service can only be accessed via domain name due to security reasons (e.g consul, pgweb, jupyter)
-  - { name: consul,        domain: c.pigsty,      endpoint: "127.0.0.1:8500" }     # pigsty consul UI (8500) (domain required)
-  - { name: pgweb,         domain: cli.pigsty,    endpoint: "127.0.0.1:8081" }     # pgweb console (8081)
-  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
-
-# - app - #
-app_list:                                      # show extra application links on home page
+#-----------------------------------------------------------------
+# NGINX
+#-----------------------------------------------------------------
+nginx_upstream:                  # domain names and upstream servers
+  - { name: home,         domain: pigsty,     endpoint: "10.10.10.10:80" }
+  - { name: grafana,      domain: g.pigsty,   endpoint: "10.10.10.10:3000" }
+  - { name: loki,         domain: l.pigsty,   endpoint: "10.10.10.10:3100" }
+  - { name: prometheus,   domain: p.pigsty,   endpoint: "10.10.10.10:9090" }
+  - { name: alertmanager, domain: a.pigsty,   endpoint: "10.10.10.10:9093" }
+  - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
+  - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
+  - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
+app_list:                            # application nav links on home page
   - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
   - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
   - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
   - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
   - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
-  - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
-  - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
-  - { name: Applog  , url : '${grafana}/d/applog-overview', comment: 'apple privacy log analysis' }
 
-docs_enabled: true                            # setup local document under default server?
-pev2_enabled: true                            # setup pev2 explain visualizer under default server?
-pgbadger_enabled: true                        # setup pgbadger under default server?
+docs_enabled: true              # setup local document under nginx?
+pev2_enabled: true              # setup pev2 query visualizer under nginx?
+pgbadger_enabled: true          # setup pgbadger under nginx?
 
-# - reference - #
+#-----------------------------------------------------------------
+# Repo (Reference)
+#-----------------------------------------------------------------
 repo_home: /www                               # default repo dir location
 repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
 repo_port: 80                                 # repo server listen address, must same as repo_address!
+
+#-----------------------------------------------------------------
+# DCS (Reference)
+#-----------------------------------------------------------------
 service_registry: consul                      # none | consul | etcd | both
 ...
