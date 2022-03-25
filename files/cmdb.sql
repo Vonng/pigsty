@@ -1675,252 +1675,248 @@ COMMENT ON TABLE pglog.sample13 IS 'PostgreSQL 13 CSVLOG sample for Pigsty PGLOG
 COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14 CSVLOG sample for Pigsty PGLOG analysis';
 
 
-CREATE TYPE pigsty.category AS ENUM (
-    'INFRA',
-    'NODES',
-    'PGSQL',
-    'GPSQL',
-    'REDIS'
-    );
-
+--===========================================================--
+--                       pigsty setting                      --
+--===========================================================--
+DROP TABLE IF EXISTS pigsty.setting CASCADE;
 CREATE TABLE pigsty.setting
 (
-    id         INTEGER PRIMARY KEY,
-    name       TEXT            NOT NULL,
-    category   pigsty.category NOT NULL DEFAULT 'INFRA'::pigsty.category,
-    role       TEXT            NOT NULL,
-    type       TEXT            DEFAULT 'string'::text NOT NULL,
-    level      TEXT,
-    comment_cn TEXT,
-    comment_en TEXT
+    id            INTEGER PRIMARY KEY,
+    name          VARCHAR(128) NOT NULL,
+    category      VARCHAR(16)  NOT NULL,
+    section       VARCHAR(32)  NOT NULL,
+    type          VARCHAR(16)  NOT NULL DEFAULT 'string'::text NOT NULL,
+    level         VARCHAR(16)  NOT NULL,
+    comment_cn    VARCHAR(512),
+    comment_en    VARCHAR(512),
+    section_desc  VARCHAR(256),
+    default_value JSONB,
+    link_name     TEXT GENERATED ALWAYS AS ('[`'|| name || '`](#' || name || ')') STORED,
+    link_section  TEXT GENERATED ALWAYS AS ('[`'|| section ||'`](#'|| section ||')') STORED,
+    link_category TEXT GENERATED ALWAYS AS ('[`'|| category ||'`](v-'|| lower(category) ||'.md)') STORED,
+    link_namex    TEXT GENERATED ALWAYS AS ('[`' || name || '`](v-'|| lower(category) ||'.md#' || name ||')') STORED,
+    link_sectionx TEXT GENERATED ALWAYS AS ('[`' || section || '`](v-'|| lower(category) ||'.md#' || section ||')') STORED
 );
 
-INSERT INTO pigsty.setting VALUES (1, 'proxy_env', 'INFRA', 'repo', 'dict', 'G', '代理服务器配置', 'proxy environment variables');
-INSERT INTO pigsty.setting VALUES (2, 'repo_enabled', 'INFRA', 'repo', 'bool', 'G', '是否启用本地源', 'enable local yum repo');
-INSERT INTO pigsty.setting VALUES (3, 'repo_name', 'INFRA', 'repo', 'string', 'G', '本地源名称', 'local yum repo name');
-INSERT INTO pigsty.setting VALUES (4, 'repo_address', 'INFRA', 'repo', 'string', 'G', '本地源外部访问地址', 'external access point of repo');
-INSERT INTO pigsty.setting VALUES (5, 'repo_port', 'INFRA', 'repo', 'number', 'G', '本地源端口', 'repo listen address (80)');
-INSERT INTO pigsty.setting VALUES (6, 'repo_home', 'INFRA', 'repo', 'string', 'G', '本地源文件根目录', 'repo home dir (www)');
-INSERT INTO pigsty.setting VALUES (7, 'repo_rebuild', 'INFRA', 'repo', 'bool', 'A', '是否重建Yum源', 'rebuild local yum repo?');
-INSERT INTO pigsty.setting VALUES (8, 'repo_remove', 'INFRA', 'repo', 'bool', 'A', '是否移除已有Yum源', 'remove existing repo file?');
-INSERT INTO pigsty.setting VALUES (9, 'repo_upstreams', 'INFRA', 'repo', 'object[]', 'G', 'Yum源的上游来源', 'upstream repo definition');
-INSERT INTO pigsty.setting VALUES (10, 'repo_packages', 'INFRA', 'repo', 'string[]', 'G', 'Yum源需下载软件列表', 'packages to be downloaded');
-INSERT INTO pigsty.setting VALUES (11, 'repo_url_packages', 'INFRA', 'repo', 'string[]', 'G', '通过URL直接下载的软件', 'pkgs to be downloaded via url');
-INSERT INTO pigsty.setting VALUES (12, 'ca_method', 'INFRA', 'ca', 'enum', 'G', 'CA的创建方式', 'ca mode');
-INSERT INTO pigsty.setting VALUES (13, 'ca_subject', 'INFRA', 'ca', 'string', 'G', '自签名CA主题', 'ca subject');
-INSERT INTO pigsty.setting VALUES (14, 'ca_homedir', 'INFRA', 'ca', 'string', 'G', 'CA证书根目录', 'ca cert home dir');
-INSERT INTO pigsty.setting VALUES (15, 'ca_cert', 'INFRA', 'ca', 'string', 'G', 'CA证书', 'ca cert file name');
-INSERT INTO pigsty.setting VALUES (16, 'ca_key', 'INFRA', 'ca', 'string', 'G', 'CA私钥名称', 'ca private key name');
-INSERT INTO pigsty.setting VALUES (17, 'nginx_upstream', 'INFRA', 'nginx', 'object[]', 'G', 'Nginx上游服务器', 'nginx upstream definition');
-INSERT INTO pigsty.setting VALUES (18, 'app_list', 'INFRA', 'nginx', 'object[]', 'G', '首页导航栏显示的应用列表', 'app list on home page navbar');
-INSERT INTO pigsty.setting VALUES (19, 'docs_enabled', 'INFRA', 'nginx', 'bool', 'G', '是否启用本地文档', 'enable local docs');
-INSERT INTO pigsty.setting VALUES (20, 'pev2_enabled', 'INFRA', 'nginx', 'bool', 'G', '是否启用PEV2组件', 'enable pev2');
-INSERT INTO pigsty.setting VALUES (21, 'pgbadger_enabled', 'INFRA', 'nginx', 'bool', 'G', '是否启用Pgbadger', 'enable pgbadger');
-INSERT INTO pigsty.setting VALUES (22, 'dns_records', 'INFRA', 'nameserver', 'string[]', 'G', '动态DNS解析记录', 'dynamic DNS records');
-INSERT INTO pigsty.setting VALUES (23, 'prometheus_data_dir', 'INFRA', 'prometheus', 'string', 'G', 'Prometheus数据库目录', 'prometheus data dir');
-INSERT INTO pigsty.setting VALUES (24, 'prometheus_options', 'INFRA', 'prometheus', 'string', 'G', 'Prometheus命令行参数', 'prometheus cli args');
-INSERT INTO pigsty.setting VALUES (25, 'prometheus_reload', 'INFRA', 'prometheus', 'bool', 'A', 'Reload而非Recreate', 'prom reload instead of init');
-INSERT INTO pigsty.setting VALUES (26, 'prometheus_sd_method', 'INFRA', 'prometheus', 'enum', 'G', '服务发现机制：static|consul', 'service discovery method: static|consul');
-INSERT INTO pigsty.setting VALUES (27, 'prometheus_scrape_interval', 'INFRA', 'prometheus', 'interval', 'G', 'Prom抓取周期', 'prom scrape interval (10s)');
-INSERT INTO pigsty.setting VALUES (28, 'prometheus_scrape_timeout', 'INFRA', 'prometheus', 'interval', 'G', 'Prom抓取超时', 'prom scrape timeout (8s)');
-INSERT INTO pigsty.setting VALUES (29, 'prometheus_sd_interval', 'INFRA', 'prometheus', 'interval', 'G', 'Prom服务发现刷新周期', 'prom discovery refresh interval');
-INSERT INTO pigsty.setting VALUES (30, 'grafana_endpoint', 'INFRA', 'grafana', 'string', 'G', 'Grafana地址', 'grafana API endpoint');
-INSERT INTO pigsty.setting VALUES (31, 'grafana_admin_username', 'INFRA', 'grafana', 'string', 'G', 'Grafana管理员用户名', 'grafana admin username');
-INSERT INTO pigsty.setting VALUES (32, 'grafana_admin_password', 'INFRA', 'grafana', 'string', 'G', 'Grafana管理员密码', 'grafana admin password');
-INSERT INTO pigsty.setting VALUES (33, 'grafana_database', 'INFRA', 'grafana', 'string', 'G', 'Grafana后端数据库类型', 'grafana backend database type');
-INSERT INTO pigsty.setting VALUES (34, 'grafana_pgurl', 'INFRA', 'grafana', 'string', 'G', 'Grafana的PG数据库连接串', 'grafana backend postgres url');
-INSERT INTO pigsty.setting VALUES (35, 'grafana_plugin', 'INFRA', 'grafana', 'enum', 'G', '如何安装Grafana插件', 'how to install grafana plugins');
-INSERT INTO pigsty.setting VALUES (36, 'grafana_cache', 'INFRA', 'grafana', 'string', 'G', 'Grafana插件缓存地址', 'grafana plugins cache path');
-INSERT INTO pigsty.setting VALUES (37, 'grafana_plugins', 'INFRA', 'grafana', 'string[]', 'G', '安装的Grafana插件列表', 'grafana plugins to be installed');
-INSERT INTO pigsty.setting VALUES (38, 'grafana_git_plugins', 'INFRA', 'grafana', 'string[]', 'G', '从Git安装的Grafana插件', 'grafana plugins via git');
-INSERT INTO pigsty.setting VALUES (39, 'loki_clean', 'INFRA', 'loki', 'bool', 'A', '是否在安装Loki时清理数据库目录', 'remove existing loki data?');
-INSERT INTO pigsty.setting VALUES (40, 'loki_options', 'INFRA', 'loki', 'string', 'G', 'Loki的命令行参数', 'loki cli args');
-INSERT INTO pigsty.setting VALUES (41, 'loki_data_dir', 'INFRA', 'loki', 'string', 'G', 'Loki的数据目录', 'loki data path');
-INSERT INTO pigsty.setting VALUES (42, 'loki_retention', 'INFRA', 'loki', 'interval', 'G', 'Loki日志默认保留天数', 'loki log keeping period');
-INSERT INTO pigsty.setting VALUES (43, 'jupyter_enabled', 'INFRA', 'jupyter', 'bool', 'G', '是否启用JupyterLab', 'enable jupyter lab');
-INSERT INTO pigsty.setting VALUES (44, 'jupyter_username', 'INFRA', 'jupyter', 'bool', 'G', 'Jupyter使用的操作系统用户', 'os user for jupyter lab');
-INSERT INTO pigsty.setting VALUES (45, 'jupyter_password', 'INFRA', 'jupyter', 'bool', 'G', 'Jupyter Lab的密码', 'password for jupyter lab');
-INSERT INTO pigsty.setting VALUES (46, 'pgweb_enabled', 'INFRA', 'jupyter', 'bool', 'G', '是否启用PgWeb', 'enable pgweb');
-INSERT INTO pigsty.setting VALUES (47, 'pgweb_username', 'INFRA', 'jupyter', 'bool', 'G', 'PgWeb使用的操作系统用户', 'os user for pgweb');
-INSERT INTO pigsty.setting VALUES (100, 'meta_node', 'NODES', 'node', 'bool', 'I/C', '表示此节点为元节点', 'mark this node as meta');
-INSERT INTO pigsty.setting VALUES (101, 'nodename', 'NODES', 'node', 'string', 'I', '指定节点实例标识', 'overwrite hostname if specified');
-INSERT INTO pigsty.setting VALUES (102, 'nodename_overwrite', 'NODES', 'node', 'bool', 'I/C/G', '用Nodename覆盖机器HOSTNAME', 'overwrite hostname with nodename');
-INSERT INTO pigsty.setting VALUES (103, 'node_cluster', 'NODES', 'node', 'string', 'C', '节点集群名，默认名为nodes', 'node cluster name');
-INSERT INTO pigsty.setting VALUES (104, 'node_name_exchange', 'NODES', 'node', 'bool', 'I/C/G', '是否在剧本节点间交换主机名', 'exchange static hostname');
-INSERT INTO pigsty.setting VALUES (105, 'node_dns_hosts', 'NODES', 'node', 'string[]', 'G', '写入机器的静态DNS解析', 'static DNS records');
-INSERT INTO pigsty.setting VALUES (106, 'node_dns_hosts_extra', 'NODES', 'node', 'string[]', 'I/C', '同上，用于集群实例层级', 'extra static DNS records');
-INSERT INTO pigsty.setting VALUES (107, 'node_dns_server', 'NODES', 'node', 'enum', 'G', '如何配置DNS服务器？', 'how to setup dns service?');
-INSERT INTO pigsty.setting VALUES (108, 'node_dns_servers', 'NODES', 'node', 'string[]', 'G', '配置动态DNS服务器', 'dynamic DNS servers');
-INSERT INTO pigsty.setting VALUES (109, 'node_dns_options', 'NODES', 'node', 'string[]', 'G', '配置/etc/resolv.conf', '/etc/resolv.conf options');
-INSERT INTO pigsty.setting VALUES (110, 'node_repo_method', 'NODES', 'node', 'enum', 'G', '节点使用Yum源的方式', 'how to use yum repo (local)');
-INSERT INTO pigsty.setting VALUES (111, 'node_repo_remove', 'NODES', 'node', 'bool', 'G', '是否移除节点已有Yum源', 'remove existing repo file?');
-INSERT INTO pigsty.setting VALUES (112, 'node_local_repo_url', 'NODES', 'node', 'string[]', 'G', '本地源的URL地址', 'local yum repo url');
-INSERT INTO pigsty.setting VALUES (113, 'node_packages', 'NODES', 'node', 'string[]', 'G', '节点安装软件列表', 'pkgs to be installed on all node');
-INSERT INTO pigsty.setting VALUES (114, 'node_extra_packages', 'NODES', 'node', 'string[]', 'C/I/A', '节点额外安装的软件列表', 'extra pkgs to be installed');
-INSERT INTO pigsty.setting VALUES (115, 'node_meta_packages', 'NODES', 'node', 'string[]', 'G', '元节点所需的软件列表', 'meta node only packages');
-INSERT INTO pigsty.setting VALUES (116, 'node_meta_pip_install', 'NODES', 'node', 'string', 'G', '元节点上通过pip3安装的软件包', 'meta node pip3 packages');
-INSERT INTO pigsty.setting VALUES (117, 'node_disable_numa', 'NODES', 'node', 'bool', 'G', '关闭节点NUMA', 'disable numa?');
-INSERT INTO pigsty.setting VALUES (118, 'node_disable_swap', 'NODES', 'node', 'bool', 'G', '关闭节点SWAP', 'disable swap?');
-INSERT INTO pigsty.setting VALUES (119, 'node_disable_firewall', 'NODES', 'node', 'bool', 'G', '关闭节点防火墙', 'disable firewall?');
-INSERT INTO pigsty.setting VALUES (120, 'node_disable_selinux', 'NODES', 'node', 'bool', 'G', '关闭节点SELINUX', 'disable selinux?');
-INSERT INTO pigsty.setting VALUES (121, 'node_static_network', 'NODES', 'node', 'bool', 'G', '是否使用静态DNS服务器', 'use static DNS config?');
-INSERT INTO pigsty.setting VALUES (122, 'node_disk_prefetch', 'NODES', 'node', 'bool', 'G', '是否启用磁盘预读', 'enable disk prefetch?');
-INSERT INTO pigsty.setting VALUES (123, 'node_kernel_modules', 'NODES', 'node', 'string[]', 'G', '启用的内核模块', 'kernel modules to be installed');
-INSERT INTO pigsty.setting VALUES (124, 'node_tune', 'NODES', 'node', 'enum', 'G', '节点调优模式', 'node tune mode');
-INSERT INTO pigsty.setting VALUES (125, 'node_sysctl_params', 'NODES', 'node', 'dict', 'G', '操作系统内核参数', 'extra kernel parameters');
-INSERT INTO pigsty.setting VALUES (126, 'node_admin_setup', 'NODES', 'node', 'bool', 'G', '是否创建管理员用户', 'create admin user?');
-INSERT INTO pigsty.setting VALUES (127, 'node_admin_uid', 'NODES', 'node', 'number', 'G', '管理员用户UID', 'admin user UID');
-INSERT INTO pigsty.setting VALUES (128, 'node_admin_username', 'NODES', 'node', 'string', 'G', '管理员用户名', 'admin user name');
-INSERT INTO pigsty.setting VALUES (129, 'node_admin_ssh_exchange', 'NODES', 'node', 'bool', 'G', '在实例间交换管理员SSH密钥', 'exchange admin ssh keys?');
-INSERT INTO pigsty.setting VALUES (130, 'node_admin_pks', 'NODES', 'node', 'string[]', 'G', '可登陆管理员的公钥列表', 'add current user''s pkey?');
-INSERT INTO pigsty.setting VALUES (131, 'node_admin_pk_current', 'NODES', 'node', 'bool', 'A', '是否将当前用户的公钥加入管理员账户', 'pks to be added to admin');
-INSERT INTO pigsty.setting VALUES (132, 'node_ntp_service', 'NODES', 'node', 'enum', 'G', 'NTP服务类型：ntp或chrony', 'ntp mode: ntp or chrony?');
-INSERT INTO pigsty.setting VALUES (133, 'node_ntp_config', 'NODES', 'node', 'bool', 'G', '是否配置NTP服务？', 'setup ntp on node?');
-INSERT INTO pigsty.setting VALUES (134, 'node_timezone', 'NODES', 'node', 'string', 'G', 'NTP时区设置', 'node timezone');
-INSERT INTO pigsty.setting VALUES (135, 'node_ntp_servers', 'NODES', 'node', 'string[]', 'G', 'NTP服务器列表', 'ntp server list');
-INSERT INTO pigsty.setting VALUES (150, 'service_registry', 'NODES', 'consul', 'enum', 'G/C/I', '服务注册的位置', 'where to register service?');
-INSERT INTO pigsty.setting VALUES (151, 'dcs_type', 'NODES', 'consul', 'enum', 'G', '使用的DCS类型', 'which dcs to use (consul/etcd)');
-INSERT INTO pigsty.setting VALUES (152, 'dcs_name', 'NODES', 'consul', 'string', 'G', 'DCS集群名称', 'dcs cluster name (dc)');
-INSERT INTO pigsty.setting VALUES (153, 'dcs_servers', 'NODES', 'consul', 'dict', 'G', 'DCS服务器名称:IP列表', 'dcs server dict');
-INSERT INTO pigsty.setting VALUES (154, 'dcs_exists_action', 'NODES', 'consul', 'enum', 'G/A', '若DCS实例存在如何处理', 'how to deal with existing dcs');
-INSERT INTO pigsty.setting VALUES (155, 'dcs_disable_purge', 'NODES', 'consul', 'bool', 'G/C/I', '完全禁止清理DCS实例', 'disable dcs purge');
-INSERT INTO pigsty.setting VALUES (156, 'consul_data_dir', 'NODES', 'consul', 'string', 'G', 'Consul数据目录', 'consul data dir path');
-INSERT INTO pigsty.setting VALUES (157, 'etcd_data_dir', 'NODES', 'consul', 'string', 'G', 'Etcd数据目录', 'etcd data dir path');
-INSERT INTO pigsty.setting VALUES (170, 'exporter_install', 'NODES', 'node_exporter', 'enum', 'G/C', '安装监控组件的方式', 'how to install exporter?');
-INSERT INTO pigsty.setting VALUES (171, 'exporter_repo_url', 'NODES', 'node_exporter', 'string', 'G/C', '监控组件的YumRepo', 'repo url for yum install');
-INSERT INTO pigsty.setting VALUES (172, 'exporter_metrics_path', 'NODES', 'node_exporter', 'string', 'G/C', '监控暴露的URL Path', 'URL path for exporting metrics');
-INSERT INTO pigsty.setting VALUES (173, 'node_exporter_enabled', 'NODES', 'node_exporter', 'bool', 'G/C', '启用节点指标收集器', 'node_exporter enabled?');
-INSERT INTO pigsty.setting VALUES (174, 'node_exporter_port', 'NODES', 'node_exporter', 'number', 'G/C', '节点指标暴露端口', 'node_exporter listen port');
-INSERT INTO pigsty.setting VALUES (175, 'node_exporter_options', 'NODES', 'node_exporter', 'string', 'G/C', '节点指标采集选项', 'node_exporter extra cli args');
-INSERT INTO pigsty.setting VALUES (181, 'promtail_enabled', 'NODES', 'promtail', 'bool', 'G/C', '是否启用Promtail日志收集服务', 'promtail enabled ?');
-INSERT INTO pigsty.setting VALUES (182, 'promtail_clean', 'NODES', 'promtail', 'bool', 'G/C/A', '是否在安装promtail时移除已有状态信息', 'remove promtail status file ?');
-INSERT INTO pigsty.setting VALUES (183, 'promtail_port', 'NODES', 'promtail', 'number', 'G/C', 'promtail使用的默认端口', 'promtail listen port');
-INSERT INTO pigsty.setting VALUES (184, 'promtail_options', 'NODES', 'promtail', 'string', 'G/C', 'promtail命令行参数', 'promtail cli args');
-INSERT INTO pigsty.setting VALUES (185, 'promtail_positions', 'NODES', 'promtail', 'string', 'G/C', '保存Promtail状态信息的文件位置', 'path to store promtail status file');
-INSERT INTO pigsty.setting VALUES (186, 'promtail_send_url', 'NODES', 'promtail', 'string', 'G/C', '用于接收日志的loki服务endpoint', 'loki endpoint to receive log');
-INSERT INTO pigsty.setting VALUES (200, 'pg_dbsu', 'PGSQL', 'postgres', 'string', 'G/C', 'PG操作系统超级用户', 'os dbsu for postgres');
-INSERT INTO pigsty.setting VALUES (201, 'pg_dbsu_uid', 'PGSQL', 'postgres', 'number', 'G/C', '超级用户UID', 'dbsu UID');
-INSERT INTO pigsty.setting VALUES (202, 'pg_dbsu_sudo', 'PGSQL', 'postgres', 'enum', 'G/C', '超级用户的Sudo权限', 'sudo priv mode for dbsu');
-INSERT INTO pigsty.setting VALUES (203, 'pg_dbsu_home', 'PGSQL', 'postgres', 'string', 'G/C', '超级用户的家目录', 'home dir for dbsu');
-INSERT INTO pigsty.setting VALUES (204, 'pg_dbsu_ssh_exchange', 'PGSQL', 'postgres', 'bool', 'G/C', '是否交换超级用户密钥', 'exchange dbsu ssh keys?');
-INSERT INTO pigsty.setting VALUES (205, 'pg_version', 'PGSQL', 'postgres', 'string', 'G/C', '安装的数据库大版本', 'major PG version to be installed');
-INSERT INTO pigsty.setting VALUES (206, 'pgdg_repo', 'PGSQL', 'postgres', 'bool', 'G/C', '是否添加PG官方源？', 'add official PGDG repo?');
-INSERT INTO pigsty.setting VALUES (207, 'pg_add_repo', 'PGSQL', 'postgres', 'bool', 'G/C', '是否添加PG相关源？', 'add extra upstream PG repo?');
-INSERT INTO pigsty.setting VALUES (208, 'pg_bin_dir', 'PGSQL', 'postgres', 'string', 'G/C', 'PG二进制目录', 'PG binary dir');
-INSERT INTO pigsty.setting VALUES (209, 'pg_packages', 'PGSQL', 'postgres', 'string[]', 'G/C', '安装的PG软件包列表', 'PG packages to be installed');
-INSERT INTO pigsty.setting VALUES (210, 'pg_extensions', 'PGSQL', 'postgres', 'string[]', 'G/C', '安装的PG插件列表', 'PG extension pkgs to be installed');
-INSERT INTO pigsty.setting VALUES (211, 'pg_cluster', 'PGSQL', 'postgres', 'string', 'C', 'PG数据库集群名称', 'PG Cluster Name');
-INSERT INTO pigsty.setting VALUES (212, 'pg_seq', 'PGSQL', 'postgres', 'number', 'I', 'PG数据库实例序号', 'PG Instance Sequence');
-INSERT INTO pigsty.setting VALUES (213, 'pg_role', 'PGSQL', 'postgres', 'enum', 'I', 'PG数据库实例角色', 'PG Instance Role');
-INSERT INTO pigsty.setting VALUES (214, 'pg_shard', 'PGSQL', 'postgres', 'string', 'C', 'PG集群所属的Shard (保留)', 'PG Shard Name (Reserve)');
-INSERT INTO pigsty.setting VALUES (215, 'pg_sindex', 'PGSQL', 'postgres', 'number', 'C', 'PG集群的分片号 (保留)', 'PG Shard Index (Reserve)');
-INSERT INTO pigsty.setting VALUES (216, 'pg_preflight_skip', 'PGSQL', 'postgres', 'bool', 'A/C', '跳过PG身份参数校验', 'skip preflight param validation');
-INSERT INTO pigsty.setting VALUES (217, 'pg_hostname', 'PGSQL', 'postgres', 'bool', 'G/C', '将PG实例名称设为HOSTNAME', 'set PG ins name as hostname');
-INSERT INTO pigsty.setting VALUES (218, 'pg_exists', 'PGSQL', 'postgres', 'bool', 'A', '标记位，PG是否已存在', 'flag indicate pg exists');
-INSERT INTO pigsty.setting VALUES (219, 'pg_exists_action', 'PGSQL', 'postgres', 'enum', 'G/A', 'PG存在时如何处理', 'how to deal with existing pg ins');
-INSERT INTO pigsty.setting VALUES (220, 'pg_disable_purge', 'PGSQL', 'postgres', 'bool', 'G/C/I', '禁止清除存在的PG实例', 'disable pg instance purge');
-INSERT INTO pigsty.setting VALUES (221, 'pg_data', 'PGSQL', 'postgres', 'string', 'G', 'PG数据目录', 'pg data dir');
-INSERT INTO pigsty.setting VALUES (222, 'pg_fs_main', 'PGSQL', 'postgres', 'string', 'G', 'PG主数据盘挂载点', 'pg main data disk mountpoint');
-INSERT INTO pigsty.setting VALUES (223, 'pg_fs_bkup', 'PGSQL', 'postgres', 'path', 'G', 'PG备份盘挂载点', 'pg backup disk mountpoint');
-INSERT INTO pigsty.setting VALUES (224, 'pg_dummy_filesize', 'PGSQL', 'postgres', 'size', 'G/C/I', '占位文件/pg/dummy的大小', '/pg/dummy file size');
-INSERT INTO pigsty.setting VALUES (225, 'pg_listen', 'PGSQL', 'postgres', 'ip', 'G', 'PG监听的IP地址', 'pg listen IP address');
-INSERT INTO pigsty.setting VALUES (226, 'pg_port', 'PGSQL', 'postgres', 'number', 'G', 'PG监听的端口', 'pg listen port');
-INSERT INTO pigsty.setting VALUES (227, 'pg_localhost', 'PGSQL', 'postgres', 'string', 'G/C', 'PG使用的UnixSocket地址', 'pg unix socket path');
-INSERT INTO pigsty.setting VALUES (228, 'pg_upstream', 'PGSQL', 'postgres', 'string', 'I', '实例的复制上游节点', 'pg upstream IP address');
-INSERT INTO pigsty.setting VALUES (229, 'pg_backup', 'PGSQL', 'postgres', 'bool', 'I', '是否在实例上存储备份', 'make base backup on this ins?');
-INSERT INTO pigsty.setting VALUES (292, 'vip_cidrmask', 'PGSQL', 'service', 'number', 'G/C', 'VIP地址的网络CIDR掩码', 'vip network CIDR');
-INSERT INTO pigsty.setting VALUES (230, 'pg_delay', 'PGSQL', 'postgres', 'interval', 'I', '若实例为延迟从库，采用的延迟时长', 'apply lag for delayed instance');
-INSERT INTO pigsty.setting VALUES (231, 'patroni_enabled', 'PGSQL', 'postgres', 'bool', 'C', 'Patroni是否启用', 'Is patroni & postgres enabled?');
-INSERT INTO pigsty.setting VALUES (232, 'patroni_mode', 'PGSQL', 'postgres', 'enum', 'G/C', 'Patroni配置模式', 'patroni working mode');
-INSERT INTO pigsty.setting VALUES (233, 'pg_namespace', 'PGSQL', 'postgres', 'string', 'G/C', 'Patroni使用的DCS命名空间', 'namespace for patroni');
-INSERT INTO pigsty.setting VALUES (234, 'patroni_port', 'PGSQL', 'postgres', 'string', 'G/C', 'Patroni服务端口', 'patroni listen port (8080)');
-INSERT INTO pigsty.setting VALUES (235, 'patroni_watchdog_mode', 'PGSQL', 'postgres', 'enum', 'G/C', 'Patroni Watchdog模式', 'patroni watchdog policy');
-INSERT INTO pigsty.setting VALUES (236, 'pg_conf', 'PGSQL', 'postgres', 'enum', 'G/C', 'Patroni使用的配置模板', 'patroni template');
-INSERT INTO pigsty.setting VALUES (237, 'pg_shared_libraries', 'PGSQL', 'postgres', 'string', 'G/C', 'PG默认加载的共享库', 'default preload shared libraries');
-INSERT INTO pigsty.setting VALUES (238, 'pg_encoding', 'PGSQL', 'postgres', 'string', 'G/C', 'PG字符集编码', 'character encoding');
-INSERT INTO pigsty.setting VALUES (239, 'pg_locale', 'PGSQL', 'postgres', 'enum', 'G/C', 'PG使用的本地化规则', 'locale');
-INSERT INTO pigsty.setting VALUES (240, 'pg_lc_collate', 'PGSQL', 'postgres', 'enum', 'G/C', 'PG使用的本地化排序规则', 'collate rule of locale');
-INSERT INTO pigsty.setting VALUES (241, 'pg_lc_ctype', 'PGSQL', 'postgres', 'enum', 'G/C', 'PG使用的本地化字符集定义', 'ctype of locale');
-INSERT INTO pigsty.setting VALUES (242, 'pgbouncer_enabled', 'PGSQL', 'postgres', 'bool', 'G/C', '是否启用Pgbouncer', 'is pgbouncer enabled');
-INSERT INTO pigsty.setting VALUES (243, 'pgbouncer_port', 'PGSQL', 'postgres', 'number', 'G/C', 'Pgbouncer端口', 'pgbouncer listen port');
-INSERT INTO pigsty.setting VALUES (244, 'pgbouncer_poolmode', 'PGSQL', 'postgres', 'enum', 'G/C', 'Pgbouncer池化模式', 'pgbouncer pooling mode');
-INSERT INTO pigsty.setting VALUES (245, 'pgbouncer_max_db_conn', 'PGSQL', 'postgres', 'number', 'G/C', 'Pgbouncer最大单DB连接数', 'max connection per database');
-INSERT INTO pigsty.setting VALUES (246, 'pg_init', 'PGSQL', 'postgres', 'string', 'G/C', '自定义PG初始化脚本', 'path to postgres init script');
-INSERT INTO pigsty.setting VALUES (247, 'pg_replication_username', 'PGSQL', 'postgres', 'string', 'G', 'PG复制用户', 'replication user''s name');
-INSERT INTO pigsty.setting VALUES (248, 'pg_replication_password', 'PGSQL', 'postgres', 'string', 'G', 'PG复制用户的密码', 'replication user''s password');
-INSERT INTO pigsty.setting VALUES (249, 'pg_monitor_username', 'PGSQL', 'postgres', 'string', 'G', 'PG监控用户', 'monitor user''s name');
-INSERT INTO pigsty.setting VALUES (250, 'pg_monitor_password', 'PGSQL', 'postgres', 'string', 'G', 'PG监控用户密码', 'monitor user''s password');
-INSERT INTO pigsty.setting VALUES (251, 'pg_admin_username', 'PGSQL', 'postgres', 'string', 'G', 'PG管理用户', 'admin user''s name');
-INSERT INTO pigsty.setting VALUES (252, 'pg_admin_password', 'PGSQL', 'postgres', 'string', 'G', 'PG管理用户密码', 'admin user''s password');
-INSERT INTO pigsty.setting VALUES (253, 'pg_default_roles', 'PGSQL', 'postgres', 'role[]', 'G', '默认创建的角色与用户', 'list or global default roles/users');
-INSERT INTO pigsty.setting VALUES (254, 'pg_default_privilegs', 'PGSQL', 'postgres', 'string[]', 'G', '数据库默认权限配置', 'list of default privileges');
-INSERT INTO pigsty.setting VALUES (255, 'pg_default_schemas', 'PGSQL', 'postgres', 'string[]', 'G', '默认创建的模式', 'list of default schemas');
-INSERT INTO pigsty.setting VALUES (256, 'pg_default_extensions', 'PGSQL', 'postgres', 'extension[]', 'G', '默认安装的扩展', 'list of default extensions');
-INSERT INTO pigsty.setting VALUES (257, 'pg_offline_query', 'PGSQL', 'postgres', 'bool', 'I', '是否允许离线查询', 'allow offline query?');
-INSERT INTO pigsty.setting VALUES (258, 'pg_reload', 'PGSQL', 'postgres', 'bool', 'A', '是否重载数据库配置（HBA）', 'reload configuration?');
-INSERT INTO pigsty.setting VALUES (259, 'pg_hba_rules', 'PGSQL', 'postgres', 'rule[]', 'G', '全局HBA规则', 'global HBA rules');
-INSERT INTO pigsty.setting VALUES (260, 'pg_hba_rules_extra', 'PGSQL', 'postgres', 'rule[]', 'C/I', '集群/实例特定的HBA规则', 'ad hoc HBA rules');
-INSERT INTO pigsty.setting VALUES (261, 'pgbouncer_hba_rules', 'PGSQL', 'postgres', 'rule[]', 'G/C', 'Pgbouncer全局HBA规则', 'global pgbouncer HBA rules');
-INSERT INTO pigsty.setting VALUES (262, 'pgbouncer_hba_rules_extra', 'PGSQL', 'postgres', 'rule[]', 'G/C', 'Pgbounce特定HBA规则', 'ad hoc pgbouncer HBA rules');
-INSERT INTO pigsty.setting VALUES (263, 'pg_databases', 'PGSQL', 'postgres', 'database[]', 'G/C', '业务数据库定义', 'business databases definition');
-INSERT INTO pigsty.setting VALUES (264, 'pg_users', 'PGSQL', 'postgres', 'user[]', 'G/C', '业务用户定义', 'business users definition');
-INSERT INTO pigsty.setting VALUES (265, 'pg_exporter_config', 'PGSQL', 'pg_exporter', 'string', 'G/C', 'PG指标定义文件', 'pg_exporter config path');
-INSERT INTO pigsty.setting VALUES (266, 'pg_exporter_enabled', 'PGSQL', 'pg_exporter', 'bool', 'G/C', '启用PG指标收集器', 'pg_exporter enabled ?');
-INSERT INTO pigsty.setting VALUES (267, 'pg_exporter_port', 'PGSQL', 'pg_exporter', 'number', 'G/C', 'PG指标暴露端口', 'pg_exporter listen address');
-INSERT INTO pigsty.setting VALUES (268, 'pg_exporter_params', 'PGSQL', 'pg_exporter', 'string', 'G/C/I', 'PG Exporter额外的URL参数', 'extra params for pg_exporter url');
-INSERT INTO pigsty.setting VALUES (269, 'pg_exporter_url', 'PGSQL', 'pg_exporter', 'string', 'C/I', '采集对象数据库的连接串（覆盖）', 'monitor target pgurl (overwrite)');
-INSERT INTO pigsty.setting VALUES (270, 'pg_exporter_auto_discovery', 'PGSQL', 'pg_exporter', 'bool', 'G/C/I', '是否自动发现实例中的数据库', 'enable auto-database-discovery?');
-INSERT INTO pigsty.setting VALUES (271, 'pg_exporter_exclude_database', 'PGSQL', 'pg_exporter', 'string', 'G/C/I', '数据库自动发现排除列表', 'excluded list of databases');
-INSERT INTO pigsty.setting VALUES (272, 'pg_exporter_include_database', 'PGSQL', 'pg_exporter', 'string', 'G/C/I', '数据库自动发现囊括列表', 'included list of databases');
-INSERT INTO pigsty.setting VALUES (273, 'pg_exporter_options', 'PGSQL', 'pg_exporter', 'string', 'G/C/I', 'PG Exporter命令行参数', 'cli args for pg_exporter');
-INSERT INTO pigsty.setting VALUES (274, 'pgbouncer_exporter_enabled', 'PGSQL', 'pg_exporter', 'bool', 'G/C', '启用PGB指标收集器', 'pgbouncer_exporter enabled ?');
-INSERT INTO pigsty.setting VALUES (275, 'pgbouncer_exporter_port', 'PGSQL', 'pg_exporter', 'number', 'G/C', 'PGB指标暴露端口', 'pgbouncer_exporter listen addr?');
-INSERT INTO pigsty.setting VALUES (276, 'pgbouncer_exporter_url', 'PGSQL', 'pg_exporter', 'string', 'G/C', '采集对象连接池的连接串', 'target pgbouncer url (overwrite)');
-INSERT INTO pigsty.setting VALUES (277, 'pgbouncer_exporter_options', 'PGSQL', 'pg_exporter', 'string', 'G/C/I', 'PGB Exporter命令行参数', 'cli args for pgbouncer exporter');
-INSERT INTO pigsty.setting VALUES (278, 'pg_weight', 'PGSQL', 'service', 'number', 'I', '实例在负载均衡中的相对权重', 'relative weight in load balancer');
-INSERT INTO pigsty.setting VALUES (279, 'pg_services', 'PGSQL', 'service', 'service[]', 'G', '全局通用服务定义', 'global service definition');
-INSERT INTO pigsty.setting VALUES (280, 'pg_services_extra', 'PGSQL', 'service', 'service[]', 'C', '集群专有服务定义', 'ad hoc service definition');
-INSERT INTO pigsty.setting VALUES (281, 'haproxy_enabled', 'PGSQL', 'service', 'bool', 'G/C/I', '是否启用Haproxy', 'haproxy enabled ?');
-INSERT INTO pigsty.setting VALUES (282, 'haproxy_reload', 'PGSQL', 'service', 'bool', 'A', '是否重载Haproxy配置', 'haproxy reload instead of reset');
-INSERT INTO pigsty.setting VALUES (283, 'haproxy_admin_auth_enabled', 'PGSQL', 'service', 'bool', 'G/C', '是否对Haproxy管理界面启用认证', 'enable auth for haproxy admin ?');
-INSERT INTO pigsty.setting VALUES (284, 'haproxy_admin_username', 'PGSQL', 'service', 'string', 'G/C', 'HAproxy管理员名称', 'haproxy admin user name');
-INSERT INTO pigsty.setting VALUES (285, 'haproxy_admin_password', 'PGSQL', 'service', 'string', 'G/C', 'HAproxy管理员密码', 'haproxy admin password');
-INSERT INTO pigsty.setting VALUES (286, 'haproxy_exporter_port', 'PGSQL', 'service', 'number', 'G/C', 'HAproxy指标暴露器端口', 'haproxy exporter listen port');
-INSERT INTO pigsty.setting VALUES (287, 'haproxy_client_timeout', 'PGSQL', 'service', 'interval', 'G/C', 'HAproxy客户端超时', 'haproxy client timeout');
-INSERT INTO pigsty.setting VALUES (288, 'haproxy_server_timeout', 'PGSQL', 'service', 'interval', 'G/C', 'HAproxy服务端超时', 'haproxy server timeout');
-INSERT INTO pigsty.setting VALUES (289, 'vip_mode', 'PGSQL', 'service', 'enum', 'G/C', 'VIP模式：none', 'vip working mode');
-INSERT INTO pigsty.setting VALUES (290, 'vip_reload', 'PGSQL', 'service', 'bool', 'G/C', '是否重载VIP配置', 'reload vip configuration');
-INSERT INTO pigsty.setting VALUES (291, 'vip_address', 'PGSQL', 'service', 'string', 'G/C', '集群使用的VIP地址', 'vip address used by cluster');
-INSERT INTO pigsty.setting VALUES (293, 'vip_interface', 'PGSQL', 'service', 'string', 'G/C', 'VIP使用的网卡', 'vip network interface name');
-INSERT INTO pigsty.setting VALUES (294, 'dns_mode', 'PGSQL', 'service', 'enum', 'G/C', 'DNS配置模式', 'cluster DNS mode');
-INSERT INTO pigsty.setting VALUES (295, 'dns_selector', 'PGSQL', 'service', 'string', 'G/C', 'DNS解析对象选择器', 'cluster DNS ins selector');
-INSERT INTO pigsty.setting VALUES (296, 'rm_pgdata', 'PGSQL', 'pg_remove', 'bool', 'A', '下线时是否一并删除数据库', 'rm pgdata when remove pg');
-INSERT INTO pigsty.setting VALUES (297, 'rm_pgpkgs', 'PGSQL', 'pg_remove', 'bool', 'A', '下线时是否一并删除软件包', 'rm pg pkgs when remove pg');
-INSERT INTO pigsty.setting VALUES (298, 'pg_user', 'PGSQL', 'createuser', 'string', 'A', '需要创建的PG用户名', 'name of pg_users to be created');
-INSERT INTO pigsty.setting VALUES (299, 'pg_database', 'PGSQL', 'createdb', 'string', 'A', '需要创建的PG数据库名', 'name of pg_databases to be created');
-INSERT INTO pigsty.setting VALUES (300, 'gp_cluster', 'GPSQL', 'pg_exporters', 'string', 'C', '当前PG集群所属GP集群', 'gp cluster name of this pg cluster');
-INSERT INTO pigsty.setting VALUES (301, 'gp_role', 'GPSQL', 'pg_exporters', 'string', 'C', '当前PG集群在GP中的角色', 'gp role of this pg cluster');
-INSERT INTO pigsty.setting VALUES (302, 'pg_instances', 'GPSQL', 'pg_exporters', 'object', 'I', '当前节点上的所有PG实例', 'pg instance on this node');
-INSERT INTO pigsty.setting VALUES (400, 'redis_cluster', 'REDIS', 'redis', 'string', ')', 'Redis数据库集群名称', 'name of this redis ''cluster'' , cluster level');
-INSERT INTO pigsty.setting VALUES (401, 'redis_node', 'REDIS', 'redis', 'number', 'I', 'Redis节点序列号', 'id of this redis node, integer sequence @ instance level');
-INSERT INTO pigsty.setting VALUES (402, 'redis_instances', 'REDIS', 'redis', 'instance[]', 'I', 'Redis实例定义', 'redis instance list on this redis node @ instance level');
-INSERT INTO pigsty.setting VALUES (403, 'redis_mode', 'REDIS', 'redis', 'enum', 'C', 'Redis集群模式', 'standalone,cluster,sentinel');
-INSERT INTO pigsty.setting VALUES (404, 'redis_conf', 'REDIS', 'redis', 'string', 'G', 'Redis配置文件模板', 'which config template will be used');
-INSERT INTO pigsty.setting VALUES (405, 'redis_fs_main', 'REDIS', 'redis', 'path', 'G/C/I', 'PG数据库实例角色', 'main data disk for redis');
-INSERT INTO pigsty.setting VALUES (406, 'redis_bind_address', 'REDIS', 'redis', 'ip', 'G/C/I', 'Redis监听的端口地址', 'e.g 0.0.0.0, empty will use inventory_hostname as bind address');
-INSERT INTO pigsty.setting VALUES (407, 'redis_exists', 'REDIS', 'redis', 'bool', 'A', 'Redis是否存在', 'internal flag');
-INSERT INTO pigsty.setting VALUES (408, 'redis_exists_action', 'REDIS', 'redis', 'enum', 'G/C', 'Redis存在时执行何种操作', 'what to do when redis exists');
-INSERT INTO pigsty.setting VALUES (409, 'redis_disable_purge', 'REDIS', 'redis', 'string', 'G/C', '禁止抹除现存的Redis', 'set to true to disable purge functionality for good (force redis_exists_action = abort)');
-INSERT INTO pigsty.setting VALUES (410, 'redis_max_memory', 'REDIS', 'redis', 'size', 'G/C', 'Redis可用的最大内存', 'max memory used by each redis instance');
-INSERT INTO pigsty.setting VALUES (411, 'redis_mem_policy', 'REDIS', 'redis', 'enum', 'G/C', '内存逐出策略', 'memory eviction policy');
-INSERT INTO pigsty.setting VALUES (412, 'redis_password', 'REDIS', 'redis', 'string', 'G/C', 'Redis密码', 'empty password disable password auth (masterauth & requirepass)');
-INSERT INTO pigsty.setting VALUES (413, 'redis_rdb_save', 'REDIS', 'redis', 'string[]', 'G/C', 'RDB保存指令', 'redis RDB save directives, empty list disable it');
-INSERT INTO pigsty.setting VALUES (414, 'redis_aof_enabled', 'REDIS', 'redis', 'bool', 'G/C', '是否启用AOF', 'enable redis AOF');
-INSERT INTO pigsty.setting VALUES (415, 'redis_rename_commands', 'REDIS', 'redis', 'object', 'G/C', '重命名危险命令列表', 'rename dangerous commands');
-INSERT INTO pigsty.setting VALUES (416, 'redis_cluster_replicas', 'REDIS', 'redis', 'number', 'G/C', '集群每个主库带几个从库', 'how much replicas per master in redis cluster ?');
-INSERT INTO pigsty.setting VALUES (417, 'redis_exporter_enabled', 'REDIS', 'redis_exporter', 'bool', 'G/C', '是否启用Redis监控', 'install redis exporter on redis nodes');
-INSERT INTO pigsty.setting VALUES (418, 'redis_exporter_port', 'REDIS', 'redis_exporter', 'number', 'G/C', 'Redis Exporter监听端口', 'default port for redis exporter');
-INSERT INTO pigsty.setting VALUES (419, 'redis_exporter_options', 'REDIS', 'redis_exporter', 'string', 'G/C', 'Redis Exporter命令参数', 'default cli args for redis exporter');
+INSERT INTO pigsty.setting(id,name,category,section,type,level,comment_cn,comment_en,section_desc,default_value) VALUES
+(100, 'proxy_env', 'INFRA', 'CONNECT', 'dict', 'G', '代理服务器配置', 'proxy environment variables', '连接参数', '{"no_proxy": "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com"}'),
+(110, 'repo_enabled', 'INFRA', 'REPO', 'bool', 'G', '是否启用本地源', 'enable local yum repo', '本地源基础设施', 'true'),
+(111, 'repo_name', 'INFRA', 'REPO', 'string', 'G', '本地源名称', 'local yum repo name', '本地源基础设施', '"pigsty"'),
+(112, 'repo_address', 'INFRA', 'REPO', 'string', 'G', '本地源外部访问地址', 'external access endpoint of repo', '本地源基础设施', '"pigsty"'),
+(113, 'repo_port', 'INFRA', 'REPO', 'int', 'G', '本地源端口', 'repo listen address (80)', '本地源基础设施', '80'),
+(114, 'repo_home', 'INFRA', 'REPO', 'path', 'G', '本地源文件根目录', 'repo home dir (/www)', '本地源基础设施', '"/www"'),
+(115, 'repo_rebuild', 'INFRA', 'REPO', 'bool', 'A', '是否重建Yum源', 'rebuild local yum repo?', '本地源基础设施', 'false'),
+(116, 'repo_remove', 'INFRA', 'REPO', 'bool', 'A', '是否移除已有REPO文件', 'remove existing repo file?', '本地源基础设施', 'true'),
+(117, 'repo_upstreams', 'INFRA', 'REPO', 'repo[]', 'G', 'Yum源的上游来源', 'upstream repo definition', '本地源基础设施', '[{"name": "base", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/", "http://mirrors.aliyun.com/centos/$releasever/os/$basearch/", "http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/", "http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/", "http://mirror.centos.org/centos/$releasever/os/$basearch/"], "gpgcheck": false, "description": "CentOS-$releasever - Base"}, {"name": "updates", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/", "http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/", "http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/", "http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/", "http://mirror.centos.org/centos/$releasever/updates/$basearch/"], "gpgcheck": false, "description": "CentOS-$releasever - Updates"}, {"name": "extras", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/", "http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/", "http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/", "http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/", "http://mirror.centos.org/centos/$releasever/extras/$basearch/"], "gpgcheck": false, "description": "CentOS-$releasever - Extras"}, {"name": "epel", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch", "http://mirrors.aliyun.com/epel/$releasever/$basearch", "http://download.fedoraproject.org/pub/epel/$releasever/$basearch"], "gpgcheck": false, "description": "CentOS $releasever - epel"}, {"name": "grafana", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm", "https://packages.grafana.com/oss/rpm"], "enabled": true, "gpgcheck": false, "description": "Grafana"}, {"name": "prometheus", "baseurl": "https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch", "gpgcheck": false, "description": "Prometheus and exporters"}, {"name": "pgdg-common", "baseurl": ["http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch", "https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch"], "gpgcheck": false, "description": "PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch"}, {"name": "pgdg13", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch", "https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch"], "gpgcheck": false, "description": "PostgreSQL 13 for RHEL/CentOS $releasever - $basearch"}, {"name": "pgdg14", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch", "https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch"], "gpgcheck": false, "description": "PostgreSQL 14 for RHEL/CentOS $releasever - $basearch"}, {"name": "timescaledb", "baseurl": ["https://packagecloud.io/timescale/timescaledb/el/7/$basearch"], "gpgcheck": false, "description": "TimescaleDB for RHEL/CentOS $releasever - $basearch"}, {"name": "centos-sclo", "baseurl": ["http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/", "http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/"], "gpgcheck": false, "description": "CentOS-$releasever - SCLo"}, {"name": "centos-sclo-rh", "baseurl": ["http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/", "http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/rh/"], "gpgcheck": false, "description": "CentOS-$releasever - SCLo rh"}, {"name": "nginx", "baseurl": "http://nginx.org/packages/centos/$releasever/$basearch/", "gpgcheck": false, "description": "Nginx Official Yum Repo", "skip_if_unavailable": true}, {"name": "harbottle", "baseurl": "https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/", "gpgcheck": false, "description": "Copr repo for main owned by harbottle", "skip_if_unavailable": true}]'),
+(118, 'repo_packages', 'INFRA', 'REPO', 'string[]', 'G', 'Yum源需下载软件列表', 'packages to be downloaded', '本地源基础设施', '["epel-release nginx wget yum-utils yum createrepo sshpass zip unzip", "ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync", "numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived", "readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*", "readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel", "ed mlocate parted krb5-devel apr apr-util audit", "grafana prometheus2 pushgateway alertmanager consul consul_exporter consul-template etcd dnsmasq", "node_exporter postgres_exporter nginx_exporter blackbox_exporter redis_exporter", "ansible python python-pip python-psycopg2", "python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography", "patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail", "pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4", "postgresql14* postgis32_14* citus_14* pglogical_14* timescaledb-2-postgresql-14 pg_repack_14 wal2json_14", "pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14", "pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14", "mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14", "hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14", "bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14", "repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14", "pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pgagent_14", "pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14", "pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14", "safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14", "clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex"]'),
+(119, 'repo_url_packages', 'INFRA', 'REPO', 'url[]', 'G', '通过URL直接下载的软件', 'pkgs to be downloaded via url', '本地源基础设施', '["https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm", "https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm", "https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm", "https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/loki-2.4.2-1.el7.x86_64.rpm", "https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/promtail-2.4.2-1.el7.x86_64.rpm", "https://github.com/Vonng/pigsty-pkg/releases/download/postgrest/postgrest-9.0.0-1.el7.x86_64.rpm", "https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm", "https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz", "https://github.com/sosedoff/pgweb/releases/download/v0.11.10/pgweb_linux_amd64.zip", "https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm"]'),
+(120, 'ca_method', 'INFRA', 'CA', 'enum', 'G', 'CA的创建方式', 'ca mode, create,copy,recreate', '公私钥基础设施', '"create"'),
+(121, 'ca_subject', 'INFRA', 'CA', 'string', 'G', '自签名CA主题', 'ca subject', '公私钥基础设施', '"/CN=root-ca"'),
+(122, 'ca_homedir', 'INFRA', 'CA', 'path', 'G', 'CA证书根目录', 'ca cert home dir', '公私钥基础设施', '"/ca"'),
+(123, 'ca_cert', 'INFRA', 'CA', 'string', 'G', 'CA证书', 'ca cert file name', '公私钥基础设施', '"ca.crt"'),
+(124, 'ca_key', 'INFRA', 'CA', 'string', 'G', 'CA私钥名称', 'ca private key name', '公私钥基础设施', '"ca.key"'),
+(130, 'nginx_upstream', 'INFRA', 'NGINX', 'upstream[]', 'G', 'Nginx上游服务器', 'nginx upstream definition', 'NginxWeb服务器', '[{"name": "home", "domain": "pigsty", "endpoint": "10.10.10.10:80"}, {"name": "grafana", "domain": "g.pigsty", "endpoint": "10.10.10.10:3000"}, {"name": "loki", "domain": "l.pigsty", "endpoint": "10.10.10.10:3100"}, {"name": "prometheus", "domain": "p.pigsty", "endpoint": "10.10.10.10:9090"}, {"name": "alertmanager", "domain": "a.pigsty", "endpoint": "10.10.10.10:9093"}, {"name": "consul", "domain": "c.pigsty", "endpoint": "127.0.0.1:8500"}, {"name": "pgweb", "domain": "cli.pigsty", "endpoint": "127.0.0.1:8081"}, {"name": "jupyter", "domain": "lab.pigsty", "endpoint": "127.0.0.1:8888"}]'),
+(131, 'app_list', 'INFRA', 'NGINX', 'app[]', 'G', '首页导航栏显示的应用列表', 'app list on home page navbar', 'NginxWeb服务器', '[{"url": "/pev2", "name": "Pev2", "comment": "postgres explain visualizer 2"}, {"url": "/logs", "name": "Logs", "comment": "realtime pgbadger log sample"}, {"url": "/report", "name": "Report", "comment": "daily log summary report "}, {"url": "/pigsty", "name": "Pkgs", "comment": "local yum repo packages"}, {"url": "/pigsty.repo", "name": "Repo", "comment": "local yum repo file"}, {"url": "${grafana}/d/isd-overview", "name": "ISD", "comment": "noaa isd data visualization"}, {"url": "${grafana}/d/covid-overview", "name": "Covid", "comment": "covid data visualization"}]'),
+(132, 'docs_enabled', 'INFRA', 'NGINX', 'bool', 'G', '是否启用本地文档', 'enable local docs', 'NginxWeb服务器', 'true'),
+(133, 'pev2_enabled', 'INFRA', 'NGINX', 'bool', 'G', '是否启用PEV2组件', 'enable pev2', 'NginxWeb服务器', 'true'),
+(134, 'pgbadger_enabled', 'INFRA', 'NGINX', 'bool', 'G', '是否启用Pgbadger', 'enable pgbadger', 'NginxWeb服务器', 'true'),
+(140, 'dns_records', 'INFRA', 'NAMESERVER', 'string[]', 'G', '动态DNS解析记录', 'dynamic DNS records', 'DNS服务器', '["10.10.10.2  pg-meta", "10.10.10.3  pg-test", "10.10.10.10 meta-1", "10.10.10.11 node-1", "10.10.10.12 node-2", "10.10.10.13 node-3", "10.10.10.10 pg-meta-1", "10.10.10.11 pg-test-1", "10.10.10.12 pg-test-2", "10.10.10.13 pg-test-3"]'),
+(150, 'prometheus_data_dir', 'INFRA', 'PROMETHEUS', 'path', 'G', 'Prometheus数据库目录', 'prometheus data dir', '监控时序数据库', '"/data/prometheus/data"'),
+(151, 'prometheus_options', 'INFRA', 'PROMETHEUS', 'string', 'G', 'Prometheus命令行参数', 'prometheus cli args', '监控时序数据库', '"--storage.tsdb.retention=15d --enable-feature=promql-negative-offset"'),
+(152, 'prometheus_reload', 'INFRA', 'PROMETHEUS', 'bool', 'A', 'Reload而非Recreate', 'prom reload instead of init', '监控时序数据库', 'false'),
+(153, 'prometheus_sd_method', 'INFRA', 'PROMETHEUS', 'enum', 'G', '服务发现机制：static|consul', 'service discovery method: static|consul', '监控时序数据库', '"static"'),
+(154, 'prometheus_scrape_interval', 'INFRA', 'PROMETHEUS', 'interval', 'G', 'Prom抓取周期', 'prom scrape interval (10s)', '监控时序数据库', '"10s"'),
+(155, 'prometheus_scrape_timeout', 'INFRA', 'PROMETHEUS', 'interval', 'G', 'Prom抓取超时', 'prom scrape timeout (8s)', '监控时序数据库', '"8s"'),
+(156, 'prometheus_sd_interval', 'INFRA', 'PROMETHEUS', 'interval', 'G', 'Prom服务发现刷新周期', 'prom discovery refresh interval', '监控时序数据库', '"10s"'),
+(160, 'exporter_install', 'INFRA', 'EXPORTER', 'enum', 'G', '安装监控组件的方式', 'how to install exporter?', '通用Exporter配置', '"none"'),
+(161, 'exporter_repo_url', 'INFRA', 'EXPORTER', 'string', 'G', '监控组件的YumRepo', 'repo url for yum install', '通用Exporter配置', '""'),
+(162, 'exporter_metrics_path', 'INFRA', 'EXPORTER', 'string', 'G', '监控暴露的URL Path', 'URL path for exporting metrics', '通用Exporter配置', '"/metrics"'),
+(170, 'grafana_endpoint', 'INFRA', 'GRAFANA', 'url', 'G', 'Grafana地址', 'grafana API endpoint', 'Grafana可视化平台', '"http://10.10.10.10:3000"'),
+(171, 'grafana_admin_username', 'INFRA', 'GRAFANA', 'string', 'G', 'Grafana管理员用户名', 'grafana admin username', 'Grafana可视化平台', '"admin"'),
+(172, 'grafana_admin_password', 'INFRA', 'GRAFANA', 'string', 'G', 'Grafana管理员密码', 'grafana admin password', 'Grafana可视化平台', '"pigsty"'),
+(173, 'grafana_database', 'INFRA', 'GRAFANA', 'enum', 'G', 'Grafana后端数据库类型', 'grafana backend database type', 'Grafana可视化平台', '"sqlite3"'),
+(174, 'grafana_pgurl', 'INFRA', 'GRAFANA', 'url', 'G', 'Grafana的PG数据库连接串', 'grafana backend postgres url', 'Grafana可视化平台', '"postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana"'),
+(175, 'grafana_plugin', 'INFRA', 'GRAFANA', 'enum', 'G', '如何安装Grafana插件', 'how to install grafana plugins', 'Grafana可视化平台', '"install"'),
+(176, 'grafana_cache', 'INFRA', 'GRAFANA', 'path', 'G', 'Grafana插件缓存地址', 'grafana plugins cache path', 'Grafana可视化平台', '"/www/pigsty/plugins.tgz"'),
+(177, 'grafana_plugins', 'INFRA', 'GRAFANA', 'string[]', 'G', '安装的Grafana插件列表', 'grafana plugins to be installed', 'Grafana可视化平台', '["marcusolsson-csv-datasource", "marcusolsson-json-datasource", "marcusolsson-treemap-panel"]'),
+(178, 'grafana_git_plugins', 'INFRA', 'GRAFANA', 'url[]', 'G', '从Git安装的Grafana插件', 'grafana plugins via git', 'Grafana可视化平台', '["https://github.com/Vonng/vonng-echarts-panel"]'),
+(180, 'loki_endpoint', 'INFRA', 'LOKI', 'url', 'G', '用于接收日志的loki服务endpoint', 'loki endpoint to receive log', 'Loki日志收集平台', '"http://10.10.10.10:3100/loki/api/v1/push"'),
+(181, 'loki_clean', 'INFRA', 'LOKI', 'bool', 'A', '是否在安装Loki时清理数据库目录', 'remove existing loki data?', 'Loki日志收集平台', 'false'),
+(182, 'loki_options', 'INFRA', 'LOKI', 'string', 'G', 'Loki的命令行参数', 'loki cli args', 'Loki日志收集平台', '"-config.file=/etc/loki.yml -config.expand-env=true"'),
+(183, 'loki_data_dir', 'INFRA', 'LOKI', 'string', 'G', 'Loki的数据目录', 'loki data path', 'Loki日志收集平台', '"/data/loki"'),
+(184, 'loki_retention', 'INFRA', 'LOKI', 'interval', 'G', 'Loki日志默认保留天数', 'loki log keeping period', 'Loki日志收集平台', '"15d"'),
+(200, 'dcs_servers', 'INFRA', 'DCS', 'dict', 'G', 'DCS服务器名称:IP列表', 'dcs server dict', '分布式配置存储元数据库', '{"pg-meta-1": "10.10.10.10"}'),
+(201, 'service_registry', 'INFRA', 'DCS', 'enum', 'G', '服务注册的位置', 'where to register service?', '分布式配置存储元数据库', '"consul"'),
+(202, 'dcs_type', 'INFRA', 'DCS', 'enum', 'G', '使用的DCS类型', 'which dcs to use (consul/etcd)', '分布式配置存储元数据库', '"consul"'),
+(203, 'dcs_name', 'INFRA', 'DCS', 'string', 'G', 'DCS集群名称', 'dcs cluster name (dc)', '分布式配置存储元数据库', '"pigsty"'),
+(204, 'dcs_exists_action', 'INFRA', 'DCS', 'enum', 'C/A', '若DCS实例存在如何处理', 'how to deal with existing dcs', '分布式配置存储元数据库', '"clean"'),
+(205, 'dcs_disable_purge', 'INFRA', 'DCS', 'bool', 'C/A', '完全禁止清理DCS实例', 'disable dcs purge', '分布式配置存储元数据库', 'false'),
+(206, 'consul_data_dir', 'INFRA', 'DCS', 'string', 'G', 'Consul数据目录', 'consul data dir path', '分布式配置存储元数据库', '"/data/consul"'),
+(207, 'etcd_data_dir', 'INFRA', 'DCS', 'string', 'G', 'Etcd数据目录', 'etcd data dir path', '分布式配置存储元数据库', '"/data/etcd"'),
+(220, 'jupyter_enabled', 'INFRA', 'JUPYTER', 'bool', 'G', '是否启用JupyterLab', 'enable jupyter lab', 'JupyterLab数据分析环境', 'true'),
+(221, 'jupyter_username', 'INFRA', 'JUPYTER', 'bool', 'G', 'Jupyter使用的操作系统用户', 'os user for jupyter lab', 'JupyterLab数据分析环境', '"jupyter"'),
+(222, 'jupyter_password', 'INFRA', 'JUPYTER', 'bool', 'G', 'Jupyter Lab的密码', 'password for jupyter lab', 'JupyterLab数据分析环境', '"pigsty"'),
+(230, 'pgweb_enabled', 'INFRA', 'PGWEB', 'bool', 'G', '是否启用PgWeb', 'enable pgweb', 'PGWeb网页客户端工具', 'true'),
+(231, 'pgweb_username', 'INFRA', 'PGWEB', 'bool', 'G', 'PgWeb使用的操作系统用户', 'os user for pgweb', 'PGWeb网页客户端工具', '"pgweb"'),
+(300, 'meta_node', 'NODES', 'NODE_IDENTITY', 'bool', 'C', '表示此节点为元节点', 'mark this node as meta', '节点身份参数', 'false'),
+(301, 'nodename', 'NODES', 'NODE_IDENTITY', 'string', 'I', '指定节点实例标识', 'node instance identity', '节点身份参数', NULL),
+(302, 'node_cluster', 'NODES', 'NODE_IDENTITY', 'string', 'C', '节点集群名，默认名为nodes', 'node cluster identity', '节点身份参数', '"nodes"'),
+(303, 'nodename_overwrite', 'NODES', 'NODE_IDENTITY', 'bool', 'C', '用Nodename覆盖机器HOSTNAME', 'overwrite hostname with nodename', '节点身份参数', 'true'),
+(304, 'nodename_exchange', 'NODES', 'NODE_IDENTITY', 'bool', 'C', '是否在剧本节点间交换主机名', 'exchange static hostname', '节点身份参数', 'false'),
+(310, 'node_dns_hosts', 'NODES', 'NODE_DNS', 'string[]', 'C', '写入机器的静态DNS解析', 'static DNS records', '节点域名解析', '["10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty"]'),
+(311, 'node_dns_hosts_extra', 'NODES', 'NODE_DNS', 'string[]', 'C/I', '同上，用于集群实例层级', 'extra static DNS records', '节点域名解析', '[]'),
+(312, 'node_dns_server', 'NODES', 'NODE_DNS', 'enum', 'C', '如何配置DNS服务器？', 'how to setup dns service?', '节点域名解析', '"add"'),
+(313, 'node_dns_servers', 'NODES', 'NODE_DNS', 'string[]', 'C', '配置动态DNS服务器列表', 'dynamic DNS servers', '节点域名解析', '["10.10.10.10"]'),
+(314, 'node_dns_options', 'NODES', 'NODE_DNS', 'string[]', 'C', '配置/etc/resolv.conf', '/etc/resolv.conf options', '节点域名解析', '["options single-request-reopen timeout:1 rotate", "domain service.consul"]'),
+(320, 'node_repo_method', 'NODES', 'NODE_REPO', 'enum', 'C', '节点使用Yum源的方式', 'how to use yum repo (local)', '节点软件源', '"local"'),
+(321, 'node_repo_remove', 'NODES', 'NODE_REPO', 'bool', 'C', '是否移除节点已有Yum源', 'remove existing repo file?', '节点软件源', 'true'),
+(322, 'node_local_repo_url', 'NODES', 'NODE_REPO', 'url[]', 'C', '本地源的URL地址', 'local yum repo url', '节点软件源', '["http://pigsty/pigsty.repo"]'),
+(330, 'node_packages', 'NODES', 'NODE_PACKAGES', 'string[]', 'C', '节点安装软件列表', 'pkgs to be installed on all node', '节点软件包', '["wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal", "numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf,ca-certificates", "readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,redis_exporter,consul,etcd,promtail"]'),
+(331, 'node_extra_packages', 'NODES', 'NODE_PACKAGES', 'string[]', 'C', '节点额外安装的软件列表', 'extra pkgs to be installed', '节点软件包', '[]'),
+(332, 'node_meta_packages', 'NODES', 'NODE_PACKAGES', 'string[]', 'G', '元节点所需的软件列表', 'meta node only packages', '节点软件包', '["grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14", "nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh"]'),
+(333, 'node_meta_pip_install', 'NODES', 'NODE_PACKAGES', 'string', 'G', '元节点上通过pip3安装的软件包', 'meta node pip3 packages', '节点软件包', '"jupyterlab"'),
+(340, 'node_disable_numa', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点NUMA', 'disable numa?', '节点功能特性', 'false'),
+(341, 'node_disable_swap', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点SWAP', 'disable swap?', '节点功能特性', 'false'),
+(342, 'node_disable_firewall', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点防火墙', 'disable firewall?', '节点功能特性', 'true'),
+(343, 'node_disable_selinux', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点SELINUX', 'disable selinux?', '节点功能特性', 'true'),
+(344, 'node_static_network', 'NODES', 'NODE_FEATURES', 'bool', 'C', '是否使用静态DNS服务器', 'use static DNS config?', '节点功能特性', 'true'),
+(345, 'node_disk_prefetch', 'NODES', 'NODE_FEATURES', 'bool', 'C', '是否启用磁盘预读', 'enable disk prefetch?', '节点功能特性', 'false'),
+(346, 'node_kernel_modules', 'NODES', 'NODE_MODULES', 'string[]', 'C', '启用的内核模块', 'kernel modules to be installed', '节点内核模块', '["softdog", "br_netfilter", "ip_vs", "ip_vs_rr", "ip_vs_rr", "ip_vs_wrr", "ip_vs_sh"]'),
+(350, 'node_tune', 'NODES', 'NODE_TUNE', 'enum', 'C', '节点调优模式', 'node tune mode', '节点参数调优', '"tiny"'),
+(351, 'node_sysctl_params', 'NODES', 'NODE_TUNE', 'dict', 'C', '操作系统内核参数', 'extra kernel parameters', '节点参数调优', '{}'),
+(360, 'node_admin_setup', 'NODES', 'NODE_ADMIN', 'bool', 'G', '是否创建管理员用户', 'create admin user?', '节点管理员', 'true'),
+(361, 'node_admin_uid', 'NODES', 'NODE_ADMIN', 'int', 'G', '管理员用户UID', 'admin user UID', '节点管理员', '88'),
+(362, 'node_admin_username', 'NODES', 'NODE_ADMIN', 'string', 'G', '管理员用户名', 'admin user name', '节点管理员', '"dba"'),
+(363, 'node_admin_ssh_exchange', 'NODES', 'NODE_ADMIN', 'bool', 'C', '在实例间交换管理员SSH密钥', 'exchange admin ssh keys?', '节点管理员', 'true'),
+(364, 'node_admin_pk_current', 'NODES', 'NODE_ADMIN', 'bool', 'A', '是否将当前用户的公钥加入管理员账户', 'pks to be added to admin', '节点管理员', 'true'),
+(365, 'node_admin_pks', 'NODES', 'NODE_ADMIN', 'key[]', 'C', '可登陆管理员的公钥列表', 'add current user''s pkey?', '节点管理员', '["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com"]'),
+(370, 'node_timezone', 'NODES', 'NODE_TIME', 'string', 'C', 'NTP时区设置', 'node timezone', '节点时区与时间同步', '"Asia/Hong_Kong"'),
+(371, 'node_ntp_config', 'NODES', 'NODE_TIME', 'bool', 'C', '是否配置NTP服务？', 'setup ntp on node?', '节点时区与时间同步', 'true'),
+(372, 'node_ntp_service', 'NODES', 'NODE_TIME', 'enum', 'C', 'NTP服务类型：ntp或chrony', 'ntp mode: ntp or chrony?', '节点时区与时间同步', '"ntp"'),
+(373, 'node_ntp_servers', 'NODES', 'NODE_TIME', 'string[]', 'C', 'NTP服务器列表', 'ntp server list', '节点时区与时间同步', '["pool cn.pool.ntp.org iburst", "pool pool.ntp.org iburst", "pool time.pool.aliyun.com iburst", "server 10.10.10.10 iburst", "server ntp.tuna.tsinghua.edu.cn iburst"]'),
+(380, 'node_exporter_enabled', 'NODES', 'NODE_EXPORTER', 'bool', 'C', '启用节点指标收集器', 'node_exporter enabled?', '节点指标暴露器', 'true'),
+(381, 'node_exporter_port', 'NODES', 'NODE_EXPORTER', 'int', 'C', '节点指标暴露端口', 'node_exporter listen port', '节点指标暴露器', '9100'),
+(382, 'node_exporter_options', 'NODES', 'NODE_EXPORTER', 'string', 'C/I', '节点指标采集选项', 'node_exporter extra cli args', '节点指标暴露器', '"--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes"'),
+(390, 'promtail_enabled', 'NODES', 'PROMTAIL', 'bool', 'C', '是否启用Promtail日志收集服务', 'promtail enabled ?', '日志收集组件', 'true'),
+(391, 'promtail_clean', 'NODES', 'PROMTAIL', 'bool', 'C/A', '是否在安装promtail时移除已有状态信息', 'remove promtail status file ?', '日志收集组件', 'false'),
+(392, 'promtail_port', 'NODES', 'PROMTAIL', 'int', 'G', 'promtail使用的默认端口', 'promtail listen port', '日志收集组件', '9080'),
+(393, 'promtail_options', 'NODES', 'PROMTAIL', 'string', 'C/I', 'promtail命令行参数', 'promtail cli args', '日志收集组件', '"-config.file=/etc/promtail.yml -config.expand-env=true"'),
+(394, 'promtail_positions', 'NODES', 'PROMTAIL', 'string', 'C', 'promtail状态文件位置', 'path to store promtail status file', '日志收集组件', '"/var/log/positions.yaml"'),
+(500, 'pg_cluster', 'PGSQL', 'PG_IDENTITY', 'string', 'C', 'PG数据库集群名称', 'PG Cluster Name', 'PGSQL数据库身份参数', NULL),
+(501, 'pg_shard', 'PGSQL', 'PG_IDENTITY', 'string', 'C', 'PG集群所属的Shard (保留)', 'PG Shard Name (Reserve)', 'PGSQL数据库身份参数', NULL),
+(502, 'pg_sindex', 'PGSQL', 'PG_IDENTITY', 'int', 'C', 'PG集群的分片号 (保留)', 'PG Shard Index (Reserve)', 'PGSQL数据库身份参数', NULL),
+(503, 'gp_role', 'PGSQL', 'PG_IDENTITY', 'enum', 'C', '当前PG集群在GP中的角色', 'gp role of this pg cluster', 'PGSQL数据库身份参数', NULL),
+(504, 'pg_role', 'PGSQL', 'PG_IDENTITY', 'enum', 'I', 'PG数据库实例角色', 'PG Instance Role', 'PGSQL数据库身份参数', NULL),
+(505, 'pg_seq', 'PGSQL', 'PG_IDENTITY', 'int', 'I', 'PG数据库实例序号', 'PG Instance Sequence', 'PGSQL数据库身份参数', NULL),
+(506, 'pg_instances', 'PGSQL', 'PG_IDENTITY', '{port:ins}', 'I', '当前节点上的所有PG实例', 'pg instance on this node', 'PGSQL数据库身份参数', NULL),
+(507, 'pg_upstream', 'PGSQL', 'PG_IDENTITY', 'string', 'I', '实例的复制上游节点', 'pg upstream IP address', 'PGSQL数据库身份参数', NULL),
+(508, 'pg_offline_query', 'PGSQL', 'PG_IDENTITY', 'bool', 'I', '是否允许离线查询', 'allow offline query?', 'PGSQL数据库身份参数', 'false'),
+(509, 'pg_backup', 'PGSQL', 'PG_IDENTITY', 'bool', 'I', '是否在实例上存储备份', 'make base backup on this ins?', 'PGSQL数据库身份参数', 'false'),
+(510, 'pg_weight', 'PGSQL', 'PG_IDENTITY', 'int', 'I', '实例在负载均衡中的相对权重', 'relative weight in load balancer', 'PGSQL数据库身份参数', '100'),
+(511, 'pg_hostname', 'PGSQL', 'PG_IDENTITY', 'bool', 'C/I', '将PG实例名称设为HOSTNAME', 'set PG ins name as hostname', 'PGSQL数据库身份参数', 'true'),
+(512, 'pg_preflight_skip', 'PGSQL', 'PG_IDENTITY', 'bool', 'C/A', '跳过PG身份参数校验', 'skip preflight param validation', 'PGSQL数据库身份参数', 'false'),
+(520, 'pg_users', 'PGSQL', 'PG_BUSINESS', 'user[]', 'C', '业务用户定义', 'business users definition', 'PGSQL业务对象定义', '[]'),
+(521, 'pg_databases', 'PGSQL', 'PG_BUSINESS', 'database[]', 'C', '业务数据库定义', 'business databases definition', 'PGSQL业务对象定义', '[]'),
+(522, 'pg_services_extra', 'PGSQL', 'PG_BUSINESS', 'service[]', 'C', '集群专有服务定义', 'ad hoc service definition', 'PGSQL业务对象定义', '[]'),
+(523, 'pg_hba_rules_extra', 'PGSQL', 'PG_BUSINESS', 'rule[]', 'C', '集群/实例特定的HBA规则', 'ad hoc HBA rules', 'PGSQL业务对象定义', '[]'),
+(524, 'pgbouncer_hba_rules_extra', 'PGSQL', 'PG_BUSINESS', 'rule[]', 'C', 'Pgbounce特定HBA规则', 'ad hoc pgbouncer HBA rules', 'PGSQL业务对象定义', '[]'),
+(525, 'pg_admin_username', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG管理用户', 'admin user''s name', 'PGSQL业务对象定义', '"dbuser_dba"'),
+(526, 'pg_admin_password', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG管理用户密码', 'admin user''s password', 'PGSQL业务对象定义', '"DBUser.DBA"'),
+(527, 'pg_replication_username', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG复制用户', 'replication user''s name', 'PGSQL业务对象定义', '"replicator"'),
+(528, 'pg_replication_password', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG复制用户的密码', 'replication user''s password', 'PGSQL业务对象定义', '"DBUser.Replicator"'),
+(529, 'pg_monitor_username', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG监控用户', 'monitor user''s name', 'PGSQL业务对象定义', '"dbuser_monitor"'),
+(530, 'pg_monitor_password', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG监控用户密码', 'monitor user''s password', 'PGSQL业务对象定义', '"DBUser.Monitor"'),
+(540, 'pg_dbsu', 'PGSQL', 'PG_INSTALL', 'string', 'C', 'PG操作系统超级用户', 'os dbsu for postgres', 'PGSQL安装', '"postgres"'),
+(541, 'pg_dbsu_uid', 'PGSQL', 'PG_INSTALL', 'int', 'C', '超级用户UID', 'dbsu UID', 'PGSQL安装', '26'),
+(542, 'pg_dbsu_sudo', 'PGSQL', 'PG_INSTALL', 'enum', 'C', '超级用户的Sudo权限', 'sudo priv mode for dbsu', 'PGSQL安装', '"limit"'),
+(543, 'pg_dbsu_home', 'PGSQL', 'PG_INSTALL', 'path', 'C', '超级用户的家目录', 'home dir for dbsu', 'PGSQL安装', '"/var/lib/pgsql"'),
+(544, 'pg_dbsu_ssh_exchange', 'PGSQL', 'PG_INSTALL', 'bool', 'C', '是否交换超级用户密钥', 'exchange dbsu ssh keys?', 'PGSQL安装', 'true'),
+(545, 'pg_version', 'PGSQL', 'PG_INSTALL', 'int', 'C', '安装的数据库大版本', 'major PG version to be installed', 'PGSQL安装', '14'),
+(546, 'pgdg_repo', 'PGSQL', 'PG_INSTALL', 'bool', 'C', '是否添加PG官方源？', 'add official PGDG repo?', 'PGSQL安装', 'false'),
+(547, 'pg_add_repo', 'PGSQL', 'PG_INSTALL', 'bool', 'C', '是否添加PG相关上游源？', 'add extra upstream PG repo?', 'PGSQL安装', 'false'),
+(548, 'pg_bin_dir', 'PGSQL', 'PG_INSTALL', 'path', 'C', 'PG二进制目录', 'PG binary dir', 'PGSQL安装', '"/usr/pgsql/bin"'),
+(549, 'pg_packages', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', '安装的PG软件包列表', 'PG packages to be installed', 'PGSQL安装', '["postgresql${pg_version}*", "postgis32_${pg_version}*", "citus_${pg_version}*", "timescaledb-2-postgresql-${pg_version}", "pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager", "patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd", "python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography"]'),
+(550, 'pg_extensions', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', '安装的PG插件列表', 'PG extension pkgs to be installed', 'PGSQL安装', '["pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}"]'),
+(560, 'pg_exists_action', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C/A', 'PG存在时如何处理', 'how to deal with existing pg ins', 'PGSQL集群初始化', '"clean"'),
+(561, 'pg_disable_purge', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C/A', '禁止清除存在的PG实例', 'disable pg instance purge', 'PGSQL集群初始化', 'false'),
+(562, 'pg_data', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'PG数据目录', 'pg data dir', 'PGSQL集群初始化', '"/pg/data"'),
+(563, 'pg_fs_main', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'PG主数据盘挂载点', 'pg main data disk mountpoint', 'PGSQL集群初始化', '"/data"'),
+(564, 'pg_fs_bkup', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'PG备份盘挂载点', 'pg backup disk mountpoint', 'PGSQL集群初始化', '"/data/backups"'),
+(565, 'pg_dummy_filesize', 'PGSQL', 'PG_BOOTSTRAP', 'size', 'C', '占位文件/pg/dummy的大小', '/pg/dummy file size', 'PGSQL集群初始化', '"64MiB"'),
+(566, 'pg_listen', 'PGSQL', 'PG_BOOTSTRAP', 'ip', 'C', 'PG监听的IP地址', 'pg listen IP address', 'PGSQL集群初始化', '"0.0.0.0"'),
+(567, 'pg_port', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'PG监听的端口', 'pg listen port', 'PGSQL集群初始化', '5432'),
+(568, 'pg_localhost', 'PGSQL', 'PG_BOOTSTRAP', 'ip|path', 'C', 'PG使用的UnixSocket地址', 'pg unix socket path', 'PGSQL集群初始化', '"/var/run/postgresql"'),
+(580, 'patroni_enabled', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'Patroni是否启用', 'Is patroni & postgres enabled?', 'PGSQL集群初始化', 'true'),
+(581, 'patroni_mode', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'Patroni配置模式', 'patroni working mode', 'PGSQL集群初始化', '"default"'),
+(582, 'pg_namespace', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'Patroni使用的DCS命名空间', 'namespace for patroni', 'PGSQL集群初始化', '"/pg"'),
+(583, 'patroni_port', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'Patroni服务端口', 'patroni listen port (8080)', 'PGSQL集群初始化', '8008'),
+(584, 'patroni_watchdog_mode', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'Patroni Watchdog模式', 'patroni watchdog policy', 'PGSQL集群初始化', '"automatic"'),
+(585, 'pg_conf', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'Patroni使用的配置模板', 'patroni template', 'PGSQL集群初始化', '"tiny.yml"'),
+(586, 'pg_shared_libraries', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'PG默认加载的共享库', 'default preload shared libraries', 'PGSQL集群初始化', '"timescaledb, pg_stat_statements, auto_explain"'),
+(587, 'pg_encoding', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG字符集编码', 'character encoding', 'PGSQL集群初始化', '"UTF8"'),
+(588, 'pg_locale', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG使用的本地化规则', 'locale', 'PGSQL集群初始化', '"C"'),
+(589, 'pg_lc_collate', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG使用的本地化排序规则', 'collate rule of locale', 'PGSQL集群初始化', '"C"'),
+(590, 'pg_lc_ctype', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG使用的本地化字符集定义', 'ctype of locale', 'PGSQL集群初始化', '"en_US.UTF8"'),
+(591, 'pgbouncer_enabled', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', '是否启用Pgbouncer', 'is pgbouncer enabled', 'PGSQL集群初始化', 'true'),
+(592, 'pgbouncer_port', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'Pgbouncer端口', 'pgbouncer listen port', 'PGSQL集群初始化', '6432'),
+(593, 'pgbouncer_poolmode', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'Pgbouncer池化模式', 'pgbouncer pooling mode', 'PGSQL集群初始化', '"transaction"'),
+(594, 'pgbouncer_max_db_conn', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'Pgbouncer最大单DB连接数', 'max connection per database', 'PGSQL集群初始化', '100'),
+(600, 'pg_provision', 'PGSQL', 'PG_PROVISION', 'bool', 'C', '是否在PG集群中应用模板', 'provision template to pgsql?', 'PGSQL集群模板置备', 'true'),
+(601, 'pg_init', 'PGSQL', 'PG_PROVISION', 'string', 'C', '自定义PG初始化脚本', 'path to postgres init script', 'PGSQL集群模板置备', '"pg-init"'),
+(602, 'pg_default_roles', 'PGSQL', 'PG_PROVISION', 'role[]', 'G/C', '默认创建的角色与用户', 'list or global default roles/users', 'PGSQL集群模板置备', '[{"name": "dbrole_readonly", "login": false, "comment": "role for global read-only access"}, {"name": "dbrole_readwrite", "login": false, "roles": ["dbrole_readonly"], "comment": "role for global read-write access"}, {"name": "dbrole_offline", "login": false, "comment": "role for restricted read-only access (offline instance)"}, {"name": "dbrole_admin", "login": false, "roles": ["pg_monitor", "dbrole_readwrite"], "comment": "role for object creation"}, {"name": "postgres", "comment": "system superuser", "superuser": true}, {"name": "dbuser_dba", "roles": ["dbrole_admin"], "comment": "system admin user", "superuser": true}, {"name": "replicator", "roles": ["pg_monitor", "dbrole_readonly"], "comment": "system replicator", "bypassrls": true, "replication": true}, {"name": "dbuser_monitor", "roles": ["pg_monitor", "dbrole_readonly"], "comment": "system monitor user", "parameters": {"log_min_duration_statement": 1000}}, {"name": "dbuser_stats", "roles": ["dbrole_offline"], "comment": "business offline user for offline queries and ETL", "password": "DBUser.Stats"}]'),
+(603, 'pg_default_privilegs', 'PGSQL', 'PG_PROVISION', 'string[]', 'G/C', '数据库默认权限配置', 'list of default privileges', 'PGSQL集群模板置备', NULL),
+(604, 'pg_default_schemas', 'PGSQL', 'PG_PROVISION', 'string[]', 'G/C', '默认创建的模式', 'list of default schemas', 'PGSQL集群模板置备', '["monitor"]'),
+(605, 'pg_default_extensions', 'PGSQL', 'PG_PROVISION', 'extension[]', 'G/C', '默认安装的扩展', 'list of default extensions', 'PGSQL集群模板置备', '[{"name": "pg_stat_statements", "schema": "monitor"}, {"name": "pgstattuple", "schema": "monitor"}, {"name": "pg_qualstats", "schema": "monitor"}, {"name": "pg_buffercache", "schema": "monitor"}, {"name": "pageinspect", "schema": "monitor"}, {"name": "pg_prewarm", "schema": "monitor"}, {"name": "pg_visibility", "schema": "monitor"}, {"name": "pg_freespacemap", "schema": "monitor"}, {"name": "pg_repack", "schema": "monitor"}, {"name": "postgres_fdw"}, {"name": "file_fdw"}, {"name": "btree_gist"}, {"name": "btree_gin"}, {"name": "pg_trgm"}, {"name": "intagg"}, {"name": "intarray"}]'),
+(606, 'pg_reload', 'PGSQL', 'PG_PROVISION', 'bool', 'A', '是否重载数据库配置（HBA）', 'reload configuration?', 'PGSQL集群模板置备', 'true'),
+(607, 'pg_hba_rules', 'PGSQL', 'PG_PROVISION', 'rule[]', 'G/C', '全局HBA规则', 'global HBA rules', 'PGSQL集群模板置备', '[{"role": "common", "rules": ["host    all     all                         10.10.10.10/32      md5"], "title": "allow meta node password access"}, {"role": "common", "rules": ["host    all     +dbrole_admin               10.0.0.0/8          md5", "host    all     +dbrole_admin               172.16.0.0/12       md5", "host    all     +dbrole_admin               192.168.0.0/16      md5"], "title": "allow intranet admin password access"}, {"role": "common", "rules": ["host    all             all                 10.0.0.0/8          md5", "host    all             all                 172.16.0.0/12       md5", "host    all             all                 192.168.0.0/16      md5"], "title": "allow intranet password access"}, {"role": "common", "rules": ["local   all     +dbrole_readonly                                md5", "host    all     +dbrole_readonly           127.0.0.1/32         md5"], "title": "allow local read/write (local production user via pgbouncer)"}, {"role": "offline", "rules": ["host    all     +dbrole_offline               10.0.0.0/8        md5", "host    all     +dbrole_offline               172.16.0.0/12     md5", "host    all     +dbrole_offline               192.168.0.0/16    md5"], "title": "allow offline query (ETL,SAGA,Interactive) on offline instance"}]'),
+(608, 'pgbouncer_hba_rules', 'PGSQL', 'PG_PROVISION', 'rule[]', 'G/C', 'Pgbouncer全局HBA规则', 'global pgbouncer HBA rules', 'PGSQL集群模板置备', '[{"role": "common", "rules": ["local  all          all                                     md5", "host   all          all                     127.0.0.1/32    md5"], "title": "local password access"}, {"role": "common", "rules": ["host   all          all                     10.0.0.0/8      md5", "host   all          all                     172.16.0.0/12   md5", "host   all          all                     192.168.0.0/16  md5"], "title": "intranet password access"}]'),
+(620, 'pg_exporter_config', 'PGSQL', 'PG_EXPORTER', 'string', 'C', 'PG指标定义文件', 'pg_exporter config path', 'PGSQL指标暴露器', '"pg_exporter.yml"'),
+(621, 'pg_exporter_enabled', 'PGSQL', 'PG_EXPORTER', 'bool', 'C', '启用PG指标收集器', 'pg_exporter enabled ?', 'PGSQL指标暴露器', 'true'),
+(622, 'pg_exporter_port', 'PGSQL', 'PG_EXPORTER', 'int', 'C', 'PG指标暴露端口', 'pg_exporter listen address', 'PGSQL指标暴露器', '9630'),
+(623, 'pg_exporter_params', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', 'PG Exporter额外的URL参数', 'extra params for pg_exporter url', 'PGSQL指标暴露器', '"sslmode=disable"'),
+(624, 'pg_exporter_url', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '采集对象数据库的连接串（覆盖）', 'monitor target pgurl (overwrite)', 'PGSQL指标暴露器', '""'),
+(625, 'pg_exporter_auto_discovery', 'PGSQL', 'PG_EXPORTER', 'bool', 'C/I', '是否自动发现实例中的数据库', 'enable auto-database-discovery?', 'PGSQL指标暴露器', 'true'),
+(626, 'pg_exporter_exclude_database', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '数据库自动发现排除列表', 'excluded list of databases', 'PGSQL指标暴露器', '"template0,template1,postgres"'),
+(627, 'pg_exporter_include_database', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '数据库自动发现囊括列表', 'included list of databases', 'PGSQL指标暴露器', '""'),
+(628, 'pg_exporter_options', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', 'PG Exporter命令行参数', 'cli args for pg_exporter', 'PGSQL指标暴露器', '"--log.level=info --log.format=\"logger:syslog?appname=pg_exporter&local=7\""'),
+(629, 'pgbouncer_exporter_enabled', 'PGSQL', 'PG_EXPORTER', 'bool', 'C', '启用PGB指标收集器', 'pgbouncer_exporter enabled ?', 'PGSQL指标暴露器', 'true'),
+(630, 'pgbouncer_exporter_port', 'PGSQL', 'PG_EXPORTER', 'int', 'C', 'PGB指标暴露端口', 'pgbouncer_exporter listen addr?', 'PGSQL指标暴露器', '9631'),
+(631, 'pgbouncer_exporter_url', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '采集对象连接池的连接串', 'target pgbouncer url (overwrite)', 'PGSQL指标暴露器', '""'),
+(632, 'pgbouncer_exporter_options', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', 'PGB Exporter命令行参数', 'cli args for pgbouncer exporter', 'PGSQL指标暴露器', '"--log.level=info --log.format=\"logger:syslog?appname=pgbouncer_exporter&local=7\""'),
+(640, 'pg_services', 'PGSQL', 'PG_SERVICE', 'service[]', 'G/C', '全局通用服务定义', 'global service definition', 'PGSQL服务接入', '[{"name": "primary", "src_ip": "*", "dst_port": "pgbouncer", "selector": "[]", "src_port": 5433, "check_url": "/primary"}, {"name": "replica", "src_ip": "*", "dst_port": "pgbouncer", "selector": "[]", "src_port": 5434, "check_url": "/read-only", "selector_backup": "[? pg_role == `primary` || pg_role == `offline` ]"}, {"name": "default", "src_ip": "*", "haproxy": {"balance": "roundrobin", "maxconn": 3000, "default_server_options": "inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100"}, "dst_port": "postgres", "selector": "[]", "src_port": 5436, "check_url": "/primary", "check_code": 200, "check_port": "patroni", "check_method": "http"}, {"name": "offline", "src_ip": "*", "dst_port": "postgres", "selector": "[? pg_role == `offline` || pg_offline_query ]", "src_port": 5438, "check_url": "/replica", "selector_backup": "[? pg_role == `replica` && !pg_offline_query]"}]'),
+(641, 'haproxy_enabled', 'PGSQL', 'PG_SERVICE', 'bool', 'C/I', '是否启用Haproxy', 'haproxy enabled ?', 'PGSQL服务接入', 'true'),
+(642, 'haproxy_reload', 'PGSQL', 'PG_SERVICE', 'bool', 'A', '是否重载Haproxy配置', 'haproxy reload instead of reset', 'PGSQL服务接入', 'true'),
+(643, 'haproxy_admin_auth_enabled', 'PGSQL', 'PG_SERVICE', 'bool', 'G/C', '是否对Haproxy管理界面启用认证', 'enable auth for haproxy admin ?', 'PGSQL服务接入', 'false'),
+(644, 'haproxy_admin_username', 'PGSQL', 'PG_SERVICE', 'string', 'G', 'HAproxy管理员名称', 'haproxy admin user name', 'PGSQL服务接入', '"admin"'),
+(645, 'haproxy_admin_password', 'PGSQL', 'PG_SERVICE', 'string', 'G', 'HAproxy管理员密码', 'haproxy admin password', 'PGSQL服务接入', '"pigsty"'),
+(646, 'haproxy_exporter_port', 'PGSQL', 'PG_SERVICE', 'int', 'C', 'HAproxy指标暴露器端口', 'haproxy exporter listen port', 'PGSQL服务接入', '9101'),
+(647, 'haproxy_client_timeout', 'PGSQL', 'PG_SERVICE', 'interval', 'C', 'HAproxy客户端超时', 'haproxy client timeout', 'PGSQL服务接入', '"24h"'),
+(648, 'haproxy_server_timeout', 'PGSQL', 'PG_SERVICE', 'interval', 'C', 'HAproxy服务端超时', 'haproxy server timeout', 'PGSQL服务接入', '"24h"'),
+(649, 'vip_mode', 'PGSQL', 'PG_SERVICE', 'enum', 'C', 'VIP模式：none', 'vip working mode', 'PGSQL服务接入', '"none"'),
+(650, 'vip_reload', 'PGSQL', 'PG_SERVICE', 'bool', 'A', '是否重载VIP配置', 'reload vip configuration', 'PGSQL服务接入', 'true'),
+(651, 'vip_address', 'PGSQL', 'PG_SERVICE', 'string', 'C', '集群使用的VIP地址', 'vip address used by cluster', 'PGSQL服务接入', NULL),
+(652, 'vip_cidrmask', 'PGSQL', 'PG_SERVICE', 'int', 'C', 'VIP地址的网络CIDR掩码长度', 'vip network CIDR length', 'PGSQL服务接入', NULL),
+(653, 'vip_interface', 'PGSQL', 'PG_SERVICE', 'string', 'C', 'VIP使用的网卡', 'vip network interface name', 'PGSQL服务接入', NULL),
+(654, 'dns_mode', 'PGSQL', 'PG_SERVICE', 'enum', 'C', 'DNS配置模式', 'cluster DNS mode', 'PGSQL服务接入', NULL),
+(655, 'dns_selector', 'PGSQL', 'PG_SERVICE', 'string', 'C', 'DNS解析对象选择器', 'cluster DNS ins selector', 'PGSQL服务接入', NULL),
+(700, 'redis_cluster', 'REDIS', 'REDIS_IDENTITY', 'string', 'C', 'Redis数据库集群名称', 'redis cluster identity', 'REDIS身份参数', NULL),
+(701, 'redis_node', 'REDIS', 'REDIS_IDENTITY', 'int', 'I', 'Redis节点序列号', 'redis node identity', 'REDIS身份参数', NULL),
+(702, 'redis_instances', 'REDIS', 'REDIS_IDENTITY', 'instance[]', 'I', 'Redis实例定义', 'redis instances definition on this node', 'REDIS身份参数', NULL),
+(720, 'redis_install', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', '安装Redis的方式', 'Way of install redis binaries', 'REDIS集群置备', '"yum"'),
+(721, 'redis_mode', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'Redis集群模式', 'standalone,cluster,sentinel', 'REDIS集群置备', '"standalone"'),
+(722, 'redis_conf', 'REDIS', 'REDIS_PROVISION', 'string', 'C', 'Redis配置文件模板', 'which config template will be used', 'REDIS集群置备', '"redis.conf"'),
+(723, 'redis_fs_main', 'REDIS', 'REDIS_PROVISION', 'path', 'C', 'PG数据库实例角色', 'main data disk for redis', 'REDIS集群置备', '"/data"'),
+(724, 'redis_bind_address', 'REDIS', 'REDIS_PROVISION', 'ip', 'C', 'Redis监听的端口地址', 'e.g 0.0.0.0, empty will use inventory_hostname as bind address', 'REDIS集群置备', '"0.0.0.0"'),
+(725, 'redis_exists_action', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'Redis存在时执行何种操作', 'what to do when redis exists', 'REDIS集群置备', '"clean"'),
+(726, 'redis_disable_purge', 'REDIS', 'REDIS_PROVISION', 'string', 'C', '禁止抹除现存的Redis', 'set to true to disable purge functionality for good (force redis_exists_action = abort)', 'REDIS集群置备', 'false'),
+(727, 'redis_max_memory', 'REDIS', 'REDIS_PROVISION', 'size', 'C/I', 'Redis可用的最大内存', 'max memory used by each redis instance', 'REDIS集群置备', '"1GB"'),
+(728, 'redis_mem_policy', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', '内存逐出策略', 'memory eviction policy', 'REDIS集群置备', '"allkeys-lru"'),
+(729, 'redis_password', 'REDIS', 'REDIS_PROVISION', 'string', 'C', 'Redis密码', 'empty password disable password auth (masterauth & requirepass)', 'REDIS集群置备', '""'),
+(730, 'redis_rdb_save', 'REDIS', 'REDIS_PROVISION', 'string[]', 'C', 'RDB保存指令', 'redis RDB save directives, empty list disable it', 'REDIS集群置备', '["1200 1"]'),
+(731, 'redis_aof_enabled', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', '是否启用AOF', 'enable redis AOF', 'REDIS集群置备', 'false'),
+(732, 'redis_rename_commands', 'REDIS', 'REDIS_PROVISION', 'object', 'C', '重命名危险命令列表', 'rename dangerous commands', 'REDIS集群置备', '{}'),
+(740, 'redis_cluster_replicas', 'REDIS', 'REDIS_PROVISION', 'int', 'C', '集群每个主库带几个从库', 'how much replicas per master in redis cluster ?', 'REDIS集群置备', '1'),
+(741, 'redis_exporter_enabled', 'REDIS', 'REDIS_EXPORTER', 'bool', 'C', '是否启用Redis监控', 'install redis exporter on redis nodes', 'REDIS指标暴露器', 'true'),
+(742, 'redis_exporter_port', 'REDIS', 'REDIS_EXPORTER', 'int', 'C', 'Redis Exporter监听端口', 'default port for redis exporter', 'REDIS指标暴露器', '9121'),
+(743, 'redis_exporter_options', 'REDIS', 'REDIS_EXPORTER', 'string', 'C/I', 'Redis Exporter命令参数', 'default cli args for redis exporter', 'REDIS指标暴露器', '""');
 
-
--- psql -c 'SELECT format($$[%s](#%1$s)$$,name), format($$[%s](v-%1$s.md)$$,category), role,level, comment_cn FROM pigsty.setting ORDER BY id;' |  sed 's/+/|/g' | sed 's/^/|/' | sed 's/$/|/' |  grep -v rows | grep -v '||'
