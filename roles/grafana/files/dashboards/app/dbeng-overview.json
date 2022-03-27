@@ -1,0 +1,728 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "https://db-engines.com/en/ranking_trend",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 55,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Oracle"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MySQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "text",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Microsoft SQL Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PostgreSQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "orange",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*\\*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PostgreSQL*"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "semi-dark-orange",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "fill": "solid"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 2
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "id": 2,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "sortBy": "Last *",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "db",
+                    "rawQuery": true,
+                    "rawSql": "SELECT time AS \"time\", db AS metric, score FROM app.db_trending WHERE db IN ('Oracle', 'MySQL', 'Microsoft SQL Server', 'PostgreSQL', 'MongoDB', 'Redis', 'IBM Db2', 'Elasticsearch', 'Microsoft Access', 'SQLite') ORDER BY 1,2",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "score"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "app.db_trending",
+                    "timeColumn": "time",
+                    "where": []
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'PostgreSQL' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'PostgreSQL*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "B",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'MySQL' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'MySQL*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "C",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'Microsoft SQL Server' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'SQLServer*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "D",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'Oracle' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'Oracle*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "E",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "DBEngine Trending & Prediction",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "log": 2,
+                            "type": "log"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Oracle"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "super-light-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MySQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "text",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Microsoft SQL Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PostgreSQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "orange",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.pointSize",
+                                "value": 7
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/.*\\*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PostgreSQL*"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "semi-dark-orange",
+                                    "mode": "fixed"
+                                }
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "fill": "solid"
+                                }
+                            },
+                            {
+                                "id": "custom.lineWidth",
+                                "value": 1
+                            },
+                            {
+                                "id": "custom.showPoints",
+                                "value": "never"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "sortBy": "Last *",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "db",
+                    "rawQuery": true,
+                    "rawSql": "SELECT time AS \"time\", db AS metric, score FROM app.db_trending WHERE db IN ('Oracle', 'MySQL', 'Microsoft SQL Server', 'PostgreSQL', 'MongoDB', 'Redis', 'IBM Db2', 'Elasticsearch', 'Microsoft Access', 'SQLite') ORDER BY 1,2",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "score"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "table": "app.db_trending",
+                    "timeColumn": "time",
+                    "where": []
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": false,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'PostgreSQL' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'PostgreSQL*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "B",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": true,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'MySQL' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'MySQL*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "C",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": true,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'Microsoft SQL Server' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'SQLServer*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "D",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                },
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "time_series",
+                    "group": [],
+                    "hide": true,
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH const AS (SELECT regr_slope(score, time - '2012-11-01') AS slope, regr_intercept(score, time - '2012-11-01') AS intercept, '2012-11-01'::DATE AS zero FROM app.db_trending WHERE db = 'Oracle' AND time > '2020-01-01')\nSELECT time::DATE AS time, const.slope * extract(days from time - const.zero) + const.intercept AS value, 'Oracle*' AS metric FROM generate_series('2010-01-01'::DATE, '2030-11-01'::DATE, '1month'::INTERVAL) time,const;",
+                    "refId": "E",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "DBEngine Trending & Prediction",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 35,
+    "style": "dark",
+    "tags": [
+        "APP",
+        "DBENG",
+        "Overview"
+    ],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "2012-10-31T16:00:00.000Z",
+        "to": "2029-12-31T16:00:00.000Z"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "DB-Engine Overview",
+    "uid": "JlcE17snz",
+    "version": 1,
+    "weekStart": ""
+}
