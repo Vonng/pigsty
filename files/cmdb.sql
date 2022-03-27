@@ -1905,7 +1905,7 @@ INSERT INTO pigsty.setting(id,name,category,section,type,level,comment_cn,commen
 (720, 'redis_install', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', '安装Redis的方式', 'Way of install redis binaries', 'REDIS集群置备', '"yum"'),
 (721, 'redis_mode', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'Redis集群模式', 'standalone,cluster,sentinel', 'REDIS集群置备', '"standalone"'),
 (722, 'redis_conf', 'REDIS', 'REDIS_PROVISION', 'string', 'C', 'Redis配置文件模板', 'which config template will be used', 'REDIS集群置备', '"redis.conf"'),
-(723, 'redis_fs_main', 'REDIS', 'REDIS_PROVISION', 'path', 'C', 'PG数据库实例角色', 'main data disk for redis', 'REDIS集群置备', '"/data"'),
+(723, 'redis_fs_main', 'REDIS', 'REDIS_PROVISION', 'path', 'C', 'Redis主数据盘挂载点', 'main data disk for redis', 'REDIS集群置备', '"/data"'),
 (724, 'redis_bind_address', 'REDIS', 'REDIS_PROVISION', 'ip', 'C', 'Redis监听的端口地址', 'e.g 0.0.0.0, empty will use inventory_hostname as bind address', 'REDIS集群置备', '"0.0.0.0"'),
 (725, 'redis_exists_action', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'Redis存在时执行何种操作', 'what to do when redis exists', 'REDIS集群置备', '"clean"'),
 (726, 'redis_disable_purge', 'REDIS', 'REDIS_PROVISION', 'string', 'C', '禁止抹除现存的Redis', 'set to true to disable purge functionality for good (force redis_exists_action = abort)', 'REDIS集群置备', 'false'),
