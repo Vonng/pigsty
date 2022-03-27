@@ -16,6 +16,7 @@
   - [资源准备](d-prepare.md)
   - [沙箱环境](d-sandbox.md)
   - [仅监控部署](d-monly.md)
+  - [PGSQL集群部署](t-pgsql.md) 
   - [REDIS集群部署](t-redis.md)
   - [GPSQL集群部署](t-gpsql.md)
 
@@ -30,8 +31,8 @@
   - [配置：NODES](v-nodes.md)
   - [配置：PGSQL](v-pgsql.md)
   - [配置：REDIS](v-redis.md)
-  - [定制Patroni配置模板](t-patroni-template.md)
-  - [深度定制数据库模板](t-customize-template.md)
+  - [定制：PGSQL](v-pgsql-customize.md)
+
 
 - 管理
   - [常用操作命令/SOP](t-operation.md)

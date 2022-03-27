@@ -104,6 +104,22 @@
 
 
 
+使用Ansible在远程机器上执行剧本时，默认需要远程机器上可以直接通过ssh登陆，且登陆的用户具有免密码sudo的权限。
+
+如果您无法使用**免密码**的方式执行SSH登陆，可以在执行剧本时添加`--ask-pass`或`-k`参数，手工输入SSH密码。
+
+如果您无法使用**免密码**的方式执行远程sudo命令，可以在执行剧本时添加`--ask-become-pass`或`-K`参数，手工输入sudo密码。
+
+如果管理账号在目标机器上不存在，您可以使用其他具有远程登录管理员身份的用户，使用 `pgsql.yml` 剧本中的 `node_admin` 进行创建。
+
+例如：
+
+```bash
+./pgsql --limit <target_hosts>  --tags node_admin  -e ansible_user=<another_admin> --ask-pass --ask-become-pass 
+```
+
+详情请参考：[准备：管理用户置备](d-prepare.md#管理用户置备)
+
 
 
 ## 原始内容

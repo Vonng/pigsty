@@ -2,13 +2,50 @@
 
 Pigsty采用声明式[配置](v-config.md)：用户配置描述状态，而Pigsty负责将真实组件调整至所期待的状态。
 
-Pigsty包含了近200个[配置项](#配置项清单)，分为四个部分：[INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md)。
-通常只有数据库/节点集群的身份参数是必选参数，其他配置参数可直接使用默认值，按需修改。
+Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：[INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md)，共计32类。
+
+通常只有节点/数据库**身份参数**是必选参数，其他配置参数可直接使用默认值，按需修改。
+
+| Category              | Section                                         | Description      | Count |
+|-----------------------|-------------------------------------------------|------------------|-------|
+| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                 | 连接参数             | 1     |
+| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                       | 本地源基础设施          | 10    |
+| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                           | 公私钥基础设施          | 5     |
+| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                     | NginxWeb服务器      | 5     |
+| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)           | DNS服务器           | 1     |
+| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | 监控时序数据库          | 7     |
+| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)               | 通用Exporter配置     | 3     |
+| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana可视化平台     | 9     |
+| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki日志收集平台       | 5     |
+| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | 分布式配置存储元数据库      | 8     |
+| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab数据分析环境 | 3     |
+| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb网页客户端工具     | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | 节点身份参数           | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | 节点域名解析           | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | 节点软件源            | 3     |
+| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | 节点软件包            | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | 节点功能特性           | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | 节点内核模块           | 1     |
+| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | 节点参数调优           | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | 节点管理员            | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | 节点时区与时间同步        | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | 节点指标暴露器          | 3     |
+| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | 日志收集组件           | 5     |
+| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | PGSQL数据库身份参数     | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | PGSQL业务对象定义      | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | PGSQL安装          | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | PGSQL集群初始化       | 24    |
+| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | PGSQL集群模板置备      | 9     |
+| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | PGSQL指标暴露器       | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | PGSQL服务接入        | 16    |
+| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | REDIS身份参数        | 3     |
+| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | REDIS集群置备        | 14    |
+| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | REDIS指标暴露器       | 3     |
 
 
 ## 配置清单
 
-Pigsty通过**配置清单**（Inventory）来定义基础设施与数据库集群，采用"Infra as Data"
+Pigsty通过**配置清单**（Inventory）来定义基础设施与数据库集群，采用"Infra as Data"的哲学。
 
 每一套Pigsty[部署](d-deploy.md)都有一份对应的**配置**：无论是几百集群的生产环境，还是1核1GB的本地沙箱，在Pigsty中除了配置内容外没有任何区别。
 
@@ -271,242 +308,229 @@ Pigsty使用**IP地址**作为**数据库节点**的唯一标识，**该IP地址
 
 
 
-
-
-
-
-
-
-
-
 ## 配置项清单
 
 
-|                                  参数                                   |        类别         |                                        角色                                        | 层级  |                 说明                 |
-|-------------------------------------------------------------------------|---------------------|------------------------------------------------------------------------------------|-------|--------------------------------------|
-| [proxy_env](v-infra.md#proxy_env)                                       | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 代理服务器配置|
-| [repo_enabled](v-infra.md#repo_enabled)                                 | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 是否启用本地源|
-| [repo_name](v-infra.md#repo_name)                                       | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 本地源名称|
-| [repo_address](v-infra.md#repo_address)                                 | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 本地源外部访问地址|
-| [repo_port](v-infra.md#repo_port)                                       | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 本地源端口|
-| [repo_home](v-infra.md#repo_home)                                       | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 本地源文件根目录|
-| [repo_rebuild](v-infra.md#repo_rebuild)                                 | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | A     | 是否重建Yum源|
-| [repo_remove](v-infra.md#repo_remove)                                   | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | A     | 是否移除已有Yum源|
-| [repo_upstreams](v-infra.md#repo_upstreams)                             | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | Yum源的上游来源|
-| [repo_packages](v-infra.md#repo_packages)                               | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | Yum源需下载软件列表|
-| [repo_url_packages](v-infra.md#repo_url_packages)                       | [INFRA](v-infra.md) | [repo](https://github.com/Vonng/pigsty/tree/master/roles/repo)                     | G     | 通过URL直接下载的软件|
-| [ca_method](v-infra.md#ca_method)                                       | [INFRA](v-infra.md) | [ca](https://github.com/Vonng/pigsty/tree/master/roles/ca)                         | G     | CA的创建方式|
-| [ca_subject](v-infra.md#ca_subject)                                     | [INFRA](v-infra.md) | [ca](https://github.com/Vonng/pigsty/tree/master/roles/ca)                         | G     | 自签名CA主题|
-| [ca_homedir](v-infra.md#ca_homedir)                                     | [INFRA](v-infra.md) | [ca](https://github.com/Vonng/pigsty/tree/master/roles/ca)                         | G     | CA证书根目录|
-| [ca_cert](v-infra.md#ca_cert)                                           | [INFRA](v-infra.md) | [ca](https://github.com/Vonng/pigsty/tree/master/roles/ca)                         | G     | CA证书|
-| [ca_key](v-infra.md#ca_key)                                             | [INFRA](v-infra.md) | [ca](https://github.com/Vonng/pigsty/tree/master/roles/ca)                         | G     | CA私钥名称|
-| [nginx_upstream](v-infra.md#nginx_upstream)                             | [INFRA](v-infra.md) | [nginx](https://github.com/Vonng/pigsty/tree/master/roles/nginx)                   | G     | Nginx上游服务器|
-| [app_list](v-infra.md#app_list)                                         | [INFRA](v-infra.md) | [nginx](https://github.com/Vonng/pigsty/tree/master/roles/nginx)                   | G     | 首页导航栏显示的应用列表|
-| [docs_enabled](v-infra.md#docs_enabled)                                 | [INFRA](v-infra.md) | [nginx](https://github.com/Vonng/pigsty/tree/master/roles/nginx)                   | G     | 是否启用本地文档|
-| [pev2_enabled](v-infra.md#pev2_enabled)                                 | [INFRA](v-infra.md) | [nginx](https://github.com/Vonng/pigsty/tree/master/roles/nginx)                   | G     | 是否启用PEV2组件|
-| [pgbadger_enabled](v-infra.md#pgbadger_enabled)                         | [INFRA](v-infra.md) | [nginx](https://github.com/Vonng/pigsty/tree/master/roles/nginx)                   | G     | 是否启用Pgbadger|
-| [dns_records](v-infra.md#dns_records)                                   | [INFRA](v-infra.md) | [nameserver](https://github.com/Vonng/pigsty/tree/master/roles/nameserver)         | G     | 动态DNS解析记录|
-| [prometheus_data_dir](v-infra.md#prometheus_data_dir)                   | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | G     | Prometheus数据库目录|
-| [prometheus_options](v-infra.md#prometheus_options)                     | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | G     | Prometheus命令行参数|
-| [prometheus_reload](v-infra.md#prometheus_reload)                       | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | A     | Reload而非Recreate|
-| [prometheus_sd_method](v-infra.md#prometheus_sd_method)                 | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | G     | 服务发现机制：static|consul|
-| [prometheus_scrape_interval](v-infra.md#prometheus_scrape_interval)     | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | G     | Prom抓取周期|
-| [prometheus_scrape_timeout](v-infra.md#prometheus_scrape_timeout)       | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | G     | Prom抓取超时|
-| [prometheus_sd_interval](v-infra.md#prometheus_sd_interval)             | [INFRA](v-infra.md) | [prometheus](https://github.com/Vonng/pigsty/tree/master/roles/prometheus)         | G     | Prom服务发现刷新周期|
-| [grafana_endpoint](v-infra.md#grafana_endpoint)                         | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | Grafana地址|
-| [grafana_admin_username](v-infra.md#grafana_admin_username)             | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | Grafana管理员用户名|
-| [grafana_admin_password](v-infra.md#grafana_admin_password)             | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | Grafana管理员密码|
-| [grafana_database](v-infra.md#grafana_database)                         | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | Grafana后端数据库类型|
-| [grafana_pgurl](v-infra.md#grafana_pgurl)                               | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | Grafana的PG数据库连接串|
-| [grafana_plugin](v-infra.md#grafana_plugin)                             | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | 如何安装Grafana插件|
-| [grafana_cache](v-infra.md#grafana_cache)                               | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | Grafana插件缓存地址|
-| [grafana_plugins](v-infra.md#grafana_plugins)                           | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | 安装的Grafana插件列表|
-| [grafana_git_plugins](v-infra.md#grafana_git_plugins)                   | [INFRA](v-infra.md) | [grafana](https://github.com/Vonng/pigsty/tree/master/roles/grafana)               | G     | 从Git安装的Grafana插件|
-| [loki_clean](v-infra.md#loki_clean)                                     | [INFRA](v-infra.md) | [loki](https://github.com/Vonng/pigsty/tree/master/roles/loki)                     | A     | 是否在安装Loki时清理数据库目录|
-| [loki_options](v-infra.md#loki_options)                                 | [INFRA](v-infra.md) | [loki](https://github.com/Vonng/pigsty/tree/master/roles/loki)                     | G     | Loki的命令行参数|
-| [loki_data_dir](v-infra.md#loki_data_dir)                               | [INFRA](v-infra.md) | [loki](https://github.com/Vonng/pigsty/tree/master/roles/loki)                     | G     | Loki的数据目录|
-| [loki_retention](v-infra.md#loki_retention)                             | [INFRA](v-infra.md) | [loki](https://github.com/Vonng/pigsty/tree/master/roles/loki)                     | G     | Loki日志默认保留天数|
-| [jupyter_enabled](v-infra.md#jupyter_enabled)                           | [INFRA](v-infra.md) | [jupyter](https://github.com/Vonng/pigsty/tree/master/roles/jupyter)               | G     | 是否启用JupyterLab|
-| [jupyter_username](v-infra.md#jupyter_username)                         | [INFRA](v-infra.md) | [jupyter](https://github.com/Vonng/pigsty/tree/master/roles/jupyter)               | G     | Jupyter使用的操作系统用户|
-| [jupyter_password](v-infra.md#jupyter_password)                         | [INFRA](v-infra.md) | [jupyter](https://github.com/Vonng/pigsty/tree/master/roles/jupyter)               | G     | Jupyter Lab的密码|
-| [pgweb_enabled](v-infra.md#pgweb_enabled)                               | [INFRA](v-infra.md) | [jupyter](https://github.com/Vonng/pigsty/tree/master/roles/jupyter)               | G     | 是否启用PgWeb|
-| [pgweb_username](v-infra.md#pgweb_username)                             | [INFRA](v-infra.md) | [jupyter](https://github.com/Vonng/pigsty/tree/master/roles/jupyter)               | G     | PgWeb使用的操作系统用户|
-| [meta_node](v-nodes.md#meta_node)                                       | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | I/C   | 表示此节点为元节点|
-| [nodename](v-nodes.md#nodename)                                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | I     | 指定节点实例标识|
-| [nodename_overwrite](v-nodes.md#nodename_overwrite)                     | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | I/C/G | 用Nodename覆盖机器HOSTNAME|
-| [node_cluster](v-nodes.md#node_cluster)                                 | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | C     | 节点集群名，默认名为nodes|
-| [node_name_exchange](v-nodes.md#node_name_exchange)                     | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | I/C/G | 是否在剧本节点间交换主机名|
-| [node_dns_hosts](v-nodes.md#node_dns_hosts)                             | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 写入机器的静态DNS解析|
-| [node_dns_hosts_extra](v-nodes.md#node_dns_hosts_extra)                 | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | I/C   | 同上，用于集群实例层级|
-| [node_dns_server](v-nodes.md#node_dns_server)                           | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 如何配置DNS服务器？|
-| [node_dns_servers](v-nodes.md#node_dns_servers)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 配置动态DNS服务器|
-| [node_dns_options](v-nodes.md#node_dns_options)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 配置/etc/resolv.conf|
-| [node_repo_method](v-nodes.md#node_repo_method)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 节点使用Yum源的方式|
-| [node_repo_remove](v-nodes.md#node_repo_remove)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 是否移除节点已有Yum源|
-| [node_local_repo_url](v-nodes.md#node_local_repo_url)                   | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 本地源的URL地址|
-| [node_packages](v-nodes.md#node_packages)                               | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 节点安装软件列表|
-| [node_extra_packages](v-nodes.md#node_extra_packages)                   | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | C/I/A | 节点额外安装的软件列表|
-| [node_meta_packages](v-nodes.md#node_meta_packages)                     | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 元节点所需的软件列表|
-| [node_meta_pip_install](v-nodes.md#node_meta_pip_install)               | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 元节点上通过pip3安装的软件包|
-| [node_disable_numa](v-nodes.md#node_disable_numa)                       | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 关闭节点NUMA|
-| [node_disable_swap](v-nodes.md#node_disable_swap)                       | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 关闭节点SWAP|
-| [node_disable_firewall](v-nodes.md#node_disable_firewall)               | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 关闭节点防火墙|
-| [node_disable_selinux](v-nodes.md#node_disable_selinux)                 | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 关闭节点SELINUX|
-| [node_static_network](v-nodes.md#node_static_network)                   | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 是否使用静态DNS服务器|
-| [node_disk_prefetch](v-nodes.md#node_disk_prefetch)                     | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 是否启用磁盘预读|
-| [node_kernel_modules](v-nodes.md#node_kernel_modules)                   | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 启用的内核模块|
-| [node_tune](v-nodes.md#node_tune)                                       | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 节点调优模式|
-| [node_sysctl_params](v-nodes.md#node_sysctl_params)                     | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 操作系统内核参数|
-| [node_admin_setup](v-nodes.md#node_admin_setup)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 是否创建管理员用户|
-| [node_admin_uid](v-nodes.md#node_admin_uid)                             | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 管理员用户UID|
-| [node_admin_username](v-nodes.md#node_admin_username)                   | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 管理员用户名|
-| [node_admin_ssh_exchange](v-nodes.md#node_admin_ssh_exchange)           | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 在实例间交换管理员SSH密钥|
-| [node_admin_pks](v-nodes.md#node_admin_pks)                             | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 可登陆管理员的公钥列表|
-| [node_admin_pk_current](v-nodes.md#node_admin_pk_current)               | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | A     | 是否将当前用户的公钥加入管理员账户|
-| [node_ntp_service](v-nodes.md#node_ntp_service)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | NTP服务类型：ntp或chrony|
-| [node_ntp_config](v-nodes.md#node_ntp_config)                           | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | 是否配置NTP服务？|
-| [node_timezone](v-nodes.md#node_timezone)                               | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | NTP时区设置|
-| [node_ntp_servers](v-nodes.md#node_ntp_servers)                         | [NODES](v-nodes.md) | [node](https://github.com/Vonng/pigsty/tree/master/roles/node)                     | G     | NTP服务器列表|
-| [service_registry](v-nodes.md#service_registry)                         | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G/C/I | 服务注册的位置|
-| [dcs_type](v-nodes.md#dcs_type)                                         | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G     | 使用的DCS类型|
-| [dcs_name](v-nodes.md#dcs_name)                                         | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G     | DCS集群名称|
-| [dcs_servers](v-nodes.md#dcs_servers)                                   | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G     | DCS服务器名称:IP列表|
-| [dcs_exists_action](v-nodes.md#dcs_exists_action)                       | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G/A   | 若DCS实例存在如何处理|
-| [dcs_disable_purge](v-nodes.md#dcs_disable_purge)                       | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G/C/I | 完全禁止清理DCS实例|
-| [consul_data_dir](v-nodes.md#consul_data_dir)                           | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G     | Consul数据目录|
-| [etcd_data_dir](v-nodes.md#etcd_data_dir)                               | [NODES](v-nodes.md) | [consul](https://github.com/Vonng/pigsty/tree/master/roles/consul)                 | G     | Etcd数据目录|
-| [exporter_install](v-nodes.md#exporter_install)                         | [NODES](v-nodes.md) | [node_exporter](https://github.com/Vonng/pigsty/tree/master/roles/node_exporter)   | G/C   | 安装监控组件的方式|
-| [exporter_repo_url](v-nodes.md#exporter_repo_url)                       | [NODES](v-nodes.md) | [node_exporter](https://github.com/Vonng/pigsty/tree/master/roles/node_exporter)   | G/C   | 监控组件的YumRepo|
-| [exporter_metrics_path](v-nodes.md#exporter_metrics_path)               | [NODES](v-nodes.md) | [node_exporter](https://github.com/Vonng/pigsty/tree/master/roles/node_exporter)   | G/C   | 监控暴露的URL Path|
-| [node_exporter_enabled](v-nodes.md#node_exporter_enabled)               | [NODES](v-nodes.md) | [node_exporter](https://github.com/Vonng/pigsty/tree/master/roles/node_exporter)   | G/C   | 启用节点指标收集器|
-| [node_exporter_port](v-nodes.md#node_exporter_port)                     | [NODES](v-nodes.md) | [node_exporter](https://github.com/Vonng/pigsty/tree/master/roles/node_exporter)   | G/C   | 节点指标暴露端口|
-| [node_exporter_options](v-nodes.md#node_exporter_options)               | [NODES](v-nodes.md) | [node_exporter](https://github.com/Vonng/pigsty/tree/master/roles/node_exporter)   | G/C   | 节点指标采集选项|
-| [promtail_enabled](v-nodes.md#promtail_enabled)                         | [NODES](v-nodes.md) | [promtail](https://github.com/Vonng/pigsty/tree/master/roles/promtail)             | G/C   | 是否启用Promtail日志收集服务|
-| [promtail_clean](v-nodes.md#promtail_clean)                             | [NODES](v-nodes.md) | [promtail](https://github.com/Vonng/pigsty/tree/master/roles/promtail)             | G/C/A | 是否在安装promtail时移除已有状态信息|
-| [promtail_port](v-nodes.md#promtail_port)                               | [NODES](v-nodes.md) | [promtail](https://github.com/Vonng/pigsty/tree/master/roles/promtail)             | G/C   | promtail使用的默认端口|
-| [promtail_options](v-nodes.md#promtail_options)                         | [NODES](v-nodes.md) | [promtail](https://github.com/Vonng/pigsty/tree/master/roles/promtail)             | G/C   | promtail命令行参数|
-| [promtail_positions](v-nodes.md#promtail_positions)                     | [NODES](v-nodes.md) | [promtail](https://github.com/Vonng/pigsty/tree/master/roles/promtail)             | G/C   | 保存Promtail状态信息的文件位置|
-| [promtail_send_url](v-nodes.md#promtail_send_url)                       | [NODES](v-nodes.md) | [promtail](https://github.com/Vonng/pigsty/tree/master/roles/promtail)             | G/C   | 用于接收日志的loki服务endpoint|
-| [pg_dbsu](v-pgsql.md#pg_dbsu)                                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG操作系统超级用户|
-| [pg_dbsu_uid](v-pgsql.md#pg_dbsu_uid)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 超级用户UID|
-| [pg_dbsu_sudo](v-pgsql.md#pg_dbsu_sudo)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 超级用户的Sudo权限|
-| [pg_dbsu_home](v-pgsql.md#pg_dbsu_home)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 超级用户的家目录|
-| [pg_dbsu_ssh_exchange](v-pgsql.md#pg_dbsu_ssh_exchange)                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 是否交换超级用户密钥|
-| [pg_version](v-pgsql.md#pg_version)                                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 安装的数据库大版本|
-| [pgdg_repo](v-pgsql.md#pgdg_repo)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 是否添加PG官方源？|
-| [pg_add_repo](v-pgsql.md#pg_add_repo)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 是否添加PG相关源？|
-| [pg_bin_dir](v-pgsql.md#pg_bin_dir)                                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG二进制目录|
-| [pg_packages](v-pgsql.md#pg_packages)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 安装的PG软件包列表|
-| [pg_extensions](v-pgsql.md#pg_extensions)                               | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 安装的PG插件列表|
-| [pg_cluster](v-pgsql.md#pg_cluster)                                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | C     | PG数据库集群名称|
-| [pg_seq](v-pgsql.md#pg_seq)                                             | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | I     | PG数据库实例序号|
-| [pg_role](v-pgsql.md#pg_role)                                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | I     | PG数据库实例角色|
-| [pg_shard](v-pgsql.md#pg_shard)                                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | C     | PG集群所属的Shard (保留)|
-| [pg_sindex](v-pgsql.md#pg_sindex)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | C     | PG集群的分片号 (保留)|
-| [pg_preflight_skip](v-pgsql.md#pg_preflight_skip)                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | A/C   | 跳过PG身份参数校验|
-| [pg_hostname](v-pgsql.md#pg_hostname)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 将PG实例名称设为HOSTNAME|
-| [pg_exists](v-pgsql.md#pg_exists)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | A     | 标记位，PG是否已存在|
-| [pg_exists_action](v-pgsql.md#pg_exists_action)                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/A   | PG存在时如何处理|
-| [pg_disable_purge](v-pgsql.md#pg_disable_purge)                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C/I | 禁止清除存在的PG实例|
-| [pg_data](v-pgsql.md#pg_data)                                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG数据目录|
-| [pg_fs_main](v-pgsql.md#pg_fs_main)                                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG主数据盘挂载点|
-| [pg_fs_bkup](v-pgsql.md#pg_fs_bkup)                                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG备份盘挂载点|
-| [pg_dummy_filesize](v-pgsql.md#pg_dummy_filesize)                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C/I | 占位文件/pg/dummy的大小|
-| [pg_listen](v-pgsql.md#pg_listen)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG监听的IP地址|
-| [pg_port](v-pgsql.md#pg_port)                                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG监听的端口|
-| [pg_localhost](v-pgsql.md#pg_localhost)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG使用的UnixSocket地址|
-| [pg_upstream](v-pgsql.md#pg_upstream)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | I     | 实例的复制上游节点|
-| [pg_backup](v-pgsql.md#pg_backup)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | I     | 是否在实例上存储备份|
-| [pg_delay](v-pgsql.md#pg_delay)                                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | I     | 若实例为延迟从库，采用的延迟时长|
-| [patroni_enabled](v-pgsql.md#patroni_enabled)                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | C     | Patroni是否启用|
-| [patroni_mode](v-pgsql.md#patroni_mode)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Patroni配置模式|
-| [pg_namespace](v-pgsql.md#pg_namespace)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Patroni使用的DCS命名空间|
-| [patroni_port](v-pgsql.md#patroni_port)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Patroni服务端口|
-| [patroni_watchdog_mode](v-pgsql.md#patroni_watchdog_mode)               | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Patroni Watchdog模式|
-| [pg_conf](v-pgsql.md#pg_conf)                                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Patroni使用的配置模板|
-| [pg_shared_libraries](v-pgsql.md#pg_shared_libraries)                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG默认加载的共享库|
-| [pg_encoding](v-pgsql.md#pg_encoding)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG字符集编码|
-| [pg_locale](v-pgsql.md#pg_locale)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG使用的本地化规则|
-| [pg_lc_collate](v-pgsql.md#pg_lc_collate)                               | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG使用的本地化排序规则|
-| [pg_lc_ctype](v-pgsql.md#pg_lc_ctype)                                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | PG使用的本地化字符集定义|
-| [pgbouncer_enabled](v-pgsql.md#pgbouncer_enabled)                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 是否启用Pgbouncer|
-| [pgbouncer_port](v-pgsql.md#pgbouncer_port)                             | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Pgbouncer端口|
-| [pgbouncer_poolmode](v-pgsql.md#pgbouncer_poolmode)                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Pgbouncer池化模式|
-| [pgbouncer_max_db_conn](v-pgsql.md#pgbouncer_max_db_conn)               | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Pgbouncer最大单DB连接数|
-| [pg_init](v-pgsql.md#pg_init)                                           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 自定义PG初始化脚本|
-| [pg_replication_username](v-pgsql.md#pg_replication_username)           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG复制用户|
-| [pg_replication_password](v-pgsql.md#pg_replication_password)           | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG复制用户的密码|
-| [pg_monitor_username](v-pgsql.md#pg_monitor_username)                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG监控用户|
-| [pg_monitor_password](v-pgsql.md#pg_monitor_password)                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG监控用户密码|
-| [pg_admin_username](v-pgsql.md#pg_admin_username)                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG管理用户|
-| [pg_admin_password](v-pgsql.md#pg_admin_password)                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | PG管理用户密码|
-| [pg_default_roles](v-pgsql.md#pg_default_roles)                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | 默认创建的角色与用户|
-| [pg_default_privilegs](v-pgsql.md#pg_default_privilegs)                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | 数据库默认权限配置|
-| [pg_default_schemas](v-pgsql.md#pg_default_schemas)                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | 默认创建的模式|
-| [pg_default_extensions](v-pgsql.md#pg_default_extensions)               | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | 默认安装的扩展|
-| [pg_offline_query](v-pgsql.md#pg_offline_query)                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | I     | 是否允许离线查询|
-| [pg_reload](v-pgsql.md#pg_reload)                                       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | A     | 是否重载数据库配置（HBA）|
-| [pg_hba_rules](v-pgsql.md#pg_hba_rules)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G     | 全局HBA规则|
-| [pg_hba_rules_extra](v-pgsql.md#pg_hba_rules_extra)                     | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | C/I   | 集群/实例特定的HBA规则|
-| [pgbouncer_hba_rules](v-pgsql.md#pgbouncer_hba_rules)                   | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Pgbouncer全局HBA规则|
-| [pgbouncer_hba_rules_extra](v-pgsql.md#pgbouncer_hba_rules_extra)       | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | Pgbounce特定HBA规则|
-| [pg_databases](v-pgsql.md#pg_databases)                                 | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 业务数据库定义|
-| [pg_users](v-pgsql.md#pg_users)                                         | [PGSQL](v-pgsql.md) | [postgres](https://github.com/Vonng/pigsty/tree/master/roles/postgres)             | G/C   | 业务用户定义|
-| [pg_exporter_config](v-pgsql.md#pg_exporter_config)                     | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C   | PG指标定义文件|
-| [pg_exporter_enabled](v-pgsql.md#pg_exporter_enabled)                   | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C   | 启用PG指标收集器|
-| [pg_exporter_port](v-pgsql.md#pg_exporter_port)                         | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C   | PG指标暴露端口|
-| [pg_exporter_params](v-pgsql.md#pg_exporter_params)                     | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C/I | PG Exporter额外的URL参数|
-| [pg_exporter_url](v-pgsql.md#pg_exporter_url)                           | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | C/I   | 采集对象数据库的连接串（覆盖）|
-| [pg_exporter_auto_discovery](v-pgsql.md#pg_exporter_auto_discovery)     | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C/I | 是否自动发现实例中的数据库|
-| [pg_exporter_exclude_database](v-pgsql.md#pg_exporter_exclude_database) | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C/I | 数据库自动发现排除列表|
-| [pg_exporter_include_database](v-pgsql.md#pg_exporter_include_database) | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C/I | 数据库自动发现囊括列表|
-| [pg_exporter_options](v-pgsql.md#pg_exporter_options)                   | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C/I | PG Exporter命令行参数|
-| [pgbouncer_exporter_enabled](v-pgsql.md#pgbouncer_exporter_enabled)     | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C   | 启用PGB指标收集器|
-| [pgbouncer_exporter_port](v-pgsql.md#pgbouncer_exporter_port)           | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C   | PGB指标暴露端口|
-| [pgbouncer_exporter_url](v-pgsql.md#pgbouncer_exporter_url)             | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C   | 采集对象连接池的连接串|
-| [pgbouncer_exporter_options](v-pgsql.md#pgbouncer_exporter_options)     | [PGSQL](v-pgsql.md) | [pg_exporter](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporter)       | G/C/I | PGB Exporter命令行参数|
-| [pg_weight](v-pgsql.md#pg_weight)                                       | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | I     | 实例在负载均衡中的相对权重|
-| [pg_services](v-pgsql.md#pg_services)                                   | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G     | 全局通用服务定义|
-| [pg_services_extra](v-pgsql.md#pg_services_extra)                       | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | C     | 集群专有服务定义|
-| [haproxy_enabled](v-pgsql.md#haproxy_enabled)                           | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C/I | 是否启用Haproxy|
-| [haproxy_reload](v-pgsql.md#haproxy_reload)                             | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | A     | 是否重载Haproxy配置|
-| [haproxy_admin_auth_enabled](v-pgsql.md#haproxy_admin_auth_enabled)     | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | 是否对Haproxy管理界面启用认证|
-| [haproxy_admin_username](v-pgsql.md#haproxy_admin_username)             | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | HAproxy管理员名称|
-| [haproxy_admin_password](v-pgsql.md#haproxy_admin_password)             | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | HAproxy管理员密码|
-| [haproxy_exporter_port](v-pgsql.md#haproxy_exporter_port)               | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | HAproxy指标暴露器端口|
-| [haproxy_client_timeout](v-pgsql.md#haproxy_client_timeout)             | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | HAproxy客户端超时|
-| [haproxy_server_timeout](v-pgsql.md#haproxy_server_timeout)             | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | HAproxy服务端超时|
-| [vip_mode](v-pgsql.md#vip_mode)                                         | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | VIP模式：none|
-| [vip_reload](v-pgsql.md#vip_reload)                                     | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | 是否重载VIP配置|
-| [vip_address](v-pgsql.md#vip_address)                                   | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | 集群使用的VIP地址|
-| [vip_cidrmask](v-pgsql.md#vip_cidrmask)                                 | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | VIP地址的网络CIDR掩码|
-| [vip_interface](v-pgsql.md#vip_interface)                               | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | VIP使用的网卡|
-| [dns_mode](v-pgsql.md#dns_mode)                                         | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | DNS配置模式|
-| [dns_selector](v-pgsql.md#dns_selector)                                 | [PGSQL](v-pgsql.md) | [service](https://github.com/Vonng/pigsty/tree/master/roles/service)               | G/C   | DNS解析对象选择器|
-| [rm_pgdata](v-pgsql.md#rm_pgdata)                                       | [PGSQL](v-pgsql.md) | [pg_remove](https://github.com/Vonng/pigsty/tree/master/roles/pg_remove)           | A     | 下线时是否一并删除数据库|
-| [rm_pgpkgs](v-pgsql.md#rm_pgpkgs)                                       | [PGSQL](v-pgsql.md) | [pg_remove](https://github.com/Vonng/pigsty/tree/master/roles/pg_remove)           | A     | 下线时是否一并删除软件包|
-| [pg_user](v-pgsql.md#pg_user)                                           | [PGSQL](v-pgsql.md) | [createuser](https://github.com/Vonng/pigsty/tree/master/roles/createuser)         | A     | 需要创建的PG用户名|
-| [pg_database](v-pgsql.md#pg_database)                                   | [PGSQL](v-pgsql.md) | [createdb](https://github.com/Vonng/pigsty/tree/master/roles/createdb)             | A     | 需要创建的PG数据库名|
-| [gp_cluster](v-gpsql.md#gp_cluster)                                     | [GPSQL](v-gpsql.md) | [pg_exporters](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporters)     | C     | 当前PG集群所属GP集群|
-| [gp_role](v-gpsql.md#gp_role)                                           | [GPSQL](v-gpsql.md) | [pg_exporters](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporters)     | C     | 当前PG集群在GP中的角色|
-| [pg_instances](v-gpsql.md#pg_instances)                                 | [GPSQL](v-gpsql.md) | [pg_exporters](https://github.com/Vonng/pigsty/tree/master/roles/pg_exporters)     | I     | 当前节点上的所有PG实例|
-| [redis_cluster](v-redis.md#redis_cluster)                               | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | )     | Redis数据库集群名称|
-| [redis_node](v-redis.md#redis_node)                                     | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | I     | Redis节点序列号|
-| [redis_instances](v-redis.md#redis_instances)                           | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | I     | Redis实例定义|
-| [redis_mode](v-redis.md#redis_mode)                                     | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | C     | Redis集群模式|
-| [redis_conf](v-redis.md#redis_conf)                                     | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G     | Redis配置文件模板|
-| [redis_fs_main](v-redis.md#redis_fs_main)                               | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C/I | PG数据库实例角色|
-| [redis_bind_address](v-redis.md#redis_bind_address)                     | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C/I | Redis监听的端口地址|
-| [redis_exists](v-redis.md#redis_exists)                                 | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | A     | Redis是否存在|
-| [redis_exists_action](v-redis.md#redis_exists_action)                   | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | Redis存在时执行何种操作|
-| [redis_disable_purge](v-redis.md#redis_disable_purge)                   | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 禁止抹除现存的Redis|
-| [redis_max_memory](v-redis.md#redis_max_memory)                         | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | Redis可用的最大内存|
-| [redis_mem_policy](v-redis.md#redis_mem_policy)                         | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 内存逐出策略|
-| [redis_password](v-redis.md#redis_password)                             | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | Redis密码|
-| [redis_rdb_save](v-redis.md#redis_rdb_save)                             | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | RDB保存指令|
-| [redis_aof_enabled](v-redis.md#redis_aof_enabled)                       | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 是否启用AOF|
-| [redis_rename_commands](v-redis.md#redis_rename_commands)               | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 重命名危险命令列表|
-| [redis_cluster_replicas](v-redis.md#redis_cluster_replicas)             | [REDIS](v-redis.md) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 集群每个主库带几个从库|
-| [redis_exporter_enabled](v-redis.md#redis_exporter_enabled)             | [REDIS](v-redis.md) | [redis_exporter](https://github.com/Vonng/pigsty/tree/master/roles/redis_exporter) | G/C   | 是否启用Redis监控|
-| [redis_exporter_port](v-redis.md#redis_exporter_port)                   | [REDIS](v-redis.md) | [redis_exporter](https://github.com/Vonng/pigsty/tree/master/roles/redis_exporter) | G/C   | Redis Exporter监听端口|
-| [redis_exporter_options](v-redis.md#redis_exporter_options)             | [REDIS](v-redis.md) | [redis_exporter](https://github.com/Vonng/pigsty/tree/master/roles/redis_exporter) | G/C   | Redis Exporter命令参数|
+
+| ID  |                                   Name                                    |                     Section                     | Level |             Description              |
+|-----|---------------------------------------------------------------------------|-------------------------------------------------|-------|--------------------------------------|
+| 100 | [`proxy_env`](v-infra.md#proxy_env)                                       | [`CONNECT`](v-infra.md#CONNECT)                 | G     | 代理服务器配置                       |
+| 110 | [`repo_enabled`](v-infra.md#repo_enabled)                                 | [`REPO`](v-infra.md#REPO)                       | G     | 是否启用本地源                       |
+| 111 | [`repo_name`](v-infra.md#repo_name)                                       | [`REPO`](v-infra.md#REPO)                       | G     | 本地源名称                           |
+| 112 | [`repo_address`](v-infra.md#repo_address)                                 | [`REPO`](v-infra.md#REPO)                       | G     | 本地源外部访问地址                   |
+| 113 | [`repo_port`](v-infra.md#repo_port)                                       | [`REPO`](v-infra.md#REPO)                       | G     | 本地源端口                           |
+| 114 | [`repo_home`](v-infra.md#repo_home)                                       | [`REPO`](v-infra.md#REPO)                       | G     | 本地源文件根目录                     |
+| 115 | [`repo_rebuild`](v-infra.md#repo_rebuild)                                 | [`REPO`](v-infra.md#REPO)                       | A     | 是否重建Yum源                        |
+| 116 | [`repo_remove`](v-infra.md#repo_remove)                                   | [`REPO`](v-infra.md#REPO)                       | A     | 是否移除已有REPO文件                 |
+| 117 | [`repo_upstreams`](v-infra.md#repo_upstreams)                             | [`REPO`](v-infra.md#REPO)                       | G     | Yum源的上游来源                      |
+| 118 | [`repo_packages`](v-infra.md#repo_packages)                               | [`REPO`](v-infra.md#REPO)                       | G     | Yum源需下载软件列表                  |
+| 119 | [`repo_url_packages`](v-infra.md#repo_url_packages)                       | [`REPO`](v-infra.md#REPO)                       | G     | 通过URL直接下载的软件                |
+| 120 | [`ca_method`](v-infra.md#ca_method)                                       | [`CA`](v-infra.md#CA)                           | G     | CA的创建方式                         |
+| 121 | [`ca_subject`](v-infra.md#ca_subject)                                     | [`CA`](v-infra.md#CA)                           | G     | 自签名CA主题                         |
+| 122 | [`ca_homedir`](v-infra.md#ca_homedir)                                     | [`CA`](v-infra.md#CA)                           | G     | CA证书根目录                         |
+| 123 | [`ca_cert`](v-infra.md#ca_cert)                                           | [`CA`](v-infra.md#CA)                           | G     | CA证书                               |
+| 124 | [`ca_key`](v-infra.md#ca_key)                                             | [`CA`](v-infra.md#CA)                           | G     | CA私钥名称                           |
+| 130 | [`nginx_upstream`](v-infra.md#nginx_upstream)                             | [`NGINX`](v-infra.md#NGINX)                     | G     | Nginx上游服务器                      |
+| 131 | [`app_list`](v-infra.md#app_list)                                         | [`NGINX`](v-infra.md#NGINX)                     | G     | 首页导航栏显示的应用列表             |
+| 132 | [`docs_enabled`](v-infra.md#docs_enabled)                                 | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用本地文档                     |
+| 133 | [`pev2_enabled`](v-infra.md#pev2_enabled)                                 | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用PEV2组件                     |
+| 134 | [`pgbadger_enabled`](v-infra.md#pgbadger_enabled)                         | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用Pgbadger                     |
+| 140 | [`dns_records`](v-infra.md#dns_records)                                   | [`NAMESERVER`](v-infra.md#NAMESERVER)           | G     | 动态DNS解析记录                      |
+| 150 | [`prometheus_data_dir`](v-infra.md#prometheus_data_dir)                   | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prometheus数据库目录                 |
+| 151 | [`prometheus_options`](v-infra.md#prometheus_options)                     | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prometheus命令行参数                 |
+| 152 | [`prometheus_reload`](v-infra.md#prometheus_reload)                       | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | A     | Reload而非Recreate                   |
+| 153 | [`prometheus_sd_method`](v-infra.md#prometheus_sd_method)                 | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | 服务发现机制：static|
+| 154 | [`prometheus_scrape_interval`](v-infra.md#prometheus_scrape_interval)     | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom抓取周期                         |
+| 155 | [`prometheus_scrape_timeout`](v-infra.md#prometheus_scrape_timeout)       | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom抓取超时                         |
+| 156 | [`prometheus_sd_interval`](v-infra.md#prometheus_sd_interval)             | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom服务发现刷新周期                 |
+| 160 | [`exporter_install`](v-infra.md#exporter_install)                         | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | 安装监控组件的方式                   |
+| 161 | [`exporter_repo_url`](v-infra.md#exporter_repo_url)                       | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | 监控组件的YumRepo                    |
+| 162 | [`exporter_metrics_path`](v-infra.md#exporter_metrics_path)               | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | 监控暴露的URL Path                   |
+| 170 | [`grafana_endpoint`](v-infra.md#grafana_endpoint)                         | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana地址                          |
+| 171 | [`grafana_admin_username`](v-infra.md#grafana_admin_username)             | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana管理员用户名                  |
+| 172 | [`grafana_admin_password`](v-infra.md#grafana_admin_password)             | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana管理员密码                    |
+| 173 | [`grafana_database`](v-infra.md#grafana_database)                         | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana后端数据库类型                |
+| 174 | [`grafana_pgurl`](v-infra.md#grafana_pgurl)                               | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana的PG数据库连接串              |
+| 175 | [`grafana_plugin`](v-infra.md#grafana_plugin)                             | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 如何安装Grafana插件                  |
+| 176 | [`grafana_cache`](v-infra.md#grafana_cache)                               | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana插件缓存地址                  |
+| 177 | [`grafana_plugins`](v-infra.md#grafana_plugins)                           | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 安装的Grafana插件列表                |
+| 178 | [`grafana_git_plugins`](v-infra.md#grafana_git_plugins)                   | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 从Git安装的Grafana插件               |
+| 180 | [`loki_endpoint`](v-infra.md#loki_endpoint)                               | [`LOKI`](v-infra.md#LOKI)                       | G     | 用于接收日志的loki服务endpoint       |
+| 181 | [`loki_clean`](v-infra.md#loki_clean)                                     | [`LOKI`](v-infra.md#LOKI)                       | A     | 是否在安装Loki时清理数据库目录       |
+| 182 | [`loki_options`](v-infra.md#loki_options)                                 | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki的命令行参数                     |
+| 183 | [`loki_data_dir`](v-infra.md#loki_data_dir)                               | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki的数据目录                       |
+| 184 | [`loki_retention`](v-infra.md#loki_retention)                             | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki日志默认保留天数                 |
+| 200 | [`dcs_servers`](v-infra.md#dcs_servers)                                   | [`DCS`](v-infra.md#DCS)                         | G     | DCS服务器名称:IP列表                 |
+| 201 | [`service_registry`](v-infra.md#service_registry)                         | [`DCS`](v-infra.md#DCS)                         | G     | 服务注册的位置                       |
+| 202 | [`dcs_type`](v-infra.md#dcs_type)                                         | [`DCS`](v-infra.md#DCS)                         | G     | 使用的DCS类型                        |
+| 203 | [`dcs_name`](v-infra.md#dcs_name)                                         | [`DCS`](v-infra.md#DCS)                         | G     | DCS集群名称                          |
+| 204 | [`dcs_exists_action`](v-infra.md#dcs_exists_action)                       | [`DCS`](v-infra.md#DCS)                         | C/A   | 若DCS实例存在如何处理                |
+| 205 | [`dcs_disable_purge`](v-infra.md#dcs_disable_purge)                       | [`DCS`](v-infra.md#DCS)                         | C/A   | 完全禁止清理DCS实例                  |
+| 206 | [`consul_data_dir`](v-infra.md#consul_data_dir)                           | [`DCS`](v-infra.md#DCS)                         | G     | Consul数据目录                       |
+| 207 | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                               | [`DCS`](v-infra.md#DCS)                         | G     | Etcd数据目录                         |
+| 220 | [`jupyter_enabled`](v-infra.md#jupyter_enabled)                           | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | 是否启用JupyterLab                   |
+| 221 | [`jupyter_username`](v-infra.md#jupyter_username)                         | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter使用的操作系统用户            |
+| 222 | [`jupyter_password`](v-infra.md#jupyter_password)                         | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter Lab的密码                    |
+| 230 | [`pgweb_enabled`](v-infra.md#pgweb_enabled)                               | [`PGWEB`](v-infra.md#PGWEB)                     | G     | 是否启用PgWeb                        |
+| 231 | [`pgweb_username`](v-infra.md#pgweb_username)                             | [`PGWEB`](v-infra.md#PGWEB)                     | G     | PgWeb使用的操作系统用户              |
+| 300 | [`meta_node`](v-nodes.md#meta_node)                                       | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 表示此节点为元节点                   |
+| 301 | [`nodename`](v-nodes.md#nodename)                                         | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | I     | 指定节点实例标识                     |
+| 302 | [`node_cluster`](v-nodes.md#node_cluster)                                 | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 节点集群名，默认名为nodes            |
+| 303 | [`nodename_overwrite`](v-nodes.md#nodename_overwrite)                     | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 用Nodename覆盖机器HOSTNAME           |
+| 304 | [`nodename_exchange`](v-nodes.md#nodename_exchange)                       | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 是否在剧本节点间交换主机名           |
+| 310 | [`node_dns_hosts`](v-nodes.md#node_dns_hosts)                             | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 写入机器的静态DNS解析                |
+| 311 | [`node_dns_hosts_extra`](v-nodes.md#node_dns_hosts_extra)                 | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | 同上，用于集群实例层级               |
+| 312 | [`node_dns_server`](v-nodes.md#node_dns_server)                           | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 如何配置DNS服务器？                  |
+| 313 | [`node_dns_servers`](v-nodes.md#node_dns_servers)                         | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 配置动态DNS服务器列表                |
+| 314 | [`node_dns_options`](v-nodes.md#node_dns_options)                         | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 配置/etc/resolv.conf                 |
+| 320 | [`node_repo_method`](v-nodes.md#node_repo_method)                         | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 节点使用Yum源的方式                  |
+| 321 | [`node_repo_remove`](v-nodes.md#node_repo_remove)                         | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 是否移除节点已有Yum源                |
+| 322 | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)                   | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 本地源的URL地址                      |
+| 330 | [`node_packages`](v-nodes.md#node_packages)                               | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | 节点安装软件列表                     |
+| 331 | [`node_extra_packages`](v-nodes.md#node_extra_packages)                   | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | 节点额外安装的软件列表               |
+| 332 | [`node_meta_packages`](v-nodes.md#node_meta_packages)                     | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | 元节点所需的软件列表                 |
+| 333 | [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install)               | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | 元节点上通过pip3安装的软件包         |
+| 340 | [`node_disable_numa`](v-nodes.md#node_disable_numa)                       | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点NUMA                         |
+| 341 | [`node_disable_swap`](v-nodes.md#node_disable_swap)                       | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点SWAP                         |
+| 342 | [`node_disable_firewall`](v-nodes.md#node_disable_firewall)               | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点防火墙                       |
+| 343 | [`node_disable_selinux`](v-nodes.md#node_disable_selinux)                 | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点SELINUX                      |
+| 344 | [`node_static_network`](v-nodes.md#node_static_network)                   | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 是否使用静态DNS服务器                |
+| 345 | [`node_disk_prefetch`](v-nodes.md#node_disk_prefetch)                     | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 是否启用磁盘预读                     |
+| 346 | [`node_kernel_modules`](v-nodes.md#node_kernel_modules)                   | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | 启用的内核模块                       |
+| 350 | [`node_tune`](v-nodes.md#node_tune)                                       | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 节点调优模式                         |
+| 351 | [`node_sysctl_params`](v-nodes.md#node_sysctl_params)                     | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 操作系统内核参数                     |
+| 360 | [`node_admin_setup`](v-nodes.md#node_admin_setup)                         | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 是否创建管理员用户                   |
+| 361 | [`node_admin_uid`](v-nodes.md#node_admin_uid)                             | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 管理员用户UID                        |
+| 362 | [`node_admin_username`](v-nodes.md#node_admin_username)                   | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 管理员用户名                         |
+| 363 | [`node_admin_ssh_exchange`](v-nodes.md#node_admin_ssh_exchange)           | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | 在实例间交换管理员SSH密钥            |
+| 364 | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)               | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | 是否将当前用户的公钥加入管理员账户   |
+| 365 | [`node_admin_pks`](v-nodes.md#node_admin_pks)                             | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | 可登陆管理员的公钥列表               |
+| 370 | [`node_timezone`](v-nodes.md#node_timezone)                               | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP时区设置                          |
+| 371 | [`node_ntp_config`](v-nodes.md#node_ntp_config)                           | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | 是否配置NTP服务？                    |
+| 372 | [`node_ntp_service`](v-nodes.md#node_ntp_service)                         | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP服务类型：ntp或chrony             |
+| 373 | [`node_ntp_servers`](v-nodes.md#node_ntp_servers)                         | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP服务器列表                        |
+| 380 | [`node_exporter_enabled`](v-nodes.md#node_exporter_enabled)               | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | 启用节点指标收集器                   |
+| 381 | [`node_exporter_port`](v-nodes.md#node_exporter_port)                     | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | 节点指标暴露端口                     |
+| 382 | [`node_exporter_options`](v-nodes.md#node_exporter_options)               | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C/I   | 节点指标采集选项                     |
+| 390 | [`promtail_enabled`](v-nodes.md#promtail_enabled)                         | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C     | 是否启用Promtail日志收集服务         |
+| 391 | [`promtail_clean`](v-nodes.md#promtail_clean)                             | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C/A   | 是否在安装promtail时移除已有状态信息 |
+| 392 | [`promtail_port`](v-nodes.md#promtail_port)                               | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | G     | promtail使用的默认端口               |
+| 393 | [`promtail_options`](v-nodes.md#promtail_options)                         | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C/I   | promtail命令行参数                   |
+| 394 | [`promtail_positions`](v-nodes.md#promtail_positions)                     | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C     | promtail状态文件位置                 |
+| 500 | [`pg_cluster`](v-pgsql.md#pg_cluster)                                     | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG数据库集群名称                     |
+| 501 | [`pg_shard`](v-pgsql.md#pg_shard)                                         | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG集群所属的Shard (保留)             |
+| 502 | [`pg_sindex`](v-pgsql.md#pg_sindex)                                       | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG集群的分片号 (保留)                |
+| 503 | [`gp_role`](v-pgsql.md#gp_role)                                           | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | 当前PG集群在GP中的角色               |
+| 504 | [`pg_role`](v-pgsql.md#pg_role)                                           | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | PG数据库实例角色                     |
+| 505 | [`pg_seq`](v-pgsql.md#pg_seq)                                             | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | PG数据库实例序号                     |
+| 506 | [`pg_instances`](v-pgsql.md#pg_instances)                                 | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 当前节点上的所有PG实例               |
+| 507 | [`pg_upstream`](v-pgsql.md#pg_upstream)                                   | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 实例的复制上游节点                   |
+| 508 | [`pg_offline_query`](v-pgsql.md#pg_offline_query)                         | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 是否允许离线查询                     |
+| 509 | [`pg_backup`](v-pgsql.md#pg_backup)                                       | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 是否在实例上存储备份                 |
+| 510 | [`pg_weight`](v-pgsql.md#pg_weight)                                       | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 实例在负载均衡中的相对权重           |
+| 511 | [`pg_hostname`](v-pgsql.md#pg_hostname)                                   | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C/I   | 将PG实例名称设为HOSTNAME             |
+| 512 | [`pg_preflight_skip`](v-pgsql.md#pg_preflight_skip)                       | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C/A   | 跳过PG身份参数校验                   |
+| 520 | [`pg_users`](v-pgsql.md#pg_users)                                         | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 业务用户定义                         |
+| 521 | [`pg_databases`](v-pgsql.md#pg_databases)                                 | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 业务数据库定义                       |
+| 522 | [`pg_services_extra`](v-pgsql.md#pg_services_extra)                       | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 集群专有服务定义                     |
+| 523 | [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra)                     | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 集群/实例特定的HBA规则               |
+| 524 | [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra)       | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Pgbounce特定HBA规则                  |
+| 525 | [`pg_admin_username`](v-pgsql.md#pg_admin_username)                       | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG管理用户                           |
+| 526 | [`pg_admin_password`](v-pgsql.md#pg_admin_password)                       | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG管理用户密码                       |
+| 527 | [`pg_replication_username`](v-pgsql.md#pg_replication_username)           | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG复制用户                           |
+| 528 | [`pg_replication_password`](v-pgsql.md#pg_replication_password)           | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG复制用户的密码                     |
+| 529 | [`pg_monitor_username`](v-pgsql.md#pg_monitor_username)                   | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG监控用户                           |
+| 530 | [`pg_monitor_password`](v-pgsql.md#pg_monitor_password)                   | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG监控用户密码                       |
+| 540 | [`pg_dbsu`](v-pgsql.md#pg_dbsu)                                           | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG操作系统超级用户                   |
+| 541 | [`pg_dbsu_uid`](v-pgsql.md#pg_dbsu_uid)                                   | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 超级用户UID                          |
+| 542 | [`pg_dbsu_sudo`](v-pgsql.md#pg_dbsu_sudo)                                 | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 超级用户的Sudo权限                   |
+| 543 | [`pg_dbsu_home`](v-pgsql.md#pg_dbsu_home)                                 | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 超级用户的家目录                     |
+| 544 | [`pg_dbsu_ssh_exchange`](v-pgsql.md#pg_dbsu_ssh_exchange)                 | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 是否交换超级用户密钥                 |
+| 545 | [`pg_version`](v-pgsql.md#pg_version)                                     | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的数据库大版本                   |
+| 546 | [`pgdg_repo`](v-pgsql.md#pgdg_repo)                                       | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 是否添加PG官方源？                   |
+| 547 | [`pg_add_repo`](v-pgsql.md#pg_add_repo)                                   | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 是否添加PG相关上游源？               |
+| 548 | [`pg_bin_dir`](v-pgsql.md#pg_bin_dir)                                     | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG二进制目录                         |
+| 549 | [`pg_packages`](v-pgsql.md#pg_packages)                                   | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的PG软件包列表                   |
+| 550 | [`pg_extensions`](v-pgsql.md#pg_extensions)                               | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的PG插件列表                     |
+| 560 | [`pg_exists_action`](v-pgsql.md#pg_exists_action)                         | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | PG存在时如何处理                     |
+| 561 | [`pg_disable_purge`](v-pgsql.md#pg_disable_purge)                         | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | 禁止清除存在的PG实例                 |
+| 562 | [`pg_data`](v-pgsql.md#pg_data)                                           | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG数据目录                           |
+| 563 | [`pg_fs_main`](v-pgsql.md#pg_fs_main)                                     | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG主数据盘挂载点                     |
+| 564 | [`pg_fs_bkup`](v-pgsql.md#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG备份盘挂载点                       |
+| 565 | [`pg_dummy_filesize`](v-pgsql.md#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | 占位文件/pg/dummy的大小              |
+| 566 | [`pg_listen`](v-pgsql.md#pg_listen)                                       | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG监听的IP地址                       |
+| 567 | [`pg_port`](v-pgsql.md#pg_port)                                           | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG监听的端口                         |
+| 568 | [`pg_localhost`](v-pgsql.md#pg_localhost)                                 | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的UnixSocket地址               |
+| 580 | [`patroni_enabled`](v-pgsql.md#patroni_enabled)                           | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni是否启用                      |
+| 581 | [`patroni_mode`](v-pgsql.md#patroni_mode)                                 | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni配置模式                      |
+| 582 | [`pg_namespace`](v-pgsql.md#pg_namespace)                                 | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni使用的DCS命名空间             |
+| 583 | [`patroni_port`](v-pgsql.md#patroni_port)                                 | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni服务端口                      |
+| 584 | [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni Watchdog模式                 |
+| 585 | [`pg_conf`](v-pgsql.md#pg_conf)                                           | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni使用的配置模板                |
+| 586 | [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG默认加载的共享库                   |
+| 587 | [`pg_encoding`](v-pgsql.md#pg_encoding)                                   | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG字符集编码                         |
+| 588 | [`pg_locale`](v-pgsql.md#pg_locale)                                       | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化规则                   |
+| 589 | [`pg_lc_collate`](v-pgsql.md#pg_lc_collate)                               | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化排序规则               |
+| 590 | [`pg_lc_ctype`](v-pgsql.md#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化字符集定义             |
+| 591 | [`pgbouncer_enabled`](v-pgsql.md#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | 是否启用Pgbouncer                    |
+| 592 | [`pgbouncer_port`](v-pgsql.md#pgbouncer_port)                             | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer端口                        |
+| 593 | [`pgbouncer_poolmode`](v-pgsql.md#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer池化模式                    |
+| 594 | [`pgbouncer_max_db_conn`](v-pgsql.md#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer最大单DB连接数              |
+| 600 | [`pg_provision`](v-pgsql.md#pg_provision)                                 | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | C     | 是否在PG集群中应用模板               |
+| 601 | [`pg_init`](v-pgsql.md#pg_init)                                           | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | C     | 自定义PG初始化脚本                   |
+| 602 | [`pg_default_roles`](v-pgsql.md#pg_default_roles)                         | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 默认创建的角色与用户                 |
+| 603 | [`pg_default_privilegs`](v-pgsql.md#pg_default_privilegs)                 | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 数据库默认权限配置                   |
+| 604 | [`pg_default_schemas`](v-pgsql.md#pg_default_schemas)                     | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 默认创建的模式                       |
+| 605 | [`pg_default_extensions`](v-pgsql.md#pg_default_extensions)               | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 默认安装的扩展                       |
+| 606 | [`pg_reload`](v-pgsql.md#pg_reload)                                       | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | A     | 是否重载数据库配置（HBA）            |
+| 607 | [`pg_hba_rules`](v-pgsql.md#pg_hba_rules)                                 | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 全局HBA规则                          |
+| 608 | [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules)                   | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Pgbouncer全局HBA规则                 |
+| 620 | [`pg_exporter_config`](v-pgsql.md#pg_exporter_config)                     | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PG指标定义文件                       |
+| 621 | [`pg_exporter_enabled`](v-pgsql.md#pg_exporter_enabled)                   | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | 启用PG指标收集器                     |
+| 622 | [`pg_exporter_port`](v-pgsql.md#pg_exporter_port)                         | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PG指标暴露端口                       |
+| 623 | [`pg_exporter_params`](v-pgsql.md#pg_exporter_params)                     | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PG Exporter额外的URL参数             |
+| 624 | [`pg_exporter_url`](v-pgsql.md#pg_exporter_url)                           | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 采集对象数据库的连接串（覆盖）       |
+| 625 | [`pg_exporter_auto_discovery`](v-pgsql.md#pg_exporter_auto_discovery)     | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 是否自动发现实例中的数据库           |
+| 626 | [`pg_exporter_exclude_database`](v-pgsql.md#pg_exporter_exclude_database) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 数据库自动发现排除列表               |
+| 627 | [`pg_exporter_include_database`](v-pgsql.md#pg_exporter_include_database) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 数据库自动发现囊括列表               |
+| 628 | [`pg_exporter_options`](v-pgsql.md#pg_exporter_options)                   | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PG Exporter命令行参数                |
+| 629 | [`pgbouncer_exporter_enabled`](v-pgsql.md#pgbouncer_exporter_enabled)     | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | 启用PGB指标收集器                    |
+| 630 | [`pgbouncer_exporter_port`](v-pgsql.md#pgbouncer_exporter_port)           | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PGB指标暴露端口                      |
+| 631 | [`pgbouncer_exporter_url`](v-pgsql.md#pgbouncer_exporter_url)             | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 采集对象连接池的连接串               |
+| 632 | [`pgbouncer_exporter_options`](v-pgsql.md#pgbouncer_exporter_options)     | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PGB Exporter命令行参数               |
+| 640 | [`pg_services`](v-pgsql.md#pg_services)                                   | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 全局通用服务定义                     |
+| 641 | [`haproxy_enabled`](v-pgsql.md#haproxy_enabled)                           | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C/I   | 是否启用Haproxy                      |
+| 642 | [`haproxy_reload`](v-pgsql.md#haproxy_reload)                             | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | 是否重载Haproxy配置                  |
+| 643 | [`haproxy_admin_auth_enabled`](v-pgsql.md#haproxy_admin_auth_enabled)     | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 是否对Haproxy管理界面启用认证        |
+| 644 | [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username)             | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy管理员名称                    |
+| 645 | [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password)             | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy管理员密码                    |
+| 646 | [`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port)               | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy指标暴露器端口                |
+| 647 | [`haproxy_client_timeout`](v-pgsql.md#haproxy_client_timeout)             | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy客户端超时                    |
+| 648 | [`haproxy_server_timeout`](v-pgsql.md#haproxy_server_timeout)             | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy服务端超时                    |
+| 649 | [`vip_mode`](v-pgsql.md#vip_mode)                                         | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP模式：none                        |
+| 650 | [`vip_reload`](v-pgsql.md#vip_reload)                                     | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | 是否重载VIP配置                      |
+| 651 | [`vip_address`](v-pgsql.md#vip_address)                                   | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | 集群使用的VIP地址                    |
+| 652 | [`vip_cidrmask`](v-pgsql.md#vip_cidrmask)                                 | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP地址的网络CIDR掩码长度            |
+| 653 | [`vip_interface`](v-pgsql.md#vip_interface)                               | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP使用的网卡                        |
+| 654 | [`dns_mode`](v-pgsql.md#dns_mode)                                         | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | DNS配置模式                          |
+| 655 | [`dns_selector`](v-pgsql.md#dns_selector)                                 | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | DNS解析对象选择器                    |
+| 700 | [`redis_cluster`](v-redis.md#redis_cluster)                               | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | C     | Redis数据库集群名称                  |
+| 701 | [`redis_node`](v-redis.md#redis_node)                                     | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis节点序列号                      |
+| 702 | [`redis_instances`](v-redis.md#redis_instances)                           | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis实例定义                        |
+| 720 | [`redis_install`](v-redis.md#redis_install)                               | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 安装Redis的方式                      |
+| 721 | [`redis_mode`](v-redis.md#redis_mode)                                     | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis集群模式                        |
+| 722 | [`redis_conf`](v-redis.md#redis_conf)                                     | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis配置文件模板                    |
+| 723 | [`redis_fs_main`](v-redis.md#redis_fs_main)                               | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | PG数据库实例角色                     |
+| 724 | [`redis_bind_address`](v-redis.md#redis_bind_address)                     | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis监听的端口地址                  |
+| 725 | [`redis_exists_action`](v-redis.md#redis_exists_action)                   | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis存在时执行何种操作              |
+| 726 | [`redis_disable_purge`](v-redis.md#redis_disable_purge)                   | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 禁止抹除现存的Redis                  |
+| 727 | [`redis_max_memory`](v-redis.md#redis_max_memory)                         | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C/I   | Redis可用的最大内存                  |
+| 728 | [`redis_mem_policy`](v-redis.md#redis_mem_policy)                         | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 内存逐出策略                         |
+| 729 | [`redis_password`](v-redis.md#redis_password)                             | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis密码                            |
+| 730 | [`redis_rdb_save`](v-redis.md#redis_rdb_save)                             | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | RDB保存指令                          |
+| 731 | [`redis_aof_enabled`](v-redis.md#redis_aof_enabled)                       | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 是否启用AOF                          |
+| 732 | [`redis_rename_commands`](v-redis.md#redis_rename_commands)               | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 重命名危险命令列表                   |
+| 740 | [`redis_cluster_replicas`](v-redis.md#redis_cluster_replicas)             | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 集群每个主库带几个从库               |
+| 741 | [`redis_exporter_enabled`](v-redis.md#redis_exporter_enabled)             | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | 是否启用Redis监控                    |
+| 742 | [`redis_exporter_port`](v-redis.md#redis_exporter_port)                   | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter监听端口               |
+| 743 | [`redis_exporter_options`](v-redis.md#redis_exporter_options)             | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter命令参数               |

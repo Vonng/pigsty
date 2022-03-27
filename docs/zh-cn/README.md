@@ -1,12 +1,12 @@
 # Pigsty
 
-## v1.4.0-rc 中文文档
+## v1.4.0 中文文档
 
 **开箱即用**的**开源**PostgreSQL**发行版**
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.4.0-rc](https://github.com/Vonng/pigsty/releases/tag/v1.4.0-rc)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
+> 最新版本: [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开演示](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 >
@@ -46,8 +46,8 @@ make install                                           # 安装
 建议下载指定版本号的Release与配套离线软件包以加速安装，使用`curl`提前下载并安装特定版本的Pigsty：
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ && cd ~/pigsty  
 ./configure
 make install
 ```

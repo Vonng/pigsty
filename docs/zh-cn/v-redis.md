@@ -1,152 +1,76 @@
 # 配置：REDIS
 
-> > [配置](v-config.md) Redis数据库集群，控制[REDIS剧本](p-redis.md)行为。
+> [配置](v-config.md) Redis数据库集群，控制[REDIS剧本](p-redis.md)行为，详情参考[Redis部署与监控教程](t-redis.md)
 
-Redis的配置参数并未列入 pigsty.yml 默认配置文件中，但您可以参考 [`pigsty-demo.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo.yml#L209) 按需加入，或直接在Redis集群层面配置。
-
-详情请参考：[Redis部署与监控教程](t-redis.md)
-
-
-## 参数概览
-
-|                       参数                        |                                        角色                                        | 层级    |          说明           |
-|---------------------------------------------------|------------------------------------------------------------------------------------|-------|-------------------------|
-| [redis_cluster](#redis_cluster)                   | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | C     | Redis数据库集群名称|
-| [redis_node](#redis_node)                         | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | I     | Redis节点序列号|
-| [redis_instances](#redis_instances)               | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | I     | Redis实例定义|
-| [redis_mode](#redis_mode)                         | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | C     | Redis集群模式|
-| [redis_conf](#redis_conf)                         | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G     | Redis配置文件模板|
-| [redis_fs_main](#redis_fs_main)                   | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C/I | PG数据库实例角色|
-| [redis_bind_address](#redis_bind_address)         | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C/I | Redis监听的端口地址|
-| [redis_exists](#redis_exists)                     | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | A     | Redis是否存在|
-| [redis_exists_action](#redis_exists_action)       | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | Redis存在时执行何种操作|
-| [redis_disable_purge](#redis_disable_purge)       | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 禁止抹除现存的Redis|
-| [redis_max_memory](#redis_max_memory)             | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | Redis可用的最大内存|
-| [redis_mem_policy](#redis_mem_policy)             | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 内存逐出策略|
-| [redis_password](#redis_password)                 | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | Redis密码|
-| [redis_rdb_save](#redis_rdb_save)                 | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | RDB保存指令|
-| [redis_aof_enabled](#redis_aof_enabled)           | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 是否启用AOF|
-| [redis_rename_commands](#redis_rename_commands)   | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 重命名危险命令列表|
-| [redis_cluster_replicas](#redis_cluster_replicas) | [redis](https://github.com/Vonng/pigsty/tree/master/roles/redis)                   | G/C   | 集群每个主库带几个从库|
-| [redis_exporter_enabled](#redis_exporter_enabled) | [redis_exporter](https://github.com/Vonng/pigsty/tree/master/roles/redis_exporter) | G/C   | 是否启用Redis监控|
-| [redis_exporter_port](#redis_exporter_port)       | [redis_exporter](https://github.com/Vonng/pigsty/tree/master/roles/redis_exporter) | G/C   | Redis Exporter监听端口|
-| [redis_exporter_options](#redis_exporter_options) | [redis_exporter](https://github.com/Vonng/pigsty/tree/master/roles/redis_exporter) | G/C   | Redis Exporter命令参数|
+- [`REDIS_IDENTITY`](#REDIS_IDENTITY) : REDIS身份参数
+- [`REDIS_PROVISION`](#REDIS_PROVISION) : REDIS集群置备
+- [`REDIS_EXPORTER`](#REDIS_EXPORTER) : REDIS指标暴露器
 
 
-## 默认参数
-
-```yaml
----
-# - identity - #
-# redis_cluster: redis-test         # name of this redis cluster @ cluster level
-# redis_node: 1                     # redis node identifier, integer sequence @ node level
-# redis_instances: {}               # redis instances definition of this redis node @ node level
-
-# - mode - #
-redis_mode: standalone              # standalone,cluster,sentinel
-redis_conf: redis.conf              # config template path (except sentinel)
-redis_fs_main: /data                # main fs mountpoint for redis data
-redis_bind_address: '0.0.0.0'       # bind address, empty string turns to inventory_hostname
-
-# - cleanup - #
-redis_exists: false                 # internal flag to indicate redis exists
-redis_exists_action: clean          # abort|skip|clean if redis server already exists
-redis_disable_purge: false          # force redis_exists_action = abort if true
-
-# - conf - #
-redis_max_memory: 1GB               # max memory used by each redis instance
-redis_mem_policy: allkeys-lru       # memory eviction policy
-redis_password: ''                  # masterauth & requirepass password, disable by empty string
-redis_rdb_save: ['1200 1']          # redis rdb save directives, disable with empty list
-redis_aof_enabled: false            # redis aof enabled
-redis_rename_commands: {}           # rename dangerous commands
-#   flushall: opflushall
-#   flushdb: opflushdb
-#   keys: opkeys
-redis_cluster_replicas: 1           # how many replicas for a master in redis cluster ?
-
-# - redis exporter - #
-redis_exporter_enabled: true        # install redis exporter on redis nodes ?
-redis_exporter_port: 9121           # default port for redis exporter
-redis_exporter_options: ''          # default cli args for redis exporter
-
-# - node exporter - #
-node_exporter_enabled: true         # setup node_exporter on instance
-node_exporter_port: 9100            # default port for node exporter
-node_exporter_options: '--no-collector.softnet --collector.systemd --collector.ntp --collector.tcpstat --collector.processes'
-
-# - reference - #
-redis_install: yum                  # none|yum|binary, yum by default (install from yum repo)
-exporter_install: none              # none|yum|binary, none by default (usually installed during node init)
-exporter_repo_url: ''               # if set, repo will be added to /etc/yum.repos.d/ before yum installation
-exporter_metrics_path: /metrics     # default metric path for pg related exporter
-service_registry: consul
-...
-```
+| ID  |                        Name                         |                Section                |    Type    | Level | Comment            |                                        Comment2                                         |
+|-----|-----------------------------------------------------|---------------------------------------|------------|-------|--------------------|-----------------------------------------------------------------------------------------|
+| 700 | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | Redis数据库集群名称       | redis cluster identity|
+| 701 | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | Redis节点序列号         | redis node identity|
+| 702 | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | Redis实例定义          | redis instances definition on this node|
+| 720 | [`redis_install`](#redis_install)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | 安装Redis的方式         | Way of install redis binaries|
+| 721 | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis集群模式          | standalone,cluster,sentinel|
+| 722 | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis配置文件模板        | which config template will be used|
+| 723 | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | Redis主数据盘挂载点    | main data disk for redis|
+| 724 | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | Redis监听的端口地址       | e.g 0.0.0.0, empty will use inventory_hostname as bind address|
+| 725 | [`redis_exists_action`](#redis_exists_action)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis存在时执行何种操作     | what to do when redis exists|
+| 726 | [`redis_disable_purge`](#redis_disable_purge)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | 禁止抹除现存的Redis       | set to true to disable purge functionality for good (force redis_exists_action = abort)|
+| 727 | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | Redis可用的最大内存       | max memory used by each redis instance|
+| 728 | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | 内存逐出策略             | memory eviction policy|
+| 729 | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis密码            | empty password disable password auth (masterauth & requirepass)|
+| 730 | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | RDB保存指令            | redis RDB save directives, empty list disable it|
+| 731 | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | 是否启用AOF            | enable redis AOF|
+| 732 | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | 重命名危险命令列表          | rename dangerous commands|
+| 740 | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | 集群每个主库带几个从库        | how much replicas per master in redis cluster ?|
+| 741 | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | bool       | C     | 是否启用Redis监控        | install redis exporter on redis nodes|
+| 742 | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | int        | C     | Redis Exporter监听端口 | default port for redis exporter|
+| 743 | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | string     | C/I   | Redis Exporter命令参数 | default cli args for redis exporter|
 
 
-
-## 身份参数
-
+----------------
+## `REDIS_IDENTITY`
 
 **身份参数**是定义Redis集群时必须提供的信息，包括：
 
-|                    名称                     |        属性        |   说明   |         例子         |
-| :-----------------------------------------: | :----------------: | :------: | :------------------: |
-| [`redis_cluster`](redis_cluster) | **必选**，集群级别 |  集群名  |      `redis-test`       |
-|    [`redis_node`](redis_node)    | **必选**，节点级别 | 节点编号 | `primary`, `replica` |
-|     [`redis_instances`](redis_instances)     | **必选**，节点级别 | 实例定义 | `{ 6001 : {} ,6002 : {}}`  |
+|                  名称                   |        属性        |   说明   |         例子         |
+|:-------------------------------------:| :----------------: | :------: | :------------------: |
+|   [`redis_cluster`](#redis_cluster)   | **必选**，集群级别 |  集群名  |      `redis-test`       |
+|      [`redis_node`](#redis_node)      | **必选**，节点级别 | 节点编号 | `primary`, `replica` |
+| [`redis_instances`](#redis_instances) | **必选**，节点级别 | 实例定义 | `{ 6001 : {} ,6002 : {}}`  |
 
 
-- `redis_cluster` 标识了Redis集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
-- `redis_node` 标识了节点在集群中的序号
-- `redis_instances` 是一个JSON对象，Key为实例端口号，Value为一个JSON对象，包含实例特殊的配置
+- [`redis_cluster`](#redis_cluster) 标识了Redis集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
+- [`redis_node`](#redis_node) 标识了节点在集群中的序号
+- [`redis_instances`](#redis_instances) 是一个JSON对象，Key为实例端口号，Value为一个JSON对象，包含实例特殊的配置
 
-```yaml
-#----------------------------------#
-# cluster example                  #
-#----------------------------------#
-redis-cluster:
-  hosts:
-    10.10.10.11:
-      redis_node: 1
-      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-    10.10.10.12:
-      redis_node: 2
-      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-  vars:
-    redis_cluster: redis-cluster        # name of this redis 'cluster'
-    redis_mode: cluster                 # standalone,cluster,sentinel
-    redis_max_memory: 64MB              # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru       # memory eviction policy
-```
-
-
-
-
-
-## `REDIS`
 
 
 ### `redis_cluster`
 
-REDIS数据库集群的名称，将用作集群内资源的命名空间。
+Redis数据库集群名称, 类型：`string`，层级：C，默认值为：
 
-集群命名需要遵循特定命名规则：`[a-z][a-z0-9-]*`，以兼容不同约束对身份标识的要求。建议使用`redis-`作为集群名前缀。
+REDIS数据库集群名称将用作集群内资源的命名空间，需要遵循特定命名规则：`[a-z][a-z0-9-]*`，以兼容不同约束对身份标识的要求。建议使用`redis-`作为集群名前缀。
 
 **身份参数，必填参数，集群级参数**
 
 
 
+
 ### `redis_node`
 
-数据库节点的序号，在**集群内部唯一**，用于区别与标识集群内的不同节点，从0或1开始分配。
+Redis节点序列号, 类型：`int`，层级：I，默认值为：
 
-**身份参数，必填参数，节点级参数**
+数据库节点的序号，在**集群内部唯一**，用于区别与标识集群内的不同节点，从0或1开始分配。
 
 
 
 ### `redis_instances`
+
+Redis实例定义, 类型：`instance[]`，层级：I，默认值为：
 
 部署在该数据库节点上的所有Redis实例，JSON KV对象格式。Key为数值类型端口号，Value为该实例特定的JSON配置项。
 
@@ -162,14 +86,31 @@ redis_instances:
 
 每一个Redis实例在对应节点上监听一个唯一端口，您可以为Redis实例配置独立的参数选项（目前只支持 `replica_of`，用于预构建主从复制）
 
-
-
 **身份参数，必填参数，实例级参数**
 
 
 
 
+
+----------------
+## `REDIS_PROVISION`
+
+
+
+
+
+### `redis_install`
+
+安装Redis的方式, 类型：`enum`，层级：C，默认值为：`"yum"`
+
+指定为`none`时，您需要自行完成 Redis 安装，例如通过 NODES 相关参数完成。
+
+
+
+
 ### `redis_mode`
+
+Redis集群模式, 类型：`enum`，层级：C，默认值为：`"standalone"`
 
 指明该Redis集群的模式，有三种可选模式：
 
@@ -177,20 +118,23 @@ redis_instances:
 * `cluster`： Redis原生集群模式
 * `sentinel`：Redis高可用组件：哨兵
 
-当使用`standalone`模式时，Pigsty会根据`replica_of`参数额外设置Redis主从。
+当使用`standalone`模式时，Pigsty会根据 `replica_of` 参数额外设置Redis主从。
 当使用`cluster`模式时，Pigsty会根据 [`redis_cluster_replicas`](#redis_cluster_replicas) 参数使用所有定义的实例创建原生Redis集群。
+
 
 
 
 ### `redis_conf`
 
-Redis配置文件模板，`redis.conf`是默认使用的配置模板。
+Redis配置文件模板, 类型：`string`，层级：C，默认值为：`"redis.conf"`
 
-当创建`sentinel`模式的实例时，Pigsty会使用专用的`redis-sentinel.conf` 配置模板，此参数无效。
+
 
 
 
 ### `redis_fs_main`
+
+Redis使用的主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
 
 Redis使用的主数据盘挂载点，默认为`/data`。
 
@@ -200,25 +144,18 @@ Pigsty会在该目录下创建`redis`目录，用于存放Redis数据。例如`/
 
 
 
+
 ### `redis_bind_address`
 
-Redis监听的IP地址，如果留空则为 inventory_hostname。
+Redis监听的端口地址, 类型：`ip`，层级：C，默认值为：`"0.0.0.0"`
 
-默认配置为`0.0.0.0`，即所有本地IPv4地址
-
-
-
-### `redis_exists`
-
-内部使用的标记位，判断Redis实例是否存在，请勿修改。
+Redis监听的IP地址，如果留空则为 inventory_hostname。默认配置为`0.0.0.0`，即所有本地IPv4地址
 
 
 
 ### `redis_exists_action`
 
-如果Redis实例已经存在，如何处理：
-
-
+Redis存在时执行何种操作, 类型：`enum`，层级：C，默认值为：`"clean"`
 
 * `abort`:  中止整个剧本的执行
 * `skip`:  继续执行，因此Redis实例可能会使用现有数据库中的RDB文件启动。
@@ -229,18 +166,23 @@ Redis监听的IP地址，如果留空则为 inventory_hostname。
 
 ### `redis_disable_purge`
 
-如果启用，强制设置 `redis_exists_action = abort` 
+禁止抹除现存的Redis, 类型：`string`，层级：C，默认值为：`false`
+
+如果启用，强制设置 [`redis_exists_action`](#redis_exists_action) = `abort`
 
 
 
 ### `redis_max_memory`
 
-每个Redis实例使用的最大内存限制，默认为64MB，建议在集群层面配置此参数。
+Redis可用的最大内存, 类型：`size`，层级：C/I，默认值为：`"1GB"`
 
+每个Redis实例使用的最大内存限制，默认为1GB，建议在集群层面配置此参数。
 
 
 
 ### `redis_mem_policy`
+
+内存逐出策略, 类型：`enum`，层级：C，默认值为：`"allkeys-lru"`
 
 内存淘汰策略，默认为 `allkeys-lru` ，其他可选策略包括：
 
@@ -257,6 +199,8 @@ Redis监听的IP地址，如果留空则为 inventory_hostname。
 
 ### `redis_password`
 
+Redis密码, 类型：`string`，层级：C，默认值为：`""`
+
 masterauth & requirepass 使用的密码，留空则禁用密码，默认禁用
 
 !> 注意安全，请不要将无密码保护的Redis放置于公网上
@@ -265,28 +209,34 @@ masterauth & requirepass 使用的密码，留空则禁用密码，默认禁用
 
 ### `redis_rdb_save`
 
-Redis SAVE命令，配置将启用RDB功能。
+RDB保存指令, 类型：`string[]`，层级：C，默认值为： `[ "1200 1" ]`
 
-每一条Save策略作为一个字符串。
-
+Redis SAVE命令，配置将启用RDB功能，每一条Save策略作为一个字符串。
 
 
 
 ### `redis_aof_enabled`
 
-是否启用redis AOF？
+是否启用AOF, 类型：`bool`，层级：C，默认值为：`false`
+
+
 
 
 
 ### `redis_rename_commands`
 
-JSON字典，将Key表示的命令重命名为Value表示的命令。
+重命名危险命令列表, 类型：`object`，层级：C，默认值为：`{}`
 
-避免误操作危险命令。
+JSON字典，将Key表示的命令重命名为Value表示的命令，避免误操作危险命令。
+
+
+
 
 
 
 ### `redis_cluster_replicas`
+
+集群每个主库带几个从库, 类型：`int`，层级：C，默认值为：`1`
 
 在Redis原生集群模式中，为每一个主库配置多少个从库？默认为1个。
 
@@ -299,30 +249,29 @@ JSON字典，将Key表示的命令重命名为Value表示的命令。
 
 
 
+----------------
+## `REDIS_EXPORTER`
+
+
+
+
 
 ### `redis_exporter_enabled`
 
-是否启用Redis Exporter？
+是否启用Redis监控, 类型：`bool`，层级：C，默认值为：`true`
 
 Redis Exporter默认启用，在每个Redis节点上部署一个，默认监听9121端口。
 
 
 
-
 ### `redis_exporter_port`
 
-Redis Exporter 使用的默认端口，9121 为默认端口。
+Redis Exporter监听端口, 类型：`int`，层级：C，默认值为：`9121`
 
 注：如果您修改了该默认端口，则需要在Prometheus的相关配置规则文件中一并替换此端口。
 
 
 
-
 ### `redis_exporter_options`
 
-Redis Exporter默认使用的命令行参数选项。
-
-
-
-
-
+Redis Exporter命令参数, 类型：`string`，层级：C/I，默认值为：`""`

@@ -29,12 +29,12 @@ MatrixDB / Greenplum 的安装将复用绝大多数 PostgreSQL 任务。配置�
 
 使用 `configure -m mxdb`，将自动使用该配置文件作为配置模板。
 
-接下来，您需要准备好MatrixDB的本地安装包，Pigsty提供了社区版MatrixDB的预制软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/matrix.tgz)，
+接下来，您需要准备好MatrixDB的本地安装包，Pigsty提供了社区版MatrixDB的预制软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz)，
 MatrixDB & Greenplum 的RPM包及其完整依赖已经放入该压缩包中，您可以复用Pigsty的本地yum源：将其解压至 `/www` ，供本地yum源使用。通过以下命令建立MatrixDB本地源：
 
 ```bash
 # 将MatrixDB RPM包解压至 /www/matrix (nginx home)
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0-rc/matrix.tgz -o /tmp/matrix.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz -o /tmp/matrix.tgz
 sudo mkdir -p /www
 sudo tar -xf /tmp/matrix.tgz -C /www/
 

@@ -8,11 +8,9 @@ Pigsty是一个PostgreSQL发行版，也是一个通用应用运行时。您可�
 2. 执行Playbook创建Redis集群
 
 
-
 ## 定义Redis集群
 
 [redis配置参数](v-redis.md)
-
 
 
 ### Redis实体概念模型
@@ -22,7 +20,6 @@ Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包�
 核心的区别在于，Redis通常采用单机多实例部署，一个物理/虚拟机节点上通常会部署**多个** Redis实例，以充分利用多核CPU。因此，定义Redis实例的方式与PGSQL稍有不同。
 
 在Pigsty管理的Redis中，节点完全隶属于集群，即目前尚不允许在一个节点上部署两个不同集群的Redis实例，但这并不影响您在在一个节点上部署多个独立Redis实例。
-
 
 
 ### Redis身份参数
@@ -36,9 +33,9 @@ Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包�
 |     [`redis_instances`](v-redis.md#redis_instances)     | **必选**，节点级别 | 实例定义 | `{ 6001 : {} ,6002 : {}}`  |
 
 
-- `redis_cluster` 标识了Redis集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
-- `redis_node` 标识了节点在集群中的序号
-- `redis_instances` 是一个JSON对象，Key为实例端口号，Value为一个JSON对象，包含实例特殊的配置
+- [`redis_cluster`](v-redis.md#redis_cluster) 标识了Redis集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
+- [`redis_node`](v-redis.md#redis_node) 标识了节点在集群中的序号
+- [`redis_instances`](v-redis.md#redis_instances) 是一个JSON对象，Key为实例端口号，Value为一个JSON对象，包含实例特殊的配置
 
 
 
@@ -142,7 +139,6 @@ Prometheus默认会使用"多目标抓取"模式，使用节点上9121端口的R
 
 ## 其他功能
 
-Pigsty v1.3 只提供redis集群整体性部署与监控功能。
-
+Pigsty v1.4 只提供redis集群整体性部署与监控功能。
 下线，扩容、缩容，单实例管理等功能将在后续版本中逐步提供。
 

@@ -122,7 +122,7 @@ Users should get the Pigsty project source code on the admin node, usually unpac
 git clone https://github.com/Vonng/pigsty && cd pigsty # Get the latest code 
 ```
 
-If you don't have `git`, you can use `curl` to download it. It is recommended to use this method to download a fixed version: `1.3.1` is the specific version number.
+If you don't have `git`, you can use `curl` to download it. It is recommended to use this method to download a fixed version: `1.4.0` is the specific version number.
 
 ```bash
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # Download a specific version of the code (recommended)
@@ -140,7 +140,7 @@ The offline package is **optional**. In case of good network conditions (scienti
 
 The official offline package is based on CentOS 7.8.2003 operating system environment. If you are using an operating system other than this version and have problems with dependency errors, please refer to the documentation [Making an offline installer](t-offline.md) on a machine with Internet (Github) access with the same operating system.
 
-Offline packages can be downloaded from the Github Release page, `1.3.1` is the specific version number, the package should be consistent with the source code version.
+Offline packages can be downloaded from the Github Release page, `1.4.0` is the specific version number, the package should be consistent with the source code version.
 
 ```bash
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz

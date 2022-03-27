@@ -91,8 +91,7 @@ DBA通常更关注监控系统的用法与日常维护的具体方式。
 对于专业用户（深度定制，二次开发），Pigsty提供了丰富的配置项与定制接口。
 
   * [配置Pigsty](v-config.md#配置项清单)
-  * [定制Patroni模板](t-patroni-template.md)
-  * [定制数据库模板](t-customize-template.md)
+  * [定制数据库模板](v-pgsql-customize.md)
 
 几乎所有配置项都配置有合理的默认值，无需修改即可使用。
 

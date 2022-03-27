@@ -30,7 +30,7 @@ No matter which deployment type is used, It always takes 3 steps:
 - [Custom Business User](c-user.md)
 - [Customize business Database](c-database.md)
 - [Custom Patroni Template](t-patroni-template.md)
-- [Customize Database Content](t-customize-template.md)
+- [Customize Database Content](v-pgsql-customize.md)
 
 
 ## Execution

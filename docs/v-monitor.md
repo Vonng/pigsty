@@ -33,7 +33,7 @@ Promtail is used to collect Postgres, Patroni, and Pgbouncer logs and is an opti
 | [promtail_clean](v-monitor.md#promtail_clean)  |  `bool`  |  G/C/A  | remove promtail status file ? |
 | [promtail_port](v-monitor.md#promtail_port)  |  `number`  |  G/C  | promtail listen port |
 | [promtail_status_path](v-monitor.md#promtail_status_path)  |  `string`  |  G/C  | path to store promtail status file |
-| [promtail_send_url](v-monitor.md#promtail_send_url)  |  `string`  |  G/C  | loki endpoint to receive log |
+| [loki_endpoint](v-monitor.md#loki_endpoint)  |  `string`  |  G/C  | loki endpoint to receive log |
 
 
 
@@ -76,7 +76,7 @@ promtail_enabled: true                        # enable promtail logging collecto
 promtail_clean: false                         # remove promtail status file? false by default
 promtail_port: 9080                           # default listen address for promtail
 promtail_status_file: /tmp/promtail-status.yml
-promtail_send_url: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
+loki_endpoint: http://10.10.10.10:3100/loki/api/v1/push  # loki url to receive logs
 ```
 
 
@@ -288,7 +288,7 @@ String type, cluster｜global variable, content is the location of the file wher
 
 
 
-### promtail_send_url
+### loki_endpoint
 
 HTTP URL to receive logs for the loki service endpoint
 

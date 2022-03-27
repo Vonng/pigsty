@@ -31,8 +31,7 @@ Pigsty在部署前需要进行一些[准备工作](d-prepare.md)：配置带有�
 - [连接信息](v-config.md#连接信息)
 - [定制PG业务用户](c-pgdbuser.md#用户)
 - [定制PG业务数据库](c-pgdbuser.md#用户)
-- [定制Patroni配置模板](t-patroni-template.md)
-- [深度定制数据库模板](t-customize-template.md)
+- [定制PG模板](v-pgsql-customize.md)
 
 
 ## [执行剧本](p-playbook.md)

@@ -27,7 +27,7 @@
   - [Logging Infrastructure](t-logging.md)
   - [Analysis CSVLOG Sample](t-log-analysis.md)
   - [Customize Patroni Template](t-patroni-template.md)
-  - [Customize Database Content](t-customize-template.md)
+  - [Customize Database Content](v-pgsql-customize.md)
   - [Install Extension App](t-application.md)
   - [Backup and Recovery](t-backup.md)
   - [Redis deploy & monitor](t-redis.md)

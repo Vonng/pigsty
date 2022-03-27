@@ -81,7 +81,7 @@ Pigsty provides rich configuration items and customization interfaces.
 
 * [Configure Pigsty](v-config.md#config-entries)
 * [Customize Patroni template](t-patroni-template.md)
-* [Customize database template](t-customize-template.md)
+* [Customize database template](v-pgsql-customize.md)
 
 Almost all configuration items are configured with reasonable default values and can be used without modification. 
 Pro users can refer to the [configuration guide](v-config.md) to adjust it by themselves as needed.
