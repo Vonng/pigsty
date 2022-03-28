@@ -16,7 +16,7 @@
 | 721 | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis集群模式          | standalone,cluster,sentinel|
 | 722 | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis配置文件模板        | which config template will be used|
 | 723 | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | Redis主数据盘挂载点    | main data disk for redis|
-| 724 | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | Redis监听的端口地址       | e.g 0.0.0.0, empty will use inventory_hostname as bind address|
+| 724 | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | Redis监听地址       | e.g 0.0.0.0, empty will use inventory_hostname as bind address|
 | 725 | [`redis_exists_action`](#redis_exists_action)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis存在时执行何种操作     | what to do when redis exists|
 | 726 | [`redis_disable_purge`](#redis_disable_purge)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | 禁止抹除现存的Redis       | set to true to disable purge functionality for good (force redis_exists_action = abort)|
 | 727 | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | Redis可用的最大内存       | max memory used by each redis instance|
@@ -147,9 +147,9 @@ Pigsty会在该目录下创建`redis`目录，用于存放Redis数据。例如`/
 
 ### `redis_bind_address`
 
-Redis监听的端口地址, 类型：`ip`，层级：C，默认值为：`"0.0.0.0"`
+Redis监听地址, 类型：`ip`，层级：C，默认值为：`"0.0.0.0"`
 
-Redis监听的IP地址，如果留空则为 inventory_hostname。默认配置为`0.0.0.0`，即所有本地IPv4地址
+Redis监听的IP地址，如果留空则为 `inventory_hostname`。默认监听有本地所有IPv4地址
 
 
 
@@ -160,7 +160,6 @@ Redis存在时执行何种操作, 类型：`enum`，层级：C，默认值为：
 * `abort`:  中止整个剧本的执行
 * `skip`:  继续执行，因此Redis实例可能会使用现有数据库中的RDB文件启动。
 * `clean`: 抹除数据，清洁启动。
-
 
 
 
@@ -176,7 +175,7 @@ Redis存在时执行何种操作, 类型：`enum`，层级：C，默认值为：
 
 Redis可用的最大内存, 类型：`size`，层级：C/I，默认值为：`"1GB"`
 
-每个Redis实例使用的最大内存限制，默认为1GB，建议在集群层面配置此参数。
+每个Redis实例使用的最大内存限制，默认为1GB，建议在集群层面配置此参数，保持集群实例配置一致。
 
 
 
@@ -184,7 +183,7 @@ Redis可用的最大内存, 类型：`size`，层级：C/I，默认值为：`"1G
 
 内存逐出策略, 类型：`enum`，层级：C，默认值为：`"allkeys-lru"`
 
-内存淘汰策略，默认为 `allkeys-lru` ，其他可选策略包括：
+其他可选策略包括：
 
 * `volatile-lru`
 * `allkeys-lru`
@@ -201,7 +200,7 @@ Redis可用的最大内存, 类型：`size`，层级：C/I，默认值为：`"1G
 
 Redis密码, 类型：`string`，层级：C，默认值为：`""`
 
-masterauth & requirepass 使用的密码，留空则禁用密码，默认禁用
+`masterauth` & `requirepass` 使用的密码，留空则禁用密码，默认禁用
 
 !> 注意安全，请不要将无密码保护的Redis放置于公网上
 
@@ -252,8 +251,7 @@ JSON字典，将Key表示的命令重命名为Value表示的命令，避免误�
 ----------------
 ## `REDIS_EXPORTER`
 
-
-
+REDIS指标暴露器相关配置
 
 
 ### `redis_exporter_enabled`

@@ -8,6 +8,7 @@ Pigsty是一个PostgreSQL发行版，也是一个通用应用运行时。您可�
 2. 执行Playbook创建Redis集群
 
 
+
 ## 定义Redis集群
 
 [redis配置参数](v-redis.md)

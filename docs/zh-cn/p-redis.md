@@ -12,15 +12,24 @@
 
 ## `redis`
 
+用于在节点上部署Redis实例
+
 ```bash
 ./redis.yml -l <redis_cluster>
 ```
+
+![](../_media/playbook/redis.svg)
 
 ------------------
 
 ## `redis-remove`
 
+用于从节点上移除所有Redis实例
+
 ```bash
 ./redis-remove.yml -l <redis_cluster>
 ./redis-remove.yml -l <redis_node>
 ```
+
+![](../_media/playbook/redis-remove.svg)
+

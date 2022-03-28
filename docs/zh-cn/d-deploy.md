@@ -1,6 +1,6 @@
 # Pigsty部署
 
-部署Pigsty分为三步：[准备工作](d-prepare.md)，[修改配置](v-config.md)，[执行剧本](#p-playbook)
+部署Pigsty分为三步：[准备工作](d-prepare.md)，[修改配置](v-config.md)，[执行剧本](p-playbook)
 
 Pigsty在部署前需要进行一些[准备工作](d-prepare.md)：配置带有正确权限配置的节点，下载安装相关软件。置备完成后，用户应当按照自己的需求[修改配置](v-config.md)，并[执行剧本](#p-playbook)将系统调整至配置描述的状态。其中，**配置**是部署Pigsty的重点所在。
 

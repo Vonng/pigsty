@@ -3,7 +3,7 @@
 Pigsty有两套并行的告警系统：
 
 * [Prometheus](http://p.pigsty.cc/alerts) + [AlertManager](http://a.pigsty.cc/#/alerts) （主）
-* [Grafana](http://demo.pigsty.cc/d/pgsql-alert)（备）
+* [Grafana](http://demo.pigsty.cc/d/pgsql-alert)（备），默认不启用
 
 两套系统功能等效，侧重能力不同，可同时使用，互为备份补充。
 
@@ -322,5 +322,4 @@ PGB排队是决定性的指标，它代表用户端可感知的阻塞已经出�
       pg:db:age[ins={{ $labels.ins }}, instance={{ $labels.instance }}, datname={{ $labels.datname }}] = {{ $value | printf "%.0f" }} > 80%
 
 ```
-
 

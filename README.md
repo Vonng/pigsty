@@ -4,9 +4,9 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [1.4.0-beta](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Public Demo](http://home.pigsty.cc)
+> Latest Version: [1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Demo](http://home.pigsty.cc)
 >
-> Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
+> Documentation: [Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 
 > Run `make doc` to serve [EN Docs](docs/) & [ZH Docs](docs/zh-cn/) on your localhost
 
@@ -26,7 +26,7 @@ Pigsty can be used both for large-scale pg clusters management in real-world pro
 
 ## TL;DR
 
-Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
+Get a new Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
@@ -49,6 +49,7 @@ Check [public demo](http://demo.pigsty.cc) for what you will get, check [Get Sta
 * **Flexible Design** makes pigsty fully configurable & customizable & extensible.
 * **Reliable Performance** verified in real-world production env (200+nodes, 1PB Data)
 * **Open Source** under Apache License 2.0
+* Support for Redis & MatrixDB (Greenplum7) Added!
 
 
 ## Distributions
@@ -194,20 +195,20 @@ pg-meta:                                # required, ansible group name , pgsql c
 #----------------------------------#
 # redis sentinel example           #
 #----------------------------------#
-redis-sentinel:
+redis-meta:
   hosts:
     10.10.10.10:
       redis_node: 1
       redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
   vars:
-    redis_cluster: redis-sentinel
+    redis_cluster: redis-meta
     redis_mode: sentinel
     redis_max_memory: 128MB
 
 #----------------------------------#
 # redis cluster example            #
 #----------------------------------#
-redis-cluster:
+redis-test:
   hosts:
     10.10.10.11:
       redis_node: 1
@@ -216,7 +217,7 @@ redis-cluster:
       redis_node: 2
       redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
   vars:
-    redis_cluster: redis-cluster        # name of this redis 'cluster'
+    redis_cluster: redis-test           # name of this redis 'cluster'
     redis_mode: cluster                 # standalone,cluster,sentinel
     redis_max_memory: 64MB              # max memory used by each redis instance
     redis_mem_policy: allkeys-lru       # memory eviction policy
@@ -224,7 +225,7 @@ redis-cluster:
 #----------------------------------#
 # redis standalone example         #
 #----------------------------------#
-redis-standalone:
+redis-common:
   hosts:
     10.10.10.13:
       redis_node: 1
@@ -233,10 +234,9 @@ redis-standalone:
         6502: { replica_of: '10.10.10.13 6501' }
         6503: { replica_of: '10.10.10.13 6501' }
   vars:
-    redis_cluster: redis-standalone     # name of this redis 'cluster'
+    redis_cluster: redis-common         # name of this redis 'cluster'
     redis_mode: standalone              # standalone,cluster,sentinel
     redis_max_memory: 64MB              # max memory used by each redis instance
-
 ```
 
 </details>

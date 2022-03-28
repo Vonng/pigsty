@@ -42,15 +42,14 @@
 #  ^-----alertmanager.yml            # alertmanger main config file
 #  ^-----@bin                        # util scripts: check,reload,status,new
 #  ^-----@rules                      # record & alerting rules definition
-#            ^-----@infra-rules      # infrastructure metrics definition
-#            ^-----@infra-alert      # infrastructure alert definition
-#            ^-----@pgsql-rules      # postgres metrics definition
-#            ^-----@pgsql-alert      # postgres alert definition
-#            ^-----@redis-rules      # redis metrics definition
-#            ^-----@redis-alert      # redis alert definition
-#            ^-----@..........       # other metrics & alerts definition
+#            ^-----@infra            # infrastructure rules & alert
+#            ^-----@nodes            # nodes rules & alert
+#            ^-----@pgsql            # pgsql rules & alert
+#            ^-----@redis            # redis rules & alert
+#            ^-----@..........       # etc...
 #  ^-----@targets                    # file based service discovery targets definition
 #            ^-----@infra            # infra static targets definition
+#            ^-----@nodes            # nodes static targets definition
 #            ^-----@pgsql            # pgsql static targets definition
 #            ^-----@redis            # redis static targets definition
 #            ^-----@.....            # other targets
@@ -62,11 +61,11 @@
 
 以下参数与PostgreSQL数据库目录相关
 
-* [pg_dbsu_home](#pg_dbsu_home)：Postgres默认用户的家目录，默认为`/var/lib/pgsql`
-* [pg_bin_dir](#pg_bin_dir)：Postgres二进制目录，默认为`/usr/pgsql/bin/`
-* [pg_data](#pg_data)：Postgres数据库目录，默认为`/pg/data`
-* [pg_fs_main](#pg_fs_main)：Postgres主数据盘挂载点，默认为`/export`
-* [pg_fs_bkup](#pg_fs_bkup)：Postgres备份盘挂载点，默认为`/var/backups`（可选，也可以选择备份到主数据盘上的子目录）
+* [pg_dbsu_home](v-pgsql.md#pg_dbsu_home)：Postgres默认用户的家目录，默认为`/var/lib/pgsql`
+* [pg_bin_dir](v-pgsql.md#pg_bin_dir)：Postgres二进制目录，默认为`/usr/pgsql/bin/`
+* [pg_data](v-pgsql.md#pg_data)：Postgres数据库目录，默认为`/pg/data`
+* [pg_fs_main](v-pgsql.md#pg_fs_main)：Postgres主数据盘挂载点，默认为`/export`
+* [pg_fs_bkup](v-pgsql.md#pg_fs_bkup)：Postgres备份盘挂载点，默认为`/var/backups`（可选，也可以选择备份到主数据盘上的子目录）
 
 
 ```yaml

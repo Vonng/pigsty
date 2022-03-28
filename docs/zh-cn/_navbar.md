@@ -1,5 +1,5 @@
 - [作者](https://vonng.com/en/)
-- [演示](http://demo.pigsty.cc)
+- [Demo](http://demo.pigsty.cc)
 
 - 版本
   - [v1.x](/)

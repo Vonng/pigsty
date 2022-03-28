@@ -1,7 +1,9 @@
 # MatrixDB部署与监控
 
-Pigsty可用于部署与监控MatrixDB(等效Greenplum 7)
-因为目前MatrixDB使用的是PostgreSQL 12的内核，而原生Greenplum仍然使用9.6内核，因此优先使用MatrixDB作为Greenplum实现。
+> Pigsty可用于部署与监控MatrixDB（等效于Greenplum 7+时序数据库功能)
+
+因为目前MatrixDB使用的是PostgreSQL 12的内核，而原生Greenplum仍然使用9.6内核，因此优先使用MatrixDB作为Greenplum实现，后续将添加原生的Greenplum支持。
+
 
 
 ## 实体概念模型
@@ -15,48 +17,44 @@ MatrixDB在逻辑上由两部分组成，Master与Segments，两者均由Postgre
 * Segment的primary与mirror分布由MatrixDB安装向导决定，在集群的Segments节点上通常可能存在有多个不同的Segment实例
 
 **部署惯例**
-* Master集群 (master/standby) (`gp_role-master`) 构成一个PostgreSQL集群，通常命名包含`mdw`，如`mx-mdw`
-* 每个Segment (primary/mirror) 构成一个PostgreSQL集群，通常集群命名包含`seg`，如 `mx-seg1`, `mx-seg2`
+* Master集群 (master/standby) ([`gp_role`](v-pgsql.md#gp_role) = `master`) 构成一个PostgreSQL集群，通常命名包含`mdw`，如`mx-mdw`
+* 每个Segment (primary/mirror)  ([`gp_role`](v-pgsql.md#gp_role) = `segment`) 构成一个PostgreSQL集群，通常集群命名包含`seg`，如 `mx-seg1`, `mx-seg2`
 * 用户应当显式为集群节点命名，例如 `mx-sdw-1`, `mx-sdw-2`, ...
 
 
 
-## 准备安装
+## 下载软件
 
-MatrixDB / Greenplum 的安装将复用绝大多数 PostgreSQL 任务。配置文件
-
-* [`pigsty-mxdb.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-mxdb.yml) 给出了一个在四节点沙箱环境部署MatrixDB的样例。
-
-使用 `configure -m mxdb`，将自动使用该配置文件作为配置模板。
-
-接下来，您需要准备好MatrixDB的本地安装包，Pigsty提供了社区版MatrixDB的预制软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz)，
-MatrixDB & Greenplum 的RPM包及其完整依赖已经放入该压缩包中，您可以复用Pigsty的本地yum源：将其解压至 `/www` ，供本地yum源使用。通过以下命令建立MatrixDB本地源：
+MatrixDB & Greenplum 的RPM包并不是标准Pigsty部署的一部分，因此不会放入默认的`pkg.tgz`中。
+MatrixDB & Greenplum 的RPM包及其完整依赖将打包为一个单独的离线软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz)。
+您可以向Pigsty管理节点上添加新的`matrix`源。
 
 ```bash
-# 将MatrixDB RPM包解压至 /www/matrix (nginx home)
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz -o /tmp/matrix.tgz
-sudo mkdir -p /www
-sudo tar -xf /tmp/matrix.tgz -C /www/
-
-# 创建本地repo文件
-cat > /www/matrix.repo <<-'EOF'
-[matrix]
-name=Local Yum Repo MatrixDB
-baseurl=http://pigsty/matrix
-skip_if_unavailable = 1
-enabled = 1
-priority = 1
-gpgcheck = 0
-EOF
+# 下载地址（Github）：https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz
+# 下载地址（China CDN）：http://download.pigsty.cc/v1.4.0/matrix.tgz
+# 下载脚本，在管理节点上，pigsty目录下，直接使用 download matrix 下载并解压
+./download matrix
 ```
 
-注意修改 [`node_local_repo_url`](v-nodes.md#node_local_repo_url)，向其添加新Yum源地址，确保所有节点都可以访问该Repo
+该命令会创建一个 `/www/matrix.repo` 文件，默认情况下，您可以访问`http://pigsty/matrix.repo`获取该Repo，该Repo文件指向 `http://pigsty/matrix`目录。
 
-```yaml
-node_local_repo_url:
-  - http://pigsty/pigsty.repo
-  - http://pigsty/matrix.repo
+
+
+
+
+## 配置
+
+MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参数为 [`gp_role`](v-pgsql.md#gp_role) 与 [`pg_instances`](v-pgsql.md#pg_instances)。
+
+配置文件[`pigsty-mxdb.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-mxdb.yml) 给出了一个在四节点沙箱环境部署MatrixDB的样例。
+
+```bash
+使用 `configure -m mxdb`，将自动使用该配置文件作为配置模板。
+./configure -m mxdb
 ```
+
+此配置文件中 [`node_local_repo_url`](v-nodes.md#node_local_repo_url)添加了新Yum源地址，`http://pigsty/matrix.repo` 确保所有节点都可以访问Matrix Repo。
+
 
 
 
@@ -65,9 +63,14 @@ node_local_repo_url:
 在四节点沙箱环境中部署MatrixDB，注意，默认将使用DBSU `mxadmin:mxadmin` 作为监控用户名与密码
 
 ```bash
-./infra.yml -e no_cmdb=true   # 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项
-./nodes.yml                   # 初始化集群的节点，纳入监控
-./pigsty-matrix.yml           # 完成MatrixDB安装准备与监控
+# 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项，否则正常安装即可。
+./infra.yml -e no_cmdb=true   
+
+# 配置所有用于安装MatrixDB的节点
+./nodes.yml
+
+# 在上述节点上安装MatrixDB
+./pigsty-matrix.yml
 ```
 
 安装完成后，您需要通过MatrixDB 提供的WEB UI完成接下来的安装。打开 [http://matrix.pigsty](http://matrix.pigsty) 或访问 http://10.10.10.10:8240，填入 `pgsql-matrix.yml` 最后输出的初始用户密码进入安装向导。 
@@ -82,6 +85,7 @@ node_local_repo_url:
 
 
 
+
 ## 收尾工作
 
 最后，在Greenplum/MatrixDB Master节点上手工执行以下命令，允许监控组件访问**从库**，并重启生效。
@@ -89,7 +93,6 @@ node_local_repo_url:
 ```bash
 sudo su - mxadmin
 psql postgres -c "ALTER SYSTEM SET hot_standby = on;"  # 配置 hot_standby=on 以允许从库查询
-psql matrixmgr -c 'SELECT mxmgr_init_local();'         # 初始化MatrixDB自身监控
 gpconfig -c hot_standby -v on -m on                    # 配置 hot_standby=on 以允许从库查询
 gpstop -a -r -M immediate                              # 立即重启MatrixDB以生效
 ```

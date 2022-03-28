@@ -1,9 +1,8 @@
-# 常用操作流程 /SOP
+# SOP: 标准操作流程 
 
 大多数集群管理操作都需要使用到管理节点上的管理用户，并在Pigsty根目录执行相应Ansible Playbook。
 
 以下示例如无特殊说明，均以沙箱环境三节点集群`pg-test`作为演示对象。
-
 
 
 ## 操作命令速查表
@@ -38,7 +37,7 @@
 
 Pigsty默认使用Patroni管理PostgreSQL实例数据库。这意味着，您需要使用`patronictl`命令来管理Postgres集群，包括：集群配置变更，重启，Failover，Switchover，重做特定实例，切换自动/手动高可用模式等。
 
-用户可以使用`patronictl`在管理节点上以 `postgres`身份管理所有的数据库集群，别名`pt`已经在所有托管的机器上创建：`alias pt='patronictl -c /pg/bin/patroni.yml'`
+用户可以使用`patronictl`在管理节点上以 `postgres` 身份管理所有的数据库集群，别名`pt`已经在所有托管的机器上创建：`alias pt='patronictl -c /pg/bin/patroni.yml'`
 
 用户亦可以在管理节点上，使用快捷命令`pg`对所有目标Postgres集群发起管理，管理节点上设置有`alias pg=/bin/patronictl -c /etc/pigsty/patronictl.yml`。
 
@@ -131,13 +130,19 @@ systemctl reload grafana-server # 重载配置： Grafana
 
 ## Case 1：集群创建/扩容
 
-集群创建/扩容使用剧本 [`pgsql.yml`](p-pgsql)，创建集群使用集群名作为执行对象，创建新实例/集群扩容则以集群中的单个实例作为执行对象。
+集群创建/扩容使用剧本 [`pgsql.yml`](p-pgsql.md#pgsql)，创建集群使用集群名作为执行对象，创建新实例/集群扩容则以集群中的单个实例作为执行对象。
 
 ### **集群初始化**
 
 ```bash
-# 在新机器上初始化 pg-test 集群
-./pgsql.yml -l pg-test
+./nodes.yml -l pg-test      # 初始化 pg-test 包含的机器节点
+./pgsql.yml -l pg-test      # 初始化 pg-test 数据库集群
+```
+
+上述两剧本可简化为：
+
+```bash
+bin/createpg pg-test
 ```
 
 ### 集群扩容
@@ -162,8 +167,11 @@ pg-test:
 然后，执行以下命令，完成集群成员的初始化
 
 ```bash
-# 初始化 pg-test 集群 中的 10.10.10.13 节点
-./pgsql.yml -l 10.10.10.13
+./nodes.yml -l 10.10.10.13      # 初始化 pg-test 机器节点 10.10.10.13
+./pgsql.yml -l 10.10.10.13      # 初始化 pg-test 的实例 pg-test-3
+
+# 上述两命令可简化为：
+bin/createpg 10.10.10.13
 ```
 
 **调整角色**
@@ -176,14 +184,15 @@ pg-test:
 
 #### 常见问题1：数据库与Consul已经存在，执行中止
 
-Pigsty使用安全保险机制来避免误删运行中的数据库，请使用 [`pgsql-remove`](p-pgsql-remove) 剧本先完成数据库实例下线，再复用该节点。如需进行紧急覆盖式安装，可使用以下参数在安装过程中强制抹除运行中实例（危险！！！）
+Pigsty使用安全保险机制来避免误删运行中的数据库，请使用 [`pgsql-remove`](p-pgsql.md#pgsql-remove) 剧本先完成数据库实例下线，再复用该节点。如需进行紧急覆盖式安装，可使用以下参数在安装过程中强制抹除运行中实例（危险！！！）
 
 
 
 
 #### 常见问题2：数据库太大，等待从库上线超时
 
-当扩容操作卡在 `Wait for postgres replica online` 这一步并中止时，通常是因为已有数据库实例太大，超过了Ansible的超时等待时间。如果报错中止，该实例仍然会继续在后台拉起从库实例，您可以使用 `pg list pg-test` 命令列出集群当前状态，当新从库的状态为`running`时，可以使用以下命令，从中止的地方继续执行Ansible Playbook：
+当扩容操作卡在 `Wait for postgres replica online` 这一步并中止时，通常是因为已有数据库实例太大，超过了Ansible的超时等待时间。
+如果报错中止，该实例仍然会继续在后台拉起从库实例，您可以使用 `pg list pg-test` 命令列出集群当前状态，当新从库的状态为`running`时，可以使用以下命令，从中止的地方继续执行Ansible Playbook：
 
 ```bash
 ./pgsql.yml -l 10.10.10.13 --start-at-task 'Wait for postgres replica online'
@@ -227,7 +236,7 @@ pg list -W # 查阅集群状态，确认故障实例没有clonefrom标签
 如果分配的机器默认没有该用户，但您有其他的管理用户（例如`vagrant`）可以ssh登陆远程节点并执行sudo，则可以执行以下命令，使用其他的用户登陆远程机器并自动创建标准的管理用户：
 
 ```bash
-./pgsql.yml -t node_admin -l pg-test -e ansible_user=vagrant -k -K
+./nodes.yml -t node_admin -l pg-test -e ansible_user=vagrant -k -K
 SSH password:
 BECOME password[defaults to SSH password]:
 ```
@@ -265,13 +274,17 @@ BECOME password[defaults to SSH password]:
 
 # 销毁集群时，一并移除数据目录与软件包
 ./pgsql-remove.yml -l pg-test -e rm_pgdata=true -e rm_pgpkgs=true
+
+# 移除 pg-test 包含的节点，可选
+./nodes-remove.yml -l pg-test 
 ```
 
 ### 集群缩容
 
 ```bash
-# 实例销毁（缩容）：销毁 pg-test 集群中的 10.10.10.13 节点
-./pgsql-remove.yml -l 10.10.10.13 
+
+./pgsql-remove.yml -l 10.10.10.13   # 实例销毁（缩容）：销毁 pg-test 集群中的 10.10.10.13 节点 
+./nodes-remove.yml  -l 10.10.10.13  # 从Pigsty中移除 10.10.10.13 节点（可选）
 ```
 
 **调整角色
@@ -320,7 +333,7 @@ pg restart [cluster] [instance]  # 重启某个集群或实例
 
 ## Case 4：集群业务用户创建
 
-可以通过 [`pgsql-createuser.yml`](p-pgsql-createuser.md) 在已有的数据库中创建新的[业务用户](c-user.md)。
+可以通过 [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser) 在已有的数据库中创建新的[业务用户](c-pgdbuser.md#用户)。
 
 业务用户通常指生产环境中由软件程序所使用的用户，需要通过连接池访问数据库的用户**必须**通过这种方式管理。其它用户可以使用Pigsty创建与管理，亦可由用户自行维护管理。
 
@@ -349,7 +362,7 @@ bin/createuser pg-test test  # 在 pg-test 集群创建名为 test 的用户
 
 ## Case 5：集群业务数据库创建
 
-可以通过 [`pgsql-createdb.yml`](p-pgsql-createdb.md)在已有的数据库集群中创建新的[业务数据库](c-database.md)。
+可以通过 [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb)在已有的数据库集群中创建新的[业务数据库](c-pgdbuser.md#数据库)。
 
 业务数据库指代由用户创建并使用的数据库对象。如果您希望通过连接池访问该数据库，则必须使用Pigsty提供的剧本进行创建，以维持连接池中的配置与PostgreSQL保持一致。
 
@@ -386,7 +399,7 @@ bin/createdb   pg-test test  # 在 pg-test 集群创建名为 test 的数据库
 
 ## Case 6：集群HBA规则调整
 
-用户可以通过 [`pgsql.yml`](p-pgsql.md) 的 `pg_hba` 子任务，调整现有的数据库集群/实例的HBA配置。
+用户可以通过 [`pgsql.yml`](p-pgsql.md#pgsql) 的 `pg_hba` 子任务，调整现有的数据库集群/实例的HBA配置。
 
 当集群发生Failover，Switchover，以及HBA规则调整时，应当重新执行此任务，将集群的IP黑白名单规则调整至期待的行为。
 
@@ -432,7 +445,7 @@ Pigsty中PostgreSQL的集群流量默认由HAProxy控制，用户可以直接通
 
 **使用HAProxy Admin UI控制流量**
 
-Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-pgsql#haproxy_exporter_port)）提供了管理UI，该管理UI默认可以通过Pigsty的默认域名后缀以实例名（`pg_cluster-pg_seq`）访问。管理界面带有可选的认证选项，由参数（[`haproxy_admin_auth_enabled`](v-pgsql#haproxy_admin_auth_enabled)）启用。管理界面认证默认不启用，启用时则需要使用由 [`haproxy_admin_username`](v-pgsql#haproxy_admin_username) 与 [`haproxy_admin_password`](v-pgsql#haproxy_admin_password)的用户名与密码登陆。
+Pigsty的HAProxy默认在9101端口（[`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port)）提供了管理UI，该管理UI默认可以通过Pigsty的默认域名后缀以实例名（`pg_cluster-pg_seq`）访问。管理界面带有可选的认证选项，由参数（[`haproxy_admin_auth_enabled`](v-pgsql#haproxy_admin_auth_enabled)）启用。管理界面认证默认不启用，启用时则需要使用由 [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) 与 [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password)的用户名与密码登陆。
 
 使用浏览器访问 `http://pigsty/<ins>`（该域名因配置而变化，亦可从PGSQL Cluster Dashboard中点击前往），即可访问对应实例上的负载均衡器管理界面。[样例界面](http://home.pigsty.cc/pg-meta-1/)
 
@@ -658,7 +671,7 @@ $ pg list pg-test
 
 > 俗话说，重启可以解决90%的问题，而重装可以解决剩下的10%。
 
-面对疑难杂症，重置问题组件是一种简单有效的止损手段。使用Pigsty的初始化剧本 [`infra.yml`](p-meta) 与 [`pgsql.yml `](p-pgsql)可以重置基础设施与数据库集群，但通常我们只需要使用特定的子任务来重置特定组件即可。
+面对疑难杂症，重置问题组件是一种简单有效的止损手段。使用Pigsty的初始化剧本 [`infra.yml`](p-infra.md#infra) 与 [`pgsql.yml `](p-pgsql.md#pgsql)可以重置基础设施与数据库集群，但通常我们只需要使用特定的子任务来重置特定组件即可。
 
 ### 基础设施重置
 
@@ -678,8 +691,8 @@ $ pg list pg-test
 ./infra.yml -t nginx      # 重新配置Nginx
 ./infra.yml -t prometheus # 重新配置Prometheus
 ./infra.yml -t grafana    # 重新配置Grafana
-./infra.yml -t jupyter    # 重置Jupyterlab
-./infra.yml -t pgweb      # 重置PGWeb
+./infra-jupyter.yml       # 重置Jupyterlab
+./infra-pgweb.yml         # 重置PGWeb
 ```
 
 此外，您可以以下命令使用重置数据库节点上的具体组件
@@ -688,16 +701,19 @@ $ pg list pg-test
 # 较为常用，安全的重置命令，重装监控与重新注册不会影响服务
 ./pgsql.yml -l pg-test -t=monitor  # 重新部署监控
 ./pgsql.yml -l pg-test -t=register # 重新将服务注册至基础设施（Nginx, Prometheus, Grafana, CMDB...）
-./pgsql.yml -l pg-test -t=consul -e dcs_exists_action=clean # 在维护模式下重置DCS Agent
+./nodes.yml -l pg-test -t=consul -e dcs_exists_action=clean # 在维护模式下重置DCS Agent
 
 # 略有风险的重置操作
 ./pgsql.yml -l pg-test -t=service    # 重新部署负载均衡，可能导致服务闪断
 ./pgsql.yml -l pg-test -t=pgbouncer  # 重新部署连接池，可能导致服务闪断
 
 # 非常危险的重置任务
-./pgsql.yml -l pg-test -t=consul   # 当高可用自动切换模式启用时，直接重置DCS服务器
 ./pgsql.yml -l pg-test -t=postgres # 重置数据库（包括Patroni，Postgres，Pgbouncer）
 ./pgsql.yml -l pg-test -t=pgsql    # 重新完成完整的数据库部署：数据库、监控、服务
+./nodes.yml -l pg-test -t=consul   # 当高可用自动切换模式启用时，直接重置DCS服务器
+
+# 极度危险的重置任务
+./nodes.yml -l pg-test -t=consul -e rm_dcs_servers=true  # 强制抹除DCS服务器，可能导致所有DB集群不可写入
 ```
 
 例如，如果集群的连接池出现问题，一种兜底的止损方式便是重启或重装Pgbouncer连接池。
@@ -742,11 +758,11 @@ pg resume pg-test
 
 当DCS故障不可用，需要迁移至新的DCS（Consul）集群时，可以采用以下操作。
 
-首先创建新DCS集群，然后编辑配置清单 [`dcs_servers`](v-dcs#dcs_servers) 填入新DCS Servers的地址。
+首先创建新DCS集群，然后编辑配置清单 [`dcs_servers`](v-infra.md#dcs_servers) 填入新DCS Servers的地址。
 
 ```bash
 # 强制重置目标集群上的Consul Agent（因为HA处于维护模式，不会影响新数据库集群）
-./pgsql.yml -l pg-test -t consul -e dcs_exists_action=clean
+./nodes.yml -l pg-test -t consul -e dcs_exists_action=clean
 
 ```
 
@@ -754,8 +770,8 @@ pg resume pg-test
 
 ```bash
 # 重要！首先重启目标集群主库的Patroni，然后重启其余从库的Patroni
-ansible pg-test-1 'sudo systemctl restart patroni'
-ansible pg-test-2,pg-test-3 'sudo systemctl restart patroni'
+ansible pg-test-1 -b -a 'sudo systemctl reload patroni'
+ansible pg-test-2,pg-test-3 -b -a 'sudo systemctl restart patroni'
 ```
 
 

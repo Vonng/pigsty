@@ -50,3 +50,8 @@ FROM time_partitions
 WHERE parent_table = 'github_events'::regclass;
 
 ```
+
+
+并修改 [Patroni模板](v-customize-patroni.md) 中 `max_prepared_transaction` 参数为一个合适的值（大于等于`max_connections`的值）
+
+详情请参考Citus部署样例配置文件： [pigsty-citus.yml](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml)
