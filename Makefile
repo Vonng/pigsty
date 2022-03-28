@@ -26,6 +26,7 @@ tip:
 
 # print pkg download links
 link:
+	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
 	@echo "[Github Download]"
 	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty"
 	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"

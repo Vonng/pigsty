@@ -130,7 +130,18 @@ function extract_matrix() {
 		enabled=1
 		gpgcheck=0
 	EOF
+	cat >/tmp/matrix.repo <<-EOF
+		[matrix]
+		name=matrix \$releasever - \$basearch
+		baseurl=http://pigsty/matrix/
+		enabled=1
+		gpgcheck=0
+	EOF
 	sudo cp -f /tmp/matrix-local.repo /etc/yum.repos.d/matrix-local.repo
+	if [[ ! -f /www/matrix.repo ]]; then
+		sudo mkdir -p /www
+		sudo cp -f /tmp/matrix.repo /www/matrix.repo
+	fi
 }
 
 #----------------------------------------------#
@@ -248,3 +259,4 @@ else
 		extract ${!i}
 	done
 fi
+
