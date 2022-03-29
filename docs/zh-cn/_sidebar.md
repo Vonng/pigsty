@@ -18,7 +18,7 @@
   - [PGSQL集群部署](d-pgsql.md) 
   - [REDIS集群部署](d-redis.md)
   - [MatrixDB集群部署](d-matrixdb.md)
-- 
+
 - [剧本](p-playbook.md)
   - [剧本：INFRA](p-infra.md)
   - [剧本：NODES](p-nodes.md)

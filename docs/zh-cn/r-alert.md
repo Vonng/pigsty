@@ -24,19 +24,21 @@ Pigsty有两套并行的告警系统：
 
 ## 告警分类学
 
+**按照来源模块分类**
+
+* `INFRA`：基础设施类告警：Prometheus，Grafana，Consul，DNS，Nginx等基础设施软件等产生的告警。
+* `NODES`：主机节点告警，操作系统，硬件资源，基础设施软件，负载均衡等告警，通常由运维人员负责处理。
+* `PGSQL`：PostgreSQL数据库告警，数据库/连接池/负载均衡集群本身的告警，通常研发与DBA关注，DBA处理。
+* `REDIS`：Redis数据库告警，研发与DBA关注，DBA处理。
+* `……`：应用板块告警，用告警由业务方自己负责，但DBA会为QPS，TPS，Rollback，Seasonality等业务指标设置告警
+* Pigsty使用`category`标签`{infra,pgsql,nodes,redis,....}`来标识告警的层次。
+
 **按紧急程度分类**
 
 * P0：CRIT：产生重大场外影响的事故，需要紧急介入处理。例如主库宕机，复制中断。（事故）
 * P1：WARN：场外影响轻微，或有冗余处理的事故，需要在分钟级别内进行响应处理。（警告）
 * P2：INFO：即将产生影响，放任可能在小时级别内恶化，需在小时级别进行响应。（事件）
-* Pigsty使用`level`标签`{0, 1, 2}`，与`severity`标签`{CRIT,WARN,INFO}`来标识告警的紧急程度。
-
-**按告警层次分类**
-
-* 基础设施：操作系统，硬件资源，基础设施软件，负载均衡等告警，通常由运维人员负责处理。
-* 数据库级：数据库集群本身的告警，DBA重点关注。由PG，PGB，Exporter本身的监控指标产生。
-* 应用级：应用告警由业务方自己负责，但DBA会为QPS，TPS，Rollback，Seasonality等业务指标设置告警
-* Pigsty使用`category`标签`{infra,pgsql}`来标识告警的层次分类：基础设施与数据库集群。
+* Pigsty使用与`severity`标签`{CRIT,WARN,INFO}`来标识告警的紧急程度。
 
 **按指标类型分类**
 
@@ -66,8 +68,10 @@ Pigsty有两套并行的告警系统：
 
 告警规则使用Prometheus语法定义，完整的告警规则详见：
 
-* [基础设施告警规则](https://github.com/Vonng/pigsty/blob/master/roles/prometheus/files/rules/infra-alert.yml)
-* [数据库集群告警规则](https://github.com/Vonng/pigsty/blob/master/roles/prometheus/files/rules/pgsql-alert.yml)
+* [基础设施告警规则](https://github.com/Vonng/pigsty/blob/master/roles/prometheus/files/rules/infra.yml)
+* [主机节点告警规则](https://github.com/Vonng/pigsty/blob/master/roles/prometheus/files/rules/nodes.yml)
+* [PostgreSQL集群告警规则](https://github.com/Vonng/pigsty/blob/master/roles/prometheus/files/rules/pgsql.yml)
+* [Redis集群告警规则](https://github.com/Vonng/pigsty/blob/master/roles/prometheus/files/rules/redis.yml)
 
 
 

@@ -30,9 +30,15 @@
 ./pgsql.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器上的数据库实例
 ```
 
+本剧本主要完成以下工作：
+
+* 安装、部署、初始化PostgreSQL， Pgbouncer， Patroni（`postgres`）
+* 安装PostgreSQL监控系统（`monitor`）
+* 安装部署Haproxy与VIP，对外暴露服务（`service`）
+* 将数据库实例注册至基础设施，接受监管（`register`）
+
 !> **该剧本使用不当存在误删数据库的风险，因为初始化数据库会抹除原有数据库的痕迹**。
 [保险参数](#保护机制)提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中实例时自动中止或跳过高危操作，避免最坏情况发送。尽管如此，在**使用`pgsql.yml`时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。使用不带参数的`pgsql.yml`在生产环境中是一个高危操作，务必三思而后行。**
-
 
 
 ![](../_media/playbook/pgsql.svg)
@@ -45,21 +51,22 @@
 
 * **单独**针对某一集群从库执行初始化时，用户必须自行确保**主库已经完成初始化**
 
-* 集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。（但制作从库的进程会继续，例如需要制作从库需超过1天的场景）。您可以在从库自动制作完毕后，通过Ansible的`--start-at-task`从`Wait for patroni replica online`任务继续执行后续步骤。
+* 集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。（但制作从库的进程会继续，例如需要制作从库需超过1天的场景）。
+* 您可以在从库自动制作完毕后，通过Ansible的`--start-at-task`从`Wait for patroni replica online`任务继续执行后续步骤。详情请参考[SOP](r-sop.md)。
 
 
 ### 保护机制
 
-`pgsql.yml`提供**保护机制**，由配置参数`pg_exists_action`决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据`pg_exists_action`的配置`abort|clean|skip`行动。
+`pgsql.yml`提供**保护机制**，由配置参数 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 的配置`abort|clean|skip`行动。
 
 * `abort`：建议设置为默认配置，如遇现存实例，中止剧本执行，避免误删库。
 * `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有数据库。
 * `skip`：  直接在已有数据库集群上执行后续逻辑。
 * 您可以通过`./pgsql.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
 
-`pg_disable_purge`选项提供了双重保护，如果启用该选项，则``pg_exists_action`会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
+[`pg_disable_purge`](v-pgsql.md#pg_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
 
-``dcs_exists_action`与`dcs_disable_purge`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
+`dcs_exists_action`与`dcs_disable_purge`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
 
 
 
@@ -157,19 +164,6 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 
 
-### 剧本说明
-
-[`pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) 主要完成以下工作：
-
-* 初始化数据库节点基础设施（`node`）
-* 初始化DCS Agent（服务（`consul`）（如果为当前节点为管理节点，则初始化为DCS Server）
-* 安装、部署、初始化PostgreSQL， Pgbouncer， Patroni（`postgres`）
-* 安装PostgreSQL监控系统（`monitor`）
-* 安装部署Haproxy与VIP，对外暴露服务（`service`）
-* 将数据库实例注册至基础设施，接受监管（`register`）
-
-精确到任务的标签请参考[**任务详情**](#任务详情)
-
 
 
 ------------------
@@ -188,7 +182,7 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 
 
-## 日常管理
+### 日常管理
 
 数据库的创建请参考 [数据库](c-database.md#创建数据库) 一节。
 
@@ -212,7 +206,7 @@ bin/createdb <pg_cluster> <dbname>
 
 ![](../_media/playbook/pgsql-createuser.svg)
 
-## 日常管理
+### 日常管理
 
 业务用户的创建请参考 [用户](c-user.md#创建用户) 一节
 
@@ -234,7 +228,25 @@ bin/createuser <pg_cluster> <username>
 
 ## `pgsql-monly`
 
+用于执行仅监控部署的专用剧本，详情请参考：[仅监控部署](d-monly.md)
+
+
+![](../_media/playbook/pgsql-monly.svg)
+
 
 ------------------
 
 ## `pgsql-matrix`
+
+用于部署MatrixDB的专用剧本，详情请参考：[部署MatrixDB集群](d-matrixdb.md)
+
+![](../_media/playbook/pgsql-matrix.svg)
+
+
+------------------
+
+## `pgsql-migration`
+
+用于数据库自动化迁移的剧本，目前仍处于Beta状态，详情请参考：[数据库集群迁移](t-migration.md)
+
+![](../_media/playbook/pgsql-migration.svg)

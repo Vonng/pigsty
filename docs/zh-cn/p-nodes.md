@@ -1,8 +1,8 @@
 # 剧本：NODES
 
-> 使用 `nodes` 系列[剧本](p-playbook.md)将更多节点纳入Pigsty管理，启用主机监控与日志在当前管理节点上安装Pigsty，并加装可选功能。
+> 使用 `nodes` 系列[剧本](p-playbook.md)将更多节点纳入Pigsty管理，将节点调整至[配置](v-nodes.md)描述的状态。
 
-节点系列剧本用于将更多节点纳入Pigsty管理，在管理节点上发起，针对配置中声明的节点执行。
+当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 [`nodes.yml`](#nodes) 将更多节点添加至Pigsty中，或者使用 [`nodes-remove.yml`](nodes-remove) 将节点从环境中移除。
 
 | 剧本                                           | 功能                                                           | 链接                                                         |
 |----------------------------------------------|----------------------------------------------------------------| ------------------------------------------------------------ |
@@ -10,12 +10,25 @@
 | [`nodes-remove`](p-nodes.md#nodes-remove)     |        节点移除，卸载节点DCS与监控，不再纳入Pigsty管理                     |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
 
 
+---------------
 
-## 概览
+## `nodes`
 
-当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 本剧本 [`nodes.yml`](p-nodes.md) 将更多节点添加至Pigsty中。
+[`nodes.yml`](p-nodes.md) 剧本将更多节点添加至Pigsty中。该剧本需要在 **管理节点** 上发起，针对目标节点执行。
 
 此剧本可以将目标机器节点调整至配置清单所描述的状态，安装Consul服务，并将其纳入Pigsty监控系统，并允许您在这些置备好的节点上进一步部署不同类型的数据库集群。
+
+`nodes.yml` 剧本的行为由 [节点配置](v-nodes.md) 决定。在使用本地源的情况下，完整执行此剧本可能耗时1～3分钟，视机器配置而异。
+
+```bash
+./nodes.yml                      # 初始化所有清单中的节点（危险！）
+./nodes.yml -l pg-test           # 初始化在 pg-test 分组下的机器（推荐！）
+./nodes.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群中的节点
+./nodes.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器节点
+```
+
+![](../_media/playbook/nodes.svg)
+
 
 此剧本包含的功能与任务如下：
 
@@ -39,17 +52,6 @@
   * 在节点上安装 Node Exporter
   * 将 Node Exporter 注册至管理节点上的 Prometheus 中。
 
-
-
-`nodes.yml` 剧本的行为由 [节点配置](v-nodes.md) 决定，在使用本地源的情况下，完整执行此剧本可能耗时1～3分钟，视机器配置而异。
-
-```bash
-./nodes.yml                      # 初始化所有清单中的节点（危险！）
-./nodes.yml -l pg-test           # 初始化在 pg-test 分组下的机器（推荐！）
-./nodes.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群中的节点
-./nodes.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器节点
-```
-
 !> **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
 
 节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
@@ -57,11 +59,22 @@
 尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
 
 
-## 选择性执行
+### 保护机制
 
-用户可以通过ansible的标签机制，**选择性执行**本剧本的一个子集。
+`nodes.yml`提供**保护机制**，由配置参数 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 的配置`abort|clean|skip`行动。
 
-例如，如果只想执行节点监控部署的任务，则可以通过以下命令：
+* `abort`：建议设置为默认配置，如遇现存DCS实例，中止剧本执行，避免误删库。
+* `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有DCS实例。
+* `skip`：  跳过此主机，在其他主机上执行后续逻辑。
+* 您可以通过`./nodes.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
+
+[`dcs_disable_purge`](v-nodes.md#dcs_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
+
+
+
+### 选择性执行
+
+用户可以通过ansible的标签机制，**选择性执行**本剧本的一个子集。例如，如果只想执行节点监控部署的任务，则可以通过以下命令：
 
 ```bash
 ./nodes.yml --tags=node-monitor
@@ -72,7 +85,6 @@
 一些常用的任务子集包括：
 
 ```bash
-
 # play
 ./nodes.yml --tags=node-id         # 打印节点身份参数：名称与集群
 ./nodes.yml --tags=node-init       # 初始化节点，完成配置
@@ -102,222 +114,65 @@
 ```
 
 
+### 创建管理用户
 
+管理用户是一个先有鸡还是先有蛋的问题。为了执行Ansible剧本，需要有一个管理用户。为了创建一个专用的管理用户，需要执行此Ansible剧本。
 
-使用Ansible在远程机器上执行剧本时，默认需要远程机器上可以直接通过ssh登陆，且登陆的用户具有免密码sudo的权限。
+Pigsty推荐将管理用户的创建，权限配置与密钥分发放在虚拟机的Provisioning阶段完成，作为机器资源交付内容的一部分。对于生产环境来说，机器交付时应当已经配置有这样一个具有免密远程SSH登陆并执行免密sudo的用户。通常绝大多数云平台和运维体系都可以做到这一点。
 
-如果您无法使用**免密码**的方式执行SSH登陆，可以在执行剧本时添加`--ask-pass`或`-k`参数，手工输入SSH密码。
+如果您只能使用ssh密码和sudo密码，那么必须在所有剧本执行时添加额外的参数 `--ask-pass|-k` 与 `--ask-become-pass|-K`，并在提示出现时输入ssh密码与sudo密码。您可以使用 `nodes.yml` 中创建管理员用户的功能，使用当前用户创建一个专用管理员用户，以下参数用于创建默认的管理员用户：
 
-如果您无法使用**免密码**的方式执行远程sudo命令，可以在执行剧本时添加`--ask-become-pass`或`-K`参数，手工输入sudo密码。
+* [`node_admin_setup`](v-nodes.md#node_admin_setup)
+* [`node_admin_uid`](v-nodes.md#node_admin_uid)
+* [`node_admin_username`](v-nodes.md#node_admin_username)
+* [`node_admin_pks`](v-nodes.md#node_admin_pks)
 
-如果管理账号在目标机器上不存在，您可以使用其他具有远程登录管理员身份的用户，使用 `pgsql.yml` 剧本中的 `node_admin` 进行创建。
+```bash
+./nodes.yml -t node_admin -l <目标机器> --ask-pass --ask-become-pass
+```
+
+默认创建的管理员用户为dba (uid=88)，请**不要**使用 postgres 或 dbsu 作为管理用户，请尽量避免直接使用 root 作为管理用户。
+
+在沙箱环境中的默认用户 vagrant 默认已经配置有免密登陆和免密sudo，您可以从宿主机或沙箱管理节点使用vagrant登陆所有的数据库节点。
 
 例如：
 
 ```bash
-./pgsql --limit <target_hosts>  --tags node_admin  -e ansible_user=<another_admin> --ask-pass --ask-become-pass 
+./nodes.yml --limit <target_hosts>  --tags node_admin  -e ansible_user=<another_admin> --ask-pass --ask-become-pass 
 ```
 
 详情请参考：[准备：管理用户置备](d-prepare.md#管理用户置备)
 
 
 
-## 原始内容
-
-<details>
-
-```yaml
-#---------------------------------------------------------------
-# node identity
-#---------------------------------------------------------------
-# pg_hostname: use pgsql identity as node identity if applicable
-# if node identity is leaving blank, and pgsql identity exists
-# pgsql instance's cls & ins will be used as node identity too
-#---------------------------------------------------------------
-- name: Node Identity
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: [ always, node-id ]
-  tasks:
-    - name: Overwrite node_cluster
-      when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
-      set_fact:
-        node_cluster: "{{ pg_cluster }}"    # use pg_cluster as non-trivial node_cluster name
-
-    - name: Overwrite nodename
-      when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
-      set_fact:
-        nodename: "{{ pg_cluster }}-{{ pg_seq }}"
-
-    - debug:
-        msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
-
-#---------------------------------------------------------------
-# init node & dcs
-#---------------------------------------------------------------
-- name: Node Init
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-init
-  roles:
-
-    # prepare node for use
-    - role: node
-      tags: node
-
-    # init dcs:consul server/agent
-    - role: consul
-      tags: [ dcs, consul ]
-
-
-#---------------------------------------------------------------
-# init monitor for node
-#---------------------------------------------------------------
-- name: Node Monitor
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-monitor
-  roles:
-
-    # init & register node exporter
-    - role: node_exporter
-      tags: node_exporter
-
-#---------------------------------------------------------------
-...
-
-```
-
-</details>
 
 
 
-## 任务详情
 
-使用以下命令可以列出所有节点会执行的任务，以及可以使用的标签：
+---------------
+
+## `nodes-remove`
+
+[`nodes-remove.yml`](#nodes-remove) 剧本是 [`nodes`](#nodes)剧本的反向操作，用于将节点从Pigsty中移除。
+
+该剧本需要在 **管理节点** 上发起，针对目标节点执行。
 
 ```bash
-./nodes.yml --list-tasks
+./nodes.yml                      # 移除所有节点（危险！）
+./nodes.yml -l nodes-test        # 移除 nodes-test 分组下的机器
+./nodes.yml -l 10.10.10.11       # 移除 10.10.10.11这台机器节点
+./nodes.yml -l 10.10.10.10 -e rm_dcs_servers=true # 如果节点为DCS Server，需要额外参数移除。
 ```
 
-默认任务如下：
+![](../_media/playbook/nodes-remove.svg)
 
-<details>
+### 任务子集
 
-```yaml
-playbook: ./nodes.yml
-
-  play #1 (all): Node Identity	TAGS: [always,node-id]
-  tasks:
-    Overwrite node_cluster	TAGS: [always, node-id]
-    Overwrite nodename	TAGS: [always, node-id]
-    debug	TAGS: [always, node-id]
-
-  play #2 (all): Node Init	TAGS: [node-init]
-  tasks:
-    node : Setup node name	TAGS: [node, node-init, node_name]
-    node : Fetch hostname from server	TAGS: [node, node-init, node_name]
-    node : Exchange hostname among servers	TAGS: [node, node-init, node_name]
-    node : Write static dns records to /etc/hosts	TAGS: [node, node-init, node_dns]
-    node : Write extra static dns records to /etc/hosts	TAGS: [node, node-init, node_dns]
-    node : Get old nameservers	TAGS: [node, node-init, node_resolv]
-    node : Write tmp resolv file	TAGS: [node, node-init, node_resolv]
-    node : Write resolv options	TAGS: [node, node-init, node_resolv]
-    node : Write additional nameservers	TAGS: [node, node-init, node_resolv]
-    node : Append existing nameservers	TAGS: [node, node-init, node_resolv]
-    node : Swap resolv.conf	TAGS: [node, node-init, node_resolv]
-    node : Node configure disable firewall	TAGS: [node, node-init, node_firewall]
-    node : Node disable selinux by default	TAGS: [node, node-init, node_firewall]
-    node : Backup existing repos	TAGS: [node, node-init, node_repo]
-    node : Install upstream repo	TAGS: [node, node-init, node_repo]
-    node : Install local repo	TAGS: [node, node-init, node_repo]
-    node : Install node basic packages	TAGS: [node, node-init, node_pkgs]
-    node : Install node extra packages	TAGS: [node, node-init, node_pkgs]
-    node : Install meta specific packages	TAGS: [node, node-init, node_pkgs]
-    node : Install node basic packages	TAGS: [node, node-init, node_pkgs]
-    node : Install node extra packages	TAGS: [node, node-init, node_pkgs]
-    node : Install meta specific packages	TAGS: [node, node-init, node_pkgs]
-    node : Install pip3 packages on meta node	TAGS: [node, node-init, node_pip, node_pkgs]
-    node : Node configure disable numa	TAGS: [node, node-init, node_feature]
-    node : Node configure disable swap	TAGS: [node, node-init, node_feature]
-    node : Node configure unmount swap	TAGS: [node, node-init, node_feature]
-    node : Node setup static network	TAGS: [node, node-init, node_feature]
-    node : Node configure disable firewall	TAGS: [node, node-init, node_feature]
-    node : Node configure disk prefetch	TAGS: [node, node-init, node_feature]
-    node : Enable linux kernel modules	TAGS: [node, node-init, node_kernel]
-    node : Enable kernel module on reboot	TAGS: [node, node-init, node_kernel]
-    node : Get config parameter page count	TAGS: [node, node-init, node_tuned]
-    node : Get config parameter page size	TAGS: [node, node-init, node_tuned]
-    node : Tune shmmax and shmall via mem	TAGS: [node, node-init, node_tuned]
-    node : Create tuned profiles	TAGS: [node, node-init, node_tuned]
-    node : Render tuned profiles	TAGS: [node, node-init, node_tuned]
-    node : Active tuned profile	TAGS: [node, node-init, node_tuned]
-    node : Change additional sysctl params	TAGS: [node, node-init, node_tuned]
-    node : Copy default user bash profile	TAGS: [node, node-init, node_profile]
-    node : Setup node default pam ulimits	TAGS: [node, node-init, node_ulimit]
-    node : Create os user group admin	TAGS: [node, node-init, node_admin]
-    node : Create os user admin	TAGS: [node, node-init, node_admin]
-    node : Grant admin group nopass sudo	TAGS: [node, node-init, node_admin]
-    node : Add no host checking to ssh config	TAGS: [node, node-init, node_admin]
-    node : Add admin ssh no host checking	TAGS: [node, node-init, node_admin]
-    node : Fetch all admin public keys	TAGS: [node, node-init, node_admin]
-    node : Exchange all admin ssh keys	TAGS: [node, node-init, node_admin]
-    node : Install public keys	TAGS: [node, node-init, node_admin, node_admin_pks]
-    node : Install current public key	TAGS: [node, node-init, node_admin, node_admin_pk_current]
-    node : Setup default node timezone	TAGS: [node, node-init, node_timezone]
-    node : Install ntp package	TAGS: [node, node-init, node_ntp, ntp_config]
-    node : Install chrony package	TAGS: [node, node-init, node_ntp, ntp_config]
-    node : Copy the ntp.conf file	TAGS: [node, node-init, node_ntp, ntp_config]
-    node : Copy the chrony.conf template	TAGS: [node, node-init, node_ntp, ntp_config]
-    node : Launch ntpd service	TAGS: [node, node-init, node_ntp, ntp_launch]
-    node : Launch chronyd service	TAGS: [node, node-init, node_ntp, ntp_launch]
-    consul : Check for existing consul	TAGS: [consul, consul_check, dcs, node-init]
-    consul : Consul exists flag fact set	TAGS: [consul, consul_check, dcs, node-init]
-    consul : Abort due to consul exists	TAGS: [consul, consul_check, dcs, node-init]
-    consul : Skip due to consul exists	TAGS: [consul, consul_check, dcs, node-init]
-    consul : Clean existing consul instance	TAGS: [consul, consul_clean, dcs, node-init]
-    consul : Stop any running consul instance	TAGS: [consul, consul_clean, dcs, node-init]
-    consul : Remove existing consul dir	TAGS: [consul, consul_clean, dcs, node-init]
-    consul : Recreate consul dir	TAGS: [consul, consul_clean, dcs, node-init]
-    consul : Make sure consul is installed	TAGS: [consul, consul_install, dcs, node-init]
-    consul : Make sure consul dir exists	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Get dcs server node names	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Get dcs node name from var nodename	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Fetch hostname as dcs node name	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Get dcs name from hostname	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Make sure consul hcl absent	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Copy /etc/consul.d/consul.json	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Copy consul agent service	TAGS: [consul, consul_config, dcs, node-init]
-    consul : Copy consul node-meta definition	TAGS: [consul, consul_config, consul_meta, dcs, node-init]
-    consul : Restart consul to load new node-meta	TAGS: [consul, consul_config, consul_meta, dcs, node-init]
-    consul : Get dcs bootstrap expect quroum	TAGS: [consul, consul_server, dcs, node-init]
-    consul : Copy consul server service unit	TAGS: [consul, consul_server, dcs, node-init]
-    consul : Launch consul server service	TAGS: [consul, consul_server, dcs, node-init]
-    consul : Wait for consul server online	TAGS: [consul, consul_server, dcs, node-init]
-    consul : Launch consul agent service	TAGS: [consul, consul_agent, dcs, node-init]
-    consul : Wait for consul agent online	TAGS: [consul, consul_agent, dcs, node-init]
-
-  play #3 (all): Node Monitor	TAGS: [node-monitor]
-  tasks:
-    node_exporter : Add yum repo for node_exporter	TAGS: [node-monitor, node_exporter, node_exporter_install]
-    node_exporter : Install node_exporter via yum	TAGS: [node-monitor, node_exporter, node_exporter_install]
-    node_exporter : Install node_exporter via binary	TAGS: [node-monitor, node_exporter, node_exporter_install]
-    node_exporter : Config node_exporter systemd unit	TAGS: [node-monitor, node_exporter, node_exporter_config]
-    node_exporter : Config default node_exporter options	TAGS: [node-monitor, node_exporter, node_exporter_config]
-    node_exporter : Launch node_exporter systemd unit	TAGS: [node-monitor, node_exporter, node_exporter_launch]
-    node_exporter : Wait for node_exporter online	TAGS: [node-monitor, node_exporter, node_exporter_launch]
-    node_exporter : Deregister node exporter from prometheus	TAGS: [deregister_prometheus, node-monitor, node_deregister, node_exporter]
-    node_exporter : Fetch hostname from server if no node name is given	TAGS: [node-monitor, node_exporter, node_register, register_prometheus]
-    node_exporter : Setup nodename according to hostname	TAGS: [node-monitor, node_exporter, node_register, register_prometheus]
-    node_exporter : Register node exporter as prometheus target	TAGS: [node-monitor, node_exporter, node_register, register_prometheus]
+```bash
+# play
+./nodes-remove.yml --tags=register      # 移除节点注册信息
+./nodes-remove.yml --tags=node-exporter # 移除节点指标收集器
+./nodes-remove.yml --tags=promtail      # 移除Promtail日志收集组件
+./nodes-remove.yml --tags=consul        # 移除Consul Agent服务
+./nodes-remove.yml --tags=consul -e rm_dcs_servers=true # 移除Consul服务（包括Server！）
 ```
-
-</details>
-
-
-
-
-

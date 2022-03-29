@@ -32,7 +32,24 @@ Get a new Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
 cd ~/pigsty && ./configure                             # pre-check and config templating 
 ./infra.yml                                            # install pigsty on current node
-``` 
+```
+
+You can also download pigsty source & software packages via `curl`:
+
+```bash
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # 离线软件包需放置在 /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC
+```
+
+After install with `infra.yml`, you already have a battery-included postgres & infrastructure on current node. You can have more nodes & databases with following playbooks:
+
+```bash
+# run on 4-node sandbox environment
+./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
+./pgsql.yml  -l pg-test      # init 3-instance pgsql cluster
+./redis.yml  -l redis-test   # init redis cluster redis-test
+./pigsty-matrix.yml -l mx-*  # init MatrixDB cluster mx-mdw,mx-sdw .....
+```
 
 Check [public demo](http://demo.pigsty.cc) for what you will get, check [Get Started](#get-started) for more detail.
 
@@ -341,10 +358,13 @@ make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo)
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
 
+[![Star History Chart](https://api.star-history.com/svg?repos=Vonng/pigsty&type=Date)](https://star-history.com/#Vonng/pigsty&Date)
+
+
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [Apache 2.0 License](LICENSE)
 
 Copyright 2018-2022 rh@vonng.com(Vonng)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)h

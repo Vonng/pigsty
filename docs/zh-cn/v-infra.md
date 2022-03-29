@@ -1,8 +1,14 @@
 # 配置：Infra
 
+> 使用 [INFRA剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+>
 > 配置Pigsty基础设施，由[INFRA](p-infra.md)系列剧本使用。
 
-以下角色负责描述定制Pigsty基础设施。
+基础设施配置主要处理此类问题：本地Yum源，机器节点基础服务：DNS，NTP，内核模块，参数调优，管理用户，安装软件包，DCS Server的架设，监控基础设施的安装与初始化（Grafana，Prometheus，Alertmanager），全局流量入口Nginx的配置等等。
+
+通常来说，基础设施部分需要修改的内容很少，通常涉及到的主要修改只是对管理节点的IP地址进行文本替换，这一步会在[`./configure`](v-config.md#配置过程)过程中自动完成，另一处偶尔需要改动的地方是 [`nginx_upstream`](nginx_upstream)中定义的访问域名。其他参数很少需要调整，按需即可。
+
+
 
 - [`CONNECT`](#CONNECT) : 连接参数
 - [`REPO`](#REPO) : 本地源基础设施
@@ -85,7 +91,10 @@
 | 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | PgWeb使用的操作系统用户        | os user for pgweb|
 
 
+
+
 ----------------
+
 ## `CONNECT`
 
 
@@ -107,12 +116,21 @@ proxy_env: # global proxy env when downloading packages
 
 ### `ansible_host`
 
-如果用户的环境使用了跳板机，或者进行了某些定制化修改，无法通过简单的`ssh <ip>`方式访问，那么可以考虑使用Ansible的连接参数。
+如果您的目标机器藏在SSH跳板机之后，或者进行了某些定制化修改无法通过`ssh ip`的方式直接访问，则可以考虑使用 **Ansible连接参数**。
 
-`ansible_host`是ansible连接参数中最典型的一个。通常只要用户可以通过 `ssh <name>`的方式访问目标机器，为实例配置`ansible_host`变量，值为`<name>`即可。
+例如下面的例子中，[`ansible_host`](v-infra.md#ansible_host) 通过SSH别名的方式告知Pigsty通过`ssh node-1` 的方式而不是`ssh 10.10.10.11`的方式访问目标数据库节点。通过这种方式，用户可以自由指定数据库节点的连接方式，并将连接配置保存在管理用户的`~/.ssh/config`中独立管理。
 
-> [Ansible SSH连接参数](https://docs.ansible.com/ansible/2.9/user_guide/intro_inventory.html#id17)，常用参数如下所示
->
+```yaml
+  pg-test:
+    vars: { pg_cluster: pg-test }
+    hosts:
+      10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
+      10.10.10.12: {pg_seq: 2, pg_role: replica, ansible_host: node-2}
+      10.10.10.13: {pg_seq: 3, pg_role: offline, ansible_host: node-3}
+```
+
+`ansible_host`是ansible连接参数中最典型的一个。通常只要用户可以通过 `ssh <name>`的方式访问目标机器，为实例配置`ansible_host`变量，值为`<name>`即可，其他常用的Ansible SSH连接参数如下所示：
+
 > - ansible_host :   在此指定目标机器的IP、主机名或SSH别名
 >
 > - ansible_port :   指定一个不同于22的SSH端口
@@ -125,8 +143,6 @@ proxy_env: # global proxy env when downloading packages
 >
 > - ansible_ssh_common_args :   SSH通用参数
 >
-
-
 
 
 

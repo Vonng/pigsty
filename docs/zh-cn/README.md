@@ -9,12 +9,10 @@
 > 最新版本: [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开Demo](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
->
 
 
 
 ## Pigsty是什么？
-
 
 
 * Pigsty是**开箱即用的PostgreSQL[发行版](#发行版)**
@@ -55,19 +53,19 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tm
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~ ;  # 源码包默认解压至管理用户 ~/pigsty
 ```
 
-执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库[服务](c-service.md)，80端口对外提供所有UI类服务。
+执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库[服务](c-service.md#服务)，80端口对外提供所有WebUI类服务。
 
-您可以从这台机器发起管理控制，将更多的[机器节点](t-nodes.yml)纳入Pigsty的管理与监控中，并在这些节点上部署额外的，不同种类的数据库集群，例如 [PostgreSQL](p-pgsql.md)，[Redis](t-redis.md)，与[MatrixDB](t-gpsql.md)。
+您可以从这台机器发起管理控制，将更多的 [机器节点](p-nodes.yml) 纳入Pigsty的管理与监控中，并在这些节点上部署额外的，不同种类的数据库集群，例如 [PostgreSQL](d-pgsql.md)，[Redis](d-redis.md)，或[MatrixDB](d-matrixdb.md)。
 
 ```bash
 # 在四节点本地沙箱/云端演示环境中，可以使用以下命令在其他三台节点上部署数据库集群
-./nodes.yml  -l pg-test # 初始化PostgreSQL数据库集群pg-test包含的三台机器节点（配置节点+纳入监控）
-./pgsql.yml -l pg-test               # 初始化高可用PostgreSQL数据库集群pg-test
-./redis.yml -l redis-test.           # 初始化Redis集群 redis-test
-./pigsty-matrix.yml -l mx-mdw,mx-sdw # 初始化MatrixDB集群Master与Segments
+./nodes.yml  -l pg-test      # 初始化集群pg-test包含的三台机器节点（配置节点+纳入监控）
+./pgsql.yml  -l pg-test      # 初始化高可用PGSQL数据库集群pg-test
+./redis.yml  -l redis-test   # 初始化Redis集群 redis-test
+./pigsty-matrix.yml -l mx-*  # 初始化MatrixDB集群mx-mdw,mx-sdw
 ```
 
-安装Pigsty的细节请参考[安装部署](s-install.md)，在本地或云端准备虚拟机环境可以参考：[沙箱环境](d-sandbox.md.md)。
+详细步骤请参考[部署](s-install.md)，在本地或云端准备虚拟机环境可以参考：[沙箱环境](d-sandbox.md.md)。
 
 
 
@@ -106,7 +104,7 @@ Pigsty有两种典型使用模式：**单机**与**集群**。它既可完整运
 
 在**单机模式**下，Pigsty会在该节点上部署完整的**基础设施运行时** 与 一个单节点PostgreSQL**数据库集群**。对于个人用户、简单场景、小微企业来说，您可以直接开箱使用此数据库。单节点模式本身功能完备，可自我管理，并带有一个扩展⻬全，全副武装，准备就绪的PG数据库，可用于软件开发、测试、实验，演示；或者是数据的清洗，分析，可视化，存储，或者直接用于支持上层应用：Gitlab, Jira, Confluence, 用友，金蝶，群晖等等……
 
-更重要的是，Pigsty打包并提供了一套完整的应用运行时，用户可以使用该节点管理任意数量的数据库集群。您可以从安装Pigsty的节点（又名"管理节点"/"元节点"）上发起控制，将更多节点纳入Pigsty的管理中。 您既可以使用它监控已有（包括云厂商RDS在内）的数据库实例，也可以直接在节点上自行部署高可用故障自愈的PostgreSQL数据库集群，以及其他种类的应用或数据库，例如 [Redis](t-redis.md) 与 [MatrixDB](t-gpsql.md) ，并获取关于节点、数据库与应用的实时洞察。
+更重要的是，Pigsty打包并提供了一套完整的应用运行时，用户可以使用该节点管理任意数量的数据库集群。您可以从安装Pigsty的节点（又名"管理节点"/"元节点"）上发起控制，将更多节点纳入Pigsty的管理中。 您既可以使用它监控已有（包括云厂商RDS在内）的数据库实例，也可以直接在节点上自行部署高可用故障自愈的PostgreSQL数据库集群，以及其他种类的应用或数据库，例如 [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) ，并获取关于节点、数据库与应用的实时洞察。
 
 ![](../_media/infra.svg)
 
@@ -133,7 +131,7 @@ Pigsty的监控系统目前支持4类监控：基础设施监控 `INFRA`，PGSQL
 
 Pigsty监控系统基于业内最佳实践，采用Prometheus、Grafana作为监控基础设施。开源开放，定制便利，可复用，可移植，没有厂商锁定。
 
-Pigsty监控系统可独立使用，监控已有PostgreSQL数据库实例，详情参考[监控系统部署](d-monly)。Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis监控](t-redis.md)的支持。
+Pigsty监控系统可独立使用，监控已有PostgreSQL数据库实例，详情参考[监控系统部署](d-monly.md)。Pigsty提供的监控管理基础设施可亦可用于其他数据库与应用的监控与管理，例如，Pigsty v1.3 引入了对[Redis监控](d-redis.md)的支持。
 
 
 
@@ -273,22 +271,22 @@ pg-meta:                                # required, ansible group name , pgsql c
 
 ```yaml
 #----------------------------------#
-# sentinel example                 #
+# redis sentinel example           #
 #----------------------------------#
-redis-sentinel:
+redis-meta:
   hosts:
     10.10.10.10:
       redis_node: 1
       redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
   vars:
-    redis_cluster: redis-sentinel
+    redis_cluster: redis-meta
     redis_mode: sentinel
     redis_max_memory: 128MB
 
 #----------------------------------#
-# cluster example                  #
+# redis cluster example            #
 #----------------------------------#
-redis-cluster:
+redis-test:
   hosts:
     10.10.10.11:
       redis_node: 1
@@ -297,15 +295,15 @@ redis-cluster:
       redis_node: 2
       redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
   vars:
-    redis_cluster: redis-cluster        # name of this redis 'cluster'
+    redis_cluster: redis-test           # name of this redis 'cluster'
     redis_mode: cluster                 # standalone,cluster,sentinel
     redis_max_memory: 64MB              # max memory used by each redis instance
     redis_mem_policy: allkeys-lru       # memory eviction policy
 
 #----------------------------------#
-# standalone example               #
+# redis standalone example         #
 #----------------------------------#
-redis-standalone:
+redis-common:
   hosts:
     10.10.10.13:
       redis_node: 1
@@ -314,7 +312,7 @@ redis-standalone:
         6502: { replica_of: '10.10.10.13 6501' }
         6503: { replica_of: '10.10.10.13 6501' }
   vars:
-    redis_cluster: redis-standalone     # name of this redis 'cluster'
+    redis_cluster: redis-common         # name of this redis 'cluster'
     redis_mode: standalone              # standalone,cluster,sentinel
     redis_max_memory: 64MB              # max memory used by each redis instance
 ```
@@ -335,6 +333,7 @@ mx-mdw:
     10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
   vars:
     gp_role: master          # this cluster is used as greenplum master
+    pg_shard: mx             # pgsql sharding name & gpsql deployment name
     pg_cluster: mx-mdw       # this master cluster name is mx-mdw
     pg_databases:
       - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
@@ -342,23 +341,10 @@ mx-mdw:
     pg_users:
       - { name: meta , password: DBUser.Meta , pgbouncer: true }
       - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
-
-    pg_dbsu: mxadmin              # matrixdb dbsu
-    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
-    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
-    pg_localhost: /tmp            # default unix socket dir
-    node_name_exchange: true      # exchange node names among cluster
-    patroni_enabled: false        # do not pull up normal postgres with patroni
-    pgbouncer_enabled: true       # enable pgbouncer for greenplum master
-    pg_provision: false           # provision postgres template & database & user
-    haproxy_enabled: false        # disable haproxy monitor on greenplum
+    
+    pgbouncer_enabled: true                # enable pgbouncer for greenplum master
+    pgbouncer_exporter_enabled: false      # enable pgbouncer_exporter for greenplum master
     pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
-    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-    pg_extensions: [ ]
-    node_local_repo_url:          # local repo url (if method=local, make sure firewall is configured or disabled)
-      - http://pigsty/pigsty.repo
-      - http://pigsty/matrix.repo
 
 #----------------------------------#
 # cluster: mx-sdw (gp master)
@@ -381,32 +367,13 @@ mx-sdw:
         6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
         6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
   vars:
-    gp_cluster: mx                 # greenplum cluster name
-    pg_cluster: mx-sdw
     gp_role: segment               # these are nodes for gp segments
-    node_cluster: mx-sdw           # node cluster name of sdw nodes
-
-    pg_preflight_skip: true       # skip preflight check
-    pg_dbsu: mxadmin              # matrixdb dbsu
-    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
-    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
-    node_name_exchange: true      # exchange node names among cluster
-    patroni_enabled: false        # do not pull up normal postgres with patroni
-    pgbouncer_enabled: false      # enable pgbouncer for greenplum master
-    pgbouncer_exporter_enabled: false      # enable pgbouncer for greenplum master
-    pg_provision: false           # provision postgres template & database & user
-    haproxy_enabled: false        # disable haproxy monitor on greenplum
-    pg_localhost: /tmp            # connect to segments via /tmp unix socket
-    pg_monitor_username: mxadmin  # use default dbsu as monitor username (not recommended in production env)
-    pg_monitor_password: mxadmin  # use default dbsu name as monitor password (strongly not recommended in production env)
+    pg_shard: mx                   # pgsql sharding name & gpsql deployment name
+    pg_cluster: mx-sdw             # these segment clusters name is mx-sdw
+    pg_preflight_skip: true        # skip preflight check (since pg_seq & pg_role & pg_cluster not exists)
     pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
     pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
-    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-    pg_extensions: [ ]
-    node_local_repo_url: # local repo url (if method=local, make sure firewall is configured or disabled)
-      - http://pigsty/pigsty.repo
-      - http://pigsty/matrix.repo
+
 ```
 
 </details>
@@ -425,7 +392,7 @@ Pigsty的高可用架构久经生产环境考验，Pigsty使用Patroni + Consul�
 ![](../_media/access.svg)
 
 
-Pigsty允许用户通过配置灵活定义[服务](c-service.md)，并提供了多种可选的[数据库接入](c-access.md)模式。在沙箱环境中，Pigsty默认使用DNS+二层VIP+Haproxy的接入层方案（如上图）：Haproxy**幂等**地部署在集群的每个实例上，任何一个或多个Haproxy实例都可以作为集群的负载均衡器，并通过健康检查进行流量分发，对外屏蔽集群成员的区别。而同样的功能亦可通过四层VIP实现，用户可根据自身基础设施情况灵活选择。
+Pigsty允许用户通过配置灵活定义[服务](c-service.md#服务)，并提供了多种可选的[数据库接入](c-service.md#接入)模式。在沙箱环境中，Pigsty默认使用DNS+二层VIP+Haproxy的接入层方案（如上图）：Haproxy**幂等**地部署在集群的每个实例上，任何一个或多个Haproxy实例都可以作为集群的负载均衡器，并通过健康检查进行流量分发，对外屏蔽集群成员的区别。而同样的功能亦可通过四层VIP实现，用户可根据自身基础设施情况灵活选择。
 
 
 

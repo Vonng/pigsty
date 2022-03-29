@@ -27,8 +27,12 @@
 VERSION=v1.4.0
 
 # where to download pkg.tgz ?
-DEFAULT_SRC_URL="https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz"
-DEFAULT_PKG_URL="https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz"
+BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
+BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
+DEFAULT_SRC_URL="${BASEURL_GITHUB}/src.tgz"
+DEFAULT_PKG_URL="${BASEURL_GITHUB}/pkg.tgz"
+
+
 
 # if you can't access github in your country (e.g Mainland China):
 # BaiduNetDisk: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw  8su9
@@ -395,8 +399,18 @@ function check_config(){
 #----------------------------------------------#
 # check pkg.tgz exists (optionally download)
 #----------------------------------------------#
+
+# return 0 if behind gfw (inside mainland china), otherwise 1
+function behind_gfw() {
+	local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
+	if [ "${return_code}" = "200" ]; then
+		return 1
+	fi
+	return 0
+}
+
 function check_pkg(){
-    local pkg_url=${1-${DEFAULT_PKG_URL}}    # default download url
+    local pkg_url=${1-${DEFAULT_PKG_URL}}    # default package url from github
     local pkg_path=${2-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
     local download_pkg=${3-${DOWNLOAD_PKG}}  # flag: if set, skip interactive asking
     local interactive=${4-${INTERACTIVE}}    # bool: if false, do not ask
@@ -423,12 +437,20 @@ function check_pkg(){
     if [[ ${download_pkg} == "false" ]]; then
         log_warn "cache = missing and skip download"
     else
-        log_info "cache = download from internet"
+		pkg_url="${BASEURL_GITHUB}/pkg.tgz"
+		if behind_gfw; then
+			pkg_url="${BASEURL_CHINA}/pkg.tgz"
+			log_info "download from China CDN ${pkg_url} to ${pkg_path}"
+		else
+			log_info "download from Github ${pkg_url} to ${pkg_path}"
+		fi
         curl -fSL "${pkg_url}" -o "${pkg_path}"
         return $?
     fi
     return 0
 }
+
+        log_info "cache = download from internet"
 
 #----------------------------------------------#
 # check repo

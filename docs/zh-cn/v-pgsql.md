@@ -1,6 +1,10 @@
 # 配置：PGSQL
 
-> [配置](v-config.md)PostgreSQL数据库集群，控制[PGSQL剧本](p-playbook.md)行为。
+> 使用 [PGSQL剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+
+您需要通过配置，向Pigsty表达自己对数据库的需求。Pigsty提供了100+参数来对PostgreSQL集群进行完备的描述。但用户通常只需要关心 [身份参数](#PG_IDENTITY) 与 [业务对象](#PG_BUSINESS) 中的个别参数即可：前者表达数据库集群“是谁？在哪？”，后者表达这个数据库“啥样？有啥？”。
+
+Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 
 - [`PG_IDENTITY`](#PG_IDENTITY) : 定义PostgreSQL数据库集群的身份
 - [`PG_BUSINESS`](#PG_BUSINESS) : 定制集群模板：用户，数据库，服务，权限规则
@@ -296,6 +300,8 @@ PG数据库实例序号, 类型：`int`，层级：I，无默认值，**必选�
 
 ----------------
 ## `PG_BUSINESS`
+
+用户需**重点关注**此部分参数，因为这里是业务声明自己所需数据库对象的地方。
 
 定制集群模板：用户，数据库，服务，权限规则。
 
@@ -617,6 +623,8 @@ PG Install 部分负责在一台装有基本软件的机器上完成所有Postgr
 
 
 
+
+
 ### `pg_dbsu`
 
 PG操作系统超级用户, 类型：`string`，层级：C，默认值为：`"postgres"`
@@ -753,7 +761,7 @@ wal2json_${pg_version}"
 * 渲染Patroni模板配置文件，使用Patroni拉起主库，使用Patroni拉起从库
 * 配置Pgbouncer，初始化业务用户与数据库，将数据库与数据源服务注册至DCS。
 
-您可以参考：[定制PGSQL集群](v-pgsql-customize.md) 对所需对PostgreSQL进行更深入对定制。
+通过 [`pg_conf`](#pg_conf) 可以使用默认的数据库集群模板（普通事务型 OLTP/普通分析型 OLAP/核心金融型 CRIT/微型虚机 TINY）。如果希望创建自定义的模板，可以在`roles/postgres/templates`中克隆默认配置并自行修改后采用，详情请参考：[定制PGSQL集群](v-pgsql-customize.md) 。
 
 
 

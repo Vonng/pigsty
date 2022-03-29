@@ -149,9 +149,7 @@ function extract_matrix() {
 #----------------------------------------------#
 # return 0 if behind gfw (inside mainland china), otherwise 1
 function behind_gfw() {
-	local timeout=1
-	local target=www.google.com
-	local return_code=$(curl -I -s --connect-timeout ${timeout} ${target} -w %{http_code} | tail -n1)
+	local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
 	if [ "${return_code}" = "200" ]; then
 		return 1
 	fi
@@ -180,7 +178,7 @@ function download() {
 	esac
 
 	local pkg_path="${dir}/${pkg}"
-	if [[ $pkg == "pkg.tgz" ]]; then
+	if [[ $pkg == "pkg.tgz" && -f ${pkg_path} ]]; then
 		if (($(stat -c%s ${pkg_path})>409600000)); then
 			log_warn "${pkg_path} exists but invalid, remove"
 			rm -rf "${pkg_path}"

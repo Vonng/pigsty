@@ -23,7 +23,7 @@
 
 [`infra.yml`](https://github.com/Vonng/pigsty/blob/master/infra.yml) 剧本会在**管理节点** （默认为当前节点）上完成**Pigsty**的安装与部署。
 
-当您将Pigsty用作开箱即用的数据库时，只要在本节点上直接执行`infra.yml` ，即可完成安装。
+当您将Pigsty用作开箱即用的数据库时，只要在本节点上直接执行 `infra.yml` ，即可完成安装。
 
 ![](../_media/playbook/infra.svg)
 
@@ -66,14 +66,13 @@
 ./infra.yml --tags=repo -e repo_rebuild=true     # 强制重新创建本地源
 ./infra.yml --tags=repo_upstream                 # 加入上游YumRepo
 ./infra.yml --tags=prometheus                    # 重新创建Prometheus
-./infra.yml --tags=nginx_config,nginx_restart    # 重新生成Nginx配置文件
+./infra.yml --tags=nginx_config,nginx_restart    # 重新生成Nginx配置文件并重启
 ……
 ```
 
 
 
-
-在[配置清单](v-config)中，隶属于 `meta`分组下的节点将被设置 [`meta_node`](v-meta#meta_node) 标记，用作 Pigsty 的管理节点。
+在[配置清单](v-config.md)中，隶属于 `meta`分组下的节点将被设置 [`meta_node`](v-meta#meta_node) 标记，用作 Pigsty 的管理节点。
 
 
 
@@ -101,7 +100,7 @@
 
 请注意，配置不当的情况下，此剧本有一次性抹平整个环境的奇效，在生产环境可以移除以避免 "Fat Finger" 的风险。
 
-
+![](../_media/playbook/infra-demo.svg)
 
 
 
@@ -115,7 +114,20 @@
 
 [`infra-remove.yml`](https://github.com/Vonng/pigsty/blob/master/infra-remove.yml) 剧本是 [infra](#infra) 剧本的反向操作。
 
-会将Pigsty从管理节点卸载。
+会将Pigsty从管理节点卸载，剧本会依次卸载下列组件。
+
+![](../_media/playbook/infra-remove.svg)
+
+- grafana-server
+- prometheus
+- alertmanager
+- node_exporter
+- consul
+- jupyter
+- pgweb
+- loki
+- promtail
+
 
 
 
@@ -125,23 +137,14 @@
 
 [`infra-jupyter.yml`](https://github.com/Vonng/pigsty/blob/master/infra-jupyter.yml) 剧本用于在管理节点上加装 Jupyter Lab服务
 
-Jupyter Lab 是非常实用的Python数据分析环境，但自带WebShell，风险较大。
-因此默认情况下，Demo环境，单机配置模板中会启用 JupyterLab，生产环境部署模版中默认不会启用JupyterLab
+Jupyter Lab 是非常实用的Python数据分析环境，但自带WebShell，风险较大。因此默认情况下，Demo环境，单机配置模板中会启用 JupyterLab，生产环境部署模版中默认不会启用JupyterLab
 
-要启用Jupyter Lab，用户需要设置 [`jupyter_enabled`](v-infra.md#jupyter_enabled) 参数为`true`。
-Pigsty会使用[`jupyter_username`](v-infra.md#jupyter_username) 参数指定的用户运行本地Notebook服务器。
-此外，需要配置[`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) 参数，在元数据库初始化时正确通过pip安装。（默认值为 `'jupyterlab'`，无需修改）
+请参照：[配置:Jupyter](v-infra.md#JUPYTER) 中的说明调整配置清单，然后执行此剧本即可。
 
-
-Jupyter Lab可以从Pigsty首页导航进入，或通过默认域名 `lab.pigsty` 访问。
-
-```yaml
-# - reference - #
-nginx_upstream:                               # domain names that will be used for accessing pigsty services
-  - { name: jupyter,       domain: lab.pigsty,    endpoint: "127.0.0.1:8888" }     # jupyter lab (8888)
+```bash
+./infra-jupyter.yml
 ```
 
-访问需要使用密码，由参数 [`jupyter_password`](v-infra.md#jupyter_password) 指定。
 
 !> 如果您在生产环境中启用了Jupyter，请务必修改Jupyter的密码
 
@@ -151,11 +154,17 @@ nginx_upstream:                               # domain names that will be used f
 
 ## `infra-pgweb`
 
+PGWeb 是基于浏览器的PostgreSQL客户端工具，可用于小批量个人数据查询等场景。目前为可选Beta功能，默认只在Demo中启用
+
+[`infra-pgweb.yml`](https://github.com/Vonng/pigsty/blob/master/infra-pgweb.yml) 剧本用于在管理节点上加装 PGWeb 服务。
+
+请参照：[配置: PGWEB](v-infra.md#PGWEB) 中的说明调整配置清单，然后执行此剧本即可。
+
 ```bash
 ./infra-pgweb.yml
 ```
 
-!> 必须完成管理节点的初始化后，才能正常执行数据库节点的初始化❗️
+
 
 
 
