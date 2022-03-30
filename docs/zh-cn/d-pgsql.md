@@ -186,21 +186,95 @@ pg-test2:
     10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # 实际角色为 Standby Leader
     10.10.10.13: { pg_seq: 2, pg_role: replica }
   vars:
-    pg_cluster: pg-test
+    pg_cluster: pg-test2
     pg_version: 14          # 制作Standby Cluster时，数据库大版本必须保持一致！
 ```
 
 ```bash
 bin/createpg pg-test     # 创建原始集群
 bin/createpg pg-test2    # 创建备份集群
-
 ```
+
+### 备份集群常见问题
+
+当您想要将整个Standby Cluster集群提升为一个独立运作的集群时，编辑新集群的Patroni配置文件，移除所有`standby_cluster`配置，Standby Leader会被提升为独立的主库。
+
+```bash
+pg edit-config pg-test2  # 移除 standby_cluster 配置定义并应用
+```
+
+移除下列配置
+
+```bash
+-standby_cluster:
+-  create_replica_methods:
+-  - basebackup
+-  host: 10.10.10.11
+-  port: 5432
+```
+
+当源集群发生Failover主库发生变化时，您需要调整Standby Cluster的复制源。执行`pg edit-config <cluster>`，并修改`standby_cluster`中的源地址，应用即可生效。
+
+```yaml
+ standby_cluster:
+   create_replica_methods:
+   - basebackup
+-  host: 10.10.10.13
++  host: 10.10.10.12
+   port: 5432
+```
+
+这里需要注意，从源集群的从库进行复制是**可行的**，但新集群从只读从库执行复制时，无法创建复制槽，因此存在复制中断的风险，建议及时调整Standby Cluster的上游复制源。
+
 
 
 ## 延迟从库
 
-延时从库
+延时从库，建议创建一个专用的集群，您需要修改 patroni.standby
+
+
+```yaml
+# pg-test是原始数据库
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+  vars:
+    pg_cluster: pg-test
+    pg_version: 14
+
+# pg-testdelay 将作为1号库的延时从库
+pg-testdelay:
+  hosts:
+    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # 实际角色为 Standby Leader
+  vars:
+    pg_cluster: pg-testdelay
+    pg_version: 14          
+```
+
+创建完毕后，在管理节点使用 `pg edit-config pg-testdelay`编辑延时集群配置，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
+
+```bash
+ standby_cluster:
+   create_replica_methods:
+   - basebackup
+   host: 10.10.10.12
+   port: 5432
++  recovery_min_apply_delay: 1h
+```
+
+
 
 
 ## 级连复制
 
+在创建集群时，如果为集群中的某个从库指定 [`pg_upstream`](v-pgsql.md#pg_upstream) 参数（指定为集群中另一个从库），那么该实例将尝试从该指定从库构建逻辑复制。
+
+```yaml
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+    10.10.10.12: { pg_seq: 2, pg_role: replica } # 尝试从2号从库而非主库复制
+    10.10.10.13: { pg_seq: 2, pg_role: replica, pg_upstream: 10.10.10.12 }
+  vars:
+    pg_cluster: pg-test
+```
