@@ -1,6 +1,12 @@
 # Development Log
 
 
+
+#### 2022-03-30
+
+* Pigsty v1.4.0 Released!
+
+
 #### 2022-03-24
 
 * Get the latest source with `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`

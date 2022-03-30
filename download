@@ -178,14 +178,7 @@ function download() {
 	esac
 
 	local pkg_path="${dir}/${pkg}"
-	if [[ $pkg == "pkg.tgz" && -f ${pkg_path} ]]; then
-		if (($(stat -c%s ${pkg_path})>409600000)); then
-			log_warn "${pkg_path} exists but invalid, remove"
-			rm -rf "${pkg_path}"
-		fi
-	fi
-
-	# if pkg already exists, skip downloading. TODO: validate checksum
+	# TODO: validate checksum
 	if [[ ! -f ${dir}/${pkg} ]]; then
 		local url=${BASEURL_GITHUB}/${pkg}
 		if behind_gfw; then

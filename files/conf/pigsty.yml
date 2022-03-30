@@ -1,27 +1,26 @@
 ---
 ######################################################################
-# File      :   pigsty-dcs3.yml
-# Desc      :   Pigsty 3 meta x 3 node config
+# File      :   pigsty.yml
+# Desc      :   Pigsty 4-node default config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-03-25
+# Mtime     :   2022-03-30
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
 ######################################################################
-#                        Sandbox (3-node)                            #
+#                        Sandbox (4-node)                            #
 #====================================================================#
 # admin user : vagrant  (nopass ssh & sudo already set)              #
-# 1.  meta-1   :    10.10.10.10     (2 Core | 4GB)    pg-meta-1      #
-# 2.  meta-2   :    10.10.10.11     (1 Core | 1GB)    pg-meta-2      #
-# 3.  meta-3   :    10.10.10.12     (1 Core | 1GB)    pg-meta-3      #
+# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
+# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
+# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
+# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
 # (replace these ip if your 4-node env have different ip addr)       #
-# VIP:                                                               #
+# VIP 2: (l2 vip is available inside same LAN )                      #
 #     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
+#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}                #
 ######################################################################
-# bootstrap with special playbook infra-demo.yml instead of infra.yml
-######################################################################
-
 
 all:
 
@@ -43,42 +42,191 @@ all:
       vars: { meta_node: true , ansible_group_priority: 99 }
       hosts: # 10.10.10.10 is the default and only meta node
         10.10.10.10: { }
-        10.10.10.11: { repo_enabled: false } # disable repo on secondary meta nodes
-        10.10.10.12: { repo_enabled: false }
 
 
     #================================================================#
     #                        PGSQL Clusters                          #
     #================================================================#
-    #----------------------------------#
-    # cluster: pg-meta (on meta node)  #
-    #----------------------------------#
-    pg-meta:
-      hosts:
-        10.10.10.10: { pg_seq: 1, pg_role: primary }
-        10.10.10.11: { pg_seq: 2, pg_role: replica }
-        10.10.10.12: { pg_seq: 3, pg_role: replica , pg_offline_query: true }
-      vars:
-        pg_hostname: true       #  overwrite nodename with pg hostname
-        pg_cluster: pg-meta
-        pg_users:
-          - { name: dbuser_meta , password: DBUser.Meta   , pgbouncer: true , roles: [ dbrole_admin ] , comment: pigsty admin user }
-          - { name: dbuser_view , password: DBUser.Viewer , pgbouncer: true , roles: [ dbrole_readonly ] , comment: read-only viewer for meta database }
-        pg_databases:
-          - name: meta
-            baseline: cmdb.sql
-            comment: pigsty meta database
-            connlimit: -1
-            schemas: [ pigsty ]
-            extensions:
-              - { name: adminpack, schema: pg_catalog }
-              - { name: postgis, schema: public }
-              - { name: timescaledb }
 
-        vip_mode:  l2                       # set to 'l2' to enable l2 vip for pg-meta
+    #----------------------------------#
+    # pgsql cluster: pg-meta (CMDB)    #
+    #----------------------------------#
+    # EXAMPLE pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
+    pg-meta:                          # [REQUIRED], ansible group name , pgsql cluster name. should be unique among environment
+      hosts:                          # `<cluster>.hosts` holds instances definition of this cluster
+        10.10.10.10:                  # [REQUIRED]: ip address is the key. values are instance level config entries (dict)
+          pg_seq: 1                   # [REQUIRED], unique identity parameter (+integer) among pg_cluster
+          pg_role: primary            # [REQUIRED], pg_role is mandatory identity parameter, primary|replica|offline
+          pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
+          # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
+          # pg_weight: 100            # load balance weight for this instance
+
+      vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
+        pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
+
+        # all vars below are [OPTIONAL] (overwrite global default)
+        pg_version: 14                # pgsql version to be installed (use global version if missing)
+        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
+        pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
+        patroni_mode: default         # entering patroni pause mode after bootstrap  {default|pause|remove}
+        patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
+        pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
+
+        # define business database meta , used as CMDB & default database for single-node setup
+        pg_databases:                       # define business databases on this cluster, array of database definition
+          - name: meta                      # required, `name` is the only mandatory field of a database definition
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+            # owner: postgres               # optional, database owner, postgres by default
+            # template: template1           # optional, which template to use, template1 by default
+            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
+            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
+            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
+            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
+            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
+            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
+            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+            # pgbouncer: true               # optional, add this database to pgbouncer database list? true by default
+            comment: pigsty meta database   # optional, comment string for this database
+            connlimit: -1                   # optional, database connection limit, default -1 disable limit
+            schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
+            extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
+              - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
+              - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
+              - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
+
+          # define an additional database named grafana & prometheus (optional)
+          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
+          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
+
+        # define business users for this cluster
+        pg_users:                           # define business users/roles on this cluster, array of user definition
+          # define admin user for meta database (This user are used for pigsty app deployment by default)
+          - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
+            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
+            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
+            login: true                     # optional, can login, true by default  (new biz ROLE should be false)
+            superuser: false                # optional, is superuser? false by default
+            createdb: false                 # optional, can create database? false by default
+            createrole: false               # optional, can create role? false by default
+            inherit: true                   # optional, can this role use inherited privileges? true by default
+            replication: false              # optional, can this role do replication? false by default
+            bypassrls: false                # optional, can this role bypass row level security? false by default
+            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+            connlimit: -1                   # optional, user connection limit, default -1 disable limit
+            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+            comment: pigsty admin user      # optional, comment string for this user/role
+            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
+          - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+          # define additional business users for prometheus & grafana (optional)
+          - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
+          - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
+
+        # defining extra HBA rules on this cluster
+        pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+          - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+            role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+            rules:                                          # required, rule content: array of hba string
+              - local   grafana         dbuser_grafana                          md5
+              - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+
+        # default l2 vip fro this cluster
+        vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
+
+
+    #----------------------------------#
+    # pgsql cluster: pg-test (3 nodes) #
+    #----------------------------------#
+    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+    pg-test:                                # define the new 3-node cluster pg-test
+      hosts:
+        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+      vars:
+        pg_cluster: pg-test                 # define pgsql cluster name
+        pg_version: 14                      # test postgresql 13 with pg-test cluster
+        pg_users: [{ name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user }]
+        pg_databases: [{ name: test }]      # create a database and user named 'test'
+        vip_mode: l2                        # enable/disable vip (require members in same LAN)
+        vip_address: 10.10.10.3             # virtual ip address for this cluster
+        vip_cidrmask: 8                     # cidr network mask length
+        vip_interface: eth1                 # interface to add virtual ip
+        pg_services_extra:                  # extra services in addition to pg_services, array of service definition
+          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
+          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
+            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
+            dst_port: pgbouncer             # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+            check_method: http              # optional, health check method: http is the only available method for now
+            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
+            check_url: /sync                # optional, health check url path, /read-only?lag=0 by default
+            check_code: 200                 # optional, health check expected http code, 200 by default
+            selector: "[]"                  # required, JMESPath to filter inventory ()
+            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
+            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
+              maxconn: 3000                 # optional, max allowed front-end connection
+              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+
+
+
+    #================================================================#
+    #                        REDIS Clusters                          #
+    #================================================================#
+
+    #----------------------------------#
+    # redis sentinel example           #
+    #----------------------------------#
+    #redis-meta:
+    #  hosts:
+    #    10.10.10.10:
+    #      redis_node: 1
+    #      redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+    #  vars:
+    #    redis_cluster: redis-meta
+    #    redis_mode: sentinel
+    #    redis_max_memory: 128MB
+
+    #----------------------------------#
+    # redis cluster example            #
+    #----------------------------------#
+    #redis-test:
+    #  hosts:
+    #    10.10.10.11:
+    #      redis_node: 1
+    #      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+    #    10.10.10.12:
+    #      redis_node: 2
+    #      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+    #  vars:
+    #    redis_cluster: redis-test           # name of this redis 'cluster'
+    #    redis_mode: cluster                 # standalone,cluster,sentinel
+    #    redis_max_memory: 64MB              # max memory used by each redis instance
+    #    redis_mem_policy: allkeys-lru       # memory eviction policy
+
+    #----------------------------------#
+    # redis standalone example         #
+    #----------------------------------#
+    #redis-common:
+    #  hosts:
+    #    10.10.10.13:
+    #      redis_node: 1
+    #      redis_instances:
+    #        6501: {}
+    #        6502: { replica_of: '10.10.10.13 6501' }
+    #        6503: { replica_of: '10.10.10.13 6501' }
+    #  vars:
+    #    redis_cluster: redis-common         # name of this redis 'cluster'
+    #    redis_mode: standalone              # standalone,cluster,sentinel
+    #    redis_max_memory: 64MB              # max memory used by each redis instance
+
 
 
   ####################################################################
@@ -229,8 +377,8 @@ all:
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
     repo_url_packages:               # extra packages from url
+      - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/vip-manager_1.0.1-1_amd64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/loki-2.4.2-1.el7.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/promtail-2.4.2-1.el7.x86_64.rpm
@@ -261,6 +409,7 @@ all:
       - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
       - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
       - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
+      - { name: matrix,       domain: matrix.pigsty, endpoint: "10.10.10.10:8240" }
     app_list:                            # application nav links on home page
       - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
       - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
@@ -296,9 +445,9 @@ all:
     prometheus_options: '--storage.tsdb.retention=15d --enable-feature=promql-negative-offset'
     prometheus_reload: false        # reload prometheus instead of recreate it?
     prometheus_sd_method: static    # service discovery method: static|consul
-    prometheus_scrape_interval: 10s # global scrape & evaluation interval
-    prometheus_scrape_timeout: 8s   # scrape timeout
-    prometheus_sd_interval: 10s     # service discovery refresh interval
+    prometheus_scrape_interval: 5s # global scrape & evaluation interval
+    prometheus_scrape_timeout: 4s   # scrape timeout
+    prometheus_sd_interval: 5s     # service discovery refresh interval
 
     #-----------------------------------------------------------------
     # EXPORTER
@@ -337,9 +486,9 @@ all:
     # DCS
     #-----------------------------------------------------------------
     dcs_servers:                     # dcs server dict in name:ip format
-      pg-meta-1: 10.10.10.10         # you could use existing dcs cluster
-      pg-meta-2: 10.10.10.11         # host which have their IP listed here will be init as server
-      pg-meta-3: 10.10.10.12         # 3 or 5 dcs nodes are recommended for production environment
+      pg-meta-1: 10.10.10.10         # using existing external dcs cluster is recommended for HA
+      # pg-meta-2: 10.10.10.11       # node with ip in dcs_servers will be initialized as dcs servers
+      # pg-meta-3: 10.10.10.12       # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
 
     service_registry: consul         # where to register services: none | consul | etcd | both
     dcs_type: consul                 # consul | etcd | both
@@ -665,7 +814,7 @@ all:
     #-----------------------------------------------------------------
     # PG_EXPORTER
     #-----------------------------------------------------------------
-    pg_exporter_config: pg_exporter.yml    # default config files for pg_exporter
+    pg_exporter_config: pg_exporter_fast.yml # use fast cache exporter for demo
     pg_exporter_enabled: true              # setup pg_exporter on instance
     pg_exporter_port: 9630                 # pg_exporter listen port
     pg_exporter_params: 'sslmode=disable'  # url query parameters for pg_exporter
@@ -749,27 +898,27 @@ all:
     #-----------------------------------------------------------------
     # REDIS_PROVISION
     #-----------------------------------------------------------------
-    #redis_install: yum              # none|yum|binary, yum by default (install from yum repo)
-    #redis_mode: standalone          # standalone,cluster,sentinel
-    #redis_conf: redis.conf          # config template path (except sentinel)
-    #redis_fs_main: /data            # main fs mountpoint for redis data
-    #redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
-    #redis_exists_action: clean      # abort|skip|clean if redis server already exists
-    #redis_disable_purge: false      # force redis_exists_action = abort if true
-    #redis_max_memory: 1GB           # max memory used by each redis instance
-    #redis_mem_policy: allkeys-lru   # memory eviction policy
-    #redis_password: ''              # masterauth & requirepass password, disable by empty string
-    #redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
-    #redis_aof_enabled: false        # redis aof enabled
-    #redis_rename_commands: {}       # rename dangerous commands
-    #redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
+    redis_install: yum              # none|yum|binary, yum by default (install from yum repo)
+    redis_mode: standalone          # standalone,cluster,sentinel
+    redis_conf: redis.conf          # config template path (except sentinel)
+    redis_fs_main: /data            # main fs mountpoint for redis data
+    redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
+    redis_exists_action: clean      # abort|skip|clean if redis server already exists
+    redis_disable_purge: false      # force redis_exists_action = abort if true
+    redis_max_memory: 1GB           # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru   # memory eviction policy
+    redis_password: ''              # masterauth & requirepass password, disable by empty string
+    redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
+    redis_aof_enabled: false        # redis aof enabled
+    redis_rename_commands: {}       # rename dangerous commands
+    redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
 
     #-----------------------------------------------------------------
     # REDIS_EXPORTER
     #-----------------------------------------------------------------
-    #redis_exporter_enabled: true    # install redis exporter on redis nodes ?
-    #redis_exporter_port: 9121       # default port for redis exporter
-    #redis_exporter_options: ''      # default cli args for redis exporter
+    redis_exporter_enabled: true    # install redis exporter on redis nodes ?
+    redis_exporter_port: 9121       # default port for redis exporter
+    redis_exporter_options: ''      # default cli args for redis exporter
 
 
 ...

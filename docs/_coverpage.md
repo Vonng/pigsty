@@ -8,6 +8,7 @@
 - Provisioning Solution to create HA PostgreSQL Clusters
 - Versatile Sandbox with one-click local installation on your laptop
 - Open Source under Apache License 2.0
+- Redis & MatrixDB now included !
 
 [Documentation](#pigsty)
 [中文文档](zh-cn/)
