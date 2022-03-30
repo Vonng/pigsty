@@ -20,7 +20,7 @@
 * Pigsty是**高可用的PostgreSQL[部署方案](#部署方案)**
 * Pigsty是**用途广泛的PostgreSQL[沙箱环境](#用途广泛)**
 * Pigsty是**基于Apache 2.0的免费[开源软件](#协议)**
-* Pigsty现已支持 [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) 部署与监控
+* Pigsty现已支持[Citus](d-pgsql.md#Citus集群部署)， [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) 部署与监控
 
 ![](../_media/what-zh.svg)
 

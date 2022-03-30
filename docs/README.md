@@ -19,15 +19,17 @@
 
 * Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
 
+* Pigsty now support Redis & MatrixDB !
 
 ## Quick Start
 
 Run on fresh Linux x86_64 CentOS 7.8.2003 node with ssh root access:
 
 ```bash
-git clone https://github.com/Vonng/pigsty && cd pigsty
-./configure
-make install
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)" # Download src
+./download pkg.tgz                     # [OPTIONAL]   # Download pkgs
+cd ~/pigsty && ./configure                            # Configure
+make install                                          # Install
 ```
 
 You can also download source & packages via `curl` instead of git: 

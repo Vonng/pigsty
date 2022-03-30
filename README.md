@@ -48,7 +48,7 @@ After install with `infra.yml`, you already have a battery-included postgres & i
 ```bash
 # run on 4-node sandbox environment
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
-./pgsql.yml  -l pg-test      # init 3-instance pgsql cluster
+./pgsql.yml  -l pg-test      # init 1-primary-2-replica pgsql cluster
 ./redis.yml  -l redis-test   # init redis cluster redis-test
 ./pigsty-matrix.yml -l mx-*  # init MatrixDB cluster mx-mdw,mx-sdw .....
 ```
