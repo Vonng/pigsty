@@ -15,105 +15,105 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 - [`PG_SERVICE`](#PG_SERVICE) : 对外暴露PostgreSQL服务，安装负载均衡器 HAProxy，启用VIP，配置DNS。
 
 
-| ID  |                              Name                               |             Section             |    Type     | Level |            Comment             |              Comment2              |
-|-----|-----------------------------------------------------------------|---------------------------------|-------------|-------|--------------------------------|------------------------------------|
-| 500 | [`pg_cluster`](#pg_cluster)                                     | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG数据库集群名称               | PG Cluster Name|
-| 501 | [`pg_shard`](#pg_shard)                                         | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG集群所属的Shard (保留)       | PG Shard Name (Reserve)|
-| 502 | [`pg_sindex`](#pg_sindex)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | C     | PG集群的分片号 (保留)          | PG Shard Index (Reserve)|
-| 503 | [`gp_role`](#gp_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | C     | 当前PG集群在GP中的角色         | gp role of this pg cluster|
-| 504 | [`pg_role`](#pg_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | I     | PG数据库实例角色               | PG Instance Role|
-| 505 | [`pg_seq`](#pg_seq)                                             | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | PG数据库实例序号               | PG Instance Sequence|
-| 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | 当前节点上的所有PG实例         | pg instance on this node|
-| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | 实例的复制上游节点             | pg upstream IP address|
-| 508 | [`pg_offline_query`](#pg_offline_query)                         | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | 是否允许离线查询               | allow offline query?|
-| 509 | [`pg_backup`](#pg_backup)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | 是否在实例上存储备份           | make base backup on this ins?|
-| 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | 实例在负载均衡中的相对权重     | relative weight in load balancer|
-| 511 | [`pg_hostname`](#pg_hostname)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/I   | 将PG实例名称设为HOSTNAME       | set PG ins name as hostname|
-| 512 | [`pg_preflight_skip`](#pg_preflight_skip)                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/A   | 跳过PG身份参数校验             | skip preflight param validation|
-| 520 | [`pg_users`](#pg_users)                                         | [`PG_BUSINESS`](#PG_BUSINESS)   | user[]      | C     | 业务用户定义                   | business users definition|
-| 521 | [`pg_databases`](#pg_databases)                                 | [`PG_BUSINESS`](#PG_BUSINESS)   | database[]  | C     | 业务数据库定义                 | business databases definition|
-| 522 | [`pg_services_extra`](#pg_services_extra)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | service[]   | C     | 集群专有服务定义               | ad hoc service definition|
-| 523 | [`pg_hba_rules_extra`](#pg_hba_rules_extra)                     | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | 集群/实例特定的HBA规则         | ad hoc HBA rules|
-| 524 | [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra)       | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | Pgbounce特定HBA规则            | ad hoc pgbouncer HBA rules|
-| 525 | [`pg_admin_username`](#pg_admin_username)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG管理用户                     | admin user's name|
-| 526 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG管理用户密码                 | admin user's password|
-| 527 | [`pg_replication_username`](#pg_replication_username)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG复制用户                     | replication user's name|
-| 528 | [`pg_replication_password`](#pg_replication_password)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG复制用户的密码               | replication user's password|
-| 529 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG监控用户                     | monitor user's name|
-| 530 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG监控用户密码                 | monitor user's password|
-| 540 | [`pg_dbsu`](#pg_dbsu)                                           | [`PG_INSTALL`](#PG_INSTALL)     | string      | C     | PG操作系统超级用户             | os dbsu for postgres|
-| 541 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | 超级用户UID                    | dbsu UID|
-| 542 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PG_INSTALL`](#PG_INSTALL)     | enum        | C     | 超级用户的Sudo权限             | sudo priv mode for dbsu|
-| 543 | [`pg_dbsu_home`](#pg_dbsu_home)                                 | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | 超级用户的家目录               | home dir for dbsu|
-| 544 | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)                 | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | 是否交换超级用户密钥           | exchange dbsu ssh keys?|
-| 545 | [`pg_version`](#pg_version)                                     | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | 安装的数据库大版本             | major PG version to be installed|
-| 546 | [`pgdg_repo`](#pgdg_repo)                                       | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | 是否添加PG官方源？             | add official PGDG repo?|
-| 547 | [`pg_add_repo`](#pg_add_repo)                                   | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | 是否添加PG相关上游源？         | add extra upstream PG repo?|
-| 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG二进制目录                   | PG binary dir|
-| 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | 安装的PG软件包列表             | PG packages to be installed|
-| 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | 安装的PG插件列表               | PG extension pkgs to be installed|
-| 560 | [`pg_exists_action`](#pg_exists_action)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C/A   | PG存在时如何处理               | how to deal with existing pg ins|
-| 561 | [`pg_disable_purge`](#pg_disable_purge)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | 禁止清除存在的PG实例           | disable pg instance purge|
-| 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG数据目录                     | pg data dir|
-| 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG主数据盘挂载点               | pg main data disk mountpoint|
-| 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG备份盘挂载点                 | pg backup disk mountpoint|
-| 565 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | size        | C     | 占位文件/pg/dummy的大小        | /pg/dummy file size|
-| 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | PG监听的IP地址                 | pg listen IP address|
-| 567 | [`pg_port`](#pg_port)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | PG监听的端口                   | pg listen port|
-| 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | C     | PG使用的UnixSocket地址         | pg unix socket path|
-| 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Patroni是否启用                | Is patroni & postgres enabled?|
-| 581 | [`patroni_mode`](#patroni_mode)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni配置模式                | patroni working mode|
-| 582 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | Patroni使用的DCS命名空间       | namespace for patroni|
-| 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Patroni服务端口                | patroni listen port (8080)|
-| 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni Watchdog模式           | patroni watchdog policy|
-| 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | Patroni使用的配置模板          | patroni template|
-| 586 | [`pg_shared_libraries`](#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | PG默认加载的共享库             | default preload shared libraries|
-| 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG字符集编码                   | character encoding|
-| 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化规则             | locale|
-| 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化排序规则         | collate rule of locale|
-| 590 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化字符集定义       | ctype of locale|
-| 591 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | 是否启用Pgbouncer              | is pgbouncer enabled|
-| 592 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer端口                  | pgbouncer listen port|
-| 593 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Pgbouncer池化模式              | pgbouncer pooling mode|
-| 594 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer最大单DB连接数        | max connection per database|
-| 600 | [`pg_provision`](#pg_provision)                                 | [`PG_PROVISION`](#PG_PROVISION) | bool        | C     | 是否在PG集群中应用模板         | provision template to pgsql?|
-| 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | 自定义PG初始化脚本             | path to postgres init script|
-| 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | 默认创建的角色与用户           | list or global default roles/users|
-| 603 | [`pg_default_privilegs`](#pg_default_privilegs)                 | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | 数据库默认权限配置             | list of default privileges|
-| 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | 默认创建的模式                 | list of default schemas|
-| 605 | [`pg_default_extensions`](#pg_default_extensions)               | [`PG_PROVISION`](#PG_PROVISION) | extension[] | G/C   | 默认安装的扩展                 | list of default extensions|
-| 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | 是否重载数据库配置（HBA）      | reload configuration?|
-| 607 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | 全局HBA规则                    | global HBA rules|
-| 608 | [`pgbouncer_hba_rules`](#pgbouncer_hba_rules)                   | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | Pgbouncer全局HBA规则           | global pgbouncer HBA rules|
-| 620 | [`pg_exporter_config`](#pg_exporter_config)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C     | PG指标定义文件                 | pg_exporter config path|
-| 621 | [`pg_exporter_enabled`](#pg_exporter_enabled)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | 启用PG指标收集器               | pg_exporter enabled ?|
-| 622 | [`pg_exporter_port`](#pg_exporter_port)                         | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | PG指标暴露端口                 | pg_exporter listen address|
-| 623 | [`pg_exporter_params`](#pg_exporter_params)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | PG Exporter额外的URL参数       | extra params for pg_exporter url|
-| 624 | [`pg_exporter_url`](#pg_exporter_url)                           | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 采集对象数据库的连接串（覆盖） | monitor target pgurl (overwrite)|
-| 625 | [`pg_exporter_auto_discovery`](#pg_exporter_auto_discovery)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C/I   | 是否自动发现实例中的数据库     | enable auto-database-discovery?|
-| 626 | [`pg_exporter_exclude_database`](#pg_exporter_exclude_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 数据库自动发现排除列表         | excluded list of databases|
-| 627 | [`pg_exporter_include_database`](#pg_exporter_include_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 数据库自动发现囊括列表         | included list of databases|
-| 628 | [`pg_exporter_options`](#pg_exporter_options)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | PG Exporter命令行参数          | cli args for pg_exporter|
-| 629 | [`pgbouncer_exporter_enabled`](#pgbouncer_exporter_enabled)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | 启用PGB指标收集器              | pgbouncer_exporter enabled ?|
-| 630 | [`pgbouncer_exporter_port`](#pgbouncer_exporter_port)           | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | PGB指标暴露端口                | pgbouncer_exporter listen addr?|
-| 631 | [`pgbouncer_exporter_url`](#pgbouncer_exporter_url)             | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 采集对象连接池的连接串         | target pgbouncer url (overwrite)|
-| 632 | [`pgbouncer_exporter_options`](#pgbouncer_exporter_options)     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | PGB Exporter命令行参数         | cli args for pgbouncer exporter|
-| 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | 全局通用服务定义               | global service definition|
-| 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | 是否启用Haproxy                | haproxy enabled ?|
-| 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | 是否重载Haproxy配置            | haproxy reload instead of reset|
-| 643 | [`haproxy_admin_auth_enabled`](#haproxy_admin_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | 是否对Haproxy管理界面启用认证  | enable auth for haproxy admin ?|
-| 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | HAproxy管理员名称              | haproxy admin user name|
-| 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | HAproxy管理员密码              | haproxy admin password|
-| 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | HAproxy指标暴露器端口          | haproxy exporter listen port|
-| 647 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | HAproxy客户端超时              | haproxy client timeout|
-| 648 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | HAproxy服务端超时              | haproxy server timeout|
-| 649 | [`vip_mode`](#vip_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | VIP模式：none                  | vip working mode|
-| 650 | [`vip_reload`](#vip_reload)                                     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | 是否重载VIP配置                | reload vip configuration|
-| 651 | [`vip_address`](#vip_address)                                   | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | 集群使用的VIP地址              | vip address used by cluster|
-| 652 | [`vip_cidrmask`](#vip_cidrmask)                                 | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | VIP地址的网络CIDR掩码长度      | vip network CIDR length|
-| 653 | [`vip_interface`](#vip_interface)                               | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | VIP使用的网卡                  | vip network interface name|
-| 654 | [`dns_mode`](#dns_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | DNS配置模式                    | cluster DNS mode|
-| 655 | [`dns_selector`](#dns_selector)                                 | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | DNS解析对象选择器              | cluster DNS ins selector|
+| ID  |                              Name                               |             Section             |    Type     | Level |            Comment             |
+|-----|-----------------------------------------------------------------|---------------------------------|-------------|-------|--------------------------------|
+| 500 | [`pg_cluster`](#pg_cluster)                                     | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG数据库集群名称               |
+| 501 | [`pg_shard`](#pg_shard)                                         | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG集群所属的Shard (保留)       |
+| 502 | [`pg_sindex`](#pg_sindex)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | C     | PG集群的分片号 (保留)          |
+| 503 | [`gp_role`](#gp_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | C     | 当前PG集群在GP中的角色         |
+| 504 | [`pg_role`](#pg_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | I     | PG数据库实例角色               |
+| 505 | [`pg_seq`](#pg_seq)                                             | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | PG数据库实例序号               |
+| 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | 当前节点上的所有PG实例         |
+| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | 实例的复制上游节点             |
+| 508 | [`pg_offline_query`](#pg_offline_query)                         | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | 是否允许离线查询               |
+| 509 | [`pg_backup`](#pg_backup)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | 是否在实例上存储备份           |
+| 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | 实例在负载均衡中的相对权重     |
+| 511 | [`pg_hostname`](#pg_hostname)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/I   | 将PG实例名称设为HOSTNAME       |
+| 512 | [`pg_preflight_skip`](#pg_preflight_skip)                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/A   | 跳过PG身份参数校验             |
+| 520 | [`pg_users`](#pg_users)                                         | [`PG_BUSINESS`](#PG_BUSINESS)   | user[]      | C     | 业务用户定义                   |
+| 521 | [`pg_databases`](#pg_databases)                                 | [`PG_BUSINESS`](#PG_BUSINESS)   | database[]  | C     | 业务数据库定义                 |
+| 522 | [`pg_services_extra`](#pg_services_extra)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | service[]   | C     | 集群专有服务定义               |
+| 523 | [`pg_hba_rules_extra`](#pg_hba_rules_extra)                     | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | 集群/实例特定的HBA规则         |
+| 524 | [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra)       | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | Pgbounce特定HBA规则            |
+| 525 | [`pg_admin_username`](#pg_admin_username)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG管理用户                     |
+| 526 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG管理用户密码                 |
+| 527 | [`pg_replication_username`](#pg_replication_username)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG复制用户                     |
+| 528 | [`pg_replication_password`](#pg_replication_password)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG复制用户的密码               |
+| 529 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG监控用户                     |
+| 530 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | PG监控用户密码                 |
+| 540 | [`pg_dbsu`](#pg_dbsu)                                           | [`PG_INSTALL`](#PG_INSTALL)     | string      | C     | PG操作系统超级用户             |
+| 541 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | 超级用户UID                    |
+| 542 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PG_INSTALL`](#PG_INSTALL)     | enum        | C     | 超级用户的Sudo权限             |
+| 543 | [`pg_dbsu_home`](#pg_dbsu_home)                                 | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | 超级用户的家目录               |
+| 544 | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)                 | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | 是否交换超级用户密钥           |
+| 545 | [`pg_version`](#pg_version)                                     | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | 安装的数据库大版本             |
+| 546 | [`pgdg_repo`](#pgdg_repo)                                       | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | 是否添加PG官方源？             |
+| 547 | [`pg_add_repo`](#pg_add_repo)                                   | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | 是否添加PG相关上游源？         |
+| 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG二进制目录                   |
+| 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | 安装的PG软件包列表             |
+| 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | 安装的PG插件列表               |
+| 560 | [`pg_exists_action`](#pg_exists_action)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C/A   | PG存在时如何处理               |
+| 561 | [`pg_disable_purge`](#pg_disable_purge)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | 禁止清除存在的PG实例           |
+| 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG数据目录                     |
+| 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG主数据盘挂载点               |
+| 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG备份盘挂载点                 |
+| 565 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | size        | C     | 占位文件/pg/dummy的大小        |
+| 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | PG监听的IP地址                 |
+| 567 | [`pg_port`](#pg_port)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | PG监听的端口                   |
+| 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | C     |
+| 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Patroni是否启用                |
+| 581 | [`patroni_mode`](#patroni_mode)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni配置模式                |
+| 582 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | Patroni使用的DCS命名空间       |
+| 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Patroni服务端口                |
+| 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni Watchdog模式           |
+| 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | Patroni使用的配置模板          |
+| 586 | [`pg_shared_libraries`](#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | PG默认加载的共享库             |
+| 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG字符集编码                   |
+| 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化规则             |
+| 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化排序规则         |
+| 590 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化字符集定义       |
+| 591 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | 是否启用Pgbouncer              |
+| 592 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer端口                  |
+| 593 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Pgbouncer池化模式              |
+| 594 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer最大单DB连接数        |
+| 600 | [`pg_provision`](#pg_provision)                                 | [`PG_PROVISION`](#PG_PROVISION) | bool        | C     | 是否在PG集群中应用模板         |
+| 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | 自定义PG初始化脚本             |
+| 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | 默认创建的角色与用户           |
+| 603 | [`pg_default_privilegs`](#pg_default_privilegs)                 | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | 数据库默认权限配置             |
+| 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | 默认创建的模式                 |
+| 605 | [`pg_default_extensions`](#pg_default_extensions)               | [`PG_PROVISION`](#PG_PROVISION) | extension[] | G/C   | 默认安装的扩展                 |
+| 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | 是否重载数据库配置（HBA）      |
+| 607 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | 全局HBA规则                    |
+| 608 | [`pgbouncer_hba_rules`](#pgbouncer_hba_rules)                   | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | Pgbouncer全局HBA规则           |
+| 620 | [`pg_exporter_config`](#pg_exporter_config)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C     | PG指标定义文件                 |
+| 621 | [`pg_exporter_enabled`](#pg_exporter_enabled)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | 启用PG指标收集器               |
+| 622 | [`pg_exporter_port`](#pg_exporter_port)                         | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | PG指标暴露端口                 |
+| 623 | [`pg_exporter_params`](#pg_exporter_params)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | PG Exporter额外的URL参数       |
+| 624 | [`pg_exporter_url`](#pg_exporter_url)                           | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 采集对象数据库的连接串（覆盖） |
+| 625 | [`pg_exporter_auto_discovery`](#pg_exporter_auto_discovery)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C/I   | 是否自动发现实例中的数据库     |
+| 626 | [`pg_exporter_exclude_database`](#pg_exporter_exclude_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 数据库自动发现排除列表         |
+| 627 | [`pg_exporter_include_database`](#pg_exporter_include_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 数据库自动发现囊括列表         |
+| 628 | [`pg_exporter_options`](#pg_exporter_options)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | PG Exporter命令行参数          |
+| 629 | [`pgbouncer_exporter_enabled`](#pgbouncer_exporter_enabled)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | 启用PGB指标收集器              |
+| 630 | [`pgbouncer_exporter_port`](#pgbouncer_exporter_port)           | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | PGB指标暴露端口                |
+| 631 | [`pgbouncer_exporter_url`](#pgbouncer_exporter_url)             | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | 采集对象连接池的连接串         |
+| 632 | [`pgbouncer_exporter_options`](#pgbouncer_exporter_options)     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | PGB Exporter命令行参数         |
+| 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | 全局通用服务定义               |
+| 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | 是否启用Haproxy                |
+| 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | 是否重载Haproxy配置            |
+| 643 | [`haproxy_admin_auth_enabled`](#haproxy_admin_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | 是否对Haproxy管理界面启用认证  |
+| 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | HAproxy管理员名称              |
+| 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | HAproxy管理员密码              |
+| 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | HAproxy指标暴露器端口          |
+| 647 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | HAproxy客户端超时              |
+| 648 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | HAproxy服务端超时              |
+| 649 | [`vip_mode`](#vip_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | VIP模式：none                  |
+| 650 | [`vip_reload`](#vip_reload)                                     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | 是否重载VIP配置                |
+| 651 | [`vip_address`](#vip_address)                                   | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | 集群使用的VIP地址              |
+| 652 | [`vip_cidrmask`](#vip_cidrmask)                                 | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | VIP地址的网络CIDR掩码长度      |
+| 653 | [`vip_interface`](#vip_interface)                               | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | VIP使用的网卡                  |
+| 654 | [`dns_mode`](#dns_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | DNS配置模式                    |
+| 655 | [`dns_selector`](#dns_selector)                                 | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | DNS解析对象选择器              |
 
 
 ----------------

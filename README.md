@@ -20,6 +20,8 @@
 
 * Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
 
+* Pigsty now support Redis & MatrixDB deployment & monitoring
+
 Pigsty can be used both for large-scale pg clusters management in real-world prod-env, and for launching versatile local pgsql sandbox for dev, test, demo & data analysis purpose.
 
 
@@ -51,7 +53,7 @@ After install with `infra.yml`, you already have a battery-included postgres & i
 ./pigsty-matrix.yml -l mx-*  # init MatrixDB cluster mx-mdw,mx-sdw .....
 ```
 
-Check [public demo](http://demo.pigsty.cc) for what you will get, check [Get Started](#get-started) for more detail.
+Check [public demo](http://demo.pigsty.cc) for what you will get.
 
 
 
@@ -115,7 +117,7 @@ pg-test:
 
 
 <details>
-<summary>Full Example of Cluster Customization</summary>
+<summary>Full Example of PostgreSQL Customization</summary>
 
 ![](docs/_media/interface.jpg)
 
@@ -259,6 +261,64 @@ redis-common:
 </details>
 
 
+
+<details>
+<summary>Example of MatrixDB Data Warehouse</summary>
+
+```yaml
+#----------------------------------#
+# cluster: mx-mdw (gp master)
+#----------------------------------#
+mx-mdw:
+  hosts:
+    10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
+  vars:
+    gp_role: master          # this cluster is used as greenplum master
+    pg_shard: mx             # pgsql sharding name & gpsql deployment name
+    pg_cluster: mx-mdw       # this master cluster name is mx-mdw
+    pg_databases:
+      - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
+      - { name: meta }
+    pg_users:
+      - { name: meta , password: DBUser.Meta , pgbouncer: true }
+      - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
+
+    pgbouncer_enabled: true                # enable pgbouncer for greenplum master
+    pgbouncer_exporter_enabled: false      # enable pgbouncer_exporter for greenplum master
+    pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
+
+#----------------------------------#
+# cluster: mx-sdw (gp master)
+#----------------------------------#
+mx-sdw:
+  hosts:
+    10.10.10.11:
+      nodename: mx-sdw-1        # greenplum segment node
+      pg_instances:             # greenplum segment instances
+        6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+        6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
+    10.10.10.12:
+      nodename: mx-sdw-2
+      pg_instances:
+        6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633  }
+        6001: { pg_cluster: mx-seg3, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634  }
+    10.10.10.13:
+      nodename: mx-sdw-3
+      pg_instances:
+        6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
+        6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
+  vars:
+    gp_role: segment               # these are nodes for gp segments
+    pg_shard: mx                   # pgsql sharding name & gpsql deployment name
+    pg_cluster: mx-sdw             # these segment clusters name is mx-sdw
+    pg_preflight_skip: true        # skip preflight check (since pg_seq & pg_role & pg_cluster not exists)
+    pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
+    pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
+```
+
+</details>
+
+
 ## HA Clusters
 
 
@@ -277,7 +337,7 @@ As long as any instance in the cluster survives, the cluster serves. Each instan
 Pigsty is designed for real world production env with hundreds of high spec nodes, but it can also run inside a tiny 1C|1GB vm node.
 Which is great for developing, testing, demonstrating, data analysing & visualizing and other purposes.
 
-Pigsty sandbox can be pulled up with one command on your Macbook, powered by virtualbox & vagrant.
+Pigsty sandbox can be pulled up with one command on your Macbook, powered by virtualbox & vagrant. or created upon cloud vm with terraform.
 There are two specs of sandbox: 1 node (the default) and 4 node (full sandbox)
 
 ![](docs/_media/sandbox.svg)
@@ -321,32 +381,6 @@ Pigsty comes with two example apps:  [`covid`](http://demo.pigsty.cc/d/covid-ove
 ![](docs/_media/overview-isd.jpg)
 
 
-## Get Started
-
-If you are interested in Pigsty, check [Getting-Started: Introduction](docs/s-intro.md) for what's next.
-
-It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
-
-![](docs/_media/how.svg)
-
-Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
-
-```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC ~
-cd pigsty && ./configure
-make install
-```
-
-Check [Quick Start](docs/s-install.md) for detail.
-
-If you don't have vm nodes, considering launch pigsty [sandbox](docs/s-sandbox.md) on your Macbook:
-
-```bash
-make deps      # Install MacOS deps with homebrew
-make dns       # Write static DNS
-make start     # Pull-up vm nodes and setup ssh access  (start4 for 4-node demo)
-make demo      # install pigsty on 'meta' as above      (demo4  for 4-node demo) 
-```
 
 
 ## License
@@ -367,4 +401,4 @@ License: [Apache 2.0 License](LICENSE)
 
 Copyright 2018-2022 rh@vonng.com(Vonng)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)h
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)

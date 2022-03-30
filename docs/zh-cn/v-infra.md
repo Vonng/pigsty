@@ -28,67 +28,67 @@
 
 部署于管理节点上的 [**基础设施**](c-arch.md#基础设施) 由下列配置项所描述。
 
-| ID  |                            Name                             |           Section           |    Type    | Level |            Comment             |                Comment2                 |
-|-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|-----------------------------------------|
-| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置                 | proxy environment variables|
-| 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | 是否启用本地源                 | enable local yum repo|
-| 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称                     | local yum repo name|
-| 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址             | external access endpoint of repo|
-| 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | 本地源端口                     | repo listen address (80)|
-| 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | 本地源文件根目录               | repo home dir (/www)|
-| 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源                  | rebuild local yum repo?|
-| 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件           | remove existing repo file?|
-| 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源                | upstream repo definition|
-| 118 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | Yum源需下载软件列表            | packages to be downloaded|
-| 119 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | 通过URL直接下载的软件          | pkgs to be downloaded via url|
-| 120 | [`ca_method`](#ca_method)                                   | [`CA`](#CA)                 | enum       | G     | CA的创建方式                   | ca mode, create,copy,recreate|
-| 121 | [`ca_subject`](#ca_subject)                                 | [`CA`](#CA)                 | string     | G     | 自签名CA主题                   | ca subject|
-| 122 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | CA证书根目录                   | ca cert home dir|
-| 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书                         | ca cert file name|
-| 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称                     | ca private key name|
-| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                | nginx upstream definition|
-| 131 | [`app_list`](#app_list)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       | app list on home page navbar|
-| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用本地文档               | enable local docs|
-| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用PEV2组件               | enable pev2|
-| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | 是否启用Pgbadger               | enable pgbadger|
-| 140 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | 动态DNS解析记录                | dynamic DNS records|
-| 150 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | Prometheus数据库目录           | prometheus data dir|
-| 151 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | Prometheus命令行参数           | prometheus cli args|
-| 152 | [`prometheus_reload`](#prometheus_reload)                   | [`PROMETHEUS`](#PROMETHEUS) | bool       | A     | Reload而非Recreate             | prom reload instead of init|
-| 153 | [`prometheus_sd_method`](#prometheus_sd_method)             | [`PROMETHEUS`](#PROMETHEUS) | enum       | G     | 服务发现机制：static|consul    | service discovery method: static|consul|
-| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取周期                   | prom scrape interval (10s)|
-| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取超时                   | prom scrape timeout (8s)|
-| 156 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom服务发现刷新周期           | prom discovery refresh interval|
-| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | 安装监控组件的方式             | how to install exporter?|
-| 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控组件的YumRepo              | repo url for yum install|
-| 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控暴露的URL Path             | URL path for exporting metrics|
-| 170 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana地址                    | grafana API endpoint|
-| 171 | [`grafana_admin_username`](#grafana_admin_username)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员用户名            | grafana admin username|
-| 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员密码              | grafana admin password|
-| 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | Grafana后端数据库类型          | grafana backend database type|
-| 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana的PG数据库连接串        | grafana backend postgres url|
-| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件            | how to install grafana plugins|
-| 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址            | grafana plugins cache path|
-| 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表          | grafana plugins to be installed|
-| 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件         | grafana plugins via git|
-| 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | 用于接收日志的loki服务endpoint | loki endpoint to receive log|
-| 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | 是否在安装Loki时清理数据库目录 | remove existing loki data?|
-| 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | Loki的命令行参数               | loki cli args|
-| 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录                 | loki data path|
-| 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数           | loki log keeping period|
-| 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           | dcs server dict|
-| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 | where to register service?|
-| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  | which dcs to use (consul/etcd)|
-| 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | DCS集群名称                    | dcs cluster name (dc)|
-| 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | 若DCS实例存在如何处理          | how to deal with existing dcs|
-| 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | 完全禁止清理DCS实例            | disable dcs purge|
-| 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | Consul数据目录                 | consul data dir path|
-| 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | Etcd数据目录                   | etcd data dir path|
-| 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | 是否启用JupyterLab             | enable jupyter lab|
-| 221 | [`jupyter_username`](#jupyter_username)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter使用的操作系统用户      | os user for jupyter lab|
-| 222 | [`jupyter_password`](#jupyter_password)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter Lab的密码              | password for jupyter lab|
-| 230 | [`pgweb_enabled`](#pgweb_enabled)                           | [`PGWEB`](#PGWEB)           | bool       | G     | 是否启用PgWeb                  | enable pgweb|
-| 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | PgWeb使用的操作系统用户        | os user for pgweb|
+| ID  |                            Name                             |           Section           |    Type    | Level |            Comment             |
+|-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|
+| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置                 |
+| 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | 是否启用本地源                 |
+| 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称                     |
+| 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址             |
+| 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | 本地源端口                     |
+| 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | 本地源文件根目录               |
+| 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源                  |
+| 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件           |
+| 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源                |
+| 118 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | Yum源需下载软件列表            |
+| 119 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | 通过URL直接下载的软件          |
+| 120 | [`ca_method`](#ca_method)                                   | [`CA`](#CA)                 | enum       | G     | CA的创建方式                   |
+| 121 | [`ca_subject`](#ca_subject)                                 | [`CA`](#CA)                 | string     | G     | 自签名CA主题                   |
+| 122 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | CA证书根目录                   |
+| 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书                         |
+| 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称                     |
+| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                |
+| 131 | [`app_list`](#app_list)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       |
+| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用本地文档               |
+| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用PEV2组件               |
+| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | 是否启用Pgbadger               |
+| 140 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | 动态DNS解析记录                |
+| 150 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | Prometheus数据库目录           |
+| 151 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | Prometheus命令行参数           |
+| 152 | [`prometheus_reload`](#prometheus_reload)                   | [`PROMETHEUS`](#PROMETHEUS) | bool       | A     | Reload而非Recreate             |
+| 153 | [`prometheus_sd_method`](#prometheus_sd_method)             | [`PROMETHEUS`](#PROMETHEUS) | enum       | G     | 服务发现机制：static|
+| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取周期                   |
+| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取超时                   |
+| 156 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom服务发现刷新周期           |
+| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | 安装监控组件的方式             |
+| 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控组件的YumRepo              |
+| 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控暴露的URL Path             |
+| 170 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana地址                    |
+| 171 | [`grafana_admin_username`](#grafana_admin_username)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员用户名            |
+| 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员密码              |
+| 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | Grafana后端数据库类型          |
+| 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana的PG数据库连接串        |
+| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件            |
+| 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址            |
+| 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表          |
+| 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件         |
+| 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | 用于接收日志的loki服务endpoint |
+| 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | 是否在安装Loki时清理数据库目录 |
+| 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | Loki的命令行参数               |
+| 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录                 |
+| 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数           |
+| 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           |
+| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 |
+| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  |
+| 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | DCS集群名称                    |
+| 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | 若DCS实例存在如何处理          |
+| 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | 完全禁止清理DCS实例            |
+| 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | Consul数据目录                 |
+| 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | Etcd数据目录                   |
+| 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | 是否启用JupyterLab             |
+| 221 | [`jupyter_username`](#jupyter_username)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter使用的操作系统用户      |
+| 222 | [`jupyter_password`](#jupyter_password)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter Lab的密码              |
+| 230 | [`pgweb_enabled`](#pgweb_enabled)                           | [`PGWEB`](#PGWEB)           | bool       | G     | 是否启用PgWeb                  |
+| 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | PgWeb使用的操作系统用户        |
 
 
 

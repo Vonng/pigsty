@@ -1,6 +1,6 @@
 - Getting Started
-  - [Intro](s-intro.md)
-  - [Install](s-install.md)
+  - [Introduction](s-intro.md)
+  - [Quick Start](s-install.md)
   - [Sandbox](s-sandbox.md)
   - [Interface](s-interface.md)
   - [FAQ](s-faq.md)
@@ -37,28 +37,20 @@
   - [Service Discovery](m-discovery.md)
   - [Metrics](m-metric.md)
   - [Alerting](r-alert.md)
+  
+- [playbook](p-playbook.md)
+  - [Playbook：INFRA](p-infra.md)
+  - [Playbook：NODES](p-nodes.md)
+  - [Playbook：PGSQL](p-pgsql.md)
+  - [Playbook：REDIS](p-redis.md)
 
-- Configuration
-  - [Overview](v-config.md)
-  - [Connect](v-connect.md)
-  - [Local Repo](v-repo.md)
-  - [Node Provision](v-node.md)
-  - [Infrastructure](v-meta.md)
-  - [DCS(Consul)](v-dcs.md)
-  - [PG Install](v-pg-install.md)
-  - [PG Provision](v-pg-provision.md)
-  - [PG Template](v-pg-template.md)
-  - [Monitor](v-monitor.md)
-  - [Service](v-service.md)
-  - [Redis](v-redis.md)
-
-- Playbook
-  - [Meta Init](p-infra.md)
-  - [PgSQL Init](p-pgsql.md)
-  - [PgSQL Remove](p-pgsql-remove.md)
-  - [PgUser Init](p-pgsql-createuser.md)
-  - [PgDB Init](p-pgsql-createdb.md)
-
+- [Configuration](v-config.md)
+  - [Config：INFRA](v-infra.md)
+  - [Config：NODES](v-nodes.md)
+  - [Config：PGSQL](v-pgsql.md)
+  - [Config：REDIS](v-redis.md)
+  - [Customize：PGSQL](v-pgsql-customize.md)
+  
 - Reference
   - [Alerting Rules](r-alert.md)
   - [File Hierarchy Structure](r-fhs.md)

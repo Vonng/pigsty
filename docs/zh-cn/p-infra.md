@@ -25,7 +25,7 @@
 
 当您将Pigsty用作开箱即用的数据库时，只要在本节点上直接执行 `infra.yml` ，即可完成安装。
 
-![](../_media/playbook/infra.svg)
+![](_media/playbook/infra.svg)
 
 ### What
 

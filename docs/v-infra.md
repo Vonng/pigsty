@@ -1,8 +1,14 @@
-# 配置：Infra
+# Config: Infra
 
+> 使用 [INFRA剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+>
 > 配置Pigsty基础设施，由[INFRA](p-infra.md)系列剧本使用。
 
-以下角色负责描述定制Pigsty基础设施。
+基础设施配置主要处理此类问题：本地Yum源，机器节点基础服务：DNS，NTP，内核模块，参数调优，管理用户，安装软件包，DCS Server的架设，监控基础设施的安装与初始化（Grafana，Prometheus，Alertmanager），全局流量入口Nginx的配置等等。
+
+通常来说，基础设施部分需要修改的内容很少，通常涉及到的主要修改只是对管理节点的IP地址进行文本替换，这一步会在[`./configure`](v-config.md#配置过程)过程中自动完成，另一处偶尔需要改动的地方是 [`nginx_upstream`](nginx_upstream)中定义的访问域名。其他参数很少需要调整，按需即可。
+
+
 
 - [`CONNECT`](#CONNECT) : 连接参数
 - [`REPO`](#REPO) : 本地源基础设施
@@ -22,70 +28,73 @@
 
 部署于管理节点上的 [**基础设施**](c-arch.md#基础设施) 由下列配置项所描述。
 
-| ID  |                            Name                             |           Section           |    Type    | Level |            Comment             |                Comment2                 |
-|-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|-----------------------------------------|
-| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置                 | proxy environment variables|
-| 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | 是否启用本地源                 | enable local yum repo|
-| 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称                     | local yum repo name|
-| 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址             | external access endpoint of repo|
-| 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | 本地源端口                     | repo listen address (80)|
-| 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | 本地源文件根目录               | repo home dir (/www)|
-| 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源                  | rebuild local yum repo?|
-| 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件           | remove existing repo file?|
-| 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源                | upstream repo definition|
-| 118 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | Yum源需下载软件列表            | packages to be downloaded|
-| 119 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | 通过URL直接下载的软件          | pkgs to be downloaded via url|
-| 120 | [`ca_method`](#ca_method)                                   | [`CA`](#CA)                 | enum       | G     | CA的创建方式                   | ca mode, create,copy,recreate|
-| 121 | [`ca_subject`](#ca_subject)                                 | [`CA`](#CA)                 | string     | G     | 自签名CA主题                   | ca subject|
-| 122 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | CA证书根目录                   | ca cert home dir|
-| 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书                         | ca cert file name|
-| 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称                     | ca private key name|
-| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                | nginx upstream definition|
-| 131 | [`app_list`](#app_list)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       | app list on home page navbar|
-| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用本地文档               | enable local docs|
-| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用PEV2组件               | enable pev2|
-| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | 是否启用Pgbadger               | enable pgbadger|
-| 140 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | 动态DNS解析记录                | dynamic DNS records|
-| 150 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | Prometheus数据库目录           | prometheus data dir|
-| 151 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | Prometheus命令行参数           | prometheus cli args|
-| 152 | [`prometheus_reload`](#prometheus_reload)                   | [`PROMETHEUS`](#PROMETHEUS) | bool       | A     | Reload而非Recreate             | prom reload instead of init|
-| 153 | [`prometheus_sd_method`](#prometheus_sd_method)             | [`PROMETHEUS`](#PROMETHEUS) | enum       | G     | 服务发现机制：static|consul    | service discovery method: static|consul|
-| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取周期                   | prom scrape interval (10s)|
-| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取超时                   | prom scrape timeout (8s)|
-| 156 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom服务发现刷新周期           | prom discovery refresh interval|
-| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | 安装监控组件的方式             | how to install exporter?|
-| 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控组件的YumRepo              | repo url for yum install|
-| 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控暴露的URL Path             | URL path for exporting metrics|
-| 170 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana地址                    | grafana API endpoint|
-| 171 | [`grafana_admin_username`](#grafana_admin_username)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员用户名            | grafana admin username|
-| 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员密码              | grafana admin password|
-| 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | Grafana后端数据库类型          | grafana backend database type|
-| 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana的PG数据库连接串        | grafana backend postgres url|
-| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件            | how to install grafana plugins|
-| 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址            | grafana plugins cache path|
-| 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表          | grafana plugins to be installed|
-| 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件         | grafana plugins via git|
-| 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | 用于接收日志的loki服务endpoint | loki endpoint to receive log|
-| 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | 是否在安装Loki时清理数据库目录 | remove existing loki data?|
-| 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | Loki的命令行参数               | loki cli args|
-| 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录                 | loki data path|
-| 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数           | loki log keeping period|
-| 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           | dcs server dict|
-| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 | where to register service?|
-| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  | which dcs to use (consul/etcd)|
-| 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | DCS集群名称                    | dcs cluster name (dc)|
-| 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | 若DCS实例存在如何处理          | how to deal with existing dcs|
-| 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | 完全禁止清理DCS实例            | disable dcs purge|
-| 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | Consul数据目录                 | consul data dir path|
-| 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | Etcd数据目录                   | etcd data dir path|
-| 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | 是否启用JupyterLab             | enable jupyter lab|
-| 221 | [`jupyter_username`](#jupyter_username)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter使用的操作系统用户      | os user for jupyter lab|
-| 222 | [`jupyter_password`](#jupyter_password)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter Lab的密码              | password for jupyter lab|
-| 230 | [`pgweb_enabled`](#pgweb_enabled)                           | [`PGWEB`](#PGWEB)           | bool       | G     | 是否启用PgWeb                  | enable pgweb|
-| 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | PgWeb使用的操作系统用户        | os user for pgweb|
+| ID  |                            Name                             |           Section           |    Type    | Level |                Comment                 |
+|-----|-------------------------------------------------------------|-----------------------------|------------|-------|-----------------------------------------|
+| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | proxy environment variables|
+| 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | enable local yum repo|
+| 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | local yum repo name|
+| 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | external access endpoint of repo|
+| 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | repo listen address (80)|
+| 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | repo home dir (/www)|
+| 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | rebuild local yum repo?|
+| 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | remove existing repo file?|
+| 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | upstream repo definition|
+| 118 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | packages to be downloaded|
+| 119 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | pkgs to be downloaded via url|
+| 120 | [`ca_method`](#ca_method)                                   | [`CA`](#CA)                 | enum       | G     | ca mode, create,copy,recreate|
+| 121 | [`ca_subject`](#ca_subject)                                 | [`CA`](#CA)                 | string     | G     | ca subject|
+| 122 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | ca cert home dir|
+| 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | ca cert file name|
+| 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | ca private key name|
+| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | nginx upstream definition|
+| 131 | [`app_list`](#app_list)                                     | [`NGINX`](#NGINX)           | app[]      | G     | app list on home page navbar|
+| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable local docs|
+| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable pev2|
+| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | enable pgbadger|
+| 140 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | dynamic DNS records|
+| 150 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | prometheus data dir|
+| 151 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | prometheus cli args|
+| 152 | [`prometheus_reload`](#prometheus_reload)                   | [`PROMETHEUS`](#PROMETHEUS) | bool       | A     | prom reload instead of init|
+| 153 | [`prometheus_sd_method`](#prometheus_sd_method)             | [`PROMETHEUS`](#PROMETHEUS) | enum       | G     |consul    |
+| 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | prom scrape interval (10s)|
+| 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | prom scrape timeout (8s)|
+| 156 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | prom discovery refresh interval|
+| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | how to install exporter?|
+| 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | repo url for yum install|
+| 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | URL path for exporting metrics|
+| 170 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | grafana API endpoint|
+| 171 | [`grafana_admin_username`](#grafana_admin_username)         | [`GRAFANA`](#GRAFANA)       | string     | G     | grafana admin username|
+| 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | grafana admin password|
+| 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | grafana backend database type|
+| 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | grafana backend postgres url|
+| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | how to install grafana plugins|
+| 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | grafana plugins cache path|
+| 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | grafana plugins to be installed|
+| 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | grafana plugins via git|
+| 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | loki endpoint to receive log|
+| 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | remove existing loki data?|
+| 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | loki cli args|
+| 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | loki data path|
+| 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | loki log keeping period|
+| 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | dcs server dict|
+| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | where to register service?|
+| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | which dcs to use (consul/etcd)|
+| 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | dcs cluster name (dc)|
+| 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | how to deal with existing dcs|
+| 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | disable dcs purge|
+| 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | consul data dir path|
+| 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | etcd data dir path|
+| 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | enable jupyter lab|
+| 221 | [`jupyter_username`](#jupyter_username)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | os user for jupyter lab|
+| 222 | [`jupyter_password`](#jupyter_password)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | password for jupyter lab|
+| 230 | [`pgweb_enabled`](#pgweb_enabled)                           | [`PGWEB`](#PGWEB)           | bool       | G     | enable pgweb|
+| 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | os user for pgweb|
+
+
 
 
 ----------------
+
 ## `CONNECT`
 
 
@@ -107,12 +116,21 @@ proxy_env: # global proxy env when downloading packages
 
 ### `ansible_host`
 
-如果用户的环境使用了跳板机，或者进行了某些定制化修改，无法通过简单的`ssh <ip>`方式访问，那么可以考虑使用Ansible的连接参数。
+如果您的目标机器藏在SSH跳板机之后，或者进行了某些定制化修改无法通过`ssh ip`的方式直接访问，则可以考虑使用 **Ansible连接参数**。
 
-`ansible_host`是ansible连接参数中最典型的一个。通常只要用户可以通过 `ssh <name>`的方式访问目标机器，为实例配置`ansible_host`变量，值为`<name>`即可。
+例如下面的例子中，[`ansible_host`](v-infra.md#ansible_host) 通过SSH别名的方式告知Pigsty通过`ssh node-1` 的方式而不是`ssh 10.10.10.11`的方式访问目标数据库节点。通过这种方式，用户可以自由指定数据库节点的连接方式，并将连接配置保存在管理用户的`~/.ssh/config`中独立管理。
 
-> [Ansible SSH连接参数](https://docs.ansible.com/ansible/2.9/user_guide/intro_inventory.html#id17)，常用参数如下所示
->
+```yaml
+  pg-test:
+    vars: { pg_cluster: pg-test }
+    hosts:
+      10.10.10.11: {pg_seq: 1, pg_role: primary, ansible_host: node-1}
+      10.10.10.12: {pg_seq: 2, pg_role: replica, ansible_host: node-2}
+      10.10.10.13: {pg_seq: 3, pg_role: offline, ansible_host: node-3}
+```
+
+`ansible_host`是ansible连接参数中最典型的一个。通常只要用户可以通过 `ssh <name>`的方式访问目标机器，为实例配置`ansible_host`变量，值为`<name>`即可，其他常用的Ansible SSH连接参数如下所示：
+
 > - ansible_host :   在此指定目标机器的IP、主机名或SSH别名
 >
 > - ansible_port :   指定一个不同于22的SSH端口
@@ -125,8 +143,6 @@ proxy_env: # global proxy env when downloading packages
 >
 > - ansible_ssh_common_args :   SSH通用参数
 >
-
-
 
 
 

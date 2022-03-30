@@ -22,6 +22,7 @@
 * Pigsty是**基于Apache 2.0的免费[开源软件](#协议)**
 * Pigsty现已支持 [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) 部署与监控
 
+![](../_media/what-zh.svg)
 
 
 **Pigsty** 是开箱即用的开源PostgreSQL数据库发行版，带有全面专业的监控系统，与简单易用的部署管控方案，一次性解决个人与中小企业使用数据库时会遇到的一系列问题。
@@ -29,10 +30,6 @@
 Pigsty基于开源数据库内核与扩展插件进行封装与整合，将顶级DBA在实际生产环境的经验沉淀为产品，为用户提供开箱即用的数据库（PostgreSQL, Redis, Greenplum, etc..）使用体验。
 
 相比使用云数据库，简运维、低成本、全功能、优体验，可节约 **50% ~ 80%** 的软硬件成本。对中小规模的互联网企业、传统企业、ISV及个人用户具有显著的吸引力。
-
-
-
-![](../_media/what-zh.svg)
 
 
 
@@ -55,7 +52,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | g
 
 执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库[服务](c-service.md#服务)，80端口对外提供所有WebUI类服务。
 
-您可以从这台机器发起管理控制，将更多的 [机器节点](p-nodes.yml) 纳入Pigsty的管理与监控中，并在这些节点上部署额外的，不同种类的数据库集群，例如 [PostgreSQL](d-pgsql.md)，[Redis](d-redis.md)，或[MatrixDB](d-matrixdb.md)。
+您可以从这台机器发起管理控制，将更多的 [机器节点](p-nodes.md) 纳入Pigsty的管理与监控中，并在这些节点上部署额外的，不同种类的数据库集群，例如 [PostgreSQL](d-pgsql.md)，[Redis](d-redis.md)，或[MatrixDB](d-matrixdb.md)。
 
 ```bash
 # 在四节点本地沙箱/云端演示环境中，可以使用以下命令在其他三台节点上部署数据库集群

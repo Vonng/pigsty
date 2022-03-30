@@ -1,4 +1,4 @@
-# 配置：REDIS
+# Config: REDIS
 
 > [配置](v-config.md) Redis数据库集群，控制[REDIS剧本](p-redis.md)行为，详情参考[Redis部署与监控教程](t-redis.md)
 
@@ -7,28 +7,28 @@
 - [`REDIS_EXPORTER`](#REDIS_EXPORTER) : REDIS指标暴露器
 
 
-| ID  |                        Name                         |                Section                |    Type    | Level | Comment            |                                        Comment2                                         |
-|-----|-----------------------------------------------------|---------------------------------------|------------|-------|--------------------|-----------------------------------------------------------------------------------------|
-| 700 | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | Redis数据库集群名称       | redis cluster identity|
-| 701 | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | Redis节点序列号         | redis node identity|
-| 702 | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | Redis实例定义          | redis instances definition on this node|
-| 720 | [`redis_install`](#redis_install)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | 安装Redis的方式         | Way of install redis binaries|
-| 721 | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis集群模式          | standalone,cluster,sentinel|
-| 722 | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis配置文件模板        | which config template will be used|
-| 723 | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | Redis主数据盘挂载点    | main data disk for redis|
-| 724 | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | Redis监听地址       | e.g 0.0.0.0, empty will use inventory_hostname as bind address|
-| 725 | [`redis_exists_action`](#redis_exists_action)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis存在时执行何种操作     | what to do when redis exists|
-| 726 | [`redis_disable_purge`](#redis_disable_purge)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | 禁止抹除现存的Redis       | set to true to disable purge functionality for good (force redis_exists_action = abort)|
-| 727 | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | Redis可用的最大内存       | max memory used by each redis instance|
-| 728 | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | 内存逐出策略             | memory eviction policy|
-| 729 | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis密码            | empty password disable password auth (masterauth & requirepass)|
-| 730 | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | RDB保存指令            | redis RDB save directives, empty list disable it|
-| 731 | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | 是否启用AOF            | enable redis AOF|
-| 732 | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | 重命名危险命令列表          | rename dangerous commands|
-| 740 | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | 集群每个主库带几个从库        | how much replicas per master in redis cluster ?|
-| 741 | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | bool       | C     | 是否启用Redis监控        | install redis exporter on redis nodes|
-| 742 | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | int        | C     | Redis Exporter监听端口 | default port for redis exporter|
-| 743 | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | string     | C/I   | Redis Exporter命令参数 | default cli args for redis exporter|
+| ID  |                        Name                         |                Section                |    Type    | Level |                                        Comment                                         |
+|-----|-----------------------------------------------------|---------------------------------------|------------|-------|-----------------------------------------------------------------------------------------|
+| 700 | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | redis cluster identity|
+| 701 | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | redis node identity|
+| 702 | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | redis instances definition on this node|
+| 720 | [`redis_install`](#redis_install)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Way of install redis binaries|
+| 721 | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | standalone,cluster,sentinel|
+| 722 | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | which config template will be used|
+| 723 | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | main data disk for redis|
+| 724 | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | e.g 0.0.0.0, empty will use inventory_hostname as bind address|
+| 725 | [`redis_exists_action`](#redis_exists_action)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | what to do when redis exists|
+| 726 | [`redis_disable_purge`](#redis_disable_purge)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | set to true to disable purge functionality for good (force redis_exists_action = abort)|
+| 727 | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | max memory used by each redis instance|
+| 728 | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | memory eviction policy|
+| 729 | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | empty password disable password auth (masterauth & requirepass)|
+| 730 | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | redis RDB save directives, empty list disable it|
+| 731 | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | enable redis AOF|
+| 732 | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | rename dangerous commands|
+| 740 | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | how much replicas per master in redis cluster ?|
+| 741 | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | bool       | C     | install redis exporter on redis nodes|
+| 742 | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | int        | C     | default port for redis exporter|
+| 743 | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | string     | C/I   | default cli args for redis exporter|
 
 
 ----------------

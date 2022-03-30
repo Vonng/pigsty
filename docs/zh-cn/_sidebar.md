@@ -1,10 +1,10 @@
 - [概览](README.md)
-  - [上手指南](s-intro.md)
-  - [安装部署](s-install.md)
+  - [入门指南](s-intro.md)
+  - [快速上手](s-install.md)
   - [常见问题](s-faq.md)
   - [产品价值](s-value.md)
 
-- [概念](c-concept.md)
+- 概念
   - [系统架构](c-arch.md)
   - [实体与标识模型](c-entity.md)
   - [PGSQL 服务/接入](c-service.md)
@@ -14,7 +14,7 @@
 - [部署](d-deploy.md)
   - [资源准备](d-prepare.md)
   - [沙箱环境](d-sandbox.md)
-  - [仅监控部署](d-monly.md)
+  - [监控系统部署](d-monly.md)
   - [PGSQL集群部署](d-pgsql.md) 
   - [REDIS集群部署](d-redis.md)
   - [MatrixDB集群部署](d-matrixdb.md)
@@ -36,7 +36,7 @@
   - [监控面板](m-dashboard.md)
   - [服务发现](m-discovery.md)
   - [监控指标](m-metric.md)
-  - [告警系统](m-alert.md)
+  - [告警系统](r-alert.md)
   
 - 参考
   - [运维SOP](r-sop.md)

@@ -1,3 +1,8 @@
+# 常见问题
+
+> 这里列出了Pigsty用户常遇到的问题，如果您遇到了难以解决的问题，可以[联系我们](community.md)，或提交[Issue](https://github.com/Vonng/pigsty/issues/new)。
+
+
 ## 下载问题
 
 #### **源码包从哪里下载？**
