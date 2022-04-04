@@ -1,65 +1,65 @@
 # Playbook：NODES
 
-> 使用 `nodes` 系列[剧本](p-playbook.md)将更多节点纳入Pigsty管理，将节点调整至[配置](v-nodes.md)描述的状态。
+> Use the  `nodes` series [playbook](p-playbook.md)  to include more nodes in Pigsty management, adjusting the nodes to the state described in [configuration](v-nodes.md).
 
-当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 [`nodes.yml`](#nodes) 将更多节点添加至Pigsty中，或者使用 [`nodes-remove.yml`](nodes-remove) 将节点从环境中移除。
+Once you have completed a complete installation of Pigsty on the management node using [`infra.yml`](p-infra.md) ,you can further add more nodes to Pigsty using [`nodes.yml`](#nodes)  or remove them from the environment using [`nodes-remove.yml`](nodes-remove) to remove the node from the environment.
 
-| 剧本                                           | 功能                                                           | 链接                                                         |
-|----------------------------------------------|----------------------------------------------------------------| ------------------------------------------------------------ |
-| [`nodes`](p-nodes.md#nodes)                   |        **节点置备，将节点纳入Pigsty管理，可用于后续数据库部署**                    |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
-| [`nodes-remove`](p-nodes.md#nodes-remove)     |        节点移除，卸载节点DCS与监控，不再纳入Pigsty管理                     |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
+| Playbook                                  | Function                                                     | Link                                                         |
+| ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`nodes`](p-nodes.md#nodes)               | **Node provisioning to include nodes in Pigsty management for subsequent database deployment** | [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml) |
+| [`nodes-remove`](p-nodes.md#nodes-remove) | Node removal, offloading node DCS and monitoring, no longer included in Pigsty management | [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml) |
 
 
 ---------------
 
 ## `nodes`
 
-[`nodes.yml`](p-nodes.md) 剧本将更多节点添加至Pigsty中。该剧本需要在 **管理节点** 上发起，针对目标节点执行。
+The [`nodes.yml`](p-nodes.md) playbook to add more nodes to Pigsty. This playbook needs to be initiated on the **management node** and executed against the target node.
 
-此剧本可以将目标机器节点调整至配置清单所描述的状态，安装Consul服务，并将其纳入Pigsty监控系统，并允许您在这些置备好的节点上进一步部署不同类型的数据库集群。
+This playbook adjusts the target machine nodes to the state described in the configuration list, installs the Consul service and incorporates it into the Pigsty monitoring system, and allows you to further deploy different types of database clusters on these provisioned nodes.
 
-`nodes.yml` 剧本的行为由 [节点配置](v-nodes.md) 决定。在使用本地源的情况下，完整执行此剧本可能耗时1～3分钟，视机器配置而异。
+The behavior of the `nodes.yml` playbook is determined by the [node configuration](v-nodes.md). The full execution of this playbook may take 1 to 3 minutes when using local sources, depending on the machine configuration.
 
 ```bash
-./nodes.yml                      # 初始化所有清单中的节点（危险！）
-./nodes.yml -l pg-test           # 初始化在 pg-test 分组下的机器（推荐！）
-./nodes.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群中的节点
-./nodes.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器节点
+./nodes.yml                      # Initialize all nodes in the list (danger!)
+./nodes.yml -l pg-test           # Initialize the machines under the pg-test group (recommended!)
+./nodes.yml -l pg-meta,pg-test   # Initialize the nodes in both pg-meta and pg-test clusters at the same time
+./nodes.yml -l 10.10.10.11       # Initialize the machine node 10.10.10.11
 ```
 
 ![](_media/playbook/nodes.svg)
 
 
-此剧本包含的功能与任务如下：
+This playbook contains the following functions and tasks:
 
-* 生成节点身份参数
-* 初始化节点
-  * 配置节点名称
-  * 配置节点静态DNS解析
-  * 配置节点动态DNS解析服务器
-  * 配置节点的Yum源
-  * 安装指定的RPM软件包
-  * 配置 numa/swap/firewall等特性
-  * 配置节点tuned调优模板
-  * 配置节点的快捷命令与环境变量
-  * 创建节点管理员并配置SSH
-  * 配置节点时区
-  * 配置节点NTP服务
-* 在节点上初始化DCS服务：Consul
-  * 抹除现有Consul
-  * 初始化当前节点的 Consul Agent或Server 服务
-* 初始化节点监控组件并纳入Pigsty
-  * 在节点上安装 Node Exporter
-  * 将 Node Exporter 注册至管理节点上的 Prometheus 中。
+* Generate node identity parameters
+* Initialize Node
+  * Configure the node name
+  * Configure node static DNS resolution
+  * Configure the node's dynamic DNS resolution server
+  * Configure the node's Yum source
+  * Install the specified RPM packages
+  * Configure features such as numa/swap/firewall
+  * Configure node tuned tuning templates
+  * Configure shortcut commands and environment variables for the node
+  * Create node administrator and configure SSH
+  * Configure node time zone
+  * Configure the node NTP service
+* Initialize the DCS service on the node: Consul
+  * Erase existing Consul
+  * Initialize the Consul Agent or Server service for the current node
+* Initialize the node monitoring component and incorporate Pigsty
+  * Install Node Exporter on the node
+  * Register the Node Exporter to Prometheus on the management node.
 
-!> **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
+**Caution is required when executing this playbook for cases where there is already a node with a database running, and there is a risk of accidentally triggering a brief unavailability of the database when used improperly, as initializing the node will erase the DCS Agent**.
 
-节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
-[dcs_exists_action](v-nodes.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
-尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
+Node provisioning configures the node's DCS service (Consul Agent), so be careful when running this playbook on a node running a PostgreSQL database!
+The [dcs_exists_action](v-nodes.md#dcs_exists_action) parameter provides the option to avoid accidental deletion, allowing to avoid worst-case scenarios by automatically aborting or skipping high-risk operations when an existing running DCS is detected during the initialization process.
+Nevertheless，when **using the full `nodes.yml` playbook or the section on `dcs|consul` therein, please check several times that the `-tags|-t` and `-limit|-l` parameters are correct. Make sure you are performing the right task on the right target. **
 
 
-### 保护机制
+### Protection mechanism
 
 `nodes.yml`提供**保护机制**，由配置参数 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 的配置`abort|clean|skip`行动。
 
