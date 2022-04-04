@@ -28,22 +28,21 @@
 
 3. 针对该集群执行剧本：`./pgsql-monly.yml -l pg-test`
 
-4. 该剧本会在Grafana中注册目标PostgreSQL数据源，因此PGCAT功能完整可用。
-   该剧本会在管理节点本地部署PG Exporter监控远程PG实例，故PGSQL中纯数据库相关指标可用。
+4. 该剧本会在Grafana中注册目标PostgreSQL数据源，因此PGCAT功能完整可用。该剧本会在管理节点本地部署PG Exporter监控远程PG实例，故PGSQL中纯数据库相关指标可用。但主机节点、连接池、负载均衡、高可用Patroni相关指标则不可用。
 
 
 
 ## 监控部署概述
 
-如果用户只希望使用Pigsty的**监控系统**部分，比如希望使用Pigsty监控系统监控已有的PostgreSQL实例，那么可以使用 **仅监控部署（monitor only）** 模式。仅监控模式下，您可以使用Pigsty管理监控其他PostgreSQL实例（目前默认支持10+以上的版本，更老的版本可以通过手工修改 pg_exporter 配置文件支持）
+如果用户只希望使用Pigsty的**监控系统**部分，比如希望使用Pigsty监控系统监控已有的PostgreSQL实例，那么可以使用 **仅监控部署（monitor only）** 模式。仅监控模式下，您可以使用Pigsty管理监控其他PostgreSQL实例（目前默认支持10+以上的版本，更老的版本可以通过手工修改 `pg_exporter` 配置文件支持）
 
-首先，您需要在1台（或多台）管理节点上完成标准的Pigsty的标准安装流程，然后便可以将更多的数据库实例接入监控。按照目标数据库节点的访问权限，又可以分为两种情况：
+首先，您需要在1台管理节点上完成标准的Pigsty的标准安装流程，然后便可以将更多的数据库实例接入监控。按照目标数据库节点的访问权限，又可以分为两种情况：
 
 
 
 **如果目标节点可被管理**
 
-如果目标DB节点**可以被Pigsty所管理**（ssh可达，sudo可用），那么您可以使用 [`pgsql.yml`](p-pgsql.md) 剧本中的`monitor`任务，使用相同的的方式，在目标节点上部署监控组件：PG Exporter, Node Exporter。您也可以使用该剧本的其他任务，在已有实例节点上部署额外的组件及其监控：连接池Pgbouncer与负载均衡器HAProxy，日志收集的Agent，从而获得与原生Pigsty数据库实例完全一致的使用体验。
+如果目标DB节点**可以被Pigsty所管理**（ssh可达，sudo可用），那么您可以使用 [`pgsql.yml`](p-pgsql.md) 剧本中的`pg-exporter`任务，使用相同的的方式，在目标节点上部署监控组件：PG Exporter， 您也可以使用该剧本的其他任务，在已有实例节点上部署额外的组件及其监控：连接池Pgbouncer与负载均衡器HAProxy。此外，您也可以使用 [`nodes.yml`](p-nodes.yml#nodes) 中的 `node-exporter`与 `promtail` 任务，部署主机节点监控与日志收集组件。从而获得与原生Pigsty数据库实例完全一致的使用体验。
 
 因为目标数据库集群已存在，您需要参考本节的内容手工在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)。其余流程与完整部署并无区别。
 
@@ -51,9 +50,9 @@
 
 **如果只有数据库连接串**
 
-如果您**只能通过PGURL**（数据库连接串）的方式访问目标数据库，则可以考虑使用**仅监控模式/精简模式**（Monitor Only：Monly）监控目标数据库。在此模式下，所有监控组件均部署在安装Pigsty的管理节点上。监控系统不会有 节点，连接池，负载均衡器的相关指标，但数据库本身，以及数据目录（Catalog）中的实时状态信息仍然可用。
+如果您**只能通过PGURL**（数据库连接串）的方式访问目标数据库，则可以考虑使用**仅监控模式/精简模式**（Monitor Only：Monly）监控目标数据库。在此模式下，所有监控组件均部署在安装Pigsty的管理节点上。**监控系统不会有 节点，连接池，负载均衡器，高可用组件的相关指标**，但数据库本身，以及数据目录（Catalog）中的实时状态信息仍然可用。
 
-为了执行精简监控部署，您同样需要参考本节的内容手工在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)，并确保可以从管理节点上使用监控用户访问目标数据库。此后，针对目标集群执行`pgsql-monly.yml`剧本即可完成部署。
+为了执行精简监控部署，您同样需要参考本节的内容手工在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)，并确保可以从管理节点上使用监控用户访问目标数据库。此后，针对目标集群执行 [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly)剧本即可完成部署。
 
 **本文着重介绍此种监控部署模式**。
 
@@ -65,15 +64,9 @@
 
 
 
-
-
 ## 精简部署与标准部署的区别
 
 Pigsty监控系统由三个核心模块组成：
-
-* PGCAT：基于数据库数据字典的信息展示，呈现当前数据库状态信息，但无法回溯历史数据。
-* PGSQL：基于指标数据的监控，由Prometheus采集数据库/连接池/机器节点/负载均衡器相关指标并呈现，是Pigsty监控的主体部分。
-* PGLOG：数据库日志，提供实时日志查阅能力，与额外的监控指标。基于Grafana Loki / Promtail，选装项目。
 
 |   事项\等级    |          L1           |           L2           |           L3           |
 | :------------: | :-------------------: | :--------------------: | :--------------------: |
@@ -90,7 +83,7 @@ Pigsty监控系统由三个核心模块组成：
 |   侵入DB节点   |       ✅ 无侵入        |     ⚠️ 安装Exporter     |   ⚠️ 完全由Pigsty管理   |
 |  监控现有实例  |       ✅ 可支持        |        ✅ 可支持        | ❌ 仅用于Pigsty托管实例 |
 | 监控用户与视图 |       人工创建        |        人工创建        |     Pigsty自动创建     |
-|  部署使用剧本  |   `pgsql-monly.yml`   | `pgsql.yml -t monitor` | `pgsql.yml -t monitor` |
+|  部署使用剧本  |   `pgsql-monly.yml`   | `pgsql.yml -t pg-exporter`<br />`nodes.yml -t node-exporter` | `pgsql.yml -t pg-exporter`<br />`nodes.yml -t node-exporter` |
 |    所需权限    |  管理节点可达的PGURL  |  DB节点ssh与sudo权限   |  DB节点ssh与sudo权限   |
 |    功能概述    | 基础功能：PGCAT+PGSQL |       大部分功能       |        完整功能        |
 
@@ -124,7 +117,7 @@ Pigsty监控系统由三个核心模块组成：
 
 ### 修改配置清单
 
-如同部署一个全新的Pigsty实例一样，您需要在配置清单（配置文件或CMDB）中声明该目标集群。例如，为集群与实例指定[身份标识](v-config.md#身份参数)。不同之处在于，您还需要在**实例层次**为每一个实例手工分配一个唯一的本地端口号（`pg_exporter_port`）。
+如同部署一个全新的Pigsty实例一样，您需要在配置清单（配置文件或CMDB）中声明该目标集群。例如，为集群与实例指定[身份标识](v-config.md#身份参数)。不同之处在于，您还需要在**实例层次**为每一个实例手工分配一个唯一的本地端口号（ [`pg_exporter_port`](v-pgsql.md#pg_exporter_port)）。
 
 下面是一个数据库集群声明样例：
 
@@ -144,13 +137,13 @@ pg-test:
 
 > 注，即使您通过域名访问数据库，依然需要通过填入实际IP地址的方式来声明数据库集群。
 
-若要启用PGCAT功能，您需要显式在`pg_databases` 中列出目标集群的数据库名称列表，在此列表中的数据库将被注册为Grafana的数据源，您可以直接通过Grafana访问该实例的Catalog数据。若您不希望使用PGCAT相关功能，不设置该变量，或置为空数组即可。
+若要启用PGCAT功能，您需要显式在 [`pg_databases`](v-pgsql.md#pg_databases) 中列出目标集群的数据库名称列表，在此列表中的数据库将被注册为Grafana的数据源，您可以直接通过Grafana访问该实例的Catalog数据。若您不希望使用PGCAT相关功能，不设置该变量，或置为空数组即可。
 
 
 
 #### 连接信息
 
-说明：Pigsty将默认使用以下规则生成监控连接串。但参数 `pg_exporter_url` 存在时，将直接覆盖拼接连接串。
+说明：Pigsty将默认使用以下规则生成监控连接串。但参数 [`pg_exporter_url`](v-pgsql.md#pg_exporter_url) 存在时，将直接覆盖拼接连接串。
 
 ```bash
 postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ inventory_hostname }}:{{ pg_port }}/postgres?sslmode=disable
@@ -201,7 +194,7 @@ pg-test:
 
 ### 执行部署剧本
 
-集群声明完成后，将其纳入监控非常简单，在管理节点上针对目标集群使用剧本 `pgsql-monitor.yml` 即可：
+集群声明完成后，将其纳入监控非常简单，在管理节点上针对目标集群使用剧本 [`pgsql-monitor.yml`](p-pgsql.md#pgsql-monly) 即可：
 
 ```bash
 ./pgsql-monitor.yml  -l  <cluster>     # 在指定集群上完成监控部署
@@ -228,8 +221,10 @@ CREATE USER dbuser_monitor;
 GRANT pg_monitor TO dbuser_monitor;
 COMMENT ON ROLE dbuser_monitor IS 'system monitor user';
 ALTER USER dbuser_monitor SET log_min_duration_statement = 1000;
-ALTER USER dbuser_monitor PASSWORD 'DBUser.Password'; -- 按需修改监控用户密码
+ALTER USER dbuser_monitor PASSWORD 'DBUser.Monitor'; -- 按需修改监控用户密码（建议修改！！）
 ```
+
+请注意，这里创建的监控用户与密码需要与 [`pg_monitor_username`](v-pgsql.md#pg_monitor_username)与[`pg_monitor_password`](v-pgsql.md#pg_monitor_password) 保持一致。
 
 配置数据库 `pg_hba.conf` 文件，添加以下规则以允许监控用户从本地，以及管理机使用密码访问数据库。
 
@@ -239,6 +234,8 @@ local   all  dbuser_monitor                    md5
 host    all  dbuser_monitor  127.0.0.1/32      md5
 host    all  dbuser_monitor  <管理机器IP地址>/32 md5
 ```
+
+
 
 ### 监控模式
 

@@ -20,9 +20,10 @@ CLS?=meta
 default: tip
 tip:
 	@echo "# Run on Linux x86_64 CentOS 7.8 node with sudo & ssh access"
-	@echo "./download pigsty pkg     # download pigsty source & pkgs"
-	@echo "./configure               # pre-check and templating config"
-	@echo "./infra.yml               # install pigsty on current node"
+	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
+	@echo "./download pkg  # download pigsty offline pkgs (optional)"
+	@echo "./configure     # pre-check and templating config"
+	@echo "./infra.yml     # install pigsty on current node"
 
 # print pkg download links
 link:
