@@ -4,28 +4,27 @@
 # File      :   infra-docker.yml
 # Ctime     :   2022-04-04
 # Mtime     :   2022-04-04
-# Desc      :   install jupyter on meta node
+# Desc      :   install docker on meta node
 # Path      :   infra-docker.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
 #---------------------------------------------------------------
-# Jupyter: Notebook server
+# Init Docker on meta nodes
 #---------------------------------------------------------------
 - name: Docker Init         # init jupyter on meta node
   become: yes
   hosts: meta
   gather_facts: no
   vars:
-
-    # - docker - #
-    # docker_cgroups_driver: systemd                                    # docker default cgroup fs driver
-    # docker_registry_mirrors: []                                       # docker registry mirror
-    # docker_image_cache: /www/pigsty/docker-images.tar.lz4             # docker images lz4 tar to be loaded
-
+    # docker_enabled: true                                    # is docker enabled on this node?
+    # docker_cgroups_driver: systemd                          # docker default cgroup fs driver
+    # docker_registry_mirrors: []                             # docker registry mirror
+    # docker_image_cache: /www/pigsty/docker-images.tar.lz4   # docker images lz4 tar to be loaded
   roles:
     - role: docker
       tags: docker
+      when: docker_enabled|bool
 
 
 ...

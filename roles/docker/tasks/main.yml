@@ -12,10 +12,20 @@
     #------------------------------------------------------------------------------
     # docker admin user
     #------------------------------------------------------------------------------
-    - name: Add vagrant to docker group
-      tags: docker_admin
+    - name: Add admin user to docker group
       ignore_errors: true
-      user: name=vagrant group=docker
+      tags: docker_admin
+      block:
+        - name: Get current admin user
+          become: no  # get current user
+          command: whoami
+          register: whoami_result
+
+        - name: Add admin user to docker group
+          user: name={{ item }} group=docker
+          with_items:
+            - "{{ whoami_result.stdout }}"
+            - "{{ node_admin_username|default('dba') }}"
 
     #------------------------------------------------------------------------------
     # config docker
