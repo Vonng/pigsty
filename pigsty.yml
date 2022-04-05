@@ -351,7 +351,15 @@ all:
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-    repo_packages:                   # which packages to be included                                                                                  #  what to download #
+      - name: docker-ce              # for latest docker
+        description: Docker CE Stable - $basearch
+        skip_if_unavailable: true
+        gpgcheck: no
+        baseurl:
+          - https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
+          - https://download.docker.com/linux/centos/$releasever/$basearch/stable
+
+    repo_packages:                   # which packages to be included                                                    #  what to download #
       - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
@@ -376,6 +384,8 @@ all:
       - pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
+      - docker-ce docker-compose # kubelet kubectl kubeadm kubernetes-cni helm                                          # - cloud native- #
+
     repo_url_packages:               # extra packages from url
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm

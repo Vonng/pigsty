@@ -1,0 +1,48 @@
+---
+- name: Setup docker service
+  block:
+
+    #------------------------------------------------------------------------------
+    # install docker
+    #------------------------------------------------------------------------------
+    - name: Install docker and kubernetes
+      tags: docker_install
+      package: name=docker-ce state=present
+
+    #------------------------------------------------------------------------------
+    # docker admin user
+    #------------------------------------------------------------------------------
+    - name: Add vagrant to docker group
+      tags: docker_admin
+      ignore_errors: true
+      user: name=vagrant group=docker
+
+    #------------------------------------------------------------------------------
+    # config docker
+    #------------------------------------------------------------------------------
+    - name: Make sure /etc/docker exists
+      tags: docker_config
+      file: path=/etc/docker state=directory mode=0755
+
+    - name: Overwrite /etc/docker/daemon.json
+      tags: docker_config
+      template: src=daemon.json.j2 dest=/etc/docker/daemon.json
+
+    #------------------------------------------------------------------------------
+    # launch docker
+    #------------------------------------------------------------------------------
+    - name: Launch docker service unit
+      tags: docker_launch
+      systemd: name=docker state=restarted enabled=yes daemon_reload=yes
+
+    #------------------------------------------------------------------------------
+    # load docker images cache if exists
+    #------------------------------------------------------------------------------
+    - name: Check pigsty repo cache exists
+      stat: path={{ docker_image_cache }}
+      register: docker_cache
+
+    - name: Load docker image cache if exists
+      when: docker_cache.stat.exists
+      shell: cat {{ docker_image_cache }} | lz4 -d - | docker load
+...
