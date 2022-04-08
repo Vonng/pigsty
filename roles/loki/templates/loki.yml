@@ -1,14 +1,11 @@
 #==============================================================#
 # File      :   loki.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2022-03-19
+# Mtime     :   2022-04-08
 # Desc      :   Loki configuration file
 # Path      :   /etc/loki.yml
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
-
-# LOKI_DATA: /tmp/loki
-# LOKI_RETENTION_PERIOD: 15d
 
 auth_enabled: false
 
@@ -19,7 +16,7 @@ server:
 ingester:
   wal:
     enabled: true
-    dir: ${LOKI_DATA:/tmp/loki}/wal
+    dir: {{ loki_data_dir }}
   lifecycler:
     address: 127.0.0.1
     ring:
@@ -46,16 +43,16 @@ schema_config:
 
 storage_config:
   boltdb_shipper:
-    active_index_directory: ${LOKI_DATA:/tmp/loki}/data/boltdb-shipper-active
-    cache_location: ${LOKI_DATA:/tmp/loki}/data/boltdb-shipper-cache
+    active_index_directory: {{ loki_data_dir }}/data/boltdb-shipper-active
+    cache_location: {{ loki_data_dir }}/data/boltdb-shipper-cache
     cache_ttl: 24h   # Can be increased for faster performance over longer query periods, uses more disk space
     shared_store: filesystem
 
   filesystem:
-    directory: ${LOKI_DATA:/tmp/loki}/chunks
+    directory: {{ loki_data_dir }}/chunks
 
 compactor:
-  working_directory: ${LOKI_DATA:/tmp/loki}/tmp/boltdb-shipper-compactor
+  working_directory: {{ loki_data_dir }}/tmp/boltdb-shipper-compactor
   shared_store: filesystem
 
 limits_config:
@@ -74,7 +71,7 @@ table_manager:
     enable_ondemand_throughput_mode: true
     enable_inactive_throughput_on_demand_mode: true
   retention_deletes_enabled: true
-  retention_period: ${LOKI_RETENTION_PERIOD:15d}
+  retention_period: {{ loki_retention }}
 
 frontend:
   max_outstanding_per_tenant: 2048
@@ -96,8 +93,8 @@ ruler:
   storage:
     type: local
     local:
-      directory: ${LOKI_DATA:/tmp/loki}/data/rules
-  rule_path: ${LOKI_DATA:/tmp/loki}/data/rules-temp
+      directory: {{ loki_data_dir }}/data/rules
+  rule_path: {{ loki_data_dir }}/data/rules-temp
   # alertmanager_url: http://127.0.0.1:9093
   ring:
     kvstore:
