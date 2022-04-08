@@ -1,19 +1,19 @@
 # Playbook：PGSQL
 
-> 使用PGSQL系列[剧本](p-playbook.md)，拉起定义好的高可用PostgreSQL数据库集群
+> Pull up a defined cluster of highly available PostgreSQL databases using the PGSQL series [playbook](p-playbook.md).
 
-## 剧本概览
+## Playbook overview
 
-| 剧本 | 功能                                                           | 链接                                                         |
+| Playbook | Function                                                   | Link                                                     |
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |
-|  [`pgsql`](p-pgsql.md#pgsql)                        |        **部署PostgreSQL集群，或集群扩容**                             |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
-|  [`pgsql-remove`](p-pgsql.md#pgsql-remove)          |        下线PostgreSQL集群，或集群缩容                             |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
-|  [`pgsql-createuser`](p-pgsql.md#pgsql-createuser)  |        创建PostgreSQL业务用户                                 |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
-|  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      |        创建PostgreSQL业务数据库                                |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
-|  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            |        仅监控模式，接入现存PostgreSQL实例或RDS                       |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
-|  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    |        生成PostgreSQL半自动数据库迁移方案（Beta）                     |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-|  [`pgsql-audit`](p-pgsql.md#pgsql-audit)            |        生成PostgreSQL审计合规报告（Beta）                         |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-audit.yml)      |
-|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          |        复用PG角色部署一套MatrixDB数据仓库集群（Beta）                   |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
+|  [`pgsql`](p-pgsql.md#pgsql)                        | **Deploy a PostgreSQL cluster, or cluster expansion** |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
+|  [`pgsql-remove`](p-pgsql.md#pgsql-remove)          | Offline PostgreSQL cluster, or cluster shrinkage |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
+|  [`pgsql-createuser`](p-pgsql.md#pgsql-createuser)  |      Creating PostgreSQL business users |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
+|  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      | Creating a PostgreSQL Business Database |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
+|  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            | Monitor-only mode, with access to existing PostgreSQL instances or RDS |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
+|  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    | Generate PostgreSQL semi-automatic database migration solution (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
+|  [`pgsql-audit`](p-pgsql.md#pgsql-audit)            | Generate PostgreSQL Audit Compliance Report (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-audit.yml)      |
+|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG role to deploy a set of MatrixDB data warehouse clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
 
 
 
@@ -21,110 +21,112 @@
 
 ## `pgsql`
 
-完成了[**基础设施初始化**](p-infra.md)后，用户可以[ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) 完成数据库集群的**初始化**。
+After completing the [**infrastructure initialization**](p-infra.md)，users can use[ `pgsql.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql.yml) to complete the **initialization** of the database cluster.
 
-首先在 **Pigsty配置文件** 中完成数据库集群的定义，然后通过执行`pgsql.yml`将变更应用至实际环境中。
+First complete the definition of the database cluster in the **Pigsty configuration file** and then apply the changes to the actual environment by executing `pgsql.yml`.
 
 ```bash
-./pgsql.yml                      # 在所有清单中的机器上执行数据库集群初始化操作（危险！）
-./pgsql.yml -l pg-test           # 在 pg-test 分组下的机器执行数据库集群初始化（推荐！）
-./pgsql.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群
-./pgsql.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器上的数据库实例
+./pgsql.yml                      # Perform database cluster initialization operations on all machines in the list (Danger!)
+./pgsql.yml -l pg-test           # Perform database cluster initialization on the machines under the pg-test group (recommended!)
+./pgsql.yml -l pg-meta,pg-test   # Initialize both pg-meta and pg-test clusters
+./pgsql.yml -l 10.10.10.11       # Initialize the database instance on the machine 10.10.10.11
 ```
 
-本剧本主要完成以下工作：
+This playbook accomplishes the following：
 
-* 安装、部署、初始化PostgreSQL， Pgbouncer， Patroni（`postgres`）
-* 安装PostgreSQL监控系统（`monitor`）
-* 安装部署Haproxy与VIP，对外暴露服务（`service`）
-* 将数据库实例注册至基础设施，接受监管（`register`）
+* Install, deploy, initialize PostgreSQL, Pgbouncer, Patroni (`postgres`)
+* Installing the PostgreSQL monitor (`monitor`)
+* Install and deploy Haproxy and VIP, expose services to the public (`service`)
+* Register the database instance to the infrastructure to be supervised (`register`)
 
-!> **该剧本使用不当存在误删数据库的风险，因为初始化数据库会抹除原有数据库的痕迹**。
-[保险参数](#保护机制)提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中实例时自动中止或跳过高危操作，避免最坏情况发送。尽管如此，在**使用`pgsql.yml`时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。使用不带参数的`pgsql.yml`在生产环境中是一个高危操作，务必三思而后行。**
+**This script use will delete the database by mistake, because initializing the database will erase traces of the original database**.
+The [insurance parameter](#保护机制) provides options to avoid accidental deletion and automatically abort or skip high-risk operations during initialization when an existing running instance is detected. 
 
-
-![](../_media/playbook/pgsql.svg)
-
+Nevertheless, when **using `pgsql.yml`，double-check that the `--tags|-t` and `--limit|-l` parameters are correct. Make sure you are performing the right task on the right target.  Using `-pgsql.yml` without parameters is a high-risk operation in a production environment. **
 
 
-### 注意事项
-
-* 强烈建议在执行时添加`-l`参数，限制命令执行的对象范围。
-
-* **单独**针对某一集群从库执行初始化时，用户必须自行确保**主库已经完成初始化**
-
-* 集群扩容时，如果`Patroni`拉起从库的时间过长，Ansible剧本可能会因为超时而中止。（但制作从库的进程会继续，例如需要制作从库需超过1天的场景）。
-* 您可以在从库自动制作完毕后，通过Ansible的`--start-at-task`从`Wait for patroni replica online`任务继续执行后续步骤。详情请参考[SOP](r-sop.md)。
-
-
-### 保护机制
-
-`pgsql.yml`提供**保护机制**，由配置参数 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 的配置`abort|clean|skip`行动。
-
-* `abort`：建议设置为默认配置，如遇现存实例，中止剧本执行，避免误删库。
-* `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有数据库。
-* `skip`：  直接在已有数据库集群上执行后续逻辑。
-* 您可以通过`./pgsql.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
-
-[`pg_disable_purge`](v-pgsql.md#pg_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
-
-`dcs_exists_action`与`dcs_disable_purge`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
+![](./_media/playbook/pgsql.svg)
 
 
 
-### 选择性执行
+### Cautions
 
-用户可以通过ansible的标签机制，可以选择执行剧本的一个子集。
+* It is strongly recommended to add the `-l` parameter to the execution to limit the range of objects for which the command can be executed.
 
-举个例子，如果只想执行服务初始化的部分，则可以通过以下命令进行
+* **Separately** when performing initialization for a cluster slave, you must ensure that the **master library has completed initialization**.
+
+* When a cluster is expanded, if `Patroni` takes too long to pull up a slave, the Ansible playbook may abort due to a timeout. (But the process of making the slave library will continue, e.g. it takes more than 1 day to make the slave library).
+* You can continue with subsequent steps from the `Wait for patroni replica online`  task via Ansible's `--start-at-task` after the slave library is automatically made. Please refer to [SOP](r-sop.md)。
+
+
+### Protection mechanism
+
+The`pgsql.yml`provides **protection mechanism** determined by configuration parameter [`pg_exists_action`](v-pgsql.md#pg_exists_action).  When there is a running PostgreSQL instance on the target machine before the playbook is executed, pigsty will take action according to the configuration `abort|clean|skip` of [`pg_exists_action`](v-pgsql.md#pg_exists_action).
+
+* `abort`：Set as the default configuration to abort script execution in case of existing instances to avoid accidental library deletion.
+* `clean`：Use in a local sandbox environment and clear the existing database if an existing instance is encountered.
+* `skip`： Execute subsequent logic directly on an existing database cluster. 
+* You can  use `./pgsql.yml -e pg_exists_action=clean` to override the configuration file options and force the erasure of existing instances.
+
+The [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) provides dual protection. If this option is enabled, [`pg_exists_action`](v-pgsql.md#pg_exists_action) will be forced to be set to`abort`，and the running database instance will not be erased under any circumstances.
+
+`dcs_exists_action ` and `dcs_disable_purge` has the same effect as the above two options, but it is for DCS。
+
+
+
+### Selective execution
+
+Users can choose to execute a subset of playbooks through ansible's tag mechanism.
+
+For example, if you only want to perform the service initialization part, you can use the following command:
 
 ```bash
-./pgsql.yml --tags=service      # 刷新集群的服务定义
+./pgsql.yml --tags=service      # Refreshing the service definition of a cluster
 ```
 
-常用的命令子集如下：
+The common subsets of commands are as follows:
 
 ```bash
-# 基础设施初始化
-./pgsql.yml --tags=infra        # 完成基础设施的初始化，包括机器节点初始化与DCS部署
+# Infrastructure initialization
+./pgsql.yml --tags=infra        # Complete infrastructure initialization, including machine node initialization and DCS deployment
 
 
-# 数据库初始化
-./pgsql.yml --tags=pgsql        # 完成数据库部署：数据库、监控、服务
+# Database initialization
+./pgsql.yml --tags=pgsql        # Complete database deployment: database, monitoring, services
 
-./pgsql.yml --tags=postgres     # 完成数据库部署
-./pgsql.yml --tags=monitor      # 完成监控的部署
-./pgsql.yml --tags=service      # 完成负载均衡的部署，（Haproxy & VIP）
-./pgsql.yml --tags=register     # 将服务注册至基础设施
+./pgsql.yml --tags=postgres     # Complete database deployment
+./pgsql.yml --tags=monitor      # Complete monitoring deployment
+./pgsql.yml --tags=service      # Complete load balancing deployment（Haproxy & VIP）
+./pgsql.yml --tags=register     # Registering services to the infrastructure
 ```
 
 
 
-### 日常管理任务
+### Daily management tasks
 
-日常管理也可以使用`./pgsql.yml`来修改数据库集群的状态，常用的命令子集如下：
+Daily management can also be used `./pgsql.yml` to modify the state of the database cluster. The common command subsets are as follows:
 
 ```bash
-./pgsql.yml --tags=node_admin           # 在目标节点上创建管理员用户
+./pgsql.yml --tags=node_admin           # Create an administrator user on the target node
 
-# 如果当前管理员没有ssh至目标节点的权限，可以使用其他具有ssh的用户创建管理员（输入密码）
+# If the current administrator does not have ssh to the target node, you can use another user with ssh to create an administrator (enter the password)
 ./pgsql.yml --tags=node_admin -e ansible_user=other_admin -k 
 
-./pgsql.yml --tags=pg_scripts           # 更新/pg/bin/目录脚本
-./pgsql.yml --tags=pg_hba               # 重新生成并应用集群HBA规则
-./pgsql.yml --tags=pgbouncer            # 重置Pgbouncer
-./pgsql.yml --tags=pg_user              # 全量刷新业务用户
-./pgsql.yml --tags=pg_db                # 全量刷新业务数据库
+./pgsql.yml --tags=pg_scripts           # Update the /pg/bin/ directory script
+./pgsql.yml --tags=pg_hba               # Regenerate and apply cluster HBA rules
+./pgsql.yml --tags=pgbouncer            # Reset Pgbouncer
+./pgsql.yml --tags=pg_user              # Full volume refresh business users
+./pgsql.yml --tags=pg_db                # Full volume refresh of business database
 
-./pgsql.yml --tags=register_consul      # 在目标实例本地注册Consul服务(本地执行)
-./pgsql.yml --tags=register_prometheus  # 在Prometheus中注册监控对象(代理至所有Meta节点执行)
-./pgsql.yml --tags=register_grafana     # 在Grafana中注册监控对象(只注册一次)
-./pgsql.yml --tags=register_nginx       # 在Nginx注册负载均衡器(代理至所有Meta节点执行)
+./pgsql.yml --tags=register_consul      # Register the Consul service locally with the target instance (local execution)
+./pgsql.yml --tags=register_prometheus  # Register monitoring objects in Prometheus (proxy to all Meta nodes for execution)
+./pgsql.yml --tags=register_grafana     # Register monitoring objects in Grafana (only once)
+./pgsql.yml --tags=register_nginx       # Register a load balancer with Nginx (proxy to all Meta nodes for execution)
 
-# 使用二进制安装的方式重新部署监控
+# Redeploy monitoring using binary installation
 ./pgsql.yml --tags=monitor -e exporter_install=binary
 
-# 刷新集群的服务定义（当集群成员或服务定义发生变化时执行）
+# Refresh the service definition of the cluster (changes in cluster membership or service definition)
 ./pgsql.yml --tags=haproxy_config,haproxy_reload
 ```
 
@@ -134,34 +136,34 @@
 ## `pgsql-remove`
 
 
-数据库下线：可以**移除**现有的数据库集群或实例，回收节点：[`pgsql-remove.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-remove.yml)
+Database offline: **Remove** existing database cluster or instance, reclaim node: [`pgsql-remove.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-remove.yml)
 
-`pgsql-remove.yml`是[`pgsql.yml`](p-pgsql.md)的反向操作，会依次完成
+The `pgsql-remove.yml` is the reverse of [`pgsql.yml`](p-pgsql.md) and will do the following ：
 
-* 将数据库实例从基础设施取消注册（`register`）
-* 停止负载均衡器，服务组件（`service`）
-* 移除监控系统组件（`monitor`）
-* 移除Pgbouncer，Patroni，Postgres（`postgres`）
-* 移除数据库目录（`rm_pgdata: true`）
-* 移除软件包（`rm_pkgs: true`）
+* Unregister the database instance from the infrastructure（`register`）
+* Stop the load balancer, service component（`service`）
+* Removal of monitoring system components（`monitor`）
+* Remove Pgbouncer, Patroni, Postgres（`postgres`）
+* Remove database directory（`rm_pgdata: true`）
+* Remove Package（`rm_pkgs: true`）
 
-该剧本有两个命令行选项，可用于移除数据库目录与软件包（默认下线不会移除数据与安装包）
+The playbook has two command line options to remove the database directory and packages (the default offline does not remove data and installers).
 
 ```
 rm_pgdata: false        # remove postgres data? false by default
 rm_pgpkgs: false        # uninstall pg_packages? false by default
 ```
 
-![](../_media/playbook/pgsql-remove.svg)
+![](./_media/playbook/pgsql-remove.svg)
 
 
-### 日常管理
+### Daily management
 
 ```bash
-./pgsql-remove.yml -l pg-test          # 下线 pg-test 集群
-./pgsql-remove.yml -l 10.10.10.13      # 下线实例 10.10.10.13 (实际上是pg-test.pg-test-3)
-./pgsql-remove.yml -l 10.10.10.13 -e rm_pgdata=true # 下线，一并移除数据目录（可能较慢）
-./pgsql-remove.yml -l 10.10.10.13 -e rm_pkgs=true   # 下线，一并移除安装的PG相关软件包
+./pgsql-remove.yml -l pg-test          # Offline pg-test cluster
+./pgsql-remove.yml -l 10.10.10.13      # Offline instance 10.10.10.13 (actually pg-test.pg-test-3)
+./pgsql-remove.yml -l 10.10.10.13 -e rm_pgdata=true # Offline and remove the data directory (may be slow)
+./pgsql-remove.yml -l 10.10.10.13 -e rm_pkgs=true   # Offline and remove the installed PG-related packages
 ```
 
 
@@ -172,28 +174,28 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 ## `pgsql-createdb`
 
-[**创建业务数据库**](pgsql-createdb)：可以在现有集群中创建新的数据库或修改现有**数据库**：[`pgsql-createdb.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createdb.yml)
+[**created business database**](pgsql-createdb): Create a new database in an existing cluster or modify an existing **database**: [`pgsql-createdb.yml`][**创建业务数据库**]
 
-![](../_media/playbook/pgsql-createdb.svg)
+![](./_media/playbook/pgsql-createdb.svg)
 
-强烈建议通过剧本或包装脚本与工具在已有集群中创建新数据库，这样可以确保：
+The author recommends creating a new database in an existing cluster via a playbook or scripting tool, which ensures that.
 
-* 配置文件清单与实际情况保持一致
-* Pgbouncer连接池与数据库保持一致
-* Grafana中所注册的数据源与实际情况保持一致。
+* Configuration file list is consistent with the actual situation
+* Pgbouncer connection pools are consistent with the database
+* The data sources registered in Grafana are consistent with the actual situation.
 
 
 
-### 日常管理
+### Daily management
 
-数据库的创建请参考 [数据库](c-database.md#创建数据库) 一节。
+Please refer to the section [Database](c-database.md#创建数据库) for the creation of the database.
 
 ```bash
-# 在 pg-test 集群创建名为 test 的数据库
+# Create a database named test in the pg-test cluster
 ./pgsql-createdb.yml -l pg-test -e pg_database=test
 ```
 
-可以使用包装脚本简化命令：
+Simplify commands using wrapper scripts:
 
 ```bash
 bin/createdb <pg_cluster> <dbname>
@@ -204,51 +206,51 @@ bin/createdb <pg_cluster> <dbname>
 
 ## `pgsql-createuser`
 
-[**创建业务用户**](pgsql-createuser)：可以在现有集群中创建新的用户或修改现有**用户**：[`pgsql-createuser.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createuser.yml)
+[**create business users**](pgsql-createuser)：Create a new user or modify an existing **user** in an existing cluster：[`pgsql-createuser.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createuser.yml)
 
-![](../_media/playbook/pgsql-createuser.svg)
+![](./_media/playbook/pgsql-createuser.svg)
 
-### 日常管理
+### Daily management
 
-业务用户的创建请参考 [用户](c-user.md#创建用户) 一节
+Please refer to the section [User](c-user.md#创建用户) for the create of business users.
 
 ```bash
-# 在 pg-test 集群创建名为 test 的用户
+# Create a user named test in the pg-test cluster
 ./pgsql-createuser.yml -l pg-test -e pg_user=test
 ```
 
-可以使用包装脚本简化命令：
+Simplify commands using wrapper scripts:
 
 ```bash
 bin/createuser <pg_cluster> <username>
 ```
 
-请注意，`pg_user` 指定的用户，**必须**已经存在于集群`pg_users`的定义中，否则会报错。这意味着用户必须先定义，再创建。
+Note, ` PG_ User ` the specified user, **must**  already exist in the cluster `pg_users`, otherwise an error will be reported. This means that the user must define before creating.
 
 
 ------------------
 
 ## `pgsql-monly`
 
-用于执行仅监控部署的专用剧本，详情请参考：[仅监控部署](d-monly.md)
+Dedicated playbook for performing monitoring deployments, see:  [monitor-only deployments](d-monly.md) for details.
 
 
-![](../_media/playbook/pgsql-monly.svg)
+![](./_media/playbook/pgsql-monly.svg)
 
 
 ------------------
 
 ## `pgsql-matrix`
 
-用于部署MatrixDB的专用剧本，详情请参考：[部署MatrixDB集群](d-matrixdb.md)
+Dedicated playbook for deploying MatrixDB, see: [Deploying MatrixDB Cluster](d-matrixdb.md) for details.
 
-![](../_media/playbook/pgsql-matrix.svg)
+![](./_media/playbook/pgsql-matrix.svg)
 
 
 ------------------
 
 ## `pgsql-migration`
 
-用于数据库自动化迁移的剧本，目前仍处于Beta状态，详情请参考：[数据库集群迁移](t-migration.md)
+Playbook for automated database migration, still in Beta status, see [database cluster migration](t-migration.md) for details.
 
-![](../_media/playbook/pgsql-migration.svg)
+![](./_media/playbook/pgsql-migration.svg)

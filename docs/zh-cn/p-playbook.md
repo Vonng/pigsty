@@ -15,7 +15,7 @@ Pigsty在底层通过 [Ansible Playbook](#Ansible快速上手) 实现核心管�
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |
 |  [**infra**](p-infra.md#infra)                        |        **在管理节点上完整安装Pigsty**                                 |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
 |  [`infra-demo`](p-infra.md#infra-demo)              |        一次性完整初始化四节点演示沙箱环境的特殊剧本                           |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
-|  [`infra-jupyter`](p-infra.md#infra-jupyter)        |        在管理节点上加装**可选**数据分析服务组件组件Jupyter Lab              |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
+|  [`infra-jupyter`](p-infra.md#infra-jupyter)        |        在管理节点上加装**可选**数据分析服务组件Jupyter Lab              |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
 |  [`infra-pgweb`](p-infra.md#infra-pgweb)            |        在管理节点上加装**可选**的Web客户端工具PGWeb                     |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
 |  [**nodes**](p-nodes.md#nodes)                        |        **节点置备，将节点纳入Pigsty管理，可用于后续数据库部署**                    |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
 |  [`nodes-remove`](p-nodes.md#nodes-remove)          |        节点移除，卸载节点DCS与监控，不再纳入Pigsty管理                     |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
@@ -132,5 +132,4 @@ yum install ansible
 ./pgsql-remove.yml -e rm_pgdata=true         # 在移除PG时，一并移除数据
 ./pgsql-remove.yml -e rm_pgpkgs=true         # 在移除PG时，一并卸载软件
 ```
-
 
