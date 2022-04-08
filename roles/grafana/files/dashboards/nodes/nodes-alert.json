@@ -18,6 +18,7 @@
             }
         ]
     },
+    "author": "Vonng (rh@vonng.com)",
     "description": "Nodes Alert",
     "editable": true,
     "fiscalYearStartMonth": 0,
@@ -405,16 +406,24 @@
             },
             "id": 80,
             "options": {
+                "alertInstanceLabelFilter": "",
                 "alertName": "",
                 "dashboardAlerts": false,
                 "dashboardTitle": "",
+                "groupBy": [],
+                "groupMode": "default",
                 "maxItems": 10,
                 "showOptions": "current",
                 "sortOrder": 1,
                 "stateFilter": {
                     "alerting": false,
+                    "error": true,
                     "execution_error": false,
+                    "firing": true,
+                    "inactive": false,
+                    "noData": false,
                     "no_data": false,
+                    "normal": false,
                     "ok": false,
                     "paused": false,
                     "pending": false
@@ -901,44 +910,6 @@
             "type": "row"
         },
         {
-            "alert": {
-                "alertRuleTags": {
-                    "category": "nodes",
-                    "severity": "CRIT"
-                },
-                "conditions": [
-                    {
-                        "evaluator": {
-                            "params": [
-                                0.7
-                            ],
-                            "type": "gt"
-                        },
-                        "operator": {
-                            "type": "and"
-                        },
-                        "query": {
-                            "params": [
-                                "A",
-                                "1m",
-                                "now"
-                            ]
-                        },
-                        "reducer": {
-                            "params": [],
-                            "type": "avg"
-                        },
-                        "type": "query"
-                    }
-                ],
-                "executionErrorState": "alerting",
-                "for": "1m",
-                "frequency": "15s",
-                "handler": 1,
-                "name": "NodeCpuHigh alert",
-                "noDataState": "no_data",
-                "notifications": []
-            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1065,7 +1036,7 @@
             "type": "timeseries"
         },
         {
-            "collapsed": false,
+            "collapsed": true,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -1073,175 +1044,137 @@
                 "y": 26
             },
             "id": 53,
-            "panels": [],
+            "panels": [
+                {
+                    "description": "Standard Load (divide by cpu count) > 100%",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "axisSoftMax": 1,
+                                "axisSoftMin": 0,
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "auto",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "area"
+                                }
+                            },
+                            "decimals": 1,
+                            "links": [
+                                {
+                                    "title": "PGSQL Node: Load for ${__field.labels.ins}",
+                                    "url": "/d/nodes-instance?var-ins=${__field.labels.ins}&viewPanel=173"
+                                }
+                            ],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 0.1
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 0.3
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 0.5
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 0.7
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 0.9
+                                    },
+                                    {
+                                        "color": "text",
+                                        "value": 1
+                                    }
+                                ]
+                            },
+                            "unit": "percentunit"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 24,
+                        "x": 0,
+                        "y": 27
+                    },
+                    "id": 11,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "exemplar": false,
+                            "expr": "node:ins:stdload1",
+                            "interval": "",
+                            "legendFormat": "{{ ip }}",
+                            "refId": "A"
+                        }
+                    ],
+                    "thresholds": [
+                        {
+                            "colorMode": "critical",
+                            "op": "gt",
+                            "value": 1,
+                            "visible": true
+                        }
+                    ],
+                    "title": "NodeLoadHigh",
+                    "type": "timeseries"
+                }
+            ],
             "title": "NODES: Schedule",
             "type": "row"
-        },
-        {
-            "alert": {
-                "alertRuleTags": {
-                    "level": "1",
-                    "severity": "WARN"
-                },
-                "conditions": [
-                    {
-                        "evaluator": {
-                            "params": [
-                                1
-                            ],
-                            "type": "gt"
-                        },
-                        "operator": {
-                            "type": "and"
-                        },
-                        "query": {
-                            "params": [
-                                "A",
-                                "1m",
-                                "now"
-                            ]
-                        },
-                        "reducer": {
-                            "params": [],
-                            "type": "avg"
-                        },
-                        "type": "query"
-                    }
-                ],
-                "executionErrorState": "alerting",
-                "for": "1m",
-                "frequency": "15s",
-                "handler": 1,
-                "message": "node:ins:stdload1[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 100%",
-                "name": "NodeLoadHigh",
-                "noDataState": "no_data",
-                "notifications": []
-            },
-            "description": "Standard Load (divide by cpu count) > 100%",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "axisSoftMax": 1,
-                        "axisSoftMin": 0,
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "area"
-                        }
-                    },
-                    "decimals": 1,
-                    "links": [
-                        {
-                            "title": "PGSQL Node: Load for ${__field.labels.ins}",
-                            "url": "/d/nodes-instance?var-ins=${__field.labels.ins}&viewPanel=173"
-                        }
-                    ],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "blue",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 0.1
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 0.3
-                            },
-                            {
-                                "color": "orange",
-                                "value": 0.5
-                            },
-                            {
-                                "color": "red",
-                                "value": 0.7
-                            },
-                            {
-                                "color": "purple",
-                                "value": 0.9
-                            },
-                            {
-                                "color": "text",
-                                "value": 1
-                            }
-                        ]
-                    },
-                    "unit": "percentunit"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 24,
-                "x": 0,
-                "y": 27
-            },
-            "id": 11,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "ds-prometheus"
-                    },
-                    "exemplar": false,
-                    "expr": "node:ins:stdload1",
-                    "interval": "",
-                    "legendFormat": "{{ ip }}",
-                    "refId": "A"
-                }
-            ],
-            "thresholds": [
-                {
-                    "colorMode": "critical",
-                    "op": "gt",
-                    "value": 1,
-                    "visible": true
-                }
-            ],
-            "title": "NodeLoadHigh",
-            "type": "timeseries"
         },
         {
             "collapsed": true,
@@ -1249,50 +1182,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 35
+                "y": 27
             },
             "id": 40,
             "panels": [
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.1
-                                    ],
-                                    "type": "lt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "1m",
-                        "frequency": "15s",
-                        "handler": 1,
-                        "message": "node:ins:mem_avail[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} < 10%",
-                        "name": "NodeOutOfMem",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "description": "Available memory < 10%",
                     "fieldConfig": {
                         "defaults": {
@@ -1416,51 +1310,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 36
+                "y": 28
             },
             "id": 55,
             "panels": [
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "2",
-                            "severity": "INFO"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.01
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "5m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "5m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "node:ins:swap_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 1%",
-                        "name": "NodeMemSwapped",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "description": "Available memory < 10%",
                     "fieldConfig": {
                         "defaults": {
@@ -1583,51 +1437,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 29
             },
             "id": 27,
             "panels": [
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.032
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "3m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "node:dev:disk_read_rt_1m[ins={{ $labels.ins }}] = {{ $value  | printf \"%.6f\" }} > 32ms",
-                        "name": "NodeDiskSlow",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "description": "Disk read/write avg latency > 32ms",
                     "fieldConfig": {
                         "defaults": {
@@ -1757,51 +1571,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 30
             },
             "id": 29,
             "panels": [
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.9
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "3m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "node:fs:space_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 90%",
-                        "name": "NodeFsFull",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2060,46 +1834,6 @@
                     "type": "timeseries"
                 },
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.9
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "3m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "node:fs:inode_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 90%",
-                        "name": "NodeFsFilesFull",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2221,46 +1955,6 @@
                     "type": "timeseries"
                 },
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.9
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "3m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "node:ins:fd_usage[ins={{ $labels.ins }}] = {{ $value  | printf \"%.2f\" }} > 90%",
-                        "name": "NodeFdFull",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2395,51 +2089,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 39
+                "y": 31
             },
             "id": 62,
             "panels": [
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        1
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "3m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "rate(node:ins:tcp_error{ins={{ $labels.ins }}}[1m]) = {{ $value  | printf \"%.2f\" }} > 1",
-                        "name": "NodeTcpErrHigh",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "description": "TCP Error Rate > 1 / s",
                     "fieldConfig": {
                         "defaults": {
@@ -2676,7 +2330,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 40
+                "y": 32
             },
             "id": 25,
             "panels": [
@@ -2777,46 +2431,6 @@
                     "type": "timeseries"
                 },
                 {
-                    "alert": {
-                        "alertRuleTags": {
-                            "category": "node",
-                            "level": "1",
-                            "severity": "WARN"
-                        },
-                        "conditions": [
-                            {
-                                "evaluator": {
-                                    "params": [
-                                        0.05
-                                    ],
-                                    "type": "gt"
-                                },
-                                "operator": {
-                                    "type": "and"
-                                },
-                                "query": {
-                                    "params": [
-                                        "A",
-                                        "1m",
-                                        "now"
-                                    ]
-                                },
-                                "reducer": {
-                                    "params": [],
-                                    "type": "avg"
-                                },
-                                "type": "query"
-                            }
-                        ],
-                        "executionErrorState": "alerting",
-                        "for": "3m",
-                        "frequency": "1m",
-                        "handler": 1,
-                        "message": "abs(node_timex_offset_seconds)[ins={{ $labels.ins }}]) = {{ $value | printf \"%.6f\" }} > 50ms",
-                        "name": "NodeClockSkew",
-                        "noDataState": "no_data",
-                        "notifications": []
-                    },
                     "description": "Clock time offset alert > 50ms",
                     "fieldConfig": {
                         "defaults": {
@@ -2980,6 +2594,5 @@
     "title": "Nodes Alert",
     "uid": "nodes-alert",
     "version": 1,
-    "weekStart": "",
-    "author": "Vonng (rh@vonng.com)"
+    "weekStart": ""
 }
