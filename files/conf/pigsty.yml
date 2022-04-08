@@ -177,58 +177,6 @@ all:
 
 
 
-    #================================================================#
-    #                        REDIS Clusters                          #
-    #================================================================#
-
-    #----------------------------------#
-    # redis sentinel example           #
-    #----------------------------------#
-    #redis-meta:
-    #  hosts:
-    #    10.10.10.10:
-    #      redis_node: 1
-    #      redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-    #  vars:
-    #    redis_cluster: redis-meta
-    #    redis_mode: sentinel
-    #    redis_max_memory: 128MB
-
-    #----------------------------------#
-    # redis cluster example            #
-    #----------------------------------#
-    #redis-test:
-    #  hosts:
-    #    10.10.10.11:
-    #      redis_node: 1
-    #      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-    #    10.10.10.12:
-    #      redis_node: 2
-    #      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-    #  vars:
-    #    redis_cluster: redis-test           # name of this redis 'cluster'
-    #    redis_mode: cluster                 # standalone,cluster,sentinel
-    #    redis_max_memory: 64MB              # max memory used by each redis instance
-    #    redis_mem_policy: allkeys-lru       # memory eviction policy
-
-    #----------------------------------#
-    # redis standalone example         #
-    #----------------------------------#
-    #redis-common:
-    #  hosts:
-    #    10.10.10.13:
-    #      redis_node: 1
-    #      redis_instances:
-    #        6501: {}
-    #        6502: { replica_of: '10.10.10.13 6501' }
-    #        6503: { replica_of: '10.10.10.13 6501' }
-    #  vars:
-    #    redis_cluster: redis-common         # name of this redis 'cluster'
-    #    redis_mode: standalone              # standalone,cluster,sentinel
-    #    redis_max_memory: 64MB              # max memory used by each redis instance
-
-
-
   ####################################################################
   #                             VARS                                 #
   ####################################################################
@@ -351,7 +299,15 @@ all:
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-    repo_packages:                   # which packages to be included                                                                                  #  what to download #
+      - name: docker-ce              # for latest docker
+        description: Docker CE Stable - $basearch
+        skip_if_unavailable: true
+        gpgcheck: no
+        baseurl:
+          - https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
+          - https://download.docker.com/linux/centos/$releasever/$basearch/stable
+
+    repo_packages:                   # which packages to be included                                                    #  what to download #
       - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
@@ -376,6 +332,8 @@ all:
       - pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
+      - docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
+
     repo_url_packages:               # extra packages from url
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm
@@ -409,15 +367,13 @@ all:
       - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
       - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
       - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
-      - { name: matrix,       domain: matrix.pigsty, endpoint: "10.10.10.10:8240" }
-    app_list:                            # application nav links on home page
-      - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
-      - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
-      - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
-      - { name: Pkgs    , url : '/pigsty'      , comment: 'local yum repo packages' }
-      - { name: Repo    , url : '/pigsty.repo' , comment: 'local yum repo file' }
-      - { name: ISD     , url : '${grafana}/d/isd-overview'   , comment: 'noaa isd data visualization' }
-      - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
+    app_list:                        # application nav links on home page
+      - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
+      - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
+      - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
+      - { name: PGLogs   , url : '/logs'        , comment: 'postgres raw csv logs'       }
+      - { name: Schemas  , url : '/schema'      , comment: 'schemaspy summary report'    }
+      - { name: Reports  , url : '/report'      , comment: 'pgbadger summary report'     }
 
     docs_enabled: true              # setup local document under nginx?
     pev2_enabled: true              # setup pev2 query visualizer under nginx?
@@ -552,12 +508,12 @@ all:
     #-----------------------------------------------------------------
     node_packages:                  # common packages for all nodes
       - wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal
-      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf,ca-certificates
+      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,nc,pv,jq,perf,ca-certificates
       - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,redis_exporter,consul,etcd,promtail
     node_extra_packages: [ ]        # extra packages for all nodes
     node_meta_packages:             # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
-      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh
+      - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh,docker-ce,docker-compose
     node_meta_pip_install: jupyterlab  # extra pip packages to be installed on meta nodes
 
     #-----------------------------------------------------------------
@@ -898,27 +854,27 @@ all:
     #-----------------------------------------------------------------
     # REDIS_PROVISION
     #-----------------------------------------------------------------
-    redis_install: yum              # none|yum|binary, yum by default (install from yum repo)
-    redis_mode: standalone          # standalone,cluster,sentinel
-    redis_conf: redis.conf          # config template path (except sentinel)
-    redis_fs_main: /data            # main fs mountpoint for redis data
-    redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
-    redis_exists_action: clean      # abort|skip|clean if redis server already exists
-    redis_disable_purge: false      # force redis_exists_action = abort if true
-    redis_max_memory: 1GB           # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru   # memory eviction policy
-    redis_password: ''              # masterauth & requirepass password, disable by empty string
-    redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
-    redis_aof_enabled: false        # redis aof enabled
-    redis_rename_commands: {}       # rename dangerous commands
-    redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
+    #redis_install: yum              # none|yum|binary, yum by default (install from yum repo)
+    #redis_mode: standalone          # standalone,cluster,sentinel
+    #redis_conf: redis.conf          # config template path (except sentinel)
+    #redis_fs_main: /data            # main fs mountpoint for redis data
+    #redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
+    #redis_exists_action: clean      # abort|skip|clean if redis server already exists
+    #redis_disable_purge: false      # force redis_exists_action = abort if true
+    #redis_max_memory: 1GB           # max memory used by each redis instance
+    #redis_mem_policy: allkeys-lru   # memory eviction policy
+    #redis_password: ''              # masterauth & requirepass password, disable by empty string
+    #redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
+    #redis_aof_enabled: false        # redis aof enabled
+    #redis_rename_commands: {}       # rename dangerous commands
+    #redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
 
     #-----------------------------------------------------------------
     # REDIS_EXPORTER
     #-----------------------------------------------------------------
-    redis_exporter_enabled: true    # install redis exporter on redis nodes ?
-    redis_exporter_port: 9121       # default port for redis exporter
-    redis_exporter_options: ''      # default cli args for redis exporter
+    #redis_exporter_enabled: true    # install redis exporter on redis nodes ?
+    #redis_exporter_port: 9121       # default port for redis exporter
+    #redis_exporter_options: ''      # default cli args for redis exporter
 
 
 ...
