@@ -1,10 +1,10 @@
 # Pigsty Playbooks
 
-> Learn about the pre-set scripts provided by Pigsty，the features, how to use them and the considerations.
+> Learn about the pre-set playbooks provided by Pigsty，the features, how to use them and the considerations.
 
-Pigsty implements core control functions at the bottom through the [Ansible Playbook](#Ansible快速上手) , and Pigsty provides pre-built plays in four main categories:
+Pigsty implements core control functions at the bottom through the [Ansible Playbook](#Ansible快速上手) , and Pigsty provides pre-set playbooks in four main categories:
 
-* [`infra`](p-infra.md) : Use the `infra` series of playbooks to install Pigsty standalone on the management node with optional features.
+* [`infra`](p-infra.md) : Use the `infra` series of playbooks to install Pigsty standalone on the meta node with optional features.
 * [`nodes`](p-nodes.md) : Use the `nodes` series of playbooks to include more nodes in Pigsty monitoring and management and for subsequent use.
 * [`pgsql`](p-pgsql.md) : Use the `pgsql` series of playbooks to deploy and manage PostgreSQL database clusters on existing nodes.
 * [`redis`](p-redis.md) : Use the `redis` series of playbooks to deploy and manage various modes of Redis clusters on existing nodes.
@@ -13,12 +13,12 @@ Pigsty implements core control functions at the bottom through the [Ansible Play
 
 | Playbook | Function                                                   | Link                                                     |
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |
-|  [**infra**](p-infra.md#infra)                        | **Full installation of Pigsty on the management node** |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
+|  [**infra**](p-infra.md#infra)                        | **Full installation of Pigsty on the meta node** |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
 |  [`infra-demo`](p-infra.md#infra-demo)              | Special script for complete initialization of a four-node demo sandbox environment in one go |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
-|  [`infra-jupyter`](p-infra.md#infra-jupyter)        | Adding the **Optional** data analysis service component Jupyter Lab to the management node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
-|  [`infra-pgweb`](p-infra.md#infra-pgweb)            | Add the **optional** web client tool PGWeb to the management node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
-|  [**nodes**](p-nodes.md#nodes)                        | **Node provisioning to include nodes in Pigsty management for subsequent database deployment** |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
-|  [`nodes-remove`](p-nodes.md#nodes-remove)          | Node removal, offloading node DCS and monitoring, no longer included in Pigsty management |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
+|  [`infra-jupyter`](p-infra.md#infra-jupyter)        | Adding the **Optional** data analysis service component Jupyter Lab to the meta node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
+|  [`infra-pgweb`](p-infra.md#infra-pgweb)            | Add the **optional** web client tool PGWeb to the meta node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
+|  [**nodes**](p-nodes.md#nodes)                        | **Node provisioning to include nodes in Pigsty for subsequent database deployment** |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
+|  [`nodes-remove`](p-nodes.md#nodes-remove)          | Node removal, offloading node DCS and monitoring, no longer included in Pigsty |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
 |  [**pgsql**](p-pgsql.md#pgsql)                        | **Deploy a PostgreSQL cluster, or cluster expansion** |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
 |  [`pgsql-remove`](p-pgsql.md#pgsql-remove)          | Offline PostgreSQL cluster, or cluster shrinkage |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
 |  [`pgsql-createuser`](p-pgsql.md#pgsql-createuser)  |      Creating PostgreSQL business users |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
@@ -32,21 +32,21 @@ Pigsty implements core control functions at the bottom through the [Ansible Play
 
 The typical use process is as follows：
 
-1. Use the `infra` series of playbooks to install Pigsty on the management node/local machine and deploy the infrastructure.
+1. Use the `infra` series of playbooks to install Pigsty on the meta node/local machine and deploy the infrastructure.
    
-   All scripts initiate execution on the management node, and the `infra` series of playbooks only works on the management node itself.
+   All playbooks initiate execution on the meta node, and the `infra` series of playbooks only works on the meta node itself.
 
-2. Use the  [`nodes`](p-nodes.md) series of playbooks to include or remove other nodes from Pigsty management.
+2. Use the  [`nodes`](p-nodes.md) series of playbooks to include or remove other nodes from Pigsty.
 
-   After a node is hosted, node monitoring and logging can be accessed from the management node Grafana and the node joins the Consul cluster.
+   After a node is hosted, node monitoring and logging can be accessed from the meta node Grafana and the node joins the Consul cluster.
 
 3. Use the [`pgsql`](p-pgsql.md) series of playbooks to deploy a PostgreSQL cluster on managed nodes.
 
-   After the deployment is performed on the managed node, PostgreSQL monitoring and logs can be accessed from the managed node.
+   After deployment on the managed node, you can access PostgreSQL monitoring and logs from the meta node.
 
 4. Use the [`redis`](p-redis.md) series of playbooks to deploy a Redis cluster on managed nodes.
 
-   After the deployment is performed on the managed node, Redis monitoring and logs can be accessed from the managed node.
+   After deployment on the managed node, Redis monitoring and logs can be accessed from the meta node.
 
 ```
                                            meta     node
@@ -58,8 +58,8 @@ The typical use process is as follows：
 
 
 
-The vast majority of playbooks are idempotent designs, which means that some deployment playbooks may wipe out existing databases and create new ones without the protection option turned on.
-Please read and understand the documentation fully, proofread the commands again and again, and operate with caution when dealing with existing database clusters, or when operating in a production environment. The author is not responsible for any loss of database caused by misuse.
+Most playbooks are idempotent, which means that some deployment playbooks may erase existing databases and create new ones without the protection option turned on.
+When you are dealing with an existing database cluster or operating in a production environment, please fully read and understand the documents, proofread the commands again and again. The author is not responsible for the loss of the database caused by misuse.
 
 ------------------
 
@@ -103,7 +103,7 @@ There are two types of objects commonly used, clusters and hosts, e.g.
 
 ### Task Subset
 
-You can select the subset of tasks to be executed with `-t|--tags <tags>`. When this parameter is not specified, the full playbook will be executed, and when specified, the selected subset of tasks will be executed, which is a very useful parameter.
+You can select the subset of tasks to be executed with `-t|--tags <tags>`. When this parameter is not specified, the full playbook will be executed, and when specified, the selected subset of tasks will be executed.
 
 ```bash
 ./pgsql.yml -t pg_hba                            # Regenerate and apply cluster HBA rules
@@ -117,7 +117,7 @@ Users can separate each task by `,` and perform multiple tasks at once, for exam
 
 
 
-### Additional parameters
+### Additional Parameters
 
 Additional command line arguments can be passed in via `-e|-extra-vars KEY=VALUE` to override existing arguments or to control some special behavior.
 
