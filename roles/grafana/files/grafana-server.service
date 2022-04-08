@@ -1,0 +1,54 @@
+[Unit]
+Description=Grafana instance
+Documentation=http://docs.grafana.org
+Wants=network-online.target
+After=network-online.target
+After=postgresql.service mariadb.service mysqld.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/grafana-server
+User=grafana
+Group=grafana
+Type=notify
+Restart=on-failure
+WorkingDirectory=/usr/share/grafana
+RuntimeDirectory=grafana
+RuntimeDirectoryMode=0750
+ExecStart=/usr/sbin/grafana-server                                                  \
+                            --config=${CONF_FILE}                                   \
+                            --pidfile=${PID_FILE_DIR}/grafana-server.pid            \
+                            --packaging=rpm                                         \
+                            cfg:default.paths.logs=${LOG_DIR}                       \
+                            cfg:default.paths.data=${DATA_DIR}                      \
+                            cfg:default.paths.plugins=${PLUGINS_DIR}                \
+                            cfg:default.paths.provisioning=${PROVISIONING_CFG_DIR}
+
+LimitNOFILE=10000
+TimeoutStopSec=20
+CapabilityBoundingSet=
+DeviceAllow=
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectHostname=true
+ProtectSystem=full
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+UMask=0027
+#LockPersonality=true
+#MemoryDenyWriteExecute=false
+#ProtectClock=true
+#ProtectControlGroups=true
+#ProtectHome=true
+#ProtectKernelLogs=true
+#ProtectKernelModules=true
+#ProtectKernelTunables=true
+#ProtectProc=invisible
+#RemoveIPC=true
+#RestrictNamespaces=true
+#RestrictRealtime=true
+#RestrictSUIDSGID=true
+
+
+[Install]
+WantedBy=multi-user.target
