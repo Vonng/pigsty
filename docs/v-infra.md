@@ -1,32 +1,32 @@
 # Config: Infra
 
-> 使用 [INFRA剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+> Use the [INFRA Playbook](p-pgsql.md)，[Deploy PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in [PGSQL Configuration](v-pgsql.md).
 >
-> 配置Pigsty基础设施，由[INFRA](p-infra.md)系列剧本使用。
+> Configuring Pigsty infrastructure, used by the [INFRA](p-infra.md) series of playbooks.
 
-基础设施配置主要处理此类问题：本地Yum源，机器节点基础服务：DNS，NTP，内核模块，参数调优，管理用户，安装软件包，DCS Server的架设，监控基础设施的安装与初始化（Grafana，Prometheus，Alertmanager），全局流量入口Nginx的配置等等。
+Infrastructure configuration deals with such issues: local Yum sources, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), configuration of the global traffic portal Nginx, etc.
 
-通常来说，基础设施部分需要修改的内容很少，通常涉及到的主要修改只是对管理节点的IP地址进行文本替换，这一步会在[`./configure`](v-config.md#配置过程)过程中自动完成，另一处偶尔需要改动的地方是 [`nginx_upstream`](nginx_upstream)中定义的访问域名。其他参数很少需要调整，按需即可。
-
-
-
-- [`CONNECT`](#CONNECT) : 连接参数
-- [`REPO`](#REPO) : 本地源基础设施
-- [`CA`](#CA) : 公私钥基础设施
-- [`NGINX`](#NGINX) : NginxWeb服务器
-- [`NAMESERVER`](#NAMESERVER) : DNS服务器
-- [`PROMETHEUS`](#PROMETHEUS) : 监控时序数据库
-- [`EXPORTER`](#EXPORTER) : 通用Exporter配置
-- [`GRAFANA`](#GRAFANA) : Grafana可视化平台
-- [`LOKI`](#LOKI) : Loki日志收集平台
-- [`DCS`](#DCS) : 分布式配置存储元数据库
-- [`JUPYTER`](#JUPYTER) : JupyterLab数据分析环境
-- [`PGWEB`](#PGWEB) : PGWeb网页客户端工具
+The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the management node, a step that is done automatically during the [`./configure`](v-config.md#配置过程). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](nginx_upstream). Other parameters rarely need to be tweaked, and can be adjusted as needed.
 
 
-## 参数概览
 
-部署于管理节点上的 [**基础设施**](c-arch.md#基础设施) 由下列配置项所描述。
+- [`CONNECT`](#CONNECT) : Connection parameters
+- [`REPO`](#REPO) : Local source infrastructure
+- [`CA`](#CA) : Public-Private Key Infrastructure
+- [`NGINX`](#NGINX) : Nginx Web Server
+- [`NAMESERVER`](#NAMESERVER) : DNS Server
+- [`PROMETHEUS`](#PROMETHEUS) : Monitoring Time Series Database
+- [`EXPORTER`](#EXPORTER) : Universal Exporter Configuration
+- [`GRAFANA`](#GRAFANA) : Grafana Visualization Platform
+- [`LOKI`](#LOKI) : Loki log collection platform
+- [`DCS`](#DCS) : Distributed Configuration Storage Metadatabase
+- [`JUPYTER`](#JUPYTER) : JupyterLab Data Analysis Environment
+- [`PGWEB`](#PGWEB) : PGWeb Web Client Tool
+
+
+## Parameter Overview
+
+The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is described by the following configuration items.
 
 | ID  |                            Name                             |           Section           |    Type    | Level |                Comment                 |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|-----------------------------------------|
@@ -100,9 +100,9 @@
 
 ### `proxy_env`
 
-在某些受到“互联网封锁”的地区，有些软件的下载会受到影响。例如从中国大陆访问PostgreSQL的官方源，下载速度可能只有几KB每秒。
+In some areas where there is an "Internet block", some software downloads may be affected. For example, when accessing the official PostgreSQL source from mainland China, the download speed may only be a few KB per second.
 
-但如果使用了合适的HTTP代理，则可以达到几MB每秒。因此如果用户有代理服务器，请通过`proxy_env`进行配置，样例如下：
+With the right HTTP proxy, it is possible to reach several MB per second. So if you have a proxy server, please configure it via `proxy_env`, example is as follows:
 
 ```yaml
 proxy_env: # global proxy env when downloading packages
@@ -116,9 +116,9 @@ proxy_env: # global proxy env when downloading packages
 
 ### `ansible_host`
 
-如果您的目标机器藏在SSH跳板机之后，或者进行了某些定制化修改无法通过`ssh ip`的方式直接访问，则可以考虑使用 **Ansible连接参数**。
+Consider using the **Ansible connection parameter** if the target machine is hidden behind an SSH springboard machine, or if some customization has been made that prevents direct access via the `ssh ip` method.
 
-例如下面的例子中，[`ansible_host`](v-infra.md#ansible_host) 通过SSH别名的方式告知Pigsty通过`ssh node-1` 的方式而不是`ssh 10.10.10.11`的方式访问目标数据库节点。通过这种方式，用户可以自由指定数据库节点的连接方式，并将连接配置保存在管理用户的`~/.ssh/config`中独立管理。
+As follows, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the target database node by way of `ssh node-1` instead of `ssh 10.10.10.11` by way of SSH alias. In this way, the user can freely specify the connection method to the database node and save the connection configuration in `~/.ssh/config` of the administrative user for independent management.
 
 ```yaml
   pg-test:
@@ -129,19 +129,19 @@ proxy_env: # global proxy env when downloading packages
       10.10.10.13: {pg_seq: 3, pg_role: offline, ansible_host: node-3}
 ```
 
-`ansible_host`是ansible连接参数中最典型的一个。通常只要用户可以通过 `ssh <name>`的方式访问目标机器，为实例配置`ansible_host`变量，值为`<name>`即可，其他常用的Ansible SSH连接参数如下所示：
+`ansible_host` is the most typical of the ansible connection parameters. Usually, as long as the user can access the target machine via `ssh <name>`, configuring the `ansible_host` variable for the instance with a value of `<name>`, and other common Ansible SSH connection parameters are shown below:
 
-> - ansible_host :   在此指定目标机器的IP、主机名或SSH别名
+> - ansible_host :   Specify here the IP, hostname or SSH alias of the target machine
 >
-> - ansible_port :   指定一个不同于22的SSH端口
+> - ansible_port :   Specify a different SSH port than 22
 >
-> - ansible_user :   指定SSH使用的用户名
+> - ansible_user :   Specify the username to use for SSH
 >
-> - ansible_ssh_pass :   SSH密码（请不要存储明文，可通过-k参数指定从键盘输入）
+> - ansible_ssh_pass :   SSH password (Do not store plaintext, and input from the keyboard can be specified by the -k parameter)
 >
-> - ansible_ssh_private_key_file :    SSH私钥路径
+> - ansible_ssh_private_key_file :    SSH private key path
 >
-> - ansible_ssh_common_args :   SSH通用参数
+> - ansible_ssh_common_args :   SSH General Parameters
 >
 
 
@@ -151,97 +151,95 @@ proxy_env: # global proxy env when downloading packages
 ----------------
 ## `REPO`
 
-当在管理节点上安装Pigsty时，Pigsty会在本地拉起一个YUM软件源，供当前环境安装RPM软件包使用。
+When Pigsty is installed on the meta node, Pigsty pulls up a YUM repository locally for the current environment to install RPM packages.
 
-Pigsty会在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](#repo_upstreams)指定）， 下载所有软件包及其依赖（由 [`repo_packages`](#repo_packages)指定）至 [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  （默认为`/www/pigsty`）。所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
+During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream sources (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB, and the download speed depends on your network.
 
-建立本地Yum源时，如果该目录已经存在，而且目录中存在名为`repo_complete`的标记文件，Pigsty会认为本地Yum源已经初始化完毕，跳过软件下载阶段。
+When creating a local Yum source, if the directory already exists and there is a marker file named `repo_complete` in the directory, Pigsty will assume that the local Yum source has been initialized and skip the software download phase.
 
-尽管Pigsty已经尽量使用镜像源以加速下载，但少量包的下载仍可能受到防火墙的阻挠。如果某些软件包的下载速度过慢，您可以通过[`proxy_env`](#proxy_env)配置项设置下载代理以完成首次下载，或直接下载预先打包好的[离线安装包](t-offline.md)。
+Although Pigsty has tried to use mirror sources as much as possible to speed up downloads, a small number of package downloads may still be blocked by firewalls. If the download speed of some packages is too slow, you can set a download proxy to complete the first download with the [`proxy_env`](#proxy_env) configuration entry, or download the pre-packaged [offline installer](t-offline.md) directly.
 
-离线安装包即是把`{{ repo_home }}/{{ repo_name }}`目录整个打成压缩包`pkg.tgz`。在`configure`过程中，如果Pigsty发现离线软件包`/tmp/pkg.tgz`存在，则会将其解压至`{{ repo_home }}/{{ repo_name }}`目录，进而在安装时跳过软件下载的步骤。
+The offline installer package is the entire `{{ repo_home }}/{{ repo_name }}` directory as a zip package `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will unzip it to the `{{ repo_home }}/{{ repo_name }}` directory, thus skipping the software download step during installation.
 
-默认的离线安装包基于CentOS 7.8.2003 x86_64操作系统制作，如果您使用的操作系统与此不同，或并非使用全新安装的操作系统环境，则有概率出现RPM软件包冲突与依赖错误的问题，请参照FAQ解决。
+The default offline installation package is based on CentOS 7.8.2003 x86_64 operating system, if you are using a different operating system or not using a brand new operating system environment, there may be RPM package conflict and dependency error problems, please refer to the FAQ to solve.
 
 
 ### `repo_enabled`
 
-是否启用本地源, 类型：`bool`，层级：G，默认值为：`true`
+Whether to enable local sources, type: `bool`, level: G, default value: `true`.
 
-执行正常的本地YUM源创建流程，设置为`false`则会在当前节点跳过构建本地源的操作。当您有多个管理节点时，可以在备用管理节点上设置此参数为`false`。
+Performs the normal local YUM source creation process, setting `false` will skip the build local source operation on the current node. When you have multiple meta nodes, you can set this parameter to `false` on the alternate meta node.
 
 
 
 ### `repo_name`
 
-本地源名称, 类型：`string`，层级：G，默认值为：`"pigsty"`，不建议修改此参数。
+Local source name, type: `string`, level: G, default value: `"pigsty"`. It is not recommended to modify this parameter.
 
 
 
 
 ### `repo_address`
 
-本地源外部访问地址, 类型：`string`，层级：G，默认值为：`"pigsty"`
+Local source external access address, type: `string`, level: G, default value: `"pigsty"`.
 
-本地yum源对外提供服务的地址，可以是域名也可以是IP地址，默认为`yum.pigsty`。
+The address of the local yum source for external services, either a domain name or an IP address, the default is `yum.pigsty`.
 
-如果使用域名，您必须确保在当前环境中，该域名会正确解析到本地源所在的服务器，也就是元节点。
+If you use a domain name, you must ensure that in the current environment, the domain name will resolve correctly to the server where the local source is located, i.e. the meta-node.
 
-如果您的本地yum源没有使用标准的80端口，您需要在地址中加入端口，并与 [`repo_port`](#repo_port) 变量保持一致。
+If the local yum source does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`repo_port`](#repo_port) variable.
 
-您可以通过[节点](v-nodes.md)参数中的静态DNS配置 [`node_dns_hosts`](v-nodes.md#node_dns_hosts)) 来为当前环境中的所有节点默认写入`pigsty`本地源域名。
-
-
+The static DNS configuration [`node_dns_hosts`](v-nodes.md#node_dns_hosts) in the [nodes](v-nodes.md) parameter can be used to write the `pigsty` local source domain name by default for all nodes in the current environment.
 
 
 ### `repo_port`
 
-本地源端口, 类型：`int`，层级：G，默认值为：`80`
+Local source port, type: `int`, level: G, default value: `80`.
 
-Pigsty通过管理节点上的该端口访问所有Web服务，请确保您可以访问元节点上的该端口。
+Pigsty accesses all web services through this port on the meta node, make sure you can access this port on the meta node.
 
 
 
 ### `repo_home`
 
-本地源文件根目录, 类型：`path`，层级：G，默认值为：`"/www"`
+Local source root, type: `path`, level: G, default value: `"/www"`.
 
-该目录将作为HTTP服务器的根对外暴露，包含本地源，以及其他静态文件内容。
+This directory will be exposed externally as the root of the HTTP server, containing local sources, and other static file content.
 
 
 
 ### `repo_rebuild`
 
-是否重建Yum源, 类型：`bool`，层级：A，默认值为：`false`
+Whether to rebuild Yum source, type: `bool`, level: A, default value: `false`.
 
-如果为`true`，那么在任何情况下都会执行Repo重建的工作，即无视离线软件包存在与否。
+If `true`, then the Repo rebuild will be performed in all cases, i.e. regardless of whether the offline package exists or not.
 
 
 
 ### `repo_remove`
 
-是否移除已有REPO文件, 类型：`bool`，层级：A，默认值为：`true`
+Whether to remove existing REPO files, type: `bool`, level: A, default value: `true`.
 
-如果为真，在执行本地源初始化的过程中，管理节点上`/etc/yum.repos.d`中所有已有的repo会被全部移除，备份至`/etc/yum.repos.d/backup` 目录中。
+If `true`, the existing repo in `/etc/yum.repos.d` on the meta node will be removed and backed up to the `/etc/yum.repos.d/backup` directory during the local source initialization process.
 
-因为操作系统已有的源内容不可控，建议强制移除已有源并通过 [`repo_upstreams`](#repo_upstreams) 进行显式配置。
+Since the content of existing sources in the OS is not controllable, it is recommended to force the removal of existing sources and configure them explicitly via [`repo_upstreams`](#repo_upstreams).
 
-当您的节点有其他自行配置的源，或需要从特定源下载一些特殊版本的RPM包时，可以设置为`false`，保留已有源。
+When the node has other self-configured sources or needs to download some special version of RPM packages from a specific source, it can be set to `false` to keep the existing sources.
 
 
 
 ### `repo_upstreams`
 
-Yum源的上游来源, 类型：`repo[]`，层级：
+Upstream source of Yum source, type: `repo[]`, level:G.
 
-默认使用阿里云的CentOS7镜像源，清华大学Grafana镜像源，PackageCloud的Prometheus源，PostgreSQL官方源，以及SCLo，Harbottle，Nginx等软件源。
+By default, we use AliCloud's CentOS7 image source, Tsinghua University's Grafana image source, PackageCloud's Prometheus source, PostgreSQL official source, and software sources such as SCLo, Harbottle, and Nginx.
 
 
 
 
 ### `repo_packages`
 
-Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
+List of software to download for Yum source, type: `string[]`, level: G, default value:
 
 ```yaml
   - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip
@@ -270,7 +268,7 @@ Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
   - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex
 ```
 
-每一行都是一组由空格分割的软件包名称，在这里指定的软件会通过`repotrack`进行下载。
+Each line is a set of package names separated by spaces, where the specified software will be downloaded via `repotrack`.
 
 
 
@@ -280,18 +278,18 @@ Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
 
 ### `repo_url_packages`
 
-通过URL直接下载的软件, 类型：`url[]`，层级：G
+Software for direct download via URL, type: `url[]`, level: G
 
-通过URL，而非YUM下载一些软件：
+Download some software via URL, not YUM:
 
-* `pg_exporter`： **必须项**，监控系统核心组件
-* `vip-manager`：**必选项**，启用L2 VIP时所必须的软件包，用于管理VIP
-* `loki`, `promtail`：**必选项**，日志收集服务端与客户端二进制。
-* `postgrest`：可选，自动根据PostgreSQL数据库模式生成后端API接口
-* `polysh`：可选，并行在多台节点上执行ssh命令
-* `pev2`：可选，PostgreSQL执行计划可视化
-* `pgweb`：可选，网页版PostgreSQL命令行工具
-* `redis`：**可选**，当安装Redis时为必选
+* `pg_exporter`： **Required**, core components of monitoring system
+* `vip-manager`：**Required**, package required to enable L2 VIP for managing VIP
+* `loki`, `promtail`：**Required**, log collection server-side and client-side binary.
+* `postgrest`：Optional, automatically generate back-end API interface based on PostgreSQL database schema
+* `polysh`：Optional, execute ssh commands on multiple nodes in parallel
+* `pev2`：Optional, PostgreSQL execution plan visualization
+* `pgweb`：Optional, web-based PostgreSQL command-line tool
+* `redis`：**Optional**, mandatory when Redis is installed
 
 ```yaml
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
@@ -318,23 +316,23 @@ Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
 ----------------
 ## `CA`
 
-用于搭建本地公私钥基础设施，当您需要SSL证书等高级安全特性时，可以使用此任务。
+Used to build a local public-private key infrastructure. You can use this task when you need advanced security features such as SSL certificates.
 
 
 
 
 ### `ca_method`
 
-CA的创建方式, 类型：`enum`，层级：G，默认值为：`"create"`
+CA creation method, type: `enum`, level: G, default value: `"create"`
 
-* `create`：创建新的公私钥用于CA
-* `copy`：拷贝现有的CA公私钥用于构建CA
+* `create`：Create a new public-private key for CA
+* `copy`：Copy the existing CA public and private keys for building CA
 
 
 
 ### `ca_subject`
 
-自签名CA主题, 类型：`string`，层级：G，默认值为：`"/CN=root-ca"`
+Self-signed CA theme, type: `string`, level: G, default value: `"/CN=root-ca"`.
 
 
 
@@ -342,7 +340,7 @@ CA的创建方式, 类型：`enum`，层级：G，默认值为：`"create"`
 
 ### `ca_homedir`
 
-CA证书根目录, 类型：`path`，层级：G，默认值为：`"/ca"`
+CA certificate root directory, type: `path`, level: G, default value: `"/ca"`.
 
 
 
@@ -350,7 +348,7 @@ CA证书根目录, 类型：`path`，层级：G，默认值为：`"/ca"`
 
 ### `ca_cert`
 
-CA证书, 类型：`string`，层级：G，默认值为：`"ca.crt"`
+CA certificate, type: `string`, level: G, default value: `"ca.crt"`.
 
 
 
@@ -358,7 +356,7 @@ CA证书, 类型：`string`，层级：G，默认值为：`"ca.crt"`
 
 ### `ca_key`
 
-CA私钥名称, 类型：`string`，层级：G，默认值为：`"ca.key"`
+CA private key name, type: `string`, level: G, default value: `"ca.key"`.
 
 
 
@@ -369,15 +367,15 @@ CA私钥名称, 类型：`string`，层级：G，默认值为：`"ca.key"`
 ----------------
 ## `NGINX`
 
-Pigsty通过管理节点上的Nginx对外暴露所有Web类服务，如首页，Grafana，Prometheus，AlertManager，Consul，以及可选的PGWeb与Jupyter Lab。此外，本地软件源，本地文档，与其他本地WEB工具如Pev2，Pgbouncer也由Nginx对外提供服务。
+Pigsty exposes all Web class services such as Home, Grafana, Prometheus, AlertManager, Consul, and optionally PGWeb and Jupyter Lab to the public via Nginx on the meta node. Pgbouncer is also served externally by Nginx.
 
-您可以绕过Nginx直接通过端口访问元节点上的部分服务，但部分服务出于安全性原因不宜对外暴露，只能通过Nginx代理访问。Nginx通过域名区分不同的服务，因此，如果您为各个服务配置的域名在当前环境中无法解析，则需要您自行在`/etc/hosts`中配置后使用。
+You can bypass Nginx and access some of the services on the meta-node directly through the port, but some services should not be exposed to the public for security reasons and can only be accessed through the Nginx proxy. Nginx distinguishes different services by domain name. Therefore, if the domain name configured for each service cannot be resolved in the current environment, you need to configure it in `/etc/hosts` before using it.
 
 
 
 ### `nginx_upstream`
 
-Nginx上游服务器, 类型：`upstream[]`，层级：G，默认值为：
+Nginx upstream server, Type: `upstream[]`, Hierarchy: G, default value:
 
 ```yaml
 nginx_upstream:                  # domain names and upstream servers
@@ -391,20 +389,20 @@ nginx_upstream:                  # domain names and upstream servers
   - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
 ```
 
-每一条记录包含三个子段：`name`, `domain`, `endpoint`，分别代表组件名称，外部访问域名，以及内部的TCP端点。
+Each record contains three subsections: `name`, `domain`, and `endpoint`, representing the component name, the external access domain, and the internal TCP endpoint, respectively.
 
-默认记录的`name` 定义是固定的，通过硬编码引用，请勿修改。您可以任意新增其他名称的上游服务器记录。
+The `name` definition of the default record is fixed and referenced by hard-coding, do not modify it. Upstream server records with other names can be added at will.
 
-`domain`是外部访问此上游服务器时应当使用的域名，当您访问Pigsty Web服务时，应当使用域名通过Nginx代理访问。
+`domain` is the domain name that should be used for external access to this upstream server. When accessing the Pigsty Web service, the domain name should be used to access it through the Nginx proxy.
 
-`endpoint`是内部可达的TCP端点，占位IP地址`10.10.10.10`会在Configure过程中被替换为管理节点IP。
+The `endpoint` is an internally reachable TCP endpoint and the placeholder IP address `10.10.10.10` will be replaced with the meta node IP during the Configure process.
 
 
 
 
 ### `app_list`
 
-首页导航栏显示的应用列表, 类型：`app[]`，层级：G，默认值为：
+List of applications displayed in the home navigation bar, type: `app[]`, level: G, default value:
 
 ```yaml
 app_list:                            # application nav links on home page
@@ -417,10 +415,8 @@ app_list:                            # application nav links on home page
   - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
 ```
 
-每一条记录都会渲染为Pigsty首页App下拉菜单的导航连接，应用均为可选项目，默认挂载于Pigsty默认服务器下`http://pigsty/`
-其中，`url` 参数指定了应用的URL PATH，特例是如果URL中存在`${grafana}`字符串，会被自动替换为[`nginx_upstream`](#nginx_upstream) 中定义的Grafana域名。
-
-
+Each record is rendered as a navigation link to the Pigsty home page App drop-down menu, and the apps are all optional items, mounted by default on the Pigsty default server under `http://pigsty/`.
+The `url` parameter specifies the URL PATH for the app, with the exception that if the `${grafana}` string is present in the URL, it will be automatically replaced with the Grafana domain name defined in [`nginx_upstream`](#nginx_upstream).
 
 
 
@@ -428,21 +424,21 @@ app_list:                            # application nav links on home page
 
 ### `docs_enabled`
 
-是否启用本地文档, 类型：`bool`，层级：G，默认值为：`true`。
+Whether to enable local documentation, type: `bool`, level: G, default value: `true`.
 
-本地文档会被自动拷贝至管理节点的 `{{ repo_home }}` / docs 路径下，通过Nginx从默认Server提供服务。
+Local documents are automatically copied to the `{{ repo_home }}` / docs path of the meta node and served from the default Server via Nginx.
 
-默认访问地址为：`http://pigsty/docs`。
+The default access address is: `http://pigsty/docs`.
 
 
 
 ### `pev2_enabled`
 
-是否启用PEV2组件, 类型：`bool`，层级：G，默认值为：`true`
+Whether to enable PEV2 component, type: `bool`, level: G, default value: `true`.
 
-Pev2是一个方便的PostgreSQL执行计划可视化工具，静态单页应用。
+Pev2 is a handy PostgreSQL execution plan visualization tool for static single page applications.
 
-如果启用，Pev2资源会被拷贝至管理节点的 `{{ repo_home }}` / pev2 路径下，并通过Nginx从默认Server提供服务。默认访问地址为：`http://pigsty/pev2`。
+If enabled, Pev2 resources are copied to the `{{ repo_home }}` / pev2 path of the meta node and served from the default Server via Nginx. The default access address is: `http://pigsty/pev2`.
 
 
 
@@ -450,13 +446,11 @@ Pev2是一个方便的PostgreSQL执行计划可视化工具，静态单页应用
 
 ### `pgbadger_enabled`
 
-是否启用Pgbadger, 类型：`bool`，层级：G，默认值为：`true`
+Whether to enable Pgbadger, type: `bool`, level: G, default value: `true`.
 
-Pgbadger是一个方便的PostgreSQL日志分析工具，可以从PG日志中生成全面美观的网页报告。
+Pgbadger is a handy PostgreSQL log analysis tool that generates comprehensive and beautiful web reports from PG logs.
 
-如果启用，Pigsty会在管理节点上创建 `{{ repo_home }}` / logs 占位目录，后续Pgbouncer生成的报告会自动放置于此。默认访问地址为：`http://pigsty/logs`。
-
-
+If enabled, Pigsty will create `{{ repo_home }}` / logs placeholder directory on the meta node where subsequent reports generated by Pgbouncer will be automatically placed. The default access address is: `http://pigsty/logs`.
 
 
 
@@ -464,13 +458,13 @@ Pgbadger是一个方便的PostgreSQL日志分析工具，可以从PG日志中生
 ----------------
 ## `NAMESERVER`
 
-Pigsty默认会使用DNSMASQ在管理节点上搭建一个可选的开箱即用的域名服务器。
+By default, Pigsty will use DNSMASQ to build an optional battery-included name server on the meta node.
 
 
 
 ### `dns_records`
 
-动态DNS解析记录, 类型：`string[]`，层级：G，默认值为`[]`空列表，在沙箱环境中默认有以下解析记录。
+Dynamic DNS resolution record, type: `string[]`, level: G, default value is `[]` empty list, the following resolution records are available by default in the sandbox environment.
 
 ```yaml
 dns_records:                    # dynamic dns record resolved by dnsmasq
@@ -494,13 +488,13 @@ dns_records:                    # dynamic dns record resolved by dnsmasq
 ----------------
 ## `PROMETHEUS`
 
-Prometheus是Pigsty监控系统核心组件，用于拉取时序数据，进行指标预计算，评估告警规则。
+Prometheus is the core component of the Pigsty monitoring system, used to pull timing data, perform metrics precomputation, and evaluate alarm rules.
 
 
 
 ### `prometheus_data_dir`
 
-Prometheus数据库目录, 类型：`path`，层级：G，默认值为：`"/data/prometheus/data"`
+Prometheus database directory, type: `path`, level: G, default value: `"/data/prometheus/data"`.
 
 
 
@@ -508,37 +502,38 @@ Prometheus数据库目录, 类型：`path`，层级：G，默认值为：`"/data
 
 ### `prometheus_options`
 
-Prometheus命令行参数, 类型：`string`，层级：G，默认值为：`"--storage.tsdb.retention=15d --enable-feature=promql-negative-offset"`
+Prometheus command line parameter, type: `string`, level: G, default value: `"--storage.tsdb.retention=15d --enable-feature=promql-negative-offset"`.
 
-默认参数会允许Prometheus启用负时间偏移量功能，并默认保留15天监控数据。如果您的磁盘有余裕，可以增大监控数据的保留时长。
+The default parameters will allow Prometheus to enable the negative time offset feature and retain the monitoring data for 15 days by default. If you have a large enough disk, you can increase the length of time that monitoring data is retained.
 
 
 
 ### `prometheus_reload`
 
-在执行Prometheus任务时，是否仅仅只是重载配置，而不是整个重建。类型：`bool`，层级：A，默认值为：`false`。
+Whether to just reload the configuration instead of rebuilding the whole thing when performing Prometheus tasks. Type: `bool`, Hierarchy: A, Default: `false`.
 
-默认情况下，执行执行`prometheus`任务时会清除已有监控数据，如果设置为`true`，执行Prometheus任务时不会清除已有数据目录。
+By default, executing the `prometheus` task will clear existing monitoring data, but if set to `true`, it will not.
 
 
 
 
 ### `prometheus_sd_method`
 
-服务发现机制：static|consul, 类型：`enum`，层级：G，默认值为：`"static"`
+Service discovery mechanism: static|consul, type: `enum`, level: G, default value: `"static"`.
 
-Prometheus使用的服务发现机制，默认为`static`，另外的选项 `consul` 将使用Consul进行服务发现（将逐步弃用）。
-Pigsty建议使用`static`服务发现，该方式提供了更高的可靠性与灵活性，Consul服务发现将逐步停止支持。
+Service discovery mechanism used by Prometheus, default `static`, option `consul` Use Consul for service discovery (will be phased out).
+Pigsty recommends using `static` for service discovery, which provides greater reliability and flexibility.
 
-`static`服务发现依赖`/etc/prometheus/targets/{infra,nodes,pgsql,redis}/*.yml`中的配置进行服务发现。
-采用这种方式的优势是，监控系统不依赖Consul，当节点宕机时，监控目标会报错提示，而不是直接消失。此外，当Pigsty监控系统与外部管控方案集成时，这种模式对原系统的侵入性较小。
+`static` service discovery relies on the configuration in `/etc/prometheus/targets/{infra,nodes,pgsql,redis}/*.yml` for service discovery.
 
-可以使用以下命令，从配置文件生成Prometheus所需的监控对象配置文件。
+The advantage of this method is that the monitoring system does not rely on consult. When the node goes down, the monitoring target will give an error prompt instead of disappearing directly. In addition, when the pigsty monitoring system is integrated with the external control scheme, this mode is less invasive to the original system.
+
+The following command can be used to generate the required monitoring object profile for Prometheus from the configuration file.
 
 ```bash
-./nodes.yml -t register_prometheus  # 生成主机监控目标列表
-./pgsql.yml -t register_prometheus  # 生成PostgreSQL/Pgbouncer/Patroni/Haproxy监控目标列表
-./redis.yml -t register_prometheus  # 生成Redis监控目标列表
+./nodes.yml -t register_prometheus  # Generate a list of host monitoring targets
+./pgsql.yml -t register_prometheus  # Generate a list of PostgreSQL/Pgbouncer/Patroni/Haproxy monitoring targets
+./redis.yml -t register_prometheus  # Generate a list of Redis monitoring targets
 ```
 
 
@@ -546,25 +541,23 @@ Pigsty建议使用`static`服务发现，该方式提供了更高的可靠性与
 
 ### `prometheus_scrape_interval`
 
-Prometheus抓取周期, 类型：`interval`，层级：G，默认值为：`"10s"`
+Prometheus crawl period, type: `interval`, level: G, default value: `"10s"`.
 
-在生产环境，10秒 - 30秒是一个较为合适的抓取周期。如果您需要更精细的的监控数据粒度，则可以调整此参数。
+10 seconds - 30 seconds is a suitable crawl period. If a finer granularity of monitoring data is required, this parameter can be adjusted.
 
 
 
 ### `prometheus_scrape_timeout`
 
-Prometheus抓取超时, 类型：`interval`，层级：G，默认值为：`"8s"`
+Prometheus grab timeout, type: `interval`, level: G, default value: `"8s"`.
 
-设置抓取超时可以有效避免监控系统查询导致的雪崩，原则是本参数必须小于并接近 [`prometheus_scrape_interval`](#prometheus_scrape_interval) ，确保每次抓取时长不超过抓取周期。
-
-
+Setting the crawl timeout can effectively avoid avalanches caused by monitoring system queries. This parameter must be less than and close to [`prometheus_scrape_interval`](#prometheus_scrape_interval) to ensure that the length of each crawl does not exceed the crawl period.
 
 ### `prometheus_sd_interval`
 
-Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值为：`"10s"`
+Prometheus service discovery refresh period, type: `interval`, level: G, default value: `"10s"`.
 
-每隔本参数指定的时长，Prometheus就会重新检查本地文件目录，刷新监控目标对象。
+Every time specified by this parameter, Prometheus re-examines the local file directory and refreshes the monitoring target object.
 
 
 
@@ -573,22 +566,22 @@ Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值
 ----------------
 ## `EXPORTER`
 
-定义通用的指标暴露器选项，例如Exporter的安装方式，监听的URL路径等。
+Define generic metrics exporter options, such as how the Exporter is installed, the URL path to listen to, etc.
 
 
 
 ### `exporter_install`
 
-安装监控组件的方式, 类型：`enum`，层级：G，默认值为：`"none"`
+The way to install the monitoring component, type: `enum`, level: G, default value: `"none"`.
 
-指明安装Exporter的方式：
+Specify how to install Exporter:
 
-* `none`：不安装，（默认行为，Exporter已经在先前由 [`node.pkgs`](v-nodes.md#node_packages) 任务完成安装）
-* `yum`：使用yum安装（如果启用yum安装，在部署Exporter前执行yum安装 [`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) ）
-* `binary`：使用拷贝二进制的方式安装（从管理节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) 二进制，不推荐）
+* `none`：No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](v-nodes.md#node_packages) task)
+* `yum`：Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) before deploying Exporter)
+* `binary`：Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the management node, not recommended)
 
-使用`yum`安装时，如果指定了`exporter_repo_url`（不为空），在执行安装时会首先将该URL下的REPO文件安装至`/etc/yum.repos.d`中。这一功能可以在不执行节点基础设施初始化的环境下直接进行Exporter的安装。
-不推荐普通用户使用`binary`安装，这种模式通常用于紧急故障抢修与临时问题修复。
+When installing with `yum`, if `exporter_repo_url` is specified (not empty), the installation will first install the REPO file under that URL into `/etc/yum.repos.d`. This feature allows you to install Exporter directly without initializing the node infrastructure.
+It is not recommended for normal users to use `binary` installation, this mode is usually used for emergency troubleshooting and temporary problem fixes.
 
 ```bash
 <meta>:<pigsty>/files/node_exporter ->  <target>:/usr/bin/node_exporter
@@ -601,9 +594,9 @@ Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值
 
 ### `exporter_repo_url`
 
-监控组件的Yum Repo URL, 类型：`string`，层级：G，默认值为：`""`。
+Yum Repo URL of the monitor component, type: `string`, level: G, default value: `""`.
 
-默认为空，当 [`exporter_install`](#exporter_install) 为 `yum` 时，该参数指定的Repo会被添加至节点源列表中。
+Default is empty, when [`exporter_install`](#exporter_install) is `yum`, the repo specified by this parameter will be added to the node source list.
 
 
 
@@ -611,18 +604,18 @@ Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值
 
 ### `exporter_metrics_path`
 
-监控暴露的URL Path, 类型：`string`，层级：G，默认值为：`"/metrics"`
+Monitor the exposed URL Path, type: `string`, level: G, default value: `"/metrics"`.
 
-所有Exporter对外暴露指标的URL PATH，默认为`/metrics`，该变量被外部角色[`prometheus`](#prometheus)引用，Prometheus会根据这里的配置，对监控对象应用此配置。
+The URL PATH for all Exporter externally exposed metrics, which defaults to `/metrics`, is referenced by the external role [`prometheus`](#prometheus), and Prometheus will apply this configuration to the monitoring object based on the configuration here.
 
-受此参数影响的指标暴露器包括：
+Indicator exponents affected by this parameter include:
 
 * [`node_exporter`](#node_exporter)
 * [`pg_exporter`](v-pgsql.md#pg_exporter)
 * [`pgbouncer_exporter`](v-pgsql.md#pgbouncer_exporter)
 * [`haproxy`](v-pgsql.md#haproxy_exporter_port)
-* Patroni的Metrics端点目前固定为`/metrics`，无法配置，故不受此参数影响
-* Infra组件的Metrics端点固定为`/metrics`，不受此参数影响。
+* Patroni's Metrics endpoint is currently fixed to `/metrics` and cannot be configured, so it is not affected by this parameter
+* The Metrics endpoint of the Infra component is fixed to `/metrics` and is not affected by this parameter.
 
 
 
@@ -632,23 +625,23 @@ Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值
 ----------------
 ## `GRAFANA`
 
-Grafana是Pigsty监控系统的可视化平台。
+Grafana is the visualization platform for Pigsty's monitoring system.
 
 
 
 ### `grafana_endpoint`
 
-Grafana地址, 类型：`url`，层级：G，默认值为：`"http://10.10.10.10:3000"`
+Grafana address, type: `url`, level: G, default value: `"http://10.10.10.10:3000"`.
 
-Grafana对外提供服务的端点，Grafana初始化与安装监控面板会使用该端点调用Grafana API
+Grafana provides a service endpoint to the public, which is used by the Grafana initialization and installation monitoring panel to call the Grafana API.
 
-在Configure过程中，占位IP`10.10.10.10`会在`configure`过程中被实际IP替换。
+The placeholder IP `10.10.10.10` will be replaced by the actual IP during the `configure` process.
 
 
 
 ### `grafana_admin_username`
 
-Grafana管理员用户名, 类型：`string`，层级：G，默认值为：`"admin"`
+Grafana administrator username, type: `string`, level: G, default value: `"admin"`.
 
 
 
@@ -656,7 +649,7 @@ Grafana管理员用户名, 类型：`string`，层级：G，默认值为：`"adm
 
 ### `grafana_admin_password`
 
-Grafana管理员密码, 类型：`string`，层级：G，默认值为：`"pigsty"`
+Grafana administrator password, type: `string`, level: G, default value: `"pigsty"`.
 
 
 
@@ -664,21 +657,21 @@ Grafana管理员密码, 类型：`string`，层级：G，默认值为：`"pigsty
 
 ### `grafana_database`
 
-Grafana后端数据库类型, 类型：`enum`，层级：G，默认值为：`"sqlite3"`
+Grafana backend database type, type: `enum`, tier: G, default value: `"sqlite3"`.
 
-备选为`postgres`，使用`postgres`时，必须确保目标数据库已经存在并可以访问。即首次初始化基础设施前，无法使用管理节点上的Postgres，因为Grafana先于该数据库而创建。
+The alternative is `postgres`. When using `postgres`, you must ensure that the target database already exists and is accessible. That is, Postgres on the meta node cannot be used before the initialization of the infrastructure for the first time, because Grafana was created before that database.
 
-为了避免产生循环依赖（Grafana依赖Postgres，PostgreSQL依赖包括Grafana在内的基础设施），您需要在首次完成安装后，修改此参数并重新执行 [`grafana`](#grafana)相关任务。
-详情请参考【[教程:使用Postgres作为Grafana后端数据库](t-grafana-upgrade.md)】
+To avoid creating circular dependencies (Grafana depends on Postgres, PostgreSQL depends on the infrastructure including Grafana), you need to modify this parameter and re-execute [`grafana`](#grafana)-related tasks after the first time you complete the installation.
+For details, please see [[Tutorial:Using Postgres as a Grafana backend database](t-grafana-upgrade.md)].
 
 
 
 
 ### `grafana_pgurl`
 
-Grafana的PostgreSQL数据库连接串, 类型：`url`，层级：G，默认值为：`"postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana"`
+PostgreSQL database connection string for Grafana, type: `url`, level: G, default value: `"postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana"`.
 
-仅当参数 [`grafana_database`](#grafana_database) 为 `postgres` 时有效。
+Only valid if the parameter [`grafana_database`](#grafana_database) is `postgres`.
 
 
 
@@ -686,23 +679,23 @@ Grafana的PostgreSQL数据库连接串, 类型：`url`，层级：G，默认值�
 
 ### `grafana_plugin`
 
-如何安装Grafana插件, 类型：`enum`，层级：G，默认值为：`"install"`
+How to install Grafana plugin, type: `enum`, level: G, default value: `"install"`.
 
-Grafana插件的供给方式
+How Grafana plug-ins are provisioned:
 
-* `none`：不安装插件
-* `install`: 安装Grafana插件（默认），若已存在则跳过。
-* `reinstall`: 无论如何都重新下载安装Grafana插件
+* `none`：No plug-in installation.
+* `install`: Install Grafana plugin (default), or skip if it already exists.
+* `reinstall`: Re-download and install Grafana plugin anyway.
 
-Grafana需要访问互联网以下载若干扩展插件，如果您的元节点没有互联网访问，则应当确保使用了离线安装包。
-离线安装包中默认已经包含了所有下载好的Grafana插件，位于 [`grafana_cache`](#grafana_cache) 指定的路径下。当从互联网下载插件时，Pigsty会在下载完成后打包下载好的插件，并放置于该路径下。
+Grafana requires Internet access to download several extension plug-ins, and if your meta-node does not have Internet access, you should ensure that you are using an offline installer.
+The offline installation package already contains all downloaded Grafana plugins by default, located under the path specified by [`grafana_cache`](#grafana_cache). When downloading plugins from the Internet, Pigsty will package the downloaded plugins and place them under that path after the download is complete.
 
 
 
 
 ### `grafana_cache`
 
-Grafana插件缓存地址, 类型：`path`，层级：G，默认值为：`"/www/pigsty/plugins.tgz"`
+Grafana plugin cache address, type: `path`, level: G, default value: `"/www/pigsty/plugins.tgz"`.
 
 
 
@@ -710,7 +703,7 @@ Grafana插件缓存地址, 类型：`path`，层级：G，默认值为：`"/www/
 
 ### `grafana_plugins`
 
-安装的Grafana插件列表, 类型：`string[]`，层级：G，默认值为：
+List of installed Grafana plugins, type: `string[]`, level: G, default value:
 
 ```yaml
 grafana_plugins:
@@ -719,7 +712,7 @@ grafana_plugins:
   - marcusolsson-treemap-panel
 ```
 
-每个数组元素是一个字符串，表示插件的名称。插件会通过`grafana-cli plugins install`的方式进行安装。
+Each array element is a string that represents the name of the plugin. Plugins are installed by means of `grafana-cli plugins install`.
 
 
 
@@ -728,16 +721,16 @@ grafana_plugins:
 
 ### `grafana_git_plugins`
 
-从Git安装的Grafana插件, 类型：`url[]`，层级：G，默认值为：
+Grafana plugin installed from Git, type: `url[]`, level: G, default value:
 
 ```yaml
 grafana_git_plugins:                          # plugins that will be downloaded via git
   - https://github.com/Vonng/vonng-echarts-panel
 ```
 
-一些插件无法通过官方命令行下载，但可以通过Git Clone的方式下载。插件会通过`cd /var/lib/grafana/plugins && git clone `的方式进行安装。
+Some plugins cannot be downloaded via the official command line, but can be downloaded via Git Clone. Plugins will be installed via `cd /var/lib/grafana/plugins && git clone `.
 
-默认会下载一个可视化插件：`vonng-echarts-panel`，提供为Grafana提供Echarts绘图支持。
+A visualization plugin will be downloaded by default: `vonng-echarts-panel`, which provides Echarts drawing support for Grafana.
 
 
 
@@ -749,13 +742,13 @@ grafana_git_plugins:                          # plugins that will be downloaded 
 ## `LOKI`
 
 
-LOKI是Pigsty使用的默认日志收集服务器。
+LOKI is the default log collection server used by Pigsty.
 
 
 
 ### `loki_endpoint`
 
-用于接收日志的loki服务端点, 类型：`url`，层级：G，默认值为：`"http://10.10.10.10:3100/loki/api/v1/push"`
+loki service endpoint for receiving logs, type: `url`, level: G, default value: `"http://10.10.10.10:3100/loki/api/v1/push"`.
 
 
 
@@ -763,7 +756,7 @@ LOKI是Pigsty使用的默认日志收集服务器。
 
 ### `loki_clean`
 
-是否在安装Loki时清理数据库目录, 类型：`bool`，层级：A，默认值为：`false`
+Whether to clean up the database directory when installing Loki, type: `bool`, level: A, default value: `false`.
 
 
 
@@ -771,16 +764,16 @@ LOKI是Pigsty使用的默认日志收集服务器。
 
 ### `loki_options`
 
-Loki的命令行参数, 类型：`string`，层级：G，默认值为：`"-config.file=/etc/loki.yml -config.expand-env=true"`
+Command line arguments for Loki, type: `string`, level: G, default value: `"-config.file=/etc/loki.yml -config.expand-env=true"`.
 
-默认的配置参数用于指定Loki配置文件位置，并启用在配置文件中展开环境变量的功能，不建议移除这两个选项。
+The default configuration parameters are used to specify the Loki configuration file location and to enable the ability to expand environment variables in the configuration file; it is not recommended to remove these two options.
 
 
 
 
 ### `loki_data_dir`
 
-Loki的数据目录, 类型：`string`，层级：G，默认值为：`"/data/loki"`
+Loki's data directory, type: `string`, level: G, default value: `"/data/loki"`.
 
 
 
@@ -788,9 +781,7 @@ Loki的数据目录, 类型：`string`，层级：G，默认值为：`"/data/lok
 
 ### `loki_retention`
 
-Loki日志默认保留天数, 类型：`interval`，层级：G，默认值为：`"15d"`
-
-
+Loki log default retention days, type: `interval`, level: G, default value: `"15d"`.
 
 
 
@@ -799,78 +790,78 @@ Loki日志默认保留天数, 类型：`interval`，层级：G，默认值为：
 ----------------
 ## `DCS`
 
-Distributed Configuration Store (DCS) 是一种分布式，高可用的元数据库。Pigsty使用DCS来实现数据库高可用，服务发现等功能也通过DCS实现。
+Distributed Configuration Store (DCS) is a distributed, highly available meta-database that Pigsty uses to achieve high database availability, service discovery, and other functions.
 
-Pigsty目前仅支持使用Consul作为DCS，后续会添加ETCD作为DCS的选项。通过 [`dcs_type`](#dcs_type) 指明使用的DCS种类，通过 [`service_registry`](#service_registry) 指明服务注册的位置。
+Pigsty currently only supports using Consul as DCS, and will add the option to use ETCD as DCS later. Specify the type of DCS used by [`dcs_type`](#dcs_type) and the location of the service registration by [`service_registry`](#service_registry).
 
-Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。DCS本身的可用性，通过多副本实现。例如，3节点的Consul集群最多允许1个节点故障，5节点的Consul集群则可以允许两个节点故障，在大规模生产环境中，建议使用至少3个DCS Server。
-Pigsty使用的DCS服务器通过参数 [`dcs_servers`](#dcs_servers) 指定，您可以使用外部的现有DCS服务器集群。也可以使用Pigsty本身管理的节点部署DCS Servers。
+The availability of the Consul service is critical for high database availability, so special care needs to be taken when using the DCS service in a production environment. Availability of DCS itself, achieved through multiple copies. For example, a 3-node Consul cluster allows up to one node to fail, while a 5-node Consul cluster allows two nodes to fail. In a large-scale production environment, it is recommended to use at least three DCS Servers.
+The DCS servers used by Pigsty are specified by the parameter [`dcs_servers`](#dcs_servers), either by using an existing external DCS server cluster or by deploying DCS Servers using nodes managed by Pigsty itself.
 
-在默认情况下，Pigsty会在节点纳入管理时（[`nodes.yml`](p-nodes.md#nodes)）部署设置DCS服务，如果当前节点定义于 [`dcs_servers`](#dcs_servers) 中，则该节点会被初始化为 DCS Server。
-Pigsty会在管理节点本身部署一个单节点的DCS Server，使用多个管理节点时，您也可以将其复用为DCS Server。尽管如此，管理节点与DCS Server并不绑定。您可以使用任意节点作为DCS Servers。
-但大的原则是，在部署任意高可用数据库集群前，您应当确保所有DCS Servers已经完成初始化。
+By default, Pigsty deploys setup DCS services when nodes are included in management ([`nodes.yml`](p-nodes.md#nodes)), and if the current node is defined in [`dcs_servers`](#dcs_servers), the node will be initialized as a DCS Server.
+Pigsty deploys a single node DCS Server on the meta node itself, which can also be multiplexed as a DCS Server when using multiple meta nodes, although the meta node is not tied to the DCS Server. You can use any node as DCS Servers.
+However, before deploying any highly available database cluster, you should ensure that all DCS Servers have been initialized.
 
 
 
 ### `dcs_servers`
 
-DCS服务器, 类型：`dict`，层级：G，默认值为：
+DCS Server, type: `dict`, level: G, default value:
 
 ```yaml
 dcs_servers:
-  meta-1: 10.10.10.10      # 默认在管理节点上部署单个DCS Server
+  meta-1: 10.10.10.10      # Deploy a single DCS Server on the meta node by default
   # meta-2: 10.10.10.11
   # meta-3: 10.10.10.12 
 ```
 
-字典格式，Key为DCS服务器实例名称，Value为服务器IP地址。 默认情况下，Pigsty将在[节点初始化](p-nodes.md#nodes)剧本中为节点配置DCS服务，默认为Consul。
+Dictionary format, Key is the DCS server instance name and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-n odes.md#nodes) playbook, which defaults to Consul.
 
-您可以使用外部的DCS服务器，依次填入所有外部DCS Servers的地址即可，否则Pigsty默认将在管理节点（`10.10.10.10`占位）上部署一个单实例DCS Server。
-如果当前节点定义于 [`dcs_servers`](#dcs_servers) 中，即IP地址与任意Value匹配，则该节点会被初始化为 DCS Server，其Key将被用作Consul Server
+You can use an external DCS server, fill in the addresses of all external DCS Servers in turn that is, otherwise Pigsty will deploy a single instance DCS Server on the meta node (`10.10.10.10` placeholder) by default.
+If the current node is defined in [`dcs_servers`](#dcs_servers), i.e. the IP address matches any Value, the node will be initialized as a DCS Server and its Key will be used as a Consul Server.
 
 
 
 
 ### `service_registry`
 
-服务注册的位置, 类型：`enum`，层级：G，默认值为：`"consul"`
+Location of the service registration, type: `enum`, level: G, default value: `"consul"`.
 
-* `none`：不执行服务注册（当执行[**仅监控部署**](d-monly.md)时，必须指定`none`模式）
-* `consul`：将服务注册至Consul中
-* `etcd`：将服务注册至Etcd中（尚未支持）
+* `none`：No service registration is performed (`none` mode must be specified when executing [**monitoring deployment only**](d-monly.md)).
+* `consul`：Registering services to Consul.
+* `etcd`：Registering services into Etcd (not yet supported).
 
 
 
 
 ### `dcs_type`
 
-使用的DCS类型, 类型：`enum`，层级：G，默认值为：`"consul"`
+DCS type used, type: `enum`, hierarchy: G, default value: `"consul"`.
 
-有两种选项：`consul` 与 `etcd` ，但ETCD尚未正式支持。
+There are two options: `consul` and `etcd`, but ETCD is not yet officially supported.
 
 
 
 ### `dcs_name`
 
-DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
+DCS cluster name, type: `string`, hierarchy: G, default value: `"pigsty"`.
 
-在Consul中代表数据中心名称，在Etcd中没有意义。
+Represents the data center name in Consul, which has no meaning in Etcd.
 
 
 
 ### `dcs_exists_action`
 
-DCS安全保险，若DCS实例以及存在如何处理, 类型：`enum`，层级：C/A，默认值为：`"abort"`，
+DCS security insurance, if DCS instance and what to do if it exists, type: `enum`, level: C/A, default value: `"abort"`.
 
-在部署Consul时，如果Pigsty发现目标实例上Consul已经存在，则会根据本参数采取对应的行为：
+When deploying Consul, if Pigsty finds that Consul already exists on the target instance, it will take the corresponding behavior according to this parameter:
 
-* `abort`: 中止整个剧本的执行（默认行为）
-* `clean`: 抹除现有DCS实例并继续（极端危险，仅Demo中使用此方式）
-* `skip`: 忽略存在DCS实例的目标（中止），在其他目标机器上继续执行。
+* `abort`: Abort the execution of the entire playbook (default behavior)
+* `clean`: Erase the existing DCS instance and continue (extremely dangerous, use this method only in the demo)
+* `skip`: Ignore targets where DCS instances exist (abort) and continue execution on other target machines.
 
-Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。
-如果您真的需要强制清除已经存在的DCS实例，建议先使用[`nodes-remove.yml`](p-pgsql.md#pgsql-remove)完成集群与实例的下线与销毁，再重新执行初始化。
-否则需要通过命令行参数`./nodes.yml -e dcs_exists_action=clean`完成覆写，强制在初始化过程中抹除已有实例。
+The availability of the Consul service is critical to high database availability, so special care needs to be taken when using the DCS service in a production environment.
+If you really need to force the removal of an already existing DCS instance, it is recommended to first use [`nodes-remove.yml`](p-pgsql.md#pgsql-remove) to complete the offline and destruction of the cluster and instance, and then re-execute the initialization.
+Otherwise, you need to pass the command line parameter `. /nodes.yml -e dcs_exists_action=clean` to complete the overwrite and force the wiping of existing instances during the initialization.
 
 
 
@@ -879,17 +870,17 @@ Consul服务的可用性对于数据库高可用至关重要，因此在生产�
 
 ### `dcs_disable_purge`
 
-DCS双重安全保险，完全禁止清理DCS实例, 类型：`bool`，层级：C/A，默认值为：`false`
+DCS double security insurance, completely prohibits cleaning up DCS instances, type: `bool`, level: C/A, default value: `false`.
 
-双重安全保险，如果启用为`true`，则强制设置 [`dcs_exists_action`](#dcs_exists_action) 变量为`abort`。
+Double security, if enabled as `true`, forces the [`dcs_exists_action`](#dcs_exists_action) variable to be set to `abort`.
 
-等效于关闭 [`dcs_exists_action`](#dcs_exists_action) 的清理功能，确保**任何情况**下DCS实例都不会被抹除。
+Equivalent to disabling the cleanup function of [`dcs_exists_action`](#dcs_exists_action) to ensure that no DCS instances are wiped out under **any circumstances**.
 
 
 
 ### `consul_data_dir`
 
-Consul数据目录, 类型：`string`，层级：G，默认值为：`"/data/consul"`
+Consul data directory, type: `string`, level: G, default value: `"/data/consul"`.
 
 
 
@@ -897,7 +888,7 @@ Consul数据目录, 类型：`string`，层级：G，默认值为：`"/data/cons
 
 ### `etcd_data_dir`
 
-Etcd数据目录, 类型：`string`，层级：G，默认值为：`"/data/etcd"`
+Etcd data directory, type: `string`, level: G, default value: `"/data/etcd"`.
 
 
 
@@ -908,36 +899,36 @@ Etcd数据目录, 类型：`string`，层级：G，默认值为：`"/data/etcd"`
 ----------------
 ## `JUPYTER`
 
-Jupyter Lab 是基于 IPython Notebook 的完整数据科学研发环境，可用于数据分析与可视化。目前为可选Beta功能，默认只在Demo中启用
+Jupyter Lab is a complete data science R&D environment based on IPython Notebook for data analysis and visualization. It is currently an optional Beta feature and is only enabled in the demo by default.
 
-因为JupyterLab提供了Web Terminal功能，因此不建议在生产环境中开启，可以使用 [`infra-jupyter`](p-infra.md#infra-jupyter) 在管理节点上手动部署。
+Because JupyterLab provides Web Terminal feature, it is not recommended to enable it in production environment, you can use [`infra-jupyter`](p-infra.md#infra-jupyter) to deploy it manually on the meta node.
 
 
 
 ### `jupyter_enabled`
 
-是否启用JupyterLab, 类型：`bool`，层级：G，默认值为：`false`，不启用。
+If or not JupyterLab is enabled, type: `bool`, level: G, default value: `false`, not enabled.
 
 
 
-启用JupyterLab时，Pigsty会使用[`jupyter_username`](jupyter_username) 参数指定的用户运行本地Notebook服务器。
-此外，需要确保配置[`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) 参数包含默认值 `'jupyterlab'`。
-Jupyter Lab可以从Pigsty首页导航进入，或通过默认域名 `lab.pigsty` 访问，默认监听于8888端口。
+When JupyterLab is enabled, Pigsty will run the local Notebook server using the user specified by the [`jupyter_username`](jupyter_username) parameter.
+In addition, you need to make sure that the configuration [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) parameter contains the default value `'jupyterlab'`.
+Jupyter Lab can be accessed by navigating from the Pigsty home page or through the default domain `lab.pigsty`, which listens on port 8888 by default.
 
 
 ### `jupyter_username`
 
-Jupyter使用的操作系统用户, 类型：`bool`，层级：G，默认值为：`"jupyter"`
+OS user used by Jupyter, type: `bool`, level: G, default value: `"jupyter"`.
 
-其他用户名亦同理，但特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 Jupyter Lab，这会更方便，但也更危险。
+The same goes for other usernames, but the special username `default` will run Jupyter Lab with the user who is currently running the installation (usually administrator), which is more convenient, but also more dangerous.
 
 
 
 ### `jupyter_password`
 
-Jupyter Lab的密码, 类型：`bool`，层级：G，默认值为：`"pigsty"`
+Password for Jupyter Lab, type: `bool`, level: G, default value: `"pigsty"`.
 
-如果启用Jupyter，强烈建议修改此密码。加盐混淆的密码默认会写入`~jupyter/.jupyter/jupyter_server_config.json`。
+If Jupyter is enabled, it is highly recommended to change this password. Salted and obfuscated passwords are written to `~jupyter/.jupyter/jupyter_server_config.json` by default.
 
 
 
@@ -948,16 +939,16 @@ Jupyter Lab的密码, 类型：`bool`，层级：G，默认值为：`"pigsty"`
 ----------------
 ## `PGWEB`
 
-PGWeb 是基于浏览器的PostgreSQL客户端工具，可用于小批量个人数据查询等场景。目前为可选Beta功能，默认只在Demo中启用
+PGWeb is a browser-based PostgreSQL client tool that can be used for scenarios such as small batch personal data queries. It is currently an optional Beta feature and is only enabled in the demo by default.
 
-在Demo中该功能默认启用，其他情况下默认关闭，可以使用 [`infra-pgweb`](p-infra.md#infra-pgweb) 在管理节点上手动部署。
+This feature is enabled by default in the demo and disabled by default in other cases, and can be deployed manually on the meta node using [`infra-pgweb`](p-infra.md#infra-pgweb).
 
 
 ### `pgweb_enabled`
 
-是否启用PgWeb, 类型：`bool`，层级：G，默认值为：`false`，对于演示与个人使用默认启用，对于生产环境部署默认不启用。
+Whether to enable PgWeb, type: `bool`, level: G, default value: `false`, enabled by default for demo and personal use, not enabled by default for production environment deployment.
 
-PGWEB的网页界面默认只能通过域名由 Nginx 代理访问，默认为`cli.pigsty`，默认会使用名为`pgweb`的操作系统用户运行。
+The PGWEB web interface is by default only accessible by the Nginx proxy via the domain name, which defaults to `cli.pigsty` and will be run by default with an OS user named `pgweb`.
 
 ```yaml
 - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
@@ -966,10 +957,10 @@ PGWEB的网页界面默认只能通过域名由 Nginx 代理访问，默认为`c
 
 ### `pgweb_username`
 
-PgWeb使用的操作系统用户, 类型：`bool`，层级：G，默认值为：`"pgweb"`
+OS user used by PgWeb, type: `bool`, level: G, default value: `"pgweb"`.
 
-运行PGWEB服务器的操作系统用户。默认为`pgweb`，即会创建一个低权限的默认用户`pgweb`。
+The operating system user running the PGWEB server. The default is `pgweb`, which means that a low privileged default user `pgweb` will be created.
 
-特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 PGWEB。
+The special username `default` will run PGWEB with the user who is currently performing the installation (usually administrator).
 
-您需要数据库的连接串方可通过PgWeb访问环境中的数据库。例如：`postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`
+A connection string to a database that can be accessed from the environment via PgWeb. For example: `postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`

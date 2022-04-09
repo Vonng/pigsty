@@ -5,7 +5,7 @@
 | Playbook | Function                                                 | Link                                                     |
 |--------|--------------------------------------------------------------| ------------------------------------------------------------ |
 |  [`redis`](p-redis.md#redis)                        | Deploying a Redis database in cluster/master-slave/Sentinel mode |        [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
-|  [`redis-remove`](p-redis.md#redis-remove)          |        Redis cluster/node offline         |        [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
+|  [`redis-remove`](p-redis.md#redis-remove)          |        Redis cluster/node offline        |        [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
 
 
 ------------------
