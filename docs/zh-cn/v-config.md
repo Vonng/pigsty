@@ -4,7 +4,7 @@
 
 Pigsty通过**配置清单**（Inventory）来定义基础设施与数据库集群，每一套Pigsty[部署](d-deploy.md)都有一份对应的**配置**：无论是几百集群的生产环境，还是1核1GB的本地沙箱，在Pigsty中除了配置内容外没有任何区别。Pigsty的配置采用"Infra as Data"的哲学：用户通过声明式的配置描述自己的需求，而Pigsty负责将真实组件调整至所期待的状态。
 
-在形式上，配置清单的具体实现可以是默认的本地[配置文件](#配置文件)，也可以是来自[CMDB](t-cmdb.md)中的动态配置数据，本文介绍时均以默认YAML配置文件[`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 为例。在 [配置过程](#配置过程) 中，Pigsty会 检测当前节点环境，并自动生成推荐的配置文件。
+在形式上，配置清单的具体实现可以是默认的本地[配置文件](#配置文件)，也可以是来自[CMDB](t-cmdb.md)中的动态配置数据，本文介绍时均以默认YAML配置文件[`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 为例。在 [配置过程](#配置过程) 中，Pigsty会检测当前节点环境，并自动生成推荐的配置文件。
 
 **配置清单**的内容主要是[配置项](#配置项)，Pigsty提供了220个配置参数，可以在多个[层次](#配置项的层次)进行配置，大多数参数可以直接使用默认值。配置项按照[类目](#配置类目)可以分为四大类：[INFRA/基础设施](v-infra.md)， [NODES/主机节点](v-nodes.md)， [PGSQL/PG数据库](v-pgsql.md)， [REDIS/Redis数据库](v-redis.md)，并可进一步细分为32个小类。
 
@@ -80,8 +80,6 @@ configure pigsty v1.4.0 begin
 [ OK ] ansible = ansible 2.9.27
 configure pigsty done. Use 'make install' to proceed
 ```
-
-</details>
 
 
 
@@ -440,9 +438,6 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 741  | [`redis_exporter_enabled`](v-redis.md#redis_exporter_enabled) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | 是否启用Redis监控                    |
 | 742  | [`redis_exporter_port`](v-redis.md#redis_exporter_port)      | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter监听端口               |
 | 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter命令参数               |
-
-</details>
-
 
 
 
