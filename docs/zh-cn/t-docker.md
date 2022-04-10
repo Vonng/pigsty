@@ -9,13 +9,14 @@ Pigsty v1.5 带有Docker与Kubernetes部署支持，其中，Docker Daemon将默
 
 ```bash
 docker run \
-    --init --name bytebase \
+    --init \
+    --name bytebase \
     --restart always \
     --detach \
-    --add-host host.docker.internal:host-gateway \
     --publish 8080:8080 --volume ~/.bytebase/data:/var/opt/bytebase \
     bytebase/bytebase:1.0.2 --data /var/opt/bytebase --host http://localhost --port 8080
 ```
+
 
 例如，上述命令将在8080端口启动一个ByteBase，可用于数据库模式迁移。
 
