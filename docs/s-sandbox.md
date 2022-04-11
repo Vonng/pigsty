@@ -65,7 +65,7 @@ Also, the sandbox environment will use the following two IP addresses with two s
 
 The entire sandbox environment (four nodes) is structured as shown in the following figure.
 
-![](_media/sandbox.svg)
+![](_media/SANDBOX.gif)
 
 Single-node sandbox i.e. without the three additional nodes on the right side of the diagram above, there is only a single management node on the left half.
 

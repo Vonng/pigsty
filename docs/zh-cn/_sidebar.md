@@ -1,8 +1,8 @@
 - [概览](README.md)
   - [入门指南](s-intro.md)
   - [快速上手](s-install.md)
+  - [亮点特性](s-feature.md)
   - [常见问题](s-faq.md)
-  - [产品价值](s-value.md)
 
 - 概念
   - [系统架构](c-arch.md)
@@ -49,9 +49,9 @@
   - [使用与制作离线安装包](t-offline.md)
   - [使用CMDB替换静态配置](t-cmdb.md)
   - [升级Grafana后端数据库](t-grafana-upgrade.md)
-  - [腾讯云虚拟机部署案例](t-vpc-deploy.md)
   - [数据库迁移](t-migration.md)
-  - [安装Pigsty扩展应用](t-application.md)
+  - [Pigsty应用](t-application.md)
+  - [Docker应用](t-docker.md)
 
 - [社区交流](community.md)
 - [路线规划](../roadmap.md)

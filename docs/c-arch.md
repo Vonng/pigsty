@@ -19,7 +19,7 @@ Provides additional extensions: CMDB, inspection reports, extended applications,
 
 Taking the four-node sandbox environment that comes with Pigsty as an example, the distribution of components on the nodes is shown in the following figure.
 
-![](_media/sandbox.svg)
+![](_media/SANDBOX.gif)
 
 The sandbox consists of 1 [meta node](#meta-node) with four [database-nodes](#database-node) (the meta node is also reused as a database node), deployed with one set of [infrastructure](#infrastructure) and two sets of [database clusters](#database clusters). `meta` is a meta-node, deployed with **infrastructure** components, also multiplexed as a common database node, deployed with a single master database cluster `pg-meta`. `node-1`, `node-2`, `node-3` are normal database nodes, deployed with database cluster `pg-test`.
 

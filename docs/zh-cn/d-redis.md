@@ -49,6 +49,8 @@ Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包�
 
 您需要在节点上为Redis实例分配唯一的端口号。
 
+### Redis Sentinel集群定义
+
 ```yaml
 #----------------------------------#
 # redis sentinel example           #
@@ -62,7 +64,11 @@ redis-meta:
     redis_cluster: redis-meta
     redis_mode: sentinel
     redis_max_memory: 128MB
+```
 
+### Redis原生集群定义
+
+```yaml
 #----------------------------------#
 # redis cluster example            #
 #----------------------------------#
@@ -79,7 +85,11 @@ redis-test:
     redis_mode: cluster                 # standalone,cluster,sentinel
     redis_max_memory: 64MB              # max memory used by each redis instance
     redis_mem_policy: allkeys-lru       # memory eviction policy
+```
 
+### Redis普通主从实例定义
+
+```yaml
 #----------------------------------#
 # redis standalone example         #
 #----------------------------------#

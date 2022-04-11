@@ -1,7 +1,7 @@
 
 ## TL; DR
 
-![](../_media/how.svg)
+![](../_media/HOW_EN.svg)
 
 [Prepare](#prepare) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access
 

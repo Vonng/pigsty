@@ -9,7 +9,7 @@
 > Documentation: [En Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 
 
-![](_media/what.svg)
+![](_media/WHAT_EN.svg)
 
 * Pigsty is the battery-included open-source PostgreSQL [distribution](#distribution)
 
@@ -214,7 +214,7 @@ Which is great for developing, testing, demonstrating, data analysing & visualiz
 Pigsty sandbox can be pulled up with one command on your Macbook, powered by virtualbox & vagrant.
 There are two specs of sandbox: 1 node (the default) and 4 node (full sandbox)
 
-![](_media/sandbox.svg)
+![](_media/SANDBOX.gif)
 
 <details>
 <summary>Sandbox Specification</summary>
@@ -260,7 +260,7 @@ Pigsty comes with two example apps: [`covid`](http://demo.pigsty.cc/d/covid-over
 
 It takes 3 commands to pull up pigsty: **download**, **configure**, **install**
 
-![](_media/how.svg)
+![](_media/HOW_EN.svg)
 
 
 Get a fresh Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
