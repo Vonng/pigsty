@@ -1,6 +1,6 @@
 # 配置：Infra
 
-> 使用 [INFRA剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+> 使用 [INFRA剧本](p-pgsql.md)，[部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
 >
 > 配置Pigsty基础设施，由[INFRA](p-infra.md)系列剧本使用。
 
@@ -153,7 +153,7 @@ proxy_env: # global proxy env when downloading packages
 
 当在管理节点上安装Pigsty时，Pigsty会在本地拉起一个YUM软件源，供当前环境安装RPM软件包使用。
 
-Pigsty会在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](#repo_upstreams)指定）， 下载所有软件包及其依赖（由 [`repo_packages`](#repo_packages)指定）至 [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  （默认为`/www/pigsty`）。所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
+Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](#repo_upstreams)指定）， 下载所有软件包及其依赖（由 [`repo_packages`](#repo_packages)指定）至 [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  （默认为`/www/pigsty`）。所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
 
 建立本地Yum源时，如果该目录已经存在，而且目录中存在名为`repo_complete`的标记文件，Pigsty会认为本地Yum源已经初始化完毕，跳过软件下载阶段。
 

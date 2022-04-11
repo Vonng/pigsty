@@ -25,7 +25,7 @@
 
 当您将Pigsty用作开箱即用的数据库时，只要在本节点上直接执行 `infra.yml` ，即可完成安装。
 
-![](_media/playbook/infra.svg)
+![](../_media/playbook/infra.svg)
 
 ### What
 
@@ -146,7 +146,7 @@ Jupyter Lab 是非常实用的Python数据分析环境，但自带WebShell，风
 ```
 
 
-!> 如果您在生产环境中启用了Jupyter，请务必修改Jupyter的密码
+如果您在生产环境中启用了Jupyter，请务必修改Jupyter的密码
 
 
 

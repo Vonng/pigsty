@@ -1,126 +1,125 @@
 # Playbook：NODES
 
-> 使用 `nodes` 系列[剧本](p-playbook.md)将更多节点纳入Pigsty管理，将节点调整至[配置](v-nodes.md)描述的状态。
+> Use the `nodes` series [playbook](p-playbook.md)  to bring more nodes into Pigsty, adjusting the nodes to the state described in [configuration](v-nodes.md).
 
-当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 [`nodes.yml`](#nodes) 将更多节点添加至Pigsty中，或者使用 [`nodes-remove.yml`](nodes-remove) 将节点从环境中移除。
+Once you have completed a complete installation of Pigsty on the meta node using [`infra.yml`](p-infra.md) ,you can add more nodes to Pigsty using [`nodes.yml`](#nodes)  or remove them from the environment using [`nodes-remove.yml`](nodes-remove) .
 
-| 剧本                                           | 功能                                                           | 链接                                                         |
-|----------------------------------------------|----------------------------------------------------------------| ------------------------------------------------------------ |
-| [`nodes`](p-nodes.md#nodes)                   |        **节点置备，将节点纳入Pigsty管理，可用于后续数据库部署**                    |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
-| [`nodes-remove`](p-nodes.md#nodes-remove)     |        节点移除，卸载节点DCS与监控，不再纳入Pigsty管理                     |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
+| Playbook                                  | Function                                                     | Link                                                         |
+| ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`nodes`](p-nodes.md#nodes)               | **Node provisioning to include nodes in Pigsty for subsequent database deployment** | [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml) |
+| [`nodes-remove`](p-nodes.md#nodes-remove) | Node removal, offloading node DCS and monitoring, no longer included in Pigsty | [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml) |
 
 
 ---------------
 
 ## `nodes`
 
-[`nodes.yml`](p-nodes.md) 剧本将更多节点添加至Pigsty中。该剧本需要在 **管理节点** 上发起，针对目标节点执行。
+The [`nodes.yml`](p-nodes.md) playbook to add more nodes to Pigsty. This playbook needs to be initiated on the **meta node** and executed against the target node.
 
-此剧本可以将目标机器节点调整至配置清单所描述的状态，安装Consul服务，并将其纳入Pigsty监控系统，并允许您在这些置备好的节点上进一步部署不同类型的数据库集群。
+This playbook adjusts the target machine nodes to the state described in the configuration list, installs the Consul service and incorporates it into the Pigsty monitoring system, and allows you to further deploy different types of database clusters.
 
-`nodes.yml` 剧本的行为由 [节点配置](v-nodes.md) 决定。在使用本地源的情况下，完整执行此剧本可能耗时1～3分钟，视机器配置而异。
+The behavior of the `nodes.yml` playbook is determined by the [node configuration](v-nodes.md). The full execution of this playbook may take 1 to 3 minutes when using local sources, depending on the machine configuration.
 
 ```bash
-./nodes.yml                      # 初始化所有清单中的节点（危险！）
-./nodes.yml -l pg-test           # 初始化在 pg-test 分组下的机器（推荐！）
-./nodes.yml -l pg-meta,pg-test   # 同时初始化pg-meta与pg-test两个集群中的节点
-./nodes.yml -l 10.10.10.11       # 初始化10.10.10.11这台机器节点
+./nodes.yml                      # Initialize all nodes in the list (danger!)
+./nodes.yml -l pg-test           # Initialize the machines under the pg-test group (recommended!)
+./nodes.yml -l pg-meta,pg-test   # Initialize the nodes in both pg-meta and pg-test clusters at the same time
+./nodes.yml -l 10.10.10.11       # Initialize the machine node 10.10.10.11
 ```
 
 ![](_media/playbook/nodes.svg)
 
 
-此剧本包含的功能与任务如下：
+This playbook contains the following functions and tasks:
 
-* 生成节点身份参数
-* 初始化节点
-  * 配置节点名称
-  * 配置节点静态DNS解析
-  * 配置节点动态DNS解析服务器
-  * 配置节点的Yum源
-  * 安装指定的RPM软件包
-  * 配置 numa/swap/firewall等特性
-  * 配置节点tuned调优模板
-  * 配置节点的快捷命令与环境变量
-  * 创建节点管理员并配置SSH
-  * 配置节点时区
-  * 配置节点NTP服务
-* 在节点上初始化DCS服务：Consul
-  * 抹除现有Consul
-  * 初始化当前节点的 Consul Agent或Server 服务
-* 初始化节点监控组件并纳入Pigsty
-  * 在节点上安装 Node Exporter
-  * 将 Node Exporter 注册至管理节点上的 Prometheus 中。
+* Generate node identity parameters
+* Initialize Node
+  * Configure the node name
+  * Configure node static DNS resolution
+  * Configure the node's dynamic DNS resolution server
+  * Configure the node's Yum source
+  * Install the specified RPM packages
+  * Configure features such as numa/swap/firewall
+  * Configure node tuned tuning templates
+  * Configure shortcut commands and environment variables for the node
+  * Create node administrator and configure SSH
+  * Configure node time zone
+  * Configure the node NTP service
+* Initialize the DCS service on the node: Consul
+  * Erase existing Consul
+  * Initialize the Consul Agent or Server service for the current node
+* Initialize the node monitoring component and incorporate Pigsty
+  * Install Node Exporter on the node
+  * Register the Node Exporter to Prometheus on the management node.
 
-!> **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
+**It is necessary to be careful to execute this playbook on the node where the existing database is running. Improper use may lead to temporary unavailability of the database, because initializing the node will erase the DCS agent .**
 
-节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
-[dcs_exists_action](v-nodes.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
-尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
-
-
-### 保护机制
-
-`nodes.yml`提供**保护机制**，由配置参数 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 的配置`abort|clean|skip`行动。
-
-* `abort`：建议设置为默认配置，如遇现存DCS实例，中止剧本执行，避免误删库。
-* `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有DCS实例。
-* `skip`：  跳过此主机，在其他主机上执行后续逻辑。
-* 您可以通过`./nodes.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
-
-[`dcs_disable_purge`](v-nodes.md#dcs_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
+Node provisioning configures the node's DCS service (Consul Agent), so be careful when running this playbook on a node running a PostgreSQL database!
+The [dcs_exists_action](v-nodes.md#dcs_exists_action) parameter provides the option to avoid accidental deletion. During initialization, when an existing DCS in operation is detected, it is allowed to automatically stop or skip high-risk operations to avoid the worst case.
+Nevertheless，when **using the full `nodes.yml` playbook or the section on `dcs|consul` therein, please check several times that the `-tags|-t` and `-limit|-l` parameters are correct. Make sure you are performing the right task on the right target. **
 
 
+### Protection mechanism
 
-### 选择性执行
+The `nodes.yml` provides **protection mechanism** determined by configuration parameter [`dcs_exists_action`](v-nodes.md#dcs_exists_action). When there is a running PostgreSQL instance on the target machine before the playbook is executed, pigsty will take action according to the configuration `abort|clean|skip` of  [`dcs_exists_action`](v-nodes.md#dcs_exists_action).
 
-用户可以通过ansible的标签机制，**选择性执行**本剧本的一个子集。例如，如果只想执行节点监控部署的任务，则可以通过以下命令：
+* `abort`：Set the default configuration. In case of an existing DCS instance, stop the script execution to avoid deleting the library by mistake.
+* `clean`：Use it in the local sandbox environment. In case of existing instances, clear the existing DCS instances.
+* `skip`：Skip this host and perform subsequent logic on other hosts.
+* Use `./nodes.yml -e pg_exists_action=clean` to overwrite the configuration file option and force the existing instance to be erased.
+
+The [`dcs_disable_purge`](v-nodes.md#dcs_disable_purge) option provides dual protection, If this option is enabled, the [`dcs_exists_action`](v-nodes.md#dcs_exists_action) will be forcibly set to `abort`, and no running database instances will be wiped out under any circumstances.
+
+
+
+### Selective execution
+
+Users can **selectively execute** a subset of this playbook through Ansible's tagging mechanism. For example, if you only want to perform the task of node monitoring deployment, you can pass the following command:
 
 ```bash
 ./nodes.yml --tags=node-monitor
 ```
 
-具体的标签请参考 [**任务详情**](#任务详情)
+For specific labels, please refer to [**task details**](#任务详情)
 
-一些常用的任务子集包括：
+Some common task subsets include:
 
 ```bash
 # play
-./nodes.yml --tags=node-id         # 打印节点身份参数：名称与集群
-./nodes.yml --tags=node-init       # 初始化节点，完成配置
-./nodes.yml --tags=dcs-init        # 在节点上初始化DCS服务：Consul
-./nodes.yml --tags=node-monitor    # 初始化节点监控组件并纳入Pigsty
+./nodes.yml --tags=node-id         # Print node identity parameters: name and cluster
+./nodes.yml --tags=node-init       # Initialize the node and complete the configuration
+./nodes.yml --tags=dcs-init        # Initialize the DCS service on the node: Consul
+./nodes.yml --tags=node-monitor    # Initialize the node monitoring component and incorporate Pigsty
 
 # tasks
-./nodes.yml --tags=node_name       # 配置节点名称
-./nodes.yml --tags=node_dns        # 配置节点静态DNS解析
-./nodes.yml --tags=node_resolv     # 配置节点动态DNS解析服务器
-./nodes.yml --tags=node_repo       # 配置节点的Yum源
-./nodes.yml --tags=node_pkgs       # 安装指定的RPM软件包
-./nodes.yml --tags=node_feature    # 配置 numa/swap/firewall等特性
-./nodes.yml --tags=node_tuned      # 配置节点tuned调优模板
-./nodes.yml --tags=node_profile    # 配置节点的快捷命令与环境变量
-./nodes.yml --tags=node_admin      # 创建节点管理员并配置SSH
-./nodes.yml --tags=node_timezone   # 配置节点时区
-./nodes.yml --tags=node_ntp        # 配置节点NTP服务
+./nodes.yml --tags=node_name       # Configure node name
+./nodes.yml --tags=node_dns        # Configure node static DNS resolution
+./nodes.yml --tags=node_resolv     # Configuring a Node Dynamic DNS Resolution Server
+./nodes.yml --tags=node_repo       # Configure the node's Yum source
+./nodes.yml --tags=node_pkgs       # Install the specified RPM package
+./nodes.yml --tags=node_feature    # Configure numa/swap/firewall
+./nodes.yml --tags=node_tuned      # Configure node tuned tuning templates
+./nodes.yml --tags=node_profile    # Configure the node's  shortcut commands and environment variables
+./nodes.yml --tags=node_admin      # Create node administrator and configure SSH
+./nodes.yml --tags=node_timezone   # Configure node time zone
+./nodes.yml --tags=node_ntp        # Configure the node NTP service
+./nodes.yml --tags=consul          # Configure the consul agent/server on the node
+./nodes.yml --tags=consul -e dcs_exists_action=clean   # Force wipe reconfigure consul on node
 
-./nodes.yml --tags=consul          # 在节点上配置consul agent/server
-./nodes.yml --tags=consul -e dcs_exists_action=clean   # 在节点上强制抹除重新配置consul
-
-./nodes.yml --tags=node_exporter   # 在节点上配置 node_exporter 并注册
-./nodes.yml --tags=node_deregister # 将节点监控从元节点上取消注册
-./nodes.yml --tags=node_register   # 将节点监控注册到元节点上
+./nodes.yml --tags=node_exporter   # Configure node_exporter on the node and register it
+./nodes.yml --tags=node_deregister # Deregister node monitoring from meta node
+./nodes.yml --tags=node_register   # Registering node monitoring to a meta node
 
 ```
 
 
-### 创建管理用户
+### Create admin user
 
-管理用户是一个先有鸡还是先有蛋的问题。为了执行Ansible剧本，需要有一个管理用户。为了创建一个专用的管理用户，需要执行此Ansible剧本。
+Creating admin user is a chicken-and-egg problem.In order to execute Ansible playbooks, you need to have an admin user. In order to create a dedicated admin user, you need to execute this Ansible playbook.
 
-Pigsty推荐将管理用户的创建，权限配置与密钥分发放在虚拟机的Provisioning阶段完成，作为机器资源交付内容的一部分。对于生产环境来说，机器交付时应当已经配置有这样一个具有免密远程SSH登陆并执行免密sudo的用户。通常绝大多数云平台和运维体系都可以做到这一点。
+Pigsty recommends that the creation, permission configuration and key distribution of admin users be completed in the provisioning phase of virtual machines as part of the delivery of machine resources. For production environments, the machine should be delivered with such a user already configured with a password-free remote SSH login and performing password-free sudo. Usually most cloud platforms and ops systems can do this.
 
-如果您只能使用ssh密码和sudo密码，那么必须在所有剧本执行时添加额外的参数 `--ask-pass|-k` 与 `--ask-become-pass|-K`，并在提示出现时输入ssh密码与sudo密码。您可以使用 `nodes.yml` 中创建管理员用户的功能，使用当前用户创建一个专用管理员用户，以下参数用于创建默认的管理员用户：
+If you can only use SSH and sudo password, you must add additional parameters `--ask-pass|-k` and `--ask-become-pass|-K`, when all playbooks are executed, and enter SSH and sudo password when prompted. You can create a dedicated admin user using the current user using the function to create an admin user in `nodes.yml`. The following parameters are used to create the default admin user:
 
 * [`node_admin_setup`](v-nodes.md#node_admin_setup)
 * [`node_admin_uid`](v-nodes.md#node_admin_uid)
@@ -128,20 +127,20 @@ Pigsty推荐将管理用户的创建，权限配置与密钥分发放在虚拟�
 * [`node_admin_pks`](v-nodes.md#node_admin_pks)
 
 ```bash
-./nodes.yml -t node_admin -l <目标机器> --ask-pass --ask-become-pass
+./nodes.yml -t node_admin -l <Target machine> --ask-pass --ask-become-pass
 ```
 
-默认创建的管理员用户为dba (uid=88)，请**不要**使用 postgres 或 dbsu 作为管理用户，请尽量避免直接使用 root 作为管理用户。
+The default admin user is dba (uid=88), please **do not** use postgres or dbsu as the admin user, please try to avoid using root as the admin user directly.
 
-在沙箱环境中的默认用户 vagrant 默认已经配置有免密登陆和免密sudo，您可以从宿主机或沙箱管理节点使用vagrant登陆所有的数据库节点。
+The default user vagrant in the sandbox environment has been configured with password free login and password free sudo. You can use vagrant to log in to all database nodes from the host or sandbox meta node.
 
-例如：
+For example：
 
 ```bash
 ./nodes.yml --limit <target_hosts>  --tags node_admin  -e ansible_user=<another_admin> --ask-pass --ask-become-pass 
 ```
 
-详情请参考：[准备：管理用户置备](d-prepare.md#管理用户置备)
+For details, please refer to: [Preparation：Admin user provisioning](d-prepare.md#管理用户置备)
 
 
 
@@ -153,26 +152,26 @@ Pigsty推荐将管理用户的创建，权限配置与密钥分发放在虚拟�
 
 ## `nodes-remove`
 
-[`nodes-remove.yml`](#nodes-remove) 剧本是 [`nodes`](#nodes)剧本的反向操作，用于将节点从Pigsty中移除。
+The [`nodes-remove.yml`](#nodes-remove) playbook is the reverse of the [`nodes`](#nodes) playbook, used to remove nodes from Pigsty.
 
-该剧本需要在 **管理节点** 上发起，针对目标节点执行。
+The playbook needs to be initiated on the **meta node** and executed against the target node.
 
 ```bash
-./nodes.yml                      # 移除所有节点（危险！）
-./nodes.yml -l nodes-test        # 移除 nodes-test 分组下的机器
-./nodes.yml -l 10.10.10.11       # 移除 10.10.10.11这台机器节点
-./nodes.yml -l 10.10.10.10 -e rm_dcs_servers=true # 如果节点为DCS Server，需要额外参数移除。
+./nodes.yml                      # Remove all nodes (dangerous!)
+./nodes.yml -l nodes-test        # Remove machines from the nodes-test group
+./nodes.yml -l 10.10.10.11       # Remove the machine node 10.10.10.11
+./nodes.yml -l 10.10.10.10 -e rm_dcs_servers=true # If the node is a DCS Server, additional parameters need to be removed.
 ```
 
 ![](_media/playbook/nodes-remove.svg)
 
-### 任务子集
+### Task subset
 
 ```bash
 # play
-./nodes-remove.yml --tags=register      # 移除节点注册信息
-./nodes-remove.yml --tags=node-exporter # 移除节点指标收集器
-./nodes-remove.yml --tags=promtail      # 移除Promtail日志收集组件
-./nodes-remove.yml --tags=consul        # 移除Consul Agent服务
-./nodes-remove.yml --tags=consul -e rm_dcs_servers=true # 移除Consul服务（包括Server！）
+./nodes-remove.yml --tags=register      # Remove node registration information
+./nodes-remove.yml --tags=node-exporter # Remove node indicator collector
+./nodes-remove.yml --tags=promtail      # Remove the Protail log collection component
+./nodes-remove.yml --tags=consul        # Remove Consul Agent service
+./nodes-remove.yml --tags=consul -e rm_dcs_servers=true # Remove Consul services (including Server!)
 ```

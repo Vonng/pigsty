@@ -1,27 +1,25 @@
-# 配置Pigsty
+# Configure Pigsty
 
-> Pigsty采用声明式[配置](v-config.md)：用户配置描述状态，而Pigsty负责将真实组件调整至所期待的状态。
+> Pigsty uses declarative [configuration](v-config.md)：the user configures the description state and Pigsty adjusts the real component to the expected state.
 
-Pigsty通过**配置清单**（Inventory）来定义基础设施与数据库集群，每一套Pigsty[部署](d-deploy.md)都有一份对应的**配置**：无论是几百集群的生产环境，还是1核1GB的本地沙箱，在Pigsty中除了配置内容外没有任何区别。Pigsty的配置采用"Infra as Data"的哲学：用户通过声明式的配置描述自己的需求，而Pigsty负责将真实组件调整至所期待的状态。
+Pigsty defines the infrastructure and database clusters through **configuration inventories** (Inventory), and each set of Pigsty [deployments](d-deploy.md)  has a corresponding **configuration**：Whether it is a production environment with a few hundred clusters or a local sandbox with 1 core and 1 GB, there is no difference in Pigsty except for the configuration content. Pigsty's configuration uses the "Infra as Data" philosophy: users describe their requirements through declarative configuration, and Pigsty adapts the real components to the desired state.
 
-在形式上，配置清单的具体实现可以是默认的本地[配置文件](#配置文件)，也可以是来自[CMDB](t-cmdb.md)中的动态配置数据，本文介绍时均以默认YAML配置文件[`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 为例。在 [配置过程](#配置过程) 中，Pigsty会 检测当前节点环境，并自动生成推荐的配置文件。
+In form, the concrete implementation of the configuration list can be either the default local [configuration file](#配置文件)，or dynamic configuration data from [CMDB](t-cmdb.md)，both presented in this article with the default YAML configuration file [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) as an example. In the [configuration process](#配置过程), Pigsty detects the current node environment and automatically generates the recommended configuration file.
 
-**配置清单**的内容主要是[配置项](#配置项)，Pigsty提供了220个配置参数，可以在多个[层次](#配置项的层次)进行配置，大多数参数可以直接使用默认值。配置项按照[类目](#配置类目)可以分为四大类：[INFRA/基础设施](v-infra.md)， [NODES/主机节点](v-nodes.md)， [PGSQL/PG数据库](v-pgsql.md)， [REDIS/Redis数据库](v-redis.md)，并可进一步细分为32个小类。
-
-
+**Configuration list** is mainly composed of [configuration items](#configuration items). Pigsty provides 220 configuration parameters that can be configured at multiple [levels](#levels of configuration items), and most of the parameters can be used directly with default values. Configuration items can be divided into four major categories according to [class](# configuration class):  [INFRA/infrastructure](v-infra.md)， [NODES/host nodes](v-nodes.md)， [PGSQL/PG database](v-pgsql.md)， [REDIS/Redis database](v-redis.md)，and can be further subdivided into 32 subcategories.
 
 
 --------------
 
-## 配置过程
+## Configuration process
 
-进入 Pigsty 项目目录执行 `configure`，Pigsty会检测根据当前机器环境生成推荐**配置文件**，这一过程称作 **配置** / **Configure**。
+Go to the Pigsty project directory and execute `configure`. Pigsty will generate a configuration file based on the current machine environment, a process called **Configure**.
 
 ```bash
 ./configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode {auto|demo}]
 ```
 
-`configure`会检查下列事项，小问题会自动尝试修复，否则提示报错退出。
+`configure` will check the following things, minor problems will be automatically attempted to be fixed, otherwise an error will be reported to exit.
 
 ```bash
 check_kernel     # kernel        = Linux
@@ -39,27 +37,28 @@ check_repo_file  # create local file repo file if repo exists
 check_utils      # check ansible sshpass and other utils installed
 ```
 
-直接运行 `./configure` 将启动交互式命令行向导，提示用户回答以下三个问题：
+Running directly `. /configure` will launch an interactive command line wizard that prompts the user to answer the following three questions:
 
-**IP地址**
+**IP address**
 
-当检测到当前机器上有多块网卡与多个IP地址时，配置向导会提示您输入**主要**使用的IP地址， 即您用于从内部网络访问该节点时使用的IP地址。注意请不要使用公网IP地址。
+When multiple NICs with multiple IP addresses are detected on the current machine, the configuration wizard prompts you to enter the **primary** IP address used, which is the IP address you use to access the node from the internal network. Note that you should not use the public IP address.
 
-**下载软件包**
+**Download Package**
 
-当节点的`/tmp/pkg.tgz`路径下未找到离线软件包时，配置向导会询问是否从Github下载。 选择`Y`即会开始下载，选择`N`则会跳过。如果您的节点有良好的互联网访问与合适的代理配置，或者需要自行制作离线软件包，可以选择`N`。
+When no offline package is found under the `/tmp/pkg.tgz` path of the node, the configuration wizard will ask whether to download it from Github. Selecting `Y` will start the download, selecting `N` will skip it. If your node has good Internet access with a suitable proxy configuration, or if you need to make your own offline packages, you can choose `N`.
 
-**配置模板**
+**Configuration Template**
 
-使用什么样的配置文件模板。 配置向导会根据当前机器环境**自动选择配置模板**，因此不会询问用户这个问题，用户通常也无需关心。 但用户总是可以通过命令行参数`-m <mode>`手工指定想要使用的配置模板，例如：
+The configuration wizard **automatically selects a configuration template** based on the current machine environment, so you are not asked this question. However, you can specify the use of a configuration template manually with `-m <mode>`, e.g：
 
-- [`demo`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo.yml) 项目默认配置文件，4节点沙箱使用的配置文件，启用全部功能。
-- [`auto`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-auto.yml) 在生产环境中部署时推荐的配置文件模板，配置更加稳定保守。
-- 此外Pigsty预置了几种配置模板，可以直接通过`-m`参数指定并使用，详见[`files/conf`](https://github.com/Vonng/pigsty/tree/master/files/conf)目录
+- [`demo`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo.yml) The project's default configuration file, the one used by the 4-node sandbox, enables all features.
+- [`auto`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-auto.yml) Suitable for deployment in production environments with more stable and conservative configurations.
+- In addition, Pigsty has several preconfigured configuration templates that can be specified and used directly with the `-m` parameter, see the [`files/conf`](https://github.com/Vonng/pigsty/tree/master/files/conf) directory for details.
 
-在[`configure`](#配置过程)过程中，配置向导会根据当前机器环境**自动选择配置模板**，但用户可以通过`-m <mode>`手工指定使用配置模板。配置模板最重要的部分是将模板中占位IP地址`10.10.10.10`替换为当前机器的真实IP地址（内网主IP），并根据当前机器的配置选择合适的数据库规格模板。您可以直接使用默认生成的配置文件，或基于自动生成的配置文件进行进一步的定制与修改。
+During [`configure`](#配置过程), The configuration wizard **automatically selects a configuration template** based on the current machine environment, but you can specify the use of a configuration template manually with `-m <mode>`. The most important part of the configuration template is to replace the placeholder IP address `10.10.10.10` in the template with the real IP address (intranet primary IP) of the current machine and select the appropriate database specification template according to the current machine configuration.  You can use the default generated configuration file directly or make further customization and modification based on the automatically generated configuration file.
 
-<details><summary>配置过程的标准输出</summary>
+<details><summary>Standard output of the configuration process</summary>
+
 
 ```bash
 $ ./configure
@@ -81,142 +80,139 @@ configure pigsty v1.4.0 begin
 configure pigsty done. Use 'make install' to proceed
 ```
 
-</details>
 
 
 
 
 
 
+## Configuration file
 
-## 配置文件
+A specific sample configuration file is available in the root of the Pigsty project: [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml).
 
-Pigsty项目根目录下有一个具体的配置文件样例：[`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml)
-
-配置文件顶层是一个`key`为`all`的单个对象，包含两个子项目：`vars`与`children`。
+The top level of the configuration file is a single object with `key` as `all` and contains two child items: `vars` and `children`.
 
 ```yaml
-all:                      # 顶层对象 all
-  vars: <123 keys>        # 全局配置 all.vars
+all:                      # Top-level object: all
+  vars: <123 keys>        # Global Configuration: all.vars
 
-  children:               # 分组定义：all.children 每一个项目定义了一个数据库集群 
-    meta: <2 keys>...     # 特殊分组 meta ，定义了环境管理节点
+  children:               # Grouping Definition: all.children Each project defines a database cluster 
+    meta: <2 keys>...     # Special grouping: meta  Defined environment meta nodes
     
-    pg-meta: <2 keys>...  # 数据库集群 pg-meta 的详细定义
-    pg-test: <2 keys>...  # 数据库集群 pg-test 的详细定义
+    pg-meta: <2 keys>...  # Detailed definition of database cluster pg-meta
+    pg-test: <2 keys>...  # Detailed definition of database cluster pg-test
     ...
 ```
 
-`vars`的内容为KV键值对，定义了全局配置参数，K为配置项名称，V为配置项内容。
+The content of `vars` is a key-value pair that defines the global configuration parameters, K is the name of the configuration item and V is the content of the configuration item.
 
-`children` 的内容也是KV结构，K为集群名称，V为具体的集群定义，一个样例集群的定义如下所示：
+The content of `children` is also a KV structure, K is the cluster name and V is the specific cluster definition, a sample cluster definition is shown below:
 
-* 集群定义同样包括两个子项目：`vars`定义了**集群层面**的配置。`hosts`定义了集群的实例成员。
-* 集群配置中的参数会覆盖全局配置中的对应参数，而集群的配置参数又会被实例级别的同名配置参数所覆盖。集群配置参数中，唯`pg_cluster`为必选项，这是集群的名称，须与上层集群名保持一致。
-* `hosts`中采用KV的方式定义集群实例成员，K为IP地址（须ssh可达），V为具体的实例配置参数
-* 实例配置参数中有两个必须参数：`pg_seq`，与 `pg_role`，分别为实例的唯一序号和实例的角色。
+* The cluster definition also includes two subprojects: `vars` defines the configuration at the **cluster level**. `hosts` defines the cluster's instance members.
+* The parameters in the cluster configuration will override the corresponding parameters in the global configuration, and the cluster configuration parameters will be overridden by the configuration parameters of the same name at the instance level. The only mandatory parameter is `pg_cluster`, which is the name of the cluster and must be consistent with the higher-level cluster name.
+* The `hosts` uses KV to define the cluster instance members, K is the IP address (must be ssh reachable), V is the specific instance configuration parameters.
+* There are two mandatory parameters in the instance configuration: `pg_seq`, and `pg_role`, which are the unique serial number of the instance and the role of the instance, respectively.
 
 ```yaml
-pg-test:                 # 数据库集群名称默认作为群组名称
-  vars:                  # 数据库集群级别变量
-    pg_cluster: pg-test  # 一个定义在集群级别的必选配置项，在整个pg-test中保持一致。 
-  hosts:                 # 数据库集群成员
-    10.10.10.11: {pg_seq: 1, pg_role: primary} # 数据库实例成员
-    10.10.10.12: {pg_seq: 2, pg_role: replica} # 必须定义身份参数 pg_role 与 pg_seq
-    10.10.10.13: {pg_seq: 3, pg_role: offline} # 可以在此指定实例级别的变量
+pg-test:                 # The database cluster name is used as the cluster name by default
+  vars:                  # Database cluster level variables
+    pg_cluster: pg-test  # A mandatory configuration item defined at the cluster level, consistent throughout pg-test. 
+  hosts:                 # Database Cluster Members
+    10.10.10.11: {pg_seq: 1, pg_role: primary} # Database Instance Members
+    10.10.10.12: {pg_seq: 2, pg_role: replica} # The identity parameters pg_role and pg_seq must be defined
+    10.10.10.13: {pg_seq: 3, pg_role: offline} # Variables at the instance level can be specified here
 ```
 
-Pigsty配置文件遵循[**Ansible规则**](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_variables.html)，采用YAML格式，默认使用单一配置文件。Pigsty的默认配置文件路径为Pigsty源代码根目录下的 [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) 。默认配置文件是在同目录下的[`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg)通过`inventory = pigsty.yml`指定的。您可以在执行任何剧本时，通过`-i <config_path>`参数指定其他的配置文件。
+Pigsty configuration files follow [**Ansible rules**](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_variables.html) in YAML format and use a single configuration file by default. The default configuration file path for Pigsty is [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) in the root directory of Pigsty's source code. The default configuration file is specified via `inventory = pigsty.yml` in  [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg) in the same directory. You can specify additional configuration files with the `-i <config_path>` parameter when executing any playbook.
 
-配置文件需要与[**Ansible**](https://docs.ansible.com/) 配合使用。Ansible是一个流行的DevOps工具，但普通用户无需了解Ansible的具体细节。如果您精通Ansible，则可以根据Ansible的清单组织规则自行调整配置文件的组织与结构：例如，使用分立式的配置文件，为每个集群设置单独的群组定义与变量定义文件。
+The configuration file needs to be used in conjunction with  [**Ansible**](https://docs.ansible.com/). Ansible is a popular DevOps tool, but the average user does not need to know the specifics of Ansible.  If you are proficient in Ansible, you can adapt the configuration file yourself according to Ansible's inventory organization rules: for example, use a discrete configuration file with separate cluster definition and variable definition files for each cluster.
 
-您并不需要精通Ansible，用几分钟时间浏览[Ansible快速上手](p-playbook.md#Ansible快速上手)，便足以开始使用Ansible执行剧本。
-
-
+You don't need to be proficient in Ansible, just spend a few minutes browsing [Ansible Quick Start](p-playbook.md#Ansible快速上手) , you can use Ansible to execute playbooks.
 
 
 
-## 配置项
+## Configuration items
 
-配置项的形式为键值对：键是配置项的**名称**，值是配置项的内容。值的形式各异，可能是简单的单个字符串，也可能是复杂的对象数组。
+Configuration items take the form of key-value pairs: the key is the **name** of the configuration item and the value is the content of the configuration item. The form of the value varies, and may be a simple single string or a complex array of objects.
 
-Pigsty的参数可以在不同的**层次**进行配置，并依据规则继承与覆盖，高优先级的配置项会覆盖低优先级的同名配置项。因此用户可以有的放矢，可以在不同层次，不同粒度上针对具体集群与具体实例进行**精细**配置。
+Pigsty's parameters can be configured at different **levels** and inherited and overridden based on rules, with higher priority configuration items overriding lower priority configuration items of the same name. So you can configure at different levels and at different granularity for specific clusters and specific instances **fine** configuration.
 
-### 配置项的层次
+### Hierarchy of configuration items
 
-在Pigsty的[配置文件](#配置文件)中，**配置项** 可以出现在三种位置，**全局**，**集群**，**实例**。**集群**`vars`中定义的配置项会以同名键覆盖的方式**覆盖全局配置项**，**实例**中定义的配置项又会覆盖集群配置项与全局配置项。
+In Pigsty's [configuration file](#配置文件), **configuration items** can appear in three locations: **global**, **cluster**, and **instance**. Configuration items defined in **cluster** `vars` **override global configuration items** with same-name key override, and configuration items defined in **instance** in turn override cluster configuration items with global configuration items.
 
-|     粒度     | 范围 | 优先级 | 说明                       | 位置                                 |
-| :----------: | ---- | ------ | -------------------------- | ------------------------------------ |
-|  **G**lobal  | 全局 | 低     | 在同一套**部署环境**内一致 | `all.vars.xxx`                       |
-| **C**luster  | 集群 | 中     | 在同一套**集群**内保持一致 | `all.children.<cls>.vars.xxx`        |
-| **I**nstance | 实例 | 高     | 最细粒度的配置层次         | `all.children.<cls>.hosts.<ins>.xxx` |
+| Granularity  | Scope          | Priority | Description                                                  | Location                             |
+| :----------: | -------------- | -------- | ------------------------------------------------------------ | ------------------------------------ |
+|  **G**lobal  | Global Scope   | Low      | Consistent within the same set of **deployment environments** | `all.vars.xxx`                       |
+| **C**luster  | Cluster Scope  | Medium   | Consistency within the same set of **clusters**              | `all.children.<cls>.vars.xxx`        |
+| **I**nstance | Instance Scope | High     | The most granular level of configuration                     | `all.children.<cls>.hosts.<ins>.xxx` |
 
-并非所有配置项都**适合**在所有层次使用。例如，基础设施的参数通常只会在**全局**配置中定义，数据库实例的标号，角色，负载均衡权重等参数只能在**实例**层次配置，而一些操作选项则只能使用命令行参数提供（例如要创建的数据库名称），关于配置项的详情与适用范围，请参考[配置项清单](v-config.md#配置项清单)。
+Not all configuration items are **suitable** for use at all levels. For example, infrastructure parameters will usually only be defined in the **global** configuration, parameters such as database instance labels, roles, load balancing weights, etc. can only be configured at the **instance** level, and some operational options can only be provided using command line parameters (e.g., the name of the database to be created). For details and applicability of configuration items, please see [list of configuration items](v-config.md).
 
-### 兜底与覆盖
+### Underwrite and Coverage
 
-除了配置文件中的三种配置粒度，Pigsty配置项目中还有两种额外的优先级层次：默认值兜底与命令行参数强制覆盖：
+In addition to the three configuration granularities in the configuration file, there are two additional levels of priority in the Pigsty configuration project: default value pocketing and command line parameter forced override:
 
-* **默认**：当一个配置项在全局/集群/实例级别都没有出现时，将使用默认配置项。默认值的优先级最低，所有配置项都有默认值。默认参数定义于`roles/<role>/default/main.yml`中。
-* **参数**：当用户通过命令行传入参数时，参数指定的配置项具有最高优先级，将覆盖一切层次的配置。一些配置项只能通过命令行参数的方式指定与使用。
+* **Default**：When a configuration item does not appear at either the global/cluster/instance level, the default configuration item is used. The default value has the lowest priority, and all configuration items have default values. The default parameters are defined in `roles/<role>/default/main.yml`.
+* **Parameter**：Configuration items specified by means of command line incoming parameters have the highest priority and will override all levels of configuration. Some configuration items can only be specified by means of command line parameters.
 
-|     层级     | 来源 | 优先级 | 说明                       | 位置                                 |
-| :----------: | ---- | ------ | -------------------------- | ------------------------------------ |
-| **D**efault  | 默认 | 最低   | 代码逻辑定义的默认值       | `roles/<role>/default/main.yml`      |
-|  **G**lobal  | 全局 | 低     | 在同一套**部署环境**内一致 | `all.vars.xxx`                       |
-| **C**luster  | 集群 | 中     | 在同一套**集群**内保持一致 | `all.children.<cls>.vars.xxx`        |
-| **I**nstance | 实例 | 高     | 最细粒度的配置层次         | `all.children.<cls>.hosts.<ins>.xxx` |
-| **A**rgument | 参数 | 最高   | 通过命令行参数传入         | `-e `                                |
+|    Levels    | Priority | Source    | Description                                                  | Location                             |
+| :----------: | -------- | --------- | ------------------------------------------------------------ | ------------------------------------ |
+| **D**efault  | Lowest   | Default   | Default values for code logic definitions                    | `roles/<role>/default/main.yml`      |
+|  **G**lobal  | Low      | Global    | Consistent within the same set of **deployment environments** | `all.vars.xxx`                       |
+| **C**luster  | Medium   | Cluster   | Consistency within the same set of **clusters**              | `all.children.<cls>.vars.xxx`        |
+| **I**nstance | High     | Instance  | The most granular level of configuration                     | `all.children.<cls>.hosts.<ins>.xxx` |
+| **A**rgument | Highest  | Parameter | Pass in command line arguments                               | `-e `                                |
 
 --------------
 
 
-## 配置类目
+## Configuration category
 
-Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：[INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md)，共计32类。
+Pigsty contains 220 fixed [configuration items](#配置项清单) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
 
-通常只有节点/数据库**身份参数**是必选参数，其他配置参数可直接使用默认值，按需修改。
+Usually only the node/database **identity parameter** is mandatory, other configuration parameters can be modified on demand by directly using the default values.
 
-| Category              | Section                                         | Description      | Count |
-|-----------------------|-------------------------------------------------|------------------|-------|
-| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                 | 连接参数             | 1     |
-| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                       | 本地源基础设施          | 10    |
-| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                           | 公私钥基础设施          | 5     |
-| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                     | NginxWeb服务器      | 5     |
-| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)           | DNS服务器           | 1     |
-| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | 监控时序数据库          | 7     |
-| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)               | 通用Exporter配置     | 3     |
-| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana可视化平台     | 9     |
-| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki日志收集平台       | 5     |
-| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | 分布式配置存储元数据库      | 8     |
-| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab数据分析环境 | 3     |
-| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb网页客户端工具     | 2     |
-| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | 节点身份参数           | 5     |
-| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | 节点域名解析           | 5     |
-| [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | 节点软件源            | 3     |
-| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | 节点软件包            | 4     |
-| [`NODES`](v-nodes.md) | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | 节点功能特性           | 6     |
-| [`NODES`](v-nodes.md) | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | 节点内核模块           | 1     |
-| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | 节点参数调优           | 2     |
-| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | 节点管理员            | 6     |
-| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | 节点时区与时间同步        | 4     |
-| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | 节点指标暴露器          | 3     |
-| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | 日志收集组件           | 5     |
-| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | PGSQL数据库身份参数     | 13    |
-| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | PGSQL业务对象定义      | 11    |
-| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | PGSQL安装          | 11    |
-| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | PGSQL集群初始化       | 24    |
-| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | PGSQL集群模板置备      | 9     |
-| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | PGSQL指标暴露器       | 13    |
-| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | PGSQL服务接入        | 16    |
-| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | REDIS身份参数        | 3     |
-| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | REDIS集群置备        | 14    |
-| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | REDIS指标暴露器       | 3     |
+| Category              | Section                                         | Description                                    | Count |
+| --------------------- | ----------------------------------------------- | ---------------------------------------------- | ----- |
+| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                 | Connection parameters                          | 1     |
+| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                       | Local source infrastructure                    | 10    |
+| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                           | Public-Private Key Infrastructure              | 5     |
+| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                     | Nginx Web Server                               | 5     |
+| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)           | DNS Server                                     | 1     |
+| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | Monitoring Timing Database                     | 7     |
+| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)               | Universal Exporter Configuration               | 3     |
+| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana Visualization Platform                 | 9     |
+| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki log collection platform                   | 5     |
+| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | Distributed Configuration Storage Metadatabase | 8     |
+| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab Data Analysis Environment           | 3     |
+| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb Web Client Tool                          | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | Node identity parameters                       | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | Node Domain Name Resolution                    | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | Node Software Source                           | 3     |
+| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | Node Packages                                  | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | Node Functionality Features                    | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | Node Kernel Module                             | 1     |
+| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | Node parameter tuning                          | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | Node Administrator                             | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | Node time zone and time synchronization        | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | Node Indicator Exposer                         | 3     |
+| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | Log collection component                       | 5     |
+| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | PGSQL Database Identity Parameters             | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | PGSQL Business Object Definition               | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | PGSQL Installation                             | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | PGSQL Cluster Initialization                   | 24    |
+| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | PGSQL Cluster Template Provisioning            | 9     |
+| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | PGSQL Indicator Exposer                        | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | PGSQL Service Access                           | 16    |
+| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | REDIS Identity Parameters                      | 3     |
+| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | REDIS Cluster Provisioning                     | 14    |
+| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | REDIS Indicator Exposer                        | 3     |
 
 
 
-<details><summary>配置项清单</summary>
+<details><summary>List of configuration items</summary>
+
 
 | ID   | Name                                                         | Section                                         | Level | Description                          |
 | ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------ |
@@ -440,9 +436,6 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 741  | [`redis_exporter_enabled`](v-redis.md#redis_exporter_enabled) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | 是否启用Redis监控                    |
 | 742  | [`redis_exporter_port`](v-redis.md#redis_exporter_port)      | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter监听端口               |
 | 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter命令参数               |
-
-</details>
-
 
 
 

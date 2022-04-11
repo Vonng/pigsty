@@ -52,7 +52,7 @@
   * 在节点上安装 Node Exporter
   * 将 Node Exporter 注册至管理节点上的 Prometheus 中。
 
-!> **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
+ **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
 
 节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
 [dcs_exists_action](v-nodes.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。

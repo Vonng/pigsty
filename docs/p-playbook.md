@@ -1,52 +1,52 @@
 # Pigsty Playbooks
 
-> 了解Pigsty提供的预置剧本，功能、使用方式与注意事项。
+> Learn about the pre-set playbooks provided by Pigsty，the features, how to use them and the considerations.
 
-Pigsty在底层通过 [Ansible Playbook](#Ansible快速上手) 实现核心管控功能，Pigsty提供的预置剧本分为四大类：
+Pigsty implements core control functions at the bottom through the [Ansible Playbook](#Ansible快速上手) , and Pigsty provides pre-set playbooks in four main categories:
 
-* [`infra`](p-infra.md) : 使用 `infra` 系列剧本在管理节点上单机安装Pigsty，并加装可选功能。
-* [`nodes`](p-nodes.md) : 使用 `nodes` 系列剧本将更多节点纳入Pigsty监控管理，并供后续使用。
-* [`pgsql`](p-pgsql.md) : 使用 `pgsql` 系列剧本在已有节点上部署与管理PostgreSQL数据库集群。
-* [`redis`](p-redis.md) : 使用 `redis` 系列剧本在已有节点上部署与管理各种模式的Redis集群。 
+* [`infra`](p-infra.md) : Use the `infra` series of playbooks to install Pigsty standalone on the meta node with optional features.
+* [`nodes`](p-nodes.md) : Use the `nodes` series of playbooks to include more nodes in Pigsty monitoring and management and for subsequent use.
+* [`pgsql`](p-pgsql.md) : Use the `pgsql` series of playbooks to deploy and manage PostgreSQL database clusters on existing nodes.
+* [`redis`](p-redis.md) : Use the `redis` series of playbooks to deploy and manage various modes of Redis clusters on existing nodes.
 
-## 剧本概览
+## Playbook Overview
 
-| 剧本 | 功能                                                           | 链接                                                         |
+| Playbook | Function                                                   | Link                                                     |
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |
-|  [**infra**](p-infra.md#infra)                        |        **在管理节点上完整安装Pigsty**                                 |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
-|  [`infra-demo`](p-infra.md#infra-demo)              |        一次性完整初始化四节点演示沙箱环境的特殊剧本                           |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
-|  [`infra-jupyter`](p-infra.md#infra-jupyter)        |        在管理节点上加装**可选**数据分析服务组件组件Jupyter Lab              |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
-|  [`infra-pgweb`](p-infra.md#infra-pgweb)            |        在管理节点上加装**可选**的Web客户端工具PGWeb                     |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
-|  [**nodes**](p-nodes.md#nodes)                        |        **节点置备，将节点纳入Pigsty管理，可用于后续数据库部署**                    |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
-|  [`nodes-remove`](p-nodes.md#nodes-remove)          |        节点移除，卸载节点DCS与监控，不再纳入Pigsty管理                     |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
-|  [**pgsql**](p-pgsql.md#pgsql)                        |        **部署PostgreSQL集群，或集群扩容**                             |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
-|  [`pgsql-remove`](p-pgsql.md#pgsql-remove)          |        下线PostgreSQL集群，或集群缩容                             |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
-|  [`pgsql-createuser`](p-pgsql.md#pgsql-createuser)  |        创建PostgreSQL业务用户                                 |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
-|  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      |        创建PostgreSQL业务数据库                                |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
-|  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            |        仅监控模式，接入现存PostgreSQL实例或RDS                       |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
-|  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    |        生成PostgreSQL半自动数据库迁移方案（Beta）                     |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-|  [`pgsql-audit`](p-pgsql.md#pgsql-audit)            |        生成PostgreSQL审计合规报告（Beta）                         |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-audit.yml)      |
-|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          |        复用PG角色部署一套MatrixDB数据仓库集群（Beta）                   |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
-|  [**redis**](p-redis.md#redis)                        |        **部署集群/主从/Sentinel模式的Redis数据库**              |        [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
-|  [`redis-remove`](p-redis.md#redis-remove)          |        Redis集群/节点下线                                     |        [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
+|  [**infra**](p-infra.md#infra)                        | **Full installation of Pigsty on the meta node** |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
+|  [`infra-demo`](p-infra.md#infra-demo)              | Special script for complete initialization of a four-node demo sandbox environment in one go |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
+|  [`infra-jupyter`](p-infra.md#infra-jupyter)        | Adding the **Optional** data analysis service component Jupyter Lab to the meta node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
+|  [`infra-pgweb`](p-infra.md#infra-pgweb)            | Add the **optional** web client tool PGWeb to the meta node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
+|  [**nodes**](p-nodes.md#nodes)                        | **Node provisioning to include nodes in Pigsty for subsequent database deployment** |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
+|  [`nodes-remove`](p-nodes.md#nodes-remove)          | Node removal, offloading node DCS and monitoring, no longer included in Pigsty |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
+|  [**pgsql**](p-pgsql.md#pgsql)                        | **Deploy a PostgreSQL cluster, or cluster expansion** |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
+|  [`pgsql-remove`](p-pgsql.md#pgsql-remove)          | Offline PostgreSQL cluster, or cluster shrinkage |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
+|  [`pgsql-createuser`](p-pgsql.md#pgsql-createuser)  |      Creating PostgreSQL business users |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
+|  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      | Creating a PostgreSQL Business Database |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
+|  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            | Monitor-only mode, with access to existing PostgreSQL instances or RDS |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
+|  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    | Generate PostgreSQL semi-automatic database migration solution (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
+|  [`pgsql-audit`](p-pgsql.md#pgsql-audit)            | Generate PostgreSQL Audit Compliance Report (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-audit.yml)      |
+|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG role to deploy a MatrixDB data warehouse clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
+|  [**redis**](p-redis.md#redis)                        | **Deploy a Redis database in cluster/master-slave/Sentinel mode** |        [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
+|  [`redis-remove`](p-redis.md#redis-remove)          |        Redis cluster/node offline           |        [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
 
-典型使用流程如下：
+The typical use process is as follows：
 
-1. 使用 [`infra`](p-infra.md) 系列剧本在管理节点/本机安装 Pigsty ，部署基础设施。
+1. Use the `infra` series of playbooks to install Pigsty on the meta node/local machine and deploy the infrastructure.
    
-   所有剧本都在管理节点上发起执行，`infra` 系列剧本只作用于管理节点本身。
+   All playbooks initiate execution on the meta node, and the `infra` series of playbooks only works on the meta node itself.
 
-2. 使用 [`nodes`](p-nodes.md) 系列剧本将其他节点纳入或移除Pigsty管理
+2. Use the  [`nodes`](p-nodes.md) series of playbooks to include or remove other nodes from Pigsty.
 
-   节点被托管后，可从管理节点Grafana访问节点监控与日志，节点加入Consul集群。
+   After a node is hosted, node monitoring and logging can be accessed from the meta node Grafana and the node joins the Consul cluster.
 
-3. 使用 [`pgsql`](p-pgsql.md) 系列剧本在纳入管理的节点上部署PostgreSQL集群
+3. Use the [`pgsql`](p-pgsql.md) series of playbooks to deploy a PostgreSQL cluster on managed nodes.
 
-   在托管节点上执行部署后，可以从管理节点访问PostgreSQL监控与日志。
+   After deployment on the managed node, you can access PostgreSQL monitoring and logs from the meta node.
 
-4. 使用 [`redis`](p-redis.md) 系列剧本在纳入管理的节点上部署Redis集群
+4. Use the [`redis`](p-redis.md) series of playbooks to deploy a Redis cluster on managed nodes.
 
-   在托管节点上执行部署后，可以从管理节点访问Redis监控与日志。
+   After deployment on the managed node, Redis monitoring and logs can be accessed from the meta node.
 
 ```
                                            meta     node
@@ -58,79 +58,78 @@ Pigsty在底层通过 [Ansible Playbook](#Ansible快速上手) 实现核心管�
 
 
 
-绝大多数剧本都是幂等设计，这意味着一些部署剧本在没有开启保护选项的情况下，可能会抹除现有数据库并创建新数据库。
-当您处理现有数据库集群，或在生产环境进行操作时，请充分阅读并理解文档，再三校对命令，谨慎操作。对于误操作导致的数据库损失，作者不负任何责任。
+Most playbooks are idempotent, which means that some deployment playbooks may erase existing databases and create new ones without the protection option turned on.
+When you are dealing with an existing database cluster or operating in a production environment, please fully read and understand the documents, proofread the commands again and again. The author is not responsible for the loss of the database caused by misuse.
 
 ------------------
 
 
 
-## Ansible快速上手
+## Ansible Quick Start
 
-Pigsty剧本使用Ansible编写，您并不需要完全理解Ansible的原理，只需要很少的知识即足以充分利用 Ansible 剧本。
+Pigsty playbooks are written in Ansible and you don't need to fully understand Ansible's principles, only a little knowledge is enough to take full advantage of Ansible playbooks.
 
-* [Ansible安装](#Ansible安装)：如何安装Ansible？（Pigsty用户通常无需操心）
-* [主机子集](#主机子集)：如何针对特定主机执行剧本？
-* [任务子集](#任务子集)：如何执行剧本中的某些特定任务？
-* [额外参数](#额外参数)：如何传入额外的命令行参数以控制剧本行为？
+* [Ansible Installation](#Ansible安装)：How to install Ansible?（Pigsty users usually don't have to worry about）
+* [Host Subset](#主机子集)：How to execute a playbook for a specific host?
+* [Task Subset](#任务子集)：How to perform certain specific tasks in the playbook？
+* [Additional parameters](#额外参数)：How to pass in additional command line arguments to control playbook behavior？
 
-### Ansible安装
+### Ansible Installation
 
-Ansible剧本需要使用`ansible-playbook`可执行命令，在EL7兼容系统中可通过以下命令安装 Ansible。
+The Ansible playbook requires the `ansible-playbook` executable command, and Ansible can be installed on EL7-compatible systems with the following command.
 
 ```bash
 yum install ansible
 ```
 
-当使用离线软件包时，Pigsty会在Configure阶段尝试从离线软件包中安装ansible。
+When using offline packages, Pigsty will attempt to install ansible from the offline package during the Configure phase.
 
-执行Ansible剧本时，直接将剧本作为可执行程序执行即可。执行剧本时有三个核心的参数需要关注：`-l|-t|-e`，分别用于限制执行的主机，与执行的任务，以及传入额外的参数。
+When executing Ansible playbooks, just execute the playbook directly as an executable.There are three core parameters to focus on when executing the playbook：`-l|-t|-e`，are used to restrict the host for execution, with the task to be performed, and to pass in additional parameters, respectively.
 
-### 主机子集
+### Host Subset
 
-可以通过 `-l|--limit <selector>` 参数选择执行的目标，不指定此参数时，大多数剧本默认会以配置文件中定义的所有主机作为执行对象，这是非常危险的。
-强烈建议在执行剧本时，指定执行的对象。
+The target of execution can be selected with the `-l|-limit <selector>` parameter. When this parameter is not specified, most playbooks default to all hosts defined in the configuration file as the target of execution, which is very dangerous.
+It is strongly recommended to specify the object of execution when executing the playbook.
 
-常用的对象有两种，集群与主机，例如：
+There are two types of objects commonly used, clusters and hosts, e.g.
 
 ```bash
-./pgsql.yml                 # 在配置清单的所有主机上执行pgsql剧本（危险！）
-./pgsql.yml -l pg-test      # 针对 pg-test 集群中的主机执行pgsql剧本
-./pgsql.yml -l 10.10.10.10  # 针对 10.10.10.10 的主机执行pgsql剧本
-./pgsql.yml -l pg-*         # 针对符合 pg-* 模式 (glob) 的集群执行剧本
+./pgsql.yml                 # Execute the pgsql playbook on all hosts of the configuration list (this is dangerous!)
+./pgsql.yml -l pg-test      # Execute the pgsql playbook against the hosts in the pg-test cluster
+./pgsql.yml -l 10.10.10.10  # Execute the pgsql playbook against the host at 10.10.10.10
+./pgsql.yml -l pg-*         # Execute the playbook against a cluster that matches the pg-* pattern (glob)
 ```
 
 
-### 任务子集
+### Task Subset
 
-可以通过`-t|--tags <tags>`来选择执行的任务子集，不指定此参数时，会执行完整的剧本，指定此参数时，则将执行所选的任务子集，这是非常实用的。
-
-```bash
-./pgsql.yml -t pg_hba                            # 重新生成并应用集群HBA规则
-```
-
-用户可以通过`,`分隔，一次执行多个任务，例如当集群角色成员发生变化时，可以使用以下命令调整集群负载均衡配置。
+You can select the subset of tasks to be executed with `-t|--tags <tags>`. When this parameter is not specified, the full playbook will be executed, and when specified, the selected subset of tasks will be executed.
 
 ```bash
-./pgsql.yml -t haproxy_config,haproxy_reload     # 重新生成集群负载均衡器配置并应用
+./pgsql.yml -t pg_hba                            # Regenerate and apply cluster HBA rules
 ```
 
-
-
-### 额外参数
-
-可以通过`-e|--extra-vars KEY=VALUE` 传入额外的命令行参数，覆盖已有参数，或控制一些特殊的行为。
-
-例如，以下剧本的部分行为可以通过命令行参数进行控制。
+Users can separate each task by `,` and perform multiple tasks at once, for example, when the cluster role members change, you can adjust the cluster load balancing configuration using the following command.
 
 ```bash
-./nodes.yml -e ansible_user=admin -k -K      # 在配置节点时，使用另一个管理员用户 admin，并输入ssh与sudo密码
-./pgsql.yml -e pg_exists_action=clean        # 在安装PG时，强制抹除已有运行中数据库实例（危险）
-./infra-remove.yml -e rm_metadata=true       # 在卸载Pigsty时，一并移除数据
-./infra-remove.yml -e rm_metadpkgs=true      # 在卸载Pigsty时，一并卸载软件
-./nodes-remove.yml -e rm_dcs_server=true     # 在移除节点时，即使上面有DCS Server也强制移除
-./pgsql-remove.yml -e rm_pgdata=true         # 在移除PG时，一并移除数据
-./pgsql-remove.yml -e rm_pgpkgs=true         # 在移除PG时，一并卸载软件
+./pgsql.yml -t haproxy_config,haproxy_reload     # Regenerate the cluster load balancer configuration and apply
 ```
 
+
+
+### Additional Parameters
+
+Additional command line arguments can be passed in via `-e|-extra-vars KEY=VALUE` to override existing arguments or to control some special behavior.
+
+For example, some of the behavior of the following playbooks can be controlled via command line arguments.
+
+```bash
+./nodes.yml -e ansible_user=admin -k -K      # When configuring the node, use another admin user, admin, and enter ssh with the sudo password
+./pgsql.yml -e pg_exists_action=clean        # Force wipe existing running database instances when installing PG (dangerous)
+./infra-remove.yml -e rm_metadata=true       # Remove data when uninstalling Pigsty
+./infra-remove.yml -e rm_metadpkgs=true      # Uninstall the software when uninstalling Pigsty
+./nodes-remove.yml -e rm_dcs_server=true     # When removing a node, force removal even if there is a DCS server on it
+./pgsql-remove.yml -e rm_pgdata=true         # When removing PG, remove data together
+./pgsql-remove.yml -e rm_pgpkgs=true         # When removing the PG, uninstall the software as well
+```
 
