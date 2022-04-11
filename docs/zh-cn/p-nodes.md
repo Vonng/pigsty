@@ -1,6 +1,6 @@
 # 剧本：NODES
 
-> 使用 `nodes` 系列[剧本](p-playbook.md)将更多节点纳入Pigsty管理，将节点调整至[配置](v-nodes.md)描述的状态。
+> 使用 `NODES` 系列[剧本](p-playbook.md)将更多节点纳入Pigsty管理，将节点调整至[配置](v-nodes.md)描述的状态。
 
 当您使用 [`infra.yml`](p-infra.md) 在管理节点上完成Pigsty的完整安装后，您可以进一步使用 [`nodes.yml`](#nodes) 将更多节点添加至Pigsty中，或者使用 [`nodes-remove.yml`](nodes-remove) 将节点从环境中移除。
 
@@ -32,7 +32,7 @@
 
 此剧本包含的功能与任务如下：
 
-* 生成节点身份参数
+* 生成节点[身份参数](v-nodes.md#NODE_IDENTITY)
 * 初始化节点
   * 配置节点名称
   * 配置节点静态DNS解析
@@ -52,23 +52,27 @@
   * 在节点上安装 Node Exporter
   * 将 Node Exporter 注册至管理节点上的 Prometheus 中。
 
- **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
+
+
+!>  **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
 
 节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
-[dcs_exists_action](v-nodes.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
-尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
+[`dcs_exists_action`](v-nodes.md#dcs_exists_action) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
+
+!> 尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
+
 
 
 ### 保护机制
 
-`nodes.yml`提供**保护机制**，由配置参数 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 的配置`abort|clean|skip`行动。
+`nodes.yml`提供**保护机制**，由配置参数 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 决定。当执行剧本前会目标机器上有正在运行的Consul实例时，Pigsty会根据 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 的配置`abort|clean|skip`行动。
 
 * `abort`：建议设置为默认配置，如遇现存DCS实例，中止剧本执行，避免误删库。
 * `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有DCS实例。
 * `skip`：  跳过此主机，在其他主机上执行后续逻辑。
 * 您可以通过`./nodes.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
 
-[`dcs_disable_purge`](v-nodes.md#dcs_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
+[`dcs_disable_purge`](v-nodes.md#dcs_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`dcs_exists_action`](v-nodes.md#dcs_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例，除非您显式执行 [`nodes-remove.yml`](#nodes-remove)。
 
 
 
@@ -79,8 +83,6 @@
 ```bash
 ./nodes.yml --tags=node-monitor
 ```
-
-具体的标签请参考 [**任务详情**](#任务详情)
 
 一些常用的任务子集包括：
 
@@ -131,9 +133,9 @@ Pigsty推荐将管理用户的创建，权限配置与密钥分发放在虚拟�
 ./nodes.yml -t node_admin -l <目标机器> --ask-pass --ask-become-pass
 ```
 
-默认创建的管理员用户为dba (uid=88)，请**不要**使用 postgres 或 dbsu 作为管理用户，请尽量避免直接使用 root 作为管理用户。
+默认创建的管理员用户为 `dba(uid=88)`，请**不要**使用 `postgres` 或 `{{ dbsu }}` 作为管理用户，请尽量避免直接使用 `root` 作为管理用户。
 
-在沙箱环境中的默认用户 vagrant 默认已经配置有免密登陆和免密sudo，您可以从宿主机或沙箱管理节点使用vagrant登陆所有的数据库节点。
+在沙箱环境中的默认用户 `vagrant` 默认已经配置有免密登陆和免密sudo，您可以从宿主机或沙箱管理节点使用vagrant登陆所有的数据库节点。
 
 例如：
 
