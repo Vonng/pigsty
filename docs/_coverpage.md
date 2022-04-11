@@ -2,13 +2,17 @@
 
 # Pigsty <small>1.4.0</small>
 
-> <b>Battery-Included Open-Source PostgreSQL Distribution</b>
+> <b>Battery-Included Open-Source Database Distribution</b>
 
-- Monitoring Solution with Ultimate observability
-- Provisioning Solution to create HA PostgreSQL Clusters
-- Versatile Sandbox with one-click local installation on your laptop
-- Open Source under Apache License 2.0
-- Redis & MatrixDB now included !
+- Battery-Included PostgreSQL Distribution
+
+- Monitoring & Provisioning Solutions
+
+- Handy developer toolbox for Database Admin 
+
+- Thrifty alternatives to cloud RDS!
+
+
 
 [Documentation](#pigsty)
 [中文文档](zh-cn/)

@@ -81,7 +81,7 @@ configure pigsty v1.4.0 begin
 configure pigsty done. Use 'make install' to proceed
 ```
 
-
+</details>
 
 
 
@@ -439,21 +439,5 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 742  | [`redis_exporter_port`](v-redis.md#redis_exporter_port)      | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter监听端口               |
 | 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter命令参数               |
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</details>
 

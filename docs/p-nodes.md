@@ -18,7 +18,7 @@ Once pigsty is installed on the meta node with [`infra.yml`](p-infra.md), You ca
 
 ## `nodes`
 
-The [`nodes.yml`](p-nodes.md) playbook will add nodes to Pigsty.
+The [`nodes.yml`](p-nodes.md) playbook will register nodes to Pigsty.
 
 This playbook adjusts the target nodes to the state described in the [inventory](v-nodes.md), installs the Consul service, and incorporates it into the Pigsty monitoring system. Nodes can be used for database deployment once provisioning is complete.
 

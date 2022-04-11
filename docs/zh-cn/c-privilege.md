@@ -288,19 +288,19 @@ Pigsty的默认权限模型与[默认角色](#默认角色)紧密关联。使用
 * 离线用户与只读用户类似，但只允许访问`pg_role == 'offline'` 或 `pg_offline_query = true` 的实例
 
 ```sql
-GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
-GRANT SELECT                        ON TABLES    TO dbrole_readonly
-GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
-GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
-GRANT USAGE                         ON SCHEMAS   TO dbrole_offline
-GRANT SELECT                        ON TABLES    TO dbrole_offline
-GRANT SELECT                        ON SEQUENCES TO dbrole_offline
-GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly
-GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite
-GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite
-GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
-GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
-GRANT USAGE                         ON TYPES     TO dbrole_admin
+GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly;
+GRANT SELECT                        ON TABLES    TO dbrole_readonly;
+GRANT SELECT                        ON SEQUENCES TO dbrole_readonly;
+GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly;
+GRANT USAGE                         ON SCHEMAS   TO dbrole_offline;
+GRANT SELECT                        ON TABLES    TO dbrole_offline;
+GRANT SELECT                        ON SEQUENCES TO dbrole_offline;
+GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly;
+GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite;
+GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite;
+GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin;
+GRANT CREATE                        ON SCHEMAS   TO dbrole_admin;
+GRANT USAGE                         ON TYPES     TO dbrole_admin;
 ```
 
 | Owner    | Schema | Type     | Access privileges             |

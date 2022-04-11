@@ -1,4 +1,4 @@
-# Configure Pigsty
+# Pigsty Configuration
 
 > Pigsty uses declarative [configuration](v-config.md)：the user configures the description state and Pigsty adjusts the real component to the expected state.
 
@@ -11,7 +11,7 @@ In form, the concrete implementation of the configuration list can be either the
 
 --------------
 
-## Configuration process
+## Configure
 
 Go to the Pigsty project directory and execute `configure`. Pigsty will generate a configuration file based on the current machine environment, a process called **Configure**.
 
@@ -55,10 +55,9 @@ The configuration wizard **automatically selects a configuration template** base
 - [`auto`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-auto.yml) Suitable for deployment in production environments with more stable and conservative configurations.
 - In addition, Pigsty has several preconfigured configuration templates that can be specified and used directly with the `-m` parameter, see the [`files/conf`](https://github.com/Vonng/pigsty/tree/master/files/conf) directory for details.
 
-During [`configure`](#配置过程), The configuration wizard **automatically selects a configuration template** based on the current machine environment, but you can specify the use of a configuration template manually with `-m <mode>`. The most important part of the configuration template is to replace the placeholder IP address `10.10.10.10` in the template with the real IP address (intranet primary IP) of the current machine and select the appropriate database specification template according to the current machine configuration.  You can use the default generated configuration file directly or make further customization and modification based on the automatically generated configuration file.
+During [`configure`](#configure), The configuration wizard **automatically selects a configuration template** based on the current machine environment, but you can specify the use of a configuration template manually with `-m <mode>`. The most important part of the configuration template is to replace the placeholder IP address `10.10.10.10` in the template with the real IP address (intranet primary IP) of the current machine and select the appropriate database specification template according to the current machine configuration.  You can use the default generated configuration file directly or make further customization and modification based on the automatically generated configuration file.
 
 <details><summary>Standard output of the configuration process</summary>
-
 
 ```bash
 $ ./configure
@@ -80,13 +79,12 @@ configure pigsty v1.4.0 begin
 configure pigsty done. Use 'make install' to proceed
 ```
 
+</details>
 
 
 
 
-
-
-## Configuration file
+## Config File
 
 A specific sample configuration file is available in the root of the Pigsty project: [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml).
 
@@ -131,13 +129,13 @@ You don't need to be proficient in Ansible, just spend a few minutes browsing [A
 
 
 
-## Configuration items
+## Config Entry
 
 Configuration items take the form of key-value pairs: the key is the **name** of the configuration item and the value is the content of the configuration item. The form of the value varies, and may be a simple single string or a complex array of objects.
 
 Pigsty's parameters can be configured at different **levels** and inherited and overridden based on rules, with higher priority configuration items overriding lower priority configuration items of the same name. So you can configure at different levels and at different granularity for specific clusters and specific instances **fine** configuration.
 
-### Hierarchy of configuration items
+### Config Hierarchy
 
 In Pigsty's [configuration file](#配置文件), **configuration items** can appear in three locations: **global**, **cluster**, and **instance**. Configuration items defined in **cluster** `vars` **override global configuration items** with same-name key override, and configuration items defined in **instance** in turn override cluster configuration items with global configuration items.
 
@@ -149,7 +147,7 @@ In Pigsty's [configuration file](#配置文件), **configuration items** can app
 
 Not all configuration items are **suitable** for use at all levels. For example, infrastructure parameters will usually only be defined in the **global** configuration, parameters such as database instance labels, roles, load balancing weights, etc. can only be configured at the **instance** level, and some operational options can only be provided using command line parameters (e.g., the name of the database to be created). For details and applicability of configuration items, please see [list of configuration items](v-config.md).
 
-### Underwrite and Coverage
+### Default & Overwrite
 
 In addition to the three configuration granularities in the configuration file, there are two additional levels of priority in the Pigsty configuration project: default value pocketing and command line parameter forced override:
 
@@ -167,7 +165,7 @@ In addition to the three configuration granularities in the configuration file, 
 --------------
 
 
-## Configuration category
+## Category category
 
 Pigsty contains 220 fixed [configuration items](#配置项清单) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
 
@@ -438,20 +436,4 @@ Usually only the node/database **identity parameter** is mandatory, other config
 | 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter命令参数               |
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</details>

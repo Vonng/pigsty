@@ -1,4 +1,4 @@
-# MatrixDB Deployment
+# MatrixDB部署与监控
 
 > Pigsty可用于部署与监控MatrixDB（等效于Greenplum 7+时序数据库功能)
 
@@ -6,7 +6,7 @@
 
 
 
-## Entity Model
+## 实体概念模型
 
 MatrixDB在逻辑上由两部分组成，Master与Segments，两者均由PostgreSQL实例组成，实例分为四类：Master/Standby/Primary/Mirror
 
@@ -23,7 +23,7 @@ MatrixDB在逻辑上由两部分组成，Master与Segments，两者均由Postgre
 
 
 
-## Download
+## 下载软件
 
 MatrixDB & Greenplum 的RPM包并不是标准Pigsty部署的一部分，因此不会放入默认的`pkg.tgz`中。
 MatrixDB & Greenplum 的RPM包及其完整依赖将打包为一个单独的离线软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz)。
@@ -42,7 +42,7 @@ MatrixDB & Greenplum 的RPM包及其完整依赖将打包为一个单独的离�
 
 
 
-## Configure
+## 配置
 
 MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参数为 [`gp_role`](v-pgsql.md#gp_role) 与 [`pg_instances`](v-pgsql.md#pg_instances)。
 
@@ -58,7 +58,7 @@ MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参�
 
 
 
-## Execute
+## 开始部署
 
 在四节点沙箱环境中部署MatrixDB，注意，默认将使用DBSU `mxadmin:mxadmin` 作为监控用户名与密码
 
@@ -86,7 +86,7 @@ MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参�
 
 
 
-## After Jobs
+## 收尾工作
 
 最后，在Greenplum/MatrixDB Master节点上手工执行以下命令，允许监控组件访问**从库**，并重启生效。
 
@@ -101,7 +101,7 @@ gpstop -a -r -M immediate                              # 立即重启MatrixDB以
 
 
 
-## Optional
+## 可选项目
 
 您可以将 MatrixDB 的 Master集群视作一个普通 PostgreSQL 集群，使用 [`pgsql-createdb`](p-pgsql.md#pgsql-createdb) 与 [`pgsql-createuser`](p-pgsql.md#pgsql-createuser) 创建业务数据库与用户。
 

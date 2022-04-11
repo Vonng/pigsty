@@ -2,14 +2,12 @@
 
 # Pigsty <small>1.4.0</small>
 
-> <b>开箱即用的PostgreSQL发行版</b>
+> <b>开箱即用的开源数据库发行版</b>
 
-- 一次性解决PostgreSQL使用中的各类问题
-- 全面专业的PostgreSQL监控终极解决方案
-- 简单易用的PostgreSQL部署管控置备方案
-- 一键拉起的PostgreSQL全能本地沙箱环境
-- 基于Apache License 2 的开源免费软件
-- 现已支持Redis & MatrixDB监控部署!
+- 开箱即用的PostgreSQL数据库发行版
+- 自动驾驶的智能监控管控运维解决方案
+- 简单易用的数据库即代码开发者工具箱
+- 降本增效的开源云数据库整体替代方案
 
 
 [Documentation](/)

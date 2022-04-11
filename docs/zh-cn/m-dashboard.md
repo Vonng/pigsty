@@ -1,4 +1,4 @@
-# Pigsty监控面板
+# Pigsty Dashboards
 
 Pigsty由提供了专业且易用的PostgreSQL监控系统，浓缩了业界监控的最佳实践。
 
@@ -25,7 +25,7 @@ Pigsty的首页提供了对各个板块的导航。
 
 
 
-## PGSQL监控
+## PGSQL
 
 PostgreSQL监控面板有着自己的层次，自顶向下分别为：
 
@@ -37,15 +37,15 @@ PostgreSQL监控面板有着自己的层次，自顶向下分别为：
 大多数监控面板都可以通过表格，图元进行层级跳转，允许您快速上卷下钻。
 
 
-|            全局             |             集群             |            实例             |           数据库            |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|        [PGSQL Overview](http://demo.pigsty.cc/d/pgsql-overview)        |  [PGSQL Cluster](http://demo.pigsty.cc/d/pgsql-cluster)  | [PGSQL Instance](http://demo.pigsty.cc/d/pgsql-instance) | [PGSQL Database](http://demo.pigsty.cc/d/pgsql-database) |
-| [PGSQL Alert](http://demo.pigsty.cc/d/pgsql-alert/) | [PGSQL Service](http://demo.pigsty.cc/d/pgsql-service) | [PGSQL Node](http://demo.pigsty.cc/d/pgsql-node/) | [PGSQL Tables](http://demo.pigsty.cc/d/pgsql-tables) |
-| [PGSQL Shard](http://demo.pigsty.cc/d/pgsql-shard) | [PGSQL Database](http://demo.pigsty.cc/d/pgsql-databases) | [PGSQL Proxy](http://demo.pigsty.cc/d/pgsql-proxy) | [PGSQL Table](http://demo.pigsty.cc/d/pgsql-table) |
-| [PGSQL MatrixDB](http://demo.pigsty.cc/d/gpsql-overview) | [PGSQL Replication](http://demo.pigsty.cc/d/pgsql-replication) | [PGSQL Xacts](http://demo.pigsty.cc/d/pgsql-xacts) | [PGSQL Query](http://demo.pigsty.cc/d/pgsql-query) |
-|  | [PGSQL Activity](http://demo.pigsty.cc/d/pgsql-activity) | [PGSQL Queries](http://demo.pigsty.cc/d/pgsql-queries) | [PGCAT Table](http://demo.pigsty.cc/d/pgcat-table/pgcat-table) |
-|  | [PGSQL Cluster Monly](http://demo.pigsty.cc/d/pgsql-cluster-monly) |        [PGSQL Session](http://demo.pigsty.cc/d/pgsql-session)        | [PGCAT Query](http://demo.pigsty.cc/d/pgcat-query) |
-| | | [PGCAT Instance](http://demo.pigsty.cc/d/pgcat-instance) | [PGCAT Database](http://demo.pigsty.cc/d/pgcat-database) |
+|                         Overview                         |                              Cluster                               |                         Instance                         |                            Database                            |
+|:--------------------------------------------------------:|:------------------------------------------------------------------:|:--------------------------------------------------------:|:--------------------------------------------------------------:|
+| [PGSQL Overview](http://demo.pigsty.cc/d/pgsql-overview) |       [PGSQL Cluster](http://demo.pigsty.cc/d/pgsql-cluster)       | [PGSQL Instance](http://demo.pigsty.cc/d/pgsql-instance) |    [PGSQL Database](http://demo.pigsty.cc/d/pgsql-database)    |
+|   [PGSQL Alert](http://demo.pigsty.cc/d/pgsql-alert/)    |       [PGSQL Service](http://demo.pigsty.cc/d/pgsql-service)       |    [PGSQL Node](http://demo.pigsty.cc/d/pgsql-node/)     |      [PGSQL Tables](http://demo.pigsty.cc/d/pgsql-tables)      |
+|    [PGSQL Shard](http://demo.pigsty.cc/d/pgsql-shard)    |     [PGSQL Database](http://demo.pigsty.cc/d/pgsql-databases)      |    [PGSQL Proxy](http://demo.pigsty.cc/d/pgsql-proxy)    |       [PGSQL Table](http://demo.pigsty.cc/d/pgsql-table)       |
+| [PGSQL MatrixDB](http://demo.pigsty.cc/d/gpsql-overview) |   [PGSQL Replication](http://demo.pigsty.cc/d/pgsql-replication)   |    [PGSQL Xacts](http://demo.pigsty.cc/d/pgsql-xacts)    |       [PGSQL Query](http://demo.pigsty.cc/d/pgsql-query)       |
+|                                                          |      [PGSQL Activity](http://demo.pigsty.cc/d/pgsql-activity)      |  [PGSQL Queries](http://demo.pigsty.cc/d/pgsql-queries)  | [PGCAT Table](http://demo.pigsty.cc/d/pgcat-table/pgcat-table) |
+|                                                          | [PGSQL Cluster Monly](http://demo.pigsty.cc/d/pgsql-cluster-monly) |  [PGSQL Session](http://demo.pigsty.cc/d/pgsql-session)  |       [PGCAT Query](http://demo.pigsty.cc/d/pgcat-query)       |
+|                                                          |                                                                    | [PGCAT Instance](http://demo.pigsty.cc/d/pgcat-instance) |    [PGCAT Database](http://demo.pigsty.cc/d/pgcat-database)    |
 
 
 

@@ -55,4 +55,5 @@
 
 - [社区交流](community.md)
 - [路线规划](../roadmap.md)
-- [开发日志](devlog)
+- [开发日志](../devlog)
+- [EN Docs](../README.md)
