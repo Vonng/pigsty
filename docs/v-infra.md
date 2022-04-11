@@ -1,43 +1,43 @@
 # Config: Infra
 
-> Use the [INFRA Playbook](p-pgsql.md)，[Deploy PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in [PGSQL Configuration](v-pgsql.md).
+> Use the [INFRA Playbook](p-pgsql.md)， [Deploy the PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in [PGSQL Config](v-pgsql.md).
 >
-> Configuring Pigsty infrastructure, used by the [INFRA](p-infra.md) series of playbooks.
+> Configure the Pigsty infrastructure for use by the [INFRA](p-infra.MD) series playbooks.
 
-Infrastructure configuration deals with such issues: local Yum sources, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), configuration of the global traffic portal Nginx, etc.
+Infrastructure configures deal with such issues: local Yum sources, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), config of the global traffic portal Nginx, etc.
 
-The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the management node, a step that is done automatically during the [`./configure`](v-config.md#配置过程). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](nginx_upstream). Other parameters rarely need to be tweaked, and can be adjusted as needed.
+The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the meta node, a step that is done automatically during the [`./configure`](v-config.md#配置过程). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](nginx_upstream). Other parameters rarely need to be tweaked and can be adjusted as needed.
 
 
 
-- [`CONNECT`](#CONNECT) : Connection parameters
-- [`REPO`](#REPO) : Local source infrastructure
+- [`CONNECT`](#CONNECT): Connection parameters
+- [`REPO`](#REPO): Local repo infrastructure
 - [`CA`](#CA) : Public-Private Key Infrastructure
 - [`NGINX`](#NGINX) : Nginx Web Server
 - [`NAMESERVER`](#NAMESERVER) : DNS Server
-- [`PROMETHEUS`](#PROMETHEUS) : Monitoring Time Series Database
-- [`EXPORTER`](#EXPORTER) : Universal Exporter Configuration
+- [`PROMETHEUS`](#PROMETHEUS): Monitoring Time Series Database
+- [`EXPORTER`](#EXPORTER): Universal Exporter Configuration
 - [`GRAFANA`](#GRAFANA) : Grafana Visualization Platform
-- [`LOKI`](#LOKI) : Loki log collection platform
-- [`DCS`](#DCS) : Distributed Configuration Storage Metadatabase
-- [`JUPYTER`](#JUPYTER) : JupyterLab Data Analysis Environment
+- [`LOKI`](#LOKI): Loki log collection platform
+- [`DCS`](#DCS): Distributed Configure Storage Meta-database
+- [`JUPYTER`](#JUPYTER):  JupyterLab Data Analysis Env
 - [`PGWEB`](#PGWEB) : PGWeb Web Client Tool
 
 
 ## Parameter Overview
 
-The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is described by the following configuration items.
+The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is described by the following config entries.
 
 | ID  |                            Name                             |           Section           |    Type    | Level |                Comment                 |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|-----------------------------------------|
-| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | proxy environment variables|
+| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | proxy env variables |
 | 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | enable local yum repo|
 | 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | local yum repo name|
 | 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | external access endpoint of repo|
 | 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | repo listen address (80)|
 | 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | repo home dir (/www)|
-| 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | rebuild local yum repo?|
-| 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | remove existing repo file?|
+| 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | rebuild local yum repo |
+| 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | remove existing repo file |
 | 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | upstream repo definition|
 | 118 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | packages to be downloaded|
 | 119 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | pkgs to be downloaded via url|
@@ -59,7 +59,7 @@ The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is 
 | 154 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | prom scrape interval (10s)|
 | 155 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | prom scrape timeout (8s)|
 | 156 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | prom discovery refresh interval|
-| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | how to install exporter?|
+| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | Installation of exporter |
 | 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | repo url for yum install|
 | 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | URL path for exporting metrics|
 | 170 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | grafana API endpoint|
@@ -67,18 +67,18 @@ The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is 
 | 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | grafana admin password|
 | 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | grafana backend database type|
 | 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | grafana backend postgres url|
-| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | how to install grafana plugins|
+| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | Install grafana plugin method |
 | 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | grafana plugins cache path|
 | 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | grafana plugins to be installed|
 | 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | grafana plugins via git|
 | 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | loki endpoint to receive log|
-| 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | remove existing loki data?|
+| 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | remove existing loki data |
 | 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | loki cli args|
 | 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | loki data path|
 | 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | loki log keeping period|
 | 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | dcs server dict|
-| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | where to register service?|
-| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | which dcs to use (consul/etcd)|
+| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | Registration Services |
+| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | dcs to use (consul/etcd) |
 | 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | dcs cluster name (dc)|
 | 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | how to deal with existing dcs|
 | 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | disable dcs purge|
@@ -100,7 +100,7 @@ The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is 
 
 ### `proxy_env`
 
-In some areas where there is an "Internet block", some software downloads may be affected. For example, when accessing the official PostgreSQL source from mainland China, the download speed may only be a few KB per second.
+In some areas where there is an "Internet block", some software downloads may be affected. For example, when accessing the official PostgreSQL from mainland China, the download speed may only be a few KB per second.
 
 With the right HTTP proxy, it is possible to reach several MB per second. So if you have a proxy server, please configure it via `proxy_env`, example is as follows:
 
@@ -116,9 +116,9 @@ proxy_env: # global proxy env when downloading packages
 
 ### `ansible_host`
 
-Consider using the **Ansible connection parameter** if the target machine is hidden behind an SSH springboard machine, or if some customization has been made that prevents direct access via the `ssh ip` method.
+Consider using the **Ansible connection parameter** if the target machine is hidden behind an SSH springboard machine, or if some customization has been made that prevents direct access via the `ssh IP method.
 
-As follows, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the target database node by way of `ssh node-1` instead of `ssh 10.10.10.11` by way of SSH alias. In this way, the user can freely specify the connection method to the database node and save the connection configuration in `~/.ssh/config` of the administrative user for independent management.
+As follows, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the target database node by way of `ssh node-1` instead of `ssh 10.10.10.11` by way of SSH alias. In this way, the user can freely specify the connection method to the database node and save the connection config in the `~/.ssh/config` of the administrative user for independent management.
 
 ```yaml
   pg-test:
@@ -131,13 +131,13 @@ As follows, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the
 
 `ansible_host` is the most typical of the ansible connection parameters. Usually, as long as the user can access the target machine via `ssh <name>`, configuring the `ansible_host` variable for the instance with a value of `<name>`, and other common Ansible SSH connection parameters are shown below:
 
-> - ansible_host :   Specify here the IP, hostname or SSH alias of the target machine
+> - ansible_host:   Specify here the IP, hostname, or SSH alias of the target machine
 >
-> - ansible_port :   Specify a different SSH port than 22
+> - ansible_port:   Specify a different SSH port than 22
 >
 > - ansible_user :   Specify the username to use for SSH
 >
-> - ansible_ssh_pass :   SSH password (Do not store plaintext, and input from the keyboard can be specified by the -k parameter)
+> - ansible_ssh_pass:   SSH password (Do not store plaintext, and input from the keyboard can be specified by the -k parameter)
 >
 > - ansible_ssh_private_key_file :    SSH private key path
 >
@@ -151,50 +151,50 @@ As follows, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the
 ----------------
 ## `REPO`
 
-When Pigsty is installed on the meta node, Pigsty pulls up a YUM repository locally for the current environment to install RPM packages.
+When Pigsty is installed on the meta node, Pigsty pulls up a local Yum repo for the current env to install RPM packages.
 
-During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream sources (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB, and the download speed depends on your network.
+During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream repo (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB, and the download speed depends on your network.
 
-When creating a local Yum source, if the directory already exists and there is a marker file named `repo_complete` in the directory, Pigsty will assume that the local Yum source has been initialized and skip the software download phase.
+When creating a local Yum repo, if the directory already exists and there is a marker file named `repo_complete` in the directory, Pigsty will assume that the local Yum repo has been initialized and skip the software download phase.
 
-Although Pigsty has tried to use mirror sources as much as possible to speed up downloads, a small number of package downloads may still be blocked by firewalls. If the download speed of some packages is too slow, you can set a download proxy to complete the first download with the [`proxy_env`](#proxy_env) configuration entry, or download the pre-packaged [offline installer](t-offline.md) directly.
+Although Pigsty has tried to use mirror repos as much as possible to speed up downloads, a small number of package downloads may still be blocked by firewalls. If the download speed of some packages is too slow, you can set a download proxy to complete the first download with the [`proxy_env`](#proxy_env) config entry, or download the pre-packaged [offline installer](t-offline.md) directly.
 
 The offline installer package is the entire `{{ repo_home }}/{{ repo_name }}` directory as a zip package `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will unzip it to the `{{ repo_home }}/{{ repo_name }}` directory, thus skipping the software download step during installation.
 
-The default offline installation package is based on CentOS 7.8.2003 x86_64 operating system, if you are using a different operating system or not using a brand new operating system environment, there may be RPM package conflict and dependency error problems, please refer to the FAQ to solve.
+The default offline installation package is based on CentOS 7.8.2003 x86_64 operating system, if you are using a different operating system or not using a brand new operating system env, there may be RPM package conflict and dependency error problems, please refer to the FAQ to solve.
 
 
 ### `repo_enabled`
 
-Whether to enable local sources, type: `bool`, level: G, default value: `true`.
+Enable local repo, type: `bool`, level: G, default value: `true`.
 
-Performs the normal local YUM source creation process, setting `false` will skip the build local source operation on the current node. When you have multiple meta nodes, you can set this parameter to `false` on the alternate meta node.
+Performs the normal local YUM repo creation process, setting `false` will skip the build local repo operation on the current node. When you have multiple meta nodes, you can set this parameter to `false` on the alternate meta node.
 
 
 
 ### `repo_name`
 
-Local source name, type: `string`, level: G, default value: `"pigsty"`. It is not recommended to modify this parameter.
+Local repo name, type: `string`, level: G, default value: `"pigsty"`. It is not recommended to modify this parameter.
 
 
 
 
 ### `repo_address`
 
-Local source external access address, type: `string`, level: G, default value: `"pigsty"`.
+Local repo external access address, type: `string`, level: G, default value: `"pigsty"`.
 
-The address of the local yum source for external services, either a domain name or an IP address, the default is `yum.pigsty`.
+The address of the local yum repo for external services, either a domain name or an IP address, the default is `yum. pigsty`.
 
-If you use a domain name, you must ensure that in the current environment, the domain name will resolve correctly to the server where the local source is located, i.e. the meta-node.
+If you use a domain name, you must ensure that in the current env, the domain name will resolve correctly to the server where the local repo is located, i.e. the meta-node.
 
-If the local yum source does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`repo_port`](#repo_port) variable.
+If the local yum repo does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`repo_port`](#repo_port) variable.
 
-The static DNS configuration [`node_dns_hosts`](v-nodes.md#node_dns_hosts) in the [nodes](v-nodes.md) parameter can be used to write the `pigsty` local source domain name by default for all nodes in the current environment.
+The static DNS config [`node_dns_hosts`](v-nodes.md#node_dns_hosts) in the [nodes](v-nodes.md) parameter can be used to write the `pigsty` local repo domain name by default for all nodes in the current env.
 
 
 ### `repo_port`
 
-Local source port, type: `int`, level: G, default value: `80`.
+Local repo port, type: `int`, level: G, default value: `80`.
 
 Pigsty accesses all web services through this port on the meta node, make sure you can access this port on the meta node.
 
@@ -202,15 +202,15 @@ Pigsty accesses all web services through this port on the meta node, make sure y
 
 ### `repo_home`
 
-Local source root, type: `path`, level: G, default value: `"/www"`.
+Local repo root, type: `path`, level: G, default value: `"/www"`.
 
-This directory will be exposed externally as the root of the HTTP server, containing local sources, and other static file content.
+This directory will be exposed externally as the root of the HTTP server, containing local repo, and other static file content.
 
 
 
 ### `repo_rebuild`
 
-Whether to rebuild Yum source, type: `bool`, level: A, default value: `false`.
+Rebuild Yum repo, type: `bool`, level: A, default value: `false`.
 
 If `true`, then the Repo rebuild will be performed in all cases, i.e. regardless of whether the offline package exists or not.
 
@@ -218,28 +218,28 @@ If `true`, then the Repo rebuild will be performed in all cases, i.e. regardless
 
 ### `repo_remove`
 
-Whether to remove existing REPO files, type: `bool`, level: A, default value: `true`.
+Remove existing REPO files, type: `bool`, level: A, default value: `true`.
 
-If `true`, the existing repo in `/etc/yum.repos.d` on the meta node will be removed and backed up to the `/etc/yum.repos.d/backup` directory during the local source initialization process.
+If `true`, the existing repo in `/etc/yum.repos.d` on the meta node will be removed and backed up to the `/etc/yum.repos.d/backup` directory during the local repo initialization process.
 
-Since the content of existing sources in the OS is not controllable, it is recommended to force the removal of existing sources and configure them explicitly via [`repo_upstreams`](#repo_upstreams).
+Since the content of existing reports in the OS is not controllable, it is recommended to force the removal of existing repos and configure them explicitly via [`repo_upstreams`](#repo_upstreams).
 
-When the node has other self-configured sources or needs to download some special version of RPM packages from a specific source, it can be set to `false` to keep the existing sources.
+When the node has other self-configured repos or needs to download some special version of RPM packages from a specific repo, it can be set to `false` to keep the existing repos.
 
 
 
 ### `repo_upstreams`
 
-Upstream source of Yum source, type: `repo[]`, level:G.
+Upstream source of Yum repo, type: `repo[]`, level: G.
 
-By default, we use AliCloud's CentOS7 image source, Tsinghua University's Grafana image source, PackageCloud's Prometheus source, PostgreSQL official source, and software sources such as SCLo, Harbottle, and Nginx.
+By default, we use AliCloud's CentOS7 image source, Tsinghua University's Grafana image source, PackageCloud's Prometheus source, PostgreSQL official source, and software repos such as SCLo, Harbottle, and Nginx.
 
 
 
 
 ### `repo_packages`
 
-List of software to download for Yum source, type: `string[]`, level: G, default value:
+List of software to download for Yum repo, type: `string[]`, level: G, default value:
 
 ```yaml
   - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip
@@ -282,14 +282,14 @@ Software for direct download via URL, type: `url[]`, level: G
 
 Download some software via URL, not YUM:
 
-* `pg_exporter`： **Required**, core components of monitoring system
-* `vip-manager`：**Required**, package required to enable L2 VIP for managing VIP
-* `loki`, `promtail`：**Required**, log collection server-side and client-side binary.
-* `postgrest`：Optional, automatically generate back-end API interface based on PostgreSQL database schema
-* `polysh`：Optional, execute ssh commands on multiple nodes in parallel
+* `pg_exporter`： **Required**, core components of the monitoring system
+* `vip-manager`： **Required**, package required to enable L2 VIP for managing VIP
+* `loki`, `promtail`： **Required**, log collection server-side and client-side binary.
+* `postgrest`： Optional, automatically generate back-end API interface based on PostgreSQL database schema
+* `polysh`： Optional, execute ssh commands on multiple nodes in parallel
 * `pev2`：Optional, PostgreSQL execution plan visualization
 * `pgweb`：Optional, web-based PostgreSQL command-line tool
-* `redis`：**Optional**, mandatory when Redis is installed
+* `redis`： **Optional**, mandatory when Redis is installed
 
 ```yaml
   - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
@@ -323,10 +323,10 @@ Used to build a local public-private key infrastructure. You can use this task w
 
 ### `ca_method`
 
-CA creation method, type: `enum`, level: G, default value: `"create"`
+CA creation method, type: `enum`, level: G, default value: `"create"`.
 
-* `create`：Create a new public-private key for CA
-* `copy`：Copy the existing CA public and private keys for building CA
+* `create`： Create a new public-private key for CA
+* `copy`： Copy the existing CA public and private keys for building CA
 
 
 
@@ -369,7 +369,7 @@ CA private key name, type: `string`, level: G, default value: `"ca.key"`.
 
 Pigsty exposes all Web class services such as Home, Grafana, Prometheus, AlertManager, Consul, and optionally PGWeb and Jupyter Lab to the public via Nginx on the meta node. Pgbouncer is also served externally by Nginx.
 
-You can bypass Nginx and access some of the services on the meta-node directly through the port, but some services should not be exposed to the public for security reasons and can only be accessed through the Nginx proxy. Nginx distinguishes different services by domain name. Therefore, if the domain name configured for each service cannot be resolved in the current environment, you need to configure it in `/etc/hosts` before using it.
+You can bypass Nginx and access some of the services on the meta-node directly through the port, but some services should not be exposed to the public for security reasons and can only be accessed through the Nginx proxy. Nginx distinguishes different services by the domain name. Therefore, if the domain name configured for each service cannot be resolved in the current env, you need to configure it in `/etc/hosts` before using it.
 
 
 
@@ -393,9 +393,9 @@ Each record contains three subsections: `name`, `domain`, and `endpoint`, repres
 
 The `name` definition of the default record is fixed and referenced by hard-coding, do not modify it. Upstream server records with other names can be added at will.
 
-`domain` is the domain name that should be used for external access to this upstream server. When accessing the Pigsty Web service, the domain name should be used to access it through the Nginx proxy.
+The `domain` is the domain name that should be used for external access to this upstream server. When accessing the Pigsty Web service, the domain name should be used to access it through the Nginx proxy.
 
-The `endpoint` is an internally reachable TCP endpoint and the placeholder IP address `10.10.10.10` will be replaced with the meta node IP during the Configure process.
+The `endpoint` is an internally reachable TCP endpoint and the placeholder IP address `10.10.10.10` will be replaced with the meta node IP during the Configure.
 
 
 
@@ -424,7 +424,7 @@ The `url` parameter specifies the URL PATH for the app, with the exception that 
 
 ### `docs_enabled`
 
-Whether to enable local documentation, type: `bool`, level: G, default value: `true`.
+Enable local documentation, type: `bool`, level: G, default value: `true`.
 
 Local documents are automatically copied to the `{{ repo_home }}` / docs path of the meta node and served from the default Server via Nginx.
 
@@ -434,9 +434,9 @@ The default access address is: `http://pigsty/docs`.
 
 ### `pev2_enabled`
 
-Whether to enable PEV2 component, type: `bool`, level: G, default value: `true`.
+Enable PEV2 component, type: `bool`, level: G, default value: `true`.
 
-Pev2 is a handy PostgreSQL execution plan visualization tool for static single page applications.
+Pev2 is a handy PostgreSQL execution plan visualization tool for static single-page apps.
 
 If enabled, Pev2 resources are copied to the `{{ repo_home }}` / pev2 path of the meta node and served from the default Server via Nginx. The default access address is: `http://pigsty/pev2`.
 
@@ -446,7 +446,7 @@ If enabled, Pev2 resources are copied to the `{{ repo_home }}` / pev2 path of th
 
 ### `pgbadger_enabled`
 
-Whether to enable Pgbadger, type: `bool`, level: G, default value: `true`.
+Enable Pgbadger, type: `bool`, level: G, default value: `true`.
 
 Pgbadger is a handy PostgreSQL log analysis tool that generates comprehensive and beautiful web reports from PG logs.
 
@@ -464,7 +464,7 @@ By default, Pigsty will use DNSMASQ to build an optional battery-included name s
 
 ### `dns_records`
 
-Dynamic DNS resolution record, type: `string[]`, level: G, default value is `[]` empty list, the following resolution records are available by default in the sandbox environment.
+Dynamic DNS resolution record, type: `string[]`, level: G, default value is `[]` empty list, the following resolution records are available by default in the sandbox env.
 
 ```yaml
 dns_records:                    # dynamic dns record resolved by dnsmasq
@@ -494,7 +494,7 @@ Prometheus is the core component of the Pigsty monitoring system, used to pull t
 
 ### `prometheus_data_dir`
 
-Prometheus database directory, type: `path`, level: G, default value: `"/data/prometheus/data"`.
+Prometheus directory, type: `path`, level: G, default value: `"/data/prometheus/data"`.
 
 
 
@@ -510,7 +510,7 @@ The default parameters will allow Prometheus to enable the negative time offset 
 
 ### `prometheus_reload`
 
-Whether to just reload the configuration instead of rebuilding the whole thing when performing Prometheus tasks. Type: `bool`, Hierarchy: A, Default: `false`.
+Reload the configuration instead of rebuilding the whole thing when performing Prometheus tasks. Type: `bool`, Hierarchy: A, Default: `false`.
 
 By default, executing the `prometheus` task will clear existing monitoring data, but if set to `true`, it will not.
 
@@ -524,11 +524,11 @@ Service discovery mechanism: static|consul, type: `enum`, level: G, default valu
 Service discovery mechanism used by Prometheus, default `static`, option `consul` Use Consul for service discovery (will be phased out).
 Pigsty recommends using `static` for service discovery, which provides greater reliability and flexibility.
 
-`static` service discovery relies on the configuration in `/etc/prometheus/targets/{infra,nodes,pgsql,redis}/*.yml` for service discovery.
+`static` service discovery relies on the config in `/etc/prometheus/targets/{infra,nodes,pgsql,redis}/*.yml` for service discovery.
 
 The advantage of this method is that the monitoring system does not rely on consult. When the node goes down, the monitoring target will give an error prompt instead of disappearing directly. In addition, when the pigsty monitoring system is integrated with the external control scheme, this mode is less invasive to the original system.
 
-The following command can be used to generate the required monitoring object profile for Prometheus from the configuration file.
+The following command can be used to generate the required monitoring object profile for Prometheus from the config file.
 
 ```bash
 ./nodes.yml -t register_prometheus  # Generate a list of host monitoring targets
@@ -551,7 +551,7 @@ Prometheus crawl period, type: `interval`, level: G, default value: `"10s"`.
 
 Prometheus grab timeout, type: `interval`, level: G, default value: `"8s"`.
 
-Setting the crawl timeout can effectively avoid avalanches caused by monitoring system queries. This parameter must be less than and close to [`prometheus_scrape_interval`](#prometheus_scrape_interval) to ensure that the length of each crawl does not exceed the crawl period.
+Setting the crawl timeout can effectively avoid avalanches caused by monitoring system queries. This parameter must be less than and close to [`prometheus_scrape_interval`](#prometheus_scrape_interval) to ensure that the length of each crawl does not exceed the crawling period.
 
 ### `prometheus_sd_interval`
 
@@ -576,9 +576,9 @@ The way to install the monitoring component, type: `enum`, level: G, default val
 
 Specify how to install Exporter:
 
-* `none`：No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](v-nodes.md#node_packages) task)
-* `yum`：Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) before deploying Exporter)
-* `binary`：Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the management node, not recommended)
+* `none`： No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](v-nodes.md#node_packages) task)
+* `yum`： Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) before deploying Exporter)
+* `binary`： Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the meta node, not recommended)
 
 When installing with `yum`, if `exporter_repo_url` is specified (not empty), the installation will first install the REPO file under that URL into `/etc/yum.repos.d`. This feature allows you to install Exporter directly without initializing the node infrastructure.
 It is not recommended for normal users to use `binary` installation, this mode is usually used for emergency troubleshooting and temporary problem fixes.
@@ -606,7 +606,7 @@ Default is empty, when [`exporter_install`](#exporter_install) is `yum`, the rep
 
 Monitor the exposed URL Path, type: `string`, level: G, default value: `"/metrics"`.
 
-The URL PATH for all Exporter externally exposed metrics, which defaults to `/metrics`, is referenced by the external role [`prometheus`](#prometheus), and Prometheus will apply this configuration to the monitoring object based on the configuration here.
+The URL PATH for all Exporter externally exposed metrics, which defaults to `/metrics`, is referenced by the external role [`prometheus`](#prometheus), and Prometheus will apply this config to the monitoring object based on the config here.
 
 Indicator exponents affected by this parameter include:
 
@@ -614,7 +614,7 @@ Indicator exponents affected by this parameter include:
 * [`pg_exporter`](v-pgsql.md#pg_exporter)
 * [`pgbouncer_exporter`](v-pgsql.md#pgbouncer_exporter)
 * [`haproxy`](v-pgsql.md#haproxy_exporter_port)
-* Patroni's Metrics endpoint is currently fixed to `/metrics` and cannot be configured, so it is not affected by this parameter
+* Patroni's Metrics endpoint is currently fixed to `/metrics` and cannot be configured, so it is not affected by this parameter.
 * The Metrics endpoint of the Infra component is fixed to `/metrics` and is not affected by this parameter.
 
 
@@ -635,7 +635,7 @@ Grafana address, type: `url`, level: G, default value: `"http://10.10.10.10:3000
 
 Grafana provides a service endpoint to the public, which is used by the Grafana initialization and installation monitoring panel to call the Grafana API.
 
-The placeholder IP `10.10.10.10` will be replaced by the actual IP during the `configure` process.
+The placeholder IP `10.10.10.10` will be replaced by the actual IP during the `configure`.
 
 
 
@@ -659,17 +659,17 @@ Grafana administrator password, type: `string`, level: G, default value: `"pigst
 
 Grafana backend database type, type: `enum`, tier: G, default value: `"sqlite3"`.
 
-The alternative is `postgres`. When using `postgres`, you must ensure that the target database already exists and is accessible. That is, Postgres on the meta node cannot be used before the initialization of the infrastructure for the first time, because Grafana was created before that database.
+The alternative is `postgres`. When using `postgres`, you must ensure that the target database already exists and is accessible. That is, Postgres on the meta node cannot be used before the initialization of the infrastructure for the first time because Grafana was created before that database.
 
 To avoid creating circular dependencies (Grafana depends on Postgres, PostgreSQL depends on the infrastructure including Grafana), you need to modify this parameter and re-execute [`grafana`](#grafana)-related tasks after the first time you complete the installation.
-For details, please see [[Tutorial:Using Postgres as a Grafana backend database](t-grafana-upgrade.md)].
+For details, please see [[Tutorial: Using Postgres as a Grafana database](t-grafana-upgrade.md)].
 
 
 
 
 ### `grafana_pgurl`
 
-PostgreSQL database connection string for Grafana, type: `url`, level: G, default value: `"postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana"`.
+PostgreSQL connection string for Grafana, type: `url`, level: G, default value: `"postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana"`.
 
 Only valid if the parameter [`grafana_database`](#grafana_database) is `postgres`.
 
@@ -683,9 +683,9 @@ How to install Grafana plugin, type: `enum`, level: G, default value: `"install"
 
 How Grafana plug-ins are provisioned:
 
-* `none`：No plug-in installation.
-* `install`: Install Grafana plugin (default), or skip if it already exists.
-* `reinstall`: Re-download and install Grafana plugin anyway.
+* `none`： No plug-in installation.
+* `install`: Install the Grafana plugin (default), or skip it if it already exists.
+* `reinstall`: Re-download and install the Grafana plugin anyway.
 
 Grafana requires Internet access to download several extension plug-ins, and if your meta-node does not have Internet access, you should ensure that you are using an offline installer.
 The offline installation package already contains all downloaded Grafana plugins by default, located under the path specified by [`grafana_cache`](#grafana_cache). When downloading plugins from the Internet, Pigsty will package the downloaded plugins and place them under that path after the download is complete.
@@ -728,7 +728,7 @@ grafana_git_plugins:                          # plugins that will be downloaded 
   - https://github.com/Vonng/vonng-echarts-panel
 ```
 
-Some plugins cannot be downloaded via the official command line, but can be downloaded via Git Clone. Plugins will be installed via `cd /var/lib/grafana/plugins && git clone `.
+Some plugins cannot be downloaded via the official command line but can be downloaded via Git Clone. Plugins will be installed via `cd /var/lib/grafana/plugins && git clone `.
 
 A visualization plugin will be downloaded by default: `vonng-echarts-panel`, which provides Echarts drawing support for Grafana.
 
@@ -748,7 +748,7 @@ LOKI is the default log collection server used by Pigsty.
 
 ### `loki_endpoint`
 
-loki service endpoint for receiving logs, type: `url`, level: G, default value: `"http://10.10.10.10:3100/loki/api/v1/push"`.
+Loki service endpoint for receiving logs, type: `url`, level: G, default value: `"http://10.10.10.10:3100/loki/api/v1/push"`.
 
 
 
@@ -756,7 +756,7 @@ loki service endpoint for receiving logs, type: `url`, level: G, default value: 
 
 ### `loki_clean`
 
-Whether to clean up the database directory when installing Loki, type: `bool`, level: A, default value: `false`.
+Clean up the database directory when installing Loki, type: `bool`, level: A, default value: `false`.
 
 
 
@@ -766,7 +766,7 @@ Whether to clean up the database directory when installing Loki, type: `bool`, l
 
 Command line arguments for Loki, type: `string`, level: G, default value: `"-config.file=/etc/loki.yml -config.expand-env=true"`.
 
-The default configuration parameters are used to specify the Loki configuration file location and to enable the ability to expand environment variables in the configuration file; it is not recommended to remove these two options.
+The default config parameters are used to specify the Loki config file location and to enable the ability to expand environment variables in the config file; it is not recommended to remove these two options.
 
 
 
@@ -794,7 +794,7 @@ Distributed Configuration Store (DCS) is a distributed, highly available meta-da
 
 Pigsty currently only supports using Consul as DCS, and will add the option to use ETCD as DCS later. Specify the type of DCS used by [`dcs_type`](#dcs_type) and the location of the service registration by [`service_registry`](#service_registry).
 
-The availability of the Consul service is critical for high database availability, so special care needs to be taken when using the DCS service in a production environment. Availability of DCS itself, achieved through multiple copies. For example, a 3-node Consul cluster allows up to one node to fail, while a 5-node Consul cluster allows two nodes to fail. In a large-scale production environment, it is recommended to use at least three DCS Servers.
+The availability of the Consul service is critical for high database availability, so special care needs to be taken when using the DCS service in a production env. Availability of DCS itself is achieved through multiple copies. For example, a 3-node Consul cluster allows up to one node to fail, while a 5-node Consul cluster allows two nodes to fail. In a large-scale production env, it is recommended to use at least three DCS Servers.
 The DCS servers used by Pigsty are specified by the parameter [`dcs_servers`](#dcs_servers), either by using an existing external DCS server cluster or by deploying DCS Servers using nodes managed by Pigsty itself.
 
 By default, Pigsty deploys setup DCS services when nodes are included in management ([`nodes.yml`](p-nodes.md#nodes)), and if the current node is defined in [`dcs_servers`](#dcs_servers), the node will be initialized as a DCS Server.
@@ -814,9 +814,9 @@ dcs_servers:
   # meta-3: 10.10.10.12 
 ```
 
-Dictionary format, Key is the DCS server instance name and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-n odes.md#nodes) playbook, which defaults to Consul.
+Key is the DCS server instance name and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-n odes.md#nodes) playbook, which defaults to Consul.
 
-You can use an external DCS server, fill in the addresses of all external DCS Servers in turn that is, otherwise Pigsty will deploy a single instance DCS Server on the meta node (`10.10.10.10` placeholder) by default.
+You can use an external DCS server, and fill in the addresses of all external DCS Servers in turn that is, otherwise Pigsty will deploy a single instance DCS Server on the meta node (`10.10.10.10` placeholder) by default.
 If the current node is defined in [`dcs_servers`](#dcs_servers), i.e. the IP address matches any Value, the node will be initialized as a DCS Server and its Key will be used as a Consul Server.
 
 
@@ -826,9 +826,9 @@ If the current node is defined in [`dcs_servers`](#dcs_servers), i.e. the IP add
 
 Location of the service registration, type: `enum`, level: G, default value: `"consul"`.
 
-* `none`：No service registration is performed (`none` mode must be specified when executing [**monitoring deployment only**](d-monly.md)).
-* `consul`：Registering services to Consul.
-* `etcd`：Registering services into Etcd (not yet supported).
+* `none`： No service registration is performed (`none` mode must be specified when executing [**monitoring deploy only**](d-monly.md)).
+* `consul`： Registering services to Consul.
+* `etcd`： Registering services into Etcd (not yet supported).
 
 
 
@@ -859,7 +859,7 @@ When deploying Consul, if Pigsty finds that Consul already exists on the target 
 * `clean`: Erase the existing DCS instance and continue (extremely dangerous, use this method only in the demo)
 * `skip`: Ignore targets where DCS instances exist (abort) and continue execution on other target machines.
 
-The availability of the Consul service is critical to high database availability, so special care needs to be taken when using the DCS service in a production environment.
+The availability of the Consul service is critical to high database availability, so special care needs to be taken when using the DCS service in a production env.
 If you really need to force the removal of an already existing DCS instance, it is recommended to first use [`nodes-remove.yml`](p-pgsql.md#pgsql-remove) to complete the offline and destruction of the cluster and instance, and then re-execute the initialization.
 Otherwise, you need to pass the command line parameter `. /nodes.yml -e dcs_exists_action=clean` to complete the overwrite and force the wiping of existing instances during the initialization.
 
@@ -870,7 +870,7 @@ Otherwise, you need to pass the command line parameter `. /nodes.yml -e dcs_exis
 
 ### `dcs_disable_purge`
 
-DCS double security insurance, completely prohibits cleaning up DCS instances, type: `bool`, level: C/A, default value: `false`.
+Prohibits cleaning up DCS instances, type: `bool`, level: C/A, default value: `false`.
 
 Double security, if enabled as `true`, forces the [`dcs_exists_action`](#dcs_exists_action) variable to be set to `abort`.
 
@@ -899,9 +899,9 @@ Etcd data directory, type: `string`, level: G, default value: `"/data/etcd"`.
 ----------------
 ## `JUPYTER`
 
-Jupyter Lab is a complete data science R&D environment based on IPython Notebook for data analysis and visualization. It is currently an optional Beta feature and is only enabled in the demo by default.
+Jupyter Lab is a complete data science R&D env based on IPython Notebook for data analysis and visualization. It is currently an optional Beta feature and is only enabled in the demo by default.
 
-Because JupyterLab provides Web Terminal feature, it is not recommended to enable it in production environment, you can use [`infra-jupyter`](p-infra.md#infra-jupyter) to deploy it manually on the meta node.
+Because JupyterLab provides a Web Terminal feature, it is not recommended to enable it in production env, you can use [`infra-jupyter`](p-infra.md#infra-jupyter) to deploy it manually on the meta node.
 
 
 
@@ -911,7 +911,7 @@ If or not JupyterLab is enabled, type: `bool`, level: G, default value: `false`,
 
 
 
-When JupyterLab is enabled, Pigsty will run the local Notebook server using the user specified by the [`jupyter_username`](jupyter_username) parameter.
+When JupyterLab is enabled, Pigsty will run the local Notebook server using the user-specified by the [`jupyter_username`](jupyter_username) parameter.
 In addition, you need to make sure that the configuration [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) parameter contains the default value `'jupyterlab'`.
 Jupyter Lab can be accessed by navigating from the Pigsty home page or through the default domain `lab.pigsty`, which listens on port 8888 by default.
 
@@ -939,14 +939,14 @@ If Jupyter is enabled, it is highly recommended to change this password. Salted 
 ----------------
 ## `PGWEB`
 
-PGWeb is a browser-based PostgreSQL client tool that can be used for scenarios such as small batch personal data queries. It is currently an optional Beta feature and is only enabled in the demo by default.
+PGWeb is a browser-based PostgreSQL client tool that can be used for scenarios such as small-batch personal data queries. It is currently an optional Beta feature and is only enabled in the demo by default.
 
 This feature is enabled by default in the demo and disabled by default in other cases, and can be deployed manually on the meta node using [`infra-pgweb`](p-infra.md#infra-pgweb).
 
 
 ### `pgweb_enabled`
 
-Whether to enable PgWeb, type: `bool`, level: G, default value: `false`, enabled by default for demo and personal use, not enabled by default for production environment deployment.
+Enable PgWeb, type: `bool`, level: G, default value: `false`, enabled by default for demo and personal use, not enabled by default for production env deploy.
 
 The PGWEB web interface is by default only accessible by the Nginx proxy via the domain name, which defaults to `cli.pigsty` and will be run by default with an OS user named `pgweb`.
 
@@ -963,4 +963,4 @@ The operating system user running the PGWEB server. The default is `pgweb`, whic
 
 The special username `default` will run PGWEB with the user who is currently performing the installation (usually administrator).
 
-A connection string to a database that can be accessed from the environment via PgWeb. For example: `postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`
+A connection string to a database that can be accessed from the env via PgWeb. For example: `postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`

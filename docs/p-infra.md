@@ -91,7 +91,7 @@ It's equivalent to following commands in the standard 4-node demo.
 ./pgsql.yml -l pg-test   # Init pgsql database cluster pg-test
 ```
 
-!> USE THIS WITH CAUTION! You could just destroy the entire env with a fat finger & wrong config
+USE THIS WITH CAUTION! You could just destroy the entire env with a fat finger & wrong config
 
 ![](_media/playbook/infra-demo.svg)
 

@@ -1,25 +1,25 @@
-# Pigsty Configuration
+# Pigsty Configure
 
-> Pigsty uses declarative [configuration](v-config.md)：the user configures the description state and Pigsty adjusts the real component to the expected state.
+> Pigsty uses declarative [config](v-config.md)： the user configures the description state and Pigsty adjusts the real component to the expected state.
 
-Pigsty defines the infrastructure and database clusters through **configuration inventories** (Inventory), and each set of Pigsty [deployments](d-deploy.md)  has a corresponding **configuration**：Whether it is a production environment with a few hundred clusters or a local sandbox with 1 core and 1 GB, there is no difference in Pigsty except for the configuration content. Pigsty's configuration uses the "Infra as Data" philosophy: users describe their requirements through declarative configuration, and Pigsty adapts the real components to the desired state.
+Pigsty defines the infrastructure and database clusters through **Inventory**, and each set of Pigsty [deploy](d-deploy.md)  has a corresponding **config**： Whether it is a production env with a few hundred clusters or a local sandbox with 1 core and 1 GB, there is no difference in Pigsty except for the config content. Pigsty's config uses the "Infra as Data" philosophy: users describe their requirements through the declarative config, and Pigsty adapts the real components to the desired state.
 
-In form, the concrete implementation of the configuration list can be either the default local [configuration file](#配置文件)，or dynamic configuration data from [CMDB](t-cmdb.md)，both presented in this article with the default YAML configuration file [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) as an example. In the [configuration process](#配置过程), Pigsty detects the current node environment and automatically generates the recommended configuration file.
+In form, the concrete implementation of the inventory can be either the default local [config file](#配置文件)， or dynamic config data from [CMDB](t-cmdb.md)， both presented in this article with the default YAML config file [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) as an example. In the [configure](#配置过程), Pigsty detects the current node env and automatically generates the recommended config file.
 
-**Configuration list** is mainly composed of [configuration items](#configuration items). Pigsty provides 220 configuration parameters that can be configured at multiple [levels](#levels of configuration items), and most of the parameters can be used directly with default values. Configuration items can be divided into four major categories according to [class](# configuration class):  [INFRA/infrastructure](v-infra.md)， [NODES/host nodes](v-nodes.md)， [PGSQL/PG database](v-pgsql.md)， [REDIS/Redis database](v-redis.md)，and can be further subdivided into 32 subcategories.
+**Inventory** is mainly composed of [config entries](#configuration items). Pigsty provides 220 config parameters that can be configured at multiple [levels](#levels of configuration items), and most of the parameters can be used directly with default values. Config entry can be divided into four major categories according to [class](# configuration class):  [INFRA/infrastructure](v-infra.md)， [NODES/host nodes](v-nodes.md)， [PGSQL/PG](v-pgsql.md)， [REDIS/Redis](v-redis.md)， and can be further subdivided into 32 subcategories.
 
 
 --------------
 
 ## Configure
 
-Go to the Pigsty project directory and execute `configure`. Pigsty will generate a configuration file based on the current machine environment, a process called **Configure**.
+Go to the Pigsty project directory and execute `configure`. Pigsty will generate a **config file** based on the current machine env, a process called **Configure**.
 
 ```bash
 ./configure [-n|--non-interactive] [-d|--download] [-i|--ip <ipaddr>] [-m|--mode {auto|demo}]
 ```
 
-`configure` will check the following things, minor problems will be automatically attempted to be fixed, otherwise an error will be reported to exit.
+`configure` will check the following things, minor problems will be fixed automatically, otherwise, it will prompt an error to exit.
 
 ```bash
 check_kernel     # kernel        = Linux
@@ -41,23 +41,24 @@ Running directly `. /configure` will launch an interactive command line wizard t
 
 **IP address**
 
-When multiple NICs with multiple IP addresses are detected on the current machine, the configuration wizard prompts you to enter the **primary** IP address used, which is the IP address you use to access the node from the internal network. Note that you should not use the public IP address.
+When multiple NICs with multiple IP addresses are detected on the current machine, the config wizard prompts you to enter the **primary** IP address used, which is the IP address you use to access the node from the internal network. Note that you should not use the public IP address.
 
 **Download Package**
 
-When no offline package is found under the `/tmp/pkg.tgz` path of the node, the configuration wizard will ask whether to download it from Github. Selecting `Y` will start the download, selecting `N` will skip it. If your node has good Internet access with a suitable proxy configuration, or if you need to make your own offline packages, you can choose `N`.
+When no offline package is found under the `/tmp/pkg.tgz` path of the node, the config wizard will ask whether to download it from Github. Selecting `Y` will start the download, and selecting `N` will skip it. If your node has good Internet access with a suitable proxy config, or if you need to make offline packages, you can choose `N`.
 
-**Configuration Template**
+**Config Template**
 
-The configuration wizard **automatically selects a configuration template** based on the current machine environment, so you are not asked this question. However, you can specify the use of a configuration template manually with `-m <mode>`, e.g：
+The config wizard **automatically selects a config template** based on the current machine env, so you are not asked this question. However, you can specify the use of a config template manually with `-m <mode>`, e.g：
 
-- [`demo`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo.yml) The project's default configuration file, the one used by the 4-node sandbox, enables all features.
-- [`auto`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-auto.yml) Suitable for deployment in production environments with more stable and conservative configurations.
-- In addition, Pigsty has several preconfigured configuration templates that can be specified and used directly with the `-m` parameter, see the [`files/conf`](https://github.com/Vonng/pigsty/tree/master/files/conf) directory for details.
+- [`demo`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-demo.yml) The project's default config file, the one used by the 4-node sandbox, enables all features.
+- [`auto`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-auto.yml) Suitable for deployment in production env with more stable and conservative configs.
+- In addition, Pigsty has several preconfigured config templates that can be specified and used directly with the `-m` parameter, see the [`files/conf`](https://github.com/Vonng/pigsty/tree/master/files/conf) for details.
 
-During [`configure`](#configure), The configuration wizard **automatically selects a configuration template** based on the current machine environment, but you can specify the use of a configuration template manually with `-m <mode>`. The most important part of the configuration template is to replace the placeholder IP address `10.10.10.10` in the template with the real IP address (intranet primary IP) of the current machine and select the appropriate database specification template according to the current machine configuration.  You can use the default generated configuration file directly or make further customization and modification based on the automatically generated configuration file.
+During [`configure`](#configure), the config wizard **automatically selects a config template** based on the current machine env, but you can specify the use of a config template manually with `-m <mode>`. The most important part of the config template is to replace the placeholder IP address `10.10.10.10` in the template with the real IP address (intranet primary IP) of the current machine and select the appropriate database specification template according to the current machine config.  You can use the default generated config file directly or make further customization and modification based on the automatically generated config file.
 
-<details><summary>Standard output of the configuration process</summary>
+<details><summary>Standard output of the configure</summary>
+
 
 ```bash
 $ ./configure
@@ -79,16 +80,14 @@ configure pigsty v1.4.0 begin
 configure pigsty done. Use 'make install' to proceed
 ```
 
-</details>
-
 
 
 
 ## Config File
 
-A specific sample configuration file is available in the root of the Pigsty project: [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml).
+A specific sample config file is available in the root of the Pigsty project: [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml).
 
-The top level of the configuration file is a single object with `key` as `all` and contains two child items: `vars` and `children`.
+The top level of the config file is a single object with `key` as `all` and contains two child items: `vars` and `children`.
 
 ```yaml
 all:                      # Top-level object: all
@@ -102,28 +101,28 @@ all:                      # Top-level object: all
     ...
 ```
 
-The content of `vars` is a key-value pair that defines the global configuration parameters, K is the name of the configuration item and V is the content of the configuration item.
+The content of `vars` is a key-value pair that defines the global config parameters, K is the name of the config entry and V is the content of the config entry.
 
 The content of `children` is also a KV structure, K is the cluster name and V is the specific cluster definition, a sample cluster definition is shown below:
 
-* The cluster definition also includes two subprojects: `vars` defines the configuration at the **cluster level**. `hosts` defines the cluster's instance members.
-* The parameters in the cluster configuration will override the corresponding parameters in the global configuration, and the cluster configuration parameters will be overridden by the configuration parameters of the same name at the instance level. The only mandatory parameter is `pg_cluster`, which is the name of the cluster and must be consistent with the higher-level cluster name.
-* The `hosts` uses KV to define the cluster instance members, K is the IP address (must be ssh reachable), V is the specific instance configuration parameters.
-* There are two mandatory parameters in the instance configuration: `pg_seq`, and `pg_role`, which are the unique serial number of the instance and the role of the instance, respectively.
+* The cluster definition also includes two subprojects: `vars` defines the config at the **cluster level**. `hosts` define the cluster's instance members.
+* The parameters in the cluster config will override the corresponding parameters in the global config, and the cluster config parameters will be overridden by the config parameters of the same name at the instance level. The only mandatory parameter is `pg_cluster`, which is the name of the cluster and must be consistent with the higher-level cluster name.
+* The `hosts` use K-V to define the cluster instance members, K is the IP address (must be ssh reachable), and V is the specific instance config parameters.
+* There are two mandatory parameters in the instance config: `pg_seq`, and `pg_role`, which are the unique serial number of the instance and the role of the instance, respectively.
 
 ```yaml
 pg-test:                 # The database cluster name is used as the cluster name by default
   vars:                  # Database cluster level variables
-    pg_cluster: pg-test  # A mandatory configuration item defined at the cluster level, consistent throughout pg-test. 
+    pg_cluster: pg-test  # A mandatory config entry defined at the cluster level, consistent throughout pg-test. 
   hosts:                 # Database Cluster Members
     10.10.10.11: {pg_seq: 1, pg_role: primary} # Database Instance Members
     10.10.10.12: {pg_seq: 2, pg_role: replica} # The identity parameters pg_role and pg_seq must be defined
     10.10.10.13: {pg_seq: 3, pg_role: offline} # Variables at the instance level can be specified here
 ```
 
-Pigsty configuration files follow [**Ansible rules**](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_variables.html) in YAML format and use a single configuration file by default. The default configuration file path for Pigsty is [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) in the root directory of Pigsty's source code. The default configuration file is specified via `inventory = pigsty.yml` in  [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg) in the same directory. You can specify additional configuration files with the `-i <config_path>` parameter when executing any playbook.
+Pigsty config files follow [**Ansible rules**](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_variables.html) in YAML format and use a single config file by default. The default config file path for Pigsty is [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) in the root directory of Pigsty's source code. The default config file is specified via `inventory = pigsty.yml` in [`ansible.cfg`](https://github.com/Vonng/pigsty/blob/master/ansible.cfg) in the same directory. You can specify additional config files with the `-i <config_path>` parameter when executing any playbook.
 
-The configuration file needs to be used in conjunction with  [**Ansible**](https://docs.ansible.com/). Ansible is a popular DevOps tool, but the average user does not need to know the specifics of Ansible.  If you are proficient in Ansible, you can adapt the configuration file yourself according to Ansible's inventory organization rules: for example, use a discrete configuration file with separate cluster definition and variable definition files for each cluster.
+The config file needs to be used in conjunction with  [**Ansible**](https://docs.ansible.com/). Ansible is a popular DevOps tool, but the average user does not need to know the specifics of Ansible.  If you are proficient in Ansible, you can adapt the config file yourself according to Ansible's inventory organization rules: for example, use a discrete config file with separate cluster definition and variable definition files for each cluster.
 
 You don't need to be proficient in Ansible, just spend a few minutes browsing [Ansible Quick Start](p-playbook.md#Ansible快速上手) , you can use Ansible to execute playbooks.
 
@@ -131,309 +130,307 @@ You don't need to be proficient in Ansible, just spend a few minutes browsing [A
 
 ## Config Entry
 
-Configuration items take the form of key-value pairs: the key is the **name** of the configuration item and the value is the content of the configuration item. The form of the value varies, and may be a simple single string or a complex array of objects.
+Config entries take the form of K-V pairs: the key is the **name** of the config entry and the value is the content of the config entry. The form of the value varies and maybe a simple single string or a complex array of objects.
 
-Pigsty's parameters can be configured at different **levels** and inherited and overridden based on rules, with higher priority configuration items overriding lower priority configuration items of the same name. So you can configure at different levels and at different granularity for specific clusters and specific instances **fine** configuration.
+Pigsty's parameters can be configured at different **levels** and inherited and overridden based on rules, with higher priority config entry overriding lower priority config entry of the same name. So you can configure at different levels and at different granularity for specific clusters and specific instances of **fine** config.
 
-### Config Hierarchy
+### Config Entry Levels
 
-In Pigsty's [configuration file](#配置文件), **configuration items** can appear in three locations: **global**, **cluster**, and **instance**. Configuration items defined in **cluster** `vars` **override global configuration items** with same-name key override, and configuration items defined in **instance** in turn override cluster configuration items with global configuration items.
+In Pigsty's [config file](#配置文件), **config entry** can appear in three locations: **global**, **cluster**, and **instance**. Config entry defined in **cluster** `vars` **override global config entry** with same-name key override, and config entry defined in an **instance**, in turn, override cluster config entry with global config entry.
 
-| Granularity  | Scope          | Priority | Description                                                  | Location                             |
-| :----------: | -------------- | -------- | ------------------------------------------------------------ | ------------------------------------ |
-|  **G**lobal  | Global Scope   | Low      | Consistent within the same set of **deployment environments** | `all.vars.xxx`                       |
-| **C**luster  | Cluster Scope  | Medium   | Consistency within the same set of **clusters**              | `all.children.<cls>.vars.xxx`        |
-| **I**nstance | Instance Scope | High     | The most granular level of configuration                     | `all.children.<cls>.hosts.<ins>.xxx` |
+| Granularity  | Scope          | Priority | Description                                           | Location                             |
+| :----------: | -------------- | -------- | ----------------------------------------------------- | ------------------------------------ |
+|  **G**lobal  | Global Scope   | Low      | Consistent within the same set of **deployment envs** | `all.vars.xxx`                       |
+| **C**luster  | Cluster Scope  | Medium   | Consistency within the same set of **clusters**       | `all.children.<cls>.vars.xxx`        |
+| **I**nstance | Instance Scope | High     | The most granular level of config                     | `all.children.<cls>.hosts.<ins>.xxx` |
 
-Not all configuration items are **suitable** for use at all levels. For example, infrastructure parameters will usually only be defined in the **global** configuration, parameters such as database instance labels, roles, load balancing weights, etc. can only be configured at the **instance** level, and some operational options can only be provided using command line parameters (e.g., the name of the database to be created). For details and applicability of configuration items, please see [list of configuration items](v-config.md).
+Not all config entries are **suitable** for use at all levels. For example, infrastructure parameters will usually only be defined in the **global** config, parameters such as database instance labels, roles, load balancing weights, etc. can only be configured at the **instance** level, and some operational options can only be provided using command line parameters (e.g., the name of the database to be created). For details and applicability of config entry, please see [list of config entry](v-config.md).
 
 ### Default & Overwrite
 
-In addition to the three configuration granularities in the configuration file, there are two additional levels of priority in the Pigsty configuration project: default value pocketing and command line parameter forced override:
+In addition to the three config granularities, there are two additional levels of priority in the Pigsty config entry: default value pocketing and command-line parameter forced override:
 
-* **Default**：When a configuration item does not appear at either the global/cluster/instance level, the default configuration item is used. The default value has the lowest priority, and all configuration items have default values. The default parameters are defined in `roles/<role>/default/main.yml`.
-* **Parameter**：Configuration items specified by means of command line incoming parameters have the highest priority and will override all levels of configuration. Some configuration items can only be specified by means of command line parameters.
+* **Default**： When a config entry does not appear at either the global/cluster/instance level, the default config entry is used. The default value has the lowest priority, and all config entries have default values. The default parameters are defined in `roles/<role>/default/main.yml`.
+* **Parameter**： Config entry specified by means of command-line incoming parameters have the highest priority and will override all levels of config. Some config entries can only be specified by means of command-line parameters.
 
-|    Levels    | Priority | Source    | Description                                                  | Location                             |
-| :----------: | -------- | --------- | ------------------------------------------------------------ | ------------------------------------ |
-| **D**efault  | Lowest   | Default   | Default values for code logic definitions                    | `roles/<role>/default/main.yml`      |
-|  **G**lobal  | Low      | Global    | Consistent within the same set of **deployment environments** | `all.vars.xxx`                       |
-| **C**luster  | Medium   | Cluster   | Consistency within the same set of **clusters**              | `all.children.<cls>.vars.xxx`        |
-| **I**nstance | High     | Instance  | The most granular level of configuration                     | `all.children.<cls>.hosts.<ins>.xxx` |
-| **A**rgument | Highest  | Parameter | Pass in command line arguments                               | `-e `                                |
+|    Levels    | Priority | Source    | Description                                           | Location                             |
+| :----------: | -------- | --------- | ----------------------------------------------------- | ------------------------------------ |
+| **D**efault  | Lowest   | Default   | Default values for code logic definitions             | `roles/<role>/default/main.yml`      |
+|  **G**lobal  | Low      | Global    | Consistent within the same set of **deployment envs** | `all.vars.xxx`                       |
+| **C**luster  | Medium   | Cluster   | Consistency within the same set of **clusters**       | `all.children.<cls>.vars.xxx`        |
+| **I**nstance | High     | Instance  | The most granular level of config                     | `all.children.<cls>.hosts.<ins>.xxx` |
+| **A**rgument | Highest  | Parameter | Pass in command line arguments                        | `-e `                                |
 
 --------------
 
 
-## Category category
+## Config Category
 
-Pigsty contains 220 fixed [configuration items](#配置项清单) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
+Pigsty contains 220 fixed [config entries](#配置项清单) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
 
-Usually only the node/database **identity parameter** is mandatory, other configuration parameters can be modified on demand by directly using the default values.
+Usually only the node/database **identity parameter** is mandatory, other config parameters can be modified on demand by directly using the default values.
 
-| Category              | Section                                         | Description                                    | Count |
-| --------------------- | ----------------------------------------------- | ---------------------------------------------- | ----- |
-| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                 | Connection parameters                          | 1     |
-| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                       | Local source infrastructure                    | 10    |
-| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                           | Public-Private Key Infrastructure              | 5     |
-| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                     | Nginx Web Server                               | 5     |
-| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)           | DNS Server                                     | 1     |
-| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | Monitoring Timing Database                     | 7     |
-| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)               | Universal Exporter Configuration               | 3     |
-| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana Visualization Platform                 | 9     |
-| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki log collection platform                   | 5     |
-| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | Distributed Configuration Storage Metadatabase | 8     |
-| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab Data Analysis Environment           | 3     |
-| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb Web Client Tool                          | 2     |
-| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | Node identity parameters                       | 5     |
-| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | Node Domain Name Resolution                    | 5     |
-| [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | Node Software Source                           | 3     |
-| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | Node Packages                                  | 4     |
-| [`NODES`](v-nodes.md) | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | Node Functionality Features                    | 6     |
-| [`NODES`](v-nodes.md) | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | Node Kernel Module                             | 1     |
-| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | Node parameter tuning                          | 2     |
-| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | Node Administrator                             | 6     |
-| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | Node time zone and time synchronization        | 4     |
-| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | Node Indicator Exposer                         | 3     |
-| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | Log collection component                       | 5     |
-| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | PGSQL Database Identity Parameters             | 13    |
-| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | PGSQL Business Object Definition               | 11    |
-| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | PGSQL Installation                             | 11    |
-| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | PGSQL Cluster Initialization                   | 24    |
-| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | PGSQL Cluster Template Provisioning            | 9     |
-| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | PGSQL Indicator Exposer                        | 13    |
-| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | PGSQL Service Access                           | 16    |
-| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | REDIS Identity Parameters                      | 3     |
-| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | REDIS Cluster Provisioning                     | 14    |
-| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | REDIS Indicator Exposer                        | 3     |
-
-
-
-<details><summary>List of configuration items</summary>
+| Category              | Section                                         | Description                              | Count |
+| --------------------- | ----------------------------------------------- | ---------------------------------------- | ----- |
+| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                 | Connection parameters                    | 1     |
+| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                       | Local source infrastructure              | 10    |
+| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                           | Public-Private Key Infrastructure        | 5     |
+| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                     | Nginx Web Server                         | 5     |
+| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)           | DNS Server                               | 1     |
+| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | Monitoring Timing Database               | 7     |
+| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)               | Universal Exporter Config                | 3     |
+| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana Visualization Platform           | 9     |
+| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki log collection platform             | 5     |
+| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | Distributed Config Storage Meta-database | 8     |
+| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab Data Analysis Env             | 3     |
+| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb Web Client Tool                    | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | Node identity parameters                 | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | Node Domain Name Resolution              | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | Node Software Source                     | 3     |
+| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | Node Packages                            | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | Node Functionality Features              | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | Node Kernel Module                       | 1     |
+| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | Node parameter tuning                    | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | Node Administrator                       | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | Node time zone and time synchronization  | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | Node Indicator Exposer                   | 3     |
+| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | Log collection component                 | 5     |
+| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | PGSQL Database Identity Parameters       | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | PGSQL Business Object Definition         | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | PGSQL Installation                       | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | PGSQL Cluster Initialization             | 24    |
+| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | PGSQL Cluster Template Provisioning      | 9     |
+| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | PGSQL Indicator Exposer                  | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | PGSQL Service Access                     | 16    |
+| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | REDIS Identity Parameters                | 3     |
+| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | REDIS Cluster Provisioning               | 14    |
+| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | REDIS Indicator Exposer                  | 3     |
 
 
-| ID   | Name                                                         | Section                                         | Level | Description                          |
-| ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------ |
-| 100  | [`proxy_env`](v-infra.md#proxy_env)                          | [`CONNECT`](v-infra.md#CONNECT)                 | G     | 代理服务器配置                       |
-| 110  | [`repo_enabled`](v-infra.md#repo_enabled)                    | [`REPO`](v-infra.md#REPO)                       | G     | 是否启用本地源                       |
-| 111  | [`repo_name`](v-infra.md#repo_name)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源名称                           |
-| 112  | [`repo_address`](v-infra.md#repo_address)                    | [`REPO`](v-infra.md#REPO)                       | G     | 本地源外部访问地址                   |
-| 113  | [`repo_port`](v-infra.md#repo_port)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源端口                           |
-| 114  | [`repo_home`](v-infra.md#repo_home)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源文件根目录                     |
-| 115  | [`repo_rebuild`](v-infra.md#repo_rebuild)                    | [`REPO`](v-infra.md#REPO)                       | A     | 是否重建Yum源                        |
-| 116  | [`repo_remove`](v-infra.md#repo_remove)                      | [`REPO`](v-infra.md#REPO)                       | A     | 是否移除已有REPO文件                 |
-| 117  | [`repo_upstreams`](v-infra.md#repo_upstreams)                | [`REPO`](v-infra.md#REPO)                       | G     | Yum源的上游来源                      |
-| 118  | [`repo_packages`](v-infra.md#repo_packages)                  | [`REPO`](v-infra.md#REPO)                       | G     | Yum源需下载软件列表                  |
-| 119  | [`repo_url_packages`](v-infra.md#repo_url_packages)          | [`REPO`](v-infra.md#REPO)                       | G     | 通过URL直接下载的软件                |
-| 120  | [`ca_method`](v-infra.md#ca_method)                          | [`CA`](v-infra.md#CA)                           | G     | CA的创建方式                         |
-| 121  | [`ca_subject`](v-infra.md#ca_subject)                        | [`CA`](v-infra.md#CA)                           | G     | 自签名CA主题                         |
-| 122  | [`ca_homedir`](v-infra.md#ca_homedir)                        | [`CA`](v-infra.md#CA)                           | G     | CA证书根目录                         |
-| 123  | [`ca_cert`](v-infra.md#ca_cert)                              | [`CA`](v-infra.md#CA)                           | G     | CA证书                               |
-| 124  | [`ca_key`](v-infra.md#ca_key)                                | [`CA`](v-infra.md#CA)                           | G     | CA私钥名称                           |
-| 130  | [`nginx_upstream`](v-infra.md#nginx_upstream)                | [`NGINX`](v-infra.md#NGINX)                     | G     | Nginx上游服务器                      |
-| 131  | [`app_list`](v-infra.md#app_list)                            | [`NGINX`](v-infra.md#NGINX)                     | G     | 首页导航栏显示的应用列表             |
-| 132  | [`docs_enabled`](v-infra.md#docs_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用本地文档                     |
-| 133  | [`pev2_enabled`](v-infra.md#pev2_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用PEV2组件                     |
-| 134  | [`pgbadger_enabled`](v-infra.md#pgbadger_enabled)            | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用Pgbadger                     |
-| 140  | [`dns_records`](v-infra.md#dns_records)                      | [`NAMESERVER`](v-infra.md#NAMESERVER)           | G     | 动态DNS解析记录                      |
-| 150  | [`prometheus_data_dir`](v-infra.md#prometheus_data_dir)      | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prometheus数据库目录                 |
-| 151  | [`prometheus_options`](v-infra.md#prometheus_options)        | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prometheus命令行参数                 |
-| 152  | [`prometheus_reload`](v-infra.md#prometheus_reload)          | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | A     | Reload而非Recreate                   |
-| 153  | [`prometheus_sd_method`](v-infra.md#prometheus_sd_method)    | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | 服务发现机制：static                 |
-| 154  | [`prometheus_scrape_interval`](v-infra.md#prometheus_scrape_interval) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom抓取周期                         |
-| 155  | [`prometheus_scrape_timeout`](v-infra.md#prometheus_scrape_timeout) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom抓取超时                         |
-| 156  | [`prometheus_sd_interval`](v-infra.md#prometheus_sd_interval) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom服务发现刷新周期                 |
-| 160  | [`exporter_install`](v-infra.md#exporter_install)            | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | 安装监控组件的方式                   |
-| 161  | [`exporter_repo_url`](v-infra.md#exporter_repo_url)          | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | 监控组件的YumRepo                    |
-| 162  | [`exporter_metrics_path`](v-infra.md#exporter_metrics_path)  | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | 监控暴露的URL Path                   |
-| 170  | [`grafana_endpoint`](v-infra.md#grafana_endpoint)            | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana地址                          |
-| 171  | [`grafana_admin_username`](v-infra.md#grafana_admin_username) | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana管理员用户名                  |
-| 172  | [`grafana_admin_password`](v-infra.md#grafana_admin_password) | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana管理员密码                    |
-| 173  | [`grafana_database`](v-infra.md#grafana_database)            | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana后端数据库类型                |
-| 174  | [`grafana_pgurl`](v-infra.md#grafana_pgurl)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana的PG数据库连接串              |
-| 175  | [`grafana_plugin`](v-infra.md#grafana_plugin)                | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 如何安装Grafana插件                  |
-| 176  | [`grafana_cache`](v-infra.md#grafana_cache)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana插件缓存地址                  |
-| 177  | [`grafana_plugins`](v-infra.md#grafana_plugins)              | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 安装的Grafana插件列表                |
-| 178  | [`grafana_git_plugins`](v-infra.md#grafana_git_plugins)      | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 从Git安装的Grafana插件               |
-| 180  | [`loki_endpoint`](v-infra.md#loki_endpoint)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | 用于接收日志的loki服务endpoint       |
-| 181  | [`loki_clean`](v-infra.md#loki_clean)                        | [`LOKI`](v-infra.md#LOKI)                       | A     | 是否在安装Loki时清理数据库目录       |
-| 182  | [`loki_options`](v-infra.md#loki_options)                    | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki的命令行参数                     |
-| 183  | [`loki_data_dir`](v-infra.md#loki_data_dir)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki的数据目录                       |
-| 184  | [`loki_retention`](v-infra.md#loki_retention)                | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki日志默认保留天数                 |
-| 200  | [`dcs_servers`](v-infra.md#dcs_servers)                      | [`DCS`](v-infra.md#DCS)                         | G     | DCS服务器名称:IP列表                 |
-| 201  | [`service_registry`](v-infra.md#service_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | 服务注册的位置                       |
-| 202  | [`dcs_type`](v-infra.md#dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | 使用的DCS类型                        |
-| 203  | [`dcs_name`](v-infra.md#dcs_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS集群名称                          |
-| 204  | [`dcs_exists_action`](v-infra.md#dcs_exists_action)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 若DCS实例存在如何处理                |
-| 205  | [`dcs_disable_purge`](v-infra.md#dcs_disable_purge)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 完全禁止清理DCS实例                  |
-| 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul数据目录                       |
-| 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd数据目录                         |
-| 220  | [`jupyter_enabled`](v-infra.md#jupyter_enabled)              | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | 是否启用JupyterLab                   |
-| 221  | [`jupyter_username`](v-infra.md#jupyter_username)            | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter使用的操作系统用户            |
-| 222  | [`jupyter_password`](v-infra.md#jupyter_password)            | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter Lab的密码                    |
-| 230  | [`pgweb_enabled`](v-infra.md#pgweb_enabled)                  | [`PGWEB`](v-infra.md#PGWEB)                     | G     | 是否启用PgWeb                        |
-| 231  | [`pgweb_username`](v-infra.md#pgweb_username)                | [`PGWEB`](v-infra.md#PGWEB)                     | G     | PgWeb使用的操作系统用户              |
-| 300  | [`meta_node`](v-nodes.md#meta_node)                          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 表示此节点为元节点                   |
-| 301  | [`nodename`](v-nodes.md#nodename)                            | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | I     | 指定节点实例标识                     |
-| 302  | [`node_cluster`](v-nodes.md#node_cluster)                    | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 节点集群名，默认名为nodes            |
-| 303  | [`nodename_overwrite`](v-nodes.md#nodename_overwrite)        | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 用Nodename覆盖机器HOSTNAME           |
-| 304  | [`nodename_exchange`](v-nodes.md#nodename_exchange)          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 是否在剧本节点间交换主机名           |
-| 310  | [`node_dns_hosts`](v-nodes.md#node_dns_hosts)                | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 写入机器的静态DNS解析                |
-| 311  | [`node_dns_hosts_extra`](v-nodes.md#node_dns_hosts_extra)    | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | 同上，用于集群实例层级               |
-| 312  | [`node_dns_server`](v-nodes.md#node_dns_server)              | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 如何配置DNS服务器？                  |
-| 313  | [`node_dns_servers`](v-nodes.md#node_dns_servers)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 配置动态DNS服务器列表                |
-| 314  | [`node_dns_options`](v-nodes.md#node_dns_options)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 配置/etc/resolv.conf                 |
-| 320  | [`node_repo_method`](v-nodes.md#node_repo_method)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 节点使用Yum源的方式                  |
-| 321  | [`node_repo_remove`](v-nodes.md#node_repo_remove)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 是否移除节点已有Yum源                |
-| 322  | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 本地源的URL地址                      |
-| 330  | [`node_packages`](v-nodes.md#node_packages)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | 节点安装软件列表                     |
-| 331  | [`node_extra_packages`](v-nodes.md#node_extra_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | 节点额外安装的软件列表               |
-| 332  | [`node_meta_packages`](v-nodes.md#node_meta_packages)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | 元节点所需的软件列表                 |
-| 333  | [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install)  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | 元节点上通过pip3安装的软件包         |
-| 340  | [`node_disable_numa`](v-nodes.md#node_disable_numa)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点NUMA                         |
-| 341  | [`node_disable_swap`](v-nodes.md#node_disable_swap)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点SWAP                         |
-| 342  | [`node_disable_firewall`](v-nodes.md#node_disable_firewall)  | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点防火墙                       |
-| 343  | [`node_disable_selinux`](v-nodes.md#node_disable_selinux)    | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点SELINUX                      |
-| 344  | [`node_static_network`](v-nodes.md#node_static_network)      | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 是否使用静态DNS服务器                |
-| 345  | [`node_disk_prefetch`](v-nodes.md#node_disk_prefetch)        | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 是否启用磁盘预读                     |
-| 346  | [`node_kernel_modules`](v-nodes.md#node_kernel_modules)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | 启用的内核模块                       |
-| 350  | [`node_tune`](v-nodes.md#node_tune)                          | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 节点调优模式                         |
-| 351  | [`node_sysctl_params`](v-nodes.md#node_sysctl_params)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 操作系统内核参数                     |
-| 360  | [`node_admin_setup`](v-nodes.md#node_admin_setup)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 是否创建管理员用户                   |
-| 361  | [`node_admin_uid`](v-nodes.md#node_admin_uid)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 管理员用户UID                        |
-| 362  | [`node_admin_username`](v-nodes.md#node_admin_username)      | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 管理员用户名                         |
-| 363  | [`node_admin_ssh_exchange`](v-nodes.md#node_admin_ssh_exchange) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | 在实例间交换管理员SSH密钥            |
-| 364  | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)  | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | 是否将当前用户的公钥加入管理员账户   |
-| 365  | [`node_admin_pks`](v-nodes.md#node_admin_pks)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | 可登陆管理员的公钥列表               |
-| 370  | [`node_timezone`](v-nodes.md#node_timezone)                  | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP时区设置                          |
-| 371  | [`node_ntp_config`](v-nodes.md#node_ntp_config)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | 是否配置NTP服务？                    |
-| 372  | [`node_ntp_service`](v-nodes.md#node_ntp_service)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP服务类型：ntp或chrony             |
-| 373  | [`node_ntp_servers`](v-nodes.md#node_ntp_servers)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP服务器列表                        |
-| 380  | [`node_exporter_enabled`](v-nodes.md#node_exporter_enabled)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | 启用节点指标收集器                   |
-| 381  | [`node_exporter_port`](v-nodes.md#node_exporter_port)        | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | 节点指标暴露端口                     |
-| 382  | [`node_exporter_options`](v-nodes.md#node_exporter_options)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C/I   | 节点指标采集选项                     |
-| 390  | [`promtail_enabled`](v-nodes.md#promtail_enabled)            | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C     | 是否启用Promtail日志收集服务         |
-| 391  | [`promtail_clean`](v-nodes.md#promtail_clean)                | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C/A   | 是否在安装promtail时移除已有状态信息 |
-| 392  | [`promtail_port`](v-nodes.md#promtail_port)                  | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | G     | promtail使用的默认端口               |
-| 393  | [`promtail_options`](v-nodes.md#promtail_options)            | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C/I   | promtail命令行参数                   |
-| 394  | [`promtail_positions`](v-nodes.md#promtail_positions)        | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C     | promtail状态文件位置                 |
-| 500  | [`pg_cluster`](v-pgsql.md#pg_cluster)                        | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG数据库集群名称                     |
-| 501  | [`pg_shard`](v-pgsql.md#pg_shard)                            | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG集群所属的Shard (保留)             |
-| 502  | [`pg_sindex`](v-pgsql.md#pg_sindex)                          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG集群的分片号 (保留)                |
-| 503  | [`gp_role`](v-pgsql.md#gp_role)                              | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | 当前PG集群在GP中的角色               |
-| 504  | [`pg_role`](v-pgsql.md#pg_role)                              | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | PG数据库实例角色                     |
-| 505  | [`pg_seq`](v-pgsql.md#pg_seq)                                | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | PG数据库实例序号                     |
-| 506  | [`pg_instances`](v-pgsql.md#pg_instances)                    | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 当前节点上的所有PG实例               |
-| 507  | [`pg_upstream`](v-pgsql.md#pg_upstream)                      | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 实例的复制上游节点                   |
-| 508  | [`pg_offline_query`](v-pgsql.md#pg_offline_query)            | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 是否允许离线查询                     |
-| 509  | [`pg_backup`](v-pgsql.md#pg_backup)                          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 是否在实例上存储备份                 |
-| 510  | [`pg_weight`](v-pgsql.md#pg_weight)                          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | 实例在负载均衡中的相对权重           |
-| 511  | [`pg_hostname`](v-pgsql.md#pg_hostname)                      | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C/I   | 将PG实例名称设为HOSTNAME             |
-| 512  | [`pg_preflight_skip`](v-pgsql.md#pg_preflight_skip)          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C/A   | 跳过PG身份参数校验                   |
-| 520  | [`pg_users`](v-pgsql.md#pg_users)                            | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 业务用户定义                         |
-| 521  | [`pg_databases`](v-pgsql.md#pg_databases)                    | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 业务数据库定义                       |
-| 522  | [`pg_services_extra`](v-pgsql.md#pg_services_extra)          | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 集群专有服务定义                     |
-| 523  | [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra)        | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | 集群/实例特定的HBA规则               |
-| 524  | [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Pgbounce特定HBA规则                  |
-| 525  | [`pg_admin_username`](v-pgsql.md#pg_admin_username)          | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG管理用户                           |
-| 526  | [`pg_admin_password`](v-pgsql.md#pg_admin_password)          | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG管理用户密码                       |
-| 527  | [`pg_replication_username`](v-pgsql.md#pg_replication_username) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG复制用户                           |
-| 528  | [`pg_replication_password`](v-pgsql.md#pg_replication_password) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG复制用户的密码                     |
-| 529  | [`pg_monitor_username`](v-pgsql.md#pg_monitor_username)      | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG监控用户                           |
-| 530  | [`pg_monitor_password`](v-pgsql.md#pg_monitor_password)      | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG监控用户密码                       |
-| 540  | [`pg_dbsu`](v-pgsql.md#pg_dbsu)                              | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG操作系统超级用户                   |
-| 541  | [`pg_dbsu_uid`](v-pgsql.md#pg_dbsu_uid)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 超级用户UID                          |
-| 542  | [`pg_dbsu_sudo`](v-pgsql.md#pg_dbsu_sudo)                    | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 超级用户的Sudo权限                   |
-| 543  | [`pg_dbsu_home`](v-pgsql.md#pg_dbsu_home)                    | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 超级用户的家目录                     |
-| 544  | [`pg_dbsu_ssh_exchange`](v-pgsql.md#pg_dbsu_ssh_exchange)    | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 是否交换超级用户密钥                 |
-| 545  | [`pg_version`](v-pgsql.md#pg_version)                        | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的数据库大版本                   |
-| 546  | [`pgdg_repo`](v-pgsql.md#pgdg_repo)                          | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 是否添加PG官方源？                   |
-| 547  | [`pg_add_repo`](v-pgsql.md#pg_add_repo)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 是否添加PG相关上游源？               |
-| 548  | [`pg_bin_dir`](v-pgsql.md#pg_bin_dir)                        | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG二进制目录                         |
-| 549  | [`pg_packages`](v-pgsql.md#pg_packages)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的PG软件包列表                   |
-| 550  | [`pg_extensions`](v-pgsql.md#pg_extensions)                  | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的PG插件列表                     |
-| 560  | [`pg_exists_action`](v-pgsql.md#pg_exists_action)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | PG存在时如何处理                     |
-| 561  | [`pg_disable_purge`](v-pgsql.md#pg_disable_purge)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | 禁止清除存在的PG实例                 |
-| 562  | [`pg_data`](v-pgsql.md#pg_data)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG数据目录                           |
-| 563  | [`pg_fs_main`](v-pgsql.md#pg_fs_main)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG主数据盘挂载点                     |
-| 564  | [`pg_fs_bkup`](v-pgsql.md#pg_fs_bkup)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG备份盘挂载点                       |
-| 565  | [`pg_dummy_filesize`](v-pgsql.md#pg_dummy_filesize)          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | 占位文件/pg/dummy的大小              |
-| 566  | [`pg_listen`](v-pgsql.md#pg_listen)                          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG监听的IP地址                       |
-| 567  | [`pg_port`](v-pgsql.md#pg_port)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG监听的端口                         |
-| 568  | [`pg_localhost`](v-pgsql.md#pg_localhost)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的UnixSocket地址               |
-| 580  | [`patroni_enabled`](v-pgsql.md#patroni_enabled)              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni是否启用                      |
-| 581  | [`patroni_mode`](v-pgsql.md#patroni_mode)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni配置模式                      |
-| 582  | [`pg_namespace`](v-pgsql.md#pg_namespace)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni使用的DCS命名空间             |
-| 583  | [`patroni_port`](v-pgsql.md#patroni_port)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni服务端口                      |
-| 584  | [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni Watchdog模式                 |
-| 585  | [`pg_conf`](v-pgsql.md#pg_conf)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni使用的配置模板                |
-| 586  | [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG默认加载的共享库                   |
-| 587  | [`pg_encoding`](v-pgsql.md#pg_encoding)                      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG字符集编码                         |
-| 588  | [`pg_locale`](v-pgsql.md#pg_locale)                          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化规则                   |
-| 589  | [`pg_lc_collate`](v-pgsql.md#pg_lc_collate)                  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化排序规则               |
-| 590  | [`pg_lc_ctype`](v-pgsql.md#pg_lc_ctype)                      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化字符集定义             |
-| 591  | [`pgbouncer_enabled`](v-pgsql.md#pgbouncer_enabled)          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | 是否启用Pgbouncer                    |
-| 592  | [`pgbouncer_port`](v-pgsql.md#pgbouncer_port)                | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer端口                        |
-| 593  | [`pgbouncer_poolmode`](v-pgsql.md#pgbouncer_poolmode)        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer池化模式                    |
-| 594  | [`pgbouncer_max_db_conn`](v-pgsql.md#pgbouncer_max_db_conn)  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer最大单DB连接数              |
-| 600  | [`pg_provision`](v-pgsql.md#pg_provision)                    | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | C     | 是否在PG集群中应用模板               |
-| 601  | [`pg_init`](v-pgsql.md#pg_init)                              | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | C     | 自定义PG初始化脚本                   |
-| 602  | [`pg_default_roles`](v-pgsql.md#pg_default_roles)            | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 默认创建的角色与用户                 |
-| 603  | [`pg_default_privilegs`](v-pgsql.md#pg_default_privilegs)    | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 数据库默认权限配置                   |
-| 604  | [`pg_default_schemas`](v-pgsql.md#pg_default_schemas)        | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 默认创建的模式                       |
-| 605  | [`pg_default_extensions`](v-pgsql.md#pg_default_extensions)  | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 默认安装的扩展                       |
-| 606  | [`pg_reload`](v-pgsql.md#pg_reload)                          | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | A     | 是否重载数据库配置（HBA）            |
-| 607  | [`pg_hba_rules`](v-pgsql.md#pg_hba_rules)                    | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | 全局HBA规则                          |
-| 608  | [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules)      | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Pgbouncer全局HBA规则                 |
-| 620  | [`pg_exporter_config`](v-pgsql.md#pg_exporter_config)        | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PG指标定义文件                       |
-| 621  | [`pg_exporter_enabled`](v-pgsql.md#pg_exporter_enabled)      | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | 启用PG指标收集器                     |
-| 622  | [`pg_exporter_port`](v-pgsql.md#pg_exporter_port)            | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PG指标暴露端口                       |
-| 623  | [`pg_exporter_params`](v-pgsql.md#pg_exporter_params)        | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PG Exporter额外的URL参数             |
-| 624  | [`pg_exporter_url`](v-pgsql.md#pg_exporter_url)              | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 采集对象数据库的连接串（覆盖）       |
-| 625  | [`pg_exporter_auto_discovery`](v-pgsql.md#pg_exporter_auto_discovery) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 是否自动发现实例中的数据库           |
-| 626  | [`pg_exporter_exclude_database`](v-pgsql.md#pg_exporter_exclude_database) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 数据库自动发现排除列表               |
-| 627  | [`pg_exporter_include_database`](v-pgsql.md#pg_exporter_include_database) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 数据库自动发现囊括列表               |
-| 628  | [`pg_exporter_options`](v-pgsql.md#pg_exporter_options)      | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PG Exporter命令行参数                |
-| 629  | [`pgbouncer_exporter_enabled`](v-pgsql.md#pgbouncer_exporter_enabled) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | 启用PGB指标收集器                    |
-| 630  | [`pgbouncer_exporter_port`](v-pgsql.md#pgbouncer_exporter_port) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PGB指标暴露端口                      |
-| 631  | [`pgbouncer_exporter_url`](v-pgsql.md#pgbouncer_exporter_url) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | 采集对象连接池的连接串               |
-| 632  | [`pgbouncer_exporter_options`](v-pgsql.md#pgbouncer_exporter_options) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PGB Exporter命令行参数               |
-| 640  | [`pg_services`](v-pgsql.md#pg_services)                      | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 全局通用服务定义                     |
-| 641  | [`haproxy_enabled`](v-pgsql.md#haproxy_enabled)              | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C/I   | 是否启用Haproxy                      |
-| 642  | [`haproxy_reload`](v-pgsql.md#haproxy_reload)                | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | 是否重载Haproxy配置                  |
-| 643  | [`haproxy_admin_auth_enabled`](v-pgsql.md#haproxy_admin_auth_enabled) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 是否对Haproxy管理界面启用认证        |
-| 644  | [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy管理员名称                    |
-| 645  | [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy管理员密码                    |
-| 646  | [`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port)  | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy指标暴露器端口                |
-| 647  | [`haproxy_client_timeout`](v-pgsql.md#haproxy_client_timeout) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy客户端超时                    |
-| 648  | [`haproxy_server_timeout`](v-pgsql.md#haproxy_server_timeout) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy服务端超时                    |
-| 649  | [`vip_mode`](v-pgsql.md#vip_mode)                            | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP模式：none                        |
-| 650  | [`vip_reload`](v-pgsql.md#vip_reload)                        | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | 是否重载VIP配置                      |
-| 651  | [`vip_address`](v-pgsql.md#vip_address)                      | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | 集群使用的VIP地址                    |
-| 652  | [`vip_cidrmask`](v-pgsql.md#vip_cidrmask)                    | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP地址的网络CIDR掩码长度            |
-| 653  | [`vip_interface`](v-pgsql.md#vip_interface)                  | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP使用的网卡                        |
-| 654  | [`dns_mode`](v-pgsql.md#dns_mode)                            | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | DNS配置模式                          |
-| 655  | [`dns_selector`](v-pgsql.md#dns_selector)                    | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | DNS解析对象选择器                    |
-| 700  | [`redis_cluster`](v-redis.md#redis_cluster)                  | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | C     | Redis数据库集群名称                  |
-| 701  | [`redis_node`](v-redis.md#redis_node)                        | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis节点序列号                      |
-| 702  | [`redis_instances`](v-redis.md#redis_instances)              | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis实例定义                        |
-| 720  | [`redis_install`](v-redis.md#redis_install)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 安装Redis的方式                      |
-| 721  | [`redis_mode`](v-redis.md#redis_mode)                        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis集群模式                        |
-| 722  | [`redis_conf`](v-redis.md#redis_conf)                        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis配置文件模板                    |
-| 723  | [`redis_fs_main`](v-redis.md#redis_fs_main)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | PG数据库实例角色                     |
-| 724  | [`redis_bind_address`](v-redis.md#redis_bind_address)        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis监听的端口地址                  |
-| 725  | [`redis_exists_action`](v-redis.md#redis_exists_action)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis存在时执行何种操作              |
-| 726  | [`redis_disable_purge`](v-redis.md#redis_disable_purge)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 禁止抹除现存的Redis                  |
-| 727  | [`redis_max_memory`](v-redis.md#redis_max_memory)            | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C/I   | Redis可用的最大内存                  |
-| 728  | [`redis_mem_policy`](v-redis.md#redis_mem_policy)            | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 内存逐出策略                         |
-| 729  | [`redis_password`](v-redis.md#redis_password)                | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis密码                            |
-| 730  | [`redis_rdb_save`](v-redis.md#redis_rdb_save)                | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | RDB保存指令                          |
-| 731  | [`redis_aof_enabled`](v-redis.md#redis_aof_enabled)          | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 是否启用AOF                          |
-| 732  | [`redis_rename_commands`](v-redis.md#redis_rename_commands)  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 重命名危险命令列表                   |
-| 740  | [`redis_cluster_replicas`](v-redis.md#redis_cluster_replicas) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | 集群每个主库带几个从库               |
-| 741  | [`redis_exporter_enabled`](v-redis.md#redis_exporter_enabled) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | 是否启用Redis监控                    |
-| 742  | [`redis_exporter_port`](v-redis.md#redis_exporter_port)      | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter监听端口               |
-| 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter命令参数               |
+
+<details><summary>List of config entries</summary>
 
 
-</details>
+
+| ID   | Name                                                         | Section                                         | Level | Description                                                  |
+| ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------------------------------ |
+| 100  | [`proxy_env`](v-infra.md#proxy_env)                          | [`CONNECT`](v-infra.md#CONNECT)                 | G     | Proxy server config                                          |
+| 110  | [`repo_enabled`](v-infra.md#repo_enabled)                    | [`REPO`](v-infra.md#REPO)                       | G     | Enable local sources                                         |
+| 111  | [`repo_name`](v-infra.md#repo_name)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source name                                            |
+| 112  | [`repo_address`](v-infra.md#repo_address)                    | [`REPO`](v-infra.md#REPO)                       | G     | Local source external access address                         |
+| 113  | [`repo_port`](v-infra.md#repo_port)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source port                                            |
+| 114  | [`repo_home`](v-infra.md#repo_home)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source file root directory                             |
+| 115  | [`repo_rebuild`](v-infra.md#repo_rebuild)                    | [`REPO`](v-infra.md#REPO)                       | A     | Rebuild Yum source                                           |
+| 116  | [`repo_remove`](v-infra.md#repo_remove)                      | [`REPO`](v-infra.md#REPO)                       | A     | Remove existing REPO files                                   |
+| 117  | [`repo_upstreams`](v-infra.md#repo_upstreams)                | [`REPO`](v-infra.md#REPO)                       | G     | Upstream sources of Yum source                               |
+| 118  | [`repo_packages`](v-infra.md#repo_packages)                  | [`REPO`](v-infra.md#REPO)                       | G     | List of software from Yum source                             |
+| 119  | [`repo_url_packages`](v-infra.md#repo_url_packages)          | [`REPO`](v-infra.md#REPO)                       | G     | List of software downloaded via URL                          |
+| 120  | [`ca_method`](v-infra.md#ca_method)                          | [`CA`](v-infra.md#CA)                           | G     | CA creation method                                           |
+| 121  | [`ca_subject`](v-infra.md#ca_subject)                        | [`CA`](v-infra.md#CA)                           | G     | Self-signed CA themes                                        |
+| 122  | [`ca_homedir`](v-infra.md#ca_homedir)                        | [`CA`](v-infra.md#CA)                           | G     | CA root directory                                            |
+| 123  | [`ca_cert`](v-infra.md#ca_cert)                              | [`CA`](v-infra.md#CA)                           | G     | CA Certificate                                               |
+| 124  | [`ca_key`](v-infra.md#ca_key)                                | [`CA`](v-infra.md#CA)                           | G     | CA private key name                                          |
+| 130  | [`nginx_upstream`](v-infra.md#nginx_upstream)                | [`NGINX`](v-infra.md#NGINX)                     | G     | Nginx upstream servers                                       |
+| 131  | [`app_list`](v-infra.md#app_list)                            | [`NGINX`](v-infra.md#NGINX)                     | G     | List of apps displayed on the navigation bar                 |
+| 132  | [`docs_enabled`](v-infra.md#docs_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | Enable local documents                                       |
+| 133  | [`pev2_enabled`](v-infra.md#pev2_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | Enable PEV2 component                                        |
+| 134  | [`pgbadger_enabled`](v-infra.md#pgbadger_enabled)            | [`NGINX`](v-infra.md#NGINX)                     | G     | Enable Pgbadger                                              |
+| 140  | [`dns_records`](v-infra.md#dns_records)                      | [`NAMESERVER`](v-infra.md#NAMESERVER)           | G     | Dynamic DNS Resolution Records                               |
+| 150  | [`prometheus_data_dir`](v-infra.md#prometheus_data_dir)      | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prometheus Catalog                                           |
+| 151  | [`prometheus_options`](v-infra.md#prometheus_options)        | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prometheus command line parameters                           |
+| 152  | [`prometheus_reload`](v-infra.md#prometheus_reload)          | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | A     | Reload instead of Recreate                                   |
+| 153  | [`prometheus_sd_method`](v-infra.md#prometheus_sd_method)    | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Service discovery mechanism: static                          |
+| 154  | [`prometheus_scrape_interval`](v-infra.md#prometheus_scrape_interval) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom Crawl Cycle                                             |
+| 155  | [`prometheus_scrape_timeout`](v-infra.md#prometheus_scrape_timeout) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom Crawl Timeout                                           |
+| 156  | [`prometheus_sd_interval`](v-infra.md#prometheus_sd_interval) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | G     | Prom Service Discovery Refresh Cycle                         |
+| 160  | [`exporter_install`](v-infra.md#exporter_install)            | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | Installation of monitoring components method                 |
+| 161  | [`exporter_repo_url`](v-infra.md#exporter_repo_url)          | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | YumRepo for monitoring components                            |
+| 162  | [`exporter_metrics_path`](v-infra.md#exporter_metrics_path)  | [`EXPORTER`](v-infra.md#EXPORTER)               | G     | Monitor the exposed URL Path                                 |
+| 170  | [`grafana_endpoint`](v-infra.md#grafana_endpoint)            | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana Address                                              |
+| 171  | [`grafana_admin_username`](v-infra.md#grafana_admin_username) | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana Administrator Username                               |
+| 172  | [`grafana_admin_password`](v-infra.md#grafana_admin_password) | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana Administrator Password                               |
+| 173  | [`grafana_database`](v-infra.md#grafana_database)            | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana Database Types                                       |
+| 174  | [`grafana_pgurl`](v-infra.md#grafana_pgurl)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana's PG connection string                               |
+| 175  | [`grafana_plugin`](v-infra.md#grafana_plugin)                | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana plugin installation method                           |
+| 176  | [`grafana_cache`](v-infra.md#grafana_cache)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana plugin cache location                                |
+| 177  | [`grafana_plugins`](v-infra.md#grafana_plugins)              | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Installation list of Grafana plugins                         |
+| 178  | [`grafana_git_plugins`](v-infra.md#grafana_git_plugins)      | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Installing Grafana Plugin from Git                           |
+| 180  | [`loki_endpoint`](v-infra.md#loki_endpoint)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | Receiving logs for the loki service                          |
+| 181  | [`loki_clean`](v-infra.md#loki_clean)                        | [`LOKI`](v-infra.md#LOKI)                       | A     | Clean up the database directory during Loki installation     |
+| 182  | [`loki_options`](v-infra.md#loki_options)                    | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki's command line parameters                               |
+| 183  | [`loki_data_dir`](v-infra.md#loki_data_dir)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki's data directory                                        |
+| 184  | [`loki_retention`](v-infra.md#loki_retention)                | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki log default retention days                              |
+| 200  | [`dcs_servers`](v-infra.md#dcs_servers)                      | [`DCS`](v-infra.md#DCS)                         | G     | DCS server name:IP list                                      |
+| 201  | [`service_registry`](v-infra.md#service_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | Service Registration Location                                |
+| 202  | [`dcs_type`](v-infra.md#dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Type                                                     |
+| 203  | [`dcs_name`](v-infra.md#dcs_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
+| 204  | [`dcs_exists_action`](v-infra.md#dcs_exists_action)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
+| 205  | [`dcs_disable_purge`](v-infra.md#dcs_disable_purge)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
+| 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul Data Catalog                                          |
+| 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd Data Catalog                                            |
+| 220  | [`jupyter_enabled`](v-infra.md#jupyter_enabled)              | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Enable JupyterLab                                            |
+| 221  | [`jupyter_username`](v-infra.md#jupyter_username)            | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | OS users used by Jupyter                                     |
+| 222  | [`jupyter_password`](v-infra.md#jupyter_password)            | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter Lab Password                                         |
+| 230  | [`pgweb_enabled`](v-infra.md#pgweb_enabled)                  | [`PGWEB`](v-infra.md#PGWEB)                     | G     | Enable PgWeb                                                 |
+| 231  | [`pgweb_username`](v-infra.md#pgweb_username)                | [`PGWEB`](v-infra.md#PGWEB)                     | G     | OS users used by PgWeb                                       |
+| 300  | [`meta_node`](v-nodes.md#meta_node)                          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Meta Node                                                    |
+| 301  | [`nodename`](v-nodes.md#nodename)                            | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | I     | Node instance mark                                           |
+| 302  | [`node_cluster`](v-nodes.md#node_cluster)                    | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Node cluster name, default nodes                             |
+| 303  | [`nodename_overwrite`](v-nodes.md#nodename_overwrite)        | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Nodename overrides HOSTNAME                                  |
+| 304  | [`nodename_exchange`](v-nodes.md#nodename_exchange)          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Exchange hostnames between playbook nodes                    |
+| 310  | [`node_dns_hosts`](v-nodes.md#node_dns_hosts)                | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Static DNS Analysis                                          |
+| 311  | [`node_dns_hosts_extra`](v-nodes.md#node_dns_hosts_extra)    | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | As above, at the cluster instance level                      |
+| 312  | [`node_dns_server`](v-nodes.md#node_dns_server)              | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure DNS server method                                  |
+| 313  | [`node_dns_servers`](v-nodes.md#node_dns_servers)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure a list of dynamic DNS servers                      |
+| 314  | [`node_dns_options`](v-nodes.md#node_dns_options)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure the /etc/resolv.conf                               |
+| 320  | [`node_repo_method`](v-nodes.md#node_repo_method)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | The way nodes use Yum sources                                |
+| 321  | [`node_repo_remove`](v-nodes.md#node_repo_remove)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | Remove nodes with existing Yum sources                       |
+| 322  | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | URL of the local source                                      |
+| 330  | [`node_packages`](v-nodes.md#node_packages)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Packages for nodes                                           |
+| 331  | [`node_extra_packages`](v-nodes.md#node_extra_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Additional packages for nodes                                |
+| 332  | [`node_meta_packages`](v-nodes.md#node_meta_packages)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages for meta nodes                                      |
+| 333  | [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install)  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages installed via pip3                                  |
+| 340  | [`node_disable_numa`](v-nodes.md#node_disable_numa)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node NUMA                                        |
+| 341  | [`node_disable_swap`](v-nodes.md#node_disable_swap)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node SWAP                                        |
+| 342  | [`node_disable_firewall`](v-nodes.md#node_disable_firewall)  | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node firewall                                    |
+| 343  | [`node_disable_selinux`](v-nodes.md#node_disable_selinux)    | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node SELINUX                                     |
+| 344  | [`node_static_network`](v-nodes.md#node_static_network)      | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Enable static DNS servers                                    |
+| 345  | [`node_disk_prefetch`](v-nodes.md#node_disk_prefetch)        | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Enable disk pre-reading                                      |
+| 346  | [`node_kernel_modules`](v-nodes.md#node_kernel_modules)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | Enable kernel module                                         |
+| 350  | [`node_tune`](v-nodes.md#node_tune)                          | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | Node Tuning Mode                                             |
+| 351  | [`node_sysctl_params`](v-nodes.md#node_sysctl_params)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | OS kernel parameters                                         |
+| 360  | [`node_admin_setup`](v-nodes.md#node_admin_setup)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Create administrator user                                    |
+| 361  | [`node_admin_uid`](v-nodes.md#node_admin_uid)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Administrator UID                                            |
+| 362  | [`node_admin_username`](v-nodes.md#node_admin_username)      | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Administrator Name                                           |
+| 363  | [`node_admin_ssh_exchange`](v-nodes.md#node_admin_ssh_exchange) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Exchange administrator SSH keys                              |
+| 364  | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)  | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | Add the current user's public key to the administrator user  |
+| 365  | [`node_admin_pks`](v-nodes.md#node_admin_pks)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Login administrator's public key list                        |
+| 370  | [`node_timezone`](v-nodes.md#node_timezone)                  | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP time zone setting                                        |
+| 371  | [`node_ntp_config`](v-nodes.md#node_ntp_config)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | Configure NTP service                                        |
+| 372  | [`node_ntp_service`](v-nodes.md#node_ntp_service)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP service type: ntp or chrony                              |
+| 373  | [`node_ntp_servers`](v-nodes.md#node_ntp_servers)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP Server List                                              |
+| 380  | [`node_exporter_enabled`](v-nodes.md#node_exporter_enabled)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | Enable node metrics collector                                |
+| 381  | [`node_exporter_port`](v-nodes.md#node_exporter_port)        | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | Node Indicator Exposure Port                                 |
+| 382  | [`node_exporter_options`](v-nodes.md#node_exporter_options)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C/I   | Node Metrics Collection Options                              |
+| 390  | [`promtail_enabled`](v-nodes.md#promtail_enabled)            | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C     | Enable Protail log collection                                |
+| 391  | [`promtail_clean`](v-nodes.md#promtail_clean)                | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C/A   | Remove existing status information when installing promtail  |
+| 392  | [`promtail_port`](v-nodes.md#promtail_port)                  | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | G     | promtail default port                                        |
+| 393  | [`promtail_options`](v-nodes.md#promtail_options)            | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C/I   | promtail command line parameters                             |
+| 394  | [`promtail_positions`](v-nodes.md#promtail_positions)        | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | C     | promtail status file location                                |
+| 500  | [`pg_cluster`](v-pgsql.md#pg_cluster)                        | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG database cluster name                                     |
+| 501  | [`pg_shard`](v-pgsql.md#pg_shard)                            | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG Cluster-owned Shard (Reserved)                            |
+| 502  | [`pg_sindex`](v-pgsql.md#pg_sindex)                          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | PG cluster's slice number (Reserved)                         |
+| 503  | [`gp_role`](v-pgsql.md#gp_role)                              | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C     | Role of PG Cluster in GP                                     |
+| 504  | [`pg_role`](v-pgsql.md#pg_role)                              | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | PG instance role                                             |
+| 505  | [`pg_seq`](v-pgsql.md#pg_seq)                                | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | PG Instance Serial Number                                    |
+| 506  | [`pg_instances`](v-pgsql.md#pg_instances)                    | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | All PG instances on the current node                         |
+| 507  | [`pg_upstream`](v-pgsql.md#pg_upstream)                      | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | Replicated upstream nodes of instances                       |
+| 508  | [`pg_offline_query`](v-pgsql.md#pg_offline_query)            | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | Offline Search                                               |
+| 509  | [`pg_backup`](v-pgsql.md#pg_backup)                          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | Storing backups on instances                                 |
+| 510  | [`pg_weight`](v-pgsql.md#pg_weight)                          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | I     | Relative weight of instances in load balancing               |
+| 511  | [`pg_hostname`](v-pgsql.md#pg_hostname)                      | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C/I   | PG instance name is set to HOSTNAME                          |
+| 512  | [`pg_preflight_skip`](v-pgsql.md#pg_preflight_skip)          | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | C/A   | Skip PG identity parameter checks                            |
+| 520  | [`pg_users`](v-pgsql.md#pg_users)                            | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Business User Definition                                     |
+| 521  | [`pg_databases`](v-pgsql.md#pg_databases)                    | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Business Database Definition                                 |
+| 522  | [`pg_services_extra`](v-pgsql.md#pg_services_extra)          | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Cluster Proprietary Services Definition                      |
+| 523  | [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra)        | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Cluster/instance specific HBA rules                          |
+| 524  | [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | C     | Pgbounce specific HBA rules                                  |
+| 525  | [`pg_admin_username`](v-pgsql.md#pg_admin_username)          | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG Admin Users                                               |
+| 526  | [`pg_admin_password`](v-pgsql.md#pg_admin_password)          | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG Adimin User Passwords                                     |
+| 527  | [`pg_replication_username`](v-pgsql.md#pg_replication_username) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG Copy User                                                 |
+| 528  | [`pg_replication_password`](v-pgsql.md#pg_replication_password) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG Copy User Passwords                                       |
+| 529  | [`pg_monitor_username`](v-pgsql.md#pg_monitor_username)      | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG Monitoring Users                                          |
+| 530  | [`pg_monitor_password`](v-pgsql.md#pg_monitor_password)      | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | G     | PG Monitoring User passwords                                 |
+| 540  | [`pg_dbsu`](v-pgsql.md#pg_dbsu)                              | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG OS Super User                                             |
+| 541  | [`pg_dbsu_uid`](v-pgsql.md#pg_dbsu_uid)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Super User UID                                               |
+| 542  | [`pg_dbsu_sudo`](v-pgsql.md#pg_dbsu_sudo)                    | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Sudo privileges for super users                              |
+| 543  | [`pg_dbsu_home`](v-pgsql.md#pg_dbsu_home)                    | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Super User's Home Directory                                  |
+| 544  | [`pg_dbsu_ssh_exchange`](v-pgsql.md#pg_dbsu_ssh_exchange)    | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Exchanging Super User Keys                                   |
+| 545  | [`pg_version`](v-pgsql.md#pg_version)                        | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Large version of the installed database                      |
+| 546  | [`pgdg_repo`](v-pgsql.md#pgdg_repo)                          | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Add PG official source                                       |
+| 547  | [`pg_add_repo`](v-pgsql.md#pg_add_repo)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | Add PG-related upstream sources                              |
+| 548  | [`pg_bin_dir`](v-pgsql.md#pg_bin_dir)                        | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG Binary Directory                                          |
+| 549  | [`pg_packages`](v-pgsql.md#pg_packages)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | List of installed PG packages                                |
+| 550  | [`pg_extensions`](v-pgsql.md#pg_extensions)                  | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | List of installed PG plug-ins                                |
+| 560  | [`pg_exists_action`](v-pgsql.md#pg_exists_action)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | Handling method when PG exists                               |
+| 561  | [`pg_disable_purge`](v-pgsql.md#pg_disable_purge)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | Prohibit clearing of existing PG instances                   |
+| 562  | [`pg_data`](v-pgsql.md#pg_data)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG data directory                                            |
+| 563  | [`pg_fs_main`](v-pgsql.md#pg_fs_main)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG master data disk mount point                              |
+| 564  | [`pg_fs_bkup`](v-pgsql.md#pg_fs_bkup)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG backup disk mount point                                   |
+| 565  | [`pg_dummy_filesize`](v-pgsql.md#pg_dummy_filesize)          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | The size of the placeholder file /pg/dummy                   |
+| 566  | [`pg_listen`](v-pgsql.md#pg_listen)                          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG listening IP address                                      |
+| 567  | [`pg_port`](v-pgsql.md#pg_port)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG listening port                                            |
+| 568  | [`pg_localhost`](v-pgsql.md#pg_localhost)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | UnixSocket address used by PG                                |
+| 580  | [`patroni_enabled`](v-pgsql.md#patroni_enabled)              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Enable Patroni                                               |
+| 581  | [`patroni_mode`](v-pgsql.md#patroni_mode)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni config mode                                          |
+| 582  | [`pg_namespace`](v-pgsql.md#pg_namespace)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni's DCS namespace                                      |
+| 583  | [`patroni_port`](v-pgsql.md#patroni_port)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni service port                                         |
+| 584  | [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni Watchdog mode                                        |
+| 585  | [`pg_conf`](v-pgsql.md#pg_conf)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni's config templates                                   |
+| 586  | [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG Default Shared Library                                    |
+| 587  | [`pg_encoding`](v-pgsql.md#pg_encoding)                      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG character set encoding                                    |
+| 588  | [`pg_locale`](v-pgsql.md#pg_locale)                          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Localization rules for PG                                    |
+| 589  | [`pg_lc_collate`](v-pgsql.md#pg_lc_collate)                  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Localized sorting rules for PG                               |
+| 590  | [`pg_lc_ctype`](v-pgsql.md#pg_lc_ctype)                      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Localized character set definitions for PG                   |
+| 591  | [`pgbouncer_enabled`](v-pgsql.md#pgbouncer_enabled)          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Enable Pgbouncer                                             |
+| 592  | [`pgbouncer_port`](v-pgsql.md#pgbouncer_port)                | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer Port                                               |
+| 593  | [`pgbouncer_poolmode`](v-pgsql.md#pgbouncer_poolmode)        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer pooling mode                                       |
+| 594  | [`pgbouncer_max_db_conn`](v-pgsql.md#pgbouncer_max_db_conn)  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Pgbouncer Maximum DB connections                             |
+| 600  | [`pg_provision`](v-pgsql.md#pg_provision)                    | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | C     | Applying templates in PG clusters                            |
+| 601  | [`pg_init`](v-pgsql.md#pg_init)                              | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | C     | Custom PG initialization script                              |
+| 602  | [`pg_default_roles`](v-pgsql.md#pg_default_roles)            | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Default Roles and Users                                      |
+| 603  | [`pg_default_privilegs`](v-pgsql.md#pg_default_privilegs)    | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Database default permission config                           |
+| 604  | [`pg_default_schemas`](v-pgsql.md#pg_default_schemas)        | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Default Mode                                                 |
+| 605  | [`pg_default_extensions`](v-pgsql.md#pg_default_extensions)  | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Extensions installed by default                              |
+| 606  | [`pg_reload`](v-pgsql.md#pg_reload)                          | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | A     | Reload Database Config (HBA)                                 |
+| 607  | [`pg_hba_rules`](v-pgsql.md#pg_hba_rules)                    | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Global HBA rules                                             |
+| 608  | [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules)      | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | G/C   | Pgbouncer Global HBA rules                                   |
+| 620  | [`pg_exporter_config`](v-pgsql.md#pg_exporter_config)        | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PG Metrics Definition Document                               |
+| 621  | [`pg_exporter_enabled`](v-pgsql.md#pg_exporter_enabled)      | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | Enable PG Indicator Collector                                |
+| 622  | [`pg_exporter_port`](v-pgsql.md#pg_exporter_port)            | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PG Indicator Exposure Port                                   |
+| 623  | [`pg_exporter_params`](v-pgsql.md#pg_exporter_params)        | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | Additional URL parameters for PG Exporter                    |
+| 624  | [`pg_exporter_url`](v-pgsql.md#pg_exporter_url)              | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | Acquisition of connection strings for object databases (override) |
+| 625  | [`pg_exporter_auto_discovery`](v-pgsql.md#pg_exporter_auto_discovery) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | Auto-discovery of the database in the instance               |
+| 626  | [`pg_exporter_exclude_database`](v-pgsql.md#pg_exporter_exclude_database) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | Automatic database exclusion list                            |
+| 627  | [`pg_exporter_include_database`](v-pgsql.md#pg_exporter_include_database) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | Automatic database capsule list                              |
+| 628  | [`pg_exporter_options`](v-pgsql.md#pg_exporter_options)      | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PG Exporter command line parameters                          |
+| 629  | [`pgbouncer_exporter_enabled`](v-pgsql.md#pgbouncer_exporter_enabled) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | Enable PGB Indicator Collector                               |
+| 630  | [`pgbouncer_exporter_port`](v-pgsql.md#pgbouncer_exporter_port) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C     | PGB Indicator Exposure Port                                  |
+| 631  | [`pgbouncer_exporter_url`](v-pgsql.md#pgbouncer_exporter_url) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | Collection of connection strings for object connection pools |
+| 632  | [`pgbouncer_exporter_options`](v-pgsql.md#pgbouncer_exporter_options) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | C/I   | PGB Exporter Command Line Parameters                         |
+| 640  | [`pg_services`](v-pgsql.md#pg_services)                      | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | Global Common Service Definition                             |
+| 641  | [`haproxy_enabled`](v-pgsql.md#haproxy_enabled)              | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C/I   | Enable Haproxy                                               |
+| 642  | [`haproxy_reload`](v-pgsql.md#haproxy_reload)                | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | Reload Haproxy configuration                                 |
+| 643  | [`haproxy_admin_auth_enabled`](v-pgsql.md#haproxy_admin_auth_enabled) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | Enable authentication for the Haproxy management interface   |
+| 644  | [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy administrator name                                   |
+| 645  | [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy administrator password                               |
+| 646  | [`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port)  | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy metrics exposer port                                 |
+| 647  | [`haproxy_client_timeout`](v-pgsql.md#haproxy_client_timeout) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy client timeout                                       |
+| 648  | [`haproxy_server_timeout`](v-pgsql.md#haproxy_server_timeout) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy server timeout                                       |
+| 649  | [`vip_mode`](v-pgsql.md#vip_mode)                            | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP mode：none                                               |
+| 650  | [`vip_reload`](v-pgsql.md#vip_reload)                        | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | Overload VIP Config                                          |
+| 651  | [`vip_address`](v-pgsql.md#vip_address)                      | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | The cluster's VIP address                                    |
+| 652  | [`vip_cidrmask`](v-pgsql.md#vip_cidrmask)                    | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | Network CIDR mask length for VIP address                     |
+| 653  | [`vip_interface`](v-pgsql.md#vip_interface)                  | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | VIP's network card                                           |
+| 654  | [`dns_mode`](v-pgsql.md#dns_mode)                            | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | DNS config mode                                              |
+| 655  | [`dns_selector`](v-pgsql.md#dns_selector)                    | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | DNS Object Selector                                          |
+| 700  | [`redis_cluster`](v-redis.md#redis_cluster)                  | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | C     | Redis Cluster Name                                           |
+| 701  | [`redis_node`](v-redis.md#redis_node)                        | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis Node Serial Number                                     |
+| 702  | [`redis_instances`](v-redis.md#redis_instances)              | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis Instance Definition                                    |
+| 720  | [`redis_install`](v-redis.md#redis_install)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Installation Method                                    |
+| 721  | [`redis_mode`](v-redis.md#redis_mode)                        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Cluster Mode                                           |
+| 722  | [`redis_conf`](v-redis.md#redis_conf)                        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Config Template                                        |
+| 723  | [`redis_fs_main`](v-redis.md#redis_fs_main)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | PG Instance Role                                             |
+| 724  | [`redis_bind_address`](v-redis.md#redis_bind_address)        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis listening port                                         |
+| 725  | [`redis_exists_action`](v-redis.md#redis_exists_action)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Actions when Redis exists                                    |
+| 726  | [`redis_disable_purge`](v-redis.md#redis_disable_purge)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Disable wiping of existing Redis                             |
+| 727  | [`redis_max_memory`](v-redis.md#redis_max_memory)            | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C/I   | Maximum memory available to Redis                            |
+| 728  | [`redis_mem_policy`](v-redis.md#redis_mem_policy)            | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Memory Eviction Policy                                       |
+| 729  | [`redis_password`](v-redis.md#redis_password)                | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis passwords                                              |
+| 730  | [`redis_rdb_save`](v-redis.md#redis_rdb_save)                | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | RDB save command                                             |
+| 731  | [`redis_aof_enabled`](v-redis.md#redis_aof_enabled)          | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Enable AOF                                                   |
+| 732  | [`redis_rename_commands`](v-redis.md#redis_rename_commands)  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Rename Danger Command List                                   |
+| 740  | [`redis_cluster_replicas`](v-redis.md#redis_cluster_replicas) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Each master with several slaves                              |
+| 741  | [`redis_exporter_enabled`](v-redis.md#redis_exporter_enabled) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Enabling Redis Monitoring                                    |
+| 742  | [`redis_exporter_port`](v-redis.md#redis_exporter_port)      | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter Listening Port                                |
+| 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter Command Parameters                            |
