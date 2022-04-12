@@ -4,29 +4,25 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Demo](http://home.pigsty.cc)
+> Latest Version: [1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 
 > Run `make doc` to serve [EN Docs](docs/) & [ZH Docs](docs/zh-cn/) on your localhost
 
-![](docs/_media/what.svg)
+![](docs/_media/WHAT_EN.svg)
 
-* Pigsty is the battery-included open-source PostgreSQL [distribution](#distribution)
-
-* Pigsty is a powerful & professional PostgreSQL [monitoring](#monitoring) system
-
-* Pigsty is a handy & reliable [provisioning](#provisioning) solution for [HA](#ha-clusters) Postgres clusters
-
-* Pigsty is a versatile local [sandbox](#sandbox) for demo, dev, test, data [analysis](#analysis) and visualization
-
-* Pigsty now support Redis & MatrixDB deployment & monitoring
-
-Pigsty can be used both for large-scale pg clusters management in real-world prod-env, and for launching versatile local pgsql sandbox for dev, test, demo & data analysis purpose.
+* Battery-Included Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Greenplum/Redis, United in One!
+* Unparalleled monitoring: Grafana, Prometheus, Loki, AlertManager, Just bring the ultimate observability!
+* Auto-Piloting HA Postgres: Idempotent instances & services, self-healing from hardware failures!
+* Infra as Data: Describe any postgres you want: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum 
+* Easy to Use: Download, Install, Deploy, Scale, Backup, Migration, One command, One kill!
+* Versatile Use Cases:  Databases management or host monitoring. Supporting SaaS or developing data apps. All your choice!
+* Free & Open Source: 50% - 80% cost saving compared to Cloud RDS. Proven in real-world, large-scale env.
 
 
 
-## TL;DR
+## TL; DR
 
 Get a new Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
 
@@ -36,24 +32,45 @@ cd ~/pigsty && ./configure                             # pre-check and config te
 ./infra.yml                                            # install pigsty on current node
 ```
 
-You can also download pigsty source & software packages via `curl`:
+Now you have a battery-included postgres on port 5432, and infra web services on port 80.
+
+Check [Installation](docs/s-install.md) & [public demo](http://demo.pigsty.cc) for details.
+
+<details><summary>Download Packages Directly</summary>
+
+Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # 离线软件包需放置在 /tmp/pkg.tgz
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC
 ```
 
-After install with `infra.yml`, you already have a battery-included postgres & infrastructure on current node. You can have more nodes & databases with following playbooks:
+</details>
+
+
+<details><summary>Mange More Nodes</summary>
+
+You can have more nodes under pigsty with [`nodes.yml`](docs/p-nodes.md#nodes), once [`infra.yml`](docs/p-infra.md#infra) is complete. 
 
 ```bash
-# run on 4-node sandbox environment
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
-./pgsql.yml  -l pg-test      # init 1-primary-2-replica pgsql cluster
-./redis.yml  -l redis-test   # init redis cluster redis-test
-./pigsty-matrix.yml -l mx-*  # init MatrixDB cluster mx-mdw,mx-sdw .....
 ```
 
-Check [public demo](http://demo.pigsty.cc) for what you will get.
+</details>
+
+
+<details><summary>Deploy Databases Clusters</summary>
+
+You can deploy different types of databases & clusters with corresponding playbooks.
+
+```bash
+./pgsql.yml         -l pg-test      # init 1-primary-2-replica pgsql cluster
+./redis.yml         -l redis-test   # init redis cluster redis-test
+./pigsty-matrix.yml -l mx-*         # init MatrixDB cluster mx-mdw,mx-sdw .....
+```
+
+</details>
+
 
 
 
@@ -80,7 +97,7 @@ Pigsty is an entire **solution** for using postgres in your production environme
 creating & scaling clusters, switchover & auto failover. manage databases, users, roles, hbas, schemas, hbas with configuration, connection pooling, load balancing, monitoring & logging & alerting, service discovery, etc...
 
 
-![](docs/_media/infra.svg)
+![](docs/_media/ARCH.svg)
 
 
 ## Monitoring
@@ -326,9 +343,7 @@ The clusters created by Pigsty are **distributive** HA postgres database cluster
 As long as any instance in the cluster survives, the cluster serves. Each instance is idempotent from application's point of view.
 
 
-![](docs/_media/access.svg)
-
-
+![](docs/_media/HA-PGSQL.svg)
 
 
 
@@ -340,7 +355,7 @@ Which is great for developing, testing, demonstrating, data analysing & visualiz
 Pigsty sandbox can be pulled up with one command on your Macbook, powered by virtualbox & vagrant. or created upon cloud vm with terraform.
 There are two specs of sandbox: 1 node (the default) and 4 node (full sandbox)
 
-![](docs/_media/sandbox.svg)
+![](docs/_media/SANDBOX.gif)
 
 <details>
 <summary>Sandbox Specification</summary>
@@ -383,17 +398,7 @@ Pigsty comes with two example apps:  [`covid`](http://demo.pigsty.cc/d/covid-ove
 
 
 
-## License
-
-[Apache Apache License Version 2.0](LICENSE)
-
-
 ## About
-
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Vonng/pigsty&type=Date)](https://star-history.com/#Vonng/pigsty&Date)
-
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
@@ -401,4 +406,6 @@ License: [Apache 2.0 License](LICENSE)
 
 Copyright 2018-2022 rh@vonng.com(Vonng)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
+[![Star History Chart](https://api.star-history.com/svg?repos=Vonng/pigsty&type=Date)](https://star-history.com/#Vonng/pigsty&Date)
+
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)l

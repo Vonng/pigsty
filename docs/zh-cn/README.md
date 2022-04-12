@@ -81,8 +81,8 @@ make install                                          # 安装
 
 * Pigsty秉持 Infra as Data 的设计理念，用户只需用几行声明式的[配置](v-config.md#配置文件)文件描述自己想要的数据库，即可使用幂等[剧本](p-playbook.md)，一键将其创建。Just like Kubernetes!
 
-* Pigsty向开发者交付简单易用的数据库工具箱：一键下载[安装](s-install.md#单机安装)，自动[配置](v-config.md#配置过程)；一键部署各类开源数据库，一键迁移备份、扩容缩容，极大拉低数据库管理使用门槛，量产DBA！
-
+* Pigsty向开发者交付简单易用的数据库工具箱：一键[下载](s-install.md)，无需互联网即可[离线安装](t-offline.md)，自动[配置](v-config.md#配置过程)；一键部署各类开源数据库，一键迁移备份、扩容缩容，极大拉低数据库管理使用门槛，量产DBA！
+  
 * Pigsty能够简化数据库部署与交付、解决环境配置统一的难题：无论是上千套数据库几万核的生产环境，还是本地1C1G的笔记本均可完整运行；基于Vagrant的[本地沙箱](d-sandbox.md)与基于Terraform的[多云部署](d-sandbox.md#云端沙箱)，云上云下，一键拉起！
 
 ![](../_media/SANDBOX.gif)
