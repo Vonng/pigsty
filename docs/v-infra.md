@@ -12,9 +12,9 @@ The infrastructure section requires very little modification. Usually, it is jus
 
 - [`CONNECT`](#CONNECT): Connection parameters
 - [`REPO`](#REPO): Local repo infrastructure
-- [`CA`](#CA) : Public-Private Key Infrastructure
-- [`NGINX`](#NGINX) : Nginx Web Server
-- [`NAMESERVER`](#NAMESERVER) : DNS Server
+- [`CA`](#CA): Public-Private Key Infrastructure
+- [`NGINX`](#NGINX): Nginx Web Server
+- [`NAMESERVER`](#NAMESERVER): DNS Server
 - [`PROMETHEUS`](#PROMETHEUS): Monitoring Time Series Database
 - [`EXPORTER`](#EXPORTER): Universal Exporter Configuration
 - [`GRAFANA`](#GRAFANA) : Grafana Visualization Platform
