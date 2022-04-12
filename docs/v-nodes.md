@@ -1,18 +1,18 @@
 # Config: Nodes
 
-Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nodes.md) 剧本即可将对应节点配置为对应状态，并纳入Pigsty监控系统。
+Pigsty provides complete host provisioning and monitoring functions. The [`nodes.yml`](p-nodes.md) playbook can be executed to configure the corresponding nodes to the corresponding state and incorporate them into the Pigsty monitoring system.
 
-- [`NODE_IDENTITY`](#NODE_IDENTITY) : 节点身份参数
-- [`NODE_DNS`](#NODE_DNS) : 节点域名解析，配置[静态DNS记录](#node_dns_hosts)与[动态解析](#node_dns_server)
-- [`NODE_REPO`](#NODE_REPO) : 节点软件源
-- [`NODE_PACKAGES`](#NODE_PACKAGES) : 节点软件包
-- [`NODE_FEATURES`](#NODE_FEATURES) : 节点功能特性
-- [`NODE_MODULES`](#NODE_MODULES) : 节点内核模块
-- [`NODE_TUNE`](#NODE_TUNE) : 节点参数调优
-- [`NODE_ADMIN`](#NODE_ADMIN) : 节点管理员
-- [`NODE_TIME`](#NODE_TIME) : 节点时区与时间同步
-- [`NODE_EXPORTER`](#NODE_EXPORTER) : 节点指标暴露器
-- [`PROMTAIL`](#PROMTAIL) : 日志收集组件
+- [`NODE_IDENTITY`](#NODE_IDENTITY) : Node identity parameters
+- [`NODE_DNS`](#NODE_DNS): Node domain name resolution, configure [static DNS records](#node_dns_hosts) and [dynamic resolution](#node_dns_server)
+- [`NODE_REPO`](#NODE_REPO): Node Software Source
+- [`NODE_PACKAGES`](#NODE_PACKAGES): Node Packages
+- [`NODE_FEATURES`](#NODE_FEATURES): Node Functionality Features
+- [`NODE_MODULES`](#NODE_MODULES): Node Kernel Module
+- [`NODE_TUNE`](#NODE_TUNE): Node parameter tuning
+- [`NODE_ADMIN`](#NODE_ADMIN): Node Administrator
+- [`NODE_TIME`](#NODE_TIME): Node time zone and time synchronization
+- [`NODE_EXPORTER`](#NODE_EXPORTER): Node Indicator Exposer
+- [`PROMTAIL`](#PROMTAIL): Log collection component
 
 
 | ID  |                         Name                          |              Section              |   Type   | Level |              Comment              |
@@ -66,21 +66,21 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 ----------------
 ## `NODE_IDENTITY`
 
-每个节点都有**身份参数**，通过在`<cluster>.hosts`与`<cluster>.vars`中的相关参数进行配置。
+Each node has **identity parameters** that are configured through the relevant parameters in `<cluster>.hosts` and `<cluster>.vars`.
 
-Pigsty使用**IP地址**作为**数据库节点**的唯一标识，**该IP地址必须是数据库实例监听并对外提供服务的IP地址**，但不宜使用公网IP地址。尽管如此，用户并不一定非要通过该IP地址连接至该数据库。例如，通过SSH隧道或跳板机中转的方式间接操作管理目标节点也是可行的。但在标识数据库节点时，首要IPv4地址依然是节点的核心标识符，**这一点非常重要，用户应当在配置时保证这一点。** IP地址即配置清单中主机的`inventory_hostname` ，体现为`<cluster>.hosts`对象中的`key`。
+Pigsty uses an **IP address** as a unique identifier for **database nodes**, **this IP address must be the IP address that the database instance listens to and serves externally**, but it is not appropriate to use a public IP address. Nevertheless, users do not necessarily have to connect to that database via that IP address. For example, the management target node is also operated indirectly through SSH tunnels or springboard machine transit. However, the primary IPv4 address is still the core identifier of the node when identifying the database node. **This is very important and users should ensure this when configuring.** The IP address is the `inventory_hostname` of the host in the configuration manifest, and is reflected as the `key` in the `<cluster>.hosts` object.
 
-除此之外，在Pigsty监控系统中，节点还有两个重要的身份参数：[`nodename`](#nodename) 与 [`node_cluster`](#node_cluster)，这两者将在监控系统中用作节点的 **实例标识**（`ins`） 与 **集群标识** （`cls`）。在执行默认的PostgreSQL部署时，因为Pigsty默认采用节点独占1:1部署，因此可以通过 [`pg_hostname`](v-pgsql.md#pg_hostname) 参数，将数据库实例的身份参数（`pg_cluster` 与 `pg_instance`）借用至节点的`ins`与`cls`标签上。 
+In addition, nodes have two important identity parameters in the Pigsty monitoring system: [`nodename`](#nodename) and [`node_cluster`](#node_cluster), which will be used in the monitoring system as the node's **instance identifier** (`ins`) and **cluster identifier** (` cls`). When performing the default PostgreSQL deploy, since Pigsty uses node-exclusive 1:1 deploy by default, the identity parameters of the database instance (`pg_cluster` and `pg_instance`) can be [`pg_hostname`](v-pgsql.md#pg_hostname) parameter borrowed to the `ins` and `cls` tags of the node. 
 
-[`nodename`](#nodename) 与 [`node_cluster`](#node_cluster)并不是必选的，当留白或置空时，[`nodename`](#nodename) 会使用节点当前的主机名，而 [`node_cluster`](#node_cluster) 则会使用固定的默认值：`nodes`。
+[`nodename`](#nodename) and [`node_cluster`](#node_cluster) are not mandatory; when left blank or empty, [`nodename`](#nodename) will use the node's current hostname, while [`node_cluster`](#node_cluster) will use the fixed default value: `nodes`.
 
-|              名称               |    类型    | 层级  | 必要性   | 说明             |
-|:-----------------------------:|:--------:| :---: | -------- | ---------------- |
-|      `inventory_hostname`       |   `ip`   | **-** | **必选** | **节点IP地址**   |
-|     [`nodename`](#nodename)     | `string` | **I** | 可选     | **节点名称**     |
-| [`node_cluster`](#node_cluster) | `string` | **C** | 可选     | **节点集群名称** |
+|              Name               |   Type   | Level | Necessity    | Comment               |
+| :-----------------------------: | :------: | :---: | ------------ | --------------------- |
+|      `inventory_hostname`       |   `ip`   | **-** | **Required** | **Node IP address**   |
+|     [`nodename`](#nodename)     | `string` | **I** | Optional     | **Node Name**         |
+| [`node_cluster`](#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
 
-以下集群配置声明了一个三节点节点集群：
+The following cluster config declares a three-node node cluster:
 
 ```yaml
 node-test:
@@ -99,35 +99,35 @@ node-test:
 
 ### `meta_node`
 
-表示此节点为元节点, 类型：`bool`，层级：C，默认值为：`false`
+This node is a meta node, type: `bool`, level: C, default value: `false`.
 
-在配置清单中，`meta`分组下的节点默认带有此标记。带有此标记的节点会在节点[软件包安装](#node_packages)时进行额外的配置：
-安装[`node_meta_packages`](#node_meta_packages)指定的RPM软件包，并安装[`node_meta_pip_install`](#node_meta_pip_install)指定的Python软件包。
+In the inventory, nodes under the `meta` grouping carry this flag by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages) with:
+Install the RPM pkgs specified by [`node_meta_packages`](#node_meta_packages) and install the Python pkgs specified by [`node_meta_pip_install`](#node_meta_pip_install).
 
 
 
 
 ### `nodename`
 
-指定节点名, 类型：`string`，层级：I，默认值为空。
+Specifies the node name, type: `string`, level: I, the default value is null.
 
-该选项可为节点显式指定名称，只在节点实例层次定义才有意义。使用默认空值或空字符串意味着不为节点指定名称，直接使用现有的 Hostname 作为节点名。
+This option allows explicitly specifying a name for the node, which is only meaningful when defined at the node instance level. Using the default null value or empty string means that no name is specified for the node and the existing Hostname is used directly as the node name.
 
-节点名`nodename`将在Pigsty监控系统中，用作节点实例的名称（`ins`标签）。此外，如果 [`nodename_overwrite`](#nodename_overwrite) 为真，节点名还会用作HOSTNAME。
+The node name `nodename` will be used as the name of the node instance (`ins` tag) in the Pigsty monitoring system. In addition, if [`nodename_overwrite`](#nodename_overwrite) is true, the node name will also be used as the HOSTNAME.
 
-备注：若启用[`pg_hostname`](v-pgsql.md#pg_hostname) 选项，则Pigsty会在初始化节点时，借用当前节点上一一对应PG实例的身份参数，如`pg-test-1`，作为节点名。
+Note: If the [`pg_hostname`](v-pgsql.md#pg_hostname) option is enabled, Pigsty will borrow the identity parameter of the one-by-one corresponding PG instance on the current node, such as `pg-test-1`, as the node name when initializing the node.
 
 
 
 ### `node_cluster`
 
-节点集群名，类型：`string`，层级：C，默认值为：`"nodes"`。
+Node cluster name, type: `string`, level: C, default value: `"nodes"`.
 
-该选项可为节点显式指定一个集群名称，通常在节点集群层次定义才有意义。使用默认空值将直接使用固定值`nodes`作为节点集群标识。
+This option explicitly specifies a cluster name for the node, which is usually meaningful only when defined at the node cluster level. Using the default null value will directly use the fixed value `nodes` as the node cluster identifier.
 
-节点集群名`node_cluster`将在Pigsty监控系统中，用作节点集群的标签（`cls`）。
+The node cluster name `node_cluster` will be used as the label of the node cluster (`cls`) in the Pigsty monitoring system.
 
-备注：若启用[`pg_hostname`](v-pgsql.md#pg_hostname) 选项，则Pigsty会在初始化节点时，借用当前节点上一一对应PG集群的身份参数，如`pg-test`，作为节点集群名。
+Note: If the [`pg_hostname`](v-pgsql.md#pg_hostname) option is enabled, Pigsty will borrow the identity parameter of the one-by-one corresponding PG cluster on the current node, such as `pg-test`, as the node cluster name when initializing the node.
 
 
 
@@ -135,20 +135,20 @@ node-test:
 
 ### `nodename_overwrite`
 
-是否用节点名覆盖机器HOSTNAME, 类型：`bool`，层级：C，默认值为：`true`
+Override machine HOSTNAME with node name, type: `bool`, level: C, default value: `true`.
 
-布尔类型，默认为真，为真时，非空的节点名 [`nodename`](#nodename) 将覆盖节点的当前主机名称。
+Defaults to `true`, i.e. a non-empty node name [`nodename`](#nodename) will override the current hostname of the node.
 
-如果 [`nodename`](#nodename) 参数未定义，为空或为空字符串，则不会对主机名进行修改。
+If the [`nodename`](#nodename) parameter is undefined, empty, or an empty string, no changes are made to the hostname.
 
 
 
 
 ### `nodename_exchange`
 
-是否在剧本节点间交换主机名, 类型：`bool`，层级：C，默认值为：`false`
+Exchange hostnames between playbook nodes, type: `bool`, level: C, default value: `false`.
 
-启用此参数时，同一组执行 [`nodes.yml`](p-nodes.md#nodes) 剧本的节点之间，会相互交换节点名称，写入`/etc/hosts`中。
+When this parameter is enabled, node names are exchanged between the same group of nodes executing the [`nodes.yml`](p-nodes.md#nodes) playbook, written to `/etc/hosts`.
 
 
 
@@ -156,24 +156,24 @@ node-test:
 ----------------
 ## `NODE_DNS`
 
-Pigsty会为节点配置静态DNS解析记录与动态DNS服务器。
+Pigsty configs static DNS resolution records and dynamic DNS servers for the nodes.
 
-如果您的节点供应商已经为您配置了DNS服务器，您可以将 [`node_dns_server`](v-nodes.md#node_dns_server) 设置为 `none` 跳过DNS设置。 
+If your node provider has configured a DNS server for you, you can skip the DNS settings by setting [`node_dns_server`](v-nodes.md#node_dns_server) to `none`. 
 
 
 
 ### `node_dns_hosts`
 
-写入机器的静态DNS解析, 类型：`string[]`，层级：C，默认值为：
+Write to static DNS resolution of the machine, type: `string[]`, level: C, default value:
 
 ```yaml
 node_dns_hosts:                 # static dns records in /etc/hosts
   - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
 ```
 
-[`node_dns_hosts`](#node_dns_hosts) 是一个数组，每一个元素都是形如`ip domain_name`的字符串，代表一条DNS解析记录，每一条记录都会在机器节点初始化时写入`/etc/hosts`中，特别适合在全局配置基础设施地址。
+[`node_dns_hosts`](#node_dns_hosts) is an array, each element is a string shaped like `ip domain_name`, representing a DNS resolution record, each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infrastructure addresses.
 
-您应当确保向`/etc/hosts`中写入`10.10.10.10 pigsty yum.pigsty`这样的DNS记录，确保在DNS Nameserver启动之前便可以采用域名的方式访问本地yum源。
+Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
 
 
 
@@ -181,7 +181,7 @@ node_dns_hosts:                 # static dns records in /etc/hosts
 
 ### `node_dns_hosts_extra`
 
-同上，用于集群实例层级特定的DNS记录, 类型：`string[]`，层级：C/I，默认值为空数组 `[]`
+DNS records specific to the cluster instance level, type: `string[]`, level: C/I, default value is an empty array `[]`.
 
 
 
@@ -190,22 +190,22 @@ node_dns_hosts:                 # static dns records in /etc/hosts
 
 ### `node_dns_server`
 
-如何配置DNS服务器？, 类型：`enum`，层级：C，默认值为：`"add"`
+Config DNS server, type: `enum`, level: C, default value: `"add"`.
 
-机器节点默认的动态DNS服务器的配置方式，有三种模式：
+The default config of dynamic DNS servers for machine nodes has three modes:
 
-* `add`：将 [`node_dns_servers`](#node_dns_servers) 中的记录追加至`/etc/resolv.conf`，并保留已有DNS服务器。（默认）
-* `overwrite`：使用将 [`node_dns_servers`](#node_dns_servers) 中的记录覆盖`/etc/resolv.conf`
-* `none`：跳过DNS服务器配置，如果您的环境中已经配置有DNS服务器，则可以跳过。
+* `add`： Append the records in [`node_dns_servers`](#node_dns_servers) to `/etc/resolv.conf` and keep the existing DNS servers. (default)
+* `overwrite`：Overwrite `/etc/resolv.conf` with the record in [`node_dns_servers`](#node_dns_servers)
+* `none`： If a DNS server is provided in the production env, the DNS server config can be skipped.
 
 
 
 
 ### `node_dns_servers`
 
-配置动态DNS服务器列表, 类型：`string[]`，层级：C，默认值为 `10.10.10.10`
+Config dynamic DNS server list, type: `string[]`, level: C, default value is `10.10.10.10`.
 
-Pigsty默认会添加元节点作为DNS Server，元节点上的DNSMASQ会响应环境中的DNS请求。
+Pigsty adds meta-nodes as DNS Server by default, and DNSMASQ on the meta-node responds to DNS requests in the env.
 
 ```
 node_dns_servers: # dynamic nameserver in /etc/resolv.conf
@@ -218,9 +218,9 @@ node_dns_servers: # dynamic nameserver in /etc/resolv.conf
 
 ### `node_dns_options`
 
-如果 [`node_dns_server`](#node_dns_server) 配置为`add`或`overwrite`，则本配置项中的记录会被追加或覆盖至`/etc/resolv.conf`中。具体格式请参考Linux文档关于`/etc/resolv.conf`的说明
+If [`node_dns_server`](#node_dns_server) is configured as `add` or `overwrite`, the records in this config entry will be appended or overwritten to `/etc/resolv.conf`. Please see the Linux doc for `/etc/resolv.conf` for the exact format.
 
-Pigsty默认添加的解析选项为：
+The default parsing options added by Pigsty:
 
 ```bash
 - options single-request-reopen timeout:1 rotate
@@ -238,38 +238,36 @@ Pigsty默认添加的解析选项为：
 ## `NODE_REPO`
 
 
-Pigsty会为纳入管理的节点配置Yum源，并安装软件包。
+Pigsty configs the Yum repos for the nodes to be included in the management and installs the packages.
 
 
 ### `node_repo_method`
 
-节点使用Yum源的方式, 类型：`enum`，层级：C，默认值为：`"local"`
+A node using Yum repo, type: `enum`, level: C, default value: `"local"`.
 
-机器节点Yum软件源的配置方式，有三种模式：
+The machine node Yum software repo is configured in three modes:
 
-* `local`：使用元节点上的本地Yum源，默认行为，推荐使用此方式。
-* `public`：直接使用互联网源安装，将`repo_upstream`中的公共repo写入`/etc/yum.repos.d/`
-* `none`：不对本地源进行配置与修改。
+* `local`： Use the local Yum repo on the meta node, the default behavior (recommended).
+* `public`： To install using internet sources, write the public repo in `repo_upstream` to `/etc/yum.repos.d/`.
+* `none`： No config and modification of local repos.
 
 
 
 
 ### `node_repo_remove`
 
-是否移除节点已有Yum源, 类型：`bool`，层级：C，默认值为：`true`
+Remove nodes with existing Yum repos, type: `bool`, level: C, default value: `true`.
 
-如何处理节点上原有YUM源？如果启用，则Pigsty会**移除** 节点上`/etc/yum.repos.d`中原有的配置文件，并备份至`/etc/yum.repos.d/backup`
-
-
+If enabled, Pigsty will **removal** the original config file in `/etc/yum.repos.d` on the node and backup it to `/etc/yum.repos.d/backup`
 
 
 ### `node_local_repo_url`
 
-本地源的URL地址, 类型：`url[]`，层级：C，默认值为：
+URL address of the local repo, type: `url[]`, level: C, default value is `local`.
 
-如果 [`node_repo_method`](#node_repo_method) 配置为`local`，则这里列出的Repo文件URL会被下载至`/etc/yum.repos.d`中
+[`node_repo_method`](#node_repo_method) configured as `local`, the Repo file URLs listed here will be downloaded to `/etc/yum.repos.d`.
 
-这里是一个Repo File URL 构成的数组，Pigsty默认会将元节点上的本地Yum源加入机器的源配置中。
+Here is an array of Repo File URLs that Pigsty will add by default to the machine's source config for the local Yum repos on the meta node.
 
 ```
 node_local_repo_url:
@@ -287,9 +285,9 @@ node_local_repo_url:
 
 ### `node_packages`
 
-节点安装软件列表, 类型：`string[]`，层级：C，默认值为：
+List of node installation software, type: `string[]`, level: C, default value:
 
-软件包列表为数组，但每个元素可以包含由**逗号分隔**的多个软件包，Pigsty默认安装的软件包列表如下：
+The package list is an array, but each element can contain multiple pkgs separated by **commas**. The list of pkgs installed by Pigsty by default is as follows:
 
 ```yaml
 node_meta_packages:                           # packages for meta nodes only
@@ -302,19 +300,19 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### `node_extra_packages`
 
-节点额外安装的软件列表, 类型：`string[]`，层级：C，默认值为：
+List of additional installed software for the node, type: `string[]`, level: C, default value:
 
-通过yum安装的额外软件包列表，默认为空列表。
+A list of additional pkgs to install via yum, with an empty list by default.
 
-与[`node_packages`](#node_packages)类似，前者通常是全局统一配置，而 [`node_extra_packages`](#node_extra_packages) 则是针对具体节点进行例外处理。
-例如，您可以为运行PG的节点安装额外的工具包。该变量通常在集群级别进行覆盖定义。
+Similar to [`node_packages`](#node_packages), the former is usually configured globally, while [`node_extra_packages`](#node_extra_packages) makes exceptions for specific nodes.
+For example, you can install additional toolkits for the nodes running PG. This variable is usually overridden and defined at the cluster level.
 
 
 
 
 ### `node_meta_packages`
 
-元节点所需的软件列表, 类型：`string[]`，层级：G，默认值为：
+List of software required by the meta-node, type: `string[]`, level: G, default value:
 
 ```yaml
 node_meta_packages:                           # packages for meta nodes only
@@ -322,18 +320,18 @@ node_meta_packages:                           # packages for meta nodes only
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
 
-与[`node_packages`](#node_packages)类似，但[`node_meta_packages`](#node_meta_packages)中列出的软件包只会在元节点上安装，通常在管理节点上使用的基础设施软件需要在此指定
+Similar to [`node_packages`](#node_packages), the pkgs listed in [`node_meta_packages`](#node_meta_packages) will only be installed on the meta-node, and infrastructure software normally used on the meta node needs to be specified here.
 
 
 
 
 ### `node_meta_pip_install`
 
-元节点上通过pip3安装的软件包, 类型：`string`，层级：G，默认值为：`"jupyterlab"`
+Package installed on the meta-node via pip3, type: `string`, level: G, default value: `"jupyterlab"`.
 
-软件包会下载至[`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python`目录后统一安装。
+The package will be downloaded to [`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` directory and then installed uniformly.
 
-目前默认会安装`jupyterlab`，提供完整的Python运行时环境。
+Currently, `jupyterlab` will be installed by default, providing a complete Python runtime env.
 
 
 
@@ -344,16 +342,16 @@ node_meta_packages:                           # packages for meta nodes only
 ## `NODE_FEATURES`
 
 
-配置主机节点上的一些特定功能。
+Configure some specific features on the host node.
 
 
 ### `node_disable_numa`
 
-关闭节点NUMA, 类型：`bool`，层级：C，默认值为：`false`
+Close the node NUMA, type: `bool`, level: C, default value: `false`.
 
-布尔标记，是否关闭NUMA，默认不关闭。注意，关闭NUMA需要重启机器后方可生效！
+Boolean flag, default is not off. Note that turning off NUMA requires a reboot of the machine before it can take effect!
 
-如果您不清楚如何绑核，在生产环境使用数据库时建议关闭NUMA。
+If you don't know how to set the affinity with a certain CPU core, it is recommended to turn off NUMA when using the database in a production env.
 
 
 
@@ -361,17 +359,17 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### `node_disable_swap`
 
-关闭节点SWAP, 类型：`bool`，层级：C，默认值为：`false`
+Turn off node SWAP, type: `bool`, level: C, default value: `false`.
 
-通常情况下不建议关闭SWAP，如果您有足够的内存，且数据库采用独占式部署，则可以关闭SWAP提高性能。
+Turning off SWAP is not recommended and can be done to improve performance if there is enough memory and the database is deployed exclusively.
 
-当您的节点用于部署Kubernetes时，应当禁用SWAP。
+SWAP should be disabled when your node is used for a Kubernetes deployment.
 
 
 
 ### `node_disable_firewall`
 
-关闭节点防火墙, 类型：`bool`，层级：C，默认值为：`true`，请保持关闭。
+Turn off node firewall, type: `bool`, level: C, default value: `true`, please keep it off.
 
 
 
@@ -379,7 +377,7 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### `node_disable_selinux`
 
-关闭节点SELINUX, 类型：`bool`，层级：C，默认值为：`true`，请保持关闭。
+Close node SELINUX, type: `bool`, level: C, default value: `true`, please keep it off.
 
 
 
@@ -387,9 +385,9 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### `node_static_network`
 
-是否使用静态DNS服务器, 类型：`bool`，层级：C，默认值为：`true`，默认启用。
+Use static DNS servers, Type: `bool`, Level: C, Default: `true`, Enabled by default.
 
-启用静态网络，意味着您的DNS Resolv配置不会因为机器重启与网卡变动被覆盖。建议启用。
+Enabling static networking means that your DNS Resolv config will not be overwritten by machine reboots with NIC changes. It is recommended to enable it.
 
 
 
@@ -397,9 +395,9 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### `node_disk_prefetch`
 
-是否启用磁盘预读, 类型：`bool`，层级：C，默认值为：`false`，默认不启用。
+Enable disk pre-reading, type: `bool`, level: C, default value: `false`, not enabled by default.
 
-针对HDD部署的实例可以优化吞吐量，使用HDD时建议启用。
+Instances deployed against HDDs optimize throughput and are recommended to be enabled when using HDDs.
 
 
 
@@ -411,14 +409,14 @@ node_meta_packages:                           # packages for meta nodes only
 ## `NODE_MODULES`
 
 
-内核功能模块
+Kernel Function Module
 
 
 ### `node_kernel_modules`
 
-启用的内核模块, 类型：`string[]`，层级：C，默认值为：
+Enabled kernel module, type: `string[]`, level: C, default value:
 
-由内核模块名称组成的数组，声明了需要在节点上安装的内核模块，Pigsty默认会启用以下内核模块：
+An array consisting of kernel module names declaring the kernel modules that need to be installed on the node. Pigsty will enable the following kernel modules by default:
 
 ```
 node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
@@ -434,31 +432,29 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 ----------------
 ## `NODE_TUNE`
 
-主机节点调优
+Host Node Tuning
 
 
 
 ### `node_tune`
 
-节点调优模式, 类型：`enum`，层级：C，默认值为：`"tiny"`
+Node tuning mode, type: `enum`, level: C, default value: `"tiny"`.
 
 
-针对机器进行调优的预制方案，基于`tuned`服务。有四种预制模式：
+Prefabricated solutions for machine tuning, based on the `tuned` service. There are four pre-production models:
 
-* `tiny`：微型虚拟机
-* `oltp`：常规OLTP模板，优化延迟
-* `olap`：常规OLAP模板，优化吞吐量
-* `crit`：核心金融业务模板，优化脏页数量
+* `tiny`： Micro Virtual Machine
+* `oltp`： Regular OLTP templates with optimized latency
+* `olap `： Regular OLAP templates to optimize throughput
+* `crit`：Core financial business templates, optimizing the number of dirty pages
 
-通常，数据库的调优模板 [`pg_conf`](v-pgsql.md#pg_conf)应当与机器调优模板配套，详情请参考[定制PGSQL模版](v-pgsql-customize.md)。
-
-
+Normally, the database tuning template [`pg_conf`](v-pgsql.md#pg_conf) should be paired with the machine tuning template, see [Customize PGSQL Template](v-pgsql-customize.md) for details.
 
 
 
 ### `node_sysctl_params`
 
-操作系统内核参数, 类型：`dict`，层级：C，默认值为空字典。字典KV结构，Key为内核`sysctl`参数名，Value为参数值。
+OS kernel parameter, type: `dict`, level: C, default value is an empty dictionary. Dictionary K-V structure, Key is kernel `sysctl` parameter name, Value is the parameter value.
 
 
 
@@ -471,26 +467,26 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 ## `NODE_ADMIN`
 
 
-主机节点管理用户
+Host Node Management Users.
 
 
 ### `node_admin_setup`
 
-是否创建管理员用户, 类型：`bool`，层级：G，默认值为：`true`
+Create admin user, type: `bool`, level: G, default value: `true`.
 
-是否在每个节点上创建管理员用户（免密sudo与ssh），默认会创建名为`dba (uid=88)`的管理用户，可以从元节点上通过SSH免密访问环境中的其他节点并执行免密sudo。
+Whether to create an admin user on each node (password-free sudo and ssh), by default an admin user named `dba (uid=88)` will be created, which can access other nodes in the env and perform password-free sudo from the meta-node via SSH password-free.
 
 
 
 ### `node_admin_uid`
 
-管理员用户UID, 类型：`int`，层级：G，默认值为：`88`，手工分配时请注意UID命名空间冲突。
+Administrator user UID, type: `int`, level: G, default value: `88`, note UID namespace conflict.
 
 
 
 ### `node_admin_username`
 
-管理员用户名, 类型：`string`，层级：G，默认值为：`"dba"`
+Administrator username, type: `string`, level: G, default value: `"dba"`.
 
 
 
@@ -498,30 +494,30 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
 ### `node_admin_ssh_exchange`
 
-在实例间交换节点管理员SSH密钥, 类型：`bool`，层级：C，默认值为：`true`
+Exchange node administrator SSH keys between instances, type: `bool`, level: C, default value: `true`.
 
-启用时，Pigsty会在执行剧本时，在成员间交换SSH公钥，允许管理员 [`node_admin_username`](#node_admin_username) 从不同节点上相互访问。
+When enabled, Pigsty will exchange SSH public keys between members during playbook execution, allowing admins [`node_admin_username`](#node_admin_username) to access each other from different nodes.
 
 
 
 
 ### `node_admin_pk_current`
 
-是否将当前节点&用户的公钥加入管理员账户, 类型：`bool`，层级：A，默认值为：`true`
+Whether to add the public key of the current node & user to the administrator account, type: `bool`, level: A, default value: `true`.
 
-启用时，将当前节点上，当前用户的SSH公钥（`~/.ssh/id_rsa.pub`）会被拷贝至目标节点管理员用户的`authorized_keys`中。
+When enabled, on the current node, the SSH public key (`~/.ssh/id_rsa.pub`) of the current user is copied to the `authorized_keys` of the target node administrator user.
 
-!> 生产环境部署时，请务必注意此参数，此参数会将当前执行命令用户的默认公钥安装至所有机器的管理用户上。
+When deploying in a production env, be sure to pay attention to this parameter, which installs the default public key of the user currently executing the command to the administrative user of all machines
 
 
 
 ### `node_admin_pks`
 
-可登陆管理员的公钥列表, 类型：`key[]`，层级：C，默认值为空数组，Demo中有`vagrant`用户默认的公钥。
+The list of public keys for login able administrators, type: `key[]`, level: C, default value is an empty array, the demo has the default public key for `vagrant` users.
 
-数组，每一个元素为字符串，内容为写入到管理员用户`~/.ssh/authorized_keys`中的密钥，持有对应私钥的用户可以以管理员身份登陆。
+Each element of the array is a string containing the key written to the administrator user `~/.ssh/authorized_keys`, and the user with the corresponding private key can log in as an administrator.
 
-!> 生产环境部署时，请务必注意此参数，仅将信任的密钥加入此列表中。
+When deploying in production envs, be sure to note this parameter and add only trusted keys to this list.
 
 
 
@@ -532,48 +528,48 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 ----------------
 ## `NODE_TIME`
 
-节点时区与时间同步。
+The node time zone is synchronized with time.
 
-如果您的节点已经配置有NTP服务器，则可以配置 [`node_ntp_config`](v-nodes.md#node_dns_server) 为 `false`，跳过NTP服务的设置。
+If the node is already configured with an NTP server, you can configure [`node_ntp_config`](v-nodes.md#node_dns_server) to `false` to skip the setting of the NTP service.
 
 
 ### `node_timezone`
 
-NTP时区设置, 类型：`string`，层级：C，默认值为空。
+NTP time zone setting, type: `string`, level: C, default value is null.
 
-在Demo中，默认使用的时区为`"Asia/Hong_Kong"`，请根据您的实际情况调整。（请不要使用`Asia/Shanghai`时区，该时区缩写 CST 会导致一系列日志时区解析问题）
+In the demo, the default time zone used is `"Asia/Hong_Kong"`, please adjust it according to your actual situation. (Please don't use `Asia/Shanghai` time zone, the abbreviation CST will cause a series of log time zone parsing problems)
 
-如果选择 `false`，或者留空，则Pigsty不会修改该节点的时区配置。
+Select `false`, or leave it blank and Pigsty will not modify the time zone config of this node.
 
 
 
 ### `node_ntp_config`
 
-是否配置NTP服务？, 类型：`bool`，层级：C，默认值为：`true`
+Is the NTP service configured? , type: `bool`, level: C, default value: `true`.
 
-为真时，Pigsty会覆盖节点的`/etc/ntp.conf` 或 `/etc/chrony.conf`，填入 [`node_ntp_servers`](#node_ntp_servers) 指定的NTP服务器。
+Value is  `true`: Pigsty will override the node's `/etc/ntp.conf` or `/etc/chrony.conf` by filling in the NTP server specified by [`node_ntp_servers`](#node_ntp_servers).
 
-如果您的服务器节点已经配置好有NTP服务器，则建议关闭，使用原有NTP服务器。
+If the server node is already configured with an NTP server, it is recommended to turn it off and use the original NTP server.
 
 
 
 
 ### `node_ntp_service`
 
-NTP服务类型：`ntp` 或 `chrony`, 类型：`enum`，层级：C，默认值为：`"ntp"`
+NTP service type: `ntp` or `chrony`, type: `enum`, level: C, default value: `"ntp"`.
 
-指明系统使用的NTP服务类型，默认使用 `ntp` 作为时间服务：
+Specify the type of NTP service used by the system, by default `ntp` is used as the time service:
 
-* `ntp`：传统NTP服务
-* `chrony`：CentOS 7/8默认使用的时间服务
+* `ntp`： Traditional NTP Service
+* `chrony`： Time services used by CentOS 7/8 by default
 
-只有当 [`node_ntp_config`](#node_ntp_config) 为真时生效。
+Only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
 
 
 
 ### `node_ntp_servers`
 
-NTP服务器列表, 类型：`string[]`，层级：C，默认值为：
+List of NTP servers, type: `string[]`, level: C, default value:
 
 ```yaml
 - pool cn.pool.ntp.org iburst
@@ -582,7 +578,7 @@ NTP服务器列表, 类型：`string[]`，层级：C，默认值为：
 - server 10.10.10.10 iburst
 ```
 
-只有当 [`node_ntp_config`](#node_ntp_config) 为真时生效。
+Only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
 
 
 
@@ -596,26 +592,26 @@ NTP服务器列表, 类型：`string[]`，层级：C，默认值为：
 ## `NODE_EXPORTER`
 
 
-NodeExporter用于从主机上收集监控指标数据。
+NodeExporter is used to collect monitoring metrics data from the host.
 
 
 ### `node_exporter_enabled`
 
-启用节点指标收集器, 类型：`bool`，层级：C，默认值为：`true`
+Enable node indicator collector, type: `bool`, level: C, default value: `true`.
 
 
 
 ### `node_exporter_port`
 
-节点指标暴露端口, 类型：`int`，层级：C，默认值为：`9100`
+Node Indicator Exposure Port, type: `int`, level: C, default value: `9100`.
 
 
 
 ### `node_exporter_options`
 
-节点指标采集选项, 类型：`string`，层级：C/I，默认值为：`"--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes"`
+Node metrics collection option, type: `string`, level: C/I, default value: `"--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes"`
 
-Pigsty默认会启用`ntp`, `tcpstat`, `processes` 三个额外的指标收集器，禁用 `softnet`, `nvme` 两个默认的指标收集器。
+Pigsty enables `ntp`, `tcpstat`, `processes` three additional metrics, collectors, by default, and disables `softnet`, `nvme` two default metrics collectors.
 
 
 
@@ -623,34 +619,32 @@ Pigsty默认会启用`ntp`, `tcpstat`, `processes` 三个额外的指标收集�
 ----------------
 ## `PROMTAIL`
 
-主机日志收集组件，与[Loki](v-infra.md#LOKI)基础设施配置配套使用。
+Host log collection component, used with [Loki](v-infra.md#LOKI) infrastructure config.
 
 
 
 ### `promtail_enabled`
 
-是否启用Promtail日志收集服务, 类型：`bool`，层级：C，默认值为：`true`
+Enable Protail log collection service at the current node, type: `bool`, level: C, default value: `true`.
 
-布尔类型，是否在当前节点启用Promtail日志收集服务？默认启用。
+When [`promtail`](#promtail) is enabled, Pigsty will generate a configuration file for Promtail, as defined in the inventory, to grab the following logs and send them to the Loki instance specified by [`loki_endpoint`](#loki_endpoint).
 
-启用 [`promtail`](#promtail) 后，Pigsty会根据配置清单中的定义，生成Promtail的配置文件，抓取下列日志并发送至由[`loki_endpoint`](#loki_endpoint)指定的Loki实例。
-
-* `INFRA`：基础设施日志，只在管理节点上收集
+* `INFRA`： Infrastructure logs, collected only on meta nodes.
   * `nginx-access`: `/var/log/nginx/access.log`
   * `nginx-error`: `/var/log/nginx/error.log`
   * `grafana`: `/var/log/grafana/grafana.log`
 
-* `NODES`： 主机节点日志，在所有节点上收集。
+* `NODES`： Host node logs, collected on all nodes.
   * `syslog`: `/var/log/messages`
   * `dmesg`: `/var/log/dmesg`
   * `cron`: `/var/log/cron`
 
-* `PGSQL`： PostgreSQL日志，当节点定义有`pg_cluster`时收集。
+* `PGSQL`： PostgreSQL logs, collected when a node is defined with `pg_cluster`.
   * `postgres`: `/pg/data/log/*.csv`
   * `patroni`: `/pg/log/patroni.log`
   * `pgbouncer`: `/var/log/pgbouncer/pgbouncer.log`
 
-* `REDIS`： Redis日志，当节点定义有`redis_cluster`时收集。
+* `REDIS`： Redis logs, collected when a node is defined with `redis_cluster`.
   * `redis`: `/var/log/redis/*.log`
 
 
@@ -658,31 +652,29 @@ Pigsty默认会启用`ntp`, `tcpstat`, `processes` 三个额外的指标收集�
 
 ### `promtail_clean`
 
-是否在安装promtail时移除已有状态信息, 类型：`bool`，层级：C/A，默认值为：`false`
+Remove existing state information when installing protail, type: `bool`, level: C/A, default value: `false`.
 
-默认不会清理，当您选择清理时，Pigsty会在部署Promtail时移除现有状态文件 [`promtail_positions`](#promtail_positions)，这意味着Promtail会重新收集当前节点上的所有日志并发送至Loki。
-
-
+The default is not to clean up, when you choose to clean up, Pigsty will remove the existing state file [`promtail_positions`](#promtail_positions) when deploying Promtail, which means that Promtail will recollect all logs on the current node and send them to Loki.
 
 ### `promtail_port`
 
-promtail使用的默认端口, 类型：`int`，层级：G，默认值为：`9080`
+The default port used by promtail, type: `int`, level: G, default value: `9080`.
 
 
 
 
 ### `promtail_options`
 
-promtail命令行参数, 类型：`string`，层级：C/I，默认值为：`"-config.file=/etc/promtail.yml -config.expand-env=true"`
+Promtail command line parameter, type: `string`, level: C/I, default value: `"-config.file=/etc/promtail.yml -config.expand-env=true"`.
 
-运行promtail二进制程序时传入的额外命令行参数，默认值为`'-config.file=/etc/promtail.yml -config.expand-env=true'`。
+Additional command line arguments passed in when running the protail binary, default value: `'-config.file=/etc/promtail.yml -config.expand-env=true'`.
 
-已有参数用于指定配置文件路径，并在配置文件中展开环境变量，不建议修改。
+There are already parameters for specifying the config file path and expanding the environment variables in the config file, which are not recommended to be modified.
 
 
 
 ### `promtail_positions`
 
-promtail状态文件路径, 类型：`string`，层级：C，默认值为：`"/var/log/positions.yaml"`
+Path to promtail status file, type: `string`, level: C, default value：`"/var/log/positions.yaml"`
 
-Promtail记录了所有日志的消费偏移量，定期写入[`promtail_positions`](#promtail_positions) 指定的文件中。
+Promtail records the consumption offsets of all logs, which are periodically written to the file specified by [`promtail_positions`](#promtail_positions).

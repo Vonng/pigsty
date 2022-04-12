@@ -1,18 +1,18 @@
 # Config: PGSQL
 
-> 使用 [PGSQL剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+> Use the [PGSQL Playbook](p-pgsql.md), [l-deployPGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in the [ PGSQL config](v-pgsql.md).
 
-您需要通过配置，向Pigsty表达自己对数据库的需求。Pigsty提供了100+参数来对PostgreSQL集群进行完备的描述。但用户通常只需要关心 [身份参数](#PG_IDENTITY) 与 [业务对象](#PG_BUSINESS) 中的个别参数即可：前者表达数据库集群“是谁？在哪？”，后者表达这个数据库“啥样？有啥？”。
+You need to express the database requirements to pigsty through config. Pigsty provides 100+ parameters for a complete description of a PostgreSQL cluster. However, users usually only need to care about individual parameters in [identity parameters](#PG_IDENTITY) and [business objects](#PG_BUSINESS): the former expresses the database cluster "Who is it? Where is it?" and the latter expresses the database "What does it look like? What's in it?".
 
-Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
+The parameters on the PostgreSQL are divided into seven main sections：
 
-- [`PG_IDENTITY`](#PG_IDENTITY) : 定义PostgreSQL数据库集群的身份
-- [`PG_BUSINESS`](#PG_BUSINESS) : 定制集群模板：用户，数据库，服务，权限规则
-- [`PG_INSTALL`](#PG_INSTALL) : 安装PostgreSQL软件包，扩展插件，准备目录结构与工具脚本
-- [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) : 生成配置模板，拉起PostgreSQL集群，搭建主从复制，启用连接池
-- [`PG_PROVISION`](#PG_PROVISION) : PGSQL集群模板置备，创建用户与数据库，配置权限角色HBA，模式与扩展。
-- [`PG_EXPORTER`](#PG_EXPORTER) : PGSQL指标暴露器，数据库与连接池配置监控组件
-- [`PG_SERVICE`](#PG_SERVICE) : 对外暴露PostgreSQL服务，安装负载均衡器 HAProxy，启用VIP，配置DNS。
+- [`PG_IDENTITY`](#PG_IDENTITY)  Defining the identity of a PostgreSQL database cluster.
+- [`PG_BUSINESS`](#PG_BUSINESS) :Customized cluster templates: users, databases, services, permission rules.
+- [`PG_INSTALL`](#PG_INSTALL) : Install PostgreSQL pkgs, exteand nsion plugins, prepare directory structure and tool scripts.
+- [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) : Generate config template, pull up PostgreSQL cluster, build master-slave replication, enable connection pooling.
+- [`PG_PROVISION`](#PG_PROVISION) : PGSQL cluster template provisioning, creating users and databases, configuring permissions role HBA, schema and extensions.
+- [`PG_EXPORTER`](#PG_EXPORTER) : PGSQL metrics exposer, database and connection pool config  monitoring component.
+- [`PG_SERVICE`](#PG_SERVICE) : Expose the PostgreSQL service externally, install the load balancer HAProxy, enable VIP, and configure DNS.
 
 
 | ID  |                              Name                               |             Section             |    Type     | Level |              Comment              |
@@ -20,11 +20,11 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 | 500 | [`pg_cluster`](#pg_cluster)                                     | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Cluster Name|
 | 501 | [`pg_shard`](#pg_shard)                                         | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Shard Name (Reserve)|
 | 502 | [`pg_sindex`](#pg_sindex)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | C     | PG Shard Index (Reserve)|
-| 503 | [`gp_role`](#gp_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | C     | gp role of this pg cluster|
+| 503 | [`gp_role`](#gp_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | C     | gp role of this PG cluster |
 | 504 | [`pg_role`](#pg_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | I     | PG Instance Role|
 | 505 | [`pg_seq`](#pg_seq)                                             | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | PG Instance Sequence|
-| 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | pg instance on this node|
-| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | pg upstream IP address|
+| 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | PG instance on this node |
+| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | PG upstream IP address |
 | 508 | [`pg_offline_query`](#pg_offline_query)                         | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | allow offline query?|
 | 509 | [`pg_backup`](#pg_backup)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | make base backup on this ins?|
 | 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | relative weight in load balancer|
@@ -82,7 +82,7 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 | 603 | [`pg_default_privilegs`](#pg_default_privilegs)                 | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default privileges|
 | 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default schemas|
 | 605 | [`pg_default_extensions`](#pg_default_extensions)               | [`PG_PROVISION`](#PG_PROVISION) | extension[] | G/C   | list of default extensions|
-| 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | reload configuration?|
+| 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | reload config? |
 | 607 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global HBA rules|
 | 608 | [`pgbouncer_hba_rules`](#pgbouncer_hba_rules)                   | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global pgbouncer HBA rules|
 | 620 | [`pg_exporter_config`](#pg_exporter_config)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C     | pg_exporter config path|
@@ -119,10 +119,9 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 ----------------
 ## `PG_IDENTITY`
 
+[`pg_cluster`](#pg_cluster), [`pg_role`](#pg_role), [`pg_seq`](#pg_seq) belong to **identity parameters** .
 
-[`pg_cluster`](#pg_cluster)，[`pg_role`](#pg_role)，[`pg_seq`](#pg_seq) 属于 **身份参数** 。
-
-除IP地址外，这三个参数是定义一套新的数据库集群的最小必须参数集，一个典型案例如下所示。
+In addition to the IP address, these three parameters are the minimum set of parameters necessary to define a new set of database clusters. A typical example is shown below:
 
 ```yaml
 pg-test:
@@ -134,22 +133,22 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-其他参数都可以继承自全局配置或默认配置，但身份参数必须**显式指定**，**手工分配**，目前PGSQL身份参数如下：
+All other parameters can be inherited from the global configuration or the default configuration, but the identity parameters must be **explicitly specified** and **manually assigned**. The current PGSQL identity parameters are as follows:
 
-|            名称             |   类型   | 层级  | 说明                            |
-|:-------------------------:| :------: | :---: | ------------------------------- |
-| [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG数据库集群名称**            |
-|     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG数据库实例序号**            |
-|    [`pg_role`](#pg_role)    |  `enum`  | **I** | **PG数据库实例角色**            |
-|   [`pg_shard`](#pg_shard)   | `string` | **C** | **PG数据库分片集簇名** （占位） |
-|  [`pg_sindex`](#pg_sindex)  | `number` | **C** | **PG数据库分片集簇号** （占位） |
+|            Name             |   Type   | Level | Comment                                                |
+| :-------------------------: | :------: | :---: | ------------------------------------------------------ |
+| [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG database cluster name**                           |
+|     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG database instance serial number**                 |
+|    [`pg_role`](#pg_role)    |  `enum`  | **I** | **PG database instance role**                          |
+|   [`pg_shard`](#pg_shard)   | `string` | **C** | **PG database slice set cluster name** (placeholder)   |
+|  [`pg_sindex`](#pg_sindex)  | `number` | **C** | **PG database slice set cluster number** (placeholder) |
 
-* [`pg_cluster`](#pg_cluster) 标识了集群的名称，在集群层面进行配置。
-* [`pg_role`](#pg_role) 在实例层面进行配置，标识了实例的角色，只有`primary`角色会进行特殊处理，如果不填，默认为`replica`角色，此外，还有特殊的`delayed`与`offline`角色。
-* [`pg_seq` ](#pg_seq)用于在集群内标识实例，通常采用从0或1开始递增的整数，一旦分配不再更改。
-* `{{ pg_cluster }}-{{ pg_seq }}` 被用于唯一标识实例，即`pg_instance`
-* `{{ pg_cluster }}-{{ pg_role }}` 用于标识集群内的服务，即`pg_service`
-* [`pg_shard`](#pg_shard) 与 [`pg_sindex`](#pg_sindex) 用于水平分片集群，为Citus与Greenplum多集群管理预留。
+* [`pg_cluster`](#pg_cluster) identifies the name of the cluster, which is configured at the cluster level.
+* [`pg_role`](#pg_role) Configured at the instance level, identifies the role of the instance, only the `primary` role will be handled specially, if not filled in, the default is the `replica` role, in addition to the special `delayed` and `offline` roles.
+* [`pg_seq` ](#pg_seq) is used to identify the instance within the cluster, usually with an integer number incremented from 0 or 1, which is not changed once it is assigned.
+* `{{ pg_cluster }}-{{ pg_seq }}` is used to uniquely identify the instance, i.e. `pg_instance`.
+* `{{ pg_cluster }}-{{ pg_role }}` is used to identify the services within the cluster, i.e. `pg_service`.
+* [`pg_shard`](#pg_shard) and [`pg_sindex`](#pg_sindex) are used for horizontally sharding clusters, reserved for Citus and Greenplum multicluster management.
 
 
 
@@ -157,21 +156,21 @@ pg-test:
 
 ### `pg_cluster`
 
-PG数据库集群名称，类型：`string`，层级：集群，没有默认值。**必选参数，必须由用户提供**。
+PG database cluster name, type: `string`, level: cluster, no default. **Mandatory parameter, must be provided by the user**.
 
-集群名将用作集群内资源的命名空间，命名需要遵循特定命名规则：`[a-z][a-z0-9-]*`，以兼容不同约束对身份标识的要求。
+The cluster name will be used as the namespace for the resources within the cluster. The naming needs to follow a specific naming rule: `[a-z][a-z0-9-]*` to be compatible with the requirements of different constraints on the identity.
 
 
 
 
 ### `pg_shard`
 
-PG集群所属的Shard (保留), 类型：`string`，层级：集群，没有默认值，可选参数。
+Shard to which the PG cluster belongs (reserved), type: `string`, level: cluster, No default, Optional parameter.6
 
-只有分片集群需要设置此参数。当多个数据库集群以水平分片的方式共同服务于同一个 业务时，Pigsty将这一组集群称为 **分片集簇（Sharding Cluster）** 。
-`pg_shard`是数据库集群所属分片集簇的名称，一个分片集簇可以指定任意名称，但Pigsty建议采用具有意义的命名规则。
+Only sharding clusters require this parameter to be set. When multiple database clusters serve the same business in a horizontally sharded fashion, Pigsty refers to this group of clusters as a **Sharding Cluster**.
+`pg_shard` is the name of the shard set cluster to which the database cluster belongs. A shard set cluster can be specified with any name, but Pigsty recommends a meaningful naming convention.
 
-例如参与分片集簇的集群，可以使用 分片集簇名 [`pg_shard`](#pg_shard) + `shard` + 集群所属分片编号[`pg_sindex`](#pg_sindex)构成集群名称：
+For example, a cluster participating in a shard cluster can use the shard cluster name [`pg_shard`](#pg_shard) + `shard` + the cluster's shard number [`pg_sindex`](#pg_sindex) to form the cluster name：
 
 ```
 shard:  test
@@ -186,53 +185,53 @@ pg-testshard4
 
 ### `pg_sindex`
 
-PG集群的分片号 (保留), 类型：`int`，层级：C，无默认值。
+PG cluster's slice number (reserved), type: `int`, level: C, no default.
 
-集群在分片集簇中的编号，与 [pg_shard](#pg_shard) 配合使用通常从0或1开始依次分配。只有分片集群需要设置此参数。
+The number of the cluster in the shard cluster, used in conjunction with [pg_shard](#pg_shard) is usually assigned sequentially starting from 0 or 1. Only sharded clusters require this parameter to be set.
 
 
 
 
 ### `gp_role`
 
-当前PG集群在GP中的角色, 类型：`enum`，层级：C，默认值为：
+Current role of PG cluster in GP, type: `enum`, level: C, default value：
 
-Greenplum/MatrixDB 专用，用于指定GP部署中，此PG集群扮演的角色，可选值为： 
-* `master` ： 协调者节点
-* `segment` ： 数据节点
+Greenplum/MatrixDB-specific to specify the role this PG cluster plays in a GP deployment. The optional values are ：
+* `master` ： Facilitator Nodes
+* `segment` ： Data Nodes
 
-为**身份参数**，**集群级参数**，当部署GPSQL时为**必选参数**。
+**identity parameter**, **cluster level parameter**, **mandatory parameter** when deploying GPSQL
 
 
 
 ### `pg_role`
 
-PG数据库实例角色, 类型：`enum`，层级：I，无默认值，**必选参数，必须由用户提供**。。
+PG database instance role, type: `enum`, level: I, no default,  **mandatory parameter, must be provided by user.**
 
-数据库实例的角色，默认角色包括：`primary`, `replica`, `offline`
+Roles for database instances, default roles include: `primary`, `replica`, `offline`.
 
-* `primary`: 集群主库，集群中必须有一个且只能有一个成员为`primary`
-* `replica`: 集群从库，用于承担在线只读流量。
-* `offline`: 集群离线从库，用于承担离线只读流量，例如统计分析/ETL/个人查询等。
+* `primary`: Cluster master, there must be one and only one member of the cluster as `primary`.
+* `replica`: Clustered slave repository for carrying online read-only traffic.
+* `offline`: Clustered offline slave libraries for taking on offline read-only traffic, such as statistical analysis/ETL/personal queries, etc.
 
-**身份参数，必填参数，实例级参数**
+**Identity parameters, required parameters, instance-level parameters.**
 
 
 
 ### `pg_seq`
 
-PG数据库实例序号, 类型：`int`，层级：I，无默认值，**必选参数，必须由用户提供**。
+PG database instance serial number, type: `int`, level: I, no default value,  **mandatory parameter, must be provided by user.**
 
-数据库实例的序号，在**集群内部唯一**，用于区别与标识集群内的不同实例，从0或1开始分配。
+Serial number of the database instance, unique within the **cluster**, used to distinguish and identify different instances within the cluster, assigned starting from 0 or 1.
 
 
 
 ### `pg_instances`
 
-当前节点上的所有PG实例, 类型：`{port:ins}`，层级：I，默认值为：
+All PG instances on the current node, type: `{port:ins}`, level: I, default value：
 
-当节点上部署由超过一个PG实例时，例如Greenplum的Segments，或使用[仅监控模式](d-monly.md)监管已有实例，可使用此参数描述。
-[`pg_instances`](#pg_instances) 是一个对象数组，键为实例端口，值为一个字典，内容可以是任意[`PGSQL`](v-pgsql.md)板块的参数，详情请参考 [MatrixDB部署](d-matrixdb.md)
+This parameter can be used to describe when the node is deployed by more than one PG instance, such as Greenplum's Segments, or when using [monitor-only mode](d-monly.md) to supervise existing instances.
+[`pg_instances`](#pg_instances) is an array of objects with keys as instance ports and values as a dictionary whose contents can be parameters of any [`PGSQL`](v-pgsql.md) board, see [MatrixDB deployment](d-matrixdb.md) for details.
 
 
 
@@ -240,59 +239,59 @@ PG数据库实例序号, 类型：`int`，层级：I，无默认值，**必选�
 
 ### `pg_upstream`
 
-实例的复制上游节点, 类型：`string`，层级：I，默认值为空。
+The replicated upstream node of the instance, type: `string`, level: I, default value is null.
 
-实例级配置项，内容为IP地址或主机名，用于指明流复制上游节点。
+Instance-level configuration item with IP address or host name to indicate the upstream node for stream replication.
 
-* 当为集群的从库配置该参数时，填入的IP地址必须为集群内的其他节点。实例会从该节点进行流复制，此选项可用于构建**级连复制**。
+* When configuring this parameter for a slave library of a cluster, the IP address filled in must be another node within the cluster. Instances will be stream replicated from that node, and this option can be used to build **cascade replication**.
 
-* 当为集群的主库配置该参数时，意味着整个集群将以 **备集群**（Standby Cluster） 的形式运行，从上游节点接受变更。集群中的`primary`将扮演`standby leader` 的角色。
+* When this parameter is configured for the primary of the cluster, it means that the entire cluster will run as a **Standby Cluster**, receiving changes from upstream nodes. The `primary` in the cluster will play the role of `standby leader`.
 
-灵活使用此参数的能力，可以搭建异地灾备的集群，完成分片集群的分裂，实现延时从库。
+Using this parameter flexibly, you can build an offsite disaster recovery cluster, complete the splitting of the sharded cluster, and realize the delayed slave library.
 
 
 
 ### `pg_offline_query`
 
-是否允许离线查询, 类型：`bool`，层级：I，默认值为：`false`
+Whether to allow offline queries, type: `bool`, level: I, default value: `false`.
 
-设置为`true`时，无论当前实例的角色为何，用户组`dbrole_offline`都可以连接至该实例并执行离线查询。
+When set to `true`, the user group `dbrole_offline` can connect to the instance and perform offline queries, regardless of the role of the current instance.
 
-对于实例数量较少（例如一主一从）的情况较为实用，用户可以将唯一的从库标记为`pg_offline_query = true`，从而接受ETL，慢查询与交互式访问。
+More practical for cases with a small number of instances (e.g. one master and one slave), the user can mark the only slave as `pg_offline_query = true`, thus accepting ETL, slow queries with interactive access.
 
 
 
 ### `pg_backup`
 
-是否在实例上存储冷备份, 类型：`bool`，层级：I，默认值为：`false`
+Whether to store cold backups on the instance, type: `bool`, level: I, default value: `false`.
 
-未实现，保留标记位，带有该标记的实例节点会用于存储基础冷备份。
+Not implemented, the tag bit is reserved and the instance node with this tag is used to store the base cold backup.
 
 
 
 ### `pg_weight`
 
-实例在负载均衡中的相对权重, 类型：`int`，层级：I，默认值为：`100`
+Relative weight of the instance in load balancing, type: `int`, level: I, default value: `100`.
 
-当您希望调整实例在服务中的相对权重时，可在实例层次修改此参数，并按 [SOP：集群流量调整](r-sop.md) 中介绍的方法应用生效。
+When adjusting the relative weight of an instance in a service, this parameter can be modified at the instance level and applied to take effect as described in [SOP: Cluster Traffic Adjustment](r-sop.md).
 
 
 
 ### `pg_hostname`
 
-将PG实例名称设为HOSTNAME, 类型：`bool`，层级：C/I，默认值为：`false`，在Demo中默认为真。
+Set PG instance name to HOSTNAME, type: `bool`, level: C/I, default value: `false`, which is true by default in the demo.
 
-是否在初始化节点时，将PostgreSQL的实例名与集群名一并用作节点的名称与集群名，默认禁用。
+Whether to use the PostgreSQL instance name and cluster name as the node's name and cluster name when initializing the node, disabled by default.
 
-当采用 节点:PG 1:1 独占部署模式时，您可以将PG实例的身份赋予节点，保持节点与PG的监控身份一致。
+When using the node:PG 1:1 exclusive deployment mode, you can assign the identity of the PG instance to the node, making the node consistent with the PG's monitoring identity.
 
 
 
 ### `pg_preflight_skip`
 
-跳过PG身份参数校验, 类型：`bool`，层级：C/A，默认值为：`false`
+Skip PG identity parameter checksum, type: `bool`, level: C/A, default value: `false`.
 
-如果您不希望初始化新的数据库集群（例如与已有实例打交道时），则可以通过此参数完整跳过Patroni与Postgres初始化的任务。
+If not initializing a new database cluster (e.g. when dealing with existing instances), the task of Patroni and Postgres initialization can be completely skipped with this parameter.
 
 
 
@@ -301,30 +300,30 @@ PG数据库实例序号, 类型：`int`，层级：I，无默认值，**必选�
 ----------------
 ## `PG_BUSINESS`
 
-用户需**重点关注**此部分参数，因为这里是业务声明自己所需数据库对象的地方。
+Users need to **focus on** this part of the parameters to declare their required database objects on behalf of the business.
 
-定制集群模板：用户，数据库，服务，权限规则。
+Customized cluster templates: users, databases, services, permission rules.
 
-* 业务用户定义： [`pg_users`](#pg_users)                                   
-* 业务数据库定义： [`pg_databases`](#pg_databases)                           
-* 集群专有服务定义： [`pg_services_extra`](#pg_services_extra)                 
-* 集群/实例特定的HBA规则： [`pg_hba_rules_extra`](#pg_hba_rules_extra)               
-* Pgbounce特定HBA规则： [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra) 
+* Business User Definition： [`pg_users`](#pg_users)                                   
+* Business Database Definition： [`pg_databases`](#pg_databases)                           
+* Cluster Proprietary Services Definition： [`pg_services_extra`](#pg_services_extra)                 
+* Cluster/instance specific HBA rules： [`pg_hba_rules_extra`](#pg_hba_rules_extra)               
+* Pgbounce specific HBA rules： [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra) 
 
-特殊的数据库用户，强烈建议在生产环境中修改这些用户的密码。
+Special database users, it is recommended to change these user passwords in the production environment.
 
-* PG管理员用户：[`pg_admin_username`](#pg_admin_username) / [`pg_admin_password`](#pg_admin_password)
-* PG复制用户： [`pg_replication_username`](#pg_replication_username) / [`pg_replication_password`](#pg_replication_password)
-* PG监控用户：[`pg_monitor_username`](#pg_monitor_username) / [`pg_monitor_password`](#pg_monitor_password)
+* PG Administrator User：[`pg_admin_username`](#pg_admin_username) / [`pg_admin_password`](#pg_admin_password)
+* PG Copy User： [`pg_replication_username`](#pg_replication_username) / [`pg_replication_password`](#pg_replication_password)
+* PG Monitoring Users：[`pg_monitor_username`](#pg_monitor_username) / [`pg_monitor_password`](#pg_monitor_password)
 
 
 
 
 ### `pg_users`
 
-业务用户定义, 类型：`user[]`，层级：C，默认值为空数组。
+Business user definition, type: `user[]`, level: C, default value is an empty array.
 
-用于在数据库集群层面定义业务用户，数组中的每一个对象定义了一个[用户或角色](c-pgdbuser#用户)，一个完整的用户定义如下：
+Used to define business users at the database cluster level, each object in the array defines a [user or role] (c-pgdbuser#user), a complete user definition is as follows.
 
 ```yaml
 pg_users:                           # define business users/roles on this cluster, array of user definition
@@ -355,20 +354,20 @@ pg_users:                           # define business users/roles on this cluste
   - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
 ```
 
-* 每一个用户或角色必须指定 `name` ，其余字段均为**可选项**，`name`必须在此列表中唯一。
-* `password`是可选项，如果留空则不设置密码，可以使用MD5密文密码。
-* `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication`, `bypassrls` 都是布尔类型，用于设置用户属性。如果不设置，则采用系统默认值。
-* 用户通过`CREATE USER`创建，所以默认具有`login`属性，如果创建的是角色，需要指定`login: false`。
-* `expire_at`与`expire_in`用于控制用户过期时间，`expire_at`使用形如`YYYY-mm-DD`的日期时间戳。`expire_in`使用从现在开始的过期天数，如果`expire_in`存在则会覆盖`expire_at`选项。
-* 新用户默认**不会**添加至Pgbouncer用户列表中，必须显式定义`pgbouncer: true`，该用户才会被加入到Pgbouncer用户列表。
-* 用户/角色会按顺序创建，后面定义的用户可以属于前面定义的角色。
-* 用户可以通过`roles`字段为业务用户添加[默认权限]()组：
-    * `dbrole_readonly`：默认生产只读用户，具有全局只读权限。（只读生产访问）
-    * `dbrole_offline`：默认离线只读用户，在特定实例上具有只读权限。（离线查询，个人账号，ETL）
-    * `dbrole_readwrite`：默认生产读写用户，具有全局CRUD权限。（常规生产使用）
-    * `dbrole_admin`：默认生产管理用户，具有执行DDL变更的权限。（管理员）
+* Each user or role must specify `name` and the rest of the fields are **optional**, `name` must be unique in this list.
+* `password` is optional, if left blank then no password is set, you can use MD5 ciphertext password.
+* `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication`, `bypassrls` are all boolean types used to set user attributes. If not set, the system defaults are used.
+* Users are created by `CREATE USER`, so they have the `login` attribute by default. If the role is created, you need to specify `login: false`.
+* `expire_at` and `expire_in` are used to control the user expiration time. `expire_at` uses a date timestamp in the shape of `YYYY-mm-DD`. `expire_in` uses the number of days to expire from now, and overrides the `expire_at` option if `expire_in` exists.
+* New users are **not** added to the Pgbouncer user list by default, and `pgbouncer: true` must be explicitly defined for the user to be added to the Pgbouncer user list.
+* Users/roles are created sequentially, and users defined later can belong to the roles defined earlier.
+* Users can add [default permission]() groups for business users via the `roles` field:
+    * `dbrole_readonly`：Default production read-only user with global read-only privileges. (Read-only production access)
+    * `dbrole_offline`：Default offline read-only user with read-only access on a specific instance. (offline query, personal account, ETL)
+    * `dbrole_readwrite`：Default production read/write user with global CRUD privileges. (Regular production use)
+    * `dbrole_admin`：Default production management user with permission to execute DDL changes. (Administrator)
 
-应当为生产账号配置 `pgbouncer: true`，允许其通过连接池访问，普通用户不应当通过连接池访问数据库。
+Configure `pgbouncer: true` for the production account to allow it to access through the connection pool; regular users should not access the database through the connection pool.
 
 
 
@@ -376,9 +375,9 @@ pg_users:                           # define business users/roles on this cluste
 
 ### `pg_databases`
 
-业务数据库定义, 类型：`database[]`，层级：C，默认值为空数组。
+Business database definition, type: `database[]`, level: C, default value is an empty array.
 
-用于在数据库集群层面定义业务用户，数组中的每一个对象定义了一个[业务数据库](c-pgdbuser#数据库)，一个完整的数据库定义如下：
+Used to define business users at the database cluster level, each object in the array defines a [business database](c-pgdbuser#数据库), a complete database definition as follows:
 
 ```yaml
 pg_databases:                       # define business databases on this cluster, array of database definition
@@ -404,23 +403,23 @@ pg_databases:                       # define business databases on this cluster,
 
 ```
 
-每个数据库定义中，数据库名称 `name` 为必选项，其余均为可选项。
+In each database definition, the database name `name` is mandatory and the rest are optional.
 
-* `name`：数据库名称，**必选项**。
-* `owner`：数据库属主，默认为`postgres`
-* `template`：数据库创建时使用的模板，默认为`template1`
-* `encoding`：数据库默认字符编码，默认为`UTF8`，默认与实例保持一致。建议不要配置与修改。
-* `locale`：数据库默认的本地化规则，默认为`C`，建议不要配置，与实例保持一致。
-* `lc_collate`：数据库默认的本地化字符串排序规则，默认与实例设置相同，建议不要修改，必须与模板数据库一致。强烈建议不要配置，或配置为`C`。
-* `lc_ctype`：数据库默认的LOCALE，默认与实例设置相同，建议不要修改或设置，必须与模板数据库一致。建议配置为C或`en_US.UTF8`。
-* `allowconn`：是否允许连接至数据库，默认为`true`，不建议修改。
-* `revokeconn`：是否回收连接至数据库的权限？默认为`false`。如果为`true`，则数据库上的`PUBLIC CONNECT`权限会被回收。只有默认用户（`dbsu|monitor|admin|replicator|owner`）可以连接。此外，`admin|owner` 会拥有GRANT OPTION，可以赋予其他用户连接权限。
-* `tablespace`：数据库关联的表空间，默认为`pg_default`。
-* `connlimit`：数据库连接数限制，默认为`-1`，即没有限制。
-* `extensions`：对象数组 ，每一个对象定义了一个数据库中的**扩展**，以及其安装的**模式**。
-* `parameters`：KV对象，每一个KV定义了一个需要针对数据库通过`ALTER DATABASE`修改的参数。
-* `pgbouncer`：布尔选项，是否将该数据库加入到Pgbouncer中。所有数据库都会加入至Pgbouncer，除非显式指定`pgbouncer: false`。
-* `comment`：数据库备注信息。
+* `name`：Database name, **required option**.
+* `owner`：Database owner, default is `postgres`.
+* `template`：The template used for database creation, default is `template1`.
+* `encoding`：The default character encoding of the database, which is `UTF8` by default, is consistent with the instance by default. It is recommended not to configure and modify it.
+* `locale`：The default localization rule for the database, which defaults to `C`, is recommended not to be configured to be consistent with the instance.
+* `lc_collate`：The default localized string sorting rule for the database, which is set the same as the instance by default, should not be modified and must be consistent with the template database. It is strongly recommended not to configure, or configure to `C`.
+* `lc_ctype`：The default LOCALE of the database, by default, is the same as the instance setting, do not modify or set it, it must be consistent with the template database. Configure to C or `en_US.UTF8`.
+* `allowconn`：Whether to allow connection to database, default is `true`, not recommended to change.
+* `revokeconn`：Reclaim permission to connect to the database. The default is `false`. To `true`, the `PUBLIC CONNECT` permission on the database will be reclaimed. Only the default user (`dbsu|monitor|admin|replicator|owner`) can connect. In addition, `admin|owner` will have GRANT OPTION, which can give other users connection privileges.
+* `tablespace`：The tablespace associated with the database, the default is `pg_default`.
+* `connlimit`：Database connection limit, default is `-1`, i.e. no limit.
+* `extensions`：An array of objects , each of which defines an **extension** in the database, and its installed **schema**.
+* `parameters`：KV objects, each KV defines a parameter that needs to be modified against the database via `ALTER DATABASE`.
+* `pgbouncer`：Boolean option to join this database to Pgbouncer or not. All databases are joined to Pgbouncer unless `pgbouncer: false` is explicitly specified.
+* `comment`：Database note information.
 
 
 
@@ -429,9 +428,9 @@ pg_databases:                       # define business databases on this cluster,
 
 ### `pg_services_extra`
 
-集群专有服务定义, 类型：`service[]`，层级：C，默认值为：
+Cluster Proprietary Service Definition, Type: `service[]`, Level: C, Default:
 
-用于在数据库集群层面定义额外的服务，数组中的每一个对象定义了一个[服务](c-service#服务)，一个完整的服务定义如下：
+Used to define additional services at the database cluster level, each object in the array defines a [service] (c-services#service), a complete service definition is as follows:
 
 ```yaml
 - name: default           # service's actual name is {{ pg_cluster }}-{{ service.name }}
@@ -450,74 +449,73 @@ pg_databases:                       # define business databases on this cluster,
 
 ```
 
-每一个集群都可以定义多个服务，每个服务包含任意数量的集群成员，服务通过**端口**进行区分，`name`与`src_port`为必选项，且必须在数组内唯一。
+Each cluster can define multiple services, each containing any number of cluster members. Services are distinguished by **port**, `name` and `src_port` are mandatory and must be unique within the array.
 
-**必选项目**
+**MUST OPTION**
 
-* **名称（`service.name`）**：
+* **Name（`service.name`）**：
 
-  **服务名称**，服务的完整名称以数据库集群名为前缀，以`service.name`为后缀，通过`-`连接。例如在`pg-test`集群中`name=primary`的服务，其完整服务名称为`pg-test-primary`。
+  **service name**, the full name of the service is prefixed by the database cluster name and suffixed by `service.name`, connected by `-`. For example, the service with `name=primary` in the `pg-test` cluster has the full service name `pg-test-primary`.
 
-* **端口（`service.port`）**：
+* **Port（`service.port`）**：
 
-  在Pigsty中，服务默认采用NodePort的形式对外暴露，因此暴露端口为必选项。但如果使用外部负载均衡服务接入方案，您也可以通过其他的方式区分服务。
+  In Pigsty, services are exposed to the public by default in the form of NodePort, so exposing the port is mandatory. However, if you use an external load balancing service access scheme, you can also differentiate the services in other ways.
 
-* **选择器（`service.selector`）**：
+* **Selector（`service.selector`）**：
 
-  **选择器**指定了服务的实例成员，采用JMESPath的形式，从所有集群实例成员中筛选变量。默认的`[]`选择器会选取所有的集群成员。
+  The **selector** specifies the instance members of the service, in the form of JMESPath, filtering variables from all cluster instance members. The default `[]` selector will pick all cluster members.
 
+**Optional**
 
-**可选项目**
+* **Backup Selector（`service.selector`）**：
 
-* **备份选择器（`service.selector`）**：
+  The optional **backup selector** `service.selector_backup` selects or marks the list of instances used for service backup, i.e. the backup instance takes over the service only when all other members of the cluster fail. For example, the `primary` instance can be added to the `replica` service's alternative set, so that the master can still carry the cluster's read-only traffic when all slaves fail.
 
-  可选的 **备份选择器**`service.selector_backup`会选择或标记用于服务备份的实例列表，即集群中所有其他成员失效时，备份实例才接管服务。例如可以将`primary`实例加入`replica`服务的备选集中，当所有从库失效后主库依然可以承载集群的只读流量。
+* **Source IP（`service.src_ip`）** ：
 
-* **源端IP（`service.src_ip`）** ：
+  Indicates the IP address used externally by the **service**. The default is `*`, which is all IP addresses on the local machine. Using `vip` will use the `vip_address` variable to take the value, or you can fill in the specific IP address supported by the NIC.
 
-  表示**服务**对外使用的IP地址，默认为`*`，即本机所有IP地址。使用`vip`则会使用`vip_address`变量取值，或者也可以填入网卡支持的特定IP地址。
+* **Host port（`service.dst_port`）**：
 
-* **宿端口（`service.dst_port`）**：
+  Which port on the target instance will the service's traffic be directed to? `postgres` will point to the port the database is listening on, `pgbouncer` will point to the port the connection pool is listening on, or you can fill in a fixed port number.
 
-  服务的流量将指向目标实例上的哪个端口？`postgres` 会指向数据库监听的端口，`pgbouncer`会指向连接池所监听的端口，也可以填入固定的端口号。
+* **Health Check method（`service.check_method`）**:
 
-* **健康检查方式（`service.check_method`）**:
+  How does the service check the health status of the instance? Currently only HTTP is supported.
 
-  服务如何检查实例的健康状态？目前仅支持HTTP
+* **Health Check Port（`service.check_port`）**:
 
-* **健康检查端口（`service.check_port`）**:
+  Which port of the service check instance gets the health status of the instance? `patroni` will get it from Patroni (default 8008), `pg_exporter` will get it from PG Exporter (default 9630), or you can fill in a custom port number.
 
-  服务检查实例的哪个端口获取实例的健康状态？ `patroni`会从Patroni（默认8008）获取，`pg_exporter`会从PG Exporter（默认9630）获取，用户也可以填入自定义的端口号。
+* **Health Check Path（`service.check_url`）**:
 
-* **健康检查路径（`service.check_url`）**:
+  The service performs HTTP checks using the URL PATH. `/` is used as a health check by default, and PG Exporter and Patroni provide a variety of health checks that can be used to differentiate between master and slave traffic. For example, `/primary` will only return success for the master, and `/replica` will only return success for the slave. `/read-only`, on the other hand, will return success for any instance that supports read-only (including the master).
 
-  服务执行HTTP检查时，使用的URL PATH。默认会使用`/`作为健康检查，PG Exporter与Patroni提供了多样的健康检查方式，可以用于主从流量区分。例如，`/primary`仅会对主库返回成功，`/replica`仅会对从库返回成功。`/read-only`则会对任何支持只读的实例（包括主库）返回成功。
+* **Health Check Code（`service.check_code`）**:
 
-* **健康检查代码（`service.check_code`）**:
+  The code expected by the HTTP health check, default is 200.
 
-  HTTP健康检查所期待的代码，默认为200
+* **Haproxy Specific Placement（`service.haproxy`）** ：
 
-* **Haproxy特定配置（`service.haproxy`）** ：
-
-  关于服务供应软件（HAproxy）的专有配置项
+  Proprietary configuration items for service provisioning software (HAproxy).
 
   * `<service>.haproxy`
 
-  这些参数现在[**服务**](c-service.md#服务)中定义，使用`service.haproxy`来覆盖实例的参数配置。
+  These parameters are now defined in [**service**](c-service.md#service), using `service.haproxy` to override the parameter configuration of the instance.
 
   * `maxconn`
 
-  HAProxy最大前后端连接数，默认为3000
+  HAProxy maximum number of front and back-end connections, default is 3000.
 
   * `balance`
 
-  haproxy负载均衡所使用的算法，可选策略为`roundrobin`与`leastconn`，默认为`roundrobin`
+  The algorithm used by haproxy load balancing, the optional policy is `roundrobin` and `leastconn`, the default is `roundrobin`.
 
   * `default_server_options`
 
-  Haproxy 后端服务器实例的默认选项
+  Default options for Haproxy backend server instances:
 
-  默认为： `'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'`
+  `'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'`
 
 
 
@@ -528,19 +526,19 @@ pg_databases:                       # define business databases on this cluster,
 
 ### `pg_hba_rules_extra`
 
-集群/实例特定的HBA规则, 类型：`rule[]`，层级：C，默认值为：
+Cluster/instance specific HBA rule, Type: `rule[]`, Level: C, Default:
 
-设置数据库的客户端IP黑白名单规则。对象数组，每一个对象都代表一条规则，每一条规则由三部分组成：
+Set the client IP black and white list rules for the database. An array of objects, each of which represents a rule, each of which consists of three parts:
 
-* `title`，规则标题，会转换为HBA文件中的注释
-* `role`，应用角色，`common`代表应用至所有实例，其他取值（如`replica`, `offline`）则仅会安装至匹配的角色上。例如`role='replica'`代表这条规则只会应用到`pg_role == 'replica'` 的实例上。
-* `rules`，字符串数组，每一条记录代表一条最终写入`pg_hba.conf`的规则。
+* `title`: Rule headings, which are converted to comments in the HBA file
+* `role`: Apply roles, `common` means apply to all instances, other values (e.g. `replica`, `offline`) will only be installed to matching roles. For example, `role='replica'` means that this rule will only be applied to instances with `pg_role == 'replica'`.
+* `rules`: Array of strings, each record represents a rule that will eventually be written to `pg_hba.conf`.
 
-作为一个特例，`role == 'offline'` 的HBA规则，还会额外安装至 `pg_offline_query == true` 的实例上。
+As a special case, the HBA rule for `role == 'offline'` is additionally installed on instances of `pg_offline_query == true`.
 
-[`pg_hba_rules`](#pg_hba_rules) 与之类似，但通常用于全局统一的HBA规则设置，[`pg_hba_rules_extra`](#pg_hba_rules_extra) 会以同样的方式 **追加** 至`pg_hba.conf`中。
+[`pg_hba_rules`](#pg_hba_rules) is similar, but is typically used for global uniform HBA rule settings, and [`pg_hba_rules_extra`](#pg_hba_rules_extra) will **append** to `pg_hba.conf` in the same way.
 
-如果用户需要彻底**覆写**集群的HBA规则，即不想继承全局HBA配置，则应当在集群层面配置  [`pg_hba_rules`](#pg_hba_rules) 并覆盖全局配置。
+If you need to completely **overwrite** the cluster's HBA rules and do not want to inherit the global HBA configuration, you should configure [`pg_hba_rules`](#pg_hba_rules) at the cluster level and override the global configuration.
 
 
 
@@ -548,9 +546,9 @@ pg_databases:                       # define business databases on this cluster,
 
 ### `pgbouncer_hba_rules_extra`
 
-Pgbounce特定HBA规则, 类型：`rule[]`，层级：C，默认值为空数组。
+Pgbounce specific HBA rule, type: `rule[]`, level: C, default value is an empty array.
 
-与 [`pg_hba_rules_extra`](#pg_hba_rules_extra)类似，用于在集群层次对Pgbouncer的HBA规则进行额外配置。
+Similar to [`pg_hba_rules_extra`](#pg_hba_rules_extra) for additional configuration of Pgbouncer's HBA rules at the cluster level.
 
 
 
@@ -560,55 +558,51 @@ Pgbounce特定HBA规则, 类型：`rule[]`，层级：C，默认值为空数组�
 
 ### `pg_admin_username`
 
-PG管理用户, 类型：`string`，层级：G，默认值为：`"dbuser_dba"`
+PG admin user, type: `string`, level: G, default value: `"dbuser_dba"`.
 
-用于执行PostgreSQL数据库管理任务（DDL变更）的数据库用户名，默认带有超级用户权限。
-
-
+The database username used to perform PostgreSQL database administration tasks (DDL changes), with superuser privileges by default.
 
 ### `pg_admin_password`
 
-PG管理用户密码, 类型：`string`，层级：G，默认值为：`"DBUser.DBA"`
+PG admin user password, type: `string`, level: G, default value: `"DBUser.DBA"`.
 
-用于执行PostgreSQL数据库管理任务（DDL变更）的数据库用户密码，必须使用明文，默认为`DBUser.DBA`，强烈建议修改！
+The database user password used to perform PostgreSQL database administration tasks (DDL changes) must be in plaintext, the default is `DBUser.DBA` and highly recommended changes!!
 
-!> 在生产环境部署时，强烈建议修改此参数！
+It is highly recommended to change this parameter when deploying in production environments!
 
 
 
 ### `pg_replication_username`
 
-PG复制用户, 类型：`string`，层级：G，默认值为：`"replicator"`
+PG copy user, type: `string`, level: G, default value: `"replicator"`.
 
-用于执行PostgreSQL流复制，建议在全局保持一致。
-
-
+For performing PostgreSQL stream replication, it is recommended to keep global consistency.
 
 ### `pg_replication_password`
 
-PG复制用户的密码, 类型：`string`，层级：G，默认值为：`"DBUser.Replicator"`
+PG replicates the user's password, type: `string`, level: G, default value: `"DBUser.Replicator"`.
 
-用于执行PostgreSQL流复制的数据库用户密码，必须使用明文。默认为`DBUser.Replicator`。
+The password of the database user used to perform PostgreSQL stream replication must be in plaintext. The default is `DBUser.Replicator`.
 
-!> 在生产环境部署时，强烈建议修改此参数！
+It is highly recommended to change this parameter when deploying in production environments!
 
 
 
 ### `pg_monitor_username`
 
-PG监控用户, 类型：`string`，层级：G，默认值为：`"dbuser_monitor"`
+PG monitor user, type: `string`, level: G, default value: `"dbuser_monitor"`.
 
-用于执行PostgreSQL与Pgbouncer监控任务的数据库用户名
+The database user name used to perform PostgreSQL and Pgbouncer monitoring tasks.
 
 
 
 ### `pg_monitor_password`
 
-PG监控用户密码, 类型：`string`，层级：G，默认值为：`"DBUser.Monitor"`
+PG monitor user password, type: `string`, level: G, default value: `"DBUser.Monitor"`.
 
-用于执行PostgreSQL与Pgbouncer监控任务的数据库用户密码，必须使用明文。
+The password of the database user used to perform PostgreSQL and Pgbouncer monitoring tasks, must be in plaintext.
 
-!> 在生产环境部署时，强烈建议修改此参数。
+It is highly recommended to change this parameter when deploying in production environments!
 
 
 
@@ -617,9 +611,9 @@ PG监控用户密码, 类型：`string`，层级：G，默认值为：`"DBUser.M
 ----------------
 ## `PG_INSTALL`
 
-PG Install 部分负责在一台装有基本软件的机器上完成所有PostgreSQL依赖项的安装。用户可以配置数据库超级用户的名称、ID、权限、访问，配置安装所用的源，配置安装地址，安装的版本，所需的软件包与扩展插件。
+PG Install is responsible for completing the installation of all PostgreSQL dependencies on a machine with the base software. The user can configure the name, ID, permissions, and access of the database superuser, configure the sources used for the installation, configure the installation address, the version to be installed, and the required packages and extensions plugins.
 
-这里的大多数参数只需要在整体升级数据库大版本时修改，用户可以通过 [`pg_version`](#pg_version)指定需要安装的软件版本，并在集群层面进行覆盖，为不同的集群安装不同的数据库版本。
+Such parameters only need to be modified when upgrading a major version of the database as a whole. Users can specify the software version to be installed via [`pg_version`](#pg_version) and override it at the cluster level to install different database versions for different clusters.
 
 
 
@@ -627,94 +621,83 @@ PG Install 部分负责在一台装有基本软件的机器上完成所有Postgr
 
 ### `pg_dbsu`
 
-PG操作系统超级用户, 类型：`string`，层级：C，默认值为：`"postgres"`
+PG OS superuser, type: `string`, level: C, default value: `"postgres"`, not recommended to modify.
 
-数据库默认使用的操作系统用户（超级用户）的用户名称，默认为`postgres`，通常不建议修改。
-当安装 Greenplum / MatrixDB 时，建议修改本参数为对应推荐值：`gpadmin|mxadmin`。
-
-
+When installing Greenplum / MatrixDB, modify this parameter to the corresponding recommended value: `gpadmin|mxadmin`.
 
 
 ### `pg_dbsu_uid`
 
-超级用户UID, 类型：`int`，层级：C，默认值为：`26`
+Superuser UID, type: `int`, level: C, default value: `26`.
 
-数据库默认使用的操作系统用户（超级用户）的UID。默认值为`26`，与CentOS下PostgreSQL官方RPM包配置一致，不建议修改。
+UID of the OS user (superuser) used by the database by default. default value is `26`, consistent with the official RPM package configuration of PostgreSQL under CentOS, no modification is recommended.
 
 
 
 
 ### `pg_dbsu_sudo`
 
-超级用户的Sudo权限, 类型：`enum`，层级：C，默认值为：`"limit"`
+Sudo privileges for superuser, type: `enum`, level: C, default value: `"limit"`.
 
-* `none`：没有sudo权限
-* `limit`：有限的sudo权限，可以执行数据库相关组件的systemctl命令，默认
-* `all`：带有完整`sudo`权限，但需要密码。
-* `nopass`：不需要密码的完整`sudo`权限（不建议）
+* `none`：No sudo privileges
+* `limit`：Limited sudo privileges to execute systemctl commands for database related components, default.
+* `all`：Full `sudo` privileges, password required.
+* `nopass`：Full `sudo` access without password (not recommended).
 
-数据库超级用户 [`pg_dbsu`](#pg_dbsu) 的默认权限为受限的`sudo`权限：`limit`。
+The database superuser [`pg_dbsu`](#pg_dbsu) has restricted `sudo` privileges by default: `limit`.
 
 
 
 
 ### `pg_dbsu_home`
 
-超级用户的家目录, 类型：`path`，层级：C，默认值为：`"/var/lib/pgsql"`
-
-数据库超级用户[`pg_dbsu`](#pg_dbsu)的家目录，默认为`/var/lib/pgsql`
+Root directory of database superuser [`pg_dbsu`](#pg_dbsu), type: `path`, level: C, default value: `"/var/lib/pgsql"`.
 
 
 
 ### `pg_dbsu_ssh_exchange`
 
-是否交换超级用户密钥, 类型：`bool`，层级：C，默认值为：`true`
-
-是否在执行的机器之间交换 [`pg_dbsu`](#pg_dbsu) 的SSH公私钥。
-
-
+Whether to exchange the SSH public-private key of superuser [`pg_dbsu`](#pg_dbsu) between executing machines. Type: `bool`, Level: C, Default: `true`.
 
 ### `pg_version`
 
-安装的数据库大版本, 类型：`int`，层级：C，默认值为：`14`
+Installed database major version, type: `int`, level: C, default value: `14`.
 
-当前实例安装的PostgreSQL大版本号，默认为14，最低支持至10。
+The current instance's installed PostgreSQL major version number, default is 14, supported as low as 10.
 
-请注意，PostgreSQL的物理流复制无法跨越大版本，请在全局/集群层面配置此变量，确保整个集群内所有实例都有着相同的大版本号。
-
-
+Note that PostgreSQL physical stream replication cannot span major versions, please configure this variable at the global/cluster level to ensure that all instances within the entire cluster have the same major version number.
 
 ### `pgdg_repo`
 
-是否添加PG官方源？, 类型：`bool`，层级：C，默认值为：`false`
+Whether to add the official PG source? , type: `bool`, level: C, default value: `false`.
 
-标记，是否使用PostgreSQL官方源？默认不使用。使用该选项，可以在没有本地源的情况下，直接从互联网官方源下载安装PostgreSQL相关软件包。
+Use this option to download and install PostgreSQL-related packages directly from official Internet sources without local sources.
 
 
 
 
 ### `pg_add_repo`
 
-是否添加PG相关上游源？, 类型：`bool`，层级：C，默认值为：`false`
+Whether to add PG-related upstream sources? , type: `bool`, level: C, default value: `false`
 
-如果使用，则会在安装PostgreSQL前添加PGDG的官方源。
+If used, the official source of PGDG will be added before installing PostgreSQL.
 
 
 
 
 ### `pg_bin_dir`
 
-PG二进制目录, 类型：`path`，层级：C，默认值为：`"/usr/pgsql/bin"`
+PG binary directory, type: `path`, level: C, default value: `"/usr/pgsql/bin"`.
 
-默认为`/usr/pgsql/bin/`，这是一个安装过程中手动创建的软连接，指向安装的具体Postgres版本目录。
+The default value is a softlink created manually during the installation process, pointing to the specific Postgres version directory installed.
 
-例如`/usr/pgsql -> /usr/pgsql-14`。详情请参考 [FHS](r-fhs.md)
+For example `/usr/pgsql -> /usr/pgsql-14`. For more details, please see  [FHS](r-fhs.md).
 
 
 
 ### `pg_packages`
 
-安装的PG软件包列表, 类型：`string[]`，层级：C，默认值为：
+List of installed PG packages, type: `string[]`, level: C, default value:
 
 ```yaml
 - postgresql${pg_version}*
@@ -726,9 +709,9 @@ PG二进制目录, 类型：`path`，层级：C，默认值为：`"/usr/pgsql/bi
 - python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
 ```
 
-软件包中的`${pg_version}`会被替换为实际安装的PostgreSQL版本 [`pg_version`](#pg_version)。
+`${pg_version}` in the package will be replaced with the actual installed PostgreSQL version [`pg_version`](#pg_version).
 
-当您为某一个特定集群指定特殊的 [`pg_version`](#pg_version) 时，可以相应在集群层面调整此参数（例如安装PG14 beta时某些扩展还不存在）
+When you specify a special [`pg_version`](#pg_version) for a particular cluster, you can adjust this parameter at the cluster level accordingly (e.g. some extensions did not exist when PG14 beta was installed).
 
 
 
@@ -736,7 +719,7 @@ PG二进制目录, 类型：`path`，层级：C，默认值为：`"/usr/pgsql/bi
 
 ### `pg_extensions`
 
-安装的PG插件列表, 类型：`string[]`，层级：C，默认值为：
+PG plugin list, type: `string[]`, level: C, default value:
 
 ```yaml
 pg_repack_${pg_version}
@@ -746,7 +729,7 @@ pg_stat_monitor_${pg_version}
 wal2json_${pg_version}"
 ```
 
-软件包中的`${pg_version}`会被替换为实际安装的PostgreSQL大版本号 [`pg_version`](#pg_version)。
+`${pg_version}` will be replaced with the PostgreSQL major version number [`pg_version`](#pg_version).
 
 
 
@@ -755,39 +738,39 @@ wal2json_${pg_version}"
 ----------------
 ## `PG_BOOTSTRAP`
 
-在一台安装完Postgres的机器上，创建并拉起一套数据库。
+On a machine with Postgres, create a set of databases.
 
-* **集群身份定义**，清理现有实例，创建目录结构，拷贝工具与脚本，配置环境变量
-* 渲染Patroni模板配置文件，使用Patroni拉起主库，使用Patroni拉起从库
-* 配置Pgbouncer，初始化业务用户与数据库，将数据库与数据源服务注册至DCS。
+* **Cluster identity definition**, clean up existing instances, create directory structure, copy tools and playbooks, configure environment variables.
+* Render Patroni template configuration files, pull up master and slave libraries using Patroni.
+* Configure Pgbouncer, initialize the business users and database, and register the database and data source services to DCS.
 
-通过 [`pg_conf`](#pg_conf) 可以使用默认的数据库集群模板（普通事务型 OLTP/普通分析型 OLAP/核心金融型 CRIT/微型虚机 TINY）。如果希望创建自定义的模板，可以在`roles/postgres/templates`中克隆默认配置并自行修改后采用，详情请参考：[定制PGSQL集群](v-pgsql-customize.md) 。
+With [`pg_conf`](#pg_conf) you can use the default database cluster templates (OLTP / OLAP / CRIT / TINY). If you create a custom template, you can clone the default configuration in `roles/postgres/templates` and adopt it after modifying it yourself, please refer to: [customize pgsql cluster](v-pgsql-customize.md) for details.
 
 
 
 ### `pg_exists_action`
 
-PG存在时如何处理, 类型：`enum`，层级：C/A，默认值为：`"clean"`
+Action when PG exists, type: `enum`, level: C/A, default value: `"clean"`.
 
-安全保险，当PostgreSQL实例已经存在时，系统应当执行的动作
+System actions when a PostgreSQL instance exists:
 
-* `abort`: 中止整个剧本的执行（默认行为）
-* `clean`: 抹除现有实例并继续（极端危险）
-* `skip`: 忽略存在实例的目标（中止），在其他目标机器上继续执行。
+* `abort`: Abort playbook execution (default behavior)
+* `clean`: Erase existing instances and continue (dangerous)
+* `skip`: Ignore targets for which instances exist (abort) and continue execution on other target machines.
 
-如果您真的需要强制清除已经存在的数据库实例，建议先使用[`pgsql-remove.yml`](p-pgsql.md#pgsql-remove)完成集群与实例的下线与销毁，再重新执行初始化。
-否则，则需要通过命令行参数`-e pg_exists_action=clean`完成覆写，强制在初始化过程中抹除已有实例。
+To force wipe existing database instances, please use [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove) to complete the cluster and instance offline first, and then reinitialize.
+Otherwise, overwriting needs to be done with the command line argument `-e pg_exists_action=clean` to force the wiping of existing instances during initialization.
 
 
 
 
 ### `pg_disable_purge`
 
-双重安全保险，禁止清除存在的PG实例, 类型：`bool`，层级：C/A，默认值为：`false`
+Prohibit clearing existing PG instances, type: `bool`, level: C/A, default value: `false`.
 
-如果为`true`，将强制设置 [`pg_exists_action`](#pg_exists_action) 变量为`abort`，等效于关闭 [`pg_exists_action`](#pg_exists_action) 的清理功能，确保任何情况下Postgres实例都不会被抹除。
+If `true`, force set [`pg_exists_action`](#pg_exists_action) to `abort`, i.e. turn off the cleanup of [`pg_exists_action`](#pg_exists_action) to ensure that Postgres instances are not wiped out under any circumstances.
 
-这意味着您需要通过专用下线脚本[`pgsql-remove.yml`](p-pgsql.md#pgsql-remove)来完成已有实例的清理，然后才可以在清理干净的节点上重新完成数据库的初始化。
+Then, you need to clean up the existing instances by [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove), and then finish the database initialization again.
 
 
 
@@ -795,7 +778,7 @@ PG存在时如何处理, 类型：`enum`，层级：C/A，默认值为：`"clean
 
 ### `pg_data`
 
-PG数据目录, 类型：`path`，层级：C，默认值为：`"/pg/data"`，不建议更改。
+PG data directory, type: `path`, level: C, default value: `"/pg/data"`, not recommended to change.
 
 
 
@@ -803,25 +786,25 @@ PG数据目录, 类型：`path`，层级：C，默认值为：`"/pg/data"`，不
 
 ### `pg_fs_main`
 
-PG主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
+PG master data disk mount point, type: `path`, level: C, default value: `"/data"`.
 
-主数据盘目录，默认为`/data`，Pigsty的默认[目录结构](r-fhs)假设系统中存在一个主数据盘挂载点，用于盛放数据库目录与其他状态。
+Pigsty's default [directory structure](r-fhs) assumes that there is a master data disk mount point on the system that holds the database directory along with other state.
 
 
 
 ### `pg_fs_bkup`
 
-PG备份盘挂载点, 类型：`path`，层级：C，默认值为：`"/data/backups"`
+PG backup disk mount point, type: `path`, level: C, default value: `"/data/backups"`.
 
-Pigsty的默认[目录结构](r-fhs)假设系统中存在一个备份数据盘挂载点，用于盛放备份与归档数据。备份盘并不是必选项，如果系统中不存在备份盘，用户也可以指定一个主数据盘上的子目录作为备份盘根目录挂载点。
+Pigsty's default [directory structure](r-fhs) assumes that there is a backup data disk mount point on the system that holds backup and archive data. However, users can also specify a subdirectory on the primary data disk as the backup disk root mount point.
 
 
 
 ### `pg_dummy_filesize`
 
-占位文件`/pg/dummy`的大小, 类型：`size`，层级：C，默认值为：`"64MiB"`
+Size of the placeholder file `/pg/dummy`, type: `size`, level: C, default value: `"64MiB"`.
 
-占位文件是一个预分配的空文件，占据一定量的磁盘空间。当出现磁盘满故障时，移除该占位文件可以紧急释放一些磁盘空间应急使用，生产环境建议使用`4GiB`，`8GiB`。
+A placeholder file is a pre-allocated empty file that takes up disk space. When the disk is full, removing the placeholder file can free up some space, it is recommended to use `4GiB`, `8GiB` for production env.
 
 
 
@@ -829,48 +812,46 @@ Pigsty的默认[目录结构](r-fhs)假设系统中存在一个备份数据盘�
 
 ### `pg_listen`
 
-PG监听的IP地址, 类型：`ip`，层级：C，默认值为：`"0.0.0.0"`
+IP address of PG listening, type: `ip`, level: C, default value: `"0.0.0.0"`.
 
-数据库监听的IP地址，默认为所有IPv4地址`0.0.0.0`，如果要包括所有IPv6地址，可以使用`*`。
+IP address of database listening,default all IPv4 addresses `0.0.0.0`, if you want to include all IPv6 addresses, you can use `*`.
 
 
 
 ### `pg_port`
 
-PG监听的端口, 类型：`int`，层级：C，默认值为：`5432`，不建议修改。
+Port of PG listening, type: `int`, level: C, default value: `5432`, not recommended to change.
 
 
 
 
 ### `pg_localhost`
 
-PG使用的UnixSocket地址, 类型：`ip|path`，层级：C，默认值为：`"/var/run/postgresql"`
+UnixSocket address used by PG, type: `ip|path`, level: C, default value: `"/var/run/postgresql"`.
 
-Unix Socket目录用于盛放PostgreSQL与Pgbouncer的Unix socket文件，当客户端未指定IP地址访问数据库时，会通过本地Unix Socket访问，默认为`/var/run/postgresql`。
+The Unix socket directory holds the Unix socket files for PostgreSQL and Pgbouncer, which are accessed through the local Unix socket when the client does not specify an IP address to access the database.
 
 
 
 ### `patroni_enabled`
 
-Patroni是否启用, 类型：`bool`，层级：C，默认值为：`true`
+Whether Patroni is enabled or not, type: `bool`, level: C, default value: `true`.
 
-布尔类型，标记位，默认为真，是否启用 Patroni （与Postgres）？如果为假，那么Pigsty将直接跳过Patroni与Postgres拉起的流程。该选项通常在接入已有实例时使用。
-
-
+If false, Pigsty will skip the process of Patroni pulling up with Postgres directly. This option is used when accessing an existing instance.
 
 ### `patroni_mode`
 
-Patroni配置模式, 类型：`enum`，层级：C，默认值为：`"default"`
+Patroni configuration mode, type: `enum`, level: C, default value: `"default"`.
 
-* `default`: 正常启用Patroni，并进入高可用自动切换模式。
-* `pause`: 启用Patroni，但在完成初始化后自动进入维护模式（不自动执行主从切换）
-* `remove`: 依然使用Patroni初始化集群，但初始化完成后移除Patroni
+* `default`: Enable Patroni to enter high availability auto-switching mode.
+* `pause`: Enable Patroni to automatically enter maintenance mode after completing initialization (no automatic master-slave switching).
+* `remove`: Initialize the cluster with Patroni and remove Patroni after initialization.
 
 
 
 ### `pg_namespace`
 
-Patroni使用的DCS命名空间, 类型：`path`，层级：C，默认值为：`"/pg"`
+DCS namespace used by Patroni, type: `path`, level: C, default value: `"/pg"`.
 
 
 
