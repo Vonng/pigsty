@@ -1,7 +1,7 @@
 - [Overview](README.md)
   - [Introduction](s-intro.md)
   - [Installation](s-install.md)
-  - [Highlight Features](s-feature.md)  
+  - [Features](s-feature.md)  
   - [FAQ](s-faq.md)
 
 - Concept

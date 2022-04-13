@@ -10,15 +10,22 @@
 > 
 > Run `make doc` to serve [EN Docs](docs/) & [ZH Docs](docs/zh-cn/) on your localhost
 
-![](docs/_media/WHAT_EN.svg)
 
-* Battery-Included Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Greenplum/Redis, United in One!
-* Unparalleled monitoring: Grafana, Prometheus, Loki, AlertManager, Just bring the ultimate observability!
-* Auto-Piloting HA Postgres: Idempotent instances & services, self-healing from hardware failures!
-* Infra as Data: Describe any postgres you want: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum 
-* Easy to Use: Download, Install, Deploy, Scale, Backup, Migration, One command, One kill!
-* Versatile Use Cases:  Databases management or host monitoring. Supporting SaaS or developing data apps. All your choice!
-* Free & Open Source: 50% - 80% cost saving compared to Cloud RDS. Proven in real-world, large-scale env.
+
+## What is Pigsty?
+
+* [**Battery-Included Distribution**](#Distribution): PostgreSQL, PostGIS, TimescaleDB, Citus, Redis/GP, United in One!
+* [**Unparalleled Monitoring**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
+* [**High-Available**](#High-Available): Auto-Pilot Postgres with idempotent instances & services, self-healing from failures!
+* [**Infra as Data**](#infra-as-data): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus in minutes!
+* [**Ubiquitous**](#Ubiquitous): Prod env or 1C1G VM sandbox, with vagrant/terraform, all deployed with one click!
+* [**Versatile**](#versatile):  Databases management or host monitoring. Supporting SaaS or developing data apps.
+* [**Open Source & Free**](#Specification): 50% - 80% cost saving versus Cloud RDS. Proven in real-world, large-scale env.
+
+[![](docs/_media/WHAT_EN.svg)](docs/s-feature.md)
+
+Check [Features](docs/s-feature.md) & [Highlights](#highlights) for Detail.
+
 
 
 
@@ -32,16 +39,16 @@ cd ~/pigsty && ./configure                             # pre-check and config te
 ./infra.yml                                            # install pigsty on current node
 ```
 
-Now you have a battery-included postgres on port 5432, and infra web services on port 80.
+Now you have a battery-included Postgres on port **5432**, and infra web services available on port **80**.
 
-Check [Installation](docs/s-install.md) & [public demo](http://demo.pigsty.cc) for details.
+Check [Installation](docs/s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 
 <details><summary>Download Packages Directly</summary>
 
 Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # 离线软件包需放置在 /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC
 ```
 
@@ -50,7 +57,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | g
 
 <details><summary>Mange More Nodes</summary>
 
-You can have more nodes under pigsty with [`nodes.yml`](docs/p-nodes.md#nodes), once [`infra.yml`](docs/p-infra.md#infra) is complete. 
+You can add more nodes to Pigsty with [`nodes.yml`](docs/p-nodes.md#nodes), after meta node is installed with [`infra.yml`](docs/p-infra.md#infra). 
 
 ```bash
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
@@ -58,10 +65,32 @@ You can have more nodes under pigsty with [`nodes.yml`](docs/p-nodes.md#nodes), 
 
 </details>
 
+<details><summary>Define Postgres Cluster</summary>
+
+You can define a HA Postgres Cluster with streaming replication in a few lines of code:
+
+```yaml
+pg-test:
+  hosts:
+    10.10.10.11: {pg_seq: 1, pg_role: primary} 
+    10.10.10.12: {pg_seq: 2, pg_role: replica}
+    10.10.10.13: {pg_seq: 3, pg_role: replica}
+  vars: 
+    pg_cluster: pg-test
+```
+
+You can create Postgres with different [roles](docs/d-pgsql.md) by declaring them: primary, replica, standby, delayed, offline, cascade, etc...
+
+</details>
+
 
 <details><summary>Deploy Databases Clusters</summary>
 
 You can deploy different types of databases & clusters with corresponding playbooks.
+
+* [`pgsql.yml`](docs/p-pgsql.md#pgsql): Deploy PostgreSQL HA clusters.
+* [`redis.yml`](docs/p-redis.md#redis): Deploy Redis clusters.
+* [`pgsql-matrix.yml`](docs/p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
 
 ```bash
 ./pgsql.yml         -l pg-test      # init 1-primary-2-replica pgsql cluster
@@ -74,52 +103,66 @@ You can deploy different types of databases & clusters with corresponding playbo
 
 
 
+
 ## Highlights
 
-* **Battery-Included** : deliver all you need to run production-grade databases with one-click.
-* **Monitoring System** based on [prometheus](https://prometheus.io/) & [grafana](https://grafana.com/) &  [pg_exporter](https://github.com/Vonng/pg_exporter)
-* **Provisioning Solution** based on [ansible](https://docs.ansible.com/ansible/latest/index.html) in kubernetes style. scale at ease.
-* **HA Architecture** based on [patroni](https://patroni.readthedocs.io/) and [haproxy](https://www.haproxy.org/). Self-healing and auto-failover in seconds
-* **Service Discovery** and leader election based on [consul](https://www.consul.io/) (or etcd), maintenance made easy.
-* **Offline Installation** without Internet access. Fast, secure, and reliable.
-* **Flexible Design** makes pigsty fully configurable & customizable & extensible.
-* **Reliable Performance** verified in real-world production env (200+nodes, 1PB Data)
-* **Open Source** under Apache License 2.0
-* Support for Redis & MatrixDB (Greenplum7) Added!
 
 
-## Distributions
+### Distribution
 
+> Just like RedHat for Linux!
 
-**Distribution** refers to the overall solution consisting of a kernel and peripheral software packages. For example, Linux is an OS kernel, while RedHat, Debian, and SUSE are OS distributions based on Linux kernel.
+Packaging the latest PostgreSQL kernel & TimescaleDB, PostGIS, Citus, and hundreds of extensions, all battery-included!
 
-Pigsty is an entire **solution** for using postgres in your production environment. It will setup everything for your with one-click:
-creating & scaling clusters, switchover & auto failover. manage databases, users, roles, hbas, schemas, hbas with configuration, connection pooling, load balancing, monitoring & logging & alerting, service discovery, etc...
+It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Docker,… can be used as a runtime for other databases & applications
 
+It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres. Which can be used as a low-code data app development IDE, too.
 
 ![](docs/_media/ARCH.svg)
 
 
-## Monitoring
 
-PostgreSQL is the most advanced open source relational database, but its ecosystem lacks a open source monitoring system which is **good enough**. Pigsty aims to solve this by delivering the best **Open Source Monitoring Solution for PostgreSQL**.
+### Observability
+
+> You can't manage you don't measure
+
+Unparalleled monitoring system with 30+ dashboards & 1200+ metrics. Just bring the ultimate observability for ya!
+
+Pigsty comes with a professional-grade PostgreSQL monitoring system which is specially designed for large-scale PostgreSQL cluster management. Which supports: PGSQL monitoring, Redis monitoring, Nodes monitoring & self-monitoring. 
+
+It is built upon popular open-source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purposes, e.g: data-visualization platforms.
 
 ![](docs/_media/overview-monitor.jpg)
 
-Pigsty comes with a professional-grade PostgreSQL monitoring system which is specially designed for large-scale postgres cluster management. Including 1200+ metrics, 20+ Dashboards, thousands of panels which covering detailed information from the biggest overview to the smallest individual object. Which brings irreplaceable value for professional users.
-
-Pigsty consists of three monitor apps: `pgsql`, which focus on time-series metrics. `pgcat`, which explores database catalog directly. And `pglog`, which collect realtime logs from postgres, patroni and pgbouncer, and visualize csvlog samples. More will come later.
-
-Pigsty is build upon popular open source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purpose.
 
 
-## Provisioning
+### High-Available
 
-PostgreSQL cluster comes before monitoring system. That's why pigsty is shipping with a handy **Provisioning Solution**.
-It allows you to create, update, scale, and manage your postgres cluster in kubernetes style: Describe what your want and pigsty will just do that for ya.
+> Auto-Piloting & Self-Healing
 
-For example, creating a one-leader-with-two-replica cluster `pg-test` on three nodes requires only a few lines of configuration, and one command `pgsql.yml -l pg-test` to instantiate it.
+**High** **Available** PostgreSQL cluster. Idempotent instances & services, self-healing from hardware failures. 
 
+The clusters created by Pigsty are **distributive** HA clusters powered by Patroni & HAProxy. Each instance is idempotent from the application's point of view. As long as any instance in the cluster survives, the cluster serves. 
+
+
+![](docs/_media/HA-PGSQL.svg)
+
+
+
+### Infra as Data
+
+> HashiCorp for Database!
+
+Pigsty follows the philosophy of **"Infra as Data"**, just like Kubernetes. Describe the database you want and pull them up in one click. 
+
+You can create a common primary-replica replication PGSQL cluster with several lines. and assign different roles among it: primary, replica, standby, offline, delayed, cascade. 
+
+You can also create a horizontal sharding cluster with Citus, or just deploy a time-series data warehouse MatrixDB. Redis standalone/sentinel/cluster are also supported!
+
+![](docs/_media/interface.jpg)
+
+<details>
+<summary>Minimal PostgreSQL Config</summary>
 
 ```yaml
 pg-test:
@@ -129,46 +172,37 @@ pg-test:
     10.10.10.13: {pg_seq: 3, pg_role: replica}
   vars: 
     pg_cluster: pg-test
-    vip_address: 10.10.10.3
 ```
 
+</details>
 
 <details>
-<summary>Full Example of PostgreSQL Customization</summary>
-
-![](docs/_media/interface.jpg)
+<summary>Complete PostgreSQL Config</summary>
 
 ```yaml
-#----------------------------------#
-# cluster: pg-test (3-node)        #
-#----------------------------------#
-pg-meta:                                # required, ansible group name , pgsql cluster name. should be unique among environment
-  hosts:                                # `<cluster>.hosts` holds instances definition of this cluster
-    10.10.10.11: {pg_seq: 1, pg_role: primary}   # primary instance, leader of cluster
-    10.10.10.12: {pg_seq: 2, pg_role: replica}   # replica instance, follower of leader
-    10.10.10.13: {pg_seq: 3, pg_role: offline}   # offline instance, replica that allow offline access
+# EXAMPLE pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
+pg-meta:                          # [REQUIRED], ansible group name , pgsql cluster name. should be unique among environment
+  hosts:                          # `<cluster>.hosts` holds instances definition of this cluster
+    10.10.10.10:                  # [REQUIRED]: ip address is the key. values are instance level config entries (dict)
+      pg_seq: 1                   # [REQUIRED], unique identity parameter (+integer) among pg_cluster
+      pg_role: primary            # [REQUIRED], pg_role is mandatory identity parameter, primary|replica|offline
+      pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
+      # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
+      # pg_weight: 100            # load balance weight for this instance
 
-    #---------------
-    # mandatory                         # all configuration above (`ip`, `pg_seq`, `pg_role`) and `pg_cluster` are mandatory
-    #---------------
-  vars:                                 # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
-    pg_cluster: pg-meta                 # required, pgsql cluster name, unique among cluster, used as namespace of cluster resources
+  vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
+    pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
 
-    #---------------
-    # optional                          # all configuration below are OPTIONAL for a pgsql cluster (Overwrite global default)
-    #---------------
-    pg_version: 13                      # pgsql version to be installed (use global version if missing)
-    node_tune: tiny                     # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
-    pg_conf: tiny.yml                   # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-    patroni_mode: pause                 # entering patroni pause mode after bootstrap  {default|pause|remove}
-    patroni_watchdog_mode: off          # disable patroni watchdog on meta node        {off|require|automatic}
-    pg_lc_ctype: en_US.UTF8             # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
+    # all vars below are [OPTIONAL] (overwrite global default)
+    pg_version: 14                # pgsql version to be installed (use global version if missing)
+    node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
+    pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
+    patroni_mode: default         # entering patroni pause mode after bootstrap  {default|pause|remove}
+    patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
+    pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
 
-    #---------------
-    # biz databases                     # Defining Business Databases (Optional)
-    #---------------
+    # define business database meta , used as CMDB & default database for single-node setup
     pg_databases:                       # define business databases on this cluster, array of database definition
-      # define the default `meta` database
       - name: meta                      # required, `name` is the only mandatory field of a database definition
         baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
         # owner: postgres               # optional, database owner, postgres by default
@@ -185,16 +219,15 @@ pg-meta:                                # required, ansible group name , pgsql c
         connlimit: -1                   # optional, database connection limit, default -1 disable limit
         schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
         extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
-          - {name: adminpack, schema: pg_catalog}    # install adminpack to pg_catalog and install postgis to public
-          - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
+          - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
+          - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
+          - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
 
       # define an additional database named grafana & prometheus (optional)
-      - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana    primary database }
-      - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database }
+      # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
+      # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
 
-    #---------------
-    # biz users                         # Defining Business Users (Optional)
-    #---------------
+    # define business users for this cluster
     pg_users:                           # define business users/roles on this cluster, array of user definition
       # define admin user for meta database (This user are used for pigsty app deployment by default)
       - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
@@ -216,34 +249,33 @@ pg-meta:                                # required, ansible group name , pgsql c
         parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
         # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
       - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
-
       # define additional business users for prometheus & grafana (optional)
       - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-      - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database }
+      - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
+
+    # defining extra HBA rules on this cluster
+    pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
+      - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
+        role: common                                    # required, which roles will be applied? ('common' applies to all roles)
+        rules:                                          # required, rule content: array of hba string
+          - local   grafana         dbuser_grafana                          md5
+          - host    grafana         dbuser_grafana      127.0.0.1/32        md5
+          - host    grafana         dbuser_grafana      10.10.10.10/32      md5
+
+    # default l2 vip fro this cluster
+    vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
+    vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
+    vip_cidrmask: 8                     # cidr network mask length
+    vip_interface: eth1                 # interface to add virtual ip
 ```
 
 </details>
 
+
 <details>
-<summary>Example of Redis Cluster/Sentinel/Standalone</summary>
+<summary>Example of Redis Native Cluster</summary>
 
 ```yaml
-#----------------------------------#
-# redis sentinel example           #
-#----------------------------------#
-redis-meta:
-  hosts:
-    10.10.10.10:
-      redis_node: 1
-      redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-  vars:
-    redis_cluster: redis-meta
-    redis_mode: sentinel
-    redis_max_memory: 128MB
-
-#----------------------------------#
-# redis cluster example            #
-#----------------------------------#
 redis-test:
   hosts:
     10.10.10.11:
@@ -258,26 +290,9 @@ redis-test:
     redis_max_memory: 64MB              # max memory used by each redis instance
     redis_mem_policy: allkeys-lru       # memory eviction policy
 
-#----------------------------------#
-# redis standalone example         #
-#----------------------------------#
-redis-common:
-  hosts:
-    10.10.10.13:
-      redis_node: 1
-      redis_instances:
-        6501: {}
-        6502: { replica_of: '10.10.10.13 6501' }
-        6503: { replica_of: '10.10.10.13 6501' }
-  vars:
-    redis_cluster: redis-common         # name of this redis 'cluster'
-    redis_mode: standalone              # standalone,cluster,sentinel
-    redis_max_memory: 64MB              # max memory used by each redis instance
 ```
 
 </details>
-
-
 
 <details>
 <summary>Example of MatrixDB Data Warehouse</summary>
@@ -336,34 +351,63 @@ mx-sdw:
 </details>
 
 
-## HA Clusters
 
 
-The clusters created by Pigsty are **distributive** HA postgres database cluster powered by Patroni & HAProxy.
-As long as any instance in the cluster survives, the cluster serves. Each instance is idempotent from application's point of view.
+### Ubiquitous
 
+> Local **sandbox** or multi-cloud deployment, It's all the same!
 
-![](docs/_media/HA-PGSQL.svg)
+Pigsty is designed for large-scale production usage, but can also be operational on a local 1C1G VM node. 
 
+You can run the complete 4-node sandbox on your laptop with vagrant with one command `make up`. Or prepare cloud ECS/VPC with Terraform with the exact same procedure.
 
-
-## Sandbox
-
-Pigsty is designed for real world production env with hundreds of high spec nodes, but it can also run inside a tiny 1C|1GB vm node.
-Which is great for developing, testing, demonstrating, data analysing & visualizing and other purposes.
-
-Pigsty sandbox can be pulled up with one command on your Macbook, powered by virtualbox & vagrant. or created upon cloud vm with terraform.
-There are two specs of sandbox: 1 node (the default) and 4 node (full sandbox)
+ Everything is described in the [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) config file, it's the only difference between different envs: prod, staging/UAT, dev/test sandbox.
 
 ![](docs/_media/SANDBOX.gif)
 
-<details>
-<summary>Sandbox Specification</summary>
+
+
+
+### Versatile
+
+> Data apps, SaaS, Database & Host monitoring, Analysis or Visualization, it's all your choice! 
+
+**SaaS with Docker**
+
+Pigsty has docker installed on meta nodes by default. You can pull up all kinds of SaaS applications with one command： Gitlab, Jira, Confluence, Mastodon, Discourse, Odoo, Kingdee, etc...
+
+You can also pull up stateless parts, and use external databases by changing their connection string, to acquire production-grade durability.
+
+Other handy tools such as Jupyter lab server, PGWeb CLI tools, PGAdmin4, pgbadger, ByteBase, PostgREST can also be served with docker. Check [Tutorial: Docker Applications](docs/t-docker.md) for details.
+
+**Analysis**
+
+Pigsty ships with handy tools such as Jupyterlab, PostgreSQL, Grafana, ECharts. Which is great for data analysis & visualization.
+
+You can turn pigsty sandbox into an IDE for making data-intensive applications and demos: Processing data with SQL & Python, Backend API auto-gen with PostGREST. Visualize with Grafana & ECharts. 
+
+Pigsty comes with some example apps:  [`covid`](http://demo.pigsty.cc/d/covid-overview) for covid-19 data visualization, and [`isd`](http://demo.pigsty.cc/d/isd-overview) for visualizing global surface weather station data.
+
+* PG CSV Log Sample Analysis: [`pglog`](http://demo.pigsty.cc/d/pglog-overview)
+* COVID-19 WHO Data Query [`covid`](http://demo.pigsty.cc/d/covid-overview)
+* NOAA ISD Surface Station Weather Data Query: [`isd`](http://demo.pigsty.cc/d/isd-overview) 
+* DB-Engine Popularity Trending [`dbeng`](http://demo.pigsty.cc/d/dbeng-overview) 
+
+[![](docs/_media/overview-covid.jpg)](http://demo.pigsty.cc/d/covid-overview)
+
+Check [Tutorial: Pigsty Applications](docs/t-application.md) for details.
+
+
+
+
+### Specification
+
+> 50% - 80% cost saving using Cloud ECS/Bare-Metal against Cloud RDS.
 
 **System Requirement**
 
 * CentOS 7 / Red Hat 7 / Oracle Linux 7 or equivalent
-* CentOS 7.8.2003 x86_64 is highly recommend (fully tested under production)
+* CentOS 7.8.2003 x86_64 is highly recommended, it is fully tested under production env!
 
 **Minimal Spec**
 
@@ -372,28 +416,14 @@ There are two specs of sandbox: 1 node (the default) and 4 node (full sandbox)
 
 **Demo setup ( TINY mode, vagrant demo)**
 
-* 4 Node, including single meta node, singleton database cluster `pg-meta` and 3-instances pgsql cluster `pg-test`
-* Spec:  2Core/4GB for meta controller node, 1Core/1GB for database node (x3)
+* 4 Nodes, singleton meta node with `pg-meta`, and 3-instances pgsql cluster `pg-test`
+* Spec:  1Core/2GB for meta controller node, 1Core/1GB for database node (x3)
 
 **Production setup (OLTP/OLAP/CRIT mode)**
 
-* 3 meta nodes , up to 100+ database clusters or 400~500 nodes
-* Verified Spec: Dell R740 / 64 Core / 400GB Mem / 3TB PCI-E SSD
+* 3 meta nodes, up to hundreds of database clusters
+* Verified Size: Dell R740 / 64 Core / 400 GB Mem / 3TB NVME SSD x 240
 
-</details>
-
-
-
-## Analysis
-
-Pigsty ships with handy tools such as Jupyterlab, PostgreSQL, Grafana, Echarts. Which is great for data analysis & visualization.
-You can turn pigsty sandbox into an IDE for making data-intensive applications and demos: Processing data with SQL & Python, Visualize with Grafana & Echarts.
-
-Pigsty comes with two example apps:  [`covid`](http://demo.pigsty.cc/d/covid-overview) for covid-19 data visualization, and [`isd`](http://demo.pigsty.cc/d/isd-overview) for visualizing global surface weather station data.
-
-![](docs/_media/overview-covid.jpg)
-
-![](docs/_media/overview-isd.jpg)
 
 
 
@@ -404,8 +434,8 @@ Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [Apache 2.0 License](LICENSE)
 
-Copyright 2018-2022 rh@vonng.com(Vonng)
+Copyright 2018-2022 rh@vonng.com (Vonng)
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Vonng/pigsty&type=Date)](https://star-history.com/#Vonng/pigsty&Date)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)l
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
