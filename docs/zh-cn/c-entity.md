@@ -50,7 +50,7 @@ Pigsty的四类核心实体可以分别向上向下扩展出**完整实体模型
 
 **扩展实体说明**
 
-* **环境（Environment）** ，或曰 **部署（Deployment）** 是一套完整的Pigsty系统。
+* **环境（Environment）** ，或 **部署（Deployment）** 是一套完整的Pigsty系统。
 * 每一套环境都有一份 [配置](v-config.md)（Config），与一套 [基础设施](c-arch.md#基础设施)（Infrastructure），管理有多套[数据库集群](c-arch.md#数据库集群)
 * 每一个数据库实例上有若干个[**业务数据库**](c-database.md)（Database），作为逻辑层面的顶级命名空间
 * 每一个数据库内都会有各种**数据库对象**，例如表、索引、序列号、函数等。
@@ -174,7 +174,7 @@ Pigsty默认使用从1开始的自增序列号依次为集群中的新数据库�
 
 **节点**是对硬件资源的一种抽象，通常指代一台工作机器，无论是物理机（bare metal）还是虚拟机（vm），或者是Kubernetes 中的Pod。
 
-?> 注意 Kubernetes 中Node是硬件资源的抽象，但在实际管理使用上，这里Node概念类似于Kubernetes中Pod的概念。
+注意 Kubernetes 中Node是硬件资源的抽象，但在实际管理使用上，这里Node概念类似于Kubernetes中Pod的概念。
 
 节点的关键特征是：
 

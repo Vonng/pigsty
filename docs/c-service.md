@@ -1,74 +1,75 @@
 # PGSQL Service & Access
 
-> How to define services in Pigsty
+> How to define PostgreSQL [service](#service) and achieve stable, reliable, and high-performance [access](#access) through load balancing and connection pooling.
 
-## Personal User
+[Personal User](#Single User) does not need to concern itself with the concept of [**Service**](#Service) versus [**Access**](#Access), which is a concept proposed for using a highly available PostgreSQL cluster in a production env.
 
-Personal/sandbox users do not need to be concerned about **services**, a concept proposed for using databases in production environments.
 
-Pigsty will **configure the relevant environment for administrative users** on the administrative node, and individual users can connect directly to the database via IP address, e.g.
+
+---------------
+
+### Personal User
+
+
+
+After completing the standalone deployment, port 5432 of this node provides PostgreSQL services to the outside world, and port 80 provides UI-type services to the outside world.
+
+On the current meta node, you can directly connect to the local predefined `meta` database battery-included by executing `psql` with no parameters using the management user.
+
+When accessing from the outside (host) using the tools, you can use the URL:
 
 ```bash
-psql # by default will use dbuser_dba to connect to the local meta database vagrant@meta
-psql -h 10.10.10.11 # The default will be to use dbuser_dba to connect to the 10.10.10.10 postgres database
-````
-
-When accessing from the outside (host) using the tools, you can use the URL
-
-```bash
-psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta # superuser Direct connection
-psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta # business user direct connect
-psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5433/meta # go load balancing with connection pooling
+psql postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta         # superuser Direct connection
+psql postgres://dbuser_meta:DBUser.Meta@10.10.10.10/meta       # business user direct connect
 ```
 
-When deploying Pigsty in a production environment, you need to focus on **services**.
+You can use the administrator user specified by [`pg_admin_username`](v-pgsql.md#pg_admin_username) and [`pg_admin_password`](v-pgsql.md#pg_admin_password), or the pre-defined `meta` Other business users defined in the database (`dbuser_meta`) access this database.
+
+Highly available clusters deployed in production envs using Pigsty are strongly discouraged from using direct IP connections [access](#access) to the database [service](#service).
 
 
 
-
-
-
-
+---------------
 
 ## Service
 
-A **Service** is the form of functionality that a database cluster provides to the outside world.
+**Service** in the form of functionality that a database cluster provides to the outside world.
 
-In a real-world production environment, we would use a replication-based master-slave database cluster. There is one and only one instance in the cluster that acts as the leader (master) and can accept writes, while the other instances (slaves) will continuously get change logs from the cluster leader to keep up with the leader. The slave can also carry read-only requests, which can significantly share the load of the master for read-more-write-less scenarios, so it is a regular practice to distinguish write requests from read-only requests for the cluster.
+In a production env, we would use a replication-based master-slave database cluster. The cluster has one and only one instance as the leader (master) that can accept writes, while the other instances (slaves) will continuously get change-logs from the cluster leader to keep up with the leader. The slave can also carry read-only requests, which can significantly share the load of the master for read-more-write-less scenarios, so it is a regular practice to distinguish write requests from read-only requests for the cluster.
 
 In addition, for production environments with high frequency and short connections, we also pool requests through a connection pooling middleware (Pgbouncer) to reduce the connection and back-end process creation overhead. However, for scenarios such as ETL and change execution, we need to bypass the connection pool and access the database directly.
 
-In addition, a highly available cluster will fail over **Failover** and the failover will cause the cluster leader to change. Highly available database solutions therefore require write traffic to automatically adapt to cluster leader changes.
+In addition, a highly available cluster will fail over **Failover** and the failover will cause the cluster leader to change. Highly available database solutions, therefore, require write traffic to automatically adapt to cluster leader changes.
 
-These different access requirements (read/write separation, pooling and direct connection, failover auto-adaptation) are eventually abstracted into the concept of **service**.
+These different access requirements (read/write separation, pooling vs. direct connection, failover auto-adaptation) are ultimately abstracted into the concept of **service**.
 
-The external manifestation of a service is usually an **access endpoint**, such as a connection URL to a PostgreSQL database.
-The user can access the corresponding database functionality through this endpoint.
-
-In general, a database cluster **must provide a service** that
+In general, a database cluster **must provide a service** that:
 
 - **read and write service (primary)**: can write to the database
 
-For a production database cluster** at least two services should be provided**.
+For a production database cluster, **at least two services should be provided.**
 
 - **read-write service (primary)**: can write to the database
 
 - **read-only service (replica)**: access to read-only data copies
 
-In addition, depending on the specific business scenario, there may be other services, such as
+In addition, depending on the specific business scenario, there may be other services, such as:
 
-- **offline slave service (offline)**: dedicated slave that does not take online read-only traffic, used for ETL and personal queries
+- **offline slave service (offline)**: a dedicated slave that does not take online read-only traffic, used for ETL and personal queries
 - **synchronous slave service (standby)**: read-only service with synchronous commit and no replication delay
 - **delayed**: allows services to access old data before a fixed time interval
-- **default** : A service that allows (administrative) users to manage the database directly, bypassing the connection pool
+- **default**: A service that allows (administrative) users to manage the database directly, bypassing the connection pool
 
 
+
+
+---------------
 
 ## Default Services
 
-Pigsty provides four services to the public by default: `primary`, `replica`, `default`, `offline`.
+Pigsty provides four services to the public by default: `primary`, `replica`, `default`, and `offline`.
 
-You can define new services globally or for individual clusters via configuration files
+You can define new services globally or for individual clusters via config files:
 
 | service | port | purpose | description |
 | ------- | ---- | ------------ | ---------------------------- |
@@ -77,7 +78,7 @@ You can define new services globally or for individual clusters via configuratio
 | default | 5436 | management | direct connection to cluster master |
 | offline | 5438 | ETL/personal user | connects directly to an available offline instance of the cluster |
 
-Take the meta-database `pg-meta` as an example
+Take the meta-database `pg-meta` as an example:
 
 ```bash
 psql postgres://dbuser_meta:DBUser.Meta@pg-meta:5433/meta # production read/write
@@ -86,22 +87,11 @@ psql postgres://dbuser_dba:DBUser.DBA@pg-meta:5436/meta # Directly connected to 
 psql postgres://dbuser_stats:DBUser.Stats@pg-meta:5438/meta # Direct connect offline
 ```
 
-Take the sandbox test cluster `pg-test` as an example
+These four services are described in detail below.
 
-| service | port | description | sample |
-| ------- | ---- | -------------------------- | ------------------------------------------------------------ |
-| primary | 5433 | Only production users can connect | postgres://test@pg-test:5433/test |
-| replica | 5434 | Only production users can connect | postgres://test@pg-test:5434/test |
-| default | 5436 | Administrator and DML executor can connect | postgres://dbuser_admin@pg-test:5436/test |
-| offline | 5438 | ETL/STATS Individual users can connect | postgres://dbuser_stats@pg-test:5438/test<br />postgres://dbp_vonng@pg-test:5438/test |
+### Primary Service
 
-These four services are described in detail below
-
-
-
-## Primary Service
-
-The Primary service serves **online production read and write access**, which maps the cluster's port 5433, to the **primary connection pool (default 6432)** port.
+The Primary service serves **online production read and writes access**, which maps the cluster's port 5433, to the **primary connection pool (default 6432)** port.
 
 The Primary service selects **all** instances in the cluster as its members, but only those with a true health check `/primary` can actually take on traffic.
 
@@ -117,13 +107,21 @@ There is one and only one instance in the cluster that is the primary, and only 
   selector: "[]"            # select all instance as primary service candidate
 ```
 
-## Replica Service
+The highly available component Patroni on the primary repository returns 200 against the Primary health check and is used to ensure that the cluster does not have more than one instance of the primary repository.
+
+When the cluster fails over, the health check is true for the new primary and false for the old one, so traffic is migrated to the new primary. The business side will notice a Primary service unavailability time of about 30 seconds.
+
+
+
+### Replica Service
 
 The Replica service serves **online production read-only access**, which maps the cluster's port 5434, to the **slave connection pool (default 6432)** port.
 
 The Replica service selects **all** instances in the cluster as its members, but only those with a true health check `/read-only` can actually take on traffic, and that health check returns success for all instances (including the master) that can take on read-only traffic. So any member of the cluster can carry read-only traffic.
 
-But by default, only slave libraries carry read-only requests. The Replica service defines `selector_backup`, a selector that adds the cluster's master library to the Replica service as a **backup instance**. The master will start taking read-only traffic** only when all other instances in the Replica service, i.e. **all slaves, are down.
+But by default, only slave libraries carry read-only requests. The Replica service defines `selector_backup`, a selector that adds the cluster's master library to the Replica service as a **backup instance**. **The master will start taking read-only traffic** only when all other instances in the Replica service, i.e. **all slaves, are down.**
+
+Another role that acts as a **backup instance** is the `offline` role. Offline instances are typically dedicated to OLAP/ETL/personal interactive queries and are not suitable for mixing with online queries, so `offline` is only used to take on read-only traffic when all the `replica`s in the cluster are down.
 
 ```yaml
 # replica service will route {ip|name}:5434 to replica pgbouncer (5434->6432 ro)
@@ -138,13 +136,13 @@ But by default, only slave libraries carry read-only requests. The Replica servi
 
 
 
-## Default Service
+### Default Service
 
 The Default service serves the **online primary direct connection**, which maps the cluster's port 5436, to the **primary Postgres** port (default 5432).
 
-The Default service targets interactive read and write access, including: executing administrative commands, executing DDL changes, connecting to the primary library to execute DML, and executing CDC. interactive operations **should not** be accessed through connection pools, so the Default service forwards traffic directly to Postgres, bypassing the Pgbouncer.
+The Default service targets interactive read and writes access, including executing administrative commands, executing DDL changes, connecting to the primary library to execute DML, and executing CDC. Interactive operations **should not** be accessed through connection pools, so the Default service forwards traffic directly to Postgres, bypassing the Pgbouncer.
 
-The Default service is similar to the Primary service, using the same configuration options. The Default parameters are filled in explicitly for demonstration purposes.
+The Default service is similar to the Primary service, using the same config options. The Default parameters are filled in explicitly for demonstration purposes.
 
 ```yaml
 # default service will route {ip|name}:5436 to primary postgres (5436->5432 primary)
@@ -165,13 +163,13 @@ The Default service is similar to the Primary service, using the same configurat
 
 
 
-## Offline Service
+### Offline Service
 
 Offline service is used for offline access and personal queries. It maps the cluster's **5438** port, to the **offline instance Postgres** port (default 5432).
 
-The Offline service is for interactive read-only access, including: ETL, offline large analytics queries, and individual user queries. Interactive operations **should not** be accessed through connection pools, so the Default service forwards traffic directly to the offline instance of Postgres, bypassing the Pgbouncer.
+The Offline service is for interactive read-only access, including ETL, offline large analytics queries, and individual user queries. Interactive operations **should not** be accessed through connection pools, so the Default service forwards traffic directly to the offline instance of Postgres, bypassing the Pgbouncer.
 
-Offline instances are those with `pg_role == offline` or with the `pg_offline_query` flag. Other **other slave libraries** outside the Offline instance will act as backup instances for Offline, so that when the Offline instance goes down, the Offline service can still get services from other slave libraries.
+Offline instances are those with `pg_role == offline` or with the `pg_offline_query` flag. Other **slave libraries** outside the Offline instance will act as backup instances for Offline so that when the Offline instance goes down, the Offline service can still get services from other slave libraries.
 
 ```yaml
 # offline service will route {ip|name}:5438 to offline postgres (5438->5432 offline)
@@ -190,13 +188,9 @@ Offline instances are those with `pg_role == offline` or with the `pg_offline_qu
 
 ## User-Defined Service
 
-An array of service definition objects defines the services exposed to the public in each database cluster. Each cluster can define multiple services, each containing any number of cluster members, and services are distinguished by **ports**.
+In addition to the default services configured by [`pg_services`](v-pgsql.md#pg_services) above, users can use the same service definitions in the [`pg_services_extra`](v-pgsql.md#pg_services_extra) config entry for the PostgreSQL database cluster that defines additional services.
 
-Services are defined via [**`pg_services`**](v-service.md#pg_services) and [**`pg_services_extra`**](v-service.md#pg_services_extra). The former is used to define services that are common across the environment, and the latter is used to define cluster-specific additional services. Both are arrays consisting of **service definitions**.
-
-The following code defines a new service `standby` that uses port `5435` to provide **synchronous read** functionality to the outside world. This service will read from a synchronous slave (or master) in the cluster, thus ensuring that all reads are done without latency.
-
-
+A cluster can have multiple services defined, each containing any number of cluster members, and the services are distinguished by **port**. The following code defines a new service, `standby`, that provides **synchronous reads** to the outside using port `5435`. This service will read from a synchronous slave (or master) in the cluster, thus ensuring that all reads are done without latency.
 
 ```yaml
 # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
@@ -223,7 +217,7 @@ The following code defines a new service `standby` that uses port `5435` to prov
 
 - **Name (`service.name`)**.
 
-  **service name**, the full name of the service is prefixed by the database cluster name and suffixed by `service.name`, connected by `-`. For example, a service with `name=primary` in the `pg-test` cluster has the full service name `pg-test-primary`.
+  **service name**, the full name of the service is prefixed by the database cluster name and suffixed by `service.name`, connected by `-`. For example, a service with `name=primary` in the `pg-test` cluster has the full-service name `pg-test-primary`.
 
 - **Port (`service.port`)**.
 
@@ -249,25 +243,23 @@ The following code defines a new service `standby` that uses port `5435` to prov
 
 - **health check method (`service.check_method`)**:
 
-  How does the service check the health status of the instance? Currently only HTTP is supported
+  How does the service check the health status of the instance? Currently, only HTTP is supported
 
 - **Health check port (`service.check_port`)**:
 
-  Which port does the service check the instance on to get the health status of the instance? `patroni` will get it from Patroni (default 8008), `pg_exporter` will get it from PG Exporter (default 9630), or user can fill in a custom port number.
+  Which port does the service check the instance on to get the health status of the instance? `patroni` will get it from Patroni (default 8008), `pg_exporter` will get it from PG Exporter (default 9630), or the user can fill in a custom port number.
 
 - **Health check path (`service.check_url`)**:
 
-  The URL PATH used by the service to perform HTTP checks. `/` is used by default for health checks, and PG Exporter and Patroni provide a variety of health check methods that can be used to differentiate between master and slave traffic. For example, `/primary` will only return success for the master, and `/replica` will only return success for the slave. `/read-only`, on the other hand, will return success for any instance that supports read-only (including the master).
+  The URL PATH is used by the service to perform HTTP checks. `/` is used by default for health checks, and PG Exporter and Patroni provide a variety of health check methods that can be used to differentiate between master and slave traffic. For example, `/primary` will only return success for the master, and `/replica` will only return success for the slave. `/read-only`, on the other hand, will return success for any instance that supports read-only (including the master).
 
 - **health check code (`service.check_code`)**:
 
-  The code expected for HTTP health checks, default is 200
+  The code expected for HTTP health checks, default is 200.
 
 - **Haproxy-specific configuration (`service.haproxy`)** :
 
-  Proprietary configuration items about the service provisioning software (HAProxy)
-
-
+  Proprietary config entries about the service provisioning software (HAProxy).
 
 ### Service Implementation
 
@@ -278,36 +270,30 @@ Pigsty currently uses HAProxy-based service implementation by default, and also 
 
 
 
-
-
 ---------------
 
 ## Access
 
-**Access** mechanism is designed to solve the problem of real-world production environments: high concurrency & high availability.
-**Individual users** does not really need these. You can just ignore these access mechanism, bypass domain names, VIPs, load balancers, connection pools, and access the database directly via IP address.
+**Access** mechanism is designed to solve the problem of real-world production envs: high concurrency & high availability.
+**Individual users** do not really need these. You can just ignore these access mechanisms, bypass domain names, VIPs, load balancers, and connection pools, and access the database directly via IP address.
 
 > Access default database via `postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta` (replace IP & password)
 
+In Pigsty's default config, a fully functional load balancer (HAProxy) is deployed on each database instance/node, so **any instance** of the entire cluster can serve as the access point for the entire cluster. You need to decide your own access policy: **how to distribute business traffic to one, multiple, or all load-balanced instances** in the cluster.
 
-
-In Pigsty's default configuration, a fully functional load balancer (HAProxy) is deployed on each database instance/node, so **any instance** of the entire database cluster can serve as the access point for the entire cluster. You need to decide your own access policy: **how to distribute business traffic to one, multiple, or all load-balanced instances** in the cluster.
-
-Pigsty provides a rich set of access methods that you can choose based on your network infrastructure and preferences. As a sample, the Pigsty sandbox uses an L2 VIP bound to the cluster master and a domain name bound to that VIP. The application accesses the load balancing instance on the cluster master through the L2 VIP via the domain name. When this node becomes unavailable, the VIP drifts with the cluster master and the traffic is then carried by the load balancer on the new master, as shown in the following figure.
+Pigsty provides a rich set of access methods that you can choose based on your network infrastructure and preferences. As a sample, the Pigsty sandbox uses an L2 VIP bound to the cluster master and a domain name bound to that VIP. The application accesses the load-balancing instance on the cluster master through the L2 VIP via the domain name. When this node becomes unavailable, the VIP drifts with the cluster master, and the traffic is then carried by the load balancer on the new master, as shown in the following figure.
 
 ![](_media/access.svg)
 
-Another classic strategy is to use DNS polling directly to resolve DNS domain names to all instances.
-
-Several common access patterns will be given in this article.
+Another classic strategy is to use DNS polling directly to resolve DNS domain names to all instances. Several common access patterns will be given in this article.
 
 
 
 ## User Interface
 
-From the user's point of view, access to the database requires only a connection string; the interface delivered by Pigsty to the end user is, in turn, a database connection string.
+From the user's point of view, access to the database requires only a connection string; and the interface delivered by Pigsty to the end-user is also a database connection string.
 
-The formal difference between the different **access methods** is the difference between the [host] (# host) and [port] (# port) parts of the connection string.
+The formal difference between the different **access methods** is the difference between the [host](#主机) and [port] parts of the connection string.
 
 ### Port
 
@@ -338,7 +324,9 @@ Depending on the contents of the `host` section and the available `port` values,
 
 ### Available Combinations
 
-In a single-node sandbox environment, for example, the following connection strings are available for the `test` database on the database cluster `pg-test`.
+In a single-node sandbox env, for example, the following connection strings are available for the `test` database on the cluster `pg-test`.
+
+<details><summary>Available Combinations</summary>			
 
 ```bash
 # Access via cluster domain
@@ -391,28 +379,27 @@ postgres://test@10.10.10.11:5432,10.10.10.12:5432,10.10.10.13:5432/test?target_s
 
 ```
 
-At the cluster level, users can access the 4 [**default services**](c-service.md#default-service) provided by the cluster by using **cluster domain name** + service port, which Pigsty strongly recommends. Of course users can also bypass the domain name and access the database cluster directly using the cluster's VIP (L2 or L4).
+At the cluster level, users can access the 4 [**default services**](c-service.md#default-service) provided by the cluster by using **cluster domain name** + service port, which Pigsty strongly recommends. Of course, users can also bypass the domain name and access the database cluster directly using the cluster's VIP (L2 or L4).
 
 At the instance level, users can connect directly to the Postgres database via the node IP/domain name + port 5432, or they can use port 6432 to access the database via Pgbouncer. Services provided by the cluster to which the instance belongs can also be accessed via Haproxy via 5433~543x.
 
 
------------------------
 
 ## Access Method
 
-Pigsty recommends the use of Haproxy-based access schemes (1/2), and in production environments where infrastructure support is available, L4VIP (or equivalent load balancing services) based access schemes (3) can also be used.
+Pigsty recommends the use of Haproxy-based access schemes (1/2), and in production envs where infrastructure support is available, L4VIP (or equivalent load balancing services) based access schemes (3) can also be used.
 
 | Serial Number | Solution | Description |
 | ---- | ---------------------------------- | --------------------------------------------------------- |
 | 1 | [L2VIP + Haproxy](#l2-vip-haproxy) | Standard access architecture used by Pigsty sandboxes, using L2 VIP to ensure high availability of Haproxy |
-| 2 | [DNS + Haproxy](#dns-haproxy) | Standard high availability access scheme, no single point of system.                          | 2
-| 3 | [L4VIP + Haproxy](#l4-vip-haproxy) | A variant of Scenario 2, using L4 VIP to ensure Haprxoy is highly available.                | | [l4-vip-haproxy
-| 4 | [L4 VIP](#l4-vip) | Large-scale **high-performance production environments** are recommended to use DPVS L4 VIP direct access |
-| 5 | [Consul DNS](#consul-dns) | Use Consul DNS for service discovery, bypassing VIPs and Haproxy | 5 | [Consul DNS](#consul-dns)
+| 2 | [DNS + Haproxy](#dns-haproxy) | Standard high availability access scheme, no single point of system.                          |
+| 3 | [L4VIP + Haproxy](#l4-vip-haproxy) | A variant of Scenario 2, using L4 VIP to ensure Haprxoy is highly available.                |
+| 4 | [L4 VIP](#l4-vip) | Large-scale **high-performance production envs** are recommended to use DPVS L4 VIP direct access |
+| 5 | [Consul DNS](#consul-dns) | Use Consul DNS for service discovery, bypassing VIPs and Haproxy |
 | 6 | [Static DNS](#static-dns) | Traditional static DNS access |
 | 7 | [IP](#ip) | Using Smart Client Access |
 
-![](../_media/access-decision.svg)
+![](./_media/access-decision.svg)
 
 
 
@@ -422,7 +409,7 @@ Pigsty recommends the use of Haproxy-based access schemes (1/2), and in producti
 
 The standard access scheme used by Pigsty sandboxes uses a single domain name bound to a single L2 VIP, with the VIP pointing to the Haproxy in the cluster.
 
-The Haproxy in the cluster uses Node Port to expose [**service**](c-service/) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. haproxy is deployed on each database node, so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave)
+The Haproxy in the cluster uses Node Port to expose [**service**](c-service/) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. haproxy is deployed on each database node so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave).
 
 The availability of the Haproxy itself **is achieved through idempotent replicas**, where each Haproxy can be used as an access portal and users can use one, two, or more, of all Haproxy instances, each of which provides exactly the same functionality.
 
@@ -440,9 +427,9 @@ The L2 VIP of the cluster has a **domain name** corresponding to it. The domain 
 
 * One more hop
 
-* Client IP address is lost, and some HBA policies cannot take effect normally
+* A client's IP address is lost, and some HBA policies cannot take effect normally
 
-* All candidate master libraries must ** be located in the same Layer 2 network **.
+* All candidate master libraries must **be located in the same Layer 2 network**.
 
   * As an alternative, users can also bypass this restriction by using L4 VIP, but there will be one extra hop compared to L2 VIP.
   * As an alternative, users can also choose not to use L2 VIP and use DNS to point directly to HAProxy, but may be affected by client DNS caching.
@@ -458,13 +445,13 @@ The L2 VIP of the cluster has a **domain name** corresponding to it. The domain 
 
 #### Solution Description
 
-Standard high availability access solution with no single point of system. A good balance of flexibility, applicability, and performance.
+Standard high availability access solution with no single point of the system. A good balance of flexibility, applicability, and performance.
 
-Haproxy in a cluster uses Node Port to expose [**service**](c-service/) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. haproxy is deployed on each database node, so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave)
+Haproxy in a cluster uses Node Port to expose [**service**](c-service/) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. Haproxy is deployed on each database node so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave).
 
 The availability of Haproxy itself **is achieved through idempotent copies**, where each Haproxy can be used as an access portal and the user can use one, two, or more, all Haproxy instances, each providing exactly the same functionality.
 
-**The user needs to ensure on his own that the application can access any of the healthy Haproxy instances**. As one of the most rudimentary implementations, users can resolve the DNS domain name of a database cluster to a number of Haproxy instances with DNS polling responses enabled. And the client can choose not to cache DNS at all, or use long connections and implement a mechanism to retry after a failed connection is established. Or refer to Option 2 and ensure high availability of Haproxy itself with additional L2/L4 VIPs on the architecture side.
+**The user needs to ensure on his own that the application can access any of the healthy Haproxy instances**. As one of the most rudimentary implementations, users can resolve the DNS domain name of a database cluster to several Haproxy instances with DNS polling responses enabled. And the client can choose not to cache DNS at all, or use long connections and implement a mechanism to retry after a failed connection is established. Or refer to Option 2 and ensure high availability of Haproxy itself with additional L2/L4 VIPs on the architecture side.
 
 #### Solution Superiority
 
@@ -476,9 +463,9 @@ The availability of Haproxy itself **is achieved through idempotent copies**, wh
 
 * One more hop
 
-* Client IP address is lost, some HBA policies can not take effect properly
+* A client's IP address is lost, some HBA policies can not take effect properly
 
-* **Haproxy itself is highly available through idempotent copy, DNS polling and client reconnection**
+* **Haproxy itself is highly available through idempotent copy, DNS polling, and client reconnection**.
 
   DNS should have a polling mechanism, clients should use long connections, and there should be a retry mechanism for failing to build a connection. This is so that a single Haproxy failure can automatically drift to other Haproxy instances in the cluster. If this is not possible, consider using **Access Scenario 2**, which uses L2/L4 VIPs to ensure Haproxy high availability.
 
@@ -492,21 +479,23 @@ The availability of Haproxy itself **is achieved through idempotent copies**, wh
 
 ### L4 VIP + Haproxy
 
+<details><summary>Four-tier load balancing + HAProxy access</summary>
+
 #### Solution overview
 
-Another variant of access solution 1/2, ensuring high availability of Haproxy via L4 VIP
+Another variant of access solution 1/2, ensuring high availability of Haproxy via L4 VIP.
 
 #### Solution advantages
 
-* No single point, high availability
+* No single point, high availability.
 * Can use **all** Haproxy instances simultaneously to carry traffic evenly
-* All candidate primary libraries ** do not need to ** be located in the same Layer 2 network.
-* Can operate a single VIP to complete traffic switching (if multiple Haproxy's are used at the same time, no need to adjust each one)
+* All candidate primary libraries **do not need to** be located in the same Layer 2 network.
+* Can operate a single VIP to complete traffic switching (if multiple Haproxy's are used at the same time, no need to adjust each one).
 
 #### Solution limitations
 
-* More than two hops, more wasteful, if the conditions can be directly used program 4: L4 VIP direct access.
-* Client IP address is lost, part of the HBA policy can not take effect properly
+* More than two hops, are more wasteful, if the conditions can be directly used program 4: L4 VIP direct access.
+* A client's IP address is lost, and part of the HBA policy can not take effect properly.
 
 
 
@@ -514,20 +503,22 @@ Another variant of access solution 1/2, ensuring high availability of Haproxy vi
 
 ### L4 VIP
 
+<details><summary>Four-tier load-balanced access</summary>
+
 #### Program Description
 
-Large-scale ** high-performance production environment ** recommended to use L4 VIP access (FullNAT, DPVS)
+Large-scale **high-performance production env** recommended using L4 VIP access (FullNAT, DPVS).
 
 #### Solution Superiority
 
 * Good performance and high throughput
-* The correct client IP address can be obtained through `toa` module, and HBA can be fully effective.
+* The correct client IP address can be obtained through the `toa` module, and HBA can be fully effective.
 
 #### Solution limitation
 
 * Still one more article.
 * Need to rely on external infrastructure, complicated to deploy.
-* Still lose client IP addresses when `toa` kernel module is not enabled.
+* Still lose client IP addresses when the `toa` kernel module is not enabled.
 * No Haproxy to mask master-slave differences, and each node in the cluster is no longer "**idempotent**".
 
 
@@ -536,11 +527,13 @@ Large-scale ** high-performance production environment ** recommended to use L4 
 
 ### Consul DNS
 
+<details><summary>Consul DNS access</summary>
+
 #### Solution Description
 
 L2 VIPs are not always available, especially since the requirement that all candidate master libraries must **be located on the same Layer 2 network** may not always be met.
 
-In such cases, DNS resolution can be used instead of L2 VIP for
+In such cases, DNS resolution can be used instead of L2 VIP.
 
 #### Solution Superiority
 
@@ -556,6 +549,8 @@ In such cases, DNS resolution can be used instead of L2 VIP for
 
 
 ### Static DNS
+
+<details><summary>static DNS access</summary>
 
 #### Solution Introduction
 
@@ -576,6 +571,8 @@ Traditional static DNS access method
 
 
 ### IP
+
+<details><summary>IP Direct Access</summary>
 
 #### Solution Introduction
 

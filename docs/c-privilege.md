@@ -1,8 +1,8 @@
 # PGSQL Authentication and Privilege
 
-Pigsty提供了一套开箱即用的访问控制模型，简单实用，可满足基本安全需求。
+Pigsty provides a battery-included access control model that is simple and practical to meet basic security needs.
 
-PostgreSQL提供了标准的访问控制机制：[认证](#认证)（Authentication）与[权限](#权限)（Privileges），认证与权限都基于[角色](#角色)（Role）体系进行。
+PostgreSQL provides a standard access control mechanism: [Authentication](#Authentication) and [Privileges](#Privileges), both of which are based on the [Role](#Role) system.
 
 
 ---------------------
@@ -11,9 +11,7 @@ PostgreSQL提供了标准的访问控制机制：[认证](#认证)（Authenticat
 
 ## Role
 
-Pigsty的默认角色体系包含四个[默认角色](#默认角色)，以及四个[默认用户](#默认用户)。
-
-以下是Pigsty自带的8个默认用户/角色的定义
+Pigsty's default role system contains four [default roles](#default roles) and four [default users](#default users)：
 
 | name             | attr                                                         | roles                                                   | desc                                                    |
 | ---------------- | ------------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------- |
@@ -29,14 +27,14 @@ Pigsty的默认角色体系包含四个[默认角色](#默认角色)，以及四
 
 ### Default Roles
 
-Pigsty带有四个默认角色：
+Pigsty comes with four default roles：
 
-* 只读角色（`dbrole_readonly`）：对所有数据表具有只读权限。
-* 读写角色（`dbrole_readwrite`）：对所有数据表具有写入权限，继承`dbrole_readonly`
-* 管理角色（`dbrole_admin`）：可以执行DDL变更，继承`dbrole_readwrite`
-* 离线角色（`dbrole_offline`）：特殊只读角色，用于执行慢查询/ETL/交互查询，仅允许在特定实例上访问。
+* Read-only role (`dbrole_readonly`): Has read-only access to all data tables.
+* Read-write role (`dbrole_readwrite`): has to write access to all data tables, inherits `dbrole_readonly`.
+* Administrative role (`dbrole_admin`): can execute DDL changes, inherits `dbrole_readwrite`.
+* Offline role (`dbrole_offline`): a special read-only role for executing slow queries/ETL/interactive queries, only allowed to access on specific instances.
 
-其定义如下所示
+Its definition is shown below:
 
 ```yaml
 - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
@@ -45,19 +43,19 @@ Pigsty带有四个默认角色：
 - { name: dbrole_admin , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation } # production DDL change role
 ```
 
-!> 不建议普通用户修改默认角色的名称
+It is not recommended for normal users to change the default role name.
 
 
 ### Default Users
 
-Pigsty带有四个默认用户：
+Pigsty comes with four default users.
 
-* 超级用户（`postgres`），数据库的拥有者与创建者，与操作系统用户一致
-* 复制用户（`replicator`），用于主从复制的系统用户
-* 监控用户（`dbuser_monitor`），用于监控数据库与连接池指标的用户
-* 管理员（`dbuser_dba`），执行日常管理操作与数据库变更的管理员用户
+* superuser (`postgres`), the owner and creator of the database, the same as the operating system user.
+* Replication user (`replicator`), the system user used for master-slave replication.
+* monitor user (`dbuser_monitor`), a user used to monitor database and connection pool metrics.
+* Administrator (`dbuser_dba`), the administrator user who performs daily administrative operations and database changes.
 
-其定义如下所示：
+The definitions are shown below:
 
 ```yaml
 - { name: postgres , superuser: true , comment: system superuser }                             # system dbsu, name is designated by `pg_dbsu`
@@ -66,10 +64,10 @@ Pigsty带有四个默认用户：
 - { name: dbuser_monitor , roles: [pg_monitor, dbrole_readonly] , comment: system monitor user , parameters: {log_min_duration_statement: 1000 } } # monitor user
 ```
 
-在Pigsty中，4个默认的重要用户的用户名和密码是由独立参数控制与管理的：
+In Pigsty, the user names and passwords of the four default important users are controlled and managed by independent parameters:
 
 ```yaml
-pg_dbsu: postgres                             # os user for database
+pg_dbsu: postgres                             # os user for the database
 
 # - system roles - #
 pg_replication_username: replicator           # system replication user
@@ -80,15 +78,15 @@ pg_admin_username: dbuser_dba                 # system admin user
 pg_admin_password: DBUser.DBA                 # system admin password
 ```
 
-出于安全考虑，不建议为默认超级用户`postgres`设置密码或允许远程访问，所以没有专门的`dbsu_password`选项。
-如果有此类需求，可在[`pg_default_roles`](v-pgsql.md#pg_default_roles)中为超级用户设置密码。
+For security reasons, it is not recommended to set a password or allow remote access for the default superuser `postgres`, so there is no dedicated `dbsu_password` option.
+If there is such a need, you can set a password for the dbsu in [`pg_default_roles`](v-pgsql.md#pg_default_roles).
 
-!> **在生产环境使用时，请务必修改所有默认用户的密码**
+**Be sure to change the passwords of all default users when using in a production env**.
 
-此外，用户可以在 [`pg_users`](p-pgsql.md#pg_users) 定义集群特定的[业务用户](c-pgdbuser.md#用户)，定义方式与 [`pg_default_roles`](v-pgsql.md#pg_default_roles) 一致。
+In addition, users can define cluster-specific [business users](c-pgdbuser.md#users) in [`pg_users`](p-pgsql.md#pg_users) in the same way as [`pg_default_roles`](v-pgsql.md#pg_default_roles).
 
 
-!> 如果有较高数据安全需求，建议移除 `dbuser_monitor` 的 `dborle_readony` 角色，部分监控系统功能会不可用。
+It is recommended to remove the `dborle_readony` role from `dbuser_monitor` if there is a higher data security requirement, some of the monitoring system features will not be available.
 
 
 
@@ -101,21 +99,21 @@ pg_admin_password: DBUser.DBA                 # system admin password
 
 ## Authentication
 
-认证是数据库验证来访连接身份的过程。Pigsty默认使用`md5`密码认证，并基于PostgreSQL HBA机制提供访问控制。
+Pigsty uses `md5` password auth by default and provides access control based on the PostgreSQL HBA mechanism.
 
-> HBA是Host Based Authentication的缩写，可以将其视作IP黑白名单。
+> HBA stands for Host-Based Auth, which can be thought of as an IP black and white list.
 
-### Config:HBA
+### Config: HBA
 
-在Pigsty中，所有实例的HBA都由配置文件生成而来，最终生成的HBA规则因实例的角色（`pg_role`）而不同。
-Pigsty的HBA由下列变量控制：
+In Pigsty, the HBA of all instances is generated from the config file, and the final generated HBA rules vary depending on the role of the instance (`pg_role`).
+Pigsty's HBAs are controlled by the following variables.
 
-* [`pg_hba_rules`](v-pgsql.md#pg_hba_rules): 环境统一的HBA规则
-* [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra): 特定于实例或集群的HBA规则
-* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): 链接池使用的HBA规则
-* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): 特定于实例或集群的链接池HBA规则
+* [`pg_hba_rules`](v-pgsql.md#pg_hba_rules): Environmentally uniform HBA rules
+* [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra): instance- or cluster-specific HBA rules
+* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): HBA rules used by linked pools
+* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): HBA rules for the linked pool specific to the instance or cluster.
 
-每个变量都是由下列样式的规则组成的数组：
+Each variable is an array of rules in the following style.
 
 ```yaml
 - title: allow intranet admin password access
@@ -128,40 +126,40 @@ Pigsty的HBA由下列变量控制：
 
 ### Role-Based HBA
 
-`role = common`的HBA规则组会安装到所有的实例上，而其他的取值，例如（`role : primary`）则只会安装至`pg_role = primary`的实例上。因此用户可以通过角色体系定义灵活的HBA规则。
+The HBA rule set with `role = common` is installed to all instances, while other fetch values, for example (`role: primary`) are only installed to instances with `pg_role = primary`. Thus users can define flexible HBA rules through the role system.
 
-作为**特例**，`role: offline` 的HBA规则，除了会安装至`pg_role == 'offline'`的实例，也会安装至`pg_offline_query == true`的实例上。
+As a **special case**, the HBA rule for the `role: offline` will be installed to instances with `pg_role == 'offline'` as well as to instances with `pg_offline_query == true`.
 
-HBA的渲染优先级规则为：
+The rendering priority rules for HBA are:
 
-* `hard_coded_rules`           全局硬编码规则
-* `pg_hba_rules_extra.common`  集群通用规则
-* `pg_hba_rules_extra.pg_role` 集群角色规则
-* `pg_hba_rules.pg_role`       全局角色规则
-* `pg_hba_rules.offline`       集群离线规则
-* `pg_hba_rules_extra.offline` 全局离线规则
-* `pg_hba_rules.common`        全局通用规则
+* `hard_coded_rules` global hard-coded rules
+* `pg_hba_rules_extra.common` Cluster common rules
+* `pg_hba_rules_extra.pg_role` Cluster role rules
+* `pg_hba_rules.pg_role` global role rules
+* `pg_hba_rules.offline` Cluster offline rules
+* `pg_hba_rules_extra.offline` Global offline rules
+* `pg_hba_rules.common` Global common rules
 
 
 ### Default HBA Rules
 
-在默认配置下，主库与从库会使用以下的HBA规则：
+Under the default config, the master and slave libraries will use the following HBA rules:
 
-* 超级用户通过本地操作系统认证访问
-* 其他用户可以从本地用密码访问
-* 复制用户可以从局域网段通过密码访问
-* 监控用户可以通过本地访问
-* 所有人都可以在元节点上使用密码访问
-* 管理员可以从局域网通过密码访问
-* 所有人都可以从内网通过密码访问
-* 读写用户（生产业务账号）可以通过本地（链接池）访问
-  （部分访问控制转交链接池处理）
-* 在从库上：只读用户（个人）可以从本地（链接池）访问。
-  （意味主库上拒绝只读用户连接）
-* `pg_role == 'offline'` 或带有`pg_offline_query == true`的实例上，会添加允许`dbrole_offline`分组用户访问的HBA规则。
+* Superuser access with local OS auth
+* Other users can access it with a password from local
+* Replicated users can access from the LAN segment with a password
+* Monitoring users can access locally
+* Everyone can access it with a password on the meta-node
+* Administrators can access via password from the LAN
+* Everyone can access from the intranet with a password
+* Read and write users (production business accounts) can be accessed locally (link pool)
+  (some access control is transferred to the link pool for processing)
+* On the slave: read-only users (individuals) can access from the local (link pool).
+  (implies that read-only user connections are denied on the master)
+* On instances with `pg_role == 'offline'` or with `pg_offline_query == true`, HBA rules that allow access to `dbrole_offline` grouped users are added.
 
+<details><summary>Default HBA rule details</summary>
 
-<details><summary>默认HBA规则详情</summary>
 
 ```ini
 #==============================================================#
@@ -226,34 +224,34 @@ host    all     +dbrole_readonly           127.0.0.1/32         md5
 #===========================================================
 ```
 
-</details>
+
 
 
 
 ### Change HBA
 
-HBA规则会在集群/实例初始化时自动生成。
+HBA rules are automatically generated when the cluster/instance is initialized.
 
-用户可以在数据库集群/实例创建并运行后通过剧本修改并应用新的HBA规则：
+Users can modify and apply the new HBA rules through a playbook after the database cluster/instance is created and running.
 
 ```bash
-./pgsql.yml -t pg_hba    # 通过-l指定目标集群
-bin/reloadhba <cluster>  # 重载目标集群的HBA规则
+./pgsql.yml -t pg_hba    # Specify the target cluster with -l
+bin/reloadhba <cluster>  # Reload the HBA rules for the target cluster
 ```
-当数据库集簇目录被销毁重建后，新副本会拥有和集群主库相同的HBA规则（因为从库的数据集簇目录是主库的二进制副本，而HBA规则也在数据集簇目录中）。
-这通常不是用户期待的行为。您可以使用上面的命令针对特定实例进行HBA修复。
+When the cluster dir is destroyed and rebuilt, the new copy will have the same HBA rules as the cluster master (because the slave's dataset cluster dir is a binary copy of the master, and the HBA rules are also in the dataset cluster dir).
+This is not usually the behavior expected by users. You can use the above command to perform HBA repair for a specific instance.
 
 
 
 
 ### Pgbouncer HBA
 
-在Pigsty中，Pgbouncer亦使用HBA进行访问控制，用法与Postgres HBA基本一致
+In Pigsty, Pgbouncer also uses HBA for access control, the usage is basically the same as Postgres HBA:
 
-* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): 链接池使用的HBA规则
-* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): 特定于实例或集群的链接池HBA规则
+* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): HBA rules used by the link pool
+* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): instance or cluster-specific HBA rules for the linked pool
 
-默认的Pgbouncer HBA规则允许从本地和内网通过密码访问
+The default Pgbouncer HBA rules allow password access from local and intranet.
 
 ```bash
 pgbouncer_hba_rules:                          # pgbouncer host-based authentication rules
@@ -282,14 +280,14 @@ pgbouncer_hba_rules:                          # pgbouncer host-based authenticat
 
 ## Privilege
 
-Pigsty的默认权限模型与[默认角色](#默认角色)紧密关联。使用Pigsty访问控制模型时，新创建的业务用户都应当属于四种默认角色之一，默认角色拥有的权限如下所示：
+Pigsty's default privilege model is closely related to the [default role](#default role). When using the Pigsty access control, all newly created business users should belong to one of the four default roles, which have the permissions shown below:
 
 
-* 所有用户都可以访问所有模式
-* 只读用户可以读取所有表
-* 读写用户可以对所有表进行DML操作（INSERT, UPDATE, DELETE）
-* 管理员可以执行DDL变更操作（CREATE, USAGE, TRUNCATE, REFERENCES, TRIGGER）
-* 离线用户与只读用户类似，但只允许访问`pg_role == 'offline'` 或 `pg_offline_query = true` 的实例
+* All users have access to all schemas
+* Read-only users can read all tables
+* Read-write users can perform DML operations (INSERT, UPDATE, DELETE) on all tables
+* Administrators can perform DDL change operations (CREATE, USAGE, TRUNCATE, REFERENCES, TRIGGER)
+* Offline users are similar to read-only users, but are only allowed to access instances of `pg_role == 'offline'` or `pg_offline_query = true`
 
 ```sql
 GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly;
@@ -330,23 +328,23 @@ GRANT USAGE                         ON TYPES     TO dbrole_admin;
 
 ### Privilege Maintenance
 
-数据库对象的默认访问权限通过PostgreSQL的`ALTER DEFAULT PRIVILEGES`确保。
+Default access to database objects is ensured by PostgreSQL's `ALTER DEFAULT PRIVILEGES`.
 
-所有由 `{{ dbsu }}`, `{{ pg_admin_username }}`, `{{ dbrole_admin }}` 创建的对象，都会拥有以上默认权限。
-反过来说，如果是由其他角色创建的对象，则并不会配置有正确的默认访问权限。
+All objects created by `{{ dbsu }}`, `{{ pg_admin_username }}`, `{{ dbrole_admin }}` will have the above default permissions.
+Conversely, objects created by other roles will not be configured with the correct default access permissions.
 
-Pigsty非常不建议使用**业务用户**执行DDL变更，因为PostgreSQL的`ALTER DEFAULT PRIVILEGE`仅针对“由特定用户创建的对象”生效，默认情况下超级用户`postgres`和`dbuser_dba`创建的对象拥有默认的权限配置，如果希望授予业务用户执行DDL的权限，那么除了为业务用户赋予 `dbrole_admin` 角色外，使用者还需牢记在执行DDL变更时首先要执行：
+Pigsty strongly discourages the use of **business users** to execute DDL changes, because PostgreSQL's `ALTER DEFAULT PRIVILEGE` only takes effect for `objects created by specific users'. dbuser_dba` has the default privilege config. If you want to grant business users the privilege to execute DDL, then in addition to giving the `dbrole_admin` role to business users, users should also keep in mind that when executing DDL changes, you should first execute:
 
 ```sql
-SET ROLE dbrole_admin; -- dbrole_admin 创建的对象具有正确的默认权限
+SET ROLE dbrole_admin; -- dbrole_admin creates objects with the correct default permissions
 ```
 
-这样创建的对象才会具有默认的访问权限。
+The objects created in this way will only have default access rights.
 
 
 ### Database Privileges
 
-数据库有三种权限：`CONNECT`, `CREATE`, `TEMP`，以及特殊的属主`OWNERSHIP`。数据库的定义由参数`pg_database`控制。一个完整的数据库定义如下所示：
+The database has three privileges: `CONNECT`, `CREATE`, `TEMP`, and a special genus `OWNERSHIP`. The definition of the database is controlled by the parameter `pg_database`. A complete database definition is shown below:
 
 ```yaml
 pg_databases:                       # define business databases on this cluster, array of database definition
@@ -372,14 +370,15 @@ pg_databases:                       # define business databases on this cluster,
 
 ```
 
-默认情况下，如果数据库没有配置属主，那么数据库超级用户`dbsu`将会作为数据库的默认`OWNER`，否则将为指定用户。
+By default, the `dbsu` will be the default `OWNER` of the database if the database is not configured with an owner, otherwise, it will be the specified user.
 
-默认情况下，所有用户都具有对新创建数据库的`CONNECT` 权限，如果希望回收该权限，设置 `revokeconn == true`，则该权限会被回收。只有默认用户（dbsu|admin|monitor|replicator）与数据库的属主才会被显式赋予`CONNECT`权限。同时，`admin|owner`将会具有`CONNECT`权限的`GRANT OPTION`，可以将`CONNECT`权限转授他人。
+By default, all users have the `CONNECT` permission for newly created databases, which will be reclaimed by setting `revokeconn == true` if you wish to reclaim the permission. Only the default user (dbsu|admin|monitor|replicator) with the database's owner is explicitly given the `CONNECT` permission. Also, the `admin|owner` will have `GRANT OPTION` for the `CONNECT` permission and can delegate the `CONNECT` permission to others.
 
-如果希望实现不同数据库之间的**访问隔离**，可以为每一个数据库创建一个相应的业务用户作为`owner`，并全部设置`revokeconn`选项，这种配置对于多租户实例尤为实用。
+If you want to achieve **access isolation** between different databases, you can create a corresponding business user as the `owner` for each database and set the `revokeconn` option for all of them, this config is especially useful for multi-tenant instances.
 
 <details>
-<summary>一个进行权限隔离的数据库样例</summary>
+<summary>A sample database for privilege isolation</summary>
+
 
 ```yaml
 #--------------------------------------------------------------#
@@ -417,20 +416,20 @@ pg-infra:
 
 ```
 
-</details>
+
 
 
 
 ### CREATE Privilege
 
-默认情况下，出于安全考虑，Pigsty会撤销`PUBLIC`用户在数据库下`CREATE`新模式的权限，
-同时也会撤销`PUBLIC`用户在`public`模式下创建新关系的权限。
-数据库超级用户与管理员不受此限制，他们总是可以在任何地方执行DDL变更。
+By default, Pigsty revokes the `PUBLIC` user's permission to `CREATE` a new schema under the database.
+It also revokes the `PUBLIC` user's permission to create new relationships in the `PUBLIC` schema.
+Database superusers and administrators are not subject to this restriction and can always perform DDL changes anywhere.
 
-**在数据库中创建对象的权限与用户是否为数据库属主无关，这只取决于创建该用户时是否为该用户赋予管理员权限**。
+**Permissions to create objects in the database are independent of whether the user is the database owner or not, it only depends on whether the user was given administrator privileges when it was created**.
 
 ```yaml
 pg_users:
-  - {name: test1, password: xxx , groups: [dbrole_readwrite]}  # 不能创建Schema与对象
-  - {name: test2, password: xxx , groups: [dbrole_admin]}      # 可以创建Schema与对象
+  - {name: test1, password: xxx , groups: [dbrole_readwrite]}  # Cannot create Schema with objects
+  - {name: test2, password: xxx , groups: [dbrole_admin]}      # Schema and objects can be created
 ```
