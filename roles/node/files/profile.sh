@@ -1,14 +1,4 @@
 #!/bin/bash
-
-#==============================================================#
-# File      :   profile.sh
-# Ctime     :   2021-05-17
-# Mtime     :   2021-07-05
-# Desc      :   pigsty node profile
-# Path      :   /etc/profile.d/profile.sh
-# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
-#==============================================================#
-
 #==============================================================#
 # Environment
 export EDITOR="vi"
