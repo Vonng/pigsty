@@ -68,7 +68,7 @@ Pigsty provides complete host provisioning and monitoring functions. The [`nodes
 
 Each node has **identity parameters** that are configured through the relevant parameters in `<cluster>.hosts` and `<cluster>.vars`.
 
-Pigsty uses an **IP address** as a unique identifier for **database nodes**, **this IP address must be the IP address that the database instance listens to and serves externally**, but it is not appropriate to use a public IP address. Nevertheless, users do not necessarily have to connect to that database via that IP address. For example, the management target node is also operated indirectly through SSH tunnels or springboard machine transit. However, the primary IPv4 address is still the core identifier of the node when identifying the database node. **This is very important and users should ensure this when configuring.** The IP address is the `inventory_hostname` of the host in the configuration manifest, and is reflected as the `key` in the `<cluster>.hosts` object.
+Pigsty uses an **IP address** as a unique identifier for **database nodes**, **this IP address must be the IP address that the database instance listens to and serves externally**, but it is not appropriate to use a public IP address. Nevertheless, users do not necessarily have to connect to that database via that IP address. For example, the management target node is also operated indirectly through SSH tunnels or springboard machine transit. However, the primary IPv4 address is still the core identifier of the node when identifying the database node. **This is very important and users should ensure this when configuring.** The IP address is the `inventory_hostname` of the host in the configuration manifest and is reflected as the `key` in the `<cluster>.hosts` object.
 
 In addition, nodes have two important identity parameters in the Pigsty monitoring system: [`nodename`](#nodename) and [`node_cluster`](#node_cluster), which will be used in the monitoring system as the node's **instance identifier** (`ins`) and **cluster identifier** (` cls`). When performing the default PostgreSQL deploy, since Pigsty uses node-exclusive 1:1 deploy by default, the identity parameters of the database instance (`pg_cluster` and `pg_instance`) can be [`pg_hostname`](v-pgsql.md#pg_hostname) parameter borrowed to the `ins` and `cls` tags of the node. 
 
@@ -171,7 +171,7 @@ node_dns_hosts:                 # static dns records in /etc/hosts
   - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
 ```
 
-[`node_dns_hosts`](#node_dns_hosts) is an array, each element is a string shaped like `ip domain_name`, representing a DNS resolution record, each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infrastructure addresses.
+[`node_dns_hosts`](#node_dns_hosts) is an array, each element is a string shaped like an `ip domain_name`, representing a DNS resolution record, each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infrastructure addresses.
 
 Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
 
@@ -446,7 +446,7 @@ Prefabricated solutions for machine tuning, based on the `tuned` service. There 
 * `tiny`： Micro Virtual Machine
 * `oltp`： Regular OLTP templates with optimized latency
 * `olap `： Regular OLAP templates to optimize throughput
-* `crit`：Core financial business templates, optimizing the number of dirty pages
+* `crit`： Core financial business templates, optimizing the number of dirty pages
 
 Normally, the database tuning template [`pg_conf`](v-pgsql.md#pg_conf) should be paired with the machine tuning template, see [Customize PGSQL Template](v-pgsql-customize.md) for details.
 
