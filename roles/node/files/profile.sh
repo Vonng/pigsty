@@ -1,14 +1,4 @@
 #!/bin/bash
-
-#==============================================================#
-# File      :   profile.sh
-# Ctime     :   2021-05-17
-# Mtime     :   2021-07-05
-# Desc      :   pigsty node profile
-# Path      :   /etc/profile.d/profile.sh
-# Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
-#==============================================================#
-
 #==============================================================#
 # Environment
 export EDITOR="vi"
@@ -36,14 +26,10 @@ export HISTIGNORE="l:ls:cd:cd -:pwd:exit:date:* --help"
 export PS1="\[\033]0;\w\007\]\[\]\n\[\e[1;36m\][\D{%m-%d %T}] \[\e[1;31m\]\u\[\e[1;33m\]@\H\[\e[1;32m\]:\w \n\[\e[1;35m\]\$ \[\e[0m\]"
 #--------------------------------------------------------------#
 # PATH
-[ -d ${GOROOT:=/usr/local/go} ] && export GOROOT || unset GOROOT
-[ -d ${GOPATH:=${HOME}/go} ] && export GOPATH || unset GOPATH
 [ -d ${PGHOME:=/usr/pgsql} ] && export PGHOME || unset PGHOME
 [ -d ${PGDATA:=/pg/data} ] && export PGDATA || unset PGDATA
 #--------------------------------------------------------------#
 # Path builder
-[ ! -z "$GOROOT" ] && PATH=$GOROOT/bin:$PATH
-[ ! -z "$GOPATH" ] && PATH=$GOPATH/bin:$PATH
 [ ! -z "$PGHOME" ] && PATH=$PGHOME/bin:$PATH
 [ -d "/pg/bin" ] && PATH=/pg/bin:$PATH
 #--------------------------------------------------------------#
@@ -90,8 +76,20 @@ alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
 alias sc='sudo systemctl'
 alias st="sudo systemctl status "
-alias pg="patronictl -c /etc/pigsty/patronictl.yml"
 alias pt='patronictl -c /pg/bin/patroni.yml'
+# patroni command line tools
+function pg() {
+    local patroni_conf="/pg/bin/patroni.yml"
+    if [ ! -r ${patroni_conf} ]; then
+        patroni_conf="/etc/pigsty/patronictl.yml"
+        if [ ! -r ${patroni_conf} ]; then
+        	echo "error: patroni ctl config not found"
+            return 1
+        fi
+    fi
+    patronictl -c ${patroni_conf} "$@"
+}
+
 alias ntpsync="sudo ntpdate pool.ntp.org"
 
 # consul alias
@@ -99,32 +97,6 @@ alias cnode="consul catalog nodes -detailed"
 alias csvc="consul catalog services --tags"
 alias cst="systemctl status consul"
 alias cm="consul members"
-
-# pglist: list all pg cluster in consul
-function pglist() {
-  local filter=${1-'pg/'}
-  consul kv get -keys ${filter} | sort
-}
-# find node: fd <search>
-function fd() {
-  local filter=${1-'pg'}
-  consul catalog nodes | awk '{printf("%-20s\t%-20s\n",$1,$3)}' | grep ${filter} | sort
-}
-# go to instance:  gg <instance>
-function gg() {
-  local filter=${1-'pg'}
-  local ip=$(consul catalog nodes | grep ${filter} | head -n1 | awk '{print $3}')
-  ssh ${ip}
-}
-# goto cluster master: gm <cluster>
-function gm() {
-  local cluster=${1-'pg-meta'}
-  local filter="(ServiceMeta.cluster ==  \"${cluster}\" and ServiceMeta.role == \"primary\")"
-  local ip=$(curl -ssLG localhost:8500/v1/catalog/service/postgres --data-urlencode "filter=${filter}" \
-      | jq  | grep lan_ipv4 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" )
-  [[ -z "$ip" ]] && echo "not found" || ssh ${ip}
-}
-
 #--------------------------------------------------------------#
 # ls corlor
 [ ls --color ] >/dev/null 2>&1 && colorflag="--color" || colorflag="-G"

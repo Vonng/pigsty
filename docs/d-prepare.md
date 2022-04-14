@@ -45,14 +45,14 @@ Users should ensure that they have nopass `ssh` & `sudo` privileges on meta node
 and direct/in-direct browser access to port 80 (to visit user interface).
 
 - [x] Number of meta nodes: odd number, at least 1
-- [x] Ability to log in to the meta node using the administrator user
+- [x] Ability to log in to the meta node using the admin user
 - [x] Ability to access port 80 of the meta node via browser (directly or indirectly)
 - [x] **admin user** can log in to the database node remotely `ssh` from the admin node and execute `sudo` (including itself)
 
 
 ## Admin Provisioning
 
-Pigsty requires an **administrative user** that can **SSH into other nodes** from the admin node and execute `sudo` commands.
+Pigsty requires an **admin user** that can **SSH into other nodes** from the admin node and execute `sudo` commands.
 
 - [x] can use this user on the admin node
 - [x] can SSH to all managed nodes (including itself) with this user
@@ -67,7 +67,7 @@ Pigsty requires an **administrative user** that can **SSH into other nodes** fro
 It's highly recommended to setup admin user during vm provisioning phase.
 It's trivial to have such a user when you got a node.
 
-If you can only use the ssh password and sudo password, then you must add the additional parameters `--ask-pass|-k` and `--ask-become-pass|-K` to all script executions and enter the ssh password and sudo password when prompted. You can create a **dedicated administrator user** using the current user using the function to create an administrator user in [`pgsql.yml`](p-pgsql), and the following parameters are used to create the default administrator user.
+If you can only use the ssh password and sudo password, then you must add the additional parameters `--ask-pass|-k` and `--ask-become-pass|-K` to all script executions and enter the ssh password and sudo password when prompted. You can create a **dedicated admin user** using the current user using the function to create an admin user in [`pgsql.yml`](p-pgsql), and the following parameters are used to create the default admin user.
 
 * [`node_admin_setup`](v-node.md#node_admin_setup)
 * [`node_admin_uid`](v-node.md#node_admin_uid)
@@ -92,7 +92,7 @@ Manually configuring password-free `sudo` for a user can be done by adding the f
 %<username> ALL=(ALL) NOPASSWD: ALL
 ```
 
-Note that replacing `<username>` with the name of the administrator you are using is sufficient.
+Note that replacing `<username>` with the name of the admin you are using is sufficient.
 
 
 
@@ -119,20 +119,26 @@ To run the Pigsty sandbox on your own laptop, you will also need to download and
 Users should get the Pigsty project source code on the admin node, usually unpacked to the admin user HOME directory.
 
 ```bash
-git clone https://github.com/Vonng/pigsty && cd pigsty # Get the latest code 
+# It's recommend to get latest stable pigsty with following command
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)" 
 ```
 
-If you don't have `git`, you can use `curl` to download it. It is recommended to use this method to download a fixed version: `1.4.0` is the specific version number.
+You can download pigsty source code & software packages directly via `curl` from github release: 
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz && tar -xf pigsty.tgz # Download a specific version of the code (recommended)
+# https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz   # Github Release
 ```
 
-Or download the source code from Baidu.com: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw (extraction code: `8su9`)
+You can also download pigsty source again with the [`download`](https://github.com/Vonng/pigsty/blob/master/download) script:
+
+```bash
+./download pigsty.tgz    # Get latest stable pigsty.tgz to /tmp/pigsty.tgz
+./download pigsty        # Get pigsty.tgz and release to ~/pigsty (skip if already eixsts)
+```
 
 
 
-### Pigsty offline package
+### Pigsty Offline Package
 
 The offline package packs all software dependencies and is about 1GB in size. offline installation is possible when no internet access is available.
 
@@ -143,12 +149,10 @@ The official offline package is based on CentOS 7.8.2003 operating system enviro
 Offline packages can be downloaded from the Github Release page, `1.4.0` is the specific version number, the package should be consistent with the source code version.
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # Github Release 
 ```
 
-Baidu.com also provides ``pkg.tgz`` for download from the same address as the Pigsty source code.
-
-Offline packages are usually placed in the `/tmp/pkg.tgz` path of all administrative nodes.
+Offline packages are usually placed in the `/tmp/pkg.tgz` path of all meta nodes.
 
 
 

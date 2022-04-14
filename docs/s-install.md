@@ -1,220 +1,138 @@
-# Installaion
+# Installation
+
+> It takes 3 steps to install Pigsty: [Prepare](d-prepare.md), [Configure](v-config.md#configure), [Execute Playbook](p-playbook.md)
 
 
-## TL; DR
+----------------
 
 ![](_media/HOW_EN.svg)
 
-[Prepare](#prepare) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access
+There two typical modes: Singleton & Cluster Management
+
+* Singleton Meta: Install pigsty on one single meta node. (for dev/test postgres alone, monitoring RDS, etc...)
+* Cluster Manage:  Manage & monitoring more nodes & databases. Initiate control from meta node
+
+---------------------
+
+## Singleton Meta
+
+When Pigsty is installed on one single node. It will init pigsty infra with a battery included Postgres as CMDB. You may use that database directly.
+
+#### TL; DR
+
+[Prepare](#prepare) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
 
 ```bash
-# download with curl (in case of git not available)
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # Download Latest Pigsty Source
+cd ~/pigsty; ./configure                               # Configure pigsty with ip & template
+./infra.yml                                            # Install pigsty on current meta node
 ```
 
-[Download](#download) & [Configure](#configure) & [Install](#install)
+> If you have available Mac/PC/Laptop/Cloud Account, [Sandbox](d-sandbox.md) could be handy to create vm for you. 
 
+After installation. port `5432` is ready for postgres database connection @ `postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta`.
+And a nginx is serving & proxy all WebUI service @ port `80`. 
+
+<details><summary>Download Directly via Curl</summary>
+
+```bash
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o /tmp/pigsty.tgz
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz  
 ```
-git clone https://github.com/Vonng/pigsty && cd pigsty
-./configure
-make install
-```
 
-Visit `http://<primary_ip>:3000` to visit Pigsty [Home](http://demo.pigsty.cc/d/home) (username: `admin`, password: `pigsty`)
+</details>
 
-> If you don't have any available nodes, try running [sandbox](s-sandbox.md) on your laptop/macbook.
+#### Access Web Services
+
+Nginx port 80 is the default access endpoint for all Web GUI services. Although it is possible to bypass nginx add access services directly by port, such as Grafana on 3000, it is highly recommended using domain names. If you don't have public domain names, considering use [static DNS](d-sandbox.md#DNS-configuration) on your localhost with `make dns`.
+
+> http://g.pigsty or `http://<primary_ip>:3000` is the portol of monitoring system (username: admin, password: pigsty)
+
+> Visit `http://<primary_ip>:3000` / http://g.pigsty to visit Pigsty [Grafana](http://demo.pigsty.cc/d/home) (username: `admin`, password: `pigsty`)
+
+
 
 
 ----------------
 
-## Detail
+## Cluster Mange
 
-### Prepare
+Pigsty can also be used as controller & monitoring infrastructure for large scale nodes & databases.
 
-Prepare a node (vm & vagrant & cloud vps), which will be used as [meta](c-arch.md#meta-node) node (admin controller)
+You can initiate control from [meta](c-arch.md) node, and add more [nodes](p-nodes.md) into Pigsty.
 
-* Kernel: Linux
-* Arch: x86_64
-* OS: CentOS 7.8.2003 (RHEL 7.x and equivalent is OK)
-* SSH accessibility
-
-Pigsty runs in standalone mode by default (runs everything on a single node) 
-You can prepare additional nodes for extra postgres clusters/instances.
-
-In real-world large-scale production environments, 3 or more meta nodes are recommended to provide redundancy.
-
-
-
-----------------
-
-## Download
-
-**Source [`pigsty.tgz`](t-prepare.md#pigsty-source)**
-
-Source code `pigsty.tgz`（约500 KB）is **required**，can be obtained via `curl` or `git` from Github.
+You can deploy diffferent types of High available [PostgreSQL](d-pgsql.md) Clusters, [Redis](d-redis.md) clusters, or [Greenplum/MatrixDB](d-matrixdb.md) data warehouse.
 
 ```bash
-git clone https://github.com/Vonng/pigsty && cd pigsty
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz
-```
-
-It's typical to unarchive source code to your home dir：`PIGSTY_HOME=~/pigsty`.
-
-If you want to use the latest features, use Git to pull the code, or if you want to keep your environment stable, use `curl` to download a fixed version.
-
-
-**Package [`pkg.tgz`](t-prepare.md#pigsty-package)**
-
-Pigsty Offline Installation Package `pkg.tgz`（1GB）is **OPTIONAL**, which can be obtained via `curl` from Github.
-
-```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz    -o /tmp/pkg.tgz
-```
-
-Offline packages placed in the `/tmp/pkg.tgz` path of the target machine will be automatically recognized and used during the configuration process.
-
-
-----------------
-
-## Configure
-
-Unarchive and enter pigsty source dir with `tar -xf pigsty.tgz && cd pigsty`, then execute `configure` to perform pre-install check.
-
-```bash
-. /configure
-```
-
-`configure` will check following items. If check fails, it will prompt an error and exit.
-
-```bash
-check_kernel     # kernel        = Linux
-check_machine    # machine       = x86_64
-check_release    # release       = CentOS 7.x
-check_sudo       # current_user  = NOPASSWD sudo
-check_ssh        # current_user  = NOPASSWD ssh
-check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
-check_admin      # check current_user@primary_ip nopass ssh sudo
-check_mode       # check machine spec to determine node mode (tiny|oltp|olap|crit)
-check_config     # generate config according to primary_ip and mode
-check_pkg        # check offline installation package exists       (INTERACTIVE: ask for download)
-check_repo       # create repo from pkg.tgz if exists
-check_repo_file  # create local file repo file if repo exists
-check_utils      # check ansible sshpass and other utils installed
-check_bin        # check special bin files in pigsty/bin (loki,exporter) (require utils installed)
-```
-
-Running `./configure` without args will run in interactive mode. which will prompts 2 questions:
-
-
-**Primary IP address**
-
-When multiple NICs or multiple IP addresses are detected on the current node,
-the wizard prompts you to enter the IP address that **primarily** uses,
-that is, the IP address to access the node from the internal network. 
-public IP address should NOT be used here.
-
-
-**Download Offline Package**
-
-When no offline package are found on `/tmp/pkg.tgz`, the wizard will ask if you want to download it from Github.
-Selecting `Y` will start the download, selecting `N` will skip it. 
-If your node does not have Internet access or if you wish to make your own offline package, choose `N`.
-
-
-**Configuration Template**
-
-Which config template to use.
-
-The wizard will choose template automatically according to a set of rules. So no question will be asked for this.
-While you can always specify it with `-m <mode>`.
-
-* [`demo4`] Project default configuration file, 4-node sandbox
-* [`demo`] single-node sandbox, which will be used if the current sandbox VM is detected
-* [`tiny`] Single node deployment, this configuration will be used if using normal nodes (micro: cpu < 8) for deployment
-* [`oltp`] Production single-node deployment, this configuration is used if you deploy with a normal node (high: cpu >= 8)
-* For more configuration templates, please refer to [Configuration Template](https://github.com/Vonng/pigsty/tree/master/files/conf)
-
-**Stdout of configure**
-
-```bash
-vagrant@meta:~/pigsty 
-$ ./configure
-configure pigsty 1.4.0 begin
-[ OK ] kernel = Linux
-[ OK ] machine = x86_64
-[ OK ] release = 7.8.2003 , perfect
-[ OK ] sudo = vagrant ok
-[ OK ] ssh = vagrant@127.0.0.1 ok
-[WARN] Multiple IP address candidates found:
-    (1) 10.0.2.15	    inet 10.0.2.15/24 brd 10.0.2.255 scope global noprefixroute dynamic eth0
-    (2) 10.10.10.10	    inet 10.10.10.10/24 brd 10.10.10.255 scope global noprefixroute eth1
-    (3) 10.10.10.2	    inet 10.10.10.2/8 scope global eth1
-[ OK ] primary_ip = 10.10.10.10 (from demo)
-[ OK ] admin = vagrant@10.10.10.10 ok
-[ OK ] mode = pub4 (manually set)
-[ OK ] config = pub4@10.10.10.10
-[ OK ] cache = /tmp/pkg.tgz exists
-[ OK ] repo = /www/pigsty ok
-[ OK ] repo file = /etc/yum.repos.d/pigsty-local.repo
-[ OK ] utils = install from local file repo
-[ OK ] ansible = ansible 2.9.23
-configure pigsty done. Use 'make install' to proceed
+./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
+./pgsql.yml  -l pg-test      # init HA PGSQL Cluster pg-test
+./redis.yml  -l redis-test   # init redis cluster redis-test
+./pigsty-matrix.yml -l mx-*  # init MatrixDB: mx-mdw,mx-sdw
 ```
 
 
 
 ----------------
 
-## Install
+## Sandbox
 
-`make install` will init pigsty on meta node(s)
+There's a standard 4-node demonstration environment for pigsty, named 'Sandbox'. You can create sandbox on your laptop with [Vagrant](d-prepare.md#vagrant), or create them on cloud with [terraform](d-prepare.md#terraform). The same deploy procedure could apply to production [deployment](d-deploy.md).
 
-```bash
-make install
-```
+[![](_media/SANDBOX.gif)](d-sandbox.md)
 
-It actually invokes ansible playbook [`infra.yml`](p-infra.md) on `meta` group. 
-Which will init infrastructure and a full-featured `pg-meta` postgres cluster.
-
-The installation procedure took about 10 minutes (offline installation, sandbox, 2C|4GB)
-
-> Ansible is already installed during [configure.check_utils](#configure), via `pkg.tgz` or `yum`
-
-
-### GUI Access
-
-After the installation is complete, you can access Pigsty GUI through [graphic user interface](s-interface.md).
-
-> Visit `http://<primary_ip>:3000` to browse the Pigsty monitoring system home page (username: `admin`, password: `pigsty`)
-
-
-### Deploy Extra Postgres Cluster (OPTIONAL)
-
-After meta node is initialized, you can initiate control from it. 
-E.g: Deploy & Manage new PostgreSQL clusters on other database nodes.
-
-The 4-node [sandbox](s-sandbox.md) have prepared 3 extra nodes for an extra postgres demo cluster: `pg-test`.
-
-Playbook [`pgsql.yml`](p-pgsql.md) is responsible for initializing new postgres cluster:
+Take sandbox as example, install pigsty on meta node `10.10.10.10` with:
 
 ```bash
-. /pgsql.yml -l pg-test
+. /infra.yml     # install pigsty on meta node 10.10.10.10
 ```
 
-You can check that cluster with [【PGSQL Cluster】](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test) dashboard once playbook is finished.
+#### Nodes Init
 
-
-
-### Deploy Logging Components (OPTIONAL)
-
-Pigsty comes with a realtime logging collection solution based on [loki](https://grafana.com/oss/loki/) and [promtail](https://grafana.com/docs/loki/latest/clients/promtail/)
-It's optional, and not enabled by default. But you can deploy and enable it with two commands:
+Now add 3 more nodes `10.10.10.11`, `10.10.10.12`, `10.10.10.13` into pigsty [`nodes.yml`](p-nodes.md#nodes) 
 
 ```bash
-./meta-loki.yml        # Install loki     (logging server) on meta node
-./pgsql-promtail.yml    # Install promtail (logging agent) on database node
+./nodes.yml -l pg-test        # init 3 nodes of cluster pg-test
 ```
 
-Check [Deploying Logging Components](t-logging.md) for details.
+After that, these 3 nodes are set with DCS service, node metrics exporter & logging collector. And can be used for subsequent database deployment. check [Config: Nodes](v-nodes.md) & [Playbook: Nodes](p-nodes.md) for details.  
 
+
+#### PostgreSQL Deploy
+
+Create a classic 1 primary & 2 replica HA PostgreSQL cluster with [`pgsql.yml`](p-pgsql.md#pgsql) playbook.
+
+```bash
+./pgsql.yml -l pg-test  # init pgsql cluster pg-test
+```
+
+Once complete, you can check the newly created PostgreSQL cluster from [monitoring system](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test). 
+
+Check [Config: PGSQL](v-pgsql.md), [Customize: PGSQL](v-pgsql-customize.md) and [Playbook: PGSQL](p-pgsql.md) for more details.
+
+
+### Redis Deployment
+
+In addition to PostgreSQL cluster, you can deploy various other types of clusters, and even other types of databases.
+
+For example, to deploy [Redis](d-redis.md) in sandbox(p-redis.md).
+
+```bash   
+. /configure -m redis    # use redis config template
+. /nodes.yml             # init nodes for redis cluster
+. /redis.yml             # create redis on those nodes
+```
+
+Check [Config: REDIS](v-redis.md) with [script], [Playbook: REDIS](p-redis.md) for more details.
+
+
+#### MatrixDB Deployment
+
+To deploy the open source timeseries data warehouse [MatrixDB](d-matrixdb.md)(Greenplum7):
+
+```bash
+./configure -m mxdb   # Use the sandbox environment MatrixDB configuration file template
+./download matrix     # Download the MatrixDB package and build the local source
+./infra.yml -e no_cmdb=true # If you are going to deploy MatrixDB Master on a meta node, add the no_cmdb option, otherwise just install it normally.
+./nodes.yml           # configure all nodes for MatrixDB installation
+./pigsty-matrix.yml   # Install MatrixDB on the above nodes
+```
