@@ -1,0 +1,24 @@
+---
+namespace: {{ pg_namespace }}/          # namespace
+
+# - dcs - #
+{% if dcs_type == 'consul' %}
+consul:
+  host: 127.0.0.1:8500
+  consistency: default         # default|consistent|stale
+{% endif %}
+
+# - ctl - #
+ctl:
+  optional:
+    insecure: true
+    # cacert: '/path/to/ca/cert'
+    # certfile: '/path/to/cert/file'
+    # keyfile: '/path/to/key/file'
+
+# - auth - #
+restapi:
+  authentication:
+    verify_client: none # none|optional|required
+    username: {{ pg_monitor_username }}
+    password: '{{ pg_monitor_password }}'

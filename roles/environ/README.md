@@ -61,10 +61,6 @@ fi
 [ -f ~/.pigsty ] && . ~/.pigsty
 ```
 
-## Setup cmdb
-
-
-
 
 ### Tasks
 
