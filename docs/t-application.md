@@ -78,6 +78,7 @@ make reload # Download the latest daily summary from NOAA and parse and load it
 ```
 
 
+
 ## PGLOG csvlog sample analysis
 
 PGLOG Analysis & PGLOG Session provide introspection about PostgreSQL csvlog sample (via table `pglog.sample` on cmdb)
@@ -110,5 +111,4 @@ Combine theme to fetch and load csvlog sample
 catlog | pglog                       # get local (metadb) today's log
 catlog node-1 '2021-07-15' | pglog   # get node-1's csvlog @ 2021-07-15 
 ```
-
 

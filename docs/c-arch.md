@@ -1,6 +1,8 @@
 # Pigsty Architecture and Modules
 
-> Pigsty is logically composed of several modules that can be arranged and combined according to different scenarios.
+> Pigsty consists of several modules, which can be composed freely for different scenarios.
+>
+> 
 
 
 
@@ -11,7 +13,7 @@
 Pigsty has two typical usage models: **Single machine** vs. **Cluster**.
 
 * **Single machine**: Install Pigsty on single/multiple nodes and use it as a battery-included Postgres.
-* **Cluster**: Deploy, monitor, and manage other nodes with many different databases on top of a single machine deployment.
+* **Cluster**: Deploy, monitor, and manage other nodes with many different databases on a single machine deployment.
 
 When installing Pigsty on a node, Pigsty executes the [`infra.yml`](p-infra.md) playbook to deploy **infrastructure** with a single node PostgreSQL **database cluster** on that node. For individual users, simple scenarios, and small and micro businesses, PG is battery-included. The node where Pigsty is fully installed is called [ Meta Node](# Admin Node)(Meta).
 
@@ -196,10 +198,11 @@ The main interactions are as follows:
 * Postgres provides the actual database service, which constitutes a master-slave database cluster via stream replication.
 * Patroni is used to **oversee** the Postgres service and is responsible for master-slave election and switchover, health checks, and config management.
   * Patroni uses Consul to reach a **consensus** as to the basis for cluster leader election.
-* Consul Agent is used to issue configs, accept service registrations, service discovery, and provide DNS queries.
-  * All process services using the port are **registered** into Consul
-* PGB Exporter, PG Exporter, and Node Exporter are used to **expose** database, connection pool, and node monitoring metrics respectively
-* Promtail is an optional log collection component that sends captured PG, PGB, Patroni logs to infrastructure Loki
+* Consul Agent is used to store configs, accept service registrations, service discovery, and provide DNS queries.
+  * All process services using the port are **registered** with Consul.
+* PGB Exporter, PG Exporter, and Node Exporter are used to **expose** database, connection pool, and node monitoring metrics, respectively
+* Promtail is an optional log collection component that sends captured PG, PGB, and Patroni logs to infrastructure Loki.
+
 
 
 ## Interaction
@@ -211,11 +214,11 @@ Here is an example of a single [meta node](#meta-node) and a single [database no
 The interaction between the meta nodes and the database nodes mainly consists of:
 * The domain name of the database cluster/node depends on the Nameserver of the meta node for **resolution** (optional).
 * Database node software **installation** requires the use of Yum Repo on the meta node.
-* Database cluster/node monitoring **metrics** will be collected by Prometheus on the meta node.
-* Logs from Postgres, Patroni, and Pgbouncer in the database cluster will be collected by Protail and sent to Loki.
+* Prometheus will collect database cluster/node monitoring metrics on the meta node.
+* Logs from Postgres, Patroni, and Pgbouncer in the database cluster will be collected by Promtail and sent to Loki.
 * Pigsty will initiate **administration** of database nodes from the meta node:
   * Perform cluster creation, expansion, and contraction, instance/cluster recycling
-  * creating business users, business databases, modifying services, and HBA modifications.
+  * Creating business users, business databases, modifying services, and HBA modifications.
   * Performing log collection, garbage cleanup, backup, patrol, etc.
 * Consul of database node will synchronize locally registered services to DCS of meta node and proxy state read/write operations.
 * Database node will synchronize time from meta node (or other NTP server).

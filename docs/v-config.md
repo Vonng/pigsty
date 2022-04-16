@@ -37,7 +37,7 @@ check_repo_file  # create local file repo file if repo exists
 check_utils      # check ansible sshpass and other utils installed
 ```
 
-Running directly `. /configure` will launch an interactive command line wizard that prompts the user to answer the following three questions:
+Running `. /configure` directly will launch an interactive CLI wizard that prompts the user to answer the following 3 questions:
 
 **IP address**
 
@@ -45,7 +45,7 @@ When multiple NICs with multiple IP addresses are detected on the current machin
 
 **Download Package**
 
-When no offline package is found under the `/tmp/pkg.tgz` path of the node, the config wizard will ask whether to download it from Github. Selecting `Y` will start the download, and selecting `N` will skip it. If your node has good Internet access with a suitable proxy config, or if you need to make offline packages, you can choose `N`.
+When offline package `/tmp/pkg.tgz` not exists on the node, the config wizard will ask whether to download it from Github. Selecting `Y` will start the download, and selecting `N` will skip it. If your node has good Internet access with a suitable proxy config, or if you need to make offline packages, you can choose `N`.
 
 **Config Template**
 

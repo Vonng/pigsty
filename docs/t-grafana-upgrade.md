@@ -29,6 +29,8 @@ vi /etc/grafana/grafana.ini            # edit [database] section: type & url
 systemctl restart grafana-server
 ```
 
+
+
 ## Create New Cluster
 
 
@@ -93,6 +95,8 @@ Since by default Pigsty is installed on a **single management node**, in the nex
 
 
 ---------------
+
+
 
 ## Create New User
 
@@ -163,6 +167,7 @@ Actually calls Ansible Playbook [`pgsql-createdb.yml`](p-pgsql-createdb.md) to c
 
 
 ---------------
+
 
 
 ## Access Database

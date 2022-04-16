@@ -42,7 +42,7 @@ Pigsty带有四个默认角色：
 - { name: dbrole_admin , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation } # production DDL change role
 ```
 
-不建议普通用户修改默认角色的名称。
+!> 不建议普通用户修改默认角色的名称
 
 ### 默认用户
 
@@ -79,12 +79,12 @@ pg_admin_password: DBUser.DBA                 # system admin password
 出于安全考虑，不建议为默认超级用户`postgres`设置密码或允许远程访问，所以没有专门的`dbsu_password`选项。
 如果有此类需求，可在[`pg_default_roles`](v-pgsql.md#pg_default_roles)中为超级用户设置密码。
 
-**在生产环境使用时，请务必修改所有默认用户的密码**
+!> **在生产环境使用时，请务必修改所有默认用户的密码**
 
 此外，用户可以在 [`pg_users`](p-pgsql.md#pg_users) 定义集群特定的[业务用户](c-pgdbuser.md#用户)，定义方式与 [`pg_default_roles`](v-pgsql.md#pg_default_roles) 一致。
 
 
-如果有较高数据安全需求，建议移除 `dbuser_monitor` 的 `dborle_readony` 角色，部分监控系统功能会不可用。
+!> 如果有较高数据安全需求，建议移除 `dbuser_monitor` 的 `dborle_readony` 角色，部分监控系统功能会不可用。
 
 
 
@@ -222,7 +222,7 @@ host    all     +dbrole_readonly           127.0.0.1/32         md5
 #===========================================================
 ```
 
-
+</details>
 
 
 

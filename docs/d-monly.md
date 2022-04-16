@@ -1,4 +1,4 @@
-# Monitoring System Deployment
+# Monitoring System
 
 > How to use Pigsty to monitor existing PostgreSQL instances?
 

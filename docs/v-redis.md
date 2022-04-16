@@ -1,6 +1,6 @@
 # Config: REDIS
 
-> [config](v-config.md) Redis cluster, control [REDIS playbook](p-redis.md) behavior, refer to [Redis Deploy and Monitoring Tutorial](t-redis.md) for details.
+> [Config](v-config.md) [Redis](v-redis.md) cluster, manipulate [REDIS playbook](p-redis.md) behavior, refer to [Redis Deployment](t-redis.md) for details.
 
 - [`REDIS_IDENTITY`](#REDIS_IDENTITY): REDIS Identity Params
 
@@ -24,7 +24,7 @@
 | 727  | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | max memory used by each redis instance                       |
 | 728  | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | memory eviction policy                                       |
 | 729  | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | empty password disable password auth (masterauth & requirepass) |
-| 730  | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | redis RDB save directives, empty list disable it             |
+| 730  | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | RDB save cmd, disable with empty  array                      |
 | 731  | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | enable redis AOF                                             |
 | 732  | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | rename dangerous commands                                    |
 | 740  | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | how much replicas per master in redis cluster ?              |
@@ -57,7 +57,7 @@ Redis cluster identity, type: `string`, level: C, default value:
 
 Redis cluster identity will be used as a namespace for resources within the cluster and needs to follow specific naming rules: `[a-z][a-z0-9-]*` to be compatible with different constraints on identity identification. It is recommended to use `redis-` as the cluster name prefix.
 
-**Identity params required params and cluster-level params**.
+**Identity param is required params and cluster-level params**.
 
 
 
@@ -247,7 +247,9 @@ How many replicas per master in the Redis cluster? The default is 1.
 ----------------
 ## `REDIS_EXPORTER`
 
-REDIS Exporter Related Config.
+RedisExporter related config.
+
+
 
 
 ### `redis_exporter_enabled`

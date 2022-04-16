@@ -32,3 +32,8 @@ Pigsty有一个活跃的用户社群，搜索微信号 `pigsty-cc` ，添加 Pig
 ## Telegram
 
 * https://t.me/joinchat/gV9zfZraNPM3YjFh
+
+
+## Discord
+
+https://discord.gg/wDzt5VyWEz

@@ -11,10 +11,15 @@ Similar to PostgreSQL, deploying Redis requires the same two steps.
 
 ## Define Redis Cluster
 
+<<<<<<< HEAD
 [redis config parameters](v-redis.md)
+=======
+[Config: Redis](v-redis.md) : [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)
+>>>>>>> master
 
 
-### Redis ER Models
+
+### ER Model
 
 The Redis ER model is almost identical to [PostgreSQL](c-entity.md), and also includes the concepts of **Cluster** and **Instance**. Note that the concept of Cluster here does not refer to the clusters in Redis' native clustering scheme.
 
@@ -39,17 +44,30 @@ The [**identity parameters**](v-redis.md#identity parameters) are the informatio
 - [`redis_instances`](v-redis.md#redis_instances) is a JSON object with the Key as the instance port number and the Value as a JSON object containing the instance-specific config.
 - 
 
-### Redis Cluster Definition
+### Cluster Definition
 
+<<<<<<< HEAD
 A condensed definition of three Redis clusters is given below, including.
+=======
+下面给出了三个Redis集群的精简定义，包括：
+* 一个1节点，3实例的Redis Sentinel集群 `redis-meta`
+* 一个2节点，12实例的的Redis Cluster集群 `redis-test`
+* 一个1节点，一主两从的Redis Standalone集群 `redis-common`
+>>>>>>> master
 
 * A 1-node, 3-instance Redis Sentinel cluster `redis-sentinel`
 * A 2-node, 12-instance Redis Cluster `redis-cluster`.
 * A 1-node, one-master-two-slave Redis Standalone cluster `redis-standalone`
 
+<<<<<<< HEAD
 You need to assign a unique port number to the Redis instance on the node.
 
 ### Redis Sentinel Cluster Example
+=======
+
+
+### Redis Sentinel Example
+>>>>>>> master
 
 ```yaml
 #----------------------------------#
@@ -65,6 +83,8 @@ redis-meta:
     redis_mode: sentinel
     redis_max_memory: 128MB
 ```
+
+
 
 ### Redis Native Cluster Example
 
@@ -87,6 +107,8 @@ redis-test:
     redis_mem_policy: allkeys-lru       # memory eviction policy
 ```
 
+
+
 ### Redis Standalone Example
 
 ```yaml
@@ -108,7 +130,8 @@ redis-common:
 ```
 
 
-## Create Redis Cluster
+
+## Create Cluster
 
 
 ### Playbook
@@ -120,6 +143,7 @@ Create a Redis instance/cluster using the playbook `redis.yml`.
 ./redis.yml -l redis-cluster
 ./redis.yml -l redis-standalone
 ```
+
 
 
 ### Caveat
@@ -142,7 +166,11 @@ Pigsty currently provides three Redis monitor panels as part of a standalone mon
 * Redis Cluster: focuses on monitoring information for a single Redis business cluster.
 * Redis Instance: provides detailed monitoring information about a single Redis instance.
 
+<<<<<<< HEAD
 You can use the included redis-benchmark test.
+=======
+您可以使用自带的 redis-benchmark 进行压力测试。
+>>>>>>> master
 
 
 
