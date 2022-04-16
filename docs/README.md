@@ -13,10 +13,10 @@
 ## What is Pigsty?
 
 * [**Battery-Included Distribution**](#Distribution): PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
-* [**Unparalleled Monitoring**](#Observability): Grafana, Prometheus, Loki, AlertManager, Just bring the ultimate observability!
+* [**Unparalleled Monitoring**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
 * [**High-Available**](#High-Available): Auto-Piloting Postgres with idempotent instances & services, self-healing from hardware failures!
 * [**Infra as Data**](#infra-as-data): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum in minutes!
-* [**Ubiquitous**](#Ubiquitous): Prod env or 1C1G VM sandbox, with vagrant/terraform, all deployed with one click!
+* [**Ubiquitous**](#Ubiquitous): Prod env or 1C1G VM sandbox with vagrant/terraform deployed with one click!
 * [**Versatile**](#versatile):  Databases management or host monitoring. Supporting SaaS or developing data apps.
 * [**Open Source & Free**](#Specification): 50% - 80% cost saving versus Cloud RDS. Proven in real-world, large-scale env.
 
@@ -54,7 +54,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | g
 
 <details><summary>Mange More Nodes</summary>
 
-You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes), after meta node is installed with [`infra.yml`](p-infra.md#infra).
+You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after meta node is installed with [`infra.yml`](p-infra.md#infra).
 
 ```bash
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
@@ -110,9 +110,9 @@ You can deploy different types of databases & clusters with corresponding playbo
 
 Packaging the latest PostgreSQL kernel & TimescaleDB, PostGIS, Citus, and hundreds of extensions, all battery-included!
 
-It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Docker,… can be used as a runtime for other databases & applications
+It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Docker,… can be used as a runtime for other databases & applications.
 
-It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres. Which can be used as a low-code data app development IDE, too.
+It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres, which can be used as a low-code data app development IDE, too.
 
 ![](_media/ARCH.svg)
 
@@ -122,11 +122,11 @@ It also includes common tools for data analysis: Jupyter, ECharts, Grafana, Post
 
 > You can't manage you don't measure
 
-Unparalleled monitoring system with 30+ dashboards & 1200+ metrics. Just bring the ultimate observability for ya!
+Unparalleled monitoring system with 30+ dashboards & 1200+ metrics. Just bring the ultimate observability for you!
 
-Pigsty comes with a professional-grade PostgreSQL monitoring system which is specially designed for large-scale PostgreSQL cluster management. Which supports: PGSQL monitoring, Redis monitoring, Nodes monitoring & self-monitoring.
+Pigsty comes with a professional-grade PostgreSQL monitoring system specially designed for large-scale PostgreSQL cluster management, which supports: PGSQL monitoring, Redis monitoring, Nodes monitoring & self-monitoring.
 
-It is built upon popular open-source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purposes, e.g: data-visualization platforms.
+It is built upon popular open-source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purposes, e.g.: data-visualization platforms.
 
 ![](_media/overview-monitor.jpg)
 
@@ -147,11 +147,11 @@ The clusters created by Pigsty are **distributive** HA clusters powered by Patro
 
 > HashiCorp for Database!
 
-Pigsty follows the philosophy of **"Infra as Data"**, just like Kubernetes. Describe the database you want and pull them up in one click.
+Pigsty follows the philosophy of **"Database as Data"**, just like Kubernetes. Describe the database you want and pull them up in one click.
 
-You can create a common primary-replica replication PGSQL cluster with several lines. and assign different roles among it: primary, replica, standby, offline, delayed, cascade.
+You can create a common primary-replica replication PGSQL cluster with several lines. And assign different roles: primary, replica, standby, offline, delayed, cascade.
 
-You can also create a horizontal sharding cluster with Citus, or just deploy a time-series data warehouse MatrixDB. Redis standalone/sentinel/cluster are also supported!
+You can also create a horizontal sharding cluster with Citus or deploy a time-series data warehouse MatrixDB. Redis standalone/sentinel/cluster are also supported!
 
 ```yaml
 pg-test:
@@ -254,9 +254,9 @@ mx-sdw:
 
 > Local **sandbox** or multi-cloud deployment, It's all the same!
 
-Pigsty is designed for large-scale production usage, but can also be operational on a local 1C1G VM node.
+Pigsty is designed for large-scale production usage but can also be operational on a local 1C1G VM node.
 
-You can run the complete 4-node sandbox on your laptop with vagrant with one command `make up`. Or prepare cloud ECS/VPC with Terraform with the exact same procedure.
+You can run the complete 4-node sandbox on your laptop with vagrant with one command `make up`. Or prepare cloud ECS/VPC with Terraform with the same procedure.
 
 Everything is described in the `pigsty.yml` config file, it's the only difference between different envs: prod, staging/UAT, dev/test sandbox.
 
@@ -274,17 +274,17 @@ Everything is described in the `pigsty.yml` config file, it's the only differenc
 
 Pigsty has docker installed on meta nodes by default. You can pull up all kinds of SaaS applications with one command： Gitlab, Jira, Confluence, Mastodon, Discourse, Odoo, Kingdee, etc...
 
-You can also pull up stateless parts, and use external databases by changing their connection string, to acquire production-grade durability.
+You can also pull up stateless parts and use external databases by changing their connection string to acquire production-grade durability.
 
-Other handy tools such as Jupyter lab server, PGWeb CLI tools, PGAdmin4, pgbadger, ByteBase, PostgREST can also be served with docker. Check [Tutorial: Docker Applications](docs/t-docker.md) for detail.
+Other handy tools such as Jupyter lab server, PGWeb CLI tools, PGAdmin4, pgbadger, ByteBase, and PostgREST can also be served with docker. Check [Tutorial: Docker Applications](docs/t-docker.md) for detail.
 
 #### Analysis
 
-Pigsty ships with handy tools such as Jupyterlab, PostgreSQL, Grafana, ECharts. Which is great for data analysis & visualization.
+Pigsty ships with handy tools such as Jupyterlab, PostgreSQL, Grafana, and ECharts. Which is great for data analysis & visualization.
 
 You can turn pigsty sandbox into an IDE for making data-intensive applications and demos: Processing data with SQL & Python, Backend API auto-gen with PostGREST. Visualize with Grafana & ECharts.
 
-Pigsty comes with some example apps:  [`covid`](http://demo.pigsty.cc/d/covid-overview) for covid-19 data visualization, and [`isd`](http://demo.pigsty.cc/d/isd-overview) for visualizing global surface weather station data.
+Pigsty comes with some example apps:  [`covid`](http://demo.pigsty.cc/d/covid-overview) for covid-19 data visualization and [`isd`](http://demo.pigsty.cc/d/isd-overview) for visualizing global surface weather station data.
 
 * PG CSV Log Sample Analysis: [`pglog`](http://demo.pigsty.cc/d/pglog-overview)
 * COVID-19 WHO Data Query [`covid`](http://demo.pigsty.cc/d/covid-overview)

@@ -1,5 +1,9 @@
 # Introduction
 
+> Different users have different focus.
+
+
+
 ## Beginners
 
 Users new to PostgreSQL and Pigsty, data analysts, data developers, 
@@ -10,7 +14,8 @@ Two built-in data [applications](t-application.md) that build upon pigsty:
   * NOAA ISD Data Visualization: [`isd`](http://demo.pigsty.cc/d/isd-overview)
 
 
-## DEV
+
+## Developer
 
 Developer cares about how to get a viable database ASAP, and how to access it.
 
@@ -37,7 +42,9 @@ If you want to go deeper into the design and architecture of Pigsty itself, you 
 * [Business User](c-user.md)
 * [Business Database](c-database.md)
 
-## OPS
+
+
+## Operators
 
 Operations personnel are more concerned with the details of implementing the deployment, and the following tutorial will cover the details of Pigsty installation and deployment.
 
@@ -51,37 +58,39 @@ Besides, the tutorial [Upgrade Grafana Backend Database](t-grafana-upgrade.md) s
 provisioning a new database cluster/user/database that is dedicated for grafana.
 
 
+
 ## DBA
 
 DBAs are usually more concerned with the usage of monitoring systems and the specific ways in which they are maintained on a daily basis.
 
-#### Monitoring System Tutorial
+#### Monitoring System
 * Monitoring System Architecture
 * [Metrics](m-metric.md)
 * [Dashboards](m-dashboard.md)
 * [Alerting System](r-alert.md)
 * [Service Discovery](m-discovery.md)
 * [Logging Components](t-logging.md)
-* [Analysis CSV logs](t-log-analysis.md)
+* [Analysis CSV logs](t-applications.md)
 * Optimize Slow Queries
 * Symptom of common Failures
 
-#### Daily maintenance management
-* Database cluster expansion and contraction
-* [Database cluster offline](p-pgsql-remove.md)
+#### Daily Maintenance
+* [Cluster Destory & Scale Down](p-pgsql.md#p-pgsql-remove.md)
+* [Cluster Destory & Scale Down](p-pgsql.md#p-pgsql-remove.md)
 * [create new business database](p-pgsql-createdb.md)
 * [Create new business user](p-pgsql-createuser.md)
 * [Backup and restore](t-backup.md)
 * Change HBA rules
 
-## PRO
 
-For professional users (deep customization), 
-Pigsty provides rich configuration items and customization interfaces.
 
-* [Configure Pigsty](v-config.md#config-entries)
-* [Customize Patroni template](t-patroni-template.md)
-* [Customize database template](v-pgsql-customize.md)
+## Professional
+
+For professional users, Pigsty provides rich configuration items and customization interfaces.
+
+* [Configure Pigsty](v-config.md#config-entry)
+* [Customize Patroni template](v-pgsql-customize.md#Patroni)
+* [Customize database template](v-pgsql-customize.md#)
 
 Almost all configuration items are configured with reasonable default values and can be used without modification. 
 Pro users can refer to the [configuration guide](v-config.md) to adjust it by themselves as needed.

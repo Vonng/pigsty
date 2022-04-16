@@ -4,11 +4,9 @@
 >
 > Configure the Pigsty infrastructure for use by the [INFRA](p-infra.MD) series playbooks.
 
-Infrastructure configures deal with such issues: local Yum sources, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), config of the global traffic portal Nginx, etc.
+Infrastructure configures deal with such issues: local Yum Repos, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), config of the global traffic portal Nginx, etc.
 
 The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the meta node, a step that is done automatically during the [`./configure`](v-config.md#配置过程). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](nginx_upstream). Other parameters rarely need to be tweaked and can be adjusted as needed.
-
-
 
 - [`CONNECT`](#CONNECT): Connection parameters
 - [`REPO`](#REPO): Local repo infrastructure

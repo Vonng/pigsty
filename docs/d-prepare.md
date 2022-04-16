@@ -50,6 +50,7 @@ and direct/in-direct browser access to port 80 (to visit user interface).
 - [x] **admin user** can log in to the database node remotely `ssh` from the admin node and execute `sudo` (including itself)
 
 
+
 ## Admin Provisioning
 
 Pigsty requires an **admin user** that can **SSH into other nodes** from the admin node and execute `sudo` commands.

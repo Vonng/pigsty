@@ -2,15 +2,23 @@
 
 Backup is the foundation of DBA's life and one of the most critical tasks in database management. Only physical backups are discussed here. Physical backups can usually be classified into the following four types.
 
+
+
 ## Classification of backups
 
-### Hot Standby (Hot Backup)
+
+
+### Hot Standby
 
 It is consistent with the primary library and will take over the work of the primary library when the primary library fails, and will also be used to take over online read-only traffic. A hot standby that uses synchronous replication to keep up with the master in real time can also be called a synchronous backup.
+
+
 
 ### Warm Standby
 
 Warm Standby: Similar to hot standby, but does not carry online traffic. Usually a database cluster needs a delayed standby so that it can recover in time in case of an error (e.g. a data deletion by mistake). In this case, the delayed standby cannot serve online queries because its content is not the same as the primary.
+
+
 
 ### Code Backup
 
@@ -21,6 +29,7 @@ In Pigsty, a hot standby can be created by assigning roles (`pg_role`) to databa
 In the case of mistaken deletion of libraries and tables, or catastrophic failure of the whole cluster/house, data backup (cold backup) is the last resort
 
 > Currently, (Pigsty 1.4.0), warm (`offline`) and synchronous (`standby`) backups are not implemented and have the same effect as hot (`replica`) backups.
+
 
 
 ## Cold backup
@@ -72,6 +81,7 @@ pg_basebackup: base backup completed
 This script will use `pg_basebackup` to initiate a backup from the specified PGURL (default is the local database instance), using a `tar` archive with `lz4` compression and optional `openssl` RC4 stream encryption.
 The backup file is placed in the `/pg/backup/` directory by default, and the default file name consists of a prefix, cluster name, and date, e.g., `backup_pg-meta_20210805.tar.lz4`.
 The default backup cleanup policy is to clean up old backup files that are 1200 minutes old (20 hours old) when the latest backup completes.
+
 
 
 ## Restoring from a backup

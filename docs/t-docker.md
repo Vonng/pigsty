@@ -1,4 +1,4 @@
-# Docker App Introduction
+# Docker Applications
 
 > You can launch more stateless application with docker, and power them with pigsty postgres outside.
 
@@ -32,6 +32,8 @@ You can ship, run, deploy apps with docker with one-click, And gain production-g
 
 --------------------
 
+
+
 ## Add Upstream to Nginx
 
 本文介绍的大部分软件均对外提供Web界面，尽管您可以直接通过IP:Port的方式访问，但我们依然建议收敛访问入口，使用域名并统一从Nginx代理访问。使用以下配置与命令，向Nginx注册新的服务。
@@ -51,6 +53,8 @@ nginx_upstreams:
 
 
 --------------------
+
+
 
 ## PgAdmin4
 
@@ -76,7 +80,7 @@ docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty
 
 
 
-## PGWeb客户端工具
+## PGWeb
 
 [PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在管理节点上拉起PGWEB服务，默认为主机`8081`端口。
 
@@ -247,5 +251,4 @@ run:
 
 
 ## Mastodon
-
 

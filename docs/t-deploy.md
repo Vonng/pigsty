@@ -1,31 +1,27 @@
-# Deployment
+# Deploy
 
-There are 3 typical deployment type for Pigsty:
+> There are 3 steps to deploy pigsty: [prepare](#prepare), [configure](#configure), [playbook](#playbook)
 
-  * [Standard Deployment](t-deploy.md): Install pigsty on a fresh CentOS 7 node with download & configure & install
-  * [Sandbox Deployment](s-sandbox.md) : Launch vm nodes on your laptop, then perform the standard deployment procedure.
-  * [Monitor-Only Deployment](t-monly.md) : Deploy infra to monitor existing PostgreSQL instances.
 
-No matter which deployment type is used, It always takes 3 steps:
 
-  * [Prepare](t-prepare.md)
-  * [Configure](c-config.md)
-  * [Execution](#execute)
+----------------------------
 
-## [Prepare](t-prepare.md)
+## [Prepare](d-prepare.md)
 
-- [Node Provisioning](t-prepare.md#node-provisioning)
-- [Meta Node Provisioning](t-prepare.md#meta-provisioning)
-- [Admin User Provisioning](t-prepare.md#admin-provisioning)
-- [Software Provisioning](t-prepare.md#software-provisioning)
+- [Node Provisioning](d-prepare.md#node-provisioning)
+- [Meta Node Provisioning](d-prepare.md#meta-provisioning)
+- [Admin User Provisioning](d-prepare.md#admin-provisioning)
+- [Software Provisioning](d-prepare.md#software-provisioning)
+
+
 
 ## [Configure](c-config.md)
 
-- [Config Entry](c-config.md#config-entry)
-- [Config File](c-config.md#config-file)
-- [Infrastructure Config](c-config.md#infrastructure-config)
-- [Database Cluster Config](c-config.md#database-cluster-configuration)
-- [Identity Parameters](c-config.md#identity-parameters)
+- [Config Entry](v-config.md#config-entry)
+- [Config File](v-config.md#config-file)
+- [Infrastructure Config](v-config.md#infrastructure-config)
+- [Database Cluster Config](v-config.md#database-cluster-configuration)
+- [Identity Parameters](-config.md#identity-parameters)
 - [Connection Information](c-config.md#connect-parameters)
 - [Custom Business User](c-user.md)
 - [Customize business Database](c-database.md)
@@ -33,7 +29,8 @@ No matter which deployment type is used, It always takes 3 steps:
 - [Customize Database Content](v-pgsql-customize.md)
 
 
-## Execution
+
+## [Playbook](p-playbook.md)
 
 - [Infrastructure initialization](p-infra.md)
 - [database initialization](p-pgsql.md) (cluster creation, new instances)

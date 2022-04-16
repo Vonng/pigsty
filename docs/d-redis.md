@@ -11,10 +11,11 @@ Pigsty是一个PostgreSQL发行版，也是一个通用应用运行时。您可�
 
 ## Define Redis Cluster
 
-[redis配置参数](v-redis.md)
+[Config: Redis](v-redis.md) : [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)
 
 
-### Redis ER Models
+
+### ER Model
 
 Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包括 **集群（Cluster）** 与 **实例（Instance）** 的概念。注意这里的Cluster概念指的不是 Redis原生集群方案中的集群。
 
@@ -40,14 +41,16 @@ Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包�
 
 
 
-### Redis Cluster Definition
+### Cluster Definition
 
 下面给出了三个Redis集群的精简定义，包括：
-* 一个1节点，3实例的Redis Sentinel集群 `redis-sentinel`
-* 一个2节点，12实例的的Redis Cluster集群 `redis-cluster`
-* 一个1节点，一主两从的Redis Standalone集群 `redis-standalone`
+* 一个1节点，3实例的Redis Sentinel集群 `redis-meta`
+* 一个2节点，12实例的的Redis Cluster集群 `redis-test`
+* 一个1节点，一主两从的Redis Standalone集群 `redis-common`
 
 您需要在节点上为Redis实例分配唯一的端口号。
+
+
 
 ### Redis Sentinel Example
 
@@ -65,6 +68,8 @@ redis-meta:
     redis_mode: sentinel
     redis_max_memory: 128MB
 ```
+
+
 
 ### Redis Native Cluster Example
 
@@ -87,6 +92,8 @@ redis-test:
     redis_mem_policy: allkeys-lru       # memory eviction policy
 ```
 
+
+
 ### Redis Standalone Example
 
 ```yaml
@@ -108,7 +115,8 @@ redis-common:
 ```
 
 
-## Create Redis Cluster
+
+## Create Cluster
 
 
 ### Playbook
@@ -120,6 +128,7 @@ redis-common:
 ./redis.yml -l redis-cluster
 ./redis.yml -l redis-standalone
 ```
+
 
 
 ### Caveat
@@ -142,7 +151,7 @@ Prometheus默认会使用"多目标抓取"模式，使用节点上9121端口的R
 * Redis Cluster： 关注单个Redis业务集群的监控信息
 * Redis Instance：关注单个Redis实例的详细监控信息
 
-您可以使用自带的 redis-benchmark 测试并
+您可以使用自带的 redis-benchmark 进行压力测试。
 
 
 
