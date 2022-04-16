@@ -186,7 +186,7 @@ pg-test:
     pg_databases: [{ name: test }]      # 填入数据库列表（每个数据库对象作为一个数组元素）
 ```
 
-</details>
+
 
 
 
@@ -508,6 +508,4 @@ COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
 ```
 
 
-
-</details>
 

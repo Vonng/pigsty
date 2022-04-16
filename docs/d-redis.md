@@ -1,55 +1,55 @@
 # Redis Deployment
 
-Pigsty是一个PostgreSQL发行版，也是一个通用应用运行时。您可以用它管理、部署、监控其他应用与数据库，例如Redis。
+Pigsty is a PostgreSQL distribution and a general-purpose application runtime. You can use it to manage, deploy, and monitor other applications and databases, such as Redis.
 
-与PostgreSQL类似，部署Redis同样需要两个步骤：
+Similar to PostgreSQL, deploying Redis requires the same two steps.
 
-1. 声明/定义Redis集群
-2. 执行Playbook创建Redis集群
+1. declare/define the Redis cluster
+2. Execute Playbook to create the Redis cluster
 
 
 
 ## Define Redis Cluster
 
-[redis配置参数](v-redis.md)
+[redis config parameters](v-redis.md)
 
 
 ### Redis ER Models
 
-Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包括 **集群（Cluster）** 与 **实例（Instance）** 的概念。注意这里的Cluster概念指的不是 Redis原生集群方案中的集群。
+The Redis ER model is almost identical to [PostgreSQL](c-entity.md), and also includes the concepts of **Cluster** and **Instance**. Note that the concept of Cluster here does not refer to the clusters in Redis' native clustering scheme.
 
-核心的区别在于，Redis通常采用单机多实例部署，一个物理/虚拟机节点上通常会部署**多个** Redis实例，以充分利用多核CPU。因此，定义Redis实例的方式与PGSQL稍有不同。
+The core difference is that Redis is typically deployed in a single multi-instance deployment, with **many** Redis instances typically deployed on a single physical/virtual machine node to take advantage of multi-core CPUs. Therefore, how Redis instances are defined is slightly different from PGSQL.
 
-在Pigsty管理的Redis中，节点完全隶属于集群，即目前尚不允许在一个节点上部署两个不同集群的Redis实例，但这并不影响您在在一个节点上部署多个独立Redis实例。
+In Pigsty-managed Redis, the nodes are fully subordinate to the cluster, i.e. it is not currently allowed to deploy two Redis instances from different clusters on a single node, but this does not prevent you from deploying multiple independent Redis instances on a single node.
 
 
-### Identity Parameters
+### Redis Identity Parameters
 
-[**身份参数**](v-redis.md#身份参数)是定义Redis集群时必须提供的信息，包括：
+The [**identity parameters**](v-redis.md#identity parameters) are the information that must be provided when defining a Redis cluster and include.
 
-|                    名称                     |        属性        |   说明   |         例子         |
+|                    Name                    |        Properties        |   Description   |         Example         |
 | :-----------------------------------------: | :----------------: | :------: | :------------------: |
-| [`redis_cluster`](v-redis.md#redis_cluster) | **必选**，集群级别 |  集群名  |      `redis-test`       |
-|    [`redis_node`](v-redis.md#redis_node)    | **必选**，节点级别 | 节点编号 | `1`,`2` |
-|     [`redis_instances`](v-redis.md#redis_instances)     | **必选**，节点级别 | 实例定义 | `{ 6001 : {} ,6002 : {}}`  |
+| [`redis_cluster`](v-redis.md#redis_cluster) | **MUST**, cluster level |  Cluster name  |      `redis-test`       |
+|    [`redis_node`](v-redis.md#redis_node)    | **MUST**, node level | Node Number | `1`,`2` |
+|     [`redis_instances`](v-redis.md#redis_instances)     | **MUST**, node level | Instance Definition | `{ 6001 : {} ,6002 : {}}`  |
 
 
-- [`redis_cluster`](v-redis.md#redis_cluster) 标识了Redis集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
-- [`redis_node`](v-redis.md#redis_node) 标识了节点在集群中的序号
-- [`redis_instances`](v-redis.md#redis_instances) 是一个JSON对象，Key为实例端口号，Value为一个JSON对象，包含实例特殊的配置
-
-
+- [`redis_cluster`](v-redis.md#redis_cluster) identifies the name of the Redis cluster, which is configured at the cluster level and serves as the top-level namespace for cluster resources.
+- [`redis_node`](v-redis.md#redis_node) identifies the serial number of the node in the cluster.
+- [`redis_instances`](v-redis.md#redis_instances) is a JSON object with the Key as the instance port number and the Value as a JSON object containing the instance-specific config.
+- 
 
 ### Redis Cluster Definition
 
-下面给出了三个Redis集群的精简定义，包括：
-* 一个1节点，3实例的Redis Sentinel集群 `redis-sentinel`
-* 一个2节点，12实例的的Redis Cluster集群 `redis-cluster`
-* 一个1节点，一主两从的Redis Standalone集群 `redis-standalone`
+A condensed definition of three Redis clusters is given below, including.
 
-您需要在节点上为Redis实例分配唯一的端口号。
+* A 1-node, 3-instance Redis Sentinel cluster `redis-sentinel`
+* A 2-node, 12-instance Redis Cluster `redis-cluster`.
+* A 1-node, one-master-two-slave Redis Standalone cluster `redis-standalone`
 
-### Redis Sentinel Example
+You need to assign a unique port number to the Redis instance on the node.
+
+### Redis Sentinel Cluster Example
 
 ```yaml
 #----------------------------------#
@@ -113,7 +113,7 @@ redis-common:
 
 ### Playbook
 
-使用剧本`redis.yml`创建Redis实例/集群
+Create a Redis instance/cluster using the playbook `redis.yml`.
 
 ```bash
 ./redis.yml -l redis-sentinel
@@ -124,29 +124,29 @@ redis-common:
 
 ### Caveat
 
-尽管这样做并不是推荐的行为，您可以将PostgreSQL与Redis进行混合部署，以充分利用机器资源。
+Although this is not the recommended behavior, you can deploy PostgreSQL with Redis in a mixed deployment to make the best use of machine resources.
 
-`redis.yml` 剧本会在机器上同时部署Redis监控Exporter，包括`redis_exporter`与`node_exporter`（可选）
+The `redis.yml` playbook will deploy the Redis Monitor Exporter on the machine at the same time, including `redis_exporter` and `node_exporter` (optional).
 
-在此过程中，如果机器的`node_exporter`存在，将会被重新部署。
+During this process, if the machine's `node_exporter` exists, it will be redeployed.
 
-Prometheus默认会使用"多目标抓取"模式，使用节点上9121端口的Redis Exporter抓取该节点上**所有**的Redis实例。
-
-
-
-## Redis Dashboards
-
-目前Pigsty提供了3个Redis监控面板，作为一个独立监控应用 `REDIS`的组成部分，分别为：
-
-* Redis Overview：提供整个环境中Redis的全局概览
-* Redis Cluster： 关注单个Redis业务集群的监控信息
-* Redis Instance：关注单个Redis实例的详细监控信息
-
-您可以使用自带的 redis-benchmark 测试并
+By default, Prometheus will use the "multi-target crawl" mode, using the Redis Exporter on port 9121 on the node to crawl **all** Redis instances on that node.
 
 
 
-## Notice
+## Checking Redis Monitor
 
-Pigsty v1.4 只提供Redis集群整体性部署与监控功能。扩容、缩容，单实例管理等功能将在后续版本中逐步提供。
+Pigsty currently provides three Redis monitor panels as part of a standalone monitoring application `REDIS`, namely:
+
+* Redis Overview: Provides a global overview of Redis in the entire environment.
+* Redis Cluster: focuses on monitoring information for a single Redis business cluster.
+* Redis Instance: provides detailed monitoring information about a single Redis instance.
+
+You can use the included redis-benchmark test.
+
+
+
+## Other Functions
+
+Pigsty v1.4 only provides Redis cluster deployment and monitoring capabilities in a holistic manner. Features such as capacity expansion, capacity reduction, and single-instance management will be provided in subsequent versions.
 

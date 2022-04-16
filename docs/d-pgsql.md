@@ -1,60 +1,62 @@
 # PostgreSQL Deployment
 
-> 本文介绍使用Pigsty部署PostgreSQL集群的几种不同方式：PGSQL相关[剧本](p-pgsql.md)与[配置](v-pgsql.md)请参考相关文档。
+> This article describes a few different ways to deploy a PostgreSQL cluster using Pigsty: PGSQL-related [playbook](p-pgsql.md) and [config](v-pgsql.md) please refer to the related doc.
 
-* [身份参数](#身份参数)：介绍定义标准PostgreSQL高可用集群所需的身份参数。
-* [单机部署](#单机部署)：定义一个单实例的PostgreSQL集群
-* [主从集群](#主从集群)：定义一个一主一从的标准可用性集群。
-* [同步从库](#同步从库)：定义一个同步复制，RPO = 0 的高一致性集群。
-* [法定人数同步提交](#法定人数同步提交)：定义数据一致性更高的集群：多数从库成功方返回提交。
-* [离线从库](#离线从库)：用于单独承载OLAP分析，ETL，交互式个人查询的专用实例
-* [备份集群](#备份集群)：制作现有集群的实时在线克隆，用于异地灾备或延迟从库。
-* [延迟从库](#延迟从库)：用于应对误删表删库等软件/人为故障，比PITR更快。
-* [级联复制](#级联复制)：用于搭建一个集群内的级联复制，针对大量从库场景（20+），降低主库复制压力。
-* [Citus集群部署](#Citus集群部署)：部署Citus分布式数据库集群
-* [MatrixDB集群部署](#MatrixDB集群部署)：部署Greenplum7/PostgreSQL12兼容的时序数据仓库。
+
+
+* [Identity Parameters](#Identity Parameters): Introduces the identity parameters required to define a standard PostgreSQL high availability cluster.
+* [Singleton Deployment](# Single Deployment) defines a single instance PostgreSQL cluster.
+* [Master-Slave Cluster](#Master-Slave Cluster): Defines a standard availability cluster with one master and one slave.
+* [Synchronous Slave](# Synchronous Slave): Define a highly consistent cluster with synchronous replication and RPO = 0.
+* [Quorum Synchronous Commit](# Quorum Synchronous Commit): defines a cluster with higher data consistency: most slaves return commits on the successful side.
+* [Offline Slave](# Offline Slave): dedicated instance for hosting OLAP analysis, ETL, and interactive personal queries separately.
+* [Backup Cluster](#Backup Cluster): Produces real-time online clones of existing clusters for offsite disaster recovery or deferred slave.
+* [Delayed Slave](# Delayed Slave): for software/human failures such as accidental table deletion and library deletion, faster than PITR.
+* [Cascade Replication](#Cascade Replication): Used to build cascade replication within a cluster, for a large number of slave scenarios (20+), to reduce master replication pressure.
+* [Citus Cluster Deployment](#Citus Cluster Deployment): Deploy Citus distributed database cluster.
+* [MatrixDB Cluster Deployment](#MatrixDB Cluster Deployment): Deploy Greenplum7/PostgreSQL12 compatible chronological data warehouse.
 
 
 
 ## Identity
 
-**核心身份参数**是定义 PostgreSQL 数据库集群时必须提供的信息，包括：
+The **Core Identity Parameters** are information that must be provided when defining a PostgreSQL cluster and include:
 
-|                 名称                  |        属性        |   说明   |         例子         |
-| :-----------------------------------: | :----------------: | :------: | :------------------: |
-| [`pg_cluster`](v-pgsql.md#pg_cluster) | **必选**，集群级别 |  集群名  |      `pg-test`       |
-|    [`pg_role`](v-pgsql.md#pg_role)    | **必选**，实例级别 | 实例角色 | `primary`, `replica` |
-|     [`pg_seq`](v-pgsql.md#pg_seq)     | **必选**，实例级别 | 实例序号 | `1`, `2`, `3`,`...`  |
+|                 Name                  |        Properties        |   Description   |       Example        |
+| :-----------------------------------: | :----------------------: | :-------------: | :------------------: |
+| [`pg_cluster`](v-pgsql.md#pg_cluster) | **MUST**, cluster level  |  Cluster name   |      `pg-test`       |
+|    [`pg_role`](v-pgsql.md#pg_role)    | **MUST**, instance level |  Instance Role  | `primary`, `replica` |
+|     [`pg_seq`](v-pgsql.md#pg_seq)     | **MUST**, instance level | Instance number | `1`, `2`, `3`,`...`  |
 
-身份参数的内容遵循 [实体命名规则](c-entity.md) 。其中 [`pg_cluster`](v-pgsql.md#pg_cluster) ，[`pg_role`](v-pgsql.md#pg_role)，[`pg_seq`](v-pgsql.md#pg_seq) 属于核心身份参数，是定义数据库集群所需的**最小必须参数集**，核心身份参数**必须显式指定**，不可忽略。
+The content of the identity parameter follows the [entity naming convention](c-entity.md). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, which are the **minimum set of mandatory parameters required to define the database cluster**, the core identity parameters **must be explicitly specified** and cannot be ignored.
 
-- `pg_cluster` 标识了集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
+- `pg_cluster` identifies the name of the cluster, configured at the cluster level, and serves as the top-level namespace for cluster resources.
 
-- `pg_role`标识了实例在集群中扮演的角色，在实例层面进行配置，可选值包括：
+- `pg_role` identifies the role that the instance plays in the cluster, configured at the instance level, with optional values including:
 
-  - `primary`：集群中的**唯一主库**，集群领导者，提供写入服务。
-  - `replica`：集群中的**普通从库**，承接常规生产只读流量。
-  - `offline`：集群中的**离线从库**，承接ETL/SAGA/个人用户/交互式/分析型查询。
-  - `standby`：集群中的**同步从库**，采用同步复制，没有复制延迟（保留）。
-  - `delayed`：集群中的**延迟从库**，显式指定复制延迟，用于执行回溯查询与数据抢救（保留）。
+  - `primary`: the **only master** in the cluster, the cluster leader, provides writing services.
+  - `replica`: **normal slave** in the cluster, takes regular production read-only traffic.
+  - `offline`: **offline slave** in the cluster, takes ETL/SAGA/personal user/interactive/analytical queries.
+  - `standby`: **synchronous slave** in the cluster, with synchronous replication and no replication latency (retention).
+  - `delayed`: **delayed slave** in the cluster, explicitly specifying replication delay, used to perform backtracking queries and data salvage (reserved).
 
-- `pg_seq` 用于在集群内标识实例，通常采用从0或1开始递增的整数，一旦分配不再更改。
+- `pg_seq` is used to identify the instance within the cluster, usually as an integer incrementing from 0 or 1, and will not be changed once assigned.
 
-- `pg_shard` 用于标识集群所属的上层 **分片集簇**，只有当集群是水平分片集簇的一员时需要设置。
+- `pg_shard` Used to identify the upper-level **shard cluster** to which the cluster belongs, only required if the cluster is a member of a horizontally sharded cluster.
 
-- `pg_sindex` 用于标识集群的**分片集簇**编号，只有当集群是水平分片集簇的一员时需要设置。
+- `pg_sindex` is used to identify the cluster's **slice cluster** number, and only needs to be set if the cluster is a member of a horizontal slice cluster.
 
-- `pg_instance` 是**衍生身份参数**，用于唯一标识一个数据库实例，其构成规则为
+- `pg_instance` is the **derived identity parameter** that uniquely identifies a database instance, with the following composition rules
 
-  `{{ pg_cluster }}-{{ pg_seq }}`。 因为`pg_seq`是集群内唯一的，因此该标识符全局唯一。
+  `{{ pg_cluster }}-{{ pg_seq }}`. Since `pg_seq` is unique within the cluster, this identifier is globally unique.
 
 
 
 ### Sharding Cluster
 
-`pg_shard` 与`pg_sindex` 用于定义特殊的分片数据库集簇，是可选的身份参数，目前为Citus与Greenplum保留。
+`pg_shard` and `pg_sindex` are used to define special sharded clusters and are optional identity parameters, currently reserved for Citus and Greenplum.
 
-假设用户有一个水平分片的 **分片数据库集簇（Shard）** ，名称为`test`。这个集簇由四个独立的集群组成：`pg-test1`, `pg-test2`，`pg-test3`，`pg-test-4`。则用户可以将 `pg_shard: test` 的身份绑定至每一个数据库集群，将`pg_sindex: 1|2|3|4` 分别绑定至每一个数据库集群上。如下所示：
+Suppose a user has a horizontal **sharded database cluster (Shard)** with the name `test`. This cluster consists of four separate clusters: `pg-test1`, `pg-test2`, `pg-test3`, and `pg-test-4`. Then the user can bind the identity of `pg_shard: test` to each database cluster and `pg_sindex: 1|2|3|4` to each database cluster separately. This is shown as follows.
 
 ```yaml
 pg-test1:
@@ -71,13 +73,13 @@ pg-test4:
   hosts: {10.10.10.13: {pg_seq: 1, pg_role: primary}}
 ```
 
-通过这样的定义，您可以方便地从 PGSQL Shard 监控面板中，观察到这四个水平分片集群的横向指标对比。同样的功能对于 [Citus](#Citus集群) 与 MatrixDB集群同样有效。
+With this definition, you can easily observe the cross-sectional metrics comparison of these four horizontally sharded clusters from the PGSQL Shard monitoring panel. The same functionality works for [Citus](#Citus cluster) and MatrixDB clusters as well.
 
 
 
 ## Singleton
 
-让我们从最简单的案例开始：
+Let's start with the simplest case.
 
 ```yaml
 pg-test:
@@ -87,7 +89,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-使用以下命令，在 `10.10.10.11` 节点上创建一个单主的数据库实例。
+Use the following command to create a single master database instance on the `10.10.10.11` node.
 
 ```bash
 bin/createpg pg-test
@@ -99,9 +101,9 @@ bin/createpg pg-test
 
 ## M-S Replication
 
-复制可以极大高数据库系统可靠性，是应对硬件故障的最佳手段。
+Replication can greatly increase database system reliability and is the best means of dealing with hardware failures.
 
-Pigsty原生支持设置主从复制，例如，声明一个典型的一主一从高可用数据库集群，可以使用：
+Pigsty natively supports setting up master-slave replication, for example, to declare a typical one-master-one-slave highly available database cluster, you can use:
 
 ```yaml
 pg-test:
@@ -112,7 +114,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-使用 `bin/createpg pg-test`，即可创建出该集群来。如果您已经在第一步 [单机部署](#单机部署)中完成了`10.10.10.11`的部署，那么也可以使用 `bin/createpg 10.10.10.12`，进行集群扩容。
+Use `bin/createpg pg-test` to create the cluster. If you have already deployed `10.10.10.11` in the first step of [standalone deployment](#standalone deployment), you can also use `bin/createpg 10.10.10.12` to expand the cluster.
 
 
 
@@ -120,11 +122,11 @@ pg-test:
 
 ## Sync Standby
 
-正常情况下，PostgreSQL的复制延迟在几十KB/10ms的量级，对于常规业务而言可以近似忽略不计。
+Under normal circumstances, PostgreSQL's replication latency is on the order of tens of KB/10ms, which is approximately negligible for regular business.
 
-重要的是，当主库出现故障时，尚未完成复制的数据会丢失！当您在处理非常关键与精密的业务查询时（例如和钱打交道），复制延迟可能会成为一个问题。此外，或者在主库写入后，立刻向从库查询刚才的写入（read-your-write），也会对复制延迟非常敏感。
+The important thing is that when the master fails, data that has not yet completed replication will be lost! Replication latency can be an issue when you are dealing with very critical and sophisticated business queries (dealing with money). In addition, when you query the slave for a read-your-write immediately after the master writes, you can also be very sensitive to replication latency.
 
-为了解决此类问题，需要用到同步从库。 一种简单的配置同步从库的方式是使用 [`pg_conf`](v-pgsql.md#pg_conf) = `crit` 模板，该模板会自动启用同步复制。
+To solve such problems, synchronous slave libraries are used. A simple way to configure a synchronous slave is to use the [`pg_conf`](v-pgsql.md#pg_conf) = `crit` template, which automatically enables synchronous replication.
 
 ```yaml
 pg-test:
@@ -137,7 +139,7 @@ pg-test:
     pg_conf: crit.yml
 ```
 
-或者，您可以在集群创建完毕后，通过在管理节点上执行 `pg edit-config <cluster.name>` ，编辑集群配置文件，修改参数`synchronous_mode`的值为`true`并应用即可。
+Alternatively, you can edit the cluster config file by executing `pg edit-config <cluster.name>` on the meta node after the cluster has been created, changing the value of the parameter `synchronous_mode` to `true` and applying it.
 
 ```bash
 $ pg edit-config pg-test
@@ -156,9 +158,9 @@ Apply these changes? [y/N]: y
 
 ## Quorum Commit
 
-在默认情况下，同步复制会从所有候选从库 **挑选一个实例**，作为同步从库，任何主库事务只有当复制到从库并Flush至磁盘上时，方视作成功提交并返回。 如果我们期望更高的数据持久化保证，例如，在一个一主三从的四实例集群中，至少有两个从库成功刷盘后才确认提交，则可以使用法定人数提交。
+By default, synchronous replication picks one instance **from all candidate slaves** as a synchronous slave, and any master transaction is only considered successfully committed and returned when it is replicated to the slave and flushed to disk. If we expect higher data persistence guarantees, for example, in a four-instance cluster with one master and three slaves, where at least two slaves successfully flush the disk before confirming the commit, then we can use quorum commit.
 
-使用法定人数提交时，需要修改 PostgreSQL 中 `synchronous_standby_names` 参数的值，并配套修改Patroni中 [`synchronous_node_count`](https://patroni.readthedocs.io/en/latest/replication_modes.html#synchronous-replication-factor) 的值。假设三个从库分别为 `pg-test-2, pg-test-3, pg-test-4` ，那么应当配置：
+When using quorum commit, you need to modify the value of the `synchronous_standby_names` parameter in PostgreSQL and the accompanying modify [`synchronous_node_count`](https://patroni.readthedocs.io/en) in Patroni. Assuming that the three slave libraries are `pg-test-2, pg-test-3, and pg-test-4`, then the following should be configured.
 
 * `synchronous_standby_names = ANY 2 (pg-test-2, pg-test-3, pg-test-4)`
 * `synchronous_node_count : 2`
@@ -174,7 +176,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-执行`pg edit-config pg-test`，并修改配置如下：
+Execute `pg edit-config pg-test` and modify the config as follows.
 
 ```bash
 $ pg edit-config pg-test
@@ -192,7 +194,7 @@ $ pg edit-config pg-test
 Apply these changes? [y/N]: y
 ```
 
-应用后，即可看到配置生效，出现两个Sync Standby，当集群出现Failover或扩缩容时，请相应调整这些参数以免服务不可用。
+After the application, you can see that the config takes effect and two Sync Standby appear. When the cluster has Failover or expansion and contraction, please adjust these parameters accordingly to avoid service unavailability.
 
 ```bash
 + Cluster: pg-test (7080814403632534854) +---------+----+-----------+-----------------+
@@ -212,7 +214,7 @@ Apply these changes? [y/N]: y
 
 ## Offline Replica
 
-当您的在线业务请求负载水位很大时，将数据分析/ETL/个人交互式查询放置在专用的离线只读从库上是一个更为合适的选择。
+When the load level of your online business requests is high, placing data analysis/ETL/personal interactive queries on a dedicated offline read-only slave library is a more appropriate option.
 
 ```yaml
 pg-test:
@@ -224,9 +226,9 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-使用 `bin/createpg pg-test`，即可创建出该集群来。如果您已经完成了第一步 [单机部署](#单机部署)与第二步 [主从集群](#主从集群)，那么可以使用 `bin/createpg 10.10.10.13`，进行集群扩容，向集群中添加一台离线从库实例。
+Use `bin/createpg pg-test` to create the cluster. If you have already completed step 1 [standalone deployment](#standalone deployment) and step 2 [master-slave cluster](#master-slave cluster), then you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline slave instance to the cluster.
 
-离线从库默认不承载  [`replica`](c-service.md#replica服务)  服务，只有当所有   [`replica`](c-service.md#replica服务)  服务中的实例均不可用时，离线实例才会用于紧急承载只读流量。如果您只有一主一从，或者干脆只有一个主库，没有专用的离线实例，可以通过为该实例设置 [`pg_offline_query`](v-pgsql.md#pg_offline_query) 标记，该实例仍然扮演原来的角色，但同时也承载  [`offline`](c-service.md#offline服务)  服务，用作 **准离线实例**。
+Offline slaves do not host the [`replica`](c-service.md#replica service) service by default, and the offline instance will only be used to host read-only traffic in an emergency if all instances in the [`replica`](c-service.md#replica service) service are unavailable. If you have only one master and one slave, or simply one master and no dedicated offline instance, you can set the [`pg_offline_query`](v-pgsql.md#pg_offline_query) flag for that instance by setting it to still play the original role, but also to host [`offline`](c- service.md#offline service) service, which is used as a **quasi-offline instance**.
 
 
 
@@ -237,12 +239,12 @@ pg-test:
 
 ## Standby Cluster
 
-您可以使用 Standby Cluster 的方式，制作现有集群的克隆，使用这种方式，您可以从现有数据库平滑迁移至Pigsty集群中。
+You can make a clone of an existing cluster using the Standby Cluster approach, using which you can migrate smoothly from an existing database to a Pigsty cluster.
 
-创建 Standby Cluster 的方式无比简单，您只需要确保备份集群的主库上配置有合适的 [`pg_upstream`](v-pgsql.md#pg_upstream) 参数，即可自动从原始上游拉取备份。
+Creating a Standby Cluster is incredibly simple, you just need to make sure that the backup cluster has the appropriate [`pg_upstream`](v-pgsql.md#pg_upstream) parameter configured on the primary library to automatically pull backups from the original upstream.
 
 ```yaml
-# pg-test是原始数据库
+# pg-test is the original database
 pg-test:
   hosts:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
@@ -251,30 +253,30 @@ pg-test:
     pg_version: 14
 
 
-# pg-test2将作为pg-test1的Standby Cluster
+# Pg-test2 will be the standby cluster of pg-test1.
 pg-test2:
   hosts:
-    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # 实际角色为 Standby Leader
+    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # The actual role is Standby Leader
     10.10.10.13: { pg_seq: 2, pg_role: replica }
   vars:
     pg_cluster: pg-test2
-    pg_version: 14          # 制作Standby Cluster时，数据库大版本必须保持一致！
+    pg_version: 14          # When making a Standby Cluster, the database major version must be consistent!
 ```
 
 ```bash
-bin/createpg pg-test     # 创建原始集群
-bin/createpg pg-test2    # 创建备份集群
+bin/createpg pg-test     # Creating the original cluster
+bin/createpg pg-test2    # Creating a Backup Cluster
 ```
 
 ### Promote Standby Cluster
 
-当您想要将整个备份集群提升为一个独立运作的集群时，编辑新集群的Patroni配置文件，移除所有`standby_cluster`配置，备份集群中的Standby Leader会被提升为独立的主库。
+When you want to promote the whole backup cluster to a standalone operation, edit the Patroni config file of the new cluster to remove all `standby_cluster` configs and the Standby Leader in the backup cluster will be promoted to a standalone master.
 
 ```bash
-pg edit-config pg-test2  # 移除 standby_cluster 配置定义并应用
+pg edit-config pg-test2  # Remove the standby_cluster config definition and apply
 ```
 
-移除下列配置：整个`standby_cluster`定义部分。
+Remove the following config: the entire `standby_cluster` definition section.
 
 ```bash
 -standby_cluster:
@@ -286,7 +288,7 @@ pg edit-config pg-test2  # 移除 standby_cluster 配置定义并应用
 
 ### Change Replication Upstream
 
-当源集群发生Failover主库发生变化时，您需要调整备份集群的复制源。执行`pg edit-config <cluster>`，并修改`standby_cluster`中的源地址为新主库，应用即可生效。这里需要注意，从源集群的从库进行复制是**可行的**，源集群发生Failover并不会影响备份集群的复制。但新集群在只读从库上无法创建复制槽，可能出现相关报错，并存在潜在的复制中断风险，建议及时调整备份集群的上游复制源。
+You need to adjust the replication source of the backup cluster when the source cluster undergoes a Failover master change. Execute `pg edit-config <cluster>` and change the source address in `standby_cluster` to the new master, and the application will take effect. Note here that replication from the slave of the source cluster is **feasible**, and a Failover in the source cluster does not affect the replication of the backup cluster. However, the new cluster cannot create replication slots on the read-only slave, and there may be related error reports and potential risk of replication interruption, so it is recommended to adjust the upstream replication repo of the backup cluster in time.
 
 ```yaml
  standby_cluster:
@@ -297,21 +299,21 @@ pg edit-config pg-test2  # 移除 standby_cluster 配置定义并应用
    port: 5432
 ```
 
-修改 `standby_cluster.host` 中复制上游的IP地址，应用即可生效（无需重启，Reload即可）。
+Modify the IP address of the replication upstream in `standby_cluster.host` and the application will take effect (no need to reboot, just Reload).
 
 
 
 
 
-## Delayed Cluster
+## Delayed Slave
 
-高可用与主从复制可以解决机器硬件故障带来的问题，但无法解决软件Bug与人为操作导致的故障，例如：误删库删表。误删数据通常需要用到[冷备份](t-backup.md)，但另一种更优雅高效快速的方式是事先准备一个延迟从库。
+High availability and master-slave replication can solve the problems caused by machine hardware failure, but cannot solve the problems caused by software Bugs and human operation, for example, mistakenly deleting libraries and tables. A  [cold backup](t-backup.md) is usually needed for accidental data deletion, but a more elegant and efficient way is to prepare a delayed slave beforehand.
 
-您可以使用 [备份集群](#备份集群) 的功能创建延时从库，例如，现在您希望为`pg-test` 集群指定一个延时从库：`pg-testdelay`，该集群是`pg-test`1小时前的状态。因此如果出现了误删数据，您可以立即从延时从库中获取并回灌入原始集群中。
+You can use the function [backup cluster](#backup cluster) to create a delayed slave. For example, now you want to specify a delayed slave for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. So if there is a mistaken deletion of data, you can immediately retrieve it from the delayed slave and pour it back into the original cluster.
 
 
 ```yaml
-# pg-test是原始数据库
+# pg-test is the original database
 pg-test:
   hosts:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
@@ -319,16 +321,16 @@ pg-test:
     pg_cluster: pg-test
     pg_version: 14
 
-# pg-testdelay 将作为 pg-test 库的延时从库
+# pg-testdelay will be used as a delay slave for the pg-test library
 pg-testdelay:
   hosts:
-    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # 实际角色为 Standby Leader
+    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # The actual role is Standby Leader
   vars:
     pg_cluster: pg-testdelay
     pg_version: 14          
 ```
 
-创建完毕后，在管理节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
+After creation, edit the Patroni config file for the delayed cluster with `pg edit-config pg-testdelay` on the meta node, change `standby_cluster.recovery_min_apply_delay` to the value you expect, e.g. `1h`, and apply it.
 
 ```bash
  standby_cluster:
@@ -344,13 +346,13 @@ pg-testdelay:
 
 ## Cascade Instance
 
-在创建集群时，如果为集群中的某个**从库**指定 [`pg_upstream`](v-pgsql.md#pg_upstream) 参数（指定为集群中**另一个从库**），那么该实例将尝试从该指定从库构建逻辑复制。
+When creating a cluster, if the [`pg_upstream`](v-pgsql.md#pg_upstream) parameter is specified for one of the **slave libraries** in the cluster (specified as **another slave library** in the cluster), then the instance will attempt to build logical replication from that specified slave library.
 
 ```yaml
 pg-test:
   hosts:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
-    10.10.10.12: { pg_seq: 2, pg_role: replica } # 尝试从2号从库而非主库复制
+    10.10.10.12: { pg_seq: 2, pg_role: replica } # Try to replicate from slave 2 instead of the master
     10.10.10.13: { pg_seq: 2, pg_role: replica, pg_upstream: 10.10.10.12 }
   vars:
     pg_cluster: pg-test
@@ -366,13 +368,14 @@ pg-test:
 
 ## Citus Cluster Deployment
 
-[Citus](https://www.citusdata.com/)是一个PostgreSQL生态的分布式扩展插件，默认情况下Pigsty安装Citus，但不启用。 [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) 提供了一个部署Citus集群的配置文件案例。为了启用Citus，您需要修改以下参数：
+[Citus](https://www.citusdata.com/) is a distributed extension plugin for the PostgreSQL ecology. By default, Pigsty installs Citus but does not enable it. [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) provides a config file case for deploying a Citus cluster. To enable Citus, you need to modify the following parameters.
 
-* `max_prepared_transaction`： 修改为一个大于`max_connections`的值，例如800。
-* [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)：必须包含`citus`，并放置在最前的位置。
-* 您需要在[业务数据库](c-pgdbuser.md#数据库)中包含 `citus` 扩展插件（但您也可以事后手工通过`CREATE EXTENSION`自行安装）
+* `max_prepared_transaction`: Modify to a value greater than `max_connections`, e.g. 800.
+* [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries): must contain `citus` and be placed in the top position.
+* You need to include the `citus` extension plugin in the [business database](c-pgdbuser.md#database) (but you can also manually install it yourself afterward via `CREATE EXTENSION`).
 
-<details><summary>Citus集群样例配置</summary>
+<details><summary>Citus cluster sample config</summary>
+
 
 ```yaml
 #----------------------------------#
@@ -419,9 +422,9 @@ pg-node3:
 
 ```
 
-</details>
 
-接下来，您需要参照[Citus多节点部署指南](https://docs.citusdata.com/en/latest/installation/multi_node_rhel.html)，在 Coordinator 节点上，执行以下命令以添加数据节点：
+
+Next, you need to refer to the [Citus Multi-Node Deployment Guide,](https://docs.citusdata.com/en/latest/installation/multi_node_rhel.html) and on the Coordinator node, execute the following command to add a data node.
 
 ```bash
 sudo su - postgres; psql meta 
@@ -440,10 +443,10 @@ SELECT * FROM citus_get_active_worker_nodes();
 (3 rows)
 ```
 
-成功添加数据节点后，您可以使用以下命令，在协调者上创建样例数据表，并将其分布到每个数据节点上。
+After successfully adding data nodes, you can use the following command to create sample data tables on the coordinator and distribute them to each data node.
 
 ```sql
--- 声明一个分布式表
+-- Declare a distributed table
 CREATE TABLE github_events
 (
     event_id     bigint,
@@ -456,11 +459,11 @@ CREATE TABLE github_events
     org          jsonb,
     created_at   timestamp
 ) PARTITION BY RANGE (created_at);
--- 创建分布式表
+-- Creating Distributed Tables
 SELECT create_distributed_table('github_events', 'repo_id');
 ```
 
-更多Citus相关功能介绍，请参考[Citus官方文档](https://docs.citusdata.com/en/v11.0-beta/)。
+For more Citus-related features, please refer to the [Citus official doc](https://docs.citusdata.com/en/v11.0-beta/).
 
 
 
@@ -468,16 +471,17 @@ SELECT create_distributed_table('github_events', 'repo_id');
 
 ## MatrixDB Cluster Deployment
 
-Greenplum是基于PostgreSQL生态构建的分布式数据仓库，广受广大用户喜爱。MatrixDB是Greenplum的一个分支，基于Greenplum 7 ，使用PostgreSQL 12内核。因为Greenplum 7尚未正式发布，因此Pigsty目前使用MatrixDB作为Greenplum的替代实现。
+MatrixDB is a branch of Greenplum, based on Greenplum 7 and using the PostgreSQL 12 kernel. Because Greenplum 7 has not been officially released yet, Pigsty currently uses MatrixDB as an alternative implementation of Greenplum.
 
-因为MatrixDB基于PostgreSQL生态，因此大多数PostgreSQL剧本与任务可以复用在 MatrixDB 上。MatrixDB 专用的额外参数只有两个：
+Since MatrixDB is based on the PostgreSQL ecosystem, most PostgreSQL scripts and tasks can be reused on MatrixDB. there are only two additional parameters specific to MatrixDB.
 
-* [`gp_role`](v-pgsql.md#gp_role)：定义Greenplum集群的身份，`master`或 `segment`。
-* [`pg_instances`](v-pgsql.md#pg_instances)：定义Segment实例，用于部署Segment实例监控。
+* [`gp_role`](v-pgsql.md#gp_role): defines the identity of the Greenplum cluster, `master,` or `segment`.
+* [`pg_instances`](v-pgsql.md#pg_instances): defines the Segment instance, which is used to deploy Segment instance monitoring.
 
-详情请参考 [MatrixDB部署](d-matrixdb.md)
+For details, please refer to [MatrixDB Deployment](d-matrixdb.md).
 
-<details><summary>MatrixDB集群样例配置 4节点</summary>
+<details><summary>MatrixDB cluster sample config--4 nodes</summary>
+
 
 ```yaml
 #----------------------------------#
@@ -531,4 +535,3 @@ mx-sdw:
 
 ```
 
-</details>

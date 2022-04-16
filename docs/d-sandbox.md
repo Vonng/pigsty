@@ -1,45 +1,43 @@
 # Sandbox
 
-> Pigsty支持使用 [本地沙箱](#本地沙箱) 与 [云端沙箱](#云端沙箱) 两种方式，可用于快速在本机或云端[准备](d-prepare.md)标准的1/4节点演示环境。
+> Pigsty supports both [local sandbox](#local sandbox) and [cloud sandbox](#cloud sandbox) for quickly [preparing](d-prepare.md) a standard 1/4 node demo environment locally or in the cloud.
 
-尽管安装Pigsty已经非常简单了，但是搭建满足要求虚拟机仍然是比较费事的，您可能需要用到各类虚拟机软件。
+Although installing Pigsty is easy enough, setting up a virtual machine that meets the requirements is still a bit of a chore and you may need to use various virtual machine software.
 
-因此Pigsty提供了**沙箱环境**，进一步免除用户准备环境的烦恼。完整地创建并跑通沙箱安装部署流程，对于在生产环境中部署有Pigsty 很大的帮助。
-
-
+Therefore Pigsty provides a **sandbox environment** to further relieve users of the hassle of preparing the environment. Complete creation and run-through of the sandbox installation and deployment process can be a great help for deployment in production environments with Pigsty.
 
 ## Sandbox Intro
 
-沙箱环境是一个配置规格、对象标识符、与默认数据库**预先确定**的环境，无论是本地版还是云端版都保持一致。
+The sandbox environment is a config specification, object identifier, and consistent with the default database **predetermined** for both the local and cloud versions.
 
-沙箱环境使用固定的IP地址，以便于演示说明，沙箱的管理节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中管理节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会被为管理节点的实际IP地址
+The sandbox environment uses a fixed IP address for demonstration purposes. The IP address of the meta node of the sandbox is fixed to: `10.10.10.10`. `10.10.10.10` is also a placeholder for the IP address of the meta node in all config file templates, which will be the actual IP address of the meta node when executing [config](v-config.md#configuration process).
 
-![](../_media/SANDBOX.gif)
+![](./_media/SANDBOX.gif)
 
-您可以使用单节点沙箱，这种部署下，只有一个管理节点`meta`，节点上部署有完整的基础设施，和一个单例Postgres数据库`pg-meta`。
+You can use a single-node sandbox, a deployment where there is only one meta-node `meta`, with a full infrastructure deployed on the node, and a single instance of the Postgres database `pg-meta`.
 
 * `meta    10.10.10.10  pg-meta.pg-meta-1`
 
-单节点沙箱则适合用于个人开发、实验、学习；作为数据分析与可视化的环境；以及设计、演示、分发交互式数据应用，四节点沙箱可以完整演示Pigsty的功能，充分探索高可用架构与监控系统的能力，请您自行按需选择。
+The single-node sandbox is suitable for personal development, experimentation, and learning; as an environment for data analysis and visualization; and for designing, demonstrating, and distributing interactive data applications. The four-node sandbox allows for a complete demonstration of Pigsty's capabilities and a full exploration of the highly available architecture and monitoring system, so please choose your on-demand.
 
-在四节点沙箱环境中，有三个额外的节点，与一个额外一套三节点PostgreSQL集群 `pg-test`
+In the four-node sandbox environment, there are three additional nodes, with an additional set of three-node PostgreSQL cluster `pg-test`.
 
 * `node-1  10.10.10.11  pg-test.pg-test-1`
 * `node-2  10.10.10.12  pg-test.pg-test-2`
 * `node-3  10.10.10.13  pg-test.pg-test-3`
 
-同时，沙箱环境还会使用以下两个IP地址与两条静态DNS记录，用于接入数据库集群。
+Also, the sandbox environment will use the following two IP addresses with two static DNS records for accessing the database cluster.
 
 * `10.10.10.2  pg-meta`
 * `10.10.10.2  pg-test`
 
 
 
-Pigsty提供了基于Vagrant的本地沙箱（使用Virtualbox拉起本地虚拟机），以及基于Terraform的云端沙箱（使用云厂商API创建虚拟机）。
+Pigsty offers a local sandbox based on Vagrant (pulling up local VMs using Virtualbox), and a cloud sandbox based on Terraform (creating VMs using the cloud vendor API).
 
-* 本地沙箱可以在普通Mac/PC上运行，不需要任何费用，但若想在本机运行完整的4节点沙箱环境，您的Mac/PC应当至少有 4C/8G的硬件规格。
+* Local sandboxes can be run on a regular Mac/PC at no cost, but to run a full 4-node sandbox environment locally, your Mac/PC should have at least 4C/8G hardware specs.
 
-* 云端沙箱可以方便地向他人展示与共享，使用前需要您创建一个云账号，虚拟机资源按需创建使用，用后可以一键销毁，会有一些费用（通常非常便宜，一天几块钱）
+* Cloud sandbox can be easily shown and shared to others, you need to create a cloud account before use, virtual machine resources are created and used on demands, and can be destroyed with one click after use, there will be some fees (cheap).
 
 
 
@@ -47,69 +45,69 @@ Pigsty提供了基于Vagrant的本地沙箱（使用Virtualbox拉起本地虚拟
 
 ## Local Sandbox
 
-Pigsty本地沙箱底层依托于 [Vagrant](https://www.vagrantup.com/) 托管本地的 [Virtualbox](https://www.virtualbox.org/) 虚拟机。
+The Pigsty local sandbox relies on [Vagrant](https://www.vagrantup.com/) to host the local [Virtualbox](https://www.virtualbox.org/) virtual machine.
 
-使用Pigsty沙箱前，您需要在操作系统中安装 Vagrant 与 Virtualbox，两者都是免费的跨平台开源软件。您也可以选择自己使用喜爱的虚拟机软件（Parallel Desktop，VMWare）自行创建虚拟机进行[标准安装部署](d-deploy.md)。
+To use Pigsty sandbox, you need to install Vagrant and Virtualbox in your operating system, both are free cross-platform open-source software. You can also choose to create your own virtual machine for [standard installation and deployment](d-deploy.md) using your favorite virtual machine software (Parallels Desktop, VMWare).
 
 
 ### Quick Start
 
-确保 [Vagrant](https://www.vagrantup.com/) 与 [Virtualbox](https://www.virtualbox.org/) 安装并可用，按照官方向导安装即可。在MacOS上，您可以直接使用 `homebrew` 一键完成两者的安装（需要重启）。
+Make sure that [Vagrant](https://www.vagrantup.com/) and [Virtualbox](https://www.virtualbox.org/) are installed and available, just follow the official wizard to install them. On macOS, you can use `homebrew` to install both directly with one click (requires reboot).
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" # 安装Homebrew
-brew install vagrant virtualbox # 在MacOS宿主机上安装Vagrant与Virtualbox
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" # Install homebrew
+brew install vagrant virtualbox # Installing Vagrant and Virtualbox on a MacOS host machine
 ```
 
-在 MacOS 操作系统中，可以通过以下四条快捷方式快捷方式来安装软件依赖，配置本地静态DNS，拉起虚拟机。在Windows与Linux下则需要少量额外手工步骤。
+On macOS operating systems, you can install software dependencies, configure local static DNS, and pull up virtual machines with the following four shortcut shortcuts. A few additional manual steps are required under Windows and Linux.
 
 ```bash
-make deps    # 安装homebrew，并通过homebrew安装vagrant与virtualbox（需重启）
-make dns     # 向本机/etc/hosts写入静态域名 (需sudo输入密码)
-make start   # 使用Vagrant拉起单个meta节点  (start4则为4个节点)
+make deps    # Install homebrew, and install vagrant and virtualbox via homebrew (requires reboot)
+make dns     # Write a static domain name to local /etc/hosts (requires sudo password)
+make start   # Pull up a single meta node using Vagrant (4 nodes for start4)
 ```
 
-接下来，您可以 `ssh meta` 登陆默认管理节点，管理节点访问所有节点的SSH sudo已经配置完毕，您可以直接执行Pigsty安装。
+Next, you can `ssh meta` to log in to the default admin node. SSH sudo for the admin node to access all nodes is already configured and you can execute the Pigsty installation directly.
 
 
 
 ### Vagrant
 
-通常为了测试“数据库集群”这样的系统，用户需要事先准备若干台虚拟机。尽管云服务已经非常方便，但本地虚拟机访问通常比云虚拟机访问方便，响应迅速，成本低廉。本地虚拟机配置相对繁琐，[**Vagrant**](https://www.vagrantup.com/) 可解决这一问题。
+Often, to test a system such as a "database cluster", users need to prepare several virtual machines in advance. Although cloud services are already very convenient, local virtual machine access is usually easier, more responsive, and less expensive than cloud virtual machine access. Local VM config is relatively cumbersome, and [**Vagrant**](https://www.vagrantup.com/) can solve this problem.
 
-Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、快捷地按照用户的需求，在笔记本、PC或Mac上拉起若干台虚拟机。用户需要完成的工作，就是将自己的虚拟机需求，以**vagrant配置文件**的形式表达出来。
+Pigsty users don't need to understand how vagrant works, they just need to know that vagrant can simply and quickly pull up several virtual machines on a laptop, PC, or Mac according to the user's needs. All the user needs to accomplish is to express their virtual machine requirements in the form of a **vagrant config file**.
 
-[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。
+[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) A sample Vagrantfile is provided.
 
-这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**管理节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
+This is the Vagrantfile used by Pigsty sandbox, defining four virtual machines, including a 2-core/4GB central/**meta node** `meta` and three 1-core/1GB **database nodes** `node-1, node-2, node3`.
 
 
-通常为了测试“数据库集群”这样的系统，用户需要事先准备若干台虚拟机。尽管云服务已经非常方便，但本地虚拟机访问通常比云虚拟机访问方便，响应迅速，成本低廉。本地虚拟机配置相对繁琐，[**Vagrant**](https://www.vagrantup.com/) 可解决这一问题。
+Usually, to test a system like a "database cluster", users need to prepare several virtual machines in advance. Although cloud services are already very convenient, local virtual machine access is usually easier, more responsive, and less expensive than cloud virtual machine access. Local VM config is relatively cumbersome, and [**Vagrant**](https://www.vagrantup.com/) can solve this problem.
 
-Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、快捷地按照用户的需求，在笔记本、PC或Mac上拉起若干台虚拟机。用户需要完成的工作，就是将自己的虚拟机需求，以**Vagrant配置文件**的形式表达出来。
+Pigsty users don't need to understand how vagrant works, they just need to know that vagrant can simply and quickly pull up several virtual machines on a laptop, PC, or Mac according to the user's needs. All the user needs to accomplish is to express their virtual machine requirements in the form of a **Vagrant config file**.
 
-[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**管理节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
+[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) A sample Vagrantfile is provided. This is the Vagrantfile used by the Pigsty sandbox, defining four virtual machines, including a 2-core/4GB central control/**meta node** `meta` and three 1-core/1GB **database nodes** `node-1, node-2, node3`.
 
-通过`make up` , `make new`, `make start`等快捷方式使用沙箱时，默认只会使用单个管理节点`meta`。而`make up4`，`make new4`，`make start4`则会使用全部的虚拟机。这里`N`值定义了额外的数据库节点数量（3台）。如果您的机器配置不足，则可以考虑使用更小的`N`值，减少数据库节点的数量。用户还可以修改每台机器的CPU核数和内存资源等，如配置文件中的注释所述。更详情的定制请参考Vagrant与Virtualbox文档。
+When using the sandbox through shortcuts like `make up` , `make new`, and `make start`, only a single meta node `meta` will be used by default. Whereas `make up4`, `make new4`, `make start4` will use all the virtual machines. Here the `N` value defines the number of additional database nodes (3). If your machine is under-configured, then consider using a smaller `N` value to reduce the number of database nodes. Users can also modify the number of CPU cores and memory resources per machine, etc., as described in the comments in the config file. Please refer to the Vagrant and Virtualbox doc for more detailed customization.
 
 ```ruby
 IMAGE_NAME = "centos/7"
-N=3  # 数据库机器节点数量，可修改为0
+N=3  # Number of database machine nodes, can be modified to 0
 
 Vagrant.configure("2") do |config|
     config.vm.box = IMAGE_NAME
     config.vm.box_check_update = false
     config.ssh.insert_key = false
 
-    # 管理节点
-    config.vm.define "meta", primary: true do |meta|  # 管理节点默认的ssh别名为`meta`
+    # Meta Nodes
+    config.vm.define "meta", primary: true do |meta|  # The default ssh alias for the meta node is `meta`
         meta.vm.hostname = "meta"
         meta.vm.network "private_network", ip: "10.10.10.10"
         meta.vm.provider "virtualbox" do |v|
             v.linked_clone = true
             v.customize [
                     "modifyvm", :id,
-                    "--memory", 4096, "--cpus", "2",   # 管理节点的内存与CPU核数：默认为2核/4GB
+                    "--memory", 4096, "--cpus", "2",   # Memory and CPU cores for meta nodes: default is 2 cores/4GB
                     "--nictype1", "virtio", "--nictype2", "virtio",
                     "--hwv·irtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                 ]
@@ -117,9 +115,9 @@ Vagrant.configure("2") do |config|
         meta.vm.provision "shell", path: "provision.sh"
     end
 
-    # 初始化N个数据库节点
+    # Initialize N database nodes
     (1..N).each do |i|
-        config.vm.define "node-#{i}" do |node|  # 数据库节点默认的ssh别名分别为`node-{1,2,3}`
+        config.vm.define "node-#{i}" do |node|  # The default ssh aliases for the database nodes are `node-{1,2,3}`
             node.vm.box = IMAGE_NAME
             node.vm.network "private_network", ip: "10.10.10.#{i + 10}"
             node.vm.hostname = "node-#{i}"
@@ -127,7 +125,7 @@ Vagrant.configure("2") do |config|
                 v.linked_clone = true
                 v.customize [
                         "modifyvm", :id,
-                        "--memory", 2048, "--cpus", "1", # 数据库节点的内存与CPU核数：默认为1核/2GB
+                        "--memory", 2048, "--cpus", "1", # Database node memory and CPU cores: default is 1 core/2GB
                         "--nictype1", "virtio", "--nictype2", "virtio",
                         "--hwvirtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                     ]
@@ -138,23 +136,23 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-`vagrant` 二进制程序会根据 Vagrantfile 中的定义，默认调用 Virtualbox 完成本地虚拟机的创建工作。进入Pigsty根目录下的`vagrant`目录，执行`vagrant up`，即可拉起所有的四台虚拟机。[`Makefile`](https://github.com/Vonng/pigsty/blob/master/Makefile#L365)提供了大量对`vagrant`原始命令的封装。
+The `vagrant` binary will call Virtualbox by default to complete the creation of the local VMs as defined in the Vagrantfile. Go to the `vagrant` dir in the Pigsty root dir and execute `vagrant up` to pull up all four virtual machines. The [`Makefile`](https://github.com/Vonng/pigsty/blob/master/Makefile#L365) provides several wrappers for the original `vagrant` commands.
 
-沙箱环境默认使用的虚拟机镜像为`IMAGE_NAME = "centos/7"`。首次执行时会从互联网下载`centos 7.8.2003`的virtualbox镜像，后续重新创建新虚拟机时时将直接克隆此BOX。
+The default virtual machine image used by the sandbox environment is `IMAGE_NAME = "centos/7"`. The first execution will download the VirtualBox image of `centos 7.8.2003` from the Internet and will clone this BOX directly when re-creating a new virtual machine.
 
 
 
 ### Virtualbox
 
-[Virtualbox](https://www.virtualbox.org/)是一个开源免费的跨平台虚拟机软件。在MacOS上安装Virtualbox非常简单：`brew install virtualbox`，其他操作系统上与之类似。
+[Virtualbox](https://www.virtualbox.org/) is an open-source and free cross-platform virtual machine software. Installing Virtualbox on macOS is very simple: `brew install virtualbox` and is similar on other operating systems.
 
-安装Virtualbox后，可能需要重新启动计算机以加载虚拟机内核模块。请注意Pigsty需要x86_64运行环境，安装有M1芯片的Macbook可能无法正常运行Virtualbox。
+After installing Virtualbox, you may need to reboot your computer to load the virtual machine kernel module. Please note that Pigsty requires an x86_64 runtime environment, and Macbooks with M1 chips installed may not run Virtualbox properly.
 
 
 
-### DNS
+### DNS Config
 
-Pigsty默认通过**域名**访问所有Web系统，如果您没有DNS服务器或公共域名，可以使用本地静态DNS记录，沙箱环境使用的静态DNS记录如下所示：
+Pigsty accesses all web systems via **domain** by default. If you do not have a DNS server or public domain name, you can use local static DNS records. The static DNS records used by the sandbox environment are shown below.
 
 ```bash
 # pigsty dns records
@@ -166,7 +164,7 @@ Pigsty默认通过**域名**访问所有Web系统，如果您没有DNS服务器�
 10.10.10.3  pg-test  # sandbox vip for pg-test
 ```
 
-在MacOS与Linux中，执行`sudo make dns`会将上述记录写入 `/etc/hosts` （需要sudo权限），在Windows中，则需要您手工添加上述记录至：`C:\Windows\System32\drivers\etc\hosts`中。
+On macOS and Linux, running `sudo make dns` will write the above records to `/etc/hosts` (requires sudo privileges), on Windows, you will need to add them manually to `C:\Windows\System32\drivers\etc\hosts`.
 
 
 
@@ -176,24 +174,24 @@ Pigsty默认通过**域名**访问所有Web系统，如果您没有DNS服务器�
 
 ## Cloud Sandbox
 
-如果您手头没有x86_64架构的PC、笔记本、Mac，使用即用即毁的云虚拟机可能是另一个不错的选择。
+If you don't have a PC, laptop, or Mac with x86_64 architecture, using a ready-to-use cloud virtual machine may be another good option.
 
-[Terraform](https://www.terraform.io/) 是开源免费的 基础设施即代码 工具。您只需要声明好所需的云虚拟机、网络与安全组配置等，一键即可拉起对应的资源。
+[Terraform](https://www.terraform.io/) is an open-source and free infrastructure-as-code tool. Just declare the required cloud VMs, network, security group configs, etc., and pull up the corresponding resources with a single click.
 
-在MacOS下安装Terraform，只需要执行`brew install terraform`即可。然后您需要有云厂商账号，并获取AccessKey与AccessSecret凭证，充点钱，就可以开始云端沙箱部署之旅啦。
+To install Terraform under MacOS, simply execute `brew install terraform`. Then you need the cloud vendor account and get the AccessKey and AccessSecret credentials to start the cloud sandbox deployment.
 
 
-### Terraform Config
+### Config file
 
-项目根目录 `terraform/` 中提供了若干云厂商的 Terraform 资源定义文件，您可以使用这些模板快速在云上申请虚拟机资源用于部署Pigsty。这里以阿里云为例：
+The project root dir `terraform/` provides Terraform resource definition files for several cloud vendors, you can use these templates to quickly request virtual machine resources on the cloud for Pigsty deployment. here is an example of Ali cloud.
 
 ```bash
-cd terraform        # 进入terraform目录中
-vi alicloud.tf      # 编辑配置文件，填入您的阿里云AccessKey与SecretKey
+cd terraform        # Go to the terraform dir
+vi alicloud.tf      # Edit the config file, fill in your AliCloud AccessKey and SecretKey
 ```
 
+<details><summary>AliCloud Sample Terraform Files</summary>
 
-<details><summary>阿里云样例Terraform文件</summary>
 
 ```ini
 provider "alicloud" {
@@ -289,21 +287,21 @@ output "meta_ip" {
 
 
 
-### Terraform Plan
+### Execution Plan
 
-首先，使用`terraform`命令，创建上面定义的云资源（共享1C1G临时用用很便宜，按需付费）
+First, use the `terraform` command to create the cloud resource defined above (shared 1C1G temporary use is cheap, pay on demand).
 
 ```bash
-terraform init      # 安装 terraform provider: aliyun （仅第一次需要）
-terraform apply     # 生成执行计划：创建虚拟机，虚拟网段/交换机/安全组
+terraform init      # Install terraform provider: aliyun (required only for the first time)
+terraform apply     # Generate execution plans: create virtual machines, virtual segments/switches/security groups
 ```
 
-执行 `apply` 并输入 yes后，terraform会调用阿里云API创建对应的虚拟机资源。
+After executing `apply` and entering yes, terraform will call AliCloud API to create the corresponding virtual machine resource.
 
 
 
+<details><summary>Terraform Apply Execution Results</summary>
 
-<details><summary>Terraform Apply执行结果</summary>
 
 ```bash
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
@@ -531,21 +529,21 @@ alicloud_instance.pg-test-1: Creation complete after 33s [id=i-2zef4frw6kezb4733
 
 
 
-### SSH Tweaking
+### SSH Config and Tweaking
 
-其中，管理机将分配一个按量付费的公网IP，您也可以使用命令`terraform output`将其打印出来。
+Among other things, the management machine will be assigned a pay-per-use public IP, which you can also print out using the command `terraform output`.
 
 ```bash
-# 打印公网IP与root密码
+# Print public IP and root password
 ssh_pass='PigstyDemo4'
 public_ip=$(terraform output | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 echo "meta node: root:${ssh_pass}@${public_ip}"
 ```
 
-接下来，我们先来配置本地登录云端管理机器的SSH配置（默认用户`root`，密码`PigstyDemo4`）
+Next, let's configure the SSH config for local login to the cloud management machine (default user `root`, password `PigstyDemo4`).
 
 ```bash
-# 创建 ~/.ssh/pigsty_terraform 文件，包含云端管理机器的SSH定义（可选，好用一点）
+# Create ~/.ssh/pigsty_terraform file containing SSH definitions for the cloud management machine (optional)
 cat > ~/.ssh/pigsty_terraform <<-EOF
 Host demo
   User root
@@ -556,41 +554,41 @@ Host demo
 EOF
 chmod 0600 ~/.ssh/pigsty_terraform 
 
-# 启用该配置
+# Enable this config
 if ! grep --quiet "Include ~/.ssh/pigsty_terraform" ~/.ssh/config ; then
     (echo 'Include ~/.ssh/pigsty_terraform' && cat ~/.ssh/config) >  ~/.ssh/config.tmp;
     mv ~/.ssh/config.tmp ~/.ssh/config && chmod 0600 ~/.ssh/config;
 fi
 ```
 
-然后，您可以通过SSH别名`demo`访问该云端管理机了。
+You can then access the cloud manager via the SSH alias `demo`.
 
 ```bash
-# 添加本地到管理节点的免密访问
+# Add local to meta node for password-free access
 sshpass -p ${ssh_pass} ssh-copy-id demo 
 ```
 
-然后，您就可以免密从本地访问该节点了，如果只需要进行单节点安装，这样就行了。接下来，在该管理节点上完成标准安装
+The node can then be accessed locally without a password, or if only a single-node installation is required, this will do. Next, the standard installation is completed on that management node.
 
 
-### DNS
+### DNS Config
 
-Pigsty默认通过**域名**访问所有Web系统，尽管您可以使用 IP：Port的方式访问主要系统的Web界面，但这并不是推荐的行为。
+Pigsty accesses all web systems via **domain** by default, although you can use IP: Port to access the main system's web interface, this is not the recommended behavior.
 
-云端沙箱环境使用的静态DNS记录如下所示，您需要填入管理节点的公网IP地址
+The static DNS record used by the cloud sandbox environment is shown below and you need to fill in the public IP address of the meta node.
 
 ```bash
 <public_ip> meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty matrix.pigsty
 ```
 
-在MacOS与Linux中，需要将上述记录写入 `/etc/hosts` （需要sudo权限），在Windows中，则需要您手工添加至：`C:\Windows\System32\drivers\etc\hosts`中。
+In macOS and Linux, you need to write the above records to `/etc/hosts` (requires sudo privileges), and in Windows, you need to add them manually to `C:\Windows\System32\drivers\etc\hosts`.
 
 
 
 ### Caveat
 
-阿里云虚拟机CentOS 7.8镜像中运行有 `nscd` ，锁死了 glibc 版本，会导致安装时出现RPM依赖错误。
+The AliCloud virtual machine CentOS 7.8 image is running with `nscd`, which locks out the glibc version and causes RPM dependency errors during installation.
 
-在所有机器上执行 `yum remove -y nscd` 即可解决此问题。
+Run `yum remove -y nscd` on all machines to resolve this issue.
 
-完成上述准备工作后，所有机器准备工作已经就绪，可以开始常规的 Pigsty下载配置安装三部曲啦。
+After completing the above preparations, all machines are ready to start the Pigsty download config installation trilogy.

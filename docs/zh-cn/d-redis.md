@@ -142,7 +142,7 @@ Prometheus默认会使用"多目标抓取"模式，使用节点上9121端口的R
 * Redis Cluster： 关注单个Redis业务集群的监控信息
 * Redis Instance：关注单个Redis实例的详细监控信息
 
-您可以使用自带的 redis-benchmark 测试并
+您可以使用自带的 redis-benchmark 测试
 
 
 
