@@ -1,6 +1,6 @@
 # Community
 
-There's an active Pigsty community. Search WeChat `pigsty-cc` and join the user-group
+There's an active Pigsty community. Search WeChat `pigsty-cc` and join the user group.
 
 Most answers cloud be found in [FAQ](s-faq.md). If there's no answer to your questions, you can ask in the community.
 
@@ -19,17 +19,12 @@ Following information cloud helps a lot when asking for help:
     * If not, do you have proper Internet access?
   * Is there any special restriction ? (such as firewall, ssh ban, etc...)
 
-
 ## Mail
 
 * Author: Vonng (rh@vonng.com)
 
 ## Github Issues
 * https://github.com/Vonng/pigsty/issues
-
-## WeChat Group
-
-* +WeChatID: `pigsty-cc` to join pigsty wechat group 
 
 ## Telegram
 

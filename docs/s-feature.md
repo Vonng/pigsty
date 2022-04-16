@@ -2,7 +2,9 @@
 
 > The battery-include, auto-piloting, handy & thrifty distribution for open-source databases.
 
+
 ![](_media/WHAT_EN.svg)
+
 
 * 开箱即用的PostgreSQL[数据库发行版](#PostgreSQL数据库发行版)
 * 自动驾驶的智能监控管控[运维解决方案](#智能监控管控运维解决方案)

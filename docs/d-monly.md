@@ -1,8 +1,8 @@
 # Monitoring System Deployment
 
-> 如何使用Pigsty监控已有PostgreSQL实例？
+> How to use Pigsty to monitor existing PostgreSQL instances?
 
-对于由Pigsty所创建的实例，所有监控组件均已自动配置妥当。但对于非Pigsty所创建的现存Pigsty实例，若希望使用Pigsty监控系统的部分对其监控，则需一些额外的配置。
+For instances created by Pigsty, all monitoring components are automatically configured. However, for existing Pigsty instances not created by Pigsty, some additional config is required if you wish to monitor them using parts of the Pigsty monitoring system.
 
 
 ## TL; DR

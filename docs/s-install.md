@@ -2,6 +2,7 @@
 
 > It takes 3 steps to install Pigsty: [Prepare](d-prepare.md), [Configure](v-config.md#configure), [Execute Playbook](p-playbook.md)
 
+
 ----------------
 
 ![](_media/HOW_EN.svg)

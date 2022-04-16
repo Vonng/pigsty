@@ -28,7 +28,6 @@ Check [Features](docs/s-feature.md) & [Highlights](#highlights) for Detail.
 
 
 
-
 ## TL; DR
 
 Get a new Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
@@ -42,6 +41,7 @@ cd ~/pigsty && ./configure                             # pre-check and config te
 Now you have a battery-included Postgres on port **5432**, and infra web services available on port **80**.
 
 Check [Installation](docs/s-install.md) & [Demo](http://demo.pigsty.cc) for details.
+
 
 <details><summary>Download Packages Directly</summary>
 
@@ -57,13 +57,16 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | g
 
 <details><summary>Mange More Nodes</summary>
 
+
 You can add more nodes to Pigsty with [`nodes.yml`](docs/p-nodes.md#nodes), after meta node is installed with [`infra.yml`](docs/p-infra.md#infra). 
+
 
 ```bash
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
 ```
 
 </details>
+
 
 <details><summary>Define Postgres Cluster</summary>
 
@@ -83,7 +86,6 @@ You can create Postgres with different [roles](docs/d-pgsql.md) by declaring the
 
 </details>
 
-
 <details><summary>Deploy Databases Clusters</summary>
 
 You can deploy different types of databases & clusters with corresponding playbooks.
@@ -92,6 +94,7 @@ You can deploy different types of databases & clusters with corresponding playbo
 * [`redis.yml`](docs/p-redis.md#redis): Deploy Redis clusters.
 * [`pgsql-matrix.yml`](docs/p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
 
+
 ```bash
 ./pgsql.yml         -l pg-test      # init 1-primary-2-replica pgsql cluster
 ./redis.yml         -l redis-test   # init redis cluster redis-test
@@ -99,8 +102,6 @@ You can deploy different types of databases & clusters with corresponding playbo
 ```
 
 </details>
-
-
 
 
 
@@ -119,7 +120,6 @@ It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Doc
 It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres. Which can be used as a low-code data app development IDE, too.
 
 ![](docs/_media/ARCH.svg)
-
 
 
 ### Observability
@@ -357,11 +357,13 @@ mx-sdw:
 
 > Local **sandbox** or multi-cloud deployment, It's all the same!
 
+
 Pigsty is designed for large-scale production usage, but can also be operational on a local 1C1G VM node. 
 
 You can run the complete 4-node sandbox on your laptop with vagrant with one command `make up`. Or prepare cloud ECS/VPC with Terraform with the exact same procedure.
 
  Everything is described in the [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) config file, it's the only difference between different envs: prod, staging/UAT, dev/test sandbox.
+
 
 ![](docs/_media/SANDBOX.gif)
 
@@ -424,12 +426,12 @@ Check [Tutorial: Pigsty Applications](docs/t-application.md) for details.
 * 3 meta nodes, up to hundreds of database clusters
 * Verified Size: Dell R740 / 64 Core / 400 GB Mem / 3TB NVME SSD x 240
 
-
-
+ 
 
 
 ## About
 
+  
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [Apache 2.0 License](LICENSE)
@@ -438,4 +440,4 @@ Copyright 2018-2022 rh@vonng.com (Vonng)
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Vonng/pigsty&type=Date)](https://star-history.com/#Vonng/pigsty&Date)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)l

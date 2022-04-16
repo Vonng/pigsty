@@ -1,6 +1,6 @@
 # PGSQL Business Databases & Users
 
-> How to define & create PostgreSQL business [users](#user) & [databases](#database)
+> How to define & create PostgreSQL business [users](#user) & [databases](#database).
 
 
 
@@ -8,18 +8,18 @@
 
 ## Users
 
-在PostgreSQL中，**用户（User）** 指的是数据库集簇中的一个对象，由SQL语句`CREATE USER/ROLE`所创建。
+In PostgreSQL, **User** refers to an object in a database cluster, created by the SQL statement `CREATE USER/ROLE`.
 
-在PostgreSQL中，**用户**直接隶属于数据库集簇而非某个具体的**数据库**。因此在创建业务数据库和业务用户时，应当遵循"先用户，后数据库"的原则。
+In PostgreSQL, **users** are attached to a database cluster rather than a specific **database**. Therefore, when creating business databases and users, the principle of "user first, database second" should be followed.
 
 ## Define User
 
-Pigsty通过两个配置参数定义数据库集群中的角色与用户：
+Pigsty defines the roles and users in the database cluster with two config parameters:
 
 * [`pg_default_roles`](v-pgsql.md#pg_default_roles)
 * [`pg_users`](v-pgsql.md#pg_users)
 
-前者定义了整套环境中共有的角色，后者定义单个集群中特有的业务角色与用户。二者形式相同，均为用户定义对象数组。 下面是一个用户定义的例子：
+The former defines roles that are common to the entire env, while the latter defines business roles and users that are specific to a single cluster. Both are identical in form and are arrays of user-defined objects. The following is an example of a user definition:
 
 ```yaml
 - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
@@ -42,58 +42,58 @@ Pigsty通过两个配置参数定义数据库集群中的角色与用户：
   # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
 ```
 
-* `name` : 每一个用户或角色必须指定 `name`，唯一的必选参数。
-* `password` : 是可选项，如果留空则不设置密码，可以使用MD5密文密码。
-* `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication`, `bypassrls` : 都是布尔类型标记，用于设置用户属性。如果不设置，则采用系统默认值。
-  其中`pg_default_roles`的用户默认不带有`login`属性，而`pg_users`默认带有`login`属性，可通过显式配置覆盖。
-* `expire_at`与`expire_in`用于控制用户过期时间，`expire_at`使用形如`YYYY-mm-DD`的日期时间戳。`expire_in`使用从现在开始的过期天数，如果`expire_in`存在则会覆盖`expire_at`选项。
-* `pgbouncer: true` 用于控制是否将新用户加入Pgbouncer用户列表中，该参数必须显式定义为`true`，相应用户才会被加入到Pgbouncer用户列表。
-* `roles` 为该角色/用户所属的分组，可以指定多个分组，例如为用户添加[**默认角色**](#默认角色)。
+* `name`: Each user or role must specify the `name`, the only mandatory parameter.
+* `password`: Optional, if left blank then no password is set, you can use the MD5 cipher password.
+* `login`, `superuser`, `createdb`, `createrole`, `inherit`, `replication`, `bypassrls`: All are boolean type tags used to set user attributes. If not set, the system default value is used.
+  Where `pg_default_roles` users do not have the `login` attribute by default, and `pg_users` have the `login` attribute by default, which can be overridden by explicit config.
+* `expire_at` and `expire_in` are used to control the user expiration time. `expire_at` uses a date timestamp in the shape of `YYYY-mm-DD`. `expire_in` uses the number of days to expire from now and overrides the `expire_at` option if `expire_in` exists.
+* `pgbouncer: true` is used to control whether new users are added to the Pgbouncer user list. This parameter must be explicitly defined as `true` for the corresponding user to be added to the Pgbouncer user list.
+* `roles` are the group to which the role/user belongs, multiple groups can be specified, e.g. add a [**default role**](#default role) for the user.
 
 
 
 ## Create User
 
-在创建数据库集群（或主库实例）时，[`pg_default_roles`](v-pgsql.md#pg_default_roles) 与 [`pg_users`](v-pgsql.md#pg_users) 定义的角色和用户会自动依序创建。
+The roles and users defined by [`pg_default_roles`](v-pgsql.md#pg_default_roles) and [`pg_users`](v-pgsql.md#pg_users) are automatically created sequentially when a database cluster (or master instance) is created.
 
-在运行中的已有数据库集群上，使用预制剧本 [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser) 来创建新的业务数据库。
+On an existing database cluster, use the prebuilt playbook [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser) to create a new business database.
 
-首先，您需要在相应数据库集群配置的 [`pg_users`](v-pgsql.md#pg_users) 配置项中添加该用户的定义。然后，使用以下命令即可在对应集群上创建该用户或角色。
+First, you need to add the definition of this user to the [`pg_users`](v-pgsql.md#pg_users) config entry of the corresponding cluster config. Then, use the following command to create the user or role on the corresponding cluster.
 
 ```bash
-bin/createuser <pg_cluster> <username>    # <pg_cluster> 为集群名称，<user.name> 是新用户名。必须先定义，再执行脚本进行创建
-bin/createuser pg-meta dbuser_meta        # 例：在pg-meta集群中创建dbuser_meta用户
-./pgsql-createuser.yml -l <pg_cluster> -e pg_user=<user.name>  # 该脚本实际上调用了以下Ansible剧本完成对应任务
+bin/createuser <pg_cluster> <username>    # <pg_cluster> is the cluster name, <user.name> is the new username. It must be defined first, and then the script must be executed to create.
+bin/createuser pg-meta dbuser_meta        # Example: Create dbuser_meta user in pg-meta cluster
+./pgsql-createuser.yml -l <pg_cluster> -e pg_user=<user.name>  # The script actually calls the following Ansible playbook to complete the corresponding task.
 ```
 
-当目标用户已经存在时，Pigsty会修改目标用户的属性使其符合配置。
+When the target user already exists, Pigsty modifies the properties of the target user to make it match the config.
 
-如果被创建的用户带有`pgbouncer: true`标记，该剧本会同时修改并重载数据库集群内所有Pgbouncer的配置`/etc/pgbouncer/userlist.txt`。
+If a user is created with the `pgbouncer: true` flag, the playbook will also modify and reload the config `/etc/pgbouncer/userlist.txt` for all Pgbouncers in the database cluster.
 
-!> **务必通过预置剧本或脚本**添加新业务用户与业务数据库，否则难以保证连接池配置信息与数据库同步
+**Be sure to add new business users and databases via pre-built playbooks or scripts**, otherwise, it is difficult to keep the connection pool config info synchronized with the database.
 
 
 ### Pgbouncer User
 
-Pgbouncer的操作系统用户将与数据库超级用户保持一致，都使用`{{ pg_dbsu }}`，默认为`postgres`。
-Pigsty默认使用Postgres管理用户作为Pgbouncer的管理用户，使用Postgres的监控用户同时作为Pgbouncer的监控用户。
+The operating system user for Pgbouncer will be consistent with the dbsu, both using `{{ pg_dbsu }}`, which defaults to `postgres`.
+Pigsty defaults to using the Postgres admin user as the Pgbouncer admin user and the Postgres monitor user as the Pgbouncer monitor user as well.
 
-Pgbouncer的用户列表通过`/etc/pgbouncer/userlist.txt`文件进行控制，
-Pgbouncer的用户权限通过`/etc/pgbouncer/pgb_hba.conf`进行控制。
+The user list of Pgbouncer is controlled through the `/etc/pgbouncer/userlist.txt` file.
+Pgbouncer's user permissions are controlled via `/etc/pgbouncer/pgb_hba.conf`.
 
-只有显式添加`pgbouncer: true`配置条目的用户才会被加入到Pgbouncer用户列表中，并通过Pgbouncer访问数据库。
-通常生产应用使用的账号应当通过Pgbouncer连接池访问数据库，而个人用户，管理，ETL等则应当直接访问数据库。
+Only users who explicitly add the `pgbouncer: true` inventory will be added to the Pgbouncer user list and access the database through Pgbouncer.
+Normally accounts used by production apps should access the database through the Pgbouncer connection pool, while personal users, administration, ETL, etc. should access the database directly.
 
-正常情况下请使用 [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser) 剧本管理数据库用户。紧急情况下亦可在数据库实例上以`postgres`用户执行以下命令来手工添加用户，需要在集群中所有Pgbouncer上执行该命令并重新加载配置。
+Under normal circumstances please use the [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser) playbook to manage database users. You can also manually add users in an emergency by executing the following command on the database instance as the `postgres` user, which needs to be executed on all Pgbouncers in the cluster and reload the config.
 
 ```bash
-# 紧急情况下可以使用该命令手工添加用户，用法：pgbouncer-create-user <username> [password]
+# This command can be used to add users manually in case of emergency, usage:pgbouncer-create-user <username> [password]
 /pg/bin/pgbouncer-create-user
 
-pgbouncer-create-user dbp_vonng Test.Password # 明文密码         
-pgbouncer-create-user dbp_vonng md596bceae83ba2937778af09adf00ae738 # md5密码
-pgbouncer-create-user dbp_vonng auto          # 从数据库查询获取密码
-pgbouncer-create-user dbp_vonng null          # 使用空密码
+pgbouncer-create-user dbp_vonng Test.Password # Plaintext Password         
+pgbouncer-create-user dbp_vonng md596bceae83ba2937778af09adf00ae738 # md5 password
+pgbouncer-create-user dbp_vonng auto          # Get password from database query
+pgbouncer-create-user dbp_vonng null          # Use empty password
 ```
 
 
@@ -110,22 +110,21 @@ pgbouncer-create-user dbp_vonng null          # 使用空密码
 
 ## Database
 
+Here **DATABASE** refers to neither database software nor database server process, but a logical object in a database cluster, created by the SQL statement `CREATE DATABASE`.
 
-这里的 **数据库（Database）** 所指代的既非数据库软件，也不是数据库服务器进程，而是指数据库集簇中的一个逻辑对象，由SQL语句`CREATE DATABASE`所创建。
+Pigsty will modify and customize the default database `template1`, create the default schema, install the default extensions, configure the default permissions, and the newly created database will inherit these settings from `template1` by default.
 
-Pigsty会对默认模板数据库`template1`进行修改与定制，创建默认模式，安装默认扩展，配置默认权限，新创建的数据库默认会从`template1`继承这些设置。
+PostgreSQL provides schema as a namespace, so it is not recommended to create too many databases in a single database cluster.
 
-PostgreSQL提供了 模式(Schema) 作为命名空间，因此并不推荐在单个数据库集簇中创建过多数据库。
-
-`pg_exporter` 默认会通过 **自动发现** 机制查找所有业务数据库并监控。
+`pg_exporter` will find and monitor all business databases by default through the **autodiscovery** mechanism.
 
 
 ## Define Database
 
-Pigsty通过 [`pg_databases`](v-pgsql.md#pg_databases) 配置参数定义数据库集群中的数据库，这是一个数据库定义构成的对象数组，
-数组内的数据库按照**定义顺序**依次创建，因此后面定义的数据库可以使用先前定义的数据库作为**模板**。
+Pigsty defines the databases in a cluster via the [`pg_databases`](v-pgsql.md#pg_databases) config parameter, which is an array of objects consisting of database definitions.
+The databases within the array are created sequentially in **definition order** so that databases defined later can use previously defined databases as **templates**.
 
-下面是一个数据库定义的例子：
+The following is an example of a database definition:
 
 ```yaml
 - name: meta                      # required, `name` is the only mandatory field of a database definition
@@ -148,75 +147,74 @@ Pigsty通过 [`pg_databases`](v-pgsql.md#pg_databases) 配置参数定义数据�
     - {name: postgis, schema: public}          # if schema is omitted, extension will be installed according to search_path.
 ```
 
-* `name`：数据库名称，**必选项**。
-* `baseline`：SQL文件路径（Ansible搜索路径，通常位于`files`），用于初始化数据库内容。
-* `owner`：数据库属主，默认为`postgres`
-* `template`：数据库创建时使用的模板，默认为`template1`
-* `encoding`：数据库默认字符编码，默认为`UTF8`，默认与实例保持一致。建议不要配置与修改。
-* `locale`：数据库默认的本地化规则，默认为`C`，建议不要配置，与实例保持一致。
-* `lc_collate`：数据库默认的本地化字符串排序规则，默认与实例设置相同，建议不要修改，必须与模板数据库一致。强烈建议不要配置，或配置为`C`。
-* `lc_ctype`：数据库默认的LOCALE，默认与实例设置相同，建议不要修改或设置，必须与模板数据库一致。建议配置为C或`en_US.UTF8`。
-* `allowconn`：是否允许连接至数据库，默认为`true`，不建议修改。
-* `revokeconn`：是否回收连接至数据库的权限？默认为`false`。如果为`true`，则数据库上的`PUBLIC CONNECT`权限会被回收。只有默认用户（`dbsu|monitor|admin|replicator|owner`）可以连接。此外，`admin|owner` 会拥有GRANT OPTION，可以赋予其他用户连接权限。
-* `tablespace`：数据库关联的表空间，默认为`pg_default`。
-* `connlimit`：数据库连接数限制，默认为`-1`，即没有限制。
-* `extensions`：对象数组 ，每一个对象定义了一个数据库中的**扩展**，以及其安装的**模式**。
-* `parameters`：KV对象，每一个KV定义了一个需要针对数据库通过`ALTER DATABASE`修改的参数。
-* `pgbouncer`：布尔选项，是否将该数据库加入到Pgbouncer中。所有数据库都会加入至Pgbouncer列表，除非显式指定`pgbouncer: false`。
-* `comment`：数据库备注信息。
+* `name`: the name of the database, **required**.
+* `baseline`: SQL file path (Ansible search path, usually located in `files`), used to initialize the database contents.
+* `owner`: database owner, default is `postgres`.
+* `template`: the template used when the database is created, the default is `template1`.
+* `encoding`: the default character encoding of the database, the default is `UTF8`, the default is consistent with the instance. It is recommended not to configure and modify it.
+* `locale`: the default localization rule for the database, default is `C`, it is recommended not to configure it and keep it consistent with the instance.
+* `lc_collate`: the default localization string sorting rule for the database, default is the same as the instance setting, it is recommended not to modify it, and must be consistent with the template. It is strongly recommended not to configure, or configure to `C`.
+* `lc_ctype`: the default LOCALE of the database, the default is the same as the instance setting, it is recommended not to modify or set it, it must be consistent with the template. It is recommended to configure to C or `en_US.UTF8`.
+* `allowconn`: whether to allow connection to the database, default is `true`, not recommended to modify.
+* `revokeconn`: whether to reclaim the permission to connect to the database? The default is `false`. If `true`, then `PUBLIC CONNECT` permission on the database will be reclaimed. Only the default user (`dbsu|monitor|admin|replicator|owner`) can connect. In addition, the `admin|owner` will have GRANT OPTION, which can give other users connection privileges.
+* `tablespace`: the tablespace associated with the database, the default is `pg_default`.
+* `connlimit`: database connection limit, default is `-1`, i.e. no limit.
+* `extensions`: array of objects, each of which defines an **extension** in the database, and its installed **schema**.
+* `parameters`: K-V objects, each K-V defines a parameter that needs to be modified against the database via `ALTER DATABASE`.
+* `pgbouncer`: Boolean option, whether to join this database to Pgbouncer. All databases will be added to the Pgbouncer list unless `pgbouncer: false` is explicitly specified.
+* `comment`: database comment info.
 
 
 ## Create Database
 
-在创建数据库集群（或主库实例）时，[`pg_databases`](v-pgsql.md#pg_databases) 定义的数据库会依序自动创建。
+The databases defined by [`pg_databases`](v-pgsql.md#pg_databases) are automatically created sequentially when a cluster (or master instance) is created.
 
-在运行中的已有数据库集群上，使用预制剧本 [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb) 来创建新的业务数据库。
+On a running existing cluster, use the prebuilt playbook [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb) to create a new business database.
 
-首先在相应数据库集群配置的 [`pg_databases`](v-pgsql.md#pg_databases) 配置项中添加该数据库的定义。然后，使用以下命令即可在对应集群上创建该数据库：
+First, add the definition of this database to the [`pg_databases`](v-pgsql.md#pg_databases) config of the corresponding database cluster config. Then, the database can be created on the corresponding cluster using the following command:
 
 ```bash
-bin/createdb <pg_cluster>  <database.name> # <pg_cluster> 为集群名称，<database.name> 是新数据库的name。
-bin/createdb pg-meta meta                  # 例：在pg-meta集群中创建meta数据库
-./pgsql-createdb.yml -l <pg_cluster> -e pg_database=<dbname>  # 该脚本实际上调用了以下Ansible剧本完成对应任务
+bin/createdb <pg_cluster>  <database.name> # <pg_cluster> is the cluster name and <database.name> is the name of the new database.
+bin/createdb pg-meta meta                  # Example: Creating a meta database in a pg-meta cluster.
+./pgsql-createdb.yml -l <pg_cluster> -e pg_database=<dbname>  # The script actually calls the following Ansible playbook to complete the corresponding task.
 ```
 
-当目标数据库已经存在时，Pigsty会修改目标数据库的属性使其符合配置。
+When the target database already exists, Pigsty modifies the properties of the target database to make it match the config.
 
-如果您为数据库配置了`owner`参数，则必须确保数据库创建时该用户已经存在。所以通常建议先完成[业务用户](#用户)的创建，再创建数据库。
+If you have configured the `owner` parameter for the database, you must ensure that the user already exists when the database is created. So it is usually recommended to complain inherited the creation of the [business user](#user) first, before creating the database.
 
-该剧本默认会修改并重载数据库集群内所有Pgbouncer的配置`/etc/pgbouncer/database.txt`。但如果被创建的数据库带有`pgbouncer: false`标记，该剧本会跳过Pgbouncer配置阶段
+The playbook by default modifies and reloads the config `/etc/pgbouncer/database.txt` for all Pgbouncers in the database cluster. However, if the database being created has the `pgbouncer: false` flag, the playbook skips the Pgbouncer config phase.
 
-!> 如果数据库会通过连接池对外服务，请**务必通过预置剧本或脚本创建**。
+If the database will be served externally via a connection pool, **be sure to create it via a pre-built playbook or scripts**.
 
 
 ### Pgbouncer Database
 
-Pgbouncer的操作系统用户将与数据库超级用户保持一致，都使用`{{ pg_dbsu }}`，默认为`postgres`。
-Pgbouncer的管理数据库名为`pgbouncer`，可以使用`postgres`与`dbuser_dba`用户进行管理，在操作系统用户`postgres`下执行快捷方式`pgb`即可以管理员身份连接至pgbouncer
+The operating system user of Pgbouncer will be the same as the dbsu, both using `{{ pg_dbsu }}`, defaulting to `postgres`.
+Pgbouncer's administrative database is named `pgbouncer` and can be managed using the `postgres` and `dbuser_dba` users, and you can connect to pgbouncer as an administrator by executing the shortcut `pgb` under the operating system user `postgres`.
 
-Pgbouncer中的数据库列表通过`/etc/pgbouncer/database.txt`文件进行控制，默认内容类似以下格式
+The list of databases in Pgbouncer is controlled through the `/etc/pgbouncer/database.txt` file, and the default content is similar to the following format:
 
 ```bash
-# 数据库名 = 实际目标连接信息
+# Database name = actual target connection info
 meta = host=/var/run/postgresql
 grafana = host=/var/run/postgresql
 prometheus = host=/var/run/postgresql
 ```
 
-在Pigsty中，Pgbouncer与Postgres实例采用1:1同机部署，使用 `/var/run/postgresql` Unix Socket通信。
+In Pigsty, Pgbouncer and Postgres instances are deployed in a 1:1 co-location, using `/var/run/postgresql` Unix socket communication.
 
-通常情况下，所有新数据库都会被加入到Pgbouncer的数据库列表中。如果您希望某数据库无法通过Pgbouncer访问，可以在数据库定义中显式指定`pgbouncer: false`。
+Normally, all new databases are added to Pgbouncer's database list. If you want a database to be inaccessible viasa Pgbouncer, you can explicitly specify `pgbouncer: false` in the database definition.
 
-正常情况下请使用 [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb) 剧本创建新的数据库。亦可在数据库实例上以`postgres`用户执行以下命令来手工添加数据库，需要在集群中所有Pgbouncer上执行该命令并重新加载配置。
+Normally please use the [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb) playbook to create a new database. The database can also be added manually by executing the following command on the database instance as the `postgres` user, which needs to be executed on all Pgbouncers in the cluster and the configuration reloaded.
 
 ```bash
-# 特殊情况下可以使用该命令手工添加数据库
+# This command can be used to add the database manually in special cases.
 # pgbouncer-create-user <dbname> [connstr] [dblist=/etc/pgbouncer/database.txt]
 /pg/bin/pgbouncer-create-db
-pgbouncer-create-db meta                     # 创建meta数据库，指向本机同名数据库
-pgbouncer-create-db test host=10.10.10.13    # 创建test数据库并将其指向10.10.10.13上的同名数据库 
+pgbouncer-create-db meta                     # Create a meta database, pointing to the local database of the same name
+pgbouncer-create-db test host=10.10.10.13    # Create the test database and point it to the database of the same name on 10.10.10.13 
 ```
 
-?> 手工修改Pgbouncer配置后，请通过`systemctl reload pgbouncer`重载生效。（切勿使用`pgbouncer -R`）
-
+After manually modifying the Pgboinherita createduncer config, please reload it via `systemctl reload pgbouncer` to take effect. (Do not use `pgbouncer -R`).
 

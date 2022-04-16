@@ -1,114 +1,109 @@
-# MatrixDB部署与监控
+# MatrixDB Deployment
 
-> Pigsty可用于部署与监控MatrixDB（等效于Greenplum 7+时序数据库功能)
+> Pigsty can be used to deploy and monitor MatrixDB (equivalent to Greenplum 7+ chronological database functionality).
 
-因为目前MatrixDB使用的是PostgreSQL 12的内核，而原生Greenplum仍然使用9.6内核，因此优先使用MatrixDB作为Greenplum实现，后续将添加原生的Greenplum支持。
-
-
-
-## 实体概念模型
-
-MatrixDB在逻辑上由两部分组成，Master与Segments，两者均由PostgreSQL实例组成，实例分为四类：Master/Standby/Primary/Mirror
-
-* Master为用户直接接触的访问端点，用于承接查询，一套MatrixDB部署仅有一个，通常使用独立节点部署。
-* Standby是Master实例的物理从库，用于当Master故障时顶替，是可选的组件，通常也使用独立节点部署。
-* 一套MatrixDB部署通常有多个Segment，每个Segment通常由一个必选的 primary 实例与一个 可选的 mirror 实例组成。
-* Segment的primary负责实际存储与计算，mirror通常不承担读写流量，当primary宕机时顶替primary，通常与primary分布在不同节点上。
-* Segment的primary与mirror分布由MatrixDB安装向导决定，在集群的Segments节点上通常可能存在有多个不同的Segment实例
-
-**部署惯例**
-* Master集群 (master/standby) ([`gp_role`](v-pgsql.md#gp_role) = `master`) 构成一个PostgreSQL集群，通常命名包含`mdw`，如`mx-mdw`
-* 每个Segment (primary/mirror)  ([`gp_role`](v-pgsql.md#gp_role) = `segment`) 构成一个PostgreSQL集群，通常集群命名包含`seg`，如 `mx-seg1`, `mx-seg2`
-* 用户应当显式为集群节点命名，例如 `mx-sdw-1`, `mx-sdw-2`, ...
+Since MatrixDB currently uses PostgreSQL 12 kernel and native Greenplum still uses 9.6 kernels, priority is given to using MatrixDB as Greenplum implementation, and native Greenplum support will be added later.
 
 
 
-## 下载软件
+## Entity Model
 
-MatrixDB & Greenplum 的RPM包并不是标准Pigsty部署的一部分，因此不会放入默认的`pkg.tgz`中。
-MatrixDB & Greenplum 的RPM包及其完整依赖将打包为一个单独的离线软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz)。
-您可以向Pigsty管理节点上添加新的`matrix`源。
+MatrixDB logically consists of two parts, Master and Segments, both of which are composed of PostgreSQL instances, which are divided into four categories: Master/Standby/Primary/Mirror.
+
+* Master is the access endpoint directly contacted by users, used to undertake queries, there is only one set of MatrixDB deployment, usually using independent node deployment.
+* Standby is the physical slave of the Master instance, used to take over when the Master fails, and is an optional component, usually deployed on a standalone node as well.
+* A MatrixDB deployment typically has multiple Segments, each of which typically consists of a mandatory primary instance and an optional mirror instance.
+* The primary of a Segment is responsible for the actual storage and computation, and the mirror usually does not carry the read and write traffic, but takes over when the primary is down, and is usually distributed on different nodes from the primary.
+* The distribution of primary and mirror of Segment is determined by MatrixDB installation wizard, and there may be several different Segment instances on the Segments node of the cluster.
+
+**Deployment conventions**
+
+* Master cluster (master/standby) ([`gp_role`](v-pgsql.md#gp_role) = `master`) constitutes a PostgreSQL cluster, usually named to contain `mdw`, e.g. `mx-mdw`.
+* Each Segment (primary/mirror) ([`gp_role`](v-pgsql.md#gp_role) = `segment`) constitutes a PostgreSQL cluster, usually named with `seg`, e.g. `mx-seg1`, `mx-seg2`.
+* The user should explicitly name the cluster nodes, e.g. `mx-sdw-1`, `mx-sdw-2`, ...
+
+## Download
+
+The RPM pkgs for MatrixDB & Greenplum are not part of the standard Pigsty deployment and therefore will not be placed in the default `pkg.tgz`.
+The RPM pkgs for MatrixDB & Greenplum and their complete dependencies will be packaged as a separate offline pkg [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz).
+You can add new `matrix` repos to the Pigsty admin node.
 
 ```bash
-# 下载地址（Github）：https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz
-# 下载地址（China CDN）：http://download.pigsty.cc/v1.4.0/matrix.tgz
-# 下载脚本，在管理节点上，pigsty目录下，直接使用 download matrix 下载并解压
+# Download Address（Github）：https://github.com/Vonng/pigsty/releases/download/v1.4.0/matrix.tgz
+# Download Address（China CDN）：http://download.pigsty.cc/v1.4.0/matrix.tgz
+# Download the script on the meta node, under the pigsty dir, directly using the download matrix to download and unzip
 ./download matrix
 ```
 
-该命令会创建一个 `/www/matrix.repo` 文件，默认情况下，您可以访问`http://pigsty/matrix.repo`获取该Repo，该Repo文件指向 `http://pigsty/matrix`目录。
+This command creates a `/www/matrix.repo` file, which by default you can access at `http://pigsty/matrix.repo` to get the repo, which points to the `http://pigsty/matrix` dir.
 
 
 
+## Configure
 
+The MatrixDB / Greenplum installation will reuse the PGSQL tasks and config with the exclusive config parameters [`gp_role`](v-pgsql.md#gp_role) and [`pg_instances`](v-pgsql.md#pg_instances).
 
-## 配置
-
-MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参数为 [`gp_role`](v-pgsql.md#gp_role) 与 [`pg_instances`](v-pgsql.md#pg_instances)。
-
-配置文件[`pigsty-mxdb.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-mxdb.yml) 给出了一个在四节点沙箱环境部署MatrixDB的样例。
+The config file [`pigsty-mxdb.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-mxdb.yml) gives a sample deployment of MatrixDB in a four-node sandbox env.
 
 ```bash
-使用 `configure -m mxdb`，将自动使用该配置文件作为配置模板。
+Using `configure -m mxdb` will automatically use this config file as a template.
 ./configure -m mxdb
 ```
 
-此配置文件中 [`node_local_repo_url`](v-nodes.md#node_local_repo_url)添加了新Yum源地址，`http://pigsty/matrix.repo` 确保所有节点都可以访问Matrix Repo。
+This config file [`node_local_repo_url`](v-nodes.md#node_local_repo_url) adds the new Yum repo, and `http://pigsty/matrix.repo` ensures that all nodes have access to Matrix Repo.
 
 
 
 
-## 开始部署
+## Execute
 
-在四节点沙箱环境中部署MatrixDB，注意，默认将使用DBSU `mxadmin:mxadmin` 作为监控用户名与密码
+Deploy MatrixDB in a four-node sandbox env, note that the default will be to use DBSU `mxadmin:mxadmin` as the monitoring username and password.
 
 ```bash
-# 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项，否则正常安装即可。
+#  If you deploy MatrixDB Master on a meta node, add the no_cmdb option, otherwise just install it normally.
 ./infra.yml -e no_cmdb=true   
 
-# 配置所有用于安装MatrixDB的节点
+# Configure all nodes for MatrixDB installation
 ./nodes.yml
 
-# 在上述节点上安装MatrixDB
+# Install MatrixDB on the above node
 ./pigsty-matrix.yml
 ```
 
-安装完成后，您需要通过MatrixDB 提供的WEB UI完成接下来的安装。打开 [http://matrix.pigsty](http://matrix.pigsty) 或访问 http://10.10.10.10:8240，填入 `pgsql-matrix.yml` 最后输出的初始用户密码进入安装向导。 
+Once the installation is complete, you will need to complete the next installation via the WEB UI provided by MatrixDB. Open [http://matrix.pigsty](http://matrix.pigsty) or visit http://10.10.10.10:8240 and fill in the initial user password output at the end of `pgsql-matrix.yml` to enter the installation wizard. 
 
-按照提示依次添加MatrixDB的节点：10.10.10.11, 10.10.10.12, 10.10.10.13，点击确认安装并等待完成后，进行下一步。
+Follow the prompts to add MatrixDB nodes in order: 10.10.10.11, 10.10.10.12, 10.10.10.13, click to confirm installation, and wait for completion before proceeding to the next step.
 
-因为监控默认使用 `mxadmin:mxadmin` 作为监控用户名密码，请填入`mxadmin` 或您自己的密码。 
+Since monitoring uses `mxadmin:mxadmin` as the monitoring username password by default, please fill in `mxadmin` or your password. 
 
-如果您在安装向导中指定了不同的密码， 请一并更改 [`pg_monitor_username`](v-pgsql.md#pg_monitor_username) 与 [`pg_monitor_password`](v-pgsql.md#pg_monitor_password) 变量（如果您使用不同于dbsu的用户，通常还需要在所有实例上配置额外的HBA）。
+If you specified a different password in the installation wizard, change the [`pg_monitor_username`](v-pgsql.md#pg_monitor_username) and [`pg_monitor_password`](v-pgsql.md#pg_monitor_ password) variables together. password) variables (if using a different user than dbsu, additional HBAs usually need to be configured on all instances as well).
 
-请注意，目前MatrixDB / Greenplum 在节点上分配 Segment的逻辑并不确定。当初始化完成后，您可以修改 [`pg_instances`](v-pgsql.md#pg_instances) 中Segment实例的定义，并重新部署监控以反映真实拓扑。
-
-
+Note that the logic for MatrixDB / Greenplum to assign Segments on nodes is currently uncertain. Once initialization is complete, the definition of Segment instances in [`pg_instances`](v-pgsql.md#pg_instances) can be modified and monitoring redeployed to reflect the true topology.
 
 
-## 收尾工作
+## After Jobs
 
-最后，在Greenplum/MatrixDB Master节点上手工执行以下命令，允许监控组件访问**从库**，并重启生效。
+Finally, manually execute the following command on the Greenplum/MatrixDB Master node to allow the monitoring component to access the **slave library** and restart it to take effect.
 
 ```bash
 sudo su - mxadmin
-psql postgres -c "ALTER SYSTEM SET hot_standby = on;"  # 配置 hot_standby=on 以允许从库查询
-gpconfig -c hot_standby -v on -m on                    # 配置 hot_standby=on 以允许从库查询
-gpstop -a -r -M immediate                              # 立即重启MatrixDB以生效
+psql postgres -c "ALTER SYSTEM SET hot_standby = on;"  # Configure hot_standby=on to allow queries from the library
+gpconfig -c hot_standby -v on -m on                    # Configure hot_standby=on to allow queries from the library
+gpstop -a -r -M immediate                              # Restart MatrixDB immediately to take effect
 ```
 
-然后，您便可以从监控系统中，观察到所有MatrixDB集群。MatrixDB Dashboard 提供了关于数据仓库的整体监控概览。
+All MatrixDB clusters can then be observed from the monitoring system. the MatrixDB Dashboard provides an overview of the overall monitoring of the data warehouse.
 
 
 
-## 可选项目
+## Optional
 
-您可以将 MatrixDB 的 Master集群视作一个普通 PostgreSQL 集群，使用 [`pgsql-createdb`](p-pgsql.md#pgsql-createdb) 与 [`pgsql-createuser`](p-pgsql.md#pgsql-createuser) 创建业务数据库与用户。
+You can treat MatrixDB's Master cluster as a normal PostgreSQL cluster and use [`pgsql-createdb`](p-pgsql.md#pgsql-createdb) with [`pgsql-createuser`](p-pgsql.md#pgsql- createuser) to create a business database with users.
 
 ```bash
-bin/createuser mx-mdw  dbuser_monitor   # 在Master主库上创建监控用户
-bin/createdb   mx-mdw  matrixmgr        # 在Master主库上创建监控专用数据库
-bin/createdb   mx-mdw  meta             # 在Master主库上创建新数据库
+bin/createuser mx-mdw  dbuser_monitor   # Create monitoring user on Master
+bin/createdb   mx-mdw  matrixmgr        # Create a dedicated database for monitoring on the Master
+bin/createdb   mx-mdw  meta             # Create a new database on the Master
 ```
 
 
