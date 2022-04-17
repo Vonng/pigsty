@@ -1,29 +1,30 @@
-# Database Migration Tutorial
+# Migration Tutorial
 
-Pigsty has a built-in database online migration helper script: [`pgsql-migration.yml`](p-pgsql.md#pgsql-migration), which provides an out-of-the-box logical replication-based non-stop database migration solution.
+There's an auxiliary playbook [`pgsql-migration.yml`](p-pgsql.md#pgsql-migration) which provides a battery ，提供了一个开箱即用的基于逻辑复制的不停机数据库迁移方案。
 
 By filling in the information about the source and host clusters, the playbook will automatically create the scripts needed for the migration and simply execute them in sequence during the database migration.
 
 ```bash
-activate 							# Activate the migration context and register environment variables
-check-replica-identity 				# Prep phase: check if all tables in the source cluster have replicated identities (primary keys, or non-null unique candidate keys)
-check-replica-identity-solution 	# Prep phase: Generate repair SQL statements for tables that do not have a reasonable replica identity
-check-special-object 				# Prep phase: check materialized views, composite types, and other special objects
-compare 							# Compare: fast comparison of tables in source and host clusters (row count)
-copy-schema 						# Stock migration: copy schema from the source cluster to the host cluster (can be executed idempotently)
-create-pub 							# Stock migration: create a release in the source cluster
-create-sub 							# Stock migration: create subscriptions in the host cluster, creating a logical replication between the source and host clusters
-progress 							# Stock migration: print the progress of logical replication
-copy-seq 							# Stock/Incremental migration: copy the sequence number from the source cluster to the host cluster (can be executed idempotently and needs to be executed again at switchover time)
-next-seq 							# Switching moment: emergency step all sequence numbers in the host cluster by 1000 to avoid primary key conflicts
-remove-sub 							# Remove logical subscriptions from the host cluster
+activate                        # activate migration context
+check-replica-identity          # prepare: make sure all table have replica identity
+check-replica-identity-solution # prepare: fix table without replica identity
+check-special-objec             # prepare: check special object: matrialized view
+compare            # compare: fast check on data consistency (by row count)
+copy-schema        # migration: copy schema from src to dst cluster
+create-pub         # migration: create publication on source cluster
+create-sub         # migration: build logical replication between src & dst clusters
+progress           # migration: print logical replication progress
+copy-seq           # migration: copy sequence number from src to dst cluster
+next-seq           # migration: advance dst cluster by 10000 to fix primary confliction
+remove-sub         # remove subscription from dst cluster
 ```
 
-## Preparations
+## Prepare
 
-### Preparing the source and host clusters
+### Preparing SRC & DST Clusters
 
 Now suppose we want to migrate the `pg-meta` cluster in the sandbox (containing the Pigsty meta-database with the pgbench test tables) to the `pg-test` cluster.
+
 
 ```bash
 pg-meta-1	10.10.10.10  --> pg-test-1	10.10.10.11 (10.10.10.12,10.10.10.13)
@@ -66,6 +67,7 @@ Execute `pgsql-migration.yml`, which by default creates the `~/migration/pg-meta
 
 
 ## Migration Templates
+
 
 [**Announcement**](#Announcement)
 

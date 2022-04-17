@@ -1,4 +1,4 @@
-# Database high availability scenario experiment
+# HA Scenarios
 
 You can strengthen your confidence in the cluster's high availability capability through a high availability scenario experiment.
 
@@ -35,6 +35,7 @@ All experiments assume that **high availability auto-switchover mode** is enable
 |                 6C                 | DCS network jitter: simultaneous outages, <br />master and slave nodes recover simultaneously, or the master node recovers first |               No effect                |    No effect    |
 |                 7C                 | DCS network jitter: simultaneous outages, <br />slave nodes recover first, master nodes recover later (1 master, 1 slave) |               No effect                |    No effect    |
 |                 8C                 | DCS network jitter: simultaneous interruptions,<br />slave nodes recover first, master nodes recover later (1 master n slave, n>1) |      Automatic Failover over TTL       |    No effect    |
+
 
 -----------------------
 
@@ -524,6 +525,5 @@ systemctl stop consul
 
 
 ### 8C-DCS network jitter: simultaneous interruption, slave recovers first, master recovers later (1 master n slave, n>1)
-
 
 

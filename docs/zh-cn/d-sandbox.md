@@ -301,8 +301,6 @@ terraform apply     # 生成执行计划：创建虚拟机，虚拟网段/交换
 执行 `apply` 并输入 yes后，terraform会调用阿里云API创建对应的虚拟机资源。
 
 
-
-
 <details><summary>Terraform Apply执行结果</summary>
 
 ```bash

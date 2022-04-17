@@ -1,12 +1,17 @@
 # Backup and Recovery
 
-Backup is the foundation of a DBA's life and one of the most critical tasks in database management. Only physical backups are discussed here. Physical backups can usually be divided into the following four types.
+> Backup & Recovery matters.
 
-## Classification of backups
+Backup is the foundation of DBA's life and one of the most critical tasks in database management. Only physical backups are discussed here. Physical backups can usually be classified into the following four types.
+
+
+
+## Backup Types
 
 ### Hot Standby
 
 It is consistent with the master and takes over when the master fails and is also used to take over online read-only traffic. One of the hot spares that use synchronous replication to keep up with the master in real-time can also be called synchronous backup.
+
 
 ### Warm Standby
 

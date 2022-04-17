@@ -1,12 +1,13 @@
 # SOP: Standard Operating Procedure 
 
+
 Most cluster management operations require the use of the admin user on the meta node and the execution of the corresponding Ansible Playbook in the Pigsty root dir.
 
 The following examples demonstrate a three-node cluster `pg-test` in a sandbox environment, unless otherwise specified.
 
-## Operations Command Quick Checklist
+## Cheatsheet
 
-### Cluster Instance Management
+### Cluster Admin
 
 Manage PostgreSQL clusters and instances by executing the following commands on the meta node using the admin user.
 
@@ -32,7 +33,7 @@ Manage PostgreSQL clusters and instances by executing the following commands on 
 . /pgsql.yml -l pg-test -t register_grafana # Register the cluster as a data source to Grafana on the meta node
 ```
 
-### Patroni management
+### Patroni Admin
 
 Pigsty uses Patroni to manage PostgreSQL instance databases by default. This means that you need to use the `patronictl` command to manage Postgres clusters, including cluster config changes, restarts, Failover, Switchover, redoing specific instances, switching automatic/manual high availability mode, etc.
 
@@ -101,7 +102,7 @@ When Patroni is managing Postgres, do not use `pg_ctl` to manipulate the databas
 
 You can manually manage the database after entering maintenance mode via `pg pause <cluster>`.
 
-### Reset specific components
+### Common Tasks
 
 ```bash
 ./infra.yml -t repo_upstream       # Re-add the upstream repo to the meta node
@@ -127,7 +128,7 @@ You can manually manage the database after entering maintenance mode via `pg pau
 
 
 
-## Case 1: Cluster creation/expansion
+## Case 1: Cluster Create/Expand
 
 Cluster creation/expansion uses the playbook [`pgsql.yml`](p-pgsql.md#pgsql) to create a cluster using the cluster name as the execution object and to create a new instance/cluster expansion using a single instance in the cluster as the execution object.
 
@@ -144,7 +145,7 @@ The above two playbooks can be simplified as follows:
 bin/createpg pg-test
 ```
 
-### Cluster expansion
+### Cluster Expansion
 
 Suppose you have a test cluster `pg-test` with two instances `10.10.10.11` and `10.10.10.12`, and now you expand one additional `10.10.10.13`.
 
@@ -188,7 +189,7 @@ Pigsty uses a safety insurance mechanism to avoid accidental deletion of running
 
 
 
-#### FAQ2: The database is too big, waiting for the slave to come online timeout
+#### FAQ 2: The database is too big, waiting for the slave to come online timeout
 
 When an expansion operation gets stuck at the `Wait for postgres replica online` step and aborts, it is usually because the existing database instance is too large and exceeds Ansible's timeout wait time.
 If you abort with an error, the instance will continue to pull up the slave instance in the background. You can use the `pg list pg-test` command to list the current status of the cluster, and when the status of the new slave is `running`, you can use the following command to continue the Ansible Playbook from where it was aborted.
@@ -207,7 +208,7 @@ If pulling up a new slave node is aborted due to some accident, please refer to 
 
 
 
-#### FAQ3: The cluster is in maintenance mode and the slave node is not automatically pulled up.
+#### FAQ 3: The cluster is in maintenance mode and the slave node is not automatically pulled up.
 
 Solution 1: Use `pg resume pg-test` to configure the cluster in auto switchover mode, and then perform the slave creation operation.
 
@@ -228,7 +229,7 @@ pg list -W # Check the cluster status and confirm that the failed instance does 
 
 
 
-#### FAQ5: How to create a fixed admin user using an existing user
+#### FAQ 5: How to create a fixed admin user using an existing user
 
 By default, the system uses `dba` as the admin user, which should be able to ssh into the remote database node and execute sudo commands password-free from the admin machine.
 
@@ -298,7 +299,7 @@ Note that in the default config, if an instance with `pg_role = offline` or `pg_
 
 
 
-## Case 3: Cluster config change/restart
+## Case 3: Cluster Config Change/Restart
 
 ### Cluster config modification
 
