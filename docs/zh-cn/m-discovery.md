@@ -115,7 +115,7 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
 此外，可选的Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。
 
 默认情况下，所有监控端点都会被注册至Consul，但Prometheus默认会通过静态文件服务发现的方式管理这些任务。
-用户可以通过配置 [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) 为 `consul` 来使用Consul服务发现，动态管理实例
+用户可以通过配置 [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) 为 `consul` 来使用Consul服务发现，动态管理实例。
 
 
 

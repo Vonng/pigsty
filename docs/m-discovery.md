@@ -2,27 +2,29 @@
 
 Service discovery has various uses, and this article describes the mechanism used by the Pigsty monitoring system Prometheus to discover monitoring objects.
 
-The basis of service discovery is **identity**, for more information about identity, see the section [**entity**](c-entity.md)
+The basis of service discovery is **identity**, for more information about identity, please refer to the section [**entity**](c-entity.md)
 
 Once you have the identity, you also need to associate **monitoring targets** with the identity in the monitoring system, and Pigsty provides two implementations.
 
-* [Static File Service Discovery] (Static File Service Discovery): using an automatically maintained configuration file (default)
+* [Static File Service Discovery](静态文件服务发现)： using an automatically maintained configuration file (default)
 * [Consul service discovery](Consul service discovery): uses automatically maintained Consul service registration information
 
-Static file is the default service discovery mechanism. Prior to v1.0.0, Consul was the default service discovery method, and the discovery mechanism can be configured with parameters.
+The static file is the default service discovery mechanism. Before v1.0.0, Consul was the default service discovery method, and the discovery mechanism could be configured via parameters.
+
+
 
 
 ## Identity parameters
 
-All instances have **Identity** and **Identifier** is the **metadata** associated with the instance to identify it.
+All instances have an **Identity** and the **Identifier** is the **metadata** associated with the instance to identify it.
 
-[**Identity parameter**](v-pg-provision/#identity-parameter) is a unique identifier that must be defined for any cluster with an instance.
+[**identity parameter**](v-pg-provision/#identity-parameter) is a unique identifier that must be defined for any cluster with an instance.
 
 | name | variables | abbreviation | type | description |
 | :--: | :-----------: | ------ | ---------------- | --------------------------------------------- |
 | cluster | `pg_cluster` | `cls` | **Core identity parameters** | Cluster name, top-level namespace for resources within the cluster |
 | role | `pg_role` | `role` | **core identity parameters** | instance role, `primary`, `replica`, `offline`,... |
-| `pg_seq` | `seq` | **core identity parameters** | Instance serial number, positive integer, unique within the cluster.                | | pg_seq
+| seq | `pg_seq` | `seq` | **core identity parameters** | Instance serial number, positive integer, unique within the cluster. |
 | instance | `pg_instance` | `ins` | derived identity parameters | `${pg_cluster}-${pg_seq}` |
 | service | `pg_service` | `svc` | derived identity parameters | `${pg_cluster}-${pg_role}` |
 
@@ -36,22 +38,22 @@ After naming the objects in the system, you also need to associate **identity in
 
 Identity information is business-given metadata, and the database instance itself is not aware of this identity information; it does not know who it serves, which business it is subordinate to, or what number of instances it is in the cluster.
 
-Identity assignment can take many forms, and the most rudimentary way to associate identities is **Operator's memory**: the DBA remembers in his mind that the database instance on IP address `10.2.3.4` is the one used for payments, while the database instance on the other one is used for user management. A better way to manage the identity of cluster members is through **profile**, or by using **service discovery**.
+Identity assignment can take many forms, and the most rudimentary way to associate identities is **Operator's memory**: the DBA remembers in his mind that the database instance on IP address `10.2.3.4` is the one used for payments, while the database instance on the other one is used for user management. A better way to manage the identity of cluster members is through the **profile**, or by using **service discovery**.
 
-Pigsty offers both ways of identity management: based on [**Consul**](. /identity/#consul service discovery), versus [**Profile**](. /identity/#static file service discovery)
+Pigsty provides both ways of identity management: service discovery based on the [**Consul**](#consul service discovery), and service discovery based on the [**config file**](#static file service discovery).
 
-Parameters [`prometheus_sd_method (consul|static)`](...) Controls this behavior.
+The parameter [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) controls this behavior.
 
-- `consul`: service discovery based on Consul, default configuration
+- `consul`: service discovery based on Consul, default config
 - `static`: service discovery based on local configuration files
 
 Pigsty recommends using `static` service discovery, which is more concise and has more reliability as the monitoring system does not need to rely on Consul.
 
 
 
-## Static file service discovery
+## Static File Service Discovery
 
-Static file service discovery is the default way of monitoring object discovery, Pigsty uses the following configuration pulling configuration by default.
+Static file service discovery is the default method of monitoring object discovery and Pigsty pulls the config using the following config by default.
 
 ```yaml
 #------------------------------------------------------------------------------
@@ -67,9 +69,9 @@ Static file service discovery is the default way of monitoring object discovery,
       files: [ /etc/prometheus/targets/pgsql/*.yml ]
 ```
 
-The `/etc/prometheus/targets` directory holds the monitoring object definition files generated by Pigsty, and `pgsql` is the name of the default environment.
+The `/etc/prometheus/targets` dir holds the monitoring object definition files generated by Pigsty, and `pgsql` is the name of the default environment.
 
-Each instance is register by a standalone file:
+**Each instance is register by a standalone file:**
 
 ```
 /etc/prometheus/targets/pgsql
@@ -79,7 +81,7 @@ Each instance is register by a standalone file:
                      ^-----pg-test-3.yml
 ```
 
-Content of these file are monitoring targets and their labels, such as:
+Its content is the **identity identifier** on a single instance node, with **monitoring objects**.
 
 ```bash
 # pg-meta-1 [primary] @ 10.10.10.10
@@ -87,37 +89,51 @@ Content of these file are monitoring targets and their labels, such as:
   targets: [10.10.10.10:9630, 10.10.10.10:9100, 10.10.10.10:9631, 10.10.10.10:9101]
 ```
 
-The advantages of static file service discovery are that there are no additional component dependencies, and it allows for manual intervention for management and tuning, as well as easy integration with third-party systems.
+The advantages of static file service discovery are that there are no additional component dependencies and that it allows manual intervention for management and tuning, as well as easy integration with third-party systems.
 
-### Maintenance of file service discovery
+### Maintenance Document Service Discovery
 
-When using static file service discovery, these configuration files are automatically maintained for all cluster expansion and shrinkage operations.
+When using static file service discovery, these config files are automatically maintained for all cluster expansion and scaling operations.
 
-The configuration files are regenerated for all instances in the environment using the following command
+Using the following command, the config files will be regenerated for all instances in the environment
 
 ```bash
 ./pgsql.yml -t register_prometheus
 ```
 
+### Default capture objects
 
+Each managed Postgres instance includes several capture ports.
 
+* [Node Exporter](https://github.com/prometheus/node_exporter) for capturing machine node metrics
+* [PG Exporter](https://github.com/Vonng/pg_exporter) for capturing database metrics
+* [PGBouncer Exporter](https://github.com/Vonng/pg_exporter) for capturing connection pool metrics (uses the same binary as PG Exporter)
+* [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3) for capturing high availability components
+* [HAProxy](https://github.com/Vonng/haproxy-rpm) for capturing load balancer metrics (built-in support, no separate deployment required)
 
+![](./_media/nodes.svg)
+
+These capture ports are captured by Prometheus on the [meta node](c-arch.md#management node).
+In addition, the optional Promtail for collecting Postgres, Patroni, and Pgbouncer logs is an optional additional installed component.
+
+By default, all monitoring endpoints are registered to Consul, but Prometheus manages these tasks by default using static file service discovery.
+Users can use Consul service discovery by configuring [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) as `consul` to dynamically manage instances.
 
 
 
 ## Consul Service Discovery
 
-Pigsty has built-in DCS-based configuration management and automatic service discovery, allowing users to visualize all nodes and services in the system, as well as their health status. all services in Pigsty are automatically registered with DCS, so metadata is automatically corrected when database clusters are created, destroyed, or modified, and the monitoring system can automatically discover monitoring targets, eliminating the need for manual configuration maintenance. The monitoring system can automatically discover the monitoring targets, eliminating the need for manual configuration maintenance.
+Pigsty has built-in DCS-based config management and automatic service discovery, allowing users to visualize all nodes and services in the system, as well as their health status. All services in Pigsty are automatically registered with DCS, so metadata is automatically corrected when database clusters are created, destroyed, or modified, and the monitoring system can automatically discover monitoring targets, eliminating the need for manual config maintenance. The monitoring system can automatically discover the monitoring targets, eliminating the need for manual config maintenance.
 
 Users can also use the DNS and service discovery mechanism provided by Consul to achieve automatic DNS-based traffic switching.
 
-Consul adopts a Client/Server architecture, with one to five Consul Servers in the entire environment for the actual metadata storage. The Consul Agent is deployed on all nodes to proxy the communication between the local services and the Consul Server. pigsty registers the services by default by means of the local Consul configuration file.
+Consul adopts a Client/Server architecture, with one to five Consul Servers in the entire env for the actual metadata storage. Consul Agent is deployed on all nodes to proxy the communication between local services and the Consul Server. Pigsty registers services by default using local Consul config files.
 
 ### Service Registration
 
-On each node, there is a consul agent running, and services are registered to the DCS by the consul agent via JSON configuration files.
+On each node, a consul agent is running, and services are registered to DCS by the consul agent using JSON config files.
 
-The default location of the JSON configuration file is `/etc/consul.d/`, using the naming convention of `svc-<service>.json`, using `postgres` as an example.
+The default location of the JSON config file is `/etc/consul.d/`, using the naming convention of `svc-<service>.json`, taking `postgres` as an example.
 
 ```json
 {
@@ -153,11 +169,11 @@ Where the `meta` and `tags` sections are the metadata of the service and store t
 
 Users can discover **services registered to Consul** through the DNS service provided by Consul, or by calling the Consul API directly
 
-See [Consul documentation](https://www.consul.io/docs/discovery/dns) for ways to consult consul services using the DNS API.
+See [Consul doc](https://www.consul.io/docs/discovery/dns) for ways to consult consul services using the DNS API.
 
 ### Service Discovery
 
-Prometheus automatically discovers monitored objects in the environment via `consul_sd_configs`. Services tagged with both `pg` and `exporter` are automatically identified as crawlers:.
+Prometheus automatically discovers monitored objects in the env via `consul_sd_configs`. Services tagged with both `pg` and `exporter` are automatically identified as crawlers:
 
 
 ```yaml
@@ -171,7 +187,7 @@ Prometheus automatically discovers monitored objects in the environment via `con
         - exporter
 ```
 
-> Services discovered by Prometheus: with identity information associated to the metric dimension of the instance.
+> **Figure: In services discovered by Prometheus**, identity information has been associated with the metric dimension of the instance.
 
 
 ### Service Maintenance
@@ -189,14 +205,11 @@ Sometimes, the registered role deviates from the actual role of the database ins
 
 ## Labels
 
-Either through Consul or static file service discovery. 
-
-The end effect is to achieve an association between **identity information** and **collected time series**.
+Either through Consul or static file service discovery. The end effect is to achieve an association between **identity information** and **collected time series**.
 
 This correlation is achieved through the **dimensional labels** of the monitoring metrics, not all of which have the following labels.
 
-However, all original monitoring metrics related to database clusters in Pigsty must have both `cls` and `ins` tags,
-and remain immutable throughout their lifecycle.
+However, all original monitoring metrics related to database clusters in Pigsty must have both `cls` and `ins` tags and remain immutable throughout their lifecycle.
 
 | Identity parameters | Dimension labels | Sample values |
 | :-----------: | :------: | :---------------: |
@@ -207,5 +220,5 @@ and remain immutable throughout their lifecycle.
 | `node_ip` | `ip` | `10.10.10.11` |
 
 
-Read the next section [metrics](m-metric.md) to learn how these metrics are organized by labels.
+Read the next section of [metrics](m-metric.md) to learn how these metrics are organized by labels.
 

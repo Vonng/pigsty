@@ -59,7 +59,7 @@ CREATE TABLE series (
     dimension JSONB DEFAULT '{}'                -- 时间序列带有的维度信息，采用键值对的形式表示
 );
 
--- 时许数据表，保存最终的采样数据点。每个采样点都属于一个时间序列
+-- 时序数据表，保存最终的采样数据点。每个采样点都属于一个时间序列
 CREATE TABLE series_data (
     series_id BIGINT REFERENCES series(id),     -- 时间序列标识
     ts        TIMESTAMP,                        -- 采样点时间戳
@@ -168,7 +168,7 @@ Catalog与Metrics比较相似但又不完全相同，边界比较模糊。最简
 
 Catalog主要由定时任务（例如巡检）负责抓取，而不由Prometheus采集。一些特别重要的Catalog信息，例如`pg_class`中的一些信息，也会转换为指标被Prometheus所采集。
 
-Pigsty提供了 PGCAT 系列监控面板，可以直接从目标数据库的Catlog中采集并呈现信息。
+Pigsty提供了 PGCAT 系列监控面板，可以直接从目标数据库的Catalog中采集并呈现信息。
 
 
 
