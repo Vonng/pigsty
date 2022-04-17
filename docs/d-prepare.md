@@ -11,6 +11,8 @@ How to prepare the resources required for Pigsty deployment.
   * [Vagrant](#vagrant) (sandbox)
   * [Virtualbox](#virtualbox) (sandbox)
 
+
+
 ## Node Provisioning
 
 Before deploying Pigsty, the user needs to prepare machine node resources,
@@ -22,7 +24,7 @@ only if the following conditions are met:
 - [x] Processor architecture: x86_64
 - [x] Hardware specifications: 1C/1GB at least
 - [x] Operating System: CentOS 7.8.2003 (or RHEL7 equivalent)
-- [x] [Admin user](#管理节点置备) can `ssh` to the meta node and execute `sudo` commands.
+- [x] [Admin User](#Admin-Provision) can `ssh` to the meta node and execute `sudo` commands.
 
 If you plan to use Pigsty as a battery-included PostgreSQL database instance, one node will suffice. If you also plan to use Pigsty as a control for more hosts/databases, you can prepare more nodes for backup.
 
@@ -47,18 +49,10 @@ Users should ensure that they can **log in** to the meta node and can log in to 
 - [x] **admin user** can log in to the database node remotely `ssh` from the admin node and execute `sudo` (including itself)
 
 
-<<<<<<< HEAD
-
-----------------
-
-## Admin User Provisioning
-
-=======
 
 ## Admin Provisioning
 
->>>>>>> master
-Pigsty requires an **admin user** that can **SSH into other nodes** from the admin node and execute `sudo` commands.
+> Pigsty requires an **admin user** that can **SSH into other nodes** from the admin node and execute `sudo` commands.
 
 - [x] can use this user on the admin node
 - [x] can SSH to all managed nodes (including itself) with this user
@@ -70,11 +64,8 @@ Pigsty requires an **admin user** that can **SSH into other nodes** from the adm
 
 **Pigsty recommends that the creation of admin users, privilege config, and key distribution be done in the Provisioning phase of the virtual machine** as part of the machine resource delivery content. For production envs, the machine should be delivered with such a user already configured with unencrypted remote SSH login and performing unencrypted sudo. This is usually possible with most cloud platforms and ops systems.
 
-<<<<<<< HEAD
-Pigsty playbook [`nodes`](p-nodes.md#nodes) can create an administrative user on the node, but this involves a chicken or egg question: in order to execute Ansible playbooks on a remote node, an admin user is required. In order to create a dedicated admin user, the Ansible playbook needs to be executed on the remote node. As a compromise to the Bootstrap phase, as long as you have SSH login and SUDO access, you can use it to execute Ansible playbooks even without a password, see  [Nodes: Creating an admin user](v-nodes.md#创建管理用户) for details.
-=======
 If you can only use the ssh password and sudo password, then you must add the additional parameters `--ask-pass|-k` and `--ask-become-pass|-K` to all script executions and enter the ssh password and sudo password when prompted. You can create a **dedicated admin user** using the current user using the function to create an admin user in [`pgsql.yml`](p-pgsql), and the following parameters are used to create the default admin user.
->>>>>>> master
+
 
 ### Manual config of SSH and SUDO
 
@@ -86,13 +77,7 @@ Manually configuring password-free `sudo` for a user can be done by adding the f
 %<username> ALL=(ALL) NOPASSWD: ALL
 ```
 
-<<<<<<< HEAD
-=======
 Note that replacing `<username>` with the name of the admin you are using is sufficient.
-
-
-
->>>>>>> master
 
 
 
@@ -116,12 +101,11 @@ If you wish to run Pigsty sandbox on a cloud vendor server, you will need to dow
 
 ----------------
 
-## Pigsty Source Code
+### Pigsty Source Code
 
 Users should get the Pigsty project source code on the admin node, usually unpacked to the admin user `HOME` dir.
 
 ```bash
-<<<<<<< HEAD
 # It is recommended to use this command to download pigsty.tgz source package, the script will distinguish between inside and outside the wall, use CDN to accelerate the download in mainland
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
 ```
@@ -143,15 +127,16 @@ Also, the [`download`](https://github.com/Vonng/pigsty/blob/master/download) scr
 ```
 
 
-=======
-# It's recommend to get latest stable pigsty with following command
+It's recommend to get latest stable pigsty with following command
+
+```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)" 
 ```
 
 You can download pigsty source code & software packages directly via `curl` from github release: 
 
 ```bash
-# https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz   # Github Release
+https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz   # Github Release
 ```
 
 You can also download pigsty source again with the [`download`](https://github.com/Vonng/pigsty/blob/master/download) script:
@@ -160,7 +145,6 @@ You can also download pigsty source again with the [`download`](https://github.c
 ./download pigsty.tgz    # Get latest stable pigsty.tgz to /tmp/pigsty.tgz
 ./download pigsty        # Get pigsty.tgz and release to ~/pigsty (skip if already eixsts)
 ```
->>>>>>> master
 
 
 
@@ -173,17 +157,17 @@ The official offline package is based on CentOS 7.8.2003 operating system enviro
 You can download the offline package in advance on the meta node where Pigsty is to be installed (just on a single meta node to `/tmp/pkg.tgz`) using the following command.
 
 ```bash
-<<<<<<< HEAD
 curl https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # Github Release，Most authoritative 
 curl http://download.pigsty.cc/v1.4.0/pkg.tgz -o /tmp/pkg.tgz                           # Or download with CDN in mainland China
-```
 
 Also, the [`download`](https://github.com/Vonng/pigsty/bl/master/download) script in the root of the pigsty project can be used to download offline packages.
-=======
-curl https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # Github Release 
+
+```bash
+./download pkg.tgz    # Download the current version of pkg.tgz from Github/CDN to /tmp/pkg.tgz
+./download pkg        # Download the current version of pkg.tgz from Github/CDN and extract it to /www/pigsty
 ```
 
-Offline packages are usually placed in the `/tmp/pkg.tgz` path of all meta nodes.
+Finally, Baidu.com also provides offline package resources for download: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9.
 
 
 
@@ -255,11 +239,4 @@ The default virtual machine image used by the sandbox environment is `IMAGE_NAME
 ### Virtualbox
 
 [Virtualbox](https://www.virtualbox.org/) is an open source, free cross-platform virtual machine software. Installing Virtualbox on MacOS is very easy and similar on other operating systems.
->>>>>>> master
 
-```bash
-./download pkg.tgz    # Download the current version of pkg.tgz from Github/CDN to /tmp/pkg.tgz
-./download pkg        # Download the current version of pkg.tgz from Github/CDN and extract it to /www/pigsty
-```
-
-Finally, Baidu.com also provides offline package resources for download: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9.

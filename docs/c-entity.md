@@ -1,11 +1,12 @@
 # Entity & Identifier
 
 Entity and their naming are very important.
-The naming pattern reflects the engineer's knowledge of the system architecture.
-Poorly defined concepts will lead to confusing communication, 
-and arbitrarily set names will create an unexpected extra burden.
-This article introduces the concept of domain entities in Pigsty,
-and the naming pattern used to identify them.
+
+The naming pattern reflects the engineer's knowledge of the system architecture. Poorly defined concepts will lead to confusing communication, and arbitrarily set names will create an unexpected extra burden.
+
+This article introduces the concept of domain entities in Pigsty, and the naming pattern used to identify them.
+
+
 
 -------------
 
@@ -149,6 +150,8 @@ Cluster naming should not include the **dot`. `** The reason for the emphasis on
 
 Typical cluster names include: `pg-meta`, `pg-test-fin`, `pg-infrastructure-biz`.
 
+
+
 -------------
 
 ## Instance
@@ -171,6 +174,12 @@ The instance name `ins` is immutable once it is assigned and the instance will u
 In addition, with the exclusive node deployment model, the database instance and the machine node can use each other's identifiers. That is, we can also use the database instance identifier `ins` to uniquely refer to a machine node.
 
 
+
+
+
+
+
+
 -------------
 
 ## Node
@@ -189,6 +198,10 @@ The key features of a Node are:
 Pigsty uses the `ip` address as a unique identifier for the node, and if the machine has multiple IP addresses, the IP address specified in the inventory that is actually used for access is used. For administrative purposes, the node should have a human-readable and meaningful name as the hostname of the node. The hostname `nodename`,  instance identifier `ins`, and node identifier `ip` correspond to each other one by one in Pigsty and can be cross-mixed as identifiers for database instances, machine nodes, and HAProxy load balancers.
 
 The node naming is consistent with the database instance and remains the same throughout the cluster lifecycle for easy monitoring and management.
+
+
+
+
 
 -------------
 

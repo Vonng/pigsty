@@ -145,21 +145,6 @@ docker run -v /www/schema/pg-meta/meta/pigsty:/output andrewjones/schemaspy-post
 
 
 
-## 样例：数据库模式报表SchemaSPY
-
-使用以下`docker`生成数据库模式报表，以CMDB为例：
-
-```bash
-docker run -v /www/schema/pg-meta/meta/pigsty:/output andrewjones/schemaspy-postgres:latest \
-    -host 10.10.10.10 -port 5432 -u dbuser_dba -p DBUser.DBA -db meta -s pigsty
-```
-
-然后访问 http://pigsty/schema/pg-meta/meta/pigsty 即可访问Schema报表
-
-
-
-
-
 
 
 

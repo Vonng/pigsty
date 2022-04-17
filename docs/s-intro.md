@@ -1,96 +1,94 @@
 # Introduction
 
-> Different users have different focus.
+> Different users have different concerns. If you encounter problems, you are welcome to check the [FAQ](s-faq.md), submit an [Issue](https://github.com/Vonng/pigsty/issues/new), or ask the [Community](community.md) for help.
 
 
 
 ## Beginners
 
-Users new to PostgreSQL and Pigsty, data analysts, data developers, 
-can get first impressions from the public Pigsty demo: [http://demo.pigsty.cc](http://demo.pigsty.cc).
+Users new to PostgreSQL and Pigsty can visit the Pigsty demo site: [http://demo.pigsty.cc](http://demo.pigsty.cc) for an overview of its features.
 
-Two built-in data [applications](t-application.md) that build upon pigsty:  
+Two Pigsty-based [data applications](t-application.md) are built into the Pigsty demo to demonstrate the capabilities of this haircut version.
+
   * WHO COVID-19 Dashboards: [`covid`](http://demo.pigsty.cc/d/covid-overview)
+
   * NOAA ISD Data Visualization: [`isd`](http://demo.pigsty.cc/d/isd-overview)
 
 
 
 ## Developer
 
-Developer cares about how to get a viable database ASAP, and how to access it.
+Developers are more concerned about the fastest way to [download](d-prepare.md#software download), [install](s-install.md) and [access](c-service.md#access) the database, please refer to [Quick Start](s-install.md)
 
-Pigsty deliver it's [services](c-service.md) through connect string. 
-User can [access](c-access.md) it via PGURL.
+Pigsty has been heavily optimized for ease of use, with a one-click installation on the new CentOS 7.8 node [no internet access required](t-offline.md).
 
-Developers familiar with terminal could try [installing](s-install.md) Pigsty on your own computers.
-Pigsty is optimized for accessibility , which can be installed with one-command on a fresh new CentOS 7 node.
+Pigsty provides pre-built [Vagrant](d-sandbox.md#local sandbox) & [Terraform](d-sandbox.md#cloud sandbox) templates for pulling up 4 VMs with one click to deploy a [sandbox environment](d-sandbox.md.md) on a local x86 laptop/PC or cloud.
 
-If no vm nodes available, Pigsty [sandbox](s-sandbox.md) could help with it.
-The sandbox is local Virtualbox VM managed by vagrant that runs entirely on your laptop.
-You can also [prepare](t-prepare.md) your own VMs, cloud VMs, or bare-metal nodes for standard [deployment](t-deploy.md).
+Users can also [prepare](d-prepare.md) their own VMs, cloud VMs, or production physical machines for the standard [deployment](d-deploy.md) process.
 
-Once installed. Check **Tutorial** about [basic operations](t-operation.md) & [access the database](c-access.md) to begin your jounary./
+The database in Pigsty is delivered externally as a [service](c-service.md) and users [access](c-service.md#access) it through a PG connection string.
+
+After deployment, developers can refer to the content in the **Tutorial** to get familiar with [basic management operations](r-sop.md) and understand how to [access the database](c-service.md#access) if they have questions
 
 If you want to go deeper into the design and architecture of Pigsty itself, you can refer to the topics in the chapter **Concepts**.
-* [Architecture](c-arch.md)
-* [Entity Model](c-entity.md)
-* [Services](c-service.md)
-* [Access](c-access.md)
-* [Privilege](c-privilege.md)
-* [Authentication](c-auth.md)
-* [Configuration](c-config.md)
-* [Business User](c-user.md)
-* [Business Database](c-database.md)
+
+   * [Architecture](c-arch.md)
+   * [Entity Model](c-entity.md)
+   * [config](v-config.md)
+   * [PGSQL service](c-service.md#service) and [PGSQL access](c-service.md#access)
+   * [PGSQL Privilege](c-privilege.md#privilege) and [PGSQL Authentication](c-privilege.md#authentication)
+   * [PGSQL business user](c-pgdbuser.md#user) with [PGSQL business database](c-pgdbuser.md#database)
 
 
 
 ## Operators
 
-Operations personnel are more concerned with the details of implementing the deployment, and the following tutorial will cover the details of Pigsty installation and deployment.
+Operations staff are more concerned with the details of implementing deployments, and the following tutorial will cover the details of Pigsty installation and deployment.
 
-* [Pigsty Deployment](t-deploy.md)
-* [Preparation](t-prepare.md)
-* [Offline Installation](t-offline.md)
-* [Init Infrastructure](p-infra.md)
-* [Init PgSQL Clusters](p-pgsql.md)
+   * [Pigsty deployment](d-deploy.md)
+   * [Pigsty resource preparation](d-prepare.md)
+   * [Make offline installer](t-offline.md)
+   * [Infrastructure initialization](p-infra.md)
+   * [PostgreSQL database initialization](p-pgsql.md)
+   * [Redis database initialization](p-redis.md)
 
-Besides, the tutorial [Upgrade Grafana Backend Database](t-grafana-upgrade.md) shows a complete example of 
-provisioning a new database cluster/user/database that is dedicated for grafana.
+The tutorial [Upgrade Grafana backend database](t-grafana-upgrade.md) shows a complete, representative example of putting the above topics into practice by building and using a Postgres database cluster dedicated to Grafana.
 
 
 
 ## DBA
 
-DBAs are usually more concerned with the usage of monitoring systems and the specific ways in which they are maintained on a daily basis.
+DBAs are usually more concerned with the usage of monitoring systems and the specific ways in which they are maintained daily.
 
-#### Monitoring System
-* Monitoring System Architecture
-* [Metrics](m-metric.md)
-* [Dashboards](m-dashboard.md)
-* [Alerting System](r-alert.md)
-* [Service Discovery](m-discovery.md)
-* [Logging Components](t-logging.md)
-* [Analysis CSV logs](t-applications.md)
-* Optimize Slow Queries
-* Symptom of common Failures
+#### Monitoring System Tutorial
 
-#### Daily Maintenance
-* [Cluster Destory & Scale Down](p-pgsql.md#p-pgsql-remove.md)
-* [Cluster Destory & Scale Down](p-pgsql.md#p-pgsql-remove.md)
-* [create new business database](p-pgsql-createdb.md)
-* [Create new business user](p-pgsql-createuser.md)
-* [Backup and restore](t-backup.md)
-* Change HBA rules
+- [Introduction to Monitoring Metrics](m-metric.md)
+- [Introduction to Monitoring Panel](m-dashboard.md)
+- [Introduction to Alert System]](r-alert.md)
+- [Service discovery mechanism](m-discovery.md)
+- [Analysis of CSV logs](t-application.md#PGLOG)
+
+
+#### Daily maintenance management
+
+- [Cluster creation/expansion](r-sop.md#case-1: Cluster creation/expansion)
+- [Cluster offline/downsizing](r-sop.md#Case-2: Cluster offline/downsizing)
+- [Cluster config change/restart](r-sop.md#Case-3: Cluster configuration change/restart)
+- [Cluster business user creation](r-sop.md#Case-4: Cluster business user creation)
+- [Cluster business database creation](r-sop.md#Case-5: Cluster business database creation)
+- [Cluster HBA rule adjustment](r-sop.md#Case-6: Cluster HBA rule adjustment)
+- [Cluster Traffic control](r-sop.md#Case-7: Cluster Traffic Control)
+- [Cluster Role adjustment](r-sop.md#Case-8: Cluster Role Adjustment)
+- [Monitoring object adjustment](r-sop.md#Case-9: Monitoring object adjustment)
+- [Cluster master-slave switch](r-sop.md#Case-10: Cluster master-slave switch)
+- [Reset component](r-sop.md#Case-11: Reset component)
+- [Replace Cluster DCS Server](r-sop.md#Case-12: Replace Cluster DCS Server)
 
 
 
 ## Professional
 
-For professional users, Pigsty provides rich configuration items and customization interfaces.
+For professional users (deep customization, secondary development), Pigsty provides a rich [config entry](v-config.md#config item) with a customization interface.
 
-* [Configure Pigsty](v-config.md#config-entry)
-* [Customize Patroni template](v-pgsql-customize.md#Patroni)
-* [Customize database template](v-pgsql-customize.md#)
+Almost all config entries are configured with reasonable default values and can be used without modification. Professional users can refer to the [config entry doc](v-config.md) to tweak it themselves or [customize it](v-pgsql-customize.md) on demand.
 
-Almost all configuration items are configured with reasonable default values and can be used without modification. 
-Pro users can refer to the [configuration guide](v-config.md) to adjust it by themselves as needed.

@@ -6,7 +6,7 @@ Since MatrixDB currently uses PostgreSQL 12 kernel and native Greenplum still us
 
 
 
-## Entity Model
+## E-R Model
 
 MatrixDB logically consists of two parts, Master and Segments, both of which are composed of PostgreSQL instances, which are divided into four categories: Master/Standby/Primary/Mirror.
 
@@ -21,6 +21,8 @@ MatrixDB logically consists of two parts, Master and Segments, both of which are
 * Master cluster (master/standby) ([`gp_role`](v-pgsql.md#gp_role) = `master`) constitutes a PostgreSQL cluster, usually named to contain `mdw`, e.g. `mx-mdw`.
 * Each Segment (primary/mirror) ([`gp_role`](v-pgsql.md#gp_role) = `segment`) constitutes a PostgreSQL cluster, usually named with `seg`, e.g. `mx-seg1`, `mx-seg2`.
 * The user should explicitly name the cluster nodes, e.g. `mx-sdw-1`, `mx-sdw-2`, ...
+
+
 
 ## Download
 
@@ -81,7 +83,8 @@ If you specified a different password in the installation wizard, change the [`p
 Note that the logic for MatrixDB / Greenplum to assign Segments on nodes is currently uncertain. Once initialization is complete, the definition of Segment instances in [`pg_instances`](v-pgsql.md#pg_instances) can be modified and monitoring redeployed to reflect the true topology.
 
 
-## After Jobs
+
+## Post-Run
 
 Finally, manually execute the following command on the Greenplum/MatrixDB Master node to allow the monitoring component to access the **slave library** and restart it to take effect.
 

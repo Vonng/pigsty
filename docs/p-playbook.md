@@ -1,4 +1,4 @@
-# Pigsty Playbooks
+# Playbooks
 
 > Learn about the pre-set playbooks provided by Pigsty，the features, how to use them and the considerations.
 
@@ -9,7 +9,9 @@ Pigsty implements core control functions at the bottom through the [Ansible Play
 * [`pgsql`](p-pgsql.md) : Use the `pgsql` series of playbooks to deploy and manage PostgreSQL database clusters on existing nodes.
 * [`redis`](p-redis.md) : Use the `redis` series of playbooks to deploy and manage various modes of Redis clusters on existing nodes.
 
-## Playbook Overview
+
+
+## Overview
 
 | Playbook | Function                                                   | Link                                                     |
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |
@@ -74,7 +76,7 @@ Pigsty playbooks are written in Ansible and you don't need to fully understand A
 * [Task Subset](#任务子集)：How to perform certain specific tasks in the playbook？
 * [Additional parameters](#额外参数)：How to pass in additional command line arguments to control playbook behavior？
 
-### Ansible Installation
+### Installation
 
 The Ansible playbook requires the `ansible-playbook` executable command, and Ansible can be installed on EL7-compatible systems with the following command.
 
@@ -86,7 +88,7 @@ When using offline packages, Pigsty will attempt to install ansible from the off
 
 When executing Ansible playbooks, just execute the playbook directly as an executable.There are three core parameters to focus on when executing the playbook：`-l|-t|-e`，are used to restrict the host for execution, with the task to be performed, and to pass in additional parameters, respectively.
 
-### Host Subset
+### Limit Host
 
 The target of execution can be selected with the `-l|-limit <selector>` parameter. When this parameter is not specified, most playbooks default to all hosts defined in the configuration file as the target of execution, which is very dangerous.
 It is strongly recommended to specify the object of execution when executing the playbook.
@@ -115,9 +117,7 @@ Users can separate each task by `,` and perform multiple tasks at once, for exam
 ./pgsql.yml -t haproxy_config,haproxy_reload     # Regenerate the cluster load balancer configuration and apply
 ```
 
-
-
-### Additional Parameters
+### Extra Params
 
 Additional command line arguments can be passed in via `-e|-extra-vars KEY=VALUE` to override existing arguments or to control some special behavior.
 

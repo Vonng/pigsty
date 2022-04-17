@@ -1,4 +1,4 @@
-# Alerting System
+# Alerting
 
 Pigsty use prometheus as primary alerting system.
 
@@ -20,7 +20,7 @@ Missing alerts will lead to reduced availability and false alerts will lead to r
 
 
 
-## Alert taxonomy
+## Alert Taxonomy
 
 **Categorized by source module**
 

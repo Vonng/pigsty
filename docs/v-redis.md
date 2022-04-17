@@ -4,9 +4,9 @@
 
 - [`REDIS_IDENTITY`](#REDIS_IDENTITY): REDIS Identity Params
 
-- [`REDIS_PROVISION`](#REDIS_PROVISION): REDIS Cluster Provisioning
+- [`REDIS_PROVISION`](#REDIS_PROVISION): REDIS Server Provisioning
 
-  [`REDIS_EXPORTER`](#REDIS_EXPORTER): REDIS  Exporter
+- [`REDIS_EXPORTER`](#REDIS_EXPORTER): REDIS  Exporter
 
 
 | ID   | Name                                                | Section                               | Type       | Level | Comment                                                      |

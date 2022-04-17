@@ -1,4 +1,4 @@
-# Pigsty Configure
+# Configuration
 
 > Pigsty uses declarative [config](v-config.md)： the user configures the description state and Pigsty adjusts the real component to the expected state.
 
@@ -7,6 +7,8 @@ Pigsty defines the infrastructure and database clusters through **Inventory**, a
 In form, the concrete implementation of the inventory can be either the default local [config file](#配置文件)， or dynamic config data from [CMDB](t-cmdb.md)， both presented in this article with the default YAML config file [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) as an example. In the [configure](#配置过程), Pigsty detects the current node env and automatically generates the recommended config file.
 
 **Inventory** is mainly composed of [config entries](#configuration items). Pigsty provides 220 config parameters that can be configured at multiple [levels](#levels of configuration items), and most of the parameters can be used directly with default values. Config entry can be divided into four major categories according to [class](# configuration class):  [INFRA/infrastructure](v-infra.md)， [NODES/host nodes](v-nodes.md)， [PGSQL/PG](v-pgsql.md)， [REDIS/Redis](v-redis.md)， and can be further subdivided into 32 subcategories.
+
+
 
 
 --------------
@@ -164,6 +166,7 @@ In addition to the three config granularities, there are two additional levels o
 --------------
 
 
+
 ## Config Category
 
 Pigsty contains 220 fixed [config entries](#配置项清单) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
@@ -209,8 +212,6 @@ Usually only the node/database **identity parameter** is mandatory, other config
 
 
 <details><summary>List of config entries</summary>
-
-
 
 | ID   | Name                                                         | Section                                         | Level | Description                                                  |
 | ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------------------------------ |
@@ -434,3 +435,5 @@ Usually only the node/database **identity parameter** is mandatory, other config
 | 741  | [`redis_exporter_enabled`](v-redis.md#redis_exporter_enabled) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Enabling Redis Monitoring                                    |
 | 742  | [`redis_exporter_port`](v-redis.md#redis_exporter_port)      | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C     | Redis Exporter Listening Port                                |
 | 743  | [`redis_exporter_options`](v-redis.md#redis_exporter_options) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | C/I   | Redis Exporter Command Parameters                            |
+
+</details>

@@ -5,6 +5,7 @@
 For instances created by Pigsty, all monitoring components are automatically configured. However, for existing Pigsty instances not created by Pigsty, some additional config is required if you wish to monitor them using parts of the Pigsty monitoring system.
 
 
+
 ## TL; DR
 
 1. Create the monitoring object in the target instance: [monitoring object configuration](#monitoring object configuration)
@@ -31,7 +32,7 @@ For instances created by Pigsty, all monitoring components are automatically con
 
 
 
-## Monly Overview
+## Overview
 
 If you want to use only the **monitoring system** part of Pigsty, for example, if you want to use the Pigsty monitoring system to monitor existing PostgreSQL instances, then you can use the **monitor only **mode. In monitor only mode, you can use Pigsty to manage and monitor other PostgreSQL instances (currently 10+ versions are supported by default, older versions can be supported by manually modifying the `pg_exporter` config file).
 
@@ -190,17 +191,13 @@ Once the cluster declaration is complete, incorporating it into monitoring is ve
 ./pgsql-monitor.yml  -l  <cluster>     # Complete monitoring deployment on a specified cluster
 ```
 
-
-
-
-
 ---------------------
 
 
 
 
 
-## Monitor object configuration
+## Monitor Preparation
 
 ### Monitor user
 
@@ -263,7 +260,6 @@ The monitoring view provides several common pre-processing results and wraps per
 
 
 <details><summary>Monitoring Views</summary>
-
 
 ```sql
 --==================================================================--
@@ -500,6 +496,4 @@ CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF
 COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
 ```
 
-
-
-
+</details>

@@ -2,7 +2,9 @@
 
 > Pull up a defined cluster of highly available PostgreSQL databases using the PGSQL series [playbook](p-playbook.md).
 
-## Playbook overview
+
+
+## Overview
 
 | Playbook | Function                                                   | Link                                                     |
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |

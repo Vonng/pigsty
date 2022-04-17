@@ -2,7 +2,7 @@
 
 > Use the [PGSQL Playbook](p-pgsql.md), [l-deployPGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in the [ PGSQL config](v-pgsql.md).
 
-You need to express the database requirements to pigsty through the config. Pigsty provides 100+ parameters for a complete description of a PostgreSQL cluster. However, users usually only need to care about individual parameters in [identity params](#PG_IDENTITY) and [business objects](#PG_BUSINESS): the former expresses the database cluster "Who is it? Where is it?" and the latter expresses the database "What does it look like? What's in it?".
+Pigsty have 100+ config entries for descripting a PostgreSQL cluster. However, users usually only need to care about individual parameters in [identity params](#PG_IDENTITY) and [business objects](#PG_BUSINESS): the former expresses the database cluster "Who is it? Where is it?" and the latter expresses the database "What does it look like? What's in it?".
 
 The params on the PostgreSQL are divided into seven main sections：
 
@@ -116,7 +116,11 @@ The params on the PostgreSQL are divided into seven main sections：
 | 655 | [`dns_selector`](#dns_selector)                                 | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | cluster DNS ins selector|
 
 
+
+
+
 ----------------
+
 ## `PG_IDENTITY`
 
 [`pg_cluster`](#pg_cluster), [`pg_role`](#pg_role), [`pg_seq`](#pg_seq) belong to **identity params** .

@@ -140,7 +140,7 @@ The default services running on the meta nodes are shown below.
 
 
 
-## Database Cluster
+## PGSQL Cluster
 
 The production env's databases are organized in **clusters**,
 which is a **logical entity** consisting of a set of database **instances** associated with **master-slave replication**. Each **database cluster** is an autonomous business unit consisting of at least one **database instance**.

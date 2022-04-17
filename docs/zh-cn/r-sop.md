@@ -265,7 +265,21 @@ Pigsty使用安全保险机制来避免误删运行中的Consul实例，请使�
 </details>
 
 
+<details><summary>常见问题4：集群从库带有`clonefrom`标签，但因数据损坏不宜使用或拉取失败</summary>
+
+找到问题机器，切换至`postgres`用户，修改 patroni 配置文件并重载生效
+
+```bash
+sudo su postgres
+sed -ie 's/clonefrom: true/clonefrom: false/' /pg/bin/patroni.yml
+sudo systemctl reload patroni
+pg list -W # 查阅集群状态，确认故障实例没有clonefrom标签
+```
+</details>
+
+
 <details><summary>常见问题5：如何使用现有用户创建固定的管理员用户</summary>
+
 
 系统默认使用 `dba` 作为管理员用户，该用户应当可以从管理机通过ssh免密码登陆远程数据库节点，并免密码执行sudo命令。
 
@@ -720,7 +734,7 @@ $ pg list pg-test
 ./infra-pgweb.yml         # 重置PGWeb
 ```
 
-此外，您可以以下命令使用重置数据库节点上的具体组件
+此外，您可以使用以下命令重置数据库节点上的具体组件
 
 ```bash
 # 较为常用，安全的重置命令，重装监控与重新注册不会影响服务

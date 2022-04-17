@@ -11,13 +11,6 @@ Similar to PostgreSQL, deploying Redis requires the same two steps.
 
 ## Define Redis Cluster
 
-<<<<<<< HEAD
-[redis config parameters](v-redis.md)
-=======
-[Config: Redis](v-redis.md) : [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)
->>>>>>> master
-
-
 
 ### ER Model
 
@@ -28,7 +21,7 @@ The core difference is that Redis is typically deployed in a single multi-instan
 In Pigsty-managed Redis, the nodes are fully subordinate to the cluster, i.e. it is not currently allowed to deploy two Redis instances from different clusters on a single node, but this does not prevent you from deploying multiple independent Redis instances on a single node.
 
 
-### Redis Identity Parameters
+### Identity Parameters
 
 The [**identity parameters**](v-redis.md#identity parameters) are the information that must be provided when defining a Redis cluster and include.
 
@@ -46,28 +39,21 @@ The [**identity parameters**](v-redis.md#identity parameters) are the informatio
 
 ### Cluster Definition
 
-<<<<<<< HEAD
 A condensed definition of three Redis clusters is given below, including.
-=======
-下面给出了三个Redis集群的精简定义，包括：
-* 一个1节点，3实例的Redis Sentinel集群 `redis-meta`
-* 一个2节点，12实例的的Redis Cluster集群 `redis-test`
-* 一个1节点，一主两从的Redis Standalone集群 `redis-common`
->>>>>>> master
 
 * A 1-node, 3-instance Redis Sentinel cluster `redis-sentinel`
 * A 2-node, 12-instance Redis Cluster `redis-cluster`.
 * A 1-node, one-master-two-slave Redis Standalone cluster `redis-standalone`
 
-<<<<<<< HEAD
+
 You need to assign a unique port number to the Redis instance on the node.
 
 ### Redis Sentinel Cluster Example
-=======
+
 
 
 ### Redis Sentinel Example
->>>>>>> master
+
 
 ```yaml
 #----------------------------------#
@@ -166,12 +152,8 @@ Pigsty currently provides three Redis monitor panels as part of a standalone mon
 * Redis Cluster: focuses on monitoring information for a single Redis business cluster.
 * Redis Instance: provides detailed monitoring information about a single Redis instance.
 
-<<<<<<< HEAD
-You can use the included redis-benchmark test.
-=======
-您可以使用自带的 redis-benchmark 进行压力测试。
->>>>>>> master
 
+You can use the included redis-benchmark test.
 
 
 ## Other Functions

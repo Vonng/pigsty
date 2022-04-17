@@ -1,33 +1,29 @@
 # Docker Applications
 
-> You can launch more stateless application with docker, and power them with pigsty postgres outside.
+Pigsty v1.4.1 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the management node for installing more SaaS services
 
-Pigsty v1.4.1 brings `docker` & `docker-compose` by default. Docker daemon will be enabled on meta nodes by default. 
+You can use Docker to quickly deploy and launch software applications, and in the container, you can directly access the PostgreSQL/Redis database deployed on the host using the connection string.
 
-You can ship, run, deploy apps with docker with one-click, And gain production-grade durability with pigsty pgsql/redis. 
+* [PgAdmin4](#PgAdmin4): a GUI tool for managing PostgreSQL database instances
+* [PGWeb](#PGWEB): A tool to automatically generate backend API services based on PG database schema
+* [PostgREST](#PostgREST): A tool to automatically generate back-end API services based on PG database schema
+* [ByteBase](#ByteBase): a GUI tool for making PostgreSQL schema changes
+* [Jupyter Lab](#Jupyter): a battery-included Python lab environment for data analysis and processing
 
+You can also use Docker to execute some battery-included command tools, such as.
 
+* [SchemaSPY](#Database schema report SchemaSPY): generates detailed visual reports of database schemas
+* [Pgbadger](# Database log report): Generate database log report
 
-* [PgAdmin4](#PgAdmin4) ： 一个用于管理PostgreSQL数据库实例的GUI工具
-* [PGWeb](#PGWEB)：一个自动根据PG数据库模式生成后端API服务的工具
-* [PostgREST](#PostgREST)：一个自动根据PG数据库模式生成后端API服务的工具
-* [ByteBase](#ByteBase) ： 一个用于进行PostgreSQL模式变更的GUI工具
-* [Jupyter Lab](#Jupyter)：一个开箱即用的数据分析与处理Python实验环境
+You can also use Docker to pull up some battery-included open-source SaaS services.
 
-您也可以使用Docker执行一些随用随抛的命令工具，例如：
-
-* [SchemaSPY](#数据库模式报表SchemaSPY)：生成数据库模式的详细可视化报表
-* [Pgbadger](#数据库日志报表)：生成数据库日志报表
-
-您也可以用Docker拉起一些开箱即用的开源SaaS服务：
-
-* [Gitlab](#Gitlab)：开源代码托管平台。
-* [Habour](#Habour)：开源镜像仓库
-* [Jira](#Jira)：开源项目管理平台。
-* [Confluence](#Confluence)：开源知识托管平台。
-* [Odoo](#Odoo)：开源ERP
-* [Mastodon](#Mastodon)：基于PG的社交网络
-* [Discourse](#Discourse)：基于PG与Redis的开源论坛
+* [Gitlab](#Gitlab): open source code hosting platform.
+* [Habour](#Habour): open-source mirror repository
+* [Jira](#Jira): open source project management platform.
+* [Confluence](#Confluence): open-source knowledge hosting platform.
+* [Odoo](#Odoo): open source ERP
+* [Mastodon](#Mastodon): PG-based social network
+* [Discourse](#Discourse): open-source forum based on PG and Redis
 
 
 --------------------
@@ -36,10 +32,10 @@ You can ship, run, deploy apps with docker with one-click, And gain production-g
 
 ## Add Upstream to Nginx
 
-本文介绍的大部分软件均对外提供Web界面，尽管您可以直接通过IP:Port的方式访问，但我们依然建议收敛访问入口，使用域名并统一从Nginx代理访问。使用以下配置与命令，向Nginx注册新的服务。
+Most of the software described in this article provides a web interface to the public, and although you can access it directly via IP: Port, we recommend converging the access portal, using a domain name, and unifying access from the Nginx proxy. Use the following config and commands to register a new service with Nginx.
 
 ```bash
-# 添加新的Nginx服务定义
+# Add a new Nginx service definition
 nginx_upstreams:
   - { name: pgadmin,     domain: pgadmin.pigsty,     endpoint: "10.10.10.10:8080" }
   - { name: pgweb,       domain: pgweb.pigsty,       endpoint: "10.10.10.10:8081" }
@@ -48,7 +44,7 @@ nginx_upstreams:
   - { name: jupyter,     domain: lab.pigsty,         endpoint: "10.10.10.10:8084" }
   - { name: matrixdb,    domain: matrix.pigsty,      endpoint: "10.10.10.10:8420" }
   
-./infra.yml -t nginx_config,nginx_restart    # 重新生成Nginx配置文件，并重启生效
+./infra.yml -t nginx_config,nginx_restart    # Regenerate the Nginx config file, and restart it to take effect
 ```
 
 
@@ -58,21 +54,21 @@ nginx_upstreams:
 
 ## PgAdmin4
 
-[PGAdmin4](https://www.pgadmin.org/)是流行的PG管控工具，使用以下命令，在管理节点上拉起PgAdmin4服务，默认为主机`8080`端口，用户名 `admin@pigsty.cc`，密码：`pigsty`
+[PGAdmin4](https://www.pgadmin.org/) is the popular PG control tool, use the following command to pull up the PgAdmin4 service on the admin node, default to host `8080` port, username `admin@pigsty.cc`, password: `pigsty`
 
 ```bash
 docker run --init --name pgadmin --restart always --detach --publish 8080:80 \
     -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty dpage/pgadmin4
 ```
 
-常用操作：将服务器访问信息复制至 /tmp/servers.json 文件中，并重新导入。
+Common operation: Copy the server access information to the /tmp/servers.json file and re-import it.
 
 ```bash
-# 导出 pgadmin4 服务器列表
+# Export pgadmin4 server list
 docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --dump-servers /tmp/servers.json
 docker cp pgadmin:/tmp/servers.json /tmp/servers.json
 
-# 从 /tmp/servers.json 文件导入 PGADMIN
+# Import PGADMIN from /tmp/servers.json file
 docker cp /tmp/servers.json pgadmin:/tmp/servers.json
 docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --load-servers /tmp/servers.json
 ```
@@ -82,24 +78,22 @@ docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty
 
 ## PGWeb
 
-[PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在管理节点上拉起PGWEB服务，默认为主机`8081`端口。
+[PGWeb](https://github.com/sosedoff/pgweb) is a browser-based PG client tool. Use the following command to pull up the PGWEB service on the meta node, defaulting to the host `8081` port.
 
 ```bash
 # docker stop pgweb; docker rm pgweb
 docker run --init --name pgweb --restart always --detach --publish 8081:8081 sosedoff/pgweb 
 ```
 
-用户需要自行填写数据库连接串，例如默认CMDB的：`postgres://dbuser_dba:DBUser.DBA@p1staff.com`。
-
-
+Users need to fill in the database connection string by themselves, for example, the default CMDB: `postgres://dbuser_dba:DBUser.DBA@p1staff.com`.
 
 
 
 ## PostgREST
 
-[PostgREST](https://postgrest.org/en/stable/index.html)是一个自动根据 PostgreSQL 数据库模式生成 REST API的二进制组件。
+[PostgREST](https://postgrest.org/en/stable/index.html) is a binary component that automatically generates a REST API based on the PostgreSQL database schema.
 
-例如，以下命令将使用docker拉起 postgrest （本地 8082 端口，使用默认管理员用户，暴露Pigsty CMDB模式）
+For example, the following command will pull up postgrest using docker (local port 8082, using the default admin user, exposing the Pigsty CMDB schema)
 
 ```bash
 docker run --init --name postgrest --restart always --detach --net=host -p 8082:8082 \
@@ -107,38 +101,40 @@ docker run --init --name postgrest --restart always --detach --net=host -p 8082:
   postgrest/postgrest
 ```
 
-访问 http://10.10.10.10:8082 会展示所有自动生成API的定义，在 [Swagger Editor](https://editor.swagger.io) 中可以自动生成API文档。
+Visiting http://10.10.10.10:8082 will show all the definitions of the auto-generated APIs, which can be automatically generated in the [Swagger Editor](https://editor.swagger.io).
 
-`curl http://10.10.10.10:8082/cluster` 会匿名访问数据表`pigsty.cluster`。
+`curl http://10.10.10.10:8082/cluster` will anonymously access the data table `pigsty.cluster`.
 
-如果您想要进行增删改查，设计更精细的权限控制，请参考 [Tutorial 1 - The Golden Key](https://postgrest.org/en/stable/tutorials/tut1.html)，生成一个签名JWT。
+If you want to add, delete, check and design more fine-grained permission control, please refer to [Tutorial 1 - The Golden Key](https://postgrest.org/en/stable/tutorials/tut1.html) to generate a signed JWT.
 
 
 
 ## ByteBase
 
-[ByteBase](https://bytebase.com/)是一个进行数据库模式变更的工具，以下命令将在管理节点 8083 端口启动一个ByteBase。
+[ByteBase](https://bytebase.com/) is a tool for making database schema changes. The following command will start a ByteBase on meta node port 8083.
 
 ```bash
 docker run --init --name bytebase --restart always --detach --publish 8083:8083 --volume ~/.bytebase/data:/var/opt/bytebase \
     bytebase/bytebase:1.0.2 --data /var/opt/bytebase --host http://bytebase.pigsty --port 8083
 ```
 
-访问 http://10.10.10.10:8083/ 即可使用 ByteBase，您需要依次创建项目、环境、实例、数据库，即可开始进行模式变更。
+Visit http://10.10.10.10:8083/ to use ByteBase. You need to create the project, environment, instance, and database to start schema changes.
 
 
 
 
 ## Jupyter
 
-[Jupyter Lab](https://github.com/jupyter/docker-stacks) 是一站式数据分析环境，下列命令将在 8084 端口启动一个Jupyter Server.
+[Jupyter Lab](https://github.com/jupyter/docker-stacks) is a one-stop data analysis environment. The following command will start a Jupyter Server on port 8084.
 
 ```bash
 docker run -it --restart always --detach --name jupyter -p 8083:8888 -v "${PWD}":/tmp/notebook jupyter/scipy-notebook
-docker logs jupyter # 打印日志，获取登陆的Token
+docker logs jupyter # Print logs and get Token of login
 ```
 
-访问 http://10.10.10.10:8084/ 即可使用 JupyterLab，（需要填入自动生成的Token）. 注意，Pigsty在宿主机上也安装有JupyterLab。
+Visit http://10.10.10.10:8084/ to use JupyterLab, (you need to fill in the auto-generated Token). Note that Pigsty also has JupyterLab installed on the host.
+
+
 
 
 --------------------
@@ -146,14 +142,14 @@ docker logs jupyter # 打印日志，获取登陆的Token
 
 ## SchemaSPY
 
-使用以下`docker`生成数据库模式报表，以CMDB为例：
+Generate a database schema report using the following `docker`, using CMDB as an example.
 
 ```bash
 docker run -v /www/schema/pg-meta/meta/pigsty:/output andrewjones/schemaspy-postgres:latest \
     -host 10.10.10.10 -port 5432 -u dbuser_dba -p DBUser.DBA -db meta -s pigsty
 ```
 
-然后访问 http://pigsty/schema/pg-meta/meta/pigsty 即可访问Schema报表
+Then visit http://pigsty/schema/pg-meta/meta/pigsty to access the Schema report
 
 
 
@@ -162,7 +158,7 @@ docker run -v /www/schema/pg-meta/meta/pigsty:/output andrewjones/schemaspy-post
 
 ## Gitlab
 
-请参考[Gitlab Docker部署文档](https://docs.gitlab.com/ee/install/docker.html) 完成Docker部署。
+Please refer to the [Gitlab Docker Deploy Doc](https://docs.gitlab.com/ee/install/docker.html) to complete the Docker deployment.
 
 ```bash
 export GITLAB_HOME=/data/gitlab
@@ -185,10 +181,9 @@ sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 
 ## Discourse
 
-搭建开源论坛Discourse，需要调整配置 `app.yml` ，重点是SMTP部分的配置
+Build open source forum Discourse, you need to adjust the config `app.yml`, focusing on the SMTP part of the config.
 
-<details><summary>Discourse配置样例</summary>
-
+<details><summary>Sample Discourse config</summary>
 ```yaml
 templates:
   - "templates/web.china.template.yml"
@@ -243,12 +238,14 @@ run:
 
 </details>
 
-然后，执行以下命令，拉起Discourse即可。
+Then, just execute the following command and pull up Discourse.
 
 ```bash
 ./launcher rebuild app
 ```
 
 
+
 ## Mastodon
 
+TBD

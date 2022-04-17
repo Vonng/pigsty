@@ -6,17 +6,15 @@ Although installing Pigsty is easy enough, setting up a virtual machine that mee
 
 Therefore Pigsty provides a **sandbox environment** to further relieve users of the hassle of preparing the environment. Complete creation and run-through of the sandbox installation and deployment process can be a great help for deployment in production environments with Pigsty.
 
+
+
 ## Introduction
 
 The sandbox environment is a config specification, object identifier, and consistent with the default database **predetermined** for both the local and cloud versions.
 
 The sandbox environment uses a fixed IP address for demonstration purposes. The IP address of the meta node of the sandbox is fixed to: `10.10.10.10`. `10.10.10.10` is also a placeholder for the IP address of the meta node in all config file templates, which will be the actual IP address of the meta node when executing [config](v-config.md#configuration process).
 
-<<<<<<< HEAD
 ![](./_media/SANDBOX.gif)
-=======
-![](_media/SANDBOX.gif)
->>>>>>> master
 
 You can use a single-node sandbox, a deployment where there is only one meta-node `meta`, with a full infrastructure deployed on the node, and a single instance of the Postgres database `pg-meta`.
 
@@ -169,6 +167,14 @@ Pigsty accesses all web systems via **domain** by default. If you do not have a 
 ```
 
 On macOS and Linux, running `sudo make dns` will write the above records to `/etc/hosts` (requires sudo privileges), on Windows, you will need to add them manually to `C:\Windows\System32\drivers\etc\hosts`.
+
+
+
+
+
+
+
+
 
 
 
