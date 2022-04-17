@@ -1,40 +1,40 @@
-# 数据库高可用场景演练
+# HA Scenarios
 
-您可以通过高可用场景演练，来加强对集群高可用能力的信心。
+You can build confidence by performing HA drills.
 
-以下列出了24种典型的高可用故障场景，分为主库故障，从库故障，DCS故障三类，每类8个具体场景。
+There are 24 typical HA Scenarios: categorized by Primary failure, Replica Failure & DCS Failure.
 
-所有演练均假设**高可用自动切换模式**已启用，其中，Patroni应当正确处理主库故障与从库故障。
 
-|                编号                | 案例名称                                                     |       自动模式       | 手动切换 |
-| :--------------------------------: | :----------------------------------------------------------- |:----------------:| :------: |
-|         [A](#主库故障演练)         | **主库故障**                                                 |                  |          |
-|      [1A](#_1a-主库节点宕机)       | 主库节点宕机                                                 |  **自动Failover**  | 人工切换 |
-|  [2A](#_2a-主库postgres进程关停)   | 主库Postgres进程关停（`pg_ctl or kill -9`）                  |  **自动Failover**  | 人工重启 |
-| [3A](#_3a-主库patroni进程正常关停) | 主库Patroni进程正常关停（`systemctl stop patroni`）          |  **自动Failover**  | 人工重启 |
-| [4A](#_4a-主库patroni进程异常关停) | 主库Patroni进程异常关停（`kill -9`）                         |     **需要确认**     |  无影响  |
-|                 5A                 | 主库负载打满，假死（watchdog）                               |     **需要确认**     |  无影响  |
-|                 6A                 | 主库DCS Agent不可用（`systemctl stop consul`）               |    **集群主库降级**    |  无影响  |
-|                 7A                 | 主库网络抖动                                                 | **超时自动Failover** |  需观察  |
-|                 8A                 | 误删主库数据目录                                             |  **自动Failover**  | 手工切换 |
-|         [B](#从库故障演练)         | **从库故障（1/n , n>1）**                                    |                  |          |
-|                 1B                 | 从库节点宕机                                                 |       无影响        |  无影响  |
-|                 2B                 | 从库Postgres进程关停（`pg_ctl or kill -9`）                  |       无影响        |  无影响  |
-|                 3B                 | 从库Postgres进程手工关停 （`pg_ctl`）                        |       无影响        |  无影响  |
-|                 4B                 | 从库Patroni进程异常Kill（`kill -9`）                         |       无影响        |  无影响  |
-|                 5B                 | 从库DCS Agent不可用（`systemctl stop consul`）               |       无影响        |  无影响  |
-|                 6B                 | 从库负载打满，假死                                           |     Depends      | Depends  |
-|                 7B                 | 从库网络抖动                                                 |       无影响        |  无影响  |
-|                 8B                 | 误提升一个从库（`pg_ctl promte`）                            |     **自动恢复**     | **脑裂** |
-|         [C](#dcs故障演练)          | **DCS故障**                                                  |                  |          |
-|                 1C                 | DCS Server完全不可用（多数节点不可用）                       |   **所有集群主库降级**   |  无影响  |
-|                 2C                 | DCS通主库，不通从库（1主1从）                                |       无影响        |  无影响  |
-|                 3C                 | DCS通主库，不通从库（1主n从，n>1）                           |       无影响        |  无影响  |
-|                 4C                 | DCS通从库，不通主库（1主1从）                                |       无影响        |  无影响  |
-|                 5C                 | DCS通从库，不通主库（1主n从，n>1）                           |  **自动Failover**  |  无影响  |
-|                 6C                 | DCS网络抖动：同时中断，<br />主库从库同时恢复，或主库先恢复  |       无影响        |  无影响  |
-|                 7C                 | DCS网络抖动：同时中断，<br />从库先恢复，主库后恢复（1主1从） |       无影响*       |  无影响  |
-|                 8C                 | DCS网络抖动：同时中断，<br />从库先恢复，主库后恢复（1主n从，n>1） | 超过TTL自动Failover  |  无影响  |
+
+|                Code                | Name                                                         |        Auto HA        |   Maintenance   |
+| :--------------------------------: | :----------------------------------------------------------- | :-------------------: | :-------------: |
+|         [A](#主库故障演练)         | **Primary Failure**                                          |                       |                 |
+|      [1A](#_1a-主库节点宕机)       | 主库节点宕机                                                 |       Failover        |    人工切换     |
+|  [2A](#_2a-主库postgres进程关停)   | 主库Postgres进程关停（`pg_ctl or kill -9`）                  |       Failover        |    人工重启     |
+| [3A](#_3a-主库patroni进程正常关停) | 主库Patroni进程正常关停（`systemctl stop patroni`）          |       Failover        |    人工重启     |
+| [4A](#_4a-主库patroni进程异常关停) | 主库Patroni进程异常关停（`kill -9`）                         |     **需要确认**      |    No Effect    |
+|                 5A                 | 主库负载打满，假死（watchdog）                               |     **需要确认**      |    No Effect    |
+|                 6A                 | 主库DCS Agent不可用（`systemctl stop consul`）               |   **集群主库降级**    |    No Effect    |
+|                 7A                 | 主库网络抖动                                                 |       Failover        |     需观察      |
+|                 8A                 | 误删主库数据目录                                             |       Failover        |    手工切换     |
+|         [B](#从库故障演练)         | **Replica Failure（1/n , n>1）**                             |                       |                 |
+|                 1B                 | 从库节点宕机                                                 |       No Effect       |    No Effect    |
+|                 2B                 | 从库Postgres进程关停（`pg_ctl or kill -9`）                  |       No Effect       |    No Effect    |
+|                 3B                 | 从库Postgres进程手工关停 （`pg_ctl`）                        |       No Effect       |    No Effect    |
+|                 4B                 | 从库Patroni进程异常Kill（`kill -9`）                         |       No Effect       |    No Effect    |
+|                 5B                 | 从库DCS Agent不可用（`systemctl stop consul`）               |       No Effect       |    No Effect    |
+|                 6B                 | 从库负载打满，假死                                           |        Depends        |     Depends     |
+|                 7B                 | 从库网络抖动                                                 |       No Effect       |    No Effect    |
+|                 8B                 | 误提升一个从库（`pg_ctl promte`）                            |     Auto Recover      | **Split Brain** |
+|         [C](#dcs故障演练)          | **DCS Failure**                                              |                       |                 |
+|                 1C                 | DCS Server完全不可用（多数节点不可用）                       |    **All Demote**     |    No Effect    |
+|                 2C                 | DCS通主库，不通从库（1主1从）                                |       No Effect       |    No Effect    |
+|                 3C                 | DCS通主库，不通从库（1主n从，n>1）                           |       No Effect       |    No Effect    |
+|                 4C                 | DCS通从库，不通主库（1主1从）                                |       No Effect       |    No Effect    |
+|                 5C                 | DCS通从库，不通主库（1主n从，n>1）                           |   **自动Failover**    |    No Effect    |
+|                 6C                 | DCS网络抖动：同时中断，<br />主库从库同时恢复，或主库先恢复  |       No Effect       |    No Effect    |
+|                 7C                 | DCS网络抖动：同时中断，<br />从库先恢复，主库后恢复（1主1从） |      No Effect*       |    No Effect    |
+|                 8C                 | DCS网络抖动：同时中断，<br />从库先恢复，主库后恢复（1主n从，n>1） | Failover when timeout |    No Effect    |
 
 -----------------------
 
@@ -529,7 +529,6 @@ systemctl stop consul
 
 
 ### 8C-DCS网络抖动：同时中断，从库先恢复，主库后恢复（1主n从，n>1）
-
 
 
 

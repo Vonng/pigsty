@@ -12,7 +12,7 @@
 
 ## What is Pigsty?
 
-* [**Battery-Included Distribution**](#Distribution): PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
+* [**Battery-Included**](#Distribution) Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
 * [**Unparalleled Monitoring**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
 * [**High-Available**](#High-Available): Auto-Piloting Postgres with idempotent instances & services, self-healing from hardware failures!
 * [**Infra as Data**](#infra-as-data): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum in minutes!

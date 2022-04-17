@@ -46,6 +46,18 @@
 
 因为目标数据库集群已存在，您需要参考本节的内容手工在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)。其余流程与完整部署并无区别。
 
+```bash
+# 修改pigsty配置参数，在节点上添加yum repo，然后通过yum安装软件包
+exporter_install: yum # none|yum|binary, none by default
+exporter_repo_url: http://<your primary ip address>/pigsty.repo
+
+./nodes.yml -l <yourcluster> -t node-exporter  # 部署节点指标监控
+./nodes.yml -l <yourcluster> -t promtail       # 部署节点日志收集
+./pgsql.yml -l <yourcluster> -t pg-exporter    # 部署PG指标监控收集
+```
+
+
+
 
 
 **如果只有数据库连接串**
@@ -68,24 +80,24 @@
 
 Pigsty监控系统由三个核心模块组成：
 
-|   事项\等级    |          L1           |           L2           |           L3           |
-| :------------: | :-------------------: | :--------------------: | :--------------------: |
-|      名称      |       基础部署        |        托管部署        |        完整部署        |
-|      英文      |         basic         |        managed         |          full          |
-|      场景      |      只有连接串       |  DB已存在，节点可管理  |    实例由Pigsty创建    |
-|   PGCAT功能    |      ✅ 完整可用       |       ✅ 完整可用       |       ✅ 完整可用       |
-|   PGSQL功能    |      ✅ 限PG指标       |    ✅ 限PG与节点指标    |       ✅ 完整功能       |
-|   连接池指标   |       ❌ 不可用        |         ⚠️ 选装         |        ✅ 预装项        |
-| 负载均衡器指标 |       ❌ 不可用        |         ⚠️ 选装         |        ✅ 预装项        |
-|   PGLOG功能    |       ❌ 不可用        |         ⚠️ 选装         |         ⚠️ 选装         |
-|  PG Exporter   |   ⚠️ 部署于管理节点    |     ✅ 部署于DB节点     |     ✅ 部署于DB节点     |
-| Node Exporter  |       ❌ 不部署        |     ✅ 部署于DB节点     |     ✅ 部署于DB节点     |
-|   侵入DB节点   |       ✅ 无侵入        |     ⚠️ 安装Exporter     |   ⚠️ 完全由Pigsty管理   |
-|  监控现有实例  |       ✅ 可支持        |        ✅ 可支持        | ❌ 仅用于Pigsty托管实例 |
-| 监控用户与视图 |       人工创建        |        人工创建        |     Pigsty自动创建     |
-|  部署使用剧本  |   `pgsql-monly.yml`   | `pgsql.yml -t pg-exporter`<br />`nodes.yml -t node-exporter` | `pgsql.yml -t pg-exporter`<br />`nodes.yml -t node-exporter` |
-|    所需权限    |  管理节点可达的PGURL  |  DB节点ssh与sudo权限   |  DB节点ssh与sudo权限   |
-|    功能概述    | 基础功能：PGCAT+PGSQL |       大部分功能       |        完整功能        |
+|   事项\等级    |          L1           |                              L2                              |                              L3                              |
+| :------------: | :-------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+|      名称      |       基础部署        |                           托管部署                           |                           完整部署                           |
+|      英文      |         basic         |                           managed                            |                             full                             |
+|      场景      |      只有连接串       |                     DB已存在，节点可管理                     |                       实例由Pigsty创建                       |
+|   PGCAT功能    |      ✅ 完整可用       |                          ✅ 完整可用                          |                          ✅ 完整可用                          |
+|   PGSQL功能    |      ✅ 限PG指标       |                       ✅ 限PG与节点指标                       |                          ✅ 完整功能                          |
+|   连接池指标   |       ❌ 不可用        |                            ⚠️ 选装                            |                           ✅ 预装项                           |
+| 负载均衡器指标 |       ❌ 不可用        |                            ⚠️ 选装                            |                           ✅ 预装项                           |
+|   PGLOG功能    |       ❌ 不可用        |                            ⚠️ 选装                            |                           ✅ 预装项                           |
+|  PG Exporter   |   ⚠️ 部署于管理节点    |                        ✅ 部署于DB节点                        |                        ✅ 部署于DB节点                        |
+| Node Exporter  |       ❌ 不部署        |                        ✅ 部署于DB节点                        |                        ✅ 部署于DB节点                        |
+|   侵入DB节点   |       ✅ 无侵入        |                        ⚠️ 安装Exporter                        |                      ⚠️ 完全由Pigsty管理                      |
+|  监控现有实例  |       ✅ 可支持        |                           ✅ 可支持                           |                    ❌ 仅用于Pigsty托管实例                    |
+| 监控用户与视图 |       人工创建        |                           人工创建                           |                        Pigsty自动创建                        |
+|  部署使用剧本  |   `pgsql-monly.yml`   | `pgsql.yml -t pg-exporter,promtail`<br />`nodes.yml -t node-exporter` | `pgsql.yml -t pg-exporter`<br />`nodes.yml -t node-exporter` |
+|    所需权限    |  管理节点可达的PGURL  |                     DB节点ssh与sudo权限                      |                     DB节点ssh与sudo权限                      |
+|    功能概述    | 基础功能：PGCAT+PGSQL |                          大部分功能                          |                           完整功能                           |
 
 
 
@@ -137,7 +149,7 @@ pg-test:
 
 > 注，即使您通过域名访问数据库，依然需要通过填入实际IP地址的方式来声明数据库集群。
 
-若要启用PGCAT功能，您需要显式在 [`pg_databases`](v-pgsql.md#pg_databases) 中列出目标集群的数据库名称列表，在此列表中的数据库将被注册为Grafana的数据源，您可以直接通过Grafana访问该实例的Catalog数据。若您不希望使用PGCAT相关功能，不设置该变量，或置为空数组即可。
+若要启用**PGCAT**功能，您需要显式在 [`pg_databases`](v-pgsql.md#pg_databases) 中列出目标集群的数据库名称列表，在此列表中的数据库将被注册为Grafana的数据源，您可以直接通过Grafana访问该实例的Catalog数据。若您不希望使用**PGCAT**相关功能，不设置该变量，或置为空数组即可。
 
 
 
@@ -188,16 +200,12 @@ pg-test:
 
 
 
-
-
-
-
 ### 执行部署剧本
 
-集群声明完成后，将其纳入监控非常简单，在管理节点上针对目标集群使用剧本 [`pgsql-monitor.yml`](p-pgsql.md#pgsql-monly) 即可：
+集群声明完成后，将其纳入监控非常简单，在管理节点上针对目标集群使用剧本 [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) 即可：
 
 ```bash
-./pgsql-monitor.yml  -l  <cluster>     # 在指定集群上完成监控部署
+./pgsql-monly.yml -l <cluster>     # 在指定集群上完成监控部署
 ```
 
 
@@ -205,10 +213,6 @@ pg-test:
 
 
 ---------------------
-
-
-
-
 
 ## 监控对象配置
 

@@ -1,16 +1,18 @@
 # Backup and Recovery
 
+> Backup & Recovery matters.
+
 Backup is the foundation of DBA's life and one of the most critical tasks in database management. Only physical backups are discussed here. Physical backups can usually be classified into the following four types.
 
 
 
-## Classification of backups
+## Backup Types
 
 
 
 ### Hot Standby
 
-It is consistent with the primary library and will take over the work of the primary library when the primary library fails, and will also be used to take over online read-only traffic. A hot standby that uses synchronous replication to keep up with the master in real time can also be called a synchronous backup.
+It is consistent with the primary library and will take over the work of the primary library when the primary library fails, and will also be used to take over online read-only traffic. A hot standby that uses synchronous replication to keep up with the master in real-time can also be called a synchronous backup.
 
 
 

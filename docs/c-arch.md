@@ -1,25 +1,41 @@
-# Pigsty Architecture and Modules
+# Architecture
 
-> Pigsty consists of several modules, which can be composed freely for different scenarios.
+> Pigsty consists of several [modules](#modules), which can be composed freely for different scenarios.
 >
-> 
 
 
+
+## Modules
+
+Pigsty now consists of 4 modules which can be freely composed for different scenarios
+
+The whole system is decoupled into 4 independent modules, which can be maintained independently and freely arranged and combined for use.
+
+* **`INFRA`** is the infrastructure part of Pigsty, including monitoring/alerting/visualization/logging/DNS/NTP and other public components.
+* **`NODES`** is the host node management module, which is used to configure nodes, install software, and collect monitoring metrics and logs.
+* [**`PGSQL`**](d-pgsql.md) is a PostgreSQL database deployment control module, including various types of PG cluster deployment and monitoring.
+* [**`REDIS`**](d-redis.md) is the Redis database  control module, including Redis standalone/native cluster/sentinel [deployment](d-redis.md) and monitoring
+
+![](_media/SANDBOX.gif)
+
+If you want to use Pigsty as a standalone out-of-the-box PostgreSQL distribution, then install the **INFRA**, **NODES**, **PGSQL** modules in sequence on **one machine** and you will have an immediately available, self-monitoring managed database instance.
+
+If you want a large-scale host monitoring system for a production environment, then install the **INFRA** module on one machine and the **NODES** module on all managed nodes. All nodes will be configured with yum repo sources, install packages, setup DNS, NTP, monitoring, logging agent collection, and DCS Agent as components required for a production environment. Host nodes that are integrated into Pigsty management come with detailed monitoring information and can be used to further deploy a variety of database modules.
+
+If you want to deploy and manage a large number of PostgreSQL clusters, it is easy to add the **PGSQL** module to these Pigsty-managed nodes. You can deploy a wide variety of PGSQL clusters with a single click: single instance, one master-n-slave high availability clusters, synchronous clusters, synchronous clusters with quorum commits, clusters with offline ETL roles, offsite disaster recovery backup clusters, deferred replication clusters, Citus distributed clusters, TimescaleDB clusters, MatrixDB data warehouse clusters. If you want to deploy and monitor and manage many Redis clusters, you can also simply add the **REDIS** module to the nodes hosted by Pigsty. Support for new types of databases will be added gradually on demand: **KAFKA**, **MINIO**.
 
 
 
 ## Architecture
 
-Pigsty has two typical usage models: **Single machine** vs. **Cluster**.
+Pigsty has two typical use cases:: **Singleton Meta** vs. **Cluster Mange**.
 
-* **Single machine**: Install Pigsty on single/multiple nodes and use it as a battery-included Postgres.
-* **Cluster**: Deploy, monitor, and manage other nodes with many different databases on a single machine deployment.
+* **Singleton Meta**: Install Pigsty on the current node and use it as a battery-included Postgres distribution.
+* **Cluster Manage**: Deploy, monitor, and manage other nodes & databases
 
-When installing Pigsty on a node, Pigsty executes the [`infra.yml`](p-infra.md) playbook to deploy **infrastructure** with a single node PostgreSQL **database cluster** on that node. For individual users, simple scenarios, and small and micro businesses, PG is battery-included. The node where Pigsty is fully installed is called [ Meta Node](# Admin Node)(Meta).
+Pigsty executes the [`infra.yml`](p-infra.md#infra) playbook to deploy infrastructure with a single node PostgreSQL database cluster on that node when installing Pigsty on a node. For individual users, simple scenarios, and small and micro businesses, PG is battery-included. The node where Pigsty is fully installed is called [ Meta Node](# Admin Node)(Meta).
 
 Pigsty can also be used to monitor and manage additional nodes. You can initiate control from the meta nodes and include other nodes in Pigsty via the `nodes.yml` playbook to gain host monitoring capabilities. A wide variety of databases and applications can also be deployed and managed on these nodes: for example, creating a highly available PostgreSQL cluster with `pgsql.yml`, creating a master-slave, clustered, sentinel-mode Redis cluster with `redis.yml`, and deploying a Greenplum/MatrixDB data warehouse with `pigsty-matrix.yml`. 
-
-
 
 
 

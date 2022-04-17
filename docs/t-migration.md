@@ -1,28 +1,27 @@
-# 数据库迁移教程
+# Migration Tutorial
 
-Pigsty内置了一个 数据库在线迁移的辅助脚本：[`pgsql-migration.yml`](p-pgsql.md#pgsql-migration) ，提供了一个开箱即用的基于逻辑复制的不停机数据库迁移方案。
+There's an auxiliary playbook [`pgsql-migration.yml`](p-pgsql.md#pgsql-migration) which provides a battery ，提供了一个开箱即用的基于逻辑复制的不停机数据库迁移方案。
 
 填入源集群与宿集群相关信息，该剧本即会自动创建出迁移中所需的脚本，在数据库迁移时只需要依次执行即可，包括：
 
 ```bash
-activate                          # 激活迁移上下文，注册环境变量
-check-replica-identity            # 准备阶段：检查源集群所有表是否都具有复制身份（主键，或非空唯一候选键）
-check-replica-identity-solution   # 准备阶段：针对没有合理复制身份表，生成修复SQL语句
-check-special-object              # 准备阶段：检查物化视图，复合类型等特殊对象
-compare                           # 比较：对源宿集群中的表进行快速比较（行数计算）
-copy-schema                       # 存量迁移：将源集群中的模式复制到宿集群中（可以幂等执行）
-create-pub                        # 存量迁移：在源集群中创建发布
-create-sub                        # 存量迁移：在宿集群中创建订阅，建立源宿集群之间的逻辑复制
-progress                          # 存量迁移：打印逻辑复制的进度
-copy-seq                          # 存量/增量迁移：将源集群中的序列号复制到宿集群中（可以幂等执行，在切换时需要再次执行）
-next-seq                          # 切换时刻：将宿集群的所有序列号紧急步进1000，以避免主键冲突。
-remove-sub                        # 移除宿集群中的逻辑订阅
+activate                        # activate migration context
+check-replica-identity          # prepare: make sure all table have replica identity
+check-replica-identity-solution # prepare: fix table without replica identity
+check-special-objec             # prepare: check special object: matrialized view
+compare            # compare: fast check on data consistency (by row count)
+copy-schema        # migration: copy schema from src to dst cluster
+create-pub         # migration: create publication on source cluster
+create-sub         # migration: build logical replication between src & dst clusters
+progress           # migration: print logical replication progress
+copy-seq           # migration: copy sequence number from src to dst cluster
+next-seq           # migration: advance dst cluster by 10000 to fix primary confliction
+remove-sub         # remove subscription from dst cluster
 ```
 
 
-## 准备工作
 
-### 准备源宿集群
+## Prepare
 
 现在假设我们希望迁移沙箱中的`pg-meta`集群（包含Pigsty元数据库与pgbench测试表）至`pg-test`集群。
 
@@ -66,7 +65,8 @@ migration_context_dir: ~/migration     # this dir will be created
 执行`pgsql-migration.yml`，该脚本默认会在管理节点上创建 `~/migration/pg-meta.meta` 目录，包含有迁移使用的资源与脚本。
 
 
-## 迁移模板
+
+## Templates
 
 [**公告**](#公告)
 

@@ -1,4 +1,27 @@
-# Daily Operation Commands
+# SOP: Standard Operation Procedure
+
+
+
+## Cheatsheet
+
+### Cluster/Instance Admin
+
+
+
+### Patroni/Postgres Admin
+
+
+
+### Service/Component Admin
+
+
+
+### Reset Component
+
+
+
+
+
 
 
 ## Cluster/Instance Management

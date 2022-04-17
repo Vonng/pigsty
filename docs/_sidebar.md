@@ -17,7 +17,7 @@
   - [Monitor Deploy](d-monly.md)
   - [PGSQL Deploy](d-pgsql.md)
   - [REDIS Deploy](d-redis.md)
-  - [MatrixDB Depploy](d-matrixdb.md)
+  - [MatrixDB Deploy](d-matrixdb.md)
 
 - [Playbook](p-playbook.md)
   - [Playbook: INFRA](p-infra.md)
