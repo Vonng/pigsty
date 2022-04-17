@@ -1,8 +1,8 @@
 # Redis Deploy & Monitor
 
-Pigsty is also a universal application runtime which could be used for deploying & monitoring other databases and applications, such as Redis.
+Pigsty is also a universal application runtime that could be used for deploying & monitoring other databases and applications, such as Redis.
 
-It take two steps to deploy a redis cluster:
+It takes two steps to deploy a Redis cluster:
 
 
 1. Declare it
@@ -19,7 +19,7 @@ It take two steps to deploy a redis cluster:
 
 The Redis entity conceptual model is almost identical to [PostgreSQL](c-entity.md), and also includes the concepts of **Cluster** and **Instance**. Note that the concept of Cluster here does not refer to the clusters in Redis' native clustering scheme.
 
-The core difference is that Redis is typically deployed in a single multi-instance deployment, with **many** Redis instances typically deployed on a single physical/virtual machine node to take advantage of multi-core CPUs. therefore, the way in which Redis instances are defined is slightly different from PGSQL.
+The core difference is that Redis is typically deployed in a single multi-instance deployment, with **many** Redis instances typically deployed on a single physical/virtual machine node to take advantage of multi-core CPUs. therefore, how Redis instances are defined is slightly different from PGSQL.
 
 In Pigsty-managed Redis, the nodes are fully subordinate to the cluster, i.e. it is not currently allowed to deploy two Redis instances from different clusters on a single node, but this does not prevent you from deploying multiple independent Redis instances on a single node.
 
@@ -45,7 +45,7 @@ The [**identity parameters**](v-redis.md#identity parameters) are the informatio
 
 
 
-### Redis集群定义
+### Redis Cluster Definition
 
 Given below are three condensed definitions of Redis clusters, including.
 * A 1-node, 3-instance Redis Sentinel cluster `redis-sentinel`
@@ -147,6 +147,6 @@ You can use the included redis-benchmark test
 
 ## Other Features
 
-Pigsty v1.3 only provides redis cluster deployment and monitoring capabilities in a holistic manner.
+Pigsty v1.3 only provides Redis cluster deployment and monitoring capabilities in a holistic manner.
 
 Offline, scale-up, scale-down, and single-instance management features will be provided in subsequent versions gradually.

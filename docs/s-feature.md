@@ -6,109 +6,98 @@
 ![](_media/WHAT_EN.svg)
 
 
-* 开箱即用的PostgreSQL[数据库发行版](#PostgreSQL数据库发行版)
-* 自动驾驶的智能监控管控[运维解决方案](#智能监控管控运维解决方案)
-* 简单易用的数据库即代码[开发者工具箱](#数据库即代码开发者工具箱)
-* 降本增效的开源云数据库[整体替代方案](#开源云数据库整体替代方案)
+* **Battery-include** PostgreSQL [database distribution](#PostgreSQL database distribution)
+* Intelligent monitoring and control [O&M solution](#智能监控管控运维解决方案)
+* Easy-to-use Database-as-Code [Developer Toolkit](#Database-as-Code Developer Toolkit)
+* Cost reduction and efficiency of the open-source cloud database [overall alternative](# open source cloud database overall alternative)
 
-[发行版](#发行版) / [高可用](#高可用) / [监控系统](#监控系统) / [一键部署](#一键部署) / [Infra as Data](#infra-as-data) / [应用生态](#应用广泛) / [安全省钱](#安全省钱)
-
-
-## PostgreSQL数据库发行版
-
-> RedHat for Linux! 开箱即用！ 从无到有，让用户**用得上**！
-
-* Pigsty深度整合最新 [PostgreSQL](https://www.postgresql.org/) 内核 (14) 与强力扩展：时序数据 [TimescaleDB](https://www.timescale.com/) 2.6，地理空间 [PostGIS](https://postgis.net/) 3.2，分布式 [Citus](https://www.citusdata.com/) 10，及上百+海量扩展插件，全部开箱即用。
-
-* Pigsty打包了大规模生产环境所需的基础设施：[Grafana](https://grafana.com/)，[Prometheus](https://prometheus.io/)，[Loki](https://grafana.com/oss/loki/)，[Ansible](https://docs.ansible.com/)，[Consul](https://www.consul.io/)，[Docker](https://www.docker.com/)等， 亦可作为部署监控其他数据库与应用的运行时。
-
-* Pigsty集成了数据分析生态的常用工具：[Jupyter](https://jupyter.org/)，[ECharts](https://echarts.apache.org/zh/index.html)，[Grafana](https://grafana.com/)，[PostgREST](https://postgrest.org/)，[Postgres](https://www.postgresql.org/)，可作为[数据分析](#数据分析)环境，或低代码数据可视化应用开发平台。
+[Distribution](#Distribution) / [High Availability](#High Availability) / [Monitoring System](#Monitoring System) / [One-Click Deployment](#One-Click Deployment) / [Infra as Data](#infra-as-data) / [Application Ecology](#Application Wide) /  [Security and Money Saving](#安全省钱)
 
 
-## 开源监控管控运维解决方案
+## PostgreSQL Distribution
 
-> Auto-Pilot for Postgres! 自动驾驶！ 从有到优，让用户**用的爽**！
+> RedHat for Linux! Battery-include! From scratch, making it **usable** for users!
 
-* Pigsty带有一个无可比拟的数据库[监控系统](#监控系统)，通过30+精心设计组织的监控面板呈现超1200类指标，从全局概览到单个库内对象一览无余，提供终极的可观测性！
+* Pigsty deeply integrates the latest [PostgreSQL](https://www.postgresql.org/) kernel (14) with powerful extensions: [TimescaleDB](https://www.timescale.com/)  2.6,  [PostGIS]( https://postgis.net/) 3.2,  [Citus](https://www.citusdata.com/) 10, and hundreds+ of extensions, all Battery-include.
+* Pigsty packs the infrastructure needed for large-scale production environments: [Grafana](https://grafana.com/), [Prometheus](https://prometheus.io/), [Loki](https://grafana.com/oss/loki/ ), [Ansible](https://docs.ansible.com/), [Consul](https://www.consul.io/), [Docker](https://www.docker.com/), etc. It can also be used as a deployment monitor for other database and application runtimes.
 
-* Pigsty提供[高可用](#高可用)的 PostgreSQL 数据库集群，任意成员存活即可正常对外提供服务；各实例幂等，提供类分布式数据库的体验；故障自愈，极大简化运维工作！
-
-* Pigsty支持部署不同种类的数据库集群与实例：经典 [PGSQL](d-pgsql.md) [主从复制集群](d-pgsql.md#主从集群)/[灾备集群](d-pgsql.md#备份集群)，[同步](v-pgsql.md#同步从库)/[延迟](v-pgsql.md#延迟从库)/[离线](v-pgsql.md#离线从库)/[级联实例](v-pgsql.md#级联从库)，[Citus](v-pgsql.md#Citus集群部署)/[Greenplum集群](d-matrixdb.md)，[Redis](d-redis.md) [主从](d-redis.md#redis普通主从实例定义)/[哨兵](d-redis.md#redis-sentinel集群定义)/[原生集群](d-redis.md#redis原生集群定义)。
-
+* Pigsty integrates with common tools for data analysis ecology: [Jupyter](https://jupyter.org/), [ECharts](https://echarts.apache.org/zh/index.html), [Grafana](https://), [PostgREST](https://postgrest.org/), [Postgres](https://www.postgresql.org/), which can be used as a [data analysis](#dataanalysis) environment, or a low-code data visualization application development platform.
 
 
-## 数据库即代码开发者工具箱
+## Open-source monitoring and control O&M solution
 
-> HashiCorp for Database! 简单易用！从优到易，让用户**省心**！
+> Auto-Pilot for Postgres! Auto-Pilot! From something to something better for users **Use it for fun**!
 
-* Pigsty秉持 Infra as Data 的设计理念，用户只需用几行声明式的[配置](v-config.md#配置文件)文件描述自己想要的数据库，即可使用幂等[剧本](p-playbook.md)，一键将其创建。Just like Kubernetes!
+* Pigsty comes with an unparalleled database [monitoring system](# monitoring system) that presents over 1200 types of metrics through 30+ carefully designed and organized monitoring panels, providing the ultimate observability from a global overview to individual repository objects at a glance!
+* Pigsty provides a [highly available](#highly available) PostgreSQL database cluster, with any member surviving to provide normal services to the public; each instance is idempotent, providing a distributed database-like experience; self-healing from failure, greatly simplifying operations and maintenance work!
 
-* Pigsty向开发者交付简单易用的数据库工具箱：一键下载[安装](s-install.md#单机安装)，自动[配置](v-config.md#配置过程)；一键部署各类开源数据库，一键迁移备份、扩容缩容，极大拉低数据库管理使用门槛，量产DBA！
+* Pigsty supports the deployment of different kinds of database clusters and instances: classic [PGSQL](d-pgsql.md) [master-slave replication cluster](d-pgsql.md#master-slave cluster)/[disaster recovery cluster](d-pgsql.md#backup cluster), [synchronization](v-pgsql.md#synchronization slave)/[delay](v-pgsql .md#delayed slaves)/[offline](v-pgsql.md#offline slaves)/[cascade instances](v-pgsql.md#cascade slaves), [Citus](v-pgsql.md#Citus cluster deployment)/[Greenplum cluster](d-matrixdb.md), [Redis](d-redis .md) [master-slave](d-redis.md#redis normal master-slave instance definition)/[sentinel](d-redis.md#redis-sentinel cluster definition)/[native cluster](d-redis.md#redis native cluster definition).
 
-* Pigsty能够简化数据库部署与交付、解决环境配置统一的难题：无论是上千套数据库几万核的生产环境，还是本地1C1G的笔记本均可完整运行；基于Vagrant的[本地沙箱](d-sandbox.md)与基于Terraform的[多云部署](d-sandbox.md#云端沙箱)，云上云下，一键拉起！
+## Database as Code Developer Toolkit
+
+> HashiCorp for Database! Easy to use! From best to easiest for the user **save**!
+
+* Pigsty upholds the Infra as Data design philosophy, users can create it in one click using an idempotent [playbook ](p-playbook.md)with just a few lines of declarative [config](v-config.md#配置文件) file describing the database they want. Just like Kubernetes!
+* Pigsty delivers an easy-to-use database toolkit to developers: one-click download [installation](s-install.md#standalone installation), automatic [configuration](v-config.md#configuration process); one-click deployment of various open-source databases, one-click migration backup, expansion, and reduction, greatly lowering the threshold of database management use, mass production DBA!
+* Pigsty can simplify database deployment and delivery, solve the problem of unified environment configuration: whether thousands of databases tens of thousands of core production environments, or a local 1C1G laptop can be fully operational; Vagrant-based [local sandbox](d-sandbox.md) and Terraform-based [multi-cloud deployment](d-sandbox. md#cloud sandbox), cloud on cloud off, pull up with one click!
 
 
 
-## 开源云数据库整体替代方案
+## Total Alternative for Open Source Cloud Database
 
-> Alternative for RDS! 降本增效！从易到廉，给用户**省钱**！
+> Alternative for RDS! Reduce Costs and Increase Efficiency! From easy to cheap, for users **Save money**！
 
-* Pigsty相比云厂商RDS，在拥有更低使用⻔槛与更丰富功能的前提下，可节约 50% - 80% 的数据库软硬件成本，初级研发人员即可自主管理成百上千套数据库。
+* Pigsty can save 50% - 80% of database hardware and software costs compared to cloud vendor RDS with a lower usage threshold and richer features, and junior R&D staff can manage hundreds of databases on their own.
+* Pigsty is modular and can be freely combined and extended on demand. It can [deploy](d-deploy.md) and [manage](r-sop.md) various databases in a production environment, or just use them as a host to monitor; it can be used to develop data [database visualization demos](t-application.md) or support various [SaaS applications](t-docker.md).
 
-* Pigsty采用模块化设计，可自由组合，按需定制扩展。可在生产环境[部署](d-deploy.md)[管理](r-sop.md)各种数据库，或仅仅将其当成主机监控；可用于开发数[据库可视化Demo](t-application.md)、或支撑各类[SaaS应用](t-docker.md)。
-
-* 开源免费的生产级数据库解决方案，用于补全云原生生态缺失的最后一块拼图。稳定可靠，经过长时间大规模生产部署验证，提供可选的专业技术支持服务。
-
-
+* Open source, free production-grade database solution to fill in the last missing piece of the cloud-native ecosystem. Stable and reliable, proven over time in large-scale production deployments, with optional professional technical support services.
 
 
 
 -----------------------
 
 
-## 发行版
+## Distributions
 
-> Pigsty是围绕PostgreSQL为核心的开源数据库发行版
+>  Pigsty is an open-source database distribution based around PostgreSQL as its core.
 
-Pigsty集成整合了PostgreSQL生态最强力的扩展插件：PostGIS，TimescaleDB，Citus，提供了原生的分布式、时序、空间能力支持，上百扩展开箱即用。
-并将高可用集群部署，扩容缩容，主从复制，故障切换，流量代理，连接池，服务发现，访问控制，监控系统，告警系统，日志采集等生产级成熟**解决方案**封装为发行版。
-一次性解决在生产环境与各类场景下使用 **世界上最先进的开源关系型数据库 —— [PostgreSQL](https://www.postgresql.org/)** 时会遇到的各种问题，真正做到开箱即用。
+Pigsty integrates the most powerful extension plug-ins of the PostgreSQL ecosystem: PostGIS, TimescaleDB, and Citus, providing native distributed, temporal, and spatial capability support with hundreds of extensions out of the box.
+And high availability cluster deployment, scale-up and scale-down, master-slave replication, failover, traffic proxy, connection pooling, service discovery, access control, monitoring system, alarm system, log collection, and other production-grade mature solutions package as a release.
+It solves all the problems encountered when using **the world's most advanced open-source relational database -- [PostgreSQL](https://www.postgresql.org/)** in production environments and various scenarios, truly battery-include.
 
-![](../_media/ARCH.svg)
-
-
-
-## 高可用
-
-> 故障自愈，高枕无忧
-
-以PostgreSQL为例，Pigsty创建的数据库集群是**分布式、高可用**的[数据库集群](c-arch.md#数据库集群)。只要集群中有任意实例存活，集群就可以对外提供完整的[读写服务](c-service.md#primary服务)与[只读服务](c-service.md#replica服务)。
-
-Pigsty的高可用架构久经生产环境考验，Pigsty使用 Patroni + Consul 进行故障检测、Fencing与自动故障切换，通过HAProxy、VIP或DNS实现流量的自动切换，以极低的复杂度代价实现了完整的高可用方案，让主从架构的数据库能用出了布式数据库般的体验。
-
-数据库集群可以自动进行故障检测与主从切换，普通故障能在几秒到几十秒内自愈：主库故障RTO < 1min，只读流量几乎无影响，[同步集群](d-pgsql.md#同步从库) RPO = 0 不丢数据。
-
-数据库集群中的每个数据库实例在使用上都是幂等的，任意实例都可以通过内建负载均衡组件HAProxy提供完整的读写服务。任何一个或多个Haproxy实例都可以作为集群的负载均衡器，并通过健康检查进行流量分发，对外屏蔽集群成员的区别。用户可以通过配置灵活定义[服务](c-service.md#服务)，并通过多种可选方式[接入](c-service.md#接入)。
-
-![](../_media/HA-PGSQL.svg)
+![](./_media/ARCH.svg)
 
 
 
-## 监控系统
+## High Availability
+
+> Self-healing failure, high availability.
+
+Taking PostgreSQL as an example, Pigsty creates a database cluster that is **distributed and highly available** [database cluster](c-arch.md#database cluster). As long as any instance of the cluster survives, the cluster can provide complete [read-write service](c-service.md#primary service) and [read-only service](c-service.md#replica service) to the outside world.
+
+Pigsty's high availability architecture has been tested in production environments. Pigsty uses Patroni + Consul for fault detection, Fencing, automatic failover, and HAProxy, VIP, or DNS for automatic traffic switching, achieving a complete high availability solution at a very low complexity cost, allowing the master-slave architecture of the database to be used with a cloth-like experience. Database-like experience.
+
+The database cluster can automatically perform fault detection and master-slave switching, and common faults can be self-healing within seconds to tens of seconds: RTO < 1min for master failure, read-only traffic is almost unaffected, [synchronous cluster](d-pgsql.md#synchronous slave) RPO = 0 without data loss.
+
+Each database instance in the database cluster is idempotent in use, and any instance can provide full read and write services through the built-in load balancing component HAProxy. Anyone or more Haproxy instances can act as a load balancer for the cluster and distribute traffic through health checks, shielding the cluster members from the outside world. Users can flexibly define [services](c-services.md#services) through config and [access](c-services.md#access) through various optional methods.
+
+![](./_media/HA-PGSQL.svg)
+
+
+
+## Monitoring system
 
 > You can't manage you don't measure.
 
-监控系统提供了对系统状态的度量，是运维管理工作的基石。【[DEMO](http://demo.pigsty.cc)】
+Monitoring systems provide metrics on the state of the system and are the cornerstone of operations and maintenance management. [[DEMO](http://demo.pigsty.cc)]
 
-Pigsty带有一个针对大规模数据库集群管理而设计的专业级监控系统，基于业内最佳实践，采用Prometheus、Alertmanager、Grafana、Loki作为监控基础设施。开源开放，定制便利，可复用，可移植，没有厂商锁定。
+Pigsty comes with a professional-grade monitoring system designed for large-scale database cluster management, based on industry best practices, using Prometheus, Alertmanager, Grafana, and Loki as the monitoring infrastructure. Open source, easy to customize, reusable, portable, no vendor lock-in.
 
-Pigsty在PostgreSQL监控上做到无可比拟，通过30+监控面板与上千仪表盘综合呈现约1200+类指标，覆盖从全局大盘到单个对象的详细信息。与同类产品相比在指标的覆盖率与监控面板丰富程度上一骑绝尘，为专业用户提供无可替代的价值。详略得当的层次设计，为业余用户带来直观便捷的管理体验。
+Pigsty is unmatched in PostgreSQL monitoring, presenting about 1200+ categories of metrics through 30+ monitoring panels and thousands of dashboards, covering detailed information from the big global picture to individual objects. Compared with similar products, the coverage of metrics and the richness of monitoring panels are unparalleled, providing irreplaceable value for professional users. The appropriate level of detail is designed to provide an intuitive and convenient management experience for amateur users.
 
-Pigsty的监控系统可用于监控原生部署的各类数据库实例：PGSQL，REDIS，GPSQL等，也可以[独立使用](d-monly.md)，监控已有的数据库实例或远端云厂商RDS，或仅仅作为主机监控使用，它还可以用作数据可视化作品的展示平台。
+Pigsty's monitoring system can be used to monitor all kinds of database instances deployed natively: PGSQL, REDIS, GPSQL, etc. It can also be used [standalone](d-monly.md) to monitor existing database instances or remote cloud vendor RDS, or just as a host monitoring, it can also be used as a showcase for data visualization works.
 
-![](../_media/overview-monitor.jpg)
-
-
+![](./_media/overview-monitor.jpg)
 
 
 
@@ -116,43 +105,45 @@ Pigsty的监控系统可用于监控原生部署的各类数据库实例：PGSQL
 
 
 
-## 一键部署
 
-> 安装脚本里每多一行命令，用户数量就会减半。
 
-Pigsty将易用性做到极致：一条命令安装并拉起所有组件，10分钟安装就绪，不依赖容器与Kubernetes，使用离线软件包时无需互联网访问，上手⻔槛极低。
+## One-click deployment
 
-Pigsty有两种典型使用模式：**单机**与**集群**。它既可完整运行于本地单核虚拟机上，又能用于大规模生产环境数据库管理。简运维，不操心，不折腾，一次性解决生产环境与个人使用PG的各类问题。
+> Every additional command line in the install script halves the number of users.
 
-在**单机模式**下，Pigsty会在该节点上部署完整的**基础设施运行时** 与 一个单节点PostgreSQL**数据库集群**。对于个人用户、简单场景、小微企业来说，您可以直接开箱使用此数据库。单节点模式本身功能完备，可自我管理，并带有一个扩展⻬全，全副武装，准备就绪的PG数据库，可用于软件开发、测试、实验，演示；或者是数据的清洗，分析，可视化，存储，或者直接用于支持上层应用：Gitlab, Jira, Confluence, 用友，金蝶，群晖等等……
+Pigsty takes ease-of-use to the extreme: one command installs and pulls up all components, ready to install in 10 minutes, no dependency on containers and Kubernetes, no Internet access required when using offline packages, and a very low threshold for getting started.
 
-Pigsty内置了一套以Ansible为核心的数据库管控方案，并基于此封装了命令行工具与图形界面。它集成了数据库管理中的核心功能：包括数据库集群的创建，销毁，扩缩容；用户、数据库、服务的创建等。
+Pigsty has two typical usage models: **Standalone** and **Cluster**. It can run completely on local single-core virtual machines and can be used for large-scale production environment database management. Simple operation and maintenance, no worries, no fuss, a one-time solution to all kinds of problems in production environments and personal use of PG.
 
-更重要的是，Pigsty打包并提供了一套完整的应用运行时，用户可以使用该节点管理任意数量的数据库集群。您可以从安装Pigsty的节点（又名"管理节点"/"元节点"）上发起控制，将更多节点纳入Pigsty的管理中。 您既可以使用它监控已有（包括云厂商RDS在内）的数据库实例，也可以直接在节点上自行部署高可用故障自愈的PostgreSQL数据库集群，以及其他种类的应用或数据库，例如 [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) ，并获取关于节点、数据库与应用的实时洞察。
+In **standalone mode**, Pigsty deploys a complete **infrastructure runtime** with a single-node PostgreSQL **database cluster** on that node. For individual users, simple scenarios, and small and micro businesses, you can use this database right out of the box. The single-node model itself is fully functional and self-manageable and comes with a fully-armed and ready-to-use PG database for software development, testing, experiment, demonstration; or data cleansing, analysis, visualization, storage, or direct support for upper-tier applications: Gitlab, Jira, Confluence, UF, Kingdee, Qunhui, etc. ......
 
-![](../_media/SANDBOX.gif)
+Pigsty has a built-in database management solution with Ansible as the core and is based on this package of command-line tools and graphical interface. It integrates the core functions of database management, including database cluster creation, destruction, expansion and contraction, user, database and service creation, etc.
 
-此外，Pigsty还提供基于Vagrant与Terraform的**本地沙箱**与**多云部署**模板，您可以一键准备好Pigsty部署所需的资源。
+What's more, Pigsty packages and provides a complete set of application runtime, which allows users to use the node to manage any number of database clusters. You can initiate control from the node where Pigsty is installed (aka "meta node") to bring more nodes under Pigsty's management. You can use it to monitor existing database instances (including cloud vendor RDS) or deploy your own highly available fail-safe PostgreSQL database cluster directly on the node, as well as other kinds of applications or databases, such as [Redis](d-redis.md) and [MatrixDB](d-matrixdb.md), and Get real-time insights about nodes, databases, and applications.
+
+![](./_media/SANDBOX.gif)
+
+In addition, Pigsty provides templates for **Local Sandbox** and **Multi-Cloud Deployment** based on Vagrant and Terraform, so you can prepare the resources you need for your Pigsty deployment with one click.
 
 
 ## Infra as Data
 
-数据库是管理数据的软件，管控系统是管理数据库的软件。
+A database is a software that manages the data, and a control system is software that manages the database.
 
 
-Pigsty采纳 *Infra as Data* 的设计哲学，使用类似 Kubernetes 的声明式配置，通过大量可选的配置选项对数据库与运行环境进行描述，并通过幂等的预置剧本自动创建所需的数据库集群，提供私有云般的使用体验。
+Pigsty adopts the design philosophy of *Infra as Data*, using a declarative configuration similar to Kubernetes, with a large number of optional configuration options to describe the database and the operating environment, and an idempotent preconfigured script to automatically create the required database clusters, providing a private cloud experience.
 
-用户只需要通过配置文件或图形界面描述“自己想要什么样的数据库”，而无需关心Pigsty如何去创建或修改它。Pigsty会根据用户的配置文件清单，在几分钟内从裸机节点上创造出所需的数据库集群。
+Pigsty creates the required database clusters from bare metal nodes in minutes based on a list of user config files.
 
-例如，在三台机器上创建一主两从的数据库集群`pg-test`，只需要几行配置与一行命令`pgsql.yml -l pg-test`，即可创建出如下一节所介绍的高可用数据库集群。
+For example, creating a one-master-two-slave database cluster `pg-test` on three machines requires only a few lines of config and a single command `pgsql.yml -l pg-test` to create a highly available database cluster as described in the following section.
 
-![](../_media/provision.jpg)
-
+![](./_media/provision.jpg)
 
 <details>
-<summary>使用更多参数对数据库集群进行定制</summary>
+<summary>Customizing the database cluster with more parameters</summary>
 
-![](../_media/interface.jpg)
+
+![](./_media/interface.jpg)
 
 ```yaml
 #----------------------------------#
@@ -263,9 +254,10 @@ pg-meta:                                # required, ansible group name , pgsql c
 </details>
 
 
-此外，除了PostgreSQL外，从Pigsty v1.3开始，还提供了对Redis部署与监控的支持
+In addition, in addition to PostgreSQL, support for Redis deployment and monitoring has been provided since Pigsty v1.3
 <details>
-<summary>样例：定制不同类型的Redis集群</summary>
+<summary>Example: Customizing different types of Redis clusters</summary>
+
 
 ```yaml
 #----------------------------------#
@@ -318,9 +310,10 @@ redis-common:
 </details>
 
 
-从Pigsty v1.4开始，提供了对MatrixDB (Greenplum7) 的初步支持
+Starting with Pigsty v1.4, initial support for MatrixDB (Greenplum7) is provided
 <details>
-<summary>样例：安装并监控一套MatrixDB集群</summary>
+<summary>Example: Installing and monitoring a MatrixDB cluster</summary>
+
 
 ```yaml
 #----------------------------------#
@@ -376,37 +369,38 @@ mx-sdw:
 
 </details>
 
-### 沙箱环境
+### Sandbox Environment
 
-Pigsty可以利用Vagrant与Virtualbox，在您自己的笔记本电脑上拉起安装所需的虚拟机环境，或通过Terraform，自动向云服务商申请ECS/VPC资源，一键创建，一键销毁。
+Pigsty can use Vagrant and Virtualbox to pull up and install the required virtual machine environment on your own laptop, or through Terraform, automatically request ECS/VPC resources from your cloud provider, creating and destroying them with a single click.
 
-沙箱环境中的虚拟机具有固定的资源名称与IP地址，非常适于软件开发测试、实验演示。
+The virtual machines in the sandbox environment have fixed resource names and IP addresses, making them very suitable for software development testing and experimental demonstrations.
 
-沙箱配置默认为2核4GB的单节点，IP地址 10.10.10.10，部署有一个名为`pg-meta-1`的单机数据库实例。
-此外还有四节点版本的完整版沙箱，带有额外三个数据库节点，可用于充分展现Pigsty高可用架构与监控系统的能力。
+The default sandbox configuration is a single node with 2 cores and 4GB, IP address 10.10.10.10, with a single database instance named `pg-meta-1` deployed.
+A full version of the sandbox is also available in a four-node version with three additional database nodes, which can be used to fully demonstrate the capabilities of Pigsty's highly available architecture and monitoring system.
 
 <details>
-<summary>沙箱所需机器规格</summary>
+<summary>Sandbox required machine specifications</summary>
 
-**系统要求**
+**System Requirements**
 
-* Linux内核，x86_64处理器架构
-* 使用 CentOS 7 / RedHat 7 / Oracle Linux 7 或其他等效操作系统发行版
-* 强烈推荐使用 CentOS 7.8.2003 x86_64 ，这是经过长时间生产环境的测试的操作系统环境
+* Linux kernel, x86_64 processor
+* Use CentOS 7 / RedHat 7 / Oracle Linux 7 or other equivalent operating system distribution
+* CentOS 7.8.2003 x86_64 is highly recommended and has been tested in production environments for a long time
 
-**单节点基本规格**
+**Single Node Basic  Specifications**
 
-* 最低规格：1核，1GB （容易OOM，建议内存至少2GB）
-* 推荐规格：2核，4GB （沙箱默认配置）
-* 将部署一个单机PostgreSQL实例`pg-meta-1`
-* 在沙箱中，该节点的IP固定为`10.10.10.10`
+* Min specification: 1 core, 1GB (OOM prone, at least 2GB of RAM recommended)
+* Recommended specifications: 2 cores, 4GB (sandbox default configuration)
+* A single PostgreSQL instance `pg-meta-1` will be deployed
+* In the sandbox, the IP of this node is fixed to `10.10.10.10`
 
-**四节点基本规格**
+**Four node basic specifications** 
 
-* 管理节点要求同**单节点**所述
-* 部署一个额外的三节点PostgreSQL数据库集群`pg-test`
-* 普通数据库节点，最低规格：1核，1GB，建议使用2GB内存。
-* 三节点的IP地址固定为：`10.10.10.11`, `10.10.10.12`, `10.10.10.13`
+* The meta node requirements are the same as described for a single node
+
+* Deploy an additional three-node PostgreSQL database cluster `pg-test`
+* Common database node with min specs: 1 core, 1GB, 2GB RAM recommended.
+* Three nodes with fixed IP addresses: `10.10.10.11`, `10.10.10.12`, `10.10.10.13`
 
 </details>
 
@@ -416,71 +410,73 @@ Pigsty可以利用Vagrant与Virtualbox，在您自己的笔记本电脑上拉起
 
 
 
+## Widely used
 
-## 应用广泛
+> One-click to pull up production SaaS applications, data analysis quickly, low code development visualization large screen
 
-> 一键拉起生产级SaaS应用，数据分析快速上手，低代码开发可视化大屏
-
-Pigsty在管理节点上默认安装了Docker，您可以一键拉起各类SaaS应用：开源私有代码托管平台Gitlab，开源论坛Discourse，开源社交网络Mastodon，开源ERP软件Odoo，以及用友、金蝶等软件。
-您可以使用Docker拉起无状态的部分，修改其数据库连接串使用外部数据库，获取丝滑的云原生管理体验与生产级的数据持久性。详情请参考 [教程:Docker应用](t-docker.md)。
-
-
-#### 数据分析
-
-Pigsty既是开箱即用的PostgreSQL发行版，也可以用做数据分析环境，或制作低代码的可视化应用。您可以直接从SQL数据处理到Echarts绘图一步到位，也可以使用更精细的工作流：例如使用PG作为主数据库，存储数据并用SQL实现业务逻辑；使用内置的PostgREST自动生成后端API，使用内置的JupyterLab用Python进行复杂数据分析，并使用Echarts进行数据可视化，并通过Grafana获得交互能力。
-
-Pigsty自带有几个应用样例作为参考：
-
-* 分析PG CSV日志样本[`pglog`](http://demo.pigsty.cc/d/pglog-overview)
-* 新冠疫情数据可视化 [`covid`](http://demo.pigsty.cc/d/covid-overview)
-* 全球地表气象站数据查询 [`isd`](http://demo.pigsty.cc/d/isd-overview) 
-* 数据库流行度排行趋势 [`dbeng`](http://demo.pigsty.cc/d/dbeng-overview) 
-* 查询大厂工作上下班安排 [`worktime`](http://demo.pigsty.cc/d/worktime-query) 
-
-![](../_media/overview-covid.jpg)
+Pigsty installs Docker by default on the meta node, and you can pull up all kinds of SaaS applications with one click: Gitlab, an open-source private code hosting platform; Discourse, an open-source forum; Mastodon, an open-source social network; Odoo, an open-source ERP software; and UFIDA, Kingdee, and other software.
+You can use Docker to pull up stateless parts, modify their database connection strings to use external databases, and get a silky smooth cloud-native management experience with production-grade data persistence. For more details, please refer to [Tutorial: Docker Application](t-docker.md).
 
 
+#### Data Analytics
 
-## 安全省钱
+Pigsty is both a battery-include PostgreSQL distribution and can be used as a data analysis environment, or to make low-code visualization applications. You can go directly from SQL data processing to Echarts plotting in one step, or you can use more elaborate workflows: for example, using PG as the main database, storing data and implementing business logic with SQL; using the built-in PostgREST to automate the back-end API, using the built-in JupyterLab to perform complex data analysis in Python, and using Echarts for data visualization, and Grafana for interaction capabilities.
 
-> 我们的理念是：用**好数据库**，**用好**数据库，**让天下没有难用的数据库！**
+Pigsty comes with several sample applications for reference.
 
-数据库是信息系统的核心组件，关系型数据库是数据库的绝对主力，PostgreSQL是世界上最先进的开源关系型数据库。
-PG提供了一个足够完美的数据库内核，但真要用好它，可没有那么简单，而我们帮助用户做到这一点。
+* Analysis of PG CSV log samples [`pglog`](http://demo.pigsty.cc/d/pglog-overview)
+* Visualization of new crown outbreak data [`covid`](http://demo.pigsty.cc/d/covid-overview)
+* The global surface weather station data query [`isd`](http://demo.pigsty.cc/d/isd-overview) 
+* Database prevalence ranking trend [`dbeng`](http://demo.pigsty.cc/d/dbeng-overview) 
+* Query the work commuting schedule of a large factory's [`worktime`](http://demo.pigsty.cc/d/worktime-query) 
 
-传统企业，特别是中小企业信息化，需要什么样的数据库? 是分布式云原生湖仓一体流批时空超融合HTAP数据库吗?
-不是，大多数企业的数据库需求，甚至Excel便足以解决！痛点不在于数据库内核牛不牛，而是 用户能不能**用得上**！
+![](./_media/overview-covid.jpg)
 
-99% 的企业，完整生命周期的数据需求， **单机PostgreSQL足矣！**
+
+
+## Secure and cost-saving
+
+> Our philosophy is: use the **good database**, **use the good **database, **let there be no hard-to-use database in the world!**
+
+The database is the core component of an information system, a relational database is the absolute mainstay of the database, and PostgreSQL is the world's most advanced open-source relational database.
+PG provides a perfect enough database kernel, but it is not that simple to really use it well, and we help users to do that.
+
+What kind of database do traditional enterprises, especially SMEs, need for information technology? Is the distributed cloud-native lake warehouse integrated flow batch time hyper-converged HTAP database?
+No, most of the enterprise's database needs, even Excel will be enough to solve! The pain point does not lie in the database kernel cattle or not, but the user can not **use it**!
+
+99% of enterprises, the complete life cycle of data needs, **stand-alone PostgreSQL is sufficient!**
 
 -------------
 
-然而个人搭建玩具Demo使用数据库是一回事，在生产环境部署维护数据库则是完全不同的另一回事：安装部署，运维管理，配套设施，平台搭建，服务接入，高可用，故障切换，负载均衡， 连接池，分库分表，监控，日志，审计，备份，恢复，升级策略，模式变更......，
-有无数的实际问题需要解决，可不仅仅是`yum install postgresql14* && systemctl start postgresql` 这么简单。
+However, it is one thing to build a personal toy demo to use the database, and another thing to deploy and maintain the database in a production environment: installation and deployment, operation and maintenance management, supporting facilities, platform construction, service access, high availability, failover, load balancing, connection pooling, database and table splitting, monitoring, logging, auditing, backup, recovery, upgrade strategy, schema change ...... The following are some of the most common problems that need to be solved.
+There are countless practical problems to solve, not just `yum install postgresql14* && systemctl start postgresql`.
 
-云数据库/RDS，是一种所谓"开箱即用"的解决方案，但它交出的答卷离用户满意还有很多痛点：
+Cloud database/RDS, a so-called "battery-include" solution, has delivered a lot of pain points away from user satisfaction.
 
-**成本高昂**
-* RDS的成本，比起IDC托管自建高出 **5～10倍**，即使比起云虚拟机自建，也要高出 **2~3倍**。
-* RDS的价格或许相对商业数据库有优势，但在自建面前依然高的离谱。
+**High cost**
 
-**命不由己**
-* 云厂商有能力访问您的各类数据，且很多云厂商并不是真正中立的第三方运营商。
-* 云厂商故障并不鲜见，您能拥有的补偿通常只有可怜的时长代金券。
+* The cost of RDS is **5 to 10 times** higher than IDC hosting self-build, and even compared to cloud VM self-build, it is **2 to 3 times** higher.
+* The price of RDS may be advantageous relative to commercial databases, but it is still ridiculously high in front of self-build.
 
-**功能阉割**
-* 您没有RDS的真正的超级用户权限，一些高级功能无法实现。
-* '流复制'，'高可用'这些本该是标配的东西往往作为增值项出售。
+**Life is not your choice**.
 
-**体验有限**
-* 云厂商RDS提供的可观测性往往只有零星的几个监控指标，缺乏全局整合与上帝视角。
-* 安装，部署，访问，使用仍然需要大量UI交互与操作。
+* Cloud vendors can access all types of your data, and many are not truly neutral third-party operators.
+* Cloud vendor failures are not uncommon, and the only compensation you can have is usually a poor hourly voucher.
 
-Pigsty旨在继承并超越云数据库的易用性的同时，解决上述问题。
+**Feature Castration**
 
-Pigsty基于Apache 2.0协议开源，可以免费用于商业目的。Pigsty没有供应商锁定，不使用专有软硬件，不收集任何用户数据。您可以在自己的服务器上，笔记本上，甚至任意云厂商的云服务器上自由部署，并获得统一的使用体验，真正自主可控。
+* You don't have true superuser access to RDS and some advanced features are not available.
+* 'Stream replication', and 'high availability' which should be standard are often sold as value-added items.
 
-Pigsty相比使用云数据库有显著成本优势。例如，您可以使用云数据库一半的开销购买同规格的云服务器，并使用Pigsty自行部署数据库，同时亦可享受云服务器的管理之便。
+**Limited experience**
 
-**Pigsty开源免费，在提供类似甚至超过云厂商RDS使用体验的前提下，可将数据库的综合持有成本降低 50% ～ 80% ，并让数据真正掌控在用户自己的手中！**
+* Cloud vendor RDS provides observability often with only a few sporadic monitoring metrics, lacking global integration and God's perspective.
+* Installation, deployment, access, and use still require a lot of UI interaction and manipulation.
 
+Pigsty aims to inherit and surpass the ease of use of cloud databases while addressing the above issues.
+
+Pigsty is open source based on Apache 2.0 protocol and can be used for commercial purposes for free. Pigsty has no vendor lock-in, does not use proprietary hardware or software, and does not collect any user data. You can freely deploy it on your server, on your laptop, or even on any cloud vendor's cloud server, and get a unified experience that is truly autonomous and controlled.
+
+Pigsty has significant cost advantages over using a cloud database. For example, you can purchase a cloud server with the same specifications at half the cost of a cloud database, and deploy the database yourself using Pigsty, while enjoying the convenience of managing a cloud server.
+
+**Pigsty is open source and free, providing a similar or even better experience than the cloud vendor's RDS, reducing the total cost of ownership of the database by 50% to 80%, and putting the data in the hands of the user! **

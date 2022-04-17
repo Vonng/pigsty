@@ -1,8 +1,12 @@
 # Install Applications
 
-Pigsty can be used not only for deploying and monitoring PostgreSQL, but also for creating and distributing data-like **applications** (Applications).
+Pigsty can be used not only for deploying and monitoring PostgreSQL but also for making and distributing data-like **Applications**.
 
-The `PGSQL`, `PGLOG`, and `PGCAT` used to monitor the system are also developed and distributed as applications. In addition, Pigsty provides two sample applications: [`covid`](#covid) and [`isd`](#isd)
+Pigsty provides three sample applications.
+
+* [`pglog`](#PGLOG), which analyzes PostgreSQL CSV log samples.
+* [`covid`](#COVID), which visualizes WHO COVID-19 data and accesses country outbreak data.
+* [`pglog`](#ISD), NOAA ISD, allows querying weather observation records from 1901 for 30,000 surface weather stations worldwide.#isd)
 
 
 
@@ -10,14 +14,18 @@ The `PGSQL`, `PGLOG`, and `PGCAT` used to monitor the system are also developed 
 
 A Pigsty application typically includes at least one or all of the following.
 
-* Graphical interface (Grafana Dashboard definition) Placed in the `ui` directory
-* Data definitions (PostgreSQL DDL File) placed in the `sql` directory
-* Data files (various resources, files to download), placed in the `data` directory
-* Logical scripts (executing various types of logic), placed in the `bin` directory
+* graphical interface (Grafana Dashboard Definition) placed in the `ui` dir
+* Data definitions (PostgreSQL DDL File), placed in the `sql` directory
+* Data files (various resources, files to download), placed in the `data` dir
+* Logical scripts (executing various types of logic), placed in the `bin` dir
 
-A Pigsty application will provide an installation script in the application root directory: `install` or a shortcut to it. You need to use [admin-user](t-prepare.md#manage application provisioning) to perform the installation at [admin-node](t-prepare.md#manage node provisioning). The installation script will check the current environment (get `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT`, etc. to perform the installation)
+A Pigsty application will provide an installation script in the application root dir: `install` or a shortcut to it. You need to use an [admin-user](d-prepare.md#manage application provisioning) to install the [meta-node](d-prepare.md#manage node provisioning). The installation script detects the current environment (gets `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT`, etc. to perform the installation).
 
-You can download the application installation with the base data from https://github.com/Vonng/pigsty/releases/download/v1.4.0/app.tgz.
+Typically, panels with the `APP` label are included in the App drop-down menu in the Pigsty Grafana home page navigation, and panels with the `APP` and `Overview` labels are included in the home page panel navigation.
+
+You can download the app with the base data for installation from https://github.com/Vonng/pigsty/releases/download/v1.4.0/app.tgz.
+
+
 
 
 
@@ -45,7 +53,7 @@ make load # Load the downloaded WHO data
 make reload # download + load
 ```
 
-Or just use `make all` to setup all stuff for you. If data is already downloaded (e.g get applications via downloading app.tgz), run `make all2` instead to skip download.
+Or just use `make all` to set up all stuff for you. If data is already downloaded (e.g get applications via downloading app.tgz), run `make all2` instead to skip the download.
 
 
 
@@ -82,11 +90,11 @@ make reload # Download the latest daily summary from NOAA and parse and load it
 ## PGLOG csvlog sample analysis
 
 PGLOG Analysis & PGLOG Session provide introspection about PostgreSQL csvlog sample (via table `pglog.sample` on cmdb)
-* [PGLOG Analysis](http://g.pigsty.cc/pglog-analysis): Analysis csvlog sample on CMDB (focusing on **entire** log sample)
-* [PGLOG Session](http://g.pigsty.cc/pglog-session): Analysis csvlog sample (focusing on single **session**)
+* [PGLOG Analysis](http://g.pigsty.cc/pglog-analysis): Analysis of csvlog sample on CMDB (focusing on **entire** log sample)
+* [PGLOG Session](http://g.pigsty.cc/pglog-session): Analysis csvlog sample (focusing on the single **session**)
 
 
-There are some handy alias & func set on meta node:
+There are some handy alias & func sets on the meta node:
 
 Load csvlog from stdin into sample table:
 ```bash

@@ -1,13 +1,17 @@
-# Inventory Upgrade
+# CMDB Usage
 
-You can use postgres as [dynamic inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html) instead of config file `pigsty.yml`.
+You can use `postgres` as a config source for Pigsty, instead of a static config file.
 
-CMDB Inventory enables integration with external admin tools, such as [`pigsty-cli`](https://github.com/Vonng/pigsty-cli) or other 3rd party tools.
+Using CMDB as a dynamic Inventory for Ansible has several advantages: metadata is presented as data tables in a highly structured manner, and consistency is ensured by database constraints. The CMDB also allows you to use third-party tools to edit and manage Pigsty metadata, facilitating inter-integration with external systems.
+
+Currently, Pigsty's CMDB only supports PostgreSQL clusters, if your pigsty.yml contains Redis and MatrixDB, it will report an error, it is recommended to use a separate pigsty.yml configuration file to manage Redis and Greenplum clusters. 
 
 
-### 1. Load Config
+### Load Config
 
-After `infra.yml` complete, use `bin/load_conf.py` to upgrade static config file to cmdb dynamic inventory
+The Pigsty CMDB schema is automatically created during the initialization of the `pg-meta` metadatabase ([`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)) and is located in the `meta` database's ` pigsty` schema of the meta-database. Static configuration files can be loaded into the CMDB using `bin/load_conf.py`.
+
+! > You must execute `infra.yml` completely in the meta node, after installation, before you can use CMDB.
 
 ```bash 
 usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]
@@ -21,41 +25,37 @@ optional arguments:
   -d DATA, --data DATA  postgres cmdb pgurl, ${METADB_URL} by default
 ```
 
-e.g : load default profile to cmdb as config profile `pgsql`
+By default, executing the script without parameters will load `$PIGSTY_HOME/pigsty.yml` into the CMDB under the name `pgsql`.
+
 ```bash
 bin/load_conf.py
 ```
 
-e.g : load 4 node-demo profile to cmdb as config profile `demo4`
+You can load multiple different config files and give them different names. Existing config files with the same name will be overwritten. For example, the default config file ``pigsty-demo4.yml`` is loaded into CMDB and enabled.
+
 ```bash
-bin/load_conf.py -n demo4 -p files/conf/pigsty-demo4.yml
+bin/load_conf.py  -n demo4  -p files/conf/pigsty-demo4.yml
 ```
 
 
-### 2. Inventory Usage
 
+### Use CMDB as a config source
 
-After `bin/load_conf.py`, use dynamic inventory instead of config file:
+Once the original config file is loaded into the CMDB as the initial data, Ansible can be configured to use the CMDB as the config source: 
 
 
 ```bash
 bin/inventory_cmdb
 ```
 
-You can switch back to static config file with
+You can switch back to a static config file: 
 
 ```bash
 bin/inventory_conf
 ```
 
-   
-A dynamic inventory script `inventory.sh` will be created under pigsty home:
-   
-```bash
-psql service=meta -AXtwc 'SELECT text FROM pigsty.inventory;'
-```
 
-`~/pigsty/ansible.cfg` will be adjusted to use `inventory.sh` as inventory: 
+Modifying the config source is essentially a matter of editing ``ansible. cfg`` in the Pigsty dir.
 
 ```bash
 ---
@@ -64,19 +64,9 @@ inventory = pigsty.yml
 inventory = inventory.sh
 ```
 
-if you want rollback to static config file, change that line back to `pigsty.yml`
-
-If your ansible.cfg not lies there, adjust your inventory with `-i <path_to_inventory.sh>`
 
 
-
-### 3. CMDB Usage
-
-cmdb will be installed under `pg-meta.meta` database, using schema `pigsty`
-
-There are several tables, views and functions:
-
-Check [cmdb.sql](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql) for detail.
+### CMDB Mode
 
 ```bash
 # Tables
@@ -88,6 +78,7 @@ pigsty.instance                 # instance
 pigsty.instance_var             # instance config entries
 pigsty.node                     # node
 pigsty.job                      # job
+pigsty.setting
 
 # views
 pigsty.inventory            # de-parsed inventory
@@ -120,7 +111,7 @@ pigsty.ins_seq
 pigsty.ip2ins
 pigsty.job_id
 pigsty.job_id_ts
-pigsty.node_cls
+pigsty.node_cls 
 pigsty.node_ins
 pigsty.node_is_meta
 pigsty.node_status
@@ -137,7 +128,7 @@ pigsty.update_global_vars
 pigsty.update_instance_var
 pigsty.update_instance_vars
 pigsty.update_node_status
-pigsty.upsert_cluster
+pigsty.upsert_clusters
 pigsty.upsert_config
 pigsty.upsert_instance
 pigsty.upsert_node

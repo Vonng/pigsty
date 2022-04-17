@@ -4,13 +4,13 @@ You can use postgres as the database used by the Grafana backend.
 
 This is a great opportunity to learn how the Pigsty deployment system is used. By completing this tutorial, you will learn.
 
-* How to [create new cluster](#create-new-cluster)
-* How to [create new biz user](#create-new-user) in an existing database cluster
-* How to [create new biz database](#create-new-database) in an existing database cluster
+* How to [create a new cluster](#create-new-cluster)
+* How to [create a new biz user](#create-new-user) in an existing database cluster
+* How to [create a new biz database](#create-new-database) in an existing database cluster
 * How to [access databases](#access-database) created by Pigsty
 * How to [manage dashboards](#manage-dashboards) in Grafana
 * How to manage [PostgreSQL DataSources](#manage-postgres-datasource)  in Grafana
-* How to do [upgrade grafana database](upgrade-grafana-database)
+* How to do [upgrade the grafana database](upgrade-grafana-database)
 
 
 
@@ -40,7 +40,7 @@ A Grafana-specific database cluster can also be created on a new machine node: `
 ### Defining cluster
 
 To create a new dedicated database cluster `pg-grafana` on two bare nodes `10.10.10.11`, `10.10.10.12`, 
-define it in configuration file.
+define it in the configuration file.
 
 ```yaml
 pg-grafana: 
@@ -79,7 +79,7 @@ This command actually calls Ansible Playbook [`pgsql.yml`](p-pgsq.md) to create 
 . /pgsql.yml -l pg-grafana # The actual equivalent Ansible playbook command executed 
 ```
 
-The business users and business databases defined in `pg_users` and `pg_databases` are created automatically when the cluster is initialized, so with this configuration, after the cluster is created, (without DNS support) you can [access] (c-access.md) the database (either one will do) using the following connection string.
+The business users and business databases defined in `pg_users` and `pg_databases` are created automatically when the cluster is initialized, so with this configuration, after the cluster is created, (without DNS support) you can [access](c-access.md) the database (either one will do) using the following connection string.
 
 ```bash
 postgres://dbuser_grafana:DBUser.Grafana@10.10.10.11:5432/grafana # direct connection to the master database
@@ -91,7 +91,7 @@ postgres://dbuser_grafana:DBUser.Grafana@10.10.10.12:5436/grafana # Direct conne
 postgres://dbuser_grafana:DBUser.Grafana@10.10.10.12:5433/grafana # Connected string read/write service
 ```
 
-Since by default Pigsty is installed on a **single management node**, in the next steps we will create the users and databases needed for Grafana on the existing `pg-meta` database cluster instead of using the `pg-grafana` cluster created here.
+Since by default Pigsty is installed on a **single meta node**, in the next steps we will create the users and databases needed for Grafana on the existing `pg-meta` database cluster instead of using the `pg-grafana` cluster created here.
 
 
 ---------------
@@ -105,7 +105,7 @@ This is because if an `owner` is configured for the database, the database has a
 
 ### Defining users
 
-To create a user `dbuser_grafana` on a `pg-meta` cluster, first add the following user definition to `pg-meta`'s [cluster definition](#define cluster).
+To create a user `dbuser_grafana` on a `pg-meta` cluster, first, add the following user definition to `pg-meta`'s [cluster definition](#define cluster).
 
 Add location: ``all.children.pg-meta.vars.pg_users`''
 
@@ -117,7 +117,7 @@ Add location: ``all.children.pg-meta.vars.pg_users`''
   roles: [ dbrole_admin ]
 ```
 
-> If you have defined a different password here, replace the corresponding parameter with the new password in the subsequent steps
+> If you have defined a different password here, replace the corresponding parameter with the new password in the subsequent steps.
 
 ### Create user
 
@@ -127,7 +127,7 @@ Complete the creation of the `dbuser_grafana` user with the following command (e
 bin/createuser pg-meta dbuser_grafana # Create the `dbuser_grafana` user on the pg-meta cluster
 ```
 
-Actually calls Ansible Playbook [`pgsql-createuser.yml`](p-pgsql-createuser.md) to create the user
+Calls Ansible Playbook [`pgsql-createuser.yml`](p-pgsql-createuser.md) to create the user
 
 ```bash
 . /pgsql-createuser.yml -l pg-meta -e pg_user=dbuser_grafana # Ansible
@@ -159,7 +159,7 @@ Use the following command to complete the creation of the `grafana` database (ei
 bin/createdb pg-meta grafana # Create the `grafana` database on the `pg-meta` cluster
 ```
 
-Actually calls Ansible Playbook [`pgsql-createdb.yml`](p-pgsql-createdb.md) to create the database
+Calls Ansible Playbook [`pgsql-createdb.yml`](p-pgsql-createdb.md) to create the database.
 
 ```bash
 . /pgsql-createdb.yml -l pg-meta -e pg_database=grafana # The actual Ansible playbook to execute
@@ -174,7 +174,7 @@ Actually calls Ansible Playbook [`pgsql-createdb.yml`](p-pgsql-createdb.md) to c
 
 ### Checking connection string accessibility
 
-You can access the database using different [service](c-service.md) or [access](c-access.md) methods, e.g.
+You can access the database using different [services](c-service.md) or [access](c-access.md) methods, e.g.
 
 ```bash
 postgres://dbuser_grafana:DBUser.Grafana@meta:5432/grafana # Direct connection
@@ -184,7 +184,7 @@ postgres://dbuser_grafana:DBUser.Grafana@meta:5433/grafana # primary service
 
 Here, we will use the [default service](c-service.md#default service) that accesses the database directly from the primary through the load balancer.
 
-First check if the connection string is reachable and if you have permission to execute DDL commands.
+First, check if the connection string is reachable and if you have permission to execute DDL commands.
 
 ```bash
 psql postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana -c \
@@ -193,7 +193,7 @@ psql postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana -c \
 
 ### Config Grafana
 
-In order for Grafana to use the Postgres datasource, you need to edit `/etc/grafana/grafana.ini` and modify the configuration entries to.
+For Grafana to use the Postgres data source, you need to edit `/etc/grafana/grafana.ini` and modify the config entries.
 
 
 ```ini
@@ -207,7 +207,7 @@ In order for Grafana to use the Postgres datasource, you need to edit `/etc/graf
 ;url =
 ```
 
-Change the default configuration entries to
+Change the default config entries to
 
 ```ini
 [database]
@@ -215,7 +215,7 @@ type = postgres
 url = postgres://dbuser_grafana:DBUser.Grafana@meta/grafana
 ```
 
-Subsequently restart Grafana to.
+Subsequently, restart Grafana.
 
 ```bash
 systemctl restart grafana-server
@@ -232,7 +232,7 @@ See from the monitoring system that the new [``grafana``](http://g.pigsty.cc/d/p
 ## Manage Dashboards
 
 
-You can reload the Pigsty monitoring panel by going to the ``files/ui`` directory in the Pigsty directory using the admin user and executing ``grafana.py init``.
+You can reload the Pigsty monitoring panel by going to the ``files/ui`` dir in the Pigsty dir using the admin user and executing ``grafana.py init``.
 
 ```bash
 cd ~/pigsty/files/ui
@@ -275,7 +275,7 @@ init dashboard: pglog / pglog-session.json
 ```
 
 
-This script detects the current environment (defined at `~/pigsty` during installation), gets Grafana access information and replaces the URL connection placeholder domain name (`*.pigsty`) in the monitoring panel with the real one in use.
+This script detects the current environment (defined at `~/pigsty` during installation), gets Grafana access information, and replaces the URL connection placeholder domain name (`*.pigsty`) in the monitoring panel with the real one in use.
 
 ```bash
 export GRAFANA_ENDPOINT=http://10.10.10.10:3000
@@ -301,7 +301,7 @@ Besides, using `grafana.py clean` will clear the target monitor panel, and using
 
 When creating a new PostgreSQL cluster with [`pgsql.yml`](p-pgsql) or a new business database with [`pgsql-createdb.yml`](p-pgsql-createdb), Pigsty will register the new PostgreSQL data source in Grafana, and you can access the target database instance directly through Grafana using the default monitor user. Most of the functionality of the application `pgcat` relies on this.
 
-To register a Postgres database, you can use the `register_grafana` task in [`pgsql.yml`](p-pgsql) to.
+To register a Postgres database, you can use the `register_grafana` task in [`pgsql.yml`](p-pgsql).
 
 ```bash
 ./pgsql.yml -t register_grafana # Re-register all Postgres data sources in the current environment
@@ -316,14 +316,14 @@ To register a Postgres database, you can use the `register_grafana` task in [`pg
 
 ## Update Grafana Database
 
-You can directly change the backend data source used by Grafana by modifying the Pigsty configuration file to do the job of switching Grafana backend databases in one step. Edit the [``grafana_database`'' (v-meta.md#grafana_database) and [``grafana_pgurl`'' (v-meta.md#grafana_pgurl) parameters in ``pigsty.yml`' to
+You can directly change the backend data source used by Grafana by modifying the Pigsty config file and finish switching the Grafana backend database in one step. Edit the [`grafana_database`](v-infra.md#grafana_database) and [`grafana_pgurl`](v-infra.md#grafana_pgurl) parameters in `pigsty.yml` and change them.
 
 ```yaml
 grafana_database: postgres
 grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
 ```
 
-Then re-execute the `grafana` task in [`infral.yml`](p-meta) to complete the Grafana upgrade
+Then re-execute the `grafana` task in [`infral.yml`](p-meta) to complete the Grafana upgrade.
 
 ```bash
 ./infra.yml -t grafana
