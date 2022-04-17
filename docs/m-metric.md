@@ -1,11 +1,11 @@
-# Monitoring Indicators
+# Metrics
 
 >  **Metric** is the core concept of Pigsty's monitoring system.
 
 
 
 
-## Metric Form
+## Format
 
 **Metrics** are formally cumulative, atomic logical units of measure that can be updated and statistically aggregated overtime periods.
 
@@ -39,7 +39,7 @@ pg:ins:qps_realtime{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", role="repl
 
 
 
-## Metric Model
+## Model
 
 Each **Metric** is a **class** of data that usually corresponds to multiple **time series**. Different time series corresponding to the same metric is distinguished by **dimensions**.
 
@@ -100,7 +100,7 @@ INSERT INTO series_data VALUES                 -- The underneath sampling data p
 
 Pigsty has four main sources of monitoring data: **database**, **connection pool**, **operating system**, and **load balancer**. Exposed to the public via the corresponding exporter.
 
-![](./_media/metrics_source.png)
+![](_media/metrics_source.png)
 
 Full sources include.
 
@@ -115,7 +115,7 @@ Full sources include.
 * Monitoring system itself working metrics: Grafana, Prometheus, Nginx
 * Blackbox probing metrics (TBD)
 
-For a full list of available metrics, please refer to the [Reference - Metrics List]() section.
+For a full list of available metrics, please refer to the **Reference - Metrics List**section.
 
 
 
@@ -123,7 +123,7 @@ For a full list of available metrics, please refer to the [Reference - Metrics L
 
 So, how many metrics does Pigsty contain in total? Here is a pie chart of the percentage of each metric source. We can see that the blue-green-yellow part on the right corresponds to the metrics exposed by the database and database-related components, while the red-orange part on the bottom left corresponds to the machine node-related metrics. The purple part on the top left is the metrics related to loading balancers.
 
-![](./_media/metrics_ratio.png)
+![](_media/metrics_ratio.png)
 
 Among the database metrics, there are about 230 raw metrics related to Postgres itself, and about 50 raw metrics related to middleware, and based on these raw metrics, Pigsty carefully designed about 350 DB-related derived metrics through hierarchical aggregation and precomputation.
 
@@ -132,7 +132,7 @@ Thus, for each database cluster, there are 621 monitoring metrics purely for the
 Note that here we must distinguish between metric and time-series.
 Here we use the term class rather than the individual. This is because a metric may correspond to multiple time series. For example, if there are 20 tables in a database, then a metric like `pg_table_index_scan` will have 20 corresponding time series.
 
-![](./_media/metrics_compare.png)
+![](_media/metrics_compare.png)
 
 As of 2021, Pigsty's metrics coverage is one of the best among all open source/commercial monitoring systems known to the authors, see [**Cross-Sectional Comparison**] for details.
 
@@ -154,9 +154,9 @@ There are four instances in the cluster, and each instance has two databases, so
 
 The following chart, on the other hand, is a cross-sectional comparison of QPS for each instance in the entire cluster, so here we use predefined rules to first derive the original transaction counters to obtain 8 DB-level TPS metrics, then aggregate the 8 DB-level time series into 4 instance-level TPS metrics, and finally aggregate these four instance-level TPS metrics into cluster-level TPS metrics at the cluster level.
 
-![](./_media/derived-metrics.png)
+![](_media/derived-metrics.png)
 
-Pigsty defines a total of 360 classes of derived aggregated metrics, with more to come. The rules for defining derived metrics are described in [**Reference-Derived-Metrics**]()
+Pigsty defines a total of 360 classes of derived aggregated metrics, with more to come. The rules for defining derived metrics are described in **Reference: Derived-Metrics**.
 
 
 
@@ -164,7 +164,7 @@ Pigsty defines a total of 360 classes of derived aggregated metrics, with more t
 
 The catalog is a special indicator
 
-![](/img/ui/pg-table-catalog.jpg)
+![](_media/pg-table-catalog.jpg)
 
 The catalog is more similar but not identical to Metrics, with blurred boundaries. In the simplest example, should the number of pages and tuples of a table be counted as Catalog or Metrics?
 

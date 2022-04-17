@@ -79,6 +79,8 @@ INFRA Monitor is used to monitoring the infrastructure itself and contains the f
 * [Nodes Alert](http://demo.pigsty.cc/d/nodes-alert): Host Alert
 * [PGSQL Alert](http://demo.pigsty.cc/d/pgsql-alert/): PostgreSQL database alert
 
+
+
 ## APP
 
 Pigsty comes with a typical application, PGLOG, for analyzing CSV log samples from PG itself.

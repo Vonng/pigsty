@@ -14,11 +14,11 @@ The static file is the default service discovery mechanism. Before v1.0.0, Consu
 
 
 
-## Identity parameters
+## Identity
 
 All instances have an **Identity** and the **Identifier** is the **metadata** associated with the instance to identify it.
 
-[**identity parameter**](v-pg-provision/#identity-parameter) is a unique identifier that must be defined for any cluster with an instance.
+[**identity parameter**](v-pgsql.md#pg_identity) is a unique identifier that must be defined for any cluster with an instance.
 
 | name | variables | abbreviation | type | description |
 | :--: | :-----------: | ------ | ---------------- | --------------------------------------------- |
@@ -32,7 +32,7 @@ All instances have an **Identity** and the **Identifier** is the **metadata** as
 
 
 
-## Identity association
+## Attach Identity
 
 After naming the objects in the system, you also need to associate **identity information** to specific instances.
 
@@ -101,7 +101,7 @@ Using the following command, the config files will be regenerated for all instan
 ./pgsql.yml -t register_prometheus
 ```
 
-### Default capture objects
+### Default Targets
 
 Each managed Postgres instance includes several capture ports.
 
@@ -111,7 +111,7 @@ Each managed Postgres instance includes several capture ports.
 * [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3) for capturing high availability components
 * [HAProxy](https://github.com/Vonng/haproxy-rpm) for capturing load balancer metrics (built-in support, no separate deployment required)
 
-![](./_media/nodes.svg)
+![](_media/nodes.svg)
 
 These capture ports are captured by Prometheus on the [meta node](c-arch.md#management node).
 In addition, the optional Promtail for collecting Postgres, Patroni, and Pgbouncer logs is an optional additional installed component.
@@ -165,7 +165,7 @@ The default location of the JSON config file is `/etc/consul.d/`, using the nami
 
 Where the `meta` and `tags` sections are the metadata of the service and store the **identity information** of the instance.
 
-### Service query
+### Service Inquiry
 
 Users can discover **services registered to Consul** through the DNS service provided by Consul, or by calling the Consul API directly
 
@@ -215,8 +215,6 @@ However, all original monitoring metrics related to database clusters in Pigsty 
 | :-----------: | :------: | :---------------: |
 | `pg_cluster` | `cls` | `pg-test` |
 | `pg_instance` | `ins` | `pg-test-1` |
-| `pg_services` | `svc` | `pg-test-primary` |
-| `pg_role` | `role` | `primary` |
 | `node_ip` | `ip` | `10.10.10.11` |
 
 

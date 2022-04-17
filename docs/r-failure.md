@@ -1,8 +1,8 @@
-# Database common failures and handling
+# Common Failures
 
 
 
-### Hardware failures
+## Hardware Faults
 
 | ID |        Name        |                Symptom                | Process |
 | :--: | :-----------------: | :---------------------------------: | :--: |
@@ -21,7 +21,7 @@
 
 
 
-### Software Failures
+## Software Errors
 
 |  ID  |                      Name                      |                           Symptom                            |                           Process                            |
 | :--: | :--------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -40,7 +40,7 @@
 
 
 
-### Human Problems
+## Human Errors
 
 |  ID  |                             Name                             |             Symptom             |                           Process                            |
 | :--: | :----------------------------------------------------------: | :-----------------------------: | :----------------------------------------------------------: |
@@ -50,12 +50,10 @@
 | M04  |                         Erasure Form                         |        The table is gone        | Fetch from delayed backups<br />Fetch and restore from cold backups |
 | M05  |               Integer Sequence Number Overflow               |     Sequence exceeds INTMAX     | Refer to integer primary key online upgrade manual to handle |
 | M06  | Insert data conflicts due to duplicate primary key serial numbers |     violate constratint ...     |           Grow serial number value (e.g. +100000)            |
-| M07  |                Slow query buildup / avalanche                | Large number of slow query logs | Use pg_terminate_backend to periodically clean up slow queries (e.g. every 1 second) |
-| M08  |                 Deadlock buildup / avalanche                 |          Lock stacking          | Use pg_terminate_backend to periodically clean up queries (e.g. every 1 second) |
+| M07  |                Slow query queuing / avalanche                | Large number of slow query logs | Use pg_terminate_backend to periodically clean up slow queries (e.g. every 1 second) |
+| M08  |                 Deadlock queuing / avalanche                 |          Lock stacking          | Use pg_terminate_backend to periodically clean up queries (e.g. every 1 second) |
 | M09  |                      HBA denied access                       |      no HBA entry for xxx       | [Case 6: Cluster HBA rule tuning](t-operation# case-6: Cluster HBA rule tuning) |
 | M10  |                     User password error                      |  password auth failure for xxx  | [Case 4: Cluster business user creation](case-4: Cluster business user creation) |
 | M11  |                  Insufficient access rights                  |     permission denied for x     | Check if the user created the object with the correct administrator<br />Refer to [Default Privilege](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L793) to manually fix the object privileges |
 
 
-
-# 

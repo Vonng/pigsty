@@ -1,11 +1,9 @@
-# Alert system
+# Alerting System
 
-Pigsty has two parallel alerting systems.
+Pigsty use prometheus as primary alerting system.
 
 * [Prometheus](http://p.pigsty.cc/alerts) + [AlertManager](http://a.pigsty.cc/#/alerts) (primary)
 * [Grafana](http://demo.pigsty.cc/d/pgsql-alert) (backup), not enabled by default
-
-The two systems are functionally equivalent, with different focus capabilities, and can be used simultaneously to supplement each other as backups.
 
 
 
@@ -77,9 +75,9 @@ The alerting rules are defined using Prometheus syntax, and the full alerting ru
 
 
 
-## Pigsty typical alerts
+## Typical alerts
 
-### **Error alerts**
+### **Errors**
 
 A database instance going down will immediately trigger a P0 alert.
 
@@ -157,7 +155,7 @@ A database cluster should only have one instance of the master leader. That is, 
 
 
 
-### **Delayed alerts**
+### **Latency**
 
 There are two alerts related to replication latency: replication outage, and high replication latency, graded as a P1 warning.
 
@@ -226,11 +224,11 @@ For example, the average disk read/write response time lasts more than 32ms for 
 
 
 
-### Saturation alerts
+### Saturation
 
 Saturation metrics main resources, including many system-level monitoring metrics. Mainly includes CPU, disk (these two belong to system monitoring but are very important for DB so incorporate), connection pool queue, number of database back-end connections, age (essentially saturation of available thing numbers), SSD life, etc.
 
-**Database Stress**
+**Database Load**
 
 Database stress is the combined maximum (percentage, but can exceed 100% when overloaded) of: machine CPU usage, Pgbouncer time utilization, Postgres time utilization (14 introduced). Stress is the most important metric in Pigsty, concentrating on the load water level of the database instances and clusters.
 
@@ -253,7 +251,7 @@ Database stress is the combined maximum (percentage, but can exceed 100% when ov
 
 
 
-**Pileup Detection**
+**Queueing Detection**
 
 The heap contains two main types of metrics, the number of back-end connections and active connections of the PG itself on the one hand, and the queuing of the connection pool on the other.
 

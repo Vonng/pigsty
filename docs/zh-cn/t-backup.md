@@ -160,10 +160,16 @@ pg_basebackup: base backup completed
 需要使用该备份时，您需要将集群设置为维护模式（`pg pause <cluster>`）并停止数据集群主库并清空数据集簇目录，然后备份文件解压至`/pg/data`中。
 
 ```bash
+# 找到最新的备份文件并打印信息
 backup_dir="/pg/backup"
 data_dir=/pg/data
+backup_latest=$(ls -t ${backup_dir} | head -n1)
+echo "backup ${backup_latest} will be used!"
 
-backup_latest=$(ls -t ${backup_dir} | head -n1)       # 找到最新的备份文件
+# 暂停
+pg pause pg-meta
+
+
 rm -rf /pg/data/*                                     # 清空数据目录（危险）
 unlz4 -d -c ${backup_latest} | tar -xC ${data_dir}    # 解压至数据库目录
 

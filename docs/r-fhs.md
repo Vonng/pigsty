@@ -1,11 +1,12 @@
-# File Hierarchy Structure
+# FHS: File Hierarchy Structure
+
 
 
 ## Pigsty Source Code
 
-File structure of pigsty source code
+The FHS of pigsty source code
 
-Extra dir `/etc/pigsty` will be created on meta node during installation.
+Extra dir `/etc/pigsty` will be created on the meta node during installation.
 
 ```bash
 #------------------------------------------------------------------------------
@@ -64,19 +65,16 @@ Extra dir `/etc/pigsty` will be created on meta node during installation.
 ```
 
 
+
 ## PG FHS
 
-### Parameters
+These parameters are related to PostgreSQL FHS:
 
-These parameters are related with PostgreSQL FHS:
-
-* [pg_dbsu_home](v-pg-install.md#pg_dbsu_home): home directory of Postgres default user, default is `/var/lib/pgsql`
-* [pg_bin_dir](v-pg-install.md#pg_bin_dir): Postgres binary directory, default is `/usr/pgsql/bin/`
-* [pg_data](v-pg-install.md#pg_data): Postgres database directory, default is `/pg/data`
-* [pg_fs_main](v-pg-install.md#pg_fs_main): Postgres main data disk mount point, default is `/export`
-* [pg_fs_bkup](v-pg-install.md#pg_fs_bkup): Postgres backup disk mount point, default is `/var/backups` (optional, can also choose to backup to a subdirectory on the main data disk)
-
-
+* [pg_dbsu_home](v-pgsql.md#pg_dbsu_home): home directory of Postgres default user, default is `/var/lib/pgsql`
+* [pg_bin_dir](v-pgsql.md#pg_bin_dir): Postgres binary directory, default is `/usr/pgsql/bin/`
+* [pg_data](v-pgsql.md#pg_data): Postgres database directory, default is `/pg/data`
+* [pg_fs_main](v-pgsql.md#pg_fs_main): Postgres main data disk mount point, default is `/export`
+* [pg_fs_bkup](v-pgsql.md#pg_fs_bkup): Postgres backup disk mount point, default is `/var/backups` (optional, can also choose to backup to a subdirectory on the main data disk)
 
 ```yaml
 #------------------------------------------------------------------------------
@@ -125,8 +123,6 @@ These parameters are related with PostgreSQL FHS:
         - "{{ pg_backup_dir }}/remote"
 ```
 
-
-
 ### Binary Path
 
 On RedHat/CentOS , the default binary install path is:
@@ -146,11 +142,11 @@ Therefore, the default `pg_bin_dir` is `/usr/pgsql/bin/`,
 and this path is added to the `PATH` environment variable for all users via `/etc/profile.d/pgsql.sh`.
 
 
-## Data Directory
+### Data Directory
 
-Pigsty assumes that there is at least one primary data disk (`pg_fs_main`), 
-and an optional backup data disk (`pg_fs_bkup`) on the single node used to deploy the database instance.
-Usually the primary data disk is a high-performance SSD, while the backup disk is a high-capacity inexpensive HDD.
+Pigsty assumes that there is at least one primary data disk ([`pg_fs_main`](v-pgsql.md#pg_fs_main)), 
+and an optional backup data disk ([`pg_fs_bkup`](v-pgsql.md#pg_fs_backup)) on the single node used to deploy the database instance.
+Usually, the primary data disk is a high-performance SSD, while the backup disk is a high-capacity inexpensive HDD.
 
 ```yaml
 #------------------------------------------------------------------------------
@@ -173,7 +169,7 @@ Usually the primary data disk is a high-performance SSD, while the backup disk i
 
 if there is no backup disk available, you can assign a usable dir for it.
 
-Subdir will be created under `pg_fs_main` and `pg_fs_bkup`.
+Subdir will be created under [`pg_fs_main`](v-pgsql.md#pg_fs_main) and [`pg_fs_bkup`](v-pgsql.md#pg_fs_bkup)
 
 ```bash
 # basic
@@ -220,7 +216,7 @@ Pgbouncer is run with Postgres dbsu and the configuration file is located in `/e
 
 ## Redis FHS
 
-Pigsty has monitor & deployment support for redis since v1.3
+Pigsty has monitoring & deployment support for Redis since v1.3
 
 Redis binaries are installed via `yum` or `binary` under `/bin/`, including
 
