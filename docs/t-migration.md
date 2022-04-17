@@ -1,36 +1,35 @@
-# 数据库迁移教程
+# Database Migration Tutorial
 
-Pigsty内置了一个 数据库在线迁移的辅助脚本：[`pgsql-migration.yml`](p-pgsql.md#pgsql-migration) ，提供了一个开箱即用的基于逻辑复制的不停机数据库迁移方案。
+Pigsty has a built-in database online migration helper script: [`pgsql-migration.yml`](p-pgsql.md#pgsql-migration), which provides an out-of-the-box logical replication-based non-stop database migration solution.
 
-填入源集群与宿集群相关信息，该剧本即会自动创建出迁移中所需的脚本，在数据库迁移时只需要依次执行即可，包括：
+By filling in the information about the source and host clusters, the playbook will automatically create the scripts needed for the migration and simply execute them in sequence during the database migration.
 
 ```bash
-activate                          # 激活迁移上下文，注册环境变量
-check-replica-identity            # 准备阶段：检查源集群所有表是否都具有复制身份（主键，或非空唯一候选键）
-check-replica-identity-solution   # 准备阶段：针对没有合理复制身份表，生成修复SQL语句
-check-special-object              # 准备阶段：检查物化视图，复合类型等特殊对象
-compare                           # 比较：对源宿集群中的表进行快速比较（行数计算）
-copy-schema                       # 存量迁移：将源集群中的模式复制到宿集群中（可以幂等执行）
-create-pub                        # 存量迁移：在源集群中创建发布
-create-sub                        # 存量迁移：在宿集群中创建订阅，建立源宿集群之间的逻辑复制
-progress                          # 存量迁移：打印逻辑复制的进度
-copy-seq                          # 存量/增量迁移：将源集群中的序列号复制到宿集群中（可以幂等执行，在切换时需要再次执行）
-next-seq                          # 切换时刻：将宿集群的所有序列号紧急步进1000，以避免主键冲突。
-remove-sub                        # 移除宿集群中的逻辑订阅
+activate 							# Activate the migration context and register environment variables
+check-replica-identity 				# Prep phase: check if all tables in the source cluster have replicated identities (primary keys, or non-null unique candidate keys)
+check-replica-identity-solution 	# Prep phase: Generate repair SQL statements for tables that do not have a reasonable replica identity
+check-special-object 				# Prep phase: check materialized views, composite types, and other special objects
+compare 							# Compare: fast comparison of tables in source and host clusters (row count)
+copy-schema 						# Stock migration: copy schema from the source cluster to the host cluster (can be executed idempotently)
+create-pub 							# Stock migration: create a release in the source cluster
+create-sub 							# Stock migration: create subscriptions in the host cluster, creating a logical replication between the source and host clusters
+progress 							# Stock migration: print the progress of logical replication
+copy-seq 							# Stock/Incremental migration: copy the sequence number from the source cluster to the host cluster (can be executed idempotently and needs to be executed again at switchover time)
+next-seq 							# Switching moment: emergency step all sequence numbers in the host cluster by 1000 to avoid primary key conflicts
+remove-sub 							# Remove logical subscriptions from the host cluster
 ```
 
+## Preparations
 
-## 准备工作
+### Preparing the source and host clusters
 
-### 准备源宿集群
-
-现在假设我们希望迁移沙箱中的`pg-meta`集群（包含Pigsty元数据库与pgbench测试表）至`pg-test`集群。
+Now suppose we want to migrate the `pg-meta` cluster in the sandbox (containing the Pigsty meta-database with the pgbench test tables) to the `pg-test` cluster.
 
 ```bash
 pg-meta-1	10.10.10.10  --> pg-test-1	10.10.10.11 (10.10.10.12,10.10.10.13)
 ```
 
-首先，新创建好空的目标集群`pg-test`，然后编辑`pgsql-migration.yml` 中的变量清单部分，填入相关信息（原宿集群主库的连接信息）
+First, create a new empty target cluster `pg-test`, then edit the variables list in `pgsql-migration.yml` and fill in the relevant information (connection information for the host cluster's master library).
 
 ```yaml
 #--------------------------------------------------------------#
@@ -63,48 +62,48 @@ migration_context_dir: ~/migration     # this dir will be created
 
 ```
 
-执行`pgsql-migration.yml`，该脚本默认会在管理节点上创建 `~/migration/pg-meta.meta` 目录，包含有迁移使用的资源与脚本。
+Execute `pgsql-migration.yml`, which by default creates the `~/migration/pg-meta.meta` dir on the meta node, containing the resources and scripts used for the migration.
 
 
-## 迁移模板
+## Migration Templates
 
-[**公告**](#公告)
+[**Announcement**](#Announcement)
 
-* [操作周知](#操作周知)
-* [业务方周知](#业务方周知)
+* [Operation Notice](#Operation Notice)
+* [Business Party Notification](#Business Party Notification)
 
-[**准备工作**](#准备工作)
+[**Preparations**](#Preparations)
 
-* [ ] [准备源宿集群](#准备源宿集群)
-* [ ] [修复源库HBA](#修复源库HBA)
-* [ ] [创建源库复制用户](#创建源库复制用户)
-* [ ] [外部资源申请](#外部资源申请)
-* [ ] [创建集群配置文件](#创建集群配置文件)
-* [ ] [配置业务用户](#配置业务用户)
-* [ ] [配置业务数据库](#配置业务数据库)
-* [ ] [配置业务白名单](#配置业务白名单)
-* [ ] [创建业务集群](#创建业务集群)
-* [ ] [修复复制标识](#修复复制标识)
-* [ ] [确定迁移对象](#确定迁移对象)
-* [ ] [生成模式同步命令](#生成模式同步命令)
-* [ ] [生成序列号同步命令](#生成序列号同步命令)
-* [ ] [生成创建发布命令](#生成创建发布命令)
-* [ ] [生成创建订阅命令](#生成创建订阅命令)
-* [ ] [生成进度检查命令](#生成进度检查命令)
-* [ ] [生成校验命令](#生成校验命令)
+* [ ] [Prepare source and host clusters](# Prepare source and host clusters)
+* [ ] [Repair Source HBA](# Repair Source HBA)
+* [ ] [Create Source Replication User](# Create Source Replication User)
+* [ ] [External Resource Request](# External Resource Request)
+* [ ] [Create Cluster Profile](# Create Cluster Profile)
+* [ ] [Configure business users](# Configure business users)
+* [ ] [Configure business database](# Configure business database)
+* [ ] [Configure business whitelist](# Configure business whitelist)
+* [ ] [Create business cluster](# Create business cluster)
+* [ ] [Fix Replication Identity](# Fix Replication Identity)
+* [ ] [Identify migration target](# Identify migration target)
+* [ ] [Generate schema synchronization command](# Generate schema synchronization command)
+* [ ] [Generate serial number synchronization command](# Generate serial number synchronization command)
+* [ ] [generate create publish command](# generate create publish command)
+* [ ] [Generate create subscription command](# Generate create subscription command)
+* [ ] [generate progress check command](# generate progress check command)
+* [ ] [Generate check command](#生成校验命令)
 
-[**存量迁移**](#存量迁移)
+[**Stock Migration**](#Stock Migration)
 
-- [ ] [同步数据库模式](#同步数据库模式)
-- [ ] [在源端创建发布](#在源端创建发布)
-- [ ] [在宿端创建订阅](#在宿端创建订阅)
-- [ ] [等待逻辑复制同步](#等待逻辑复制同步)
+- [ ] [Synchronize database schema](# Synchronize database schema)
+- [ ] [Create publish at the source](# Create publish at source)
+- [ ] [Create a subscription to host](# Create subscription on host)
+- [ ] [Wait for logical replication synchronization](# Wait for logical replication synchronization)
 
-[**切换时刻**](#切换时刻)
+[ **Switch moment**](#Switch moment)
 
-- [ ] [准备工作](#准备工作)
-- [ ] [停止源端写入流量](#停止源端写入流量)
-- [ ] [同步序列号与其他对象](#同步序列号与其他对象)
-- [ ] [校验数据一致性](#同步序列号与其他对象)
-- [ ] [流量切换](#流量切换)
-- [ ] [善后工作](#善后工作)
+- [ ] [Ready to work](# Ready to work)
+- [ ] [Stop source write traffic](# Stop source write traffic)
+- [ ] [Synchronize sequence numbers with other objects](# Synchronize sequence number with other objects)
+- [ ] [Verify data consistency](# Synchronize sequence number with other objects)
+- [ ] [Flow Switching](# Flow Switching)
+- [ ] [Aftercare](#善后工作)
