@@ -66,7 +66,7 @@ DBAs are usually more concerned with the usage of monitoring systems and the spe
 - [Introduction to Monitoring Panel](m-dashboard.md)
 - [Introduction to Alert System](r-alert.md)
 - [Service discovery mechanism](m-discovery.md)
-- [Analysis of CSV logs](t-application.md#PGLOG)
+- [Analysis of CSV logs](t-application.md#PGLOG-CSVLOG-Sample-Analysis)
 
 
 #### Daily maintenance management
