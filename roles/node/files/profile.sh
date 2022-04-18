@@ -76,7 +76,7 @@ alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
 alias sc='sudo systemctl'
 alias st="sudo systemctl status "
-alias pt='patronictl -c /pg/bin/patroni.yml'
+
 # patroni command line tools
 function pg() {
     local patroni_conf="/pg/bin/patroni.yml"

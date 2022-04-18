@@ -1,12 +1,12 @@
 # Pigsty
 
-## v1.4.0 中文文档
+## v1.4.1 中文文档
 
 **开箱即用**的**开源**PostgreSQL**发行版**。
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开Demo](http://home.pigsty.cc)
+> 最新版本: [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开Demo](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 

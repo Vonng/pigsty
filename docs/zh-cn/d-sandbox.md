@@ -92,6 +92,8 @@ Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、
 
 通过`make up` , `make new`, `make start`等快捷方式使用沙箱时，默认只会使用单个管理节点`meta`。而`make up4`，`make new4`，`make start4`则会使用全部的虚拟机。这里`N`值定义了额外的数据库节点数量（3台）。如果您的机器配置不足，则可以考虑使用更小的`N`值，减少数据库节点的数量。用户还可以修改每台机器的CPU核数和内存资源等，如配置文件中的注释所述。更详情的定制请参考Vagrant与Virtualbox文档。
 
+<details><summary>Vagrantfile样例</summary>
+
 ```ruby
 IMAGE_NAME = "centos/7"
 N=3  # 数据库机器节点数量，可修改为0
@@ -137,6 +139,8 @@ Vagrant.configure("2") do |config|
     end
 end
 ```
+
+</details>
 
 `vagrant` 二进制程序会根据 Vagrantfile 中的定义，默认调用 Virtualbox 完成本地虚拟机的创建工作。进入Pigsty根目录下的`vagrant`目录，执行`vagrant up`，即可拉起所有的四台虚拟机。[`Makefile`](https://github.com/Vonng/pigsty/blob/master/Makefile#L365)提供了大量对`vagrant`原始命令的封装。
 

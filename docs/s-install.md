@@ -1,4 +1,4 @@
-# Pigsty Quick Start
+# Installation
 
 > It takes 3 steps to install Pigsty: [Prepare](d-prepare.md), [Configure](v-config.md#configure), [Execute Playbook](p-playbook.md)
 
@@ -7,100 +7,119 @@
 
 ![](_media/HOW_EN.svg)
 
-There are two typical modes: [Singleton](#Singleton-installation) & [Cluster Management](#cluster-mange)
+There two typical modes: Singleton & Cluster Management
 
-* **Singleton**: Install Pigsty on a single node and use it as a battery-included Postgres database (development testing)
-* **Cluster Manage**:  Deploy, monitor, and manage other nodes with many different kinds of databases on top of a single installation (O&M management)
+* Singleton Meta: Install pigsty on one single meta node. (for dev/test postgres alone, monitoring RDS, etc...)
+* Cluster Manage:  Manage & monitoring more nodes & databases. Initiate control from meta node
 
 ---------------------
 
-## Singleton installation 
+## Singleton Meta
 
-When Pigsty is installed on one node, Pigsty deploys a complete **infrastructure runtime** with a single node PostgreSQL **database cluster** on that node. For individual users, simple scenarios, and small and micro businesses, you can use this database right out of the box.
+When Pigsty is installed on one single node. It will init pigsty infra with a battery included Postgres as CMDB. You may use that database directly.
 
-Prepare a **new installation** machine (Linux x86_64 CentOS 7.8.2003), configure [admin user](d-prepare.md#Admin-Provisioning) ssh local sudo access, then [download Pigsty](d-prepare.md#Software-Provisioning).
+#### TL; DR
+
+[Prepare](#prepare) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/get)" 	# Download the latest pigsty source code
-cd ~/pigsty; . /configure 								# Generate configuration based on current environment
-. /infra.yml 											# Complete the installation on the current node
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # Download Latest Pigsty Source
+cd ~/pigsty; ./configure                               # Configure pigsty with ip & template
+./infra.yml                                            # Install pigsty on current meta node
 ```
 
->  If you have an available Macbook/PC/laptop or cloud vendor account, you can use [sandbox deployment](d-sandbox.md) to automatically create a virtual machine locally or in the cloud.
+> If you have available Mac/PC/Laptop/Cloud Account, [Sandbox](d-sandbox.md) could be handy to create vm for you.
 
-After execution, you have completed the installation of Pigsty on the **current node** with a complete infrastructure and an out-of-the-box PostgreSQL database instance. 5432 of the current node provides database [services](c-service.md# services) externally, and port 80 provides all WebUI-type services externally.
+After installation. port `5432` is ready for postgres database connection @ `postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta`.
+And a nginx is serving & proxy all WebUI service @ port `80`.
 
-Port 80 is the access endpoint for all Web GUI services. Although it is possible to bypass Nginx and access services directly using the port, such as Grafana on port 3000, it is highly recommended that you access each Web subservice using a domain name by [configuring static DNS](d-sandbox.md#DNS-Config) on the local machine.
+<details><summary>Download Directly via Curl</summary>
 
-> Visit http://g.pigsty or `http://<primary_ip>:3000` to view the Pigsty monitoring system home page (username: admin, password: pigsty)
+```bash
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz -o /tmp/pigsty.tgz
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz    -o /tmp/pkg.tgz  
+```
 
-![](./_media/ARCH.svg)
+</details>
+
+#### Access Web Services
+
+Nginx port 80 is the default access endpoint for all Web GUI services. Although it is possible to bypass nginx add access services directly by port, such as Grafana on 3000, it is highly recommended using domain names. If you don't have public domain names, considering use [static DNS](d-sandbox.md#DNS-Config) on your localhost with `make dns`.
+
+> http://g.pigsty or `http://<primary_ip>:3000` is the portol of monitoring system (username: admin, password: pigsty)
+
+> Visit `http://<primary_ip>:3000` / http://g.pigsty to visit Pigsty [Grafana](http://demo.pigsty.cc/d/home) (username: `admin`, password: `pigsty`)
+
+
 
 
 ----------------
 
 ## Cluster Mange
 
-Pigsty can also be used as a cluster/database manager for large-scale production environments. You can initiate control from a single machine installation of Pigsty on a node that will act as the [meta node](c-arch.md#meta-node) of the cluster, or **meta-node/Meta**, to include more [machine nodes](p-nodes.md) in the management and monitoring of Pigsty.
-More importantly, Pigsty can also deploy and manage various database clusters and applications on these nodes: create highly available [PostgreSQL database clusters](d-pgsql.md); create different types of [Redis clusters](d-redis.md); deploy [Greenplum/MatrixDB](d-matrixdb.md) data warehouse and get real-time insights about nodes, databases, and applications.
+Pigsty can also be used as controller & monitoring infrastructure for large scale nodes & databases.
+
+You can initiate control from [meta](c-arch.md) node, and add more [nodes](p-nodes.md) into Pigsty.
+
+You can deploy diffferent types of High available [PostgreSQL](d-pgsql.md) Clusters, [Redis](d-redis.md) clusters, or [Greenplum/MatrixDB](d-matrixdb.md) data warehouse.
 
 ```bash
-# In a four-node local sandbox/cloud demo environment, the database cluster can be deployed on the other three nodes using the following command
-. /nodes.yml -l pg-test 		# Initialize the three machine nodes included in cluster pg-test (configure nodes + incorporate monitoring)
-. /pgsql.yml -l pg-test 		# Initialize the highly available PGSQL database cluster pg-test
-. /redis.yml -l redis-test 		# Initialize the Redis cluster redis-test
-. /pigsty-matrix.yml -l mx-* 	# Initialize MatrixDB cluster mx-mdw,mx-sdw
+./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
+./pgsql.yml  -l pg-test      # init HA PGSQL Cluster pg-test
+./redis.yml  -l redis-test   # init redis cluster redis-test
+./pigsty-matrix.yml -l mx-*  # init MatrixDB: mx-mdw,mx-sdw
 ```
 
 
 
 ----------------
 
-## Sandbox Environment
+## Sandbox
 
-Pigsty has designed a standard, 4-node demo teaching environment called **sandbox environment** that you can refer to [tutorial](d-sandbox.md) and use Vagrant or Terraform to quickly pull up the required four VM resources on local or public cloud and deploy them for testing. After running through the process with minor modifications, it can be used for production environment [deployment](d-deploy.md).
+There's a standard 4-node demonstration environment for pigsty, named 'Sandbox'. You can create sandbox on your laptop with [Vagrant](d-prepare.md#vagrant), or create them on cloud with [terraform](d-sandbox.md#Cloud-Sandbox). The same deploy procedure could apply to production [deployment](d-deploy.md).
 
 [![](_media/SANDBOX.gif)](d-sandbox.md)
 
-Using the default [sandbox environment](d-sandbox.md) as an example, assume you have completed a standalone Pigsty installation on the ``10.10.10.10`` admin node.
+Take sandbox as example, install pigsty on meta node `10.10.10.10` with:
 
 ```bash
-. /infra.yml # Complete the full standalone Pigsty installation on the 10.10.10.10 meta machine in the sandbox environment
+. /infra.yml     # install pigsty on meta node 10.10.10.10
 ```
 
-#### Host Init
+#### Nodes Init
 
-Three nodes: ``10.10.10.11``, ``10.10.10.12``, ``10.10.10.13`` are now managed using the [``nodes.yml``](p-nodes.md#nodes) playbook.
+Now add 3 more nodes `10.10.10.11`, `10.10.10.12`, `10.10.10.13` into pigsty [`nodes.yml`](p-nodes.md#nodes)
 
 ```bash
-. /nodes.yml -l pg-test     # Initialize the three machine nodes contained in cluster pg-test (configure nodes + incorporate monitoring)
+./nodes.yml -l pg-test        # init 3 nodes of cluster pg-test
 ```
 
-After execution, these three nodes already come with DCS services, host monitoring, and log collection. They can be used for subsequent database cluster deployments. Please refer to the node [config](v-nodes.md) and [playbook](p-nodes.md) for details.
+After that, these 3 nodes are set with DCS service, node metrics exporter & logging collector. And can be used for subsequent database deployment. check [Config: Nodes](v-nodes.md) & [Playbook: Nodes](p-nodes.md) for details.
 
-#### PostgreSQL Deployment
 
-Using the [`pgsql.yml`](p-pgsql.md#pgsql) playbook, you can initialize a highly available PostgreSQL database cluster `pg-test` with one master and two slaves on these three nodes.
+#### PostgreSQL Deploy
+
+Create a classic 1 primary & 2 replica HA PostgreSQL cluster with [`pgsql.yml`](p-pgsql.md#pgsql) playbook.
 
 ```bash
-./pgsql.yml  -l pg-test      # Initializing the highly available PGSQL database cluster pg-test
+./pgsql.yml -l pg-test  # init pgsql cluster pg-test
 ```
 
-Once the deployment is completed, you can see the newly created PostgreSQL cluster in [Monitor](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test).
+Once complete, you can check the newly created PostgreSQL cluster from [monitoring system](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?var-cls=pg-test).
 
-For details, please refer to PgSQL Database Cluster [Config](v-pgsql.md), [Customize,](v-pgsql-customize.md) and [Playbook](p-pgsql.md).
+Check [Config: PGSQL](v-pgsql.md), [Customize: PGSQL](v-pgsql-customize.md) and [Playbook: PGSQL](p-pgsql.md) for more details.
 
 
 ### Redis Deployment
 
-In addition to the standard PostgreSQL cluster, you can deploy various other types of clusters, and even other types of databases.
+In addition to PostgreSQL cluster, you can deploy various other types of clusters, and even other types of databases.
 
-For example, to deploy [Redis](d-redis.md) in a sandbox, you can use the Redis database cluster [config](v-redis.md) with the [playbook](p-redis.md).
+For example, to deploy [Redis](d-redis.md) in sandbox(p-redis.md).
 
 ```bash   
-. /configure -m redis
-. /nodes.yml 	# Configure all nodes for Redis installation
-. /redis.yml 	# Declare Redis on all nodes as configured
+. /configure -m redis    # use redis config template
+. /nodes.yml             # init nodes for redis cluster
+. /redis.yml             # create redis on those nodes
 ```
 
 Check [Config: REDIS](v-redis.md) with [script], [Playbook: REDIS](p-redis.md) for more details.
@@ -108,12 +127,12 @@ Check [Config: REDIS](v-redis.md) with [script], [Playbook: REDIS](p-redis.md) f
 
 #### MatrixDB Deployment
 
-To deploy the open-source data warehouse [MatrixDB](d-matrixdb.md) in a sandbox (Greenplum7), the following command can be used.
+To deploy the open source timeseries data warehouse [MatrixDB](d-matrixdb.md)(Greenplum7):
 
 ```bash
-. /configure -m mxdb   		# Use the sandbox environment MatrixDB config file template
-. /download matrix   		# Download MatrixDB package and build local repos
-. /infra.yml -e no_cmdb=true # If you are going to deploy MatrixDB Master on a meta node, add the no_cmdb option, otherwise just install it normally.   
-. /nodes.yml 				# Configure all nodes for MatrixDB installation
-. /pigsty-matrix.yml 		# Install MatrixDB on the above nodes
+./configure -m mxdb   # Use the sandbox environment MatrixDB configuration file template
+./download matrix     # Download the MatrixDB package and build the local source
+./infra.yml -e no_cmdb=true # If you are going to deploy MatrixDB Master on a meta node, add the no_cmdb option, otherwise just install it normally.
+./nodes.yml           # configure all nodes for MatrixDB installation
+./pigsty-matrix.yml   # Install MatrixDB on the above nodes
 ```

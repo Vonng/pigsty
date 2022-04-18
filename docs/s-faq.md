@@ -15,7 +15,7 @@ Pigsty source package: `pigsty.tgz` can be obtained from the following location.
 * If users need to do the offline installation, they can download the source package and offline installation package from Github or other channels in advance, and upload them to the server via scp, ftp, etc.
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o ~/pigsty.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz -o ~/pigsty.tgz
 ```
 
 -----------
@@ -35,7 +35,7 @@ During `configure`, if the offline installer `/tmp/pkg.tgz` does not exist, the 
 If the user needs to install in an environment where **no internet access** or Github access is restricted, they will need to download and upload it to the target server at the specified location themselves.
 
 ```bash  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
+# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz -o /tmp/pkg.tgz
 ```
 
 -----------

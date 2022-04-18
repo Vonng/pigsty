@@ -11,8 +11,8 @@ Pigsty now consists of 4 modules which can be freely composed for different scen
 
 The whole system is decoupled into 4 independent modules, which can be maintained independently and freely arranged and combined for use.
 
-* **`INFRA`** is the infrastructure part of Pigsty, including monitoring/alerting/visualization/logging/DNS/NTP and other public components.
-* **`NODES`** is the host node management module, which is used to configure nodes, install software, and collect monitoring metrics and logs.
+* `INFRA` is the infrastructure part of Pigsty, including monitoring/alerting/visualization/logging/DNS/NTP and other public components.
+* `NODES` is the host node management module, which is used to configure nodes, install software, and collect monitoring metrics and logs.
 * [**`PGSQL`**](d-pgsql.md) is a PostgreSQL database deployment control module, including various types of PG cluster deployment and monitoring.
 * [**`REDIS`**](d-redis.md) is the Redis database  control module, including Redis standalone/native cluster/sentinel [deployment](d-redis.md) and monitoring
 

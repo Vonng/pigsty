@@ -23,7 +23,7 @@ A Pigsty application will provide an installation script in the application root
 
 Typically, panels with the `APP` label are included in the App drop-down menu in the Pigsty Grafana home page navigation, and panels with the `APP` and `Overview` labels are included in the home page panel navigation.
 
-You can download the app with the base data for installation from https://github.com/Vonng/pigsty/releases/download/v1.4.0/app.tgz.
+You can download the app with the base data for installation from https://github.com/Vonng/pigsty/releases/download/v1.4.1/app.tgz.
 
 
 

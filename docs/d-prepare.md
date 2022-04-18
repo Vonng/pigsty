@@ -113,8 +113,8 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty sourc
 You can also download the source tarball in other ways.
 
 ```bash
-# https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz   # Github Release 
-# http://download.pigsty.cc/v1.4.0/pigsty.tgz                           # China CDN
+# https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz   # Github Release 
+# http://download.pigsty.cc/v1.4.1/pigsty.tgz                           # China CDN
 # https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Cloud Download
 # git clone https://github.com/Vonng/pigsty                             # Get the latest code Master branch (not recommended)
 ```
@@ -136,7 +136,7 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
 You can download pigsty source code & software packages directly via `curl` from github release: 
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz   # Github Release
+https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz   # Github Release
 ```
 
 You can also download pigsty source again with the [`download`](https://github.com/Vonng/pigsty/blob/master/download) script:
@@ -157,8 +157,8 @@ The official offline package is based on CentOS 7.8.2003 operating system enviro
 You can download the offline package in advance on the meta node where Pigsty is to be installed (just on a single meta node to `/tmp/pkg.tgz`) using the following command.
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz   # Github Release，Most authoritative 
-curl http://download.pigsty.cc/v1.4.0/pkg.tgz -o /tmp/pkg.tgz                           # Or download with CDN in mainland China
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz -o /tmp/pkg.tgz   # Github Release，Most authoritative 
+curl http://download.pigsty.cc/v1.4.1/pkg.tgz -o /tmp/pkg.tgz                           # Or download with CDN in mainland China
 
 Also, the [`download`](https://github.com/Vonng/pigsty/bl/master/download) script in the root of the pigsty project can be used to download offline packages.
 

@@ -8,8 +8,8 @@
 
 整个系统解耦成4个独立的模块，可以独立维护，自由排列组合使用。
 
-* **`INFRA`**是Pigsty的基础设施部分，包括监控/告警/可视化/日志/DNS/NTP等公共组件。
-* **`NODES`**是主机节点管理模块，用于配制节点，安装软件，收集监控指标与日志。
+* `INFRA` 是Pigsty的基础设施部分，包括监控/告警/可视化/日志/DNS/NTP等公共组件。
+* `NODES` 是主机节点管理模块，用于配制节点，安装软件，收集监控指标与日志。
 * [**`PGSQL`**](d-pgsql.md)是PostgreSQL数据库部署管控模块，包括各种类型的PG集群部署与监控。
 * [**`REDIS`**](d-redis.md)是Redis数据库部署管控模块，包括Redis 主从/集群/哨兵[部署](d-redis.md)与监控
 
@@ -131,10 +131,9 @@ Pigsty有两种典型使用模式：**单机**与**集群**。
 |  Consul DNS   | 8600 |      -       | Consul提供的DNS服务             |
 |   Yum Repo    |  80  | `yum.pigsty` | 本地Yum源                       |
 |      NTP      | 123  |  `n.pigsty`  | 环境统一使用的NTP时间服务器     |
-|    Dnsmasq    |  53  |      -       | 环境统一使用的DNS域名解析服务器 |
-|    Loki       | 3100 |      -       | 实时日志收集基础设施（选装） |
-| PgWeb | 8081 | `cli.pigsty` | Web GUI Postgres客户端（选装） |
-| Jupyter | 8888 | `lab.pigsty` | Jupyter Lab Python环境（选装） |
+|    Dnsmasq    |  53  |      -       | 环境统一使用的DNS域名解析服务器（选装） |
+|    Loki       | 3100 |      -       | 实时日志收集基础设施 |
+
 
 
 
@@ -187,7 +186,7 @@ Pigsty是数据库供给方案，可以按需创建**高可用数据库集群**�
 |     PG Exporter      | 9630 | Postgres监控指标导出器              |              
 |  PGBouncer Exporter  | 9631 | Pgbouncer监控指标导出器             |              
 |    Node Exporter     | 9100 | 机器节点监控指标导出器                |              
-|       promtail      |  9080   | 实时收集Postgres，Pgbouncer，Patroni日志 （选装）  |
+|       Promtail      |  9080   | 实时收集Postgres，Pgbouncer，Patroni日志 （选装）  |
 |      Consul DNS      | 8600 | Consul提供的DNS服务                             |              
 |     vip-manager      |  x   | 将VIP绑定至集群主库上                               |
 

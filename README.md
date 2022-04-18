@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)  |  [Demo](http://demo.pigsty.cc)
+> Latest Version: [1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 
@@ -48,8 +48,8 @@ Check [Installation](docs/s-install.md) & [Demo](http://demo.pigsty.cc) for deta
 Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz | gzip -d | tar -xC
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz | gzip -d | tar -xC
 ```
 
 </details>

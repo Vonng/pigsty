@@ -1,35 +1,30 @@
 # App
 
-These are some applications that can runs on pigsty environment.
+You can run ton's of software based on pigsty database & docker runtime.
 
-If you have trouble downloading data from Github and other original datasource. 
-Download `app.tgz` from Github release page which includes basic data
+## PG Auxiliary
 
-You can install most application by `cd <app> && make all`
-
-If you are using `app.tgz` version, use `make all2` instead which skip data dowloading
-
-
-## Built-in Application
-
-There are three built-in applications:
-
-* PostgreSQL Monitoring System `<pgsql/>`
-* PostgreSQL Log Analyser `<pglog/>`
-* PostgreSQL Catalog Explorer `<pgcat/>`
+* PgAdmin4
+* PgWeb
+* PostgREST
+* JupyterLab
+* SchemaSpy
+* ByteBase
 
 
-## Demonstration Application
+## SaaS Software
 
-There are several built-in example applications
+* Gitlab
+* Harbour
+* JupyterLab
+* Grafana
+* Mastodon
+* Discourse
 
-### [covid](covid/)
 
-* Visualize covid-19 data by country
-* new_cases new_death cum_cases cum_death map via echarts
+## Visualization App
 
-### [isd](isd/)
+Check [pigsty-app](https://github.com/Vonng/pigsty-app) for details.
 
-* Vivid example of Pigsty Datalet, application made of PostgreSQL, Grafana and Echarts
-* Download, Parse, Visualize Integrated Surface Dataset.
-* Including 30000 meteorology station, sub-hourly observation records, from 1900-2020.
+Pigsty has one embed visualization app: pglog which is used for pg csv log analysis.
+

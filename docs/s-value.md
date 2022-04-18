@@ -9,7 +9,7 @@ PG provides a perfect enough database kernel, but it is not so simple to really 
 
 
 
-## User pain points
+## User's Demand
 
 What kind of database do traditional enterprises, especially SMEs, need for information technology? Is it a distributed cloud-native lake warehouse integrated flow batch time hyper-converged HTAP database?
 
@@ -19,7 +19,7 @@ No, most of the enterprise database needs, even Excel will be enough to solve! T
 
 
 
-## Pain Point Requirements
+## Requirements
 
 > Software swallows the world, and open source swallows software. Cloud vendors whoring out open source, but not seeing the mantis, will eventually be dried out by multi-cloud deployments.
 

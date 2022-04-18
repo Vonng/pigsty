@@ -25,13 +25,13 @@ Cold Backup: The cold backup database exists as a static file of the data direct
 In Pigsty, a hot standby can be created by assigning roles (`pg_role`) to database instances in the cluster for recovery from machine and hardware failures. However, logical errors (mistakenly deleted libraries, mistakenly deleted tables) can only be repaired using cold or warm spares.
 In the case of mistaken deletion of libraries and tables, or catastrophic failure of the whole cluster/house, data backup (cold backup) is the last resort
 
-> Currently, (Pigsty 1.4.0), warm (`offline`), and synchronous (`standby`) backups are not implemented and have the same effect as hot (`replica`) standbys.
+> Currently, (Pigsty 1.4.1), warm (`offline`), and synchronous (`standby`) backups are not implemented and have the same effect as hot (`replica`) standbys.
 
 
 
 ## Cold backup
 
-In the current version (1.4.0), Pigsty provides a **backup mechanism** but does not set a default **backup policy**. Users should make a **cold backup plan** according to their data reliability requirements, hardware config, and disk capacity.
+In the current version (1.4.1), Pigsty provides a **backup mechanism** but does not set a default **backup policy**. Users should make a **cold backup plan** according to their data reliability requirements, hardware config, and disk capacity.
 
 A basic backup policy is to do WAL archiving on the master of the cluster (enabled by default and kept for one day) and full backup (daily backup) via crontab on the slave, which allows you to roll back to any state within a day. A more flexible and advanced way of backup is to use a separate instance as an offline delayed slave.
 
