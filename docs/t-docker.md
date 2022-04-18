@@ -12,8 +12,8 @@ You can use Docker to quickly deploy and launch software applications, and in th
 
 You can also use Docker to execute some battery-included command tools, such as.
 
-* [SchemaSPY](#Database schema report SchemaSPY): generates detailed visual reports of database schemas
-* [Pgbadger](# Database log report): Generate database log report
+* [SchemaSPY](#SchemaSPY): generates detailed visual reports of database schemas
+* [Pgbadger](#discourse): Generate database log report
 
 You can also use Docker to pull up some battery-included open-source SaaS services.
 
@@ -222,6 +222,45 @@ volumes:
       guest: /shared
   - volume:
       host: /var/discourse/shared/standalone/log/var-log
+      guest: /var/log
+```yaml
+templates:
+  - "templates/web.china.template.yml"
+  - "templates/postgres.template.yml"
+  - "templates/redis.template.yml"
+  - "templates/web.template.yml"
+  - "templates/web.ratelimited.template.yml"
+## Uncomment these two lines if you wish to add Lets Encrypt (https)
+# - "templates/web.ssl.template.yml"
+# - "templates/web.letsencrypt.ssl.template.yml"
+expose:
+  - "80:80"   # http
+  - "443:443" # https
+params:
+  db_default_text_search_config: "pg_catalog.english"
+  db_shared_buffers: "768MB"
+env:
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US.UTF-8
+  EMBER_CLI_PROD_ASSETS: 1
+  UNICORN_WORKERS: 4
+  DISCOURSE_HOSTNAME: forum.pigsty
+  DISCOURSE_DEVELOPER_EMAILS: 'fengruohang@outlook.com,rh@vonng.com'
+  DISCOURSE_SMTP_ENABLE_START_TLS: false
+  DISCOURSE_SMTP_AUTHENTICATION: login
+  DISCOURSE_SMTP_OPENSSL_VERIFY_MODE: none
+  DISCOURSE_SMTP_ADDRESS: smtpdm.server.address
+  DISCOURSE_SMTP_PORT: 80
+  DISCOURSE_SMTP_USER_NAME: no_reply@mail.pigsty.cc
+  DISCOURSE_SMTP_PASSWORD: "<password>"
+  DISCOURSE_SMTP_DOMAIN: mail.pigsty.cc
+volumes:
+  - volume:
+      host: /var/discourse/shared/standalone
+      guest: /shared
+  - volume:
+      host: /var/discourse/shared/standalone/log/var-log
       guest: /var/log
 
 hooks:
@@ -245,6 +284,7 @@ Then, just execute the following command and pull up Discourse.
 ```
 
 
+## 
 
 ## Mastodon
 

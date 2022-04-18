@@ -68,7 +68,7 @@ The playbook
 ……
 ```
 
-Nodes within the `meta` group will be marked with the [`meta_node`](v-meta#meta_node) flag in Pigsty [Inventory](v-config.md#inventory), 
+Nodes within the `meta` group will be marked with the [`meta_node`](v-nodes#meta_node) flag in Pigsty [Inventory](v-config.md), 
 
 
 

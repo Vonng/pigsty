@@ -2,11 +2,11 @@
 
 > Use the [INFRA Playbook](p-pgsql.md)， [Deploy the PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in [PGSQL Config](v-pgsql.md).
 >
-> Configure the Pigsty infrastructure for use by the [INFRA](p-infra.MD) series playbooks.
+> Configure the Pigsty infrastructure for use by the [INFRA](p-infra.md) series playbooks.
 
 Infrastructure configures deal with such issues: local Yum Repos, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), config of the global traffic portal Nginx, etc.
 
-The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the meta node, a step that is done automatically during the [`./configure`](v-config.md#配置过程). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](nginx_upstream). Other parameters rarely need to be tweaked and can be adjusted as needed.
+The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the meta node, a step that is done automatically during the [`./configure`](v-config.md#configure). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](#nginx_upstream). Other parameters rarely need to be tweaked and can be adjusted as needed.
 
 - [`CONNECT`](#CONNECT): Connection parameters
 - [`REPO`](#REPO): Local repo infrastructure
@@ -116,7 +116,7 @@ proxy_env: # global proxy env when downloading packages
 
 Consider using the **Ansible connection parameter** if the target machine is hidden behind an SSH springboard machine, or if some customization has been made that prevents direct access via the `ssh IP method.
 
-As follows, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the target database node by way of `ssh node-1` instead of `ssh 10.10.10.11` by way of SSH alias. In this way, the user can freely specify the connection method to the database node and save the connection config in the `~/.ssh/config` of the administrative user for independent management.
+As follows, [`ansible_host`](#ansible_host) tells Pigsty to access the target database node by way of `ssh node-1` instead of `ssh 10.10.10.11` by way of SSH alias. In this way, the user can freely specify the connection method to the database node and save the connection config in the `~/.ssh/config` of the administrative user for independent management.
 
 ```yaml
   pg-test:
@@ -660,7 +660,7 @@ Grafana backend database type, type: `enum`, tier: G, default value: `"sqlite3"`
 The alternative is `postgres`. When using `postgres`, you must ensure that the target database already exists and is accessible. That is, Postgres on the meta node cannot be used before the initialization of the infrastructure for the first time because Grafana was created before that database.
 
 To avoid creating circular dependencies (Grafana depends on Postgres, PostgreSQL depends on the infrastructure including Grafana), you need to modify this parameter and re-execute [`grafana`](#grafana)-related tasks after the first time you complete the installation.
-For details, please see [[Tutorial: Using Postgres as a Grafana database](t-grafana-upgrade.md)].
+For details, please see [Tutorial: Using Postgres as a Grafana database](t-grafana-upgrade.md).
 
 
 
@@ -812,7 +812,7 @@ dcs_servers:
   # meta-3: 10.10.10.12 
 ```
 
-Key is the DCS server instance name and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-n odes.md#nodes) playbook, which defaults to Consul.
+Key is the DCS server instance name and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-nodes.md#nodes) playbook, which defaults to Consul.
 
 You can use an external DCS server, and fill in the addresses of all external DCS Servers in turn that is, otherwise Pigsty will deploy a single instance DCS Server on the meta node (`10.10.10.10` placeholder) by default.
 If the current node is defined in [`dcs_servers`](#dcs_servers), i.e. the IP address matches any Value, the node will be initialized as a DCS Server and its Key will be used as a Consul Server.

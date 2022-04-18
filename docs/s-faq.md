@@ -22,7 +22,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.0/pigsty.tgz -o 
 
 #### **versioning policy for source packages**
 
-Pigsty follows the semantic version numbering rule: ``<major>. <minor>. <release>`. A major version update implies a major fundamental architectural change (which usually doesn't happen), and
+Pigsty follows the semantic version numbering rule: `<major>. <minor>. <release>`. A major version update implies a major fundamental architectural change (which usually doesn't happen), and
 A minor version number increase means a significant update, which usually means package version updates, minor API changes, and other incremental feature changes, and usually includes a note on upgrade considerations.
 The release version number is usually used for bug fixes and doc updates, and a release version increase does not change the package version (i.e. v1.1.0 and v1.0.0 correspond to the same `pkg.tgz`).
 
@@ -78,7 +78,7 @@ Pigsty has been using domestic yum repos for downloads as much as possible, howe
 
 1. Pigsty provides an **offline software installer**, which pre-packages all software and its dependencies. It will automatically prompt the download when to `configure`. 
 
-2. Specify a proxy server via [`proxy_env`](v-connect#proxy_env) and download through the proxy server, or use an off-wall server directly.
+2. Specify a proxy server via [`proxy_env`](v-infra#proxy_env) and download through the proxy server, or use an off-wall server directly.
 
 
 -----------
@@ -101,7 +101,7 @@ Run `yum remove -y nscd` on all machines to resolve this issue, or use `ansible 
 
 -----------
 
-#### **What is the GUI tool for editing Pigsty configuration files? **
+#### What is the GUI tool for editing Pigsty configuration files? 
 
 A separate command-line tool [`pigsty-cli`](https://github.com/Vonng/pigsty-cli) is currently in beta status.
 
@@ -123,7 +123,7 @@ In a production environment, it is recommended to use a higher specification mac
 
 -----------
 
-#### **Pigsty's OS requirements (very important!) **
+#### Pigsty's OS requirements (very important!) 
 
 Pigsty strongly recommends using CentOS 7.8 operating system to install the meta-node and database node, which is a well-proven operating system version **to effectively avoid expending energy on unnecessary issues**.
 
@@ -180,14 +180,14 @@ Therefore, using existing Prometheus and Grafana is not supported, but you can c
 
 -----------
 
-#### **How much data does the monitoring system have? **
+#### How much data does the monitoring system have? 
 
 It depends on the complexity of the user database (workload), for reference: 200 production database instances generate about 16GB of monitoring data in 1 day. Pigsty keeps two weeks of monitoring data by default, which can be adjusted by parameters.
 
 -----------
 
 
-#### **How big is the performance hit of the monitoring system? **
+#### How big is the performance hit of the monitoring system? 
 
 A typical production instance, producing 5,000-time series, takes about 200ms for a single crawl, which is almost insignificant compared to the crawling period of 15s.
 

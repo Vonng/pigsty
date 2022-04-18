@@ -4,7 +4,7 @@ Pigsty is a complex software system. To ensure the stability of the system, Pigs
 
 The total size of all dependent software is about 1GB, and the download speed depends on the user's network. Although Pigsty has tried to use mirror repos as much as possible to speed up the download, the download of a small number of packages may still be blocked by firewalls and may appear very slow. Users can set the download proxy to complete the first download by using the [**`proxy_env`**](v-infra.md#proxy_env) config entry.
 
-If you are using a different operating system than CentOS 7.8, it is usually recommended that users use the full online download and installation process. and cache the downloaded software after the first initialization is complete, see [**Making an offline installer**](#Making an offline installer).
+If you are using a different operating system than CentOS 7.8, it is usually recommended that users use the full online download and installation process. and cache the downloaded software after the first initialization is complete, see [**Making an offline installer**](#Make-offline-pkg).
 
 If you wish to skip the long download process, or if the execution control meta-node **does not have Internet access**, consider downloading a pre-packaged **offline installer**.
 
@@ -14,7 +14,7 @@ If you wish to skip the long download process, or if the execution control meta-
 
 To **quickly** pull up Pigsty, it is **recommended** to use the offline download package and upload method to complete the installation.
 
-The offline installer includes all packages from the local Yum repo. By default, Pigsty is installed at [Infra Init](p-meta/) when the local Yum repo is created.
+The offline installer includes all packages from the local Yum repo. By default, Pigsty is installed at [Infra Init](p-infra.md) when the local Yum repo is created.
 
 ```
 {{ repo_home }}

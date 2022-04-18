@@ -33,16 +33,16 @@ Pigsty has two typical use cases:: **Singleton Meta** vs. **Cluster Mange**.
 * **Singleton Meta**: Install Pigsty on the current node and use it as a battery-included Postgres distribution.
 * **Cluster Manage**: Deploy, monitor, and manage other nodes & databases
 
-Pigsty executes the [`infra.yml`](p-infra.md#infra) playbook to deploy infrastructure with a single node PostgreSQL database cluster on that node when installing Pigsty on a node. For individual users, simple scenarios, and small and micro businesses, PG is battery-included. The node where Pigsty is fully installed is called [ Meta Node](# Admin Node)(Meta).
+Pigsty executes the [`infra.yml`](p-infra.md#infra) playbook to deploy infrastructure with a single node PostgreSQL database cluster on that node when installing Pigsty on a node. For individual users, simple scenarios, and small and micro businesses, PG is battery-included. The node where Pigsty is fully installed is called [ Meta Node](#Meta-Node)(Meta).
 
 Pigsty can also be used to monitor and manage additional nodes. You can initiate control from the meta nodes and include other nodes in Pigsty via the `nodes.yml` playbook to gain host monitoring capabilities. A wide variety of databases and applications can also be deployed and managed on these nodes: for example, creating a highly available PostgreSQL cluster with `pgsql.yml`, creating a master-slave, clustered, sentinel-mode Redis cluster with `redis.yml`, and deploying a Greenplum/MatrixDB data warehouse with `pigsty-matrix.yml`. 
 
 
 
-**A Pigsty Deployment is architecturally divided into two parts: one infrastructure, and multiple database clusters. **With the default single-node installation mode, the infrastructure is fully deployed on the current node along with a single battery-included Postgres ins.
+**A Pigsty Deployment is architecturally divided into two parts: one infrastructure, and multiple database clusters.** With the default single-node installation mode, the infrastructure is fully deployed on the current node along with a single battery-included Postgres ins.
 
 * **[Infrastructure](#infrastructure) (Infra)**: Deployed on **meta nodes**, monitoring, DNS, NTP, DCS, Yum repos, and other **basic services**.
-* **[Database Clusters](#database-clusters) (PgSQL)**: Deployed on **Database Nodes**, providing **Database Services** to the outside world as a cluster.
+* **[Database Clusters](#PGSQL-cluster) (PgSQL)**: Deployed on **Database Nodes**, providing **Database Services** to the outside world as a cluster.
 
 Infrastructure and database clusters are **loosely coupled**, removing infrastructure will not affect the operation of the database cluster (except DCS).
 
@@ -60,7 +60,7 @@ Taking the four-node sandbox environment that comes with Pigsty as an example, t
 
 ![](_media/SANDBOX.gif)
 
-The sandbox consists of one [meta node](#meta-node) with four [database nodes](#database-node) (the meta node is also reused as a database node), deployed with one set of [infrastructure](#infrastructure) and two sets of [database clusters](#database clusters). `meta` is a meta-node, deployed with **infrastructure** components, also multiplexed as a common database node, deployed with a single master database cluster `pg-meta`. `node-1`, `node-2`, and `node-3` are normal database nodes, deployed with database cluster `pg-test`.
+The sandbox consists of one [meta node](#meta-node) with four [database nodes](#database-node) (the meta node is also reused as a database node), deployed with one set of [infrastructure](#infrastructure) and two sets of [database clusters](#PGSQL-cluster). `meta` is a meta-node, deployed with **infrastructure** components, also multiplexed as a common database node, deployed with a single master database cluster `pg-meta`. `node-1`, `node-2`, and `node-3` are normal database nodes, deployed with database cluster `pg-test`.
 
 
 
@@ -70,7 +70,7 @@ The sandbox consists of one [meta node](#meta-node) with four [database nodes](#
 
 ## Infrastructure
 
-In every Pigsty **Deployment** (Deployment) set, there is some infrastructure required to make the whole system work properly.
+In every Pigsty **Deployment** set, there is some infrastructure required to make the whole system work properly.
 
 The infrastructure is usually handled by a dedicated Ops team or cloud vendor, but Pigsty, as a battery-included product solution, integrates the basic infrastructure into the provisioning solution.
 
@@ -167,7 +167,7 @@ The following figure rearranges the location of related components in the `pg-te
 
 Pigsty is a database provisioning solution that creates **highly available database clusters** on-demand. Pigsty can **automatically failover**, with business-side read-only traffic unaffected; the impact of reading and write traffic is usually in the range of a few seconds to tens of seconds, depending on the specific config and load.
 
-In Pigsty, each "database instance" is **idempotent**, using a NodePort-like approach to expose [**service**](c-service.md) to the public. By default, Port 5433 of **any instance** routes to the primary, and port 5434 routes the replicas. You can also access the database with different approaches, refer to [**Database Access**](c-access.md) for details.
+In Pigsty, each "database instance" is **idempotent**, using a NodePort-like approach to expose [**service**](c-service.md) to the public. By default, Port 5433 of **any instance** routes to the primary, and port 5434 routes the replicas. You can also access the database with different approaches, refer to [**Database Access**](c-service.md#Access-Method) for details.
 
 
 

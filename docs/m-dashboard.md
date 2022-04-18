@@ -9,11 +9,11 @@ The Pigsty monitoring panel consists of several relatively independent panels.
 | Application                          | Description                       |
 | ------------------------------------ | --------------------------------- |
 | [Home](http://demo.pigsty.cc/d/home) | Home                              |
-| [`PGSQL`](#PGSQL监控)                | PostgreSQL Database Monitor       |
-| [`REDIS`](#REDIS监控)                | Redis Database Monitor            |
-| [`NODES`](#NODES监控)                | Host Node Monitor                 |
-| [`INFRA`](#INFRA监控)                | Infrastructure monitoring/logging |
-| [APP](#APP)                          | Additional retrofit applications  |
+| [`PGSQL`](#PGSQL)                    | PostgreSQL Database Monitor       |
+| [`REDIS`](#REDIS)                    | Redis Database Monitor            |
+| [`NODES`](#NODES)                    | Host Node Monitor                 |
+| [`INFRA`](#INFRA)                    | Infrastructure monitoring/logging |
+| [ APP](#APP)                         | Additional retrofit applications  |
 
 
 

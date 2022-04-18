@@ -8,7 +8,7 @@ For instances created by Pigsty, all monitoring components are automatically con
 
 ## TL; DR
 
-1. Create the monitoring object in the target instance: [monitoring object configuration](#monitoring object configuration)
+1. Create the monitoring object in the target instance: [monitoring object configuration](#monitor-preparation)
 
 2. Declare the cluster in the inventory.
 
@@ -34,7 +34,7 @@ For instances created by Pigsty, all monitoring components are automatically con
 
 ## Overview
 
-If you want to use only the **monitoring system** part of Pigsty, for example, if you want to use the Pigsty monitoring system to monitor existing PostgreSQL instances, then you can use the **monitor only **mode. In monitor only mode, you can use Pigsty to manage and monitor other PostgreSQL instances (currently 10+ versions are supported by default, older versions can be supported by manually modifying the `pg_exporter` config file).
+If you want to use only the **monitoring system** part of Pigsty, for example, if you want to use the Pigsty monitoring system to monitor existing PostgreSQL instances, then you can use the **monitor only** mode. In monitor only mode, you can use Pigsty to manage and monitor other PostgreSQL instances (currently 10+ versions are supported by default, older versions can be supported by manually modifying the `pg_exporter` config file).
 
 First, you need to complete the standard Pigsty installation process on one meta node, and then you can add more database instances to the monitoring. Depending on the access rights of the target database node, there are two further cases:
 
@@ -42,7 +42,7 @@ First, you need to complete the standard Pigsty installation process on one meta
 
 If the target DB node **can be managed by Pigsty** (ssh reachable, sudo available), then you can use the `pg-exporter` task of the [`pgsql.yml`](p-pgsql.md) playbook to deploy the monitoring component on the target node in the same way: PG Exporter, or you can use the other tasks of the playbook to deploy the additional components and their monitoring on the existing instance node: connection pool Pgbouncer and load balancer HAProxy. In addition, you can also use the `node-exporter` and `promtail` tasks in [`nodes.yml`](p-nodes.yml#nodes) to deploy the host node monitoring and log collection components. This results in a fully consistent experience with the native Pigsty database instance.
 
-Since the target database cluster already exists, you will need to manually [create monitoring users, schemas, and extensions](#监控对象配置) on the target database cluster as described in this section. The rest of the process is no different from a full deployment.
+Since the target database cluster already exists, you will need to manually [create monitoring users, schemas, and extensions](#monitor-preparation) on the target database cluster as described in this section. The rest of the process is no different from a full deployment.
 
 
 
@@ -50,7 +50,7 @@ Since the target database cluster already exists, you will need to manually [cre
 
 If you **can only access the target database by means of a PGURL** (database connection string), consider using **Monitor Only mode/Lite mode** to monitor the target database. In this mode, all monitoring components are deployed on the meta node where Pigsty is installed. **The monitoring system will not have metrics related to nodes, connection pools, load balancers, and high availability components**, but the database itself, as well as real-time status information in the Data Catalog, will still be available.
 
-To perform a lean monitoring deployment, you will also need to manually [create monitoring users, schema, and extensions](#监控对象配置) on the target database cluster as described in this section and ensure that the target database can be accessed from the meta node using monitoring users. After that, execute the [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) playbook against the target cluster to complete the deployment.
+To perform a lean monitoring deployment, you will also need to manually [create monitoring users, schema, and extensions](#monitor-preparation) on the target database cluster as described in this section and ensure that the target database can be accessed from the meta node using monitoring users. After that, execute the [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) playbook against the target cluster to complete the deployment.
 
 **This article focuses on this monitoring deployment mode**.
 
@@ -93,7 +93,7 @@ The Pigsty monitoring system consists of three core modules:
 
 ## Basic Deploy
 
-Deploying a monitoring system for a database instance is divided into three steps: [Prepare monitoring objects](#Prepare monitoring objects), [Modify inventory](#Modify configuration list), and [Execute the deployment playbook](#Execute deployment script).
+Deploying a monitoring system for a database instance is divided into three steps: [Prepare monitoring objects](#monitor-praparation), [Modify inventory](#Modify-inventory), and [Execute the deployment playbook](#Execute-playbook).
 
 ### Prepare Targets
 
@@ -104,12 +104,12 @@ In order to include an external existing PostgreSQL instance in monitoring, you 
 - [ ] Monitor Mode: Fixed using the name `monitor` for installing additional **monitor views** with extended plugins, not required but highly recommended to create.
 - [ ] Monitor Extensions: It is highly recommended to enable the monitor extension `pg_stat_statements` that comes with PG.
 
-For details on the preparation of monitoring objects, please refer to the section after the article: [Monitoring Object Config](# Monitoring Object Configuration).
+For details on the preparation of monitoring objects, please refer to the section after the article: [Monitoring Object Config](# Monitor-praeparation).
 
 
 ### Modify Inventory
 
-As with deploying a brand new Pigsty instance, you need to declare this target cluster in the inventory (config file or CMDB). For example, specify 定[Identifier](v-config.md#身份参数) for the cluster with the instance. The difference is that you also need to manually assign a unique local port number ([`pg_exporter_port`](v-pgsql.md#pg_exporter_port)) to each instance at the **instance level**.
+As with deploying a brand new Pigsty instance, you need to declare this target cluster in the inventory (config file or CMDB). For example, specify [Identifier](d-pgsql.md#identity) for the cluster with the instance. The difference is that you also need to manually assign a unique local port number ([`pg_exporter_port`](v-pgsql.md#pg_exporter_port)) to each instance at the **instance level**.
 
 The following is a sample database cluster declaration:
 

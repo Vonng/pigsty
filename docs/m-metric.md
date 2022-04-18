@@ -100,7 +100,7 @@ INSERT INTO series_data VALUES                 -- The underneath sampling data p
 
 Pigsty has four main sources of monitoring data: **database**, **connection pool**, **operating system**, and **load balancer**. Exposed to the public via the corresponding exporter.
 
-![](_media/metrics_source.png)
+![](./_media/metrics_source.png)
 
 Full sources include.
 
@@ -115,7 +115,7 @@ Full sources include.
 * Monitoring system itself working metrics: Grafana, Prometheus, Nginx
 * Blackbox probing metrics (TBD)
 
-For a full list of available metrics, please refer to the **Reference - Metrics List**section.
+For a full list of available metrics, please refer to the  [**Reference - Metrics List**](#merics) section.
 
 
 
@@ -134,13 +134,13 @@ Here we use the term class rather than the individual. This is because a metric 
 
 ![](_media/metrics_compare.png)
 
-As of 2021, Pigsty's metrics coverage is one of the best among all open source/commercial monitoring systems known to the authors, see [**Cross-Sectional Comparison**] for details.
+As of 2021, Pigsty's metrics coverage is one of the best among all open source/commercial monitoring systems known to the authors, see **Cross-Sectional Comparison**for details.
 
 
 
 ## Metrics Hierarchy
 
-Pigsty also produces **[Derived Metrics]() based on existing metrics**.
+Pigsty also produces **[Derived Metrics](#special-metric) based on existing metrics**.
 
 For example, metrics can be aggregated at different levels
 
@@ -156,7 +156,7 @@ The following chart, on the other hand, is a cross-sectional comparison of QPS f
 
 ![](_media/derived-metrics.png)
 
-Pigsty defines a total of 360 classes of derived aggregated metrics, with more to come. The rules for defining derived metrics are described in **Reference: Derived-Metrics**.
+Pigsty defines a total of 360 classes of derived aggregated metrics, with more to come. The rules for defining derived metrics are described in  [**Reference: Derived-Metrics**](#special-meric).
 
 
 

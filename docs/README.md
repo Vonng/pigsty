@@ -12,7 +12,7 @@
 
 ## What is Pigsty?
 
-* [**Battery-Included**](#Distribution) Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
+* [**Battery-Included**](#highlights) Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
 * [**Unparalleled Monitoring**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
 * [**High-Available**](#High-Available): Auto-Piloting Postgres with idempotent instances & services, self-healing from hardware failures!
 * [**Infra as Data**](#infra-as-data): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum in minutes!
@@ -22,7 +22,7 @@
 
 [![](_media/WHAT_EN.svg)](docs/s-feature.md)
 
-Check [Features](docs/s-feature.md) & [Highlights](#highlights) for Detail.
+Check [Features](s-feature.md) & [Highlights](#highlights) for Detail.
 
 
 
@@ -38,7 +38,7 @@ cd ~/pigsty && ./configure                             # pre-check and config te
 
 Now you have a battery-included Postgres on port **5432**, and infra web services available on port **80**.
 
-Check [Installation](docs/s-install.md) & [Demo](http://demo.pigsty.cc) for details.
+Check [Installation](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 
 <details><summary>Download Packages Directly</summary>
 
@@ -276,7 +276,7 @@ Pigsty has docker installed on meta nodes by default. You can pull up all kinds 
 
 You can also pull up stateless parts and use external databases by changing their connection string to acquire production-grade durability.
 
-Other handy tools such as Jupyter lab server, PGWeb CLI tools, PGAdmin4, pgbadger, ByteBase, and PostgREST can also be served with docker. Check [Tutorial: Docker Applications](docs/t-docker.md) for detail.
+Other handy tools such as Jupyter lab server, PGWeb CLI tools, PGAdmin4, pgbadger, ByteBase, and PostgREST can also be served with docker. Check [Tutorial: Docker Applications](t-docker.md) for detail.
 
 #### Analysis
 

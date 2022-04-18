@@ -23,7 +23,7 @@ In Pigsty-managed Redis, the nodes are fully subordinate to the cluster, i.e. it
 
 ### Identity Parameters
 
-The [**identity parameters**](v-redis.md#identity parameters) are the information that must be provided when defining a Redis cluster and include.
+The [**identity parameters**](d-redis.md#identity-parameters) are the information that must be provided when defining a Redis cluster and include.
 
 |                    Name                    |        Properties        |   Description   |         Example         |
 | :-----------------------------------------: | :----------------: | :------: | :------------------: |
@@ -33,9 +33,12 @@ The [**identity parameters**](v-redis.md#identity parameters) are the informatio
 
 
 - [`redis_cluster`](v-redis.md#redis_cluster) identifies the name of the Redis cluster, which is configured at the cluster level and serves as the top-level namespace for cluster resources.
+
 - [`redis_node`](v-redis.md#redis_node) identifies the serial number of the node in the cluster.
+
 - [`redis_instances`](v-redis.md#redis_instances) is a JSON object with the Key as the instance port number and the Value as a JSON object containing the instance-specific config.
-- 
+
+  
 
 ### Cluster Definition
 

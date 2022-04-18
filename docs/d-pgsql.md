@@ -4,17 +4,17 @@
 
 
 
-* [Identity Parameters](#Identity Parameters): Introduces the identity parameters required to define a standard PostgreSQL high availability cluster.
-* [Singleton Deployment](# Single Deployment) defines a single instance PostgreSQL cluster.
-* [Master-Slave Cluster](#Master-Slave Cluster): Defines a standard availability cluster with one master and one slave.
-* [Synchronous Slave](# Synchronous Slave): Define a highly consistent cluster with synchronous replication and RPO = 0.
-* [Quorum Synchronous Commit](# Quorum Synchronous Commit): defines a cluster with higher data consistency: most slaves return commits on the successful side.
-* [Offline Slave](# Offline Slave): dedicated instance for hosting OLAP analysis, ETL, and interactive personal queries separately.
-* [Backup Cluster](#Backup Cluster): Produces real-time online clones of existing clusters for offsite disaster recovery or deferred slave.
-* [Delayed Slave](# Delayed Slave): for software/human failures such as accidental table deletion and library deletion, faster than PITR.
-* [Cascade Replication](#Cascade Replication): Used to build cascade replication within a cluster, for a large number of slave scenarios (20+), to reduce master replication pressure.
-* [Citus Cluster Deployment](#Citus Cluster Deployment): Deploy Citus distributed database cluster.
-* [MatrixDB Cluster Deployment](#MatrixDB Cluster Deployment): Deploy Greenplum7/PostgreSQL12 compatible chronological data warehouse.
+* [Identity Parameters](#Identity): Introduces the identity parameters required to define a standard PostgreSQL high availability cluster.
+* [Singleton Deployment](#Singleton) defines a single instance PostgreSQL cluster.
+* [Master-Slave Cluster](#M--S-Replication): Defines a standard availability cluster with one master and one slave.
+* [Synchronous Slave](#Sync-standby): Define a highly consistent cluster with synchronous replication and RPO = 0.
+* [Quorum Synchronous Commit](#Quorum-Commit): defines a cluster with higher data consistency: most slaves return commits on the successful side.
+* [Offline Slave](#Offline-replica): dedicated instance for hosting OLAP analysis, ETL, and interactive personal queries separately.
+* [Backup Cluster](#standby-Cluster): Produces real-time online clones of existing clusters for offsite disaster recovery or deferred slave.
+* [Delayed Slave](#Delayed-Slave): for software/human failures such as accidental table deletion and library deletion, faster than PITR.
+* [Cascade Replication](#Cascade-instance): Used to build cascade replication within a cluster, for a large number of slave scenarios (20+), to reduce master replication pressure.
+* [Citus Cluster Deployment](#Citus-Cluster-Deployment): Deploy Citus distributed database cluster.
+* [MatrixDB Cluster Deployment](#MatrixDB-Cluster-Deployment): Deploy Greenplum7/PostgreSQL12 compatible chronological data warehouse.
 
 
 
@@ -73,7 +73,7 @@ pg-test4:
   hosts: {10.10.10.13: {pg_seq: 1, pg_role: primary}}
 ```
 
-With this definition, you can easily observe the cross-sectional metrics comparison of these four horizontally sharded clusters from the PGSQL Shard monitoring panel. The same functionality works for [Citus](#Citus cluster) and MatrixDB clusters as well.
+With this definition, you can easily observe the cross-sectional metrics comparison of these four horizontally sharded clusters from the PGSQL Shard monitoring panel. The same functionality works for [Citus](#Citus-cluster-deployment) and MatrixDB clusters as well.
 
 
 
@@ -114,7 +114,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-Use `bin/createpg pg-test` to create the cluster. If you have already deployed `10.10.10.11` in the first step of [standalone deployment](#standalone deployment), you can also use `bin/createpg 10.10.10.12` to expand the cluster.
+Use `bin/createpg pg-test` to create the cluster. If you have already deployed `10.10.10.11` in the first step of [standalone deployment](#singleton), you can also use `bin/createpg 10.10.10.12` to expand the cluster.
 
 
 
@@ -221,14 +221,14 @@ pg-test:
   hosts:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
     10.10.10.12: { pg_seq: 2, pg_role: replica }
-    10.10.10.13: { pg_seq: 2, pg_role: offline } # 定义一个新的Offline实例
+    10.10.10.13: { pg_seq: 2, pg_role: offline } #Define a new offline instance
   vars:
     pg_cluster: pg-test
 ```
 
-Use `bin/createpg pg-test` to create the cluster. If you have already completed step 1 [standalone deployment](#standalone deployment) and step 2 [master-slave cluster](#master-slave cluster), then you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline slave instance to the cluster.
+Use `bin/createpg pg-test` to create the cluster. If you have already completed step 1 [standalone deployment](#singleton) and step 2 [master-slave cluster](#M-S-replication), then you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline slave instance to the cluster.
 
-Offline slaves do not host the [`replica`](c-service.md#replica service) service by default, and the offline instance will only be used to host read-only traffic in an emergency if all instances in the [`replica`](c-service.md#replica service) service are unavailable. If you have only one master and one slave, or simply one master and no dedicated offline instance, you can set the [`pg_offline_query`](v-pgsql.md#pg_offline_query) flag for that instance by setting it to still play the original role, but also to host [`offline`](c- service.md#offline service) service, which is used as a **quasi-offline instance**.
+Offline slaves do not host the [`replica`](c-service.md#replica-service) service by default, and the offline instance will only be used to host read-only traffic in an emergency if all instances in the [`replica`](c-service.md#replica-service) service are unavailable. If you have only one master and one slave, or simply one master and no dedicated offline instance, you can set the [`pg_offline_query`](v-pgsql.md#pg_offline_query) flag for that instance by setting it to still play the original role, but also to host [`offline`](c-service.md#offline-service) service, which is used as a **quasi-offline instance**.
 
 
 
@@ -309,7 +309,7 @@ Modify the IP address of the replication upstream in `standby_cluster.host` and 
 
 High availability and master-slave replication can solve the problems caused by machine hardware failure, but cannot solve the problems caused by software Bugs and human operation, for example, mistakenly deleting libraries and tables. A  [cold backup](t-backup.md) is usually needed for accidental data deletion, but a more elegant and efficient way is to prepare a delayed slave beforehand.
 
-You can use the function [backup cluster](#backup cluster) to create a delayed slave. For example, now you want to specify a delayed slave for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. So if there is a mistaken deletion of data, you can immediately retrieve it from the delayed slave and pour it back into the original cluster.
+You can use the function [backup cluster](#standby-cluster) to create a delayed slave. For example, now you want to specify a delayed slave for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. So if there is a mistaken deletion of data, you can immediately retrieve it from the delayed slave and pour it back into the original cluster.
 
 
 ```yaml

@@ -2,7 +2,7 @@
 
 > Use the `NODES` [playbooks](p-playbook.md) to bring more nodes to Pigsty, adjusting nodes to the state described in the [config](v-nodes.md).
 
-Once pigsty is installed on the meta node with [`infra.yml`](p-infra.md), You can add more nodes to Pigsty with [`nodes.yml`](#nodes), or remove them from Pigsty with [`nodes-remove.yml`](nodes-remove) .
+Once pigsty is installed on the meta node with [`infra.yml`](p-infra.md), You can add more nodes to Pigsty with [`nodes.yml`](#nodes), or remove them from Pigsty with [`nodes-remove.yml`](#nodes-remove) .
 
 | Playbook                                  | Function                                                     | Link                                                         |
 | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -146,7 +146,7 @@ The default admin user is dba (uid=88), please **do not** use `postgres` or `{{ 
 
 The default user `vagrant` in the local [sandbox](d-sandbox.md) environment has been provisioned with nopass ssh & sudo. You can use `vagrant` to ssh to all other nodes from the sandbox meta node.
 
-Refer to: [Prepare: Admin User](d-prepare.md#Admin-User) for more details.
+Refer to: [Prepare: Admin User](d-prepare.md#Admin-Provisioning) for more details.
 
 
 

@@ -4,7 +4,7 @@ Pigsty can be used not only for deploying and monitoring PostgreSQL but also for
 
 Pigsty provides three sample applications.
 
-* [`pglog`](#PGLOG), which analyzes PostgreSQL CSV log samples.
+* [`pglog`](#PGLOG-CSVLOG-Sample-Analysis), which analyzes PostgreSQL CSV log samples.
 * [`covid`](#COVID), which visualizes WHO COVID-19 data and accesses country outbreak data.
 * [`pglog`](#ISD), NOAA ISD, allows querying weather observation records from 1901 for 30,000 surface weather stations worldwide.#isd)
 
@@ -19,7 +19,7 @@ A Pigsty application typically includes at least one or all of the following.
 * Data files (various resources, files to download), placed in the `data` dir
 * Logical scripts (executing various types of logic), placed in the `bin` dir
 
-A Pigsty application will provide an installation script in the application root dir: `install` or a shortcut to it. You need to use an [admin-user](d-prepare.md#manage application provisioning) to install the [meta-node](d-prepare.md#manage node provisioning). The installation script detects the current environment (gets `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT`, etc. to perform the installation).
+A Pigsty application will provide an installation script in the application root dir: `install` or a shortcut to it. You need to use an [admin-user](d-prepare.md#admin-provisioning) to install the [meta-node](d-prepare.md#meta-node-provisioning). The installation script detects the current environment (gets `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT`, etc. to perform the installation).
 
 Typically, panels with the `APP` label are included in the App drop-down menu in the Pigsty Grafana home page navigation, and panels with the `APP` and `Overview` labels are included in the home page panel navigation.
 
@@ -90,8 +90,8 @@ make reload # Download the latest daily summary from NOAA and parse and load it
 ## PGLOG CSVLOG Sample Analysis
 
 PGLOG Analysis & PGLOG Session provide introspection about PostgreSQL csvlog sample (via table `pglog.sample` on cmdb)
-* [PGLOG Analysis](http://g.pigsty.cc/pglog-analysis): Analysis of csvlog sample on CMDB (focusing on **entire** log sample)
-* [PGLOG Session](http://g.pigsty.cc/pglog-session): Analysis csvlog sample (focusing on the single **session**)
+* [PGLOG Analysis](http://demo.pigsty.cc/d/pglog-overview): Analysis of csvlog sample on CMDB (focusing on **entire** log sample)
+* [PGLOG Session](http://demo.pigsty.cc/d/pglog-session): Analysis csvlog sample (focusing on the single **session**)
 
 
 There are some handy alias & func sets on the meta node:

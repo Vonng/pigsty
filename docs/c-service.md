@@ -2,7 +2,7 @@
 
 > How to define PostgreSQL [service](#service) and achieve stable, reliable, and high-performance [access](#access) through load balancing and connection pooling.
 
-[Personal User](#Single User) does not need to concern itself with the concept of [**Service**](#Service) versus [**Access**](#Access), which is a concept proposed for using a highly available PostgreSQL cluster in a production env.
+[Personal User](#Personal-User) does not need to concern itself with the concept of [**Service**](#Service) versus [**Access**](#Access), which is a concept proposed for using a highly available PostgreSQL cluster in a production env.
 
 
 
@@ -263,7 +263,7 @@ A cluster can have multiple services defined, each containing any number of clus
 
 ### Service Implementation
 
-Pigsty currently uses HAProxy-based service implementation by default, and also provides a sample implementation based on Layer 4 load balancing (L4VIP), which are equivalent to each other and have their own advantages. For details, please refer to the section [access](c-access.md).
+Pigsty currently uses HAProxy-based service implementation by default, and also provides a sample implementation based on Layer 4 load balancing (L4VIP), which are equivalent to each other and have their own advantages. For details, please refer to the section [access](#access).
 
 
 
@@ -293,11 +293,11 @@ Another classic strategy is to use DNS polling directly to resolve DNS domain na
 
 From the user's point of view, access to the database requires only a connection string; and the interface delivered by Pigsty to the end-user is also a database connection string.
 
-The formal difference between the different **access methods** is the difference between the [host](#主机) and [port] parts of the connection string.
+The formal difference between the different **access methods** is the difference between the [host](#主机) and [port](#port) parts of the connection string.
 
 ### Port
 
-Pigsty uses different **ports** to distinguish between [database services](c-services.md#service), which provide Postgres equivalent services, as follows
+Pigsty uses different **ports** to distinguish between [database services](c-service.md#service), which provide Postgres equivalent services, as follows
 
 | port | service | type | description |
 | ---- | --------- | -------------------- | ------------------------------------ |
@@ -409,7 +409,7 @@ Pigsty recommends the use of Haproxy-based access schemes (1/2), and in producti
 
 The standard access scheme used by Pigsty sandboxes uses a single domain name bound to a single L2 VIP, with the VIP pointing to the Haproxy in the cluster.
 
-The Haproxy in the cluster uses Node Port to expose [**service**](c-service/) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. haproxy is deployed on each database node so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave).
+The Haproxy in the cluster uses Node Port to expose [**service**](c-service.md) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. haproxy is deployed on each database node so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave).
 
 The availability of the Haproxy itself **is achieved through idempotent replicas**, where each Haproxy can be used as an access portal and users can use one, two, or more, of all Haproxy instances, each of which provides exactly the same functionality.
 
@@ -447,7 +447,7 @@ The L2 VIP of the cluster has a **domain name** corresponding to it. The domain 
 
 Standard high availability access solution with no single point of the system. A good balance of flexibility, applicability, and performance.
 
-Haproxy in a cluster uses Node Port to expose [**service**](c-service/) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. Haproxy is deployed on each database node so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave).
+Haproxy in a cluster uses Node Port to expose [**service**](c-service.md) to the public in a unified way. Each Haproxy is an idempotent instance, providing complete load balancing and service distribution. Haproxy is deployed on each database node so that each member of the entire cluster is idempotent in terms of usage effect. (For example, accessing port 5433 of any member connects to the master connection pool, and accessing port 5434 of any member connects to the connection pool of some slave).
 
 The availability of Haproxy itself **is achieved through idempotent copies**, where each Haproxy can be used as an access portal and the user can use one, two, or more, all Haproxy instances, each providing exactly the same functionality.
 

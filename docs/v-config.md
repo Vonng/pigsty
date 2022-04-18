@@ -4,9 +4,9 @@
 
 Pigsty defines the infrastructure and database clusters through **Inventory**, and each set of Pigsty [deploy](d-deploy.md)  has a corresponding **config**： Whether it is a production env with a few hundred clusters or a local sandbox with 1 core and 1 GB, there is no difference in Pigsty except for the config content. Pigsty's config uses the "Infra as Data" philosophy: users describe their requirements through the declarative config, and Pigsty adapts the real components to the desired state.
 
-In form, the concrete implementation of the inventory can be either the default local [config file](#配置文件)， or dynamic config data from [CMDB](t-cmdb.md)， both presented in this article with the default YAML config file [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) as an example. In the [configure](#配置过程), Pigsty detects the current node env and automatically generates the recommended config file.
+In form, the concrete implementation of the inventory can be either the default local [config file](#config-file)， or dynamic config data from [CMDB](t-cmdb.md)， both presented in this article with the default YAML config file [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml) as an example. In the [configure](#configure), Pigsty detects the current node env and automatically generates the recommended config file.
 
-**Inventory** is mainly composed of [config entries](#configuration items). Pigsty provides 220 config parameters that can be configured at multiple [levels](#levels of configuration items), and most of the parameters can be used directly with default values. Config entry can be divided into four major categories according to [class](# configuration class):  [INFRA/infrastructure](v-infra.md)， [NODES/host nodes](v-nodes.md)， [PGSQL/PG](v-pgsql.md)， [REDIS/Redis](v-redis.md)， and can be further subdivided into 32 subcategories.
+**Inventory** is mainly composed of [config entries](#config-entry). Pigsty provides 220 config parameters that can be configured at multiple [levels](#config-entry-levels), and most of the parameters can be used directly with default values. Config entry can be divided into four major categories according to [class](#config-category):  [INFRA/infrastructure](v-infra.md)， [NODES/host nodes](v-nodes.md)， [PGSQL/PG](v-pgsql.md)， [REDIS/Redis](v-redis.md)， and can be further subdivided into 32 subcategories.
 
 
 
@@ -126,7 +126,7 @@ Pigsty config files follow [**Ansible rules**](https://docs.ansible.com/ansible/
 
 The config file needs to be used in conjunction with  [**Ansible**](https://docs.ansible.com/). Ansible is a popular DevOps tool, but the average user does not need to know the specifics of Ansible.  If you are proficient in Ansible, you can adapt the config file yourself according to Ansible's inventory organization rules: for example, use a discrete config file with separate cluster definition and variable definition files for each cluster.
 
-You don't need to be proficient in Ansible, just spend a few minutes browsing [Ansible Quick Start](p-playbook.md#Ansible快速上手) , you can use Ansible to execute playbooks.
+You don't need to be proficient in Ansible, just spend a few minutes browsing [Ansible Quick Start](p-playbook.md#Ansible-quick-start) , you can use Ansible to execute playbooks.
 
 
 
@@ -138,7 +138,7 @@ Pigsty's parameters can be configured at different **levels** and inherited and 
 
 ### Config Entry Levels
 
-In Pigsty's [config file](#配置文件), **config entry** can appear in three locations: **global**, **cluster**, and **instance**. Config entry defined in **cluster** `vars` **override global config entry** with same-name key override, and config entry defined in an **instance**, in turn, override cluster config entry with global config entry.
+In Pigsty's [config file](#config-file), **config entry** can appear in three locations: **global**, **cluster**, and **instance**. Config entry defined in **cluster** `vars` **override global config entry** with same-name key override, and config entry defined in an **instance**, in turn, override cluster config entry with global config entry.
 
 | Granularity  | Scope          | Priority | Description                                           | Location                             |
 | :----------: | -------------- | -------- | ----------------------------------------------------- | ------------------------------------ |
@@ -169,7 +169,7 @@ In addition to the three config granularities, there are two additional levels o
 
 ## Config Category
 
-Pigsty contains 220 fixed [config entries](#配置项清单) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
+Pigsty contains 220 fixed [config entries](#config-entry) divided into four sections: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), [REDIS](v-redis.md), for a total of 32 categories.
 
 Usually only the node/database **identity parameter** is mandatory, other config parameters can be modified on demand by directly using the default values.
 
