@@ -1,6 +1,6 @@
 # Sandbox
 
-> Pigsty supports both [local sandbox](#local sandbox) and [cloud sandbox](#cloud sandbox) for quickly [preparing](d-prepare.md) a standard 1/4 node demo environment locally or in the cloud.
+> Pigsty supports both [local sandbox](#local-sandbox) and [cloud sandbox](#cloud-sandbox) for quickly [preparing](d-prepare.md) a standard 1/4 node demo environment locally or in the cloud.
 
 Although installing Pigsty is easy enough, setting up a virtual machine that meets the requirements is still a bit of a chore and you may need to use various virtual machine software.
 
@@ -12,7 +12,7 @@ Therefore Pigsty provides a **sandbox environment** to further relieve users of 
 
 The sandbox environment is a config specification, object identifier, and consistent with the default database **predetermined** for both the local and cloud versions.
 
-The sandbox environment uses a fixed IP address for demonstration purposes. The IP address of the meta node of the sandbox is fixed to: `10.10.10.10`. `10.10.10.10` is also a placeholder for the IP address of the meta node in all config file templates, which will be the actual IP address of the meta node when executing [config](v-config.md#configuration process).
+The sandbox environment uses a fixed IP address for demonstration purposes. The IP address of the meta node of the sandbox is fixed to: `10.10.10.10`. `10.10.10.10` is also a placeholder for the IP address of the meta node in all config file templates, which will be the actual IP address of the meta node when executing [config](v-config.md#configure).
 
 ![](./_media/SANDBOX.gif)
 

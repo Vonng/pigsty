@@ -12,7 +12,7 @@ This article introduces the concept of domain entities in Pigsty, and the naming
 
 ## Core Model
 
-There are four types of core entities in Pigsty: [Database Cluster](c-arch.md#database-cluster) **(Cluster)**, [Database Service´](c-service.md) **(Service)**, **Database Instance**, [**Database Node**](c-arch.md#database-node) **(Node)**.
+There are four types of core entities in Pigsty: [Database Cluster](c-arch.md#PGSQL-cluster) **(Cluster)**, [Database Service](c-service.md) **(Service)**, **Database Instance**, [Database Node](c-arch.md#database-node) **(Node)**.
 Hereafter referred to as cluster, service, instance, and node:
 
 ![](_media/er-core.svg)
@@ -55,8 +55,8 @@ The four-entity model can be expanded:
 **Description**
 
 * **Environment** or **Deployment** is a complete Pigsty system.
-* Each set of envs has a [config](c-config.md) (Config), with a set of [infrastructure](c-arch.md#infrastructure) (Infrastructure) that manages multiple sets of [database clusters](c-arch.md#database clusters).
-* There are several [**business databases**](c-database.md) (Databases) on each database instance that serve as the top-level namespace at the logical level.
+* Each set of envs has a [config](v-config.md) (Config), with a set of [infrastructure](c-arch.md#infrastructure) (Infrastructure) that manages multiple sets of [database clusters](c-arch.md#PGSQL-clusters).
+* There are several [**business databases**](c-pgdbuser.md) (Databases) on each database instance that serve as the top-level namespace at the logical level.
 * There are various **Database objects** within each database, such as tables, indexes, sequence numbers, functions, etc.
 
 **Identifiers**
@@ -86,13 +86,13 @@ The most representative implementation of Pigsty identifiers is the **Label** fo
 | Database     |            | `test`                               | `{..., datname}`           |
 | Object       |            | `public.pgbench_accounts`            | `{..., datname, <object>}` |
 
-The most critical **cluster identifiers (cls)** and **instance identifiers (ins)** are automatically generated through [identity parameters](c-config.md#identity parameters) in the cluster config, including：
+The most critical **cluster identifiers (cls)** and **instance identifiers (ins)** are automatically generated through [identity parameters](#Identity) in the cluster config, including：
 
 | name | attributes | description | example |
 | :-----------------------------------------: | :----------------: | :------: | :------------------: |
-| [`pg_cluster`](v-pg-provision.md#pg_cluster) | **REQUIRED**, cluster level | cluster name | `pg-test` |
-| [`pg_role`](v-pg-provision.md#pg_role) | **REQUIRED**, instance level | instance role | `primary`, `replica` |
-| [`pg_seq`](v-pg-provision.md#pg_seq) | **REQUIRED**, instance level | serial number | `1`, `2`, `3`,`... ` |
+| [`pg_cluster`](v-pgsql.md#pg_cluster) | **REQUIRED**, cluster level | cluster name | `pg-test` |
+| [`pg_role`](v-pgsql.md#pg_role) | **REQUIRED**, instance level | instance role | `primary`, `replica` |
+| [`pg_seq`](v-pgsql.md#pg_seq) | **REQUIRED**, instance level | serial number | `1`, `2`, `3`,`... ` |
 
 The identity parameters are the **minimum set of mandatory parameters** required to define the database cluster. The core identity parameters **must be explicitly specified** and cannot be ignored.
 

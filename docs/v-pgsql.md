@@ -327,7 +327,7 @@ Special DB users, it is recommended to change these user passwords in the produc
 
 Business user definition, type: `user[]`, level: C, default value is an empty array.
 
-Used to define business users at the cluster level, each object in the array defines a [user or role](c-pgdbuser#用户), a complete user definition is as follows:
+Used to define business users at the cluster level, each object in the array defines a [user or role](c-pgdbuser#users), a complete user definition is as follows:
 
 ```yaml
 pg_users:                           # define business users/roles on this cluster, array of user definition
@@ -365,7 +365,7 @@ pg_users:                           # define business users/roles on this cluste
 * `expire_at` and `expire_in` are used to control the user expiration time. `expire_at` uses a date timestamp in the shape of `YYYY-mm-DD`. `expire_in` uses the number of days to expire from now, and overrides the `expire_at` option if `expire_in` exists.
 * New users are **not** added to the Pgbouncer user list by default, and `pgbouncer: true` must be explicitly defined for the user to be added to the Pgbouncer user list.
 * Users/roles are created sequentially, and users defined later can belong to the roles defined earlier.
-* Users can add [default permission]() groups for business users via the `roles` field:
+* Users can add [default privilegs](#pg_default_privilegs) groups for business users via the `roles` field:
     * `dbrole_readonly`： Default production read-only user with global read-only privileges. (Read-only production access)
     * `dbrole_offline`： Default offline read-only user with read-only access on a specific ins. (offline query, personal account, ETL)
     * `dbrole_readwrite`： Default production read/write user with global CRUD privileges. (Regular production use)
@@ -381,7 +381,7 @@ Configure `pgbouncer: true` for the production account to allow it to access thr
 
 Business database definition, type: `database[]`, level: C, default value is an empty array.
 
-Used to define business users at the cluster level, each object in the array defines a [business database](c-pgdbuser#数据库), a complete database definition as follows:
+Used to define business users at the cluster level, each object in the array defines a [business database](c-pgdbuser#database), a complete database definition as follows:
 
 ```yaml
 pg_databases:                       # define business databases on this cluster, array of database definition
@@ -434,7 +434,7 @@ In each DB definition, the DB  `name` is mandatory and the rest are optional.
 
 Cluster Proprietary Service Definition, Type: `service[]`, Level: C, Default:
 
-Used to define additional services at the cluster level, each object in the array defines a [service](c-service#服务), a complete service definition is as follows:
+Used to define additional services at the cluster level, each object in the array defines a [service](c-service#service), a complete service definition is as follows:
 
 ```yaml
 - name: default           # service's actual name is {{ pg_cluster }}-{{ service.name }}
@@ -792,7 +792,7 @@ PG data dir, type: `path`, level: C, default value: `"/pg/data"`, not recommende
 
 PG main data disk mountpoint, type: `path`, level: C, default value: `"/data"`.
 
-Pigsty's default [dir structure](r-fhs) assumes that there is a main data disk mountpoint on the system that holds the DB dir along with another state.
+Pigsty's default [dir structure](r-fhs.md) assumes that there is a main data disk mountpoint on the system that holds the DB dir along with another state.
 
 
 
@@ -800,7 +800,7 @@ Pigsty's default [dir structure](r-fhs) assumes that there is a main data disk m
 
 PG backup disk mountpoint, type: `path`, level: C, default value: `"/data/backups"`.
 
-Pigsty's default [dir structure](r-fhs) assumes that there is a backup data disk mountpoint on the system that holds backup and archive data. However, users can also specify a sub-dir on the primary data disk as the backup disk home mountpoint.
+Pigsty's default [dir structure](r-fhs.md) assumes that there is a backup data disk mountpoint on the system that holds backup and archive data. However, users can also specify a sub-dir on the primary data disk as the backup disk home mountpoint.
 
 
 
@@ -1398,7 +1398,7 @@ pg_services:                     # how to expose postgres service in cluster?
     selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
 ```
 
-An array consisting of [service definition](c-services.md#custom services) objects that define the services listened to the public. The form is consistent with [`pg_service_extra`](#pg_services_extra).
+An array consisting of [service definition](c-service.md#service) objects that define the services listened to the public. The form is consistent with [`pg_service_extra`](#pg_services_extra).
 
 
 

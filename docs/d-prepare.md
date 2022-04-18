@@ -24,7 +24,7 @@ only if the following conditions are met:
 - [x] Processor architecture: x86_64
 - [x] Hardware specifications: 1C/1GB at least
 - [x] Operating System: CentOS 7.8.2003 (or RHEL7 equivalent)
-- [x] [Admin User](#Admin-Provision) can `ssh` to the meta node and execute `sudo` commands.
+- [x] [Admin User](#Admin-Provisioning) can `ssh` to the meta node and execute `sudo` commands.
 
 If you plan to use Pigsty as a battery-included PostgreSQL database instance, one node will suffice. If you also plan to use Pigsty as a control for more hosts/databases, you can prepare more nodes for backup.
 
@@ -41,7 +41,7 @@ The minimum number of **meta nodes** is 1. The sandbox environment uses 1 meta n
 
 Pigsty's database clusters require the use of [DCS](v-infra.md#dcs) for high availability functionality. You can use a DCS cluster that is automatically deployed on a meta node or use an external DCS cluster. In **large-scale production envs**, if you do not have a dedicated external DCS cluster, it is recommended to use 3 meta nodes to fully guarantee the availability of DCS services.
 
-Users should ensure that they can **log in** to the meta node and can log in to other database nodes via `ssh` with `sudo` or `root` privileges from the meta node using the [admin user](#admin user provisioned). Users should ensure that they have direct or indirect **access to port 80** of the admin node to access the user interface provided by Pigsty.
+Users should ensure that they can **log in** to the meta node and can log in to other database nodes via `ssh` with `sudo` or `root` privileges from the meta node using the [admin user](#admin-provisioning). Users should ensure that they have direct or indirect **access to port 80** of the admin node to access the user interface provided by Pigsty.
 
 - [x] Number of meta nodes: odd number, at least 1
 - [x] Ability to log in to the meta node using the admin user
@@ -64,7 +64,7 @@ Users should ensure that they can **log in** to the meta node and can log in to 
 
 **Pigsty recommends that the creation of admin users, privilege config, and key distribution be done in the Provisioning phase of the virtual machine** as part of the machine resource delivery content. For production envs, the machine should be delivered with such a user already configured with unencrypted remote SSH login and performing unencrypted sudo. This is usually possible with most cloud platforms and ops systems.
 
-If you can only use the ssh password and sudo password, then you must add the additional parameters `--ask-pass|-k` and `--ask-become-pass|-K` to all script executions and enter the ssh password and sudo password when prompted. You can create a **dedicated admin user** using the current user using the function to create an admin user in [`pgsql.yml`](p-pgsql), and the following parameters are used to create the default admin user.
+If you can only use the ssh password and sudo password, then you must add the additional parameters `--ask-pass|-k` and `--ask-become-pass|-K` to all script executions and enter the ssh password and sudo password when prompted. You can create a **dedicated admin user** using the current user using the function to create an admin user in [`pgsql.yml`](p-pgsql.md#pgsql), and the following parameters are used to create the default admin user.
 
 
 ### Manual config of SSH and SUDO
@@ -95,7 +95,7 @@ To run the Pigsty sandbox on your own laptop, you will also need to download and
 - [x] [Vagrant](#vagrant): virtual machine hosting orchestration software (cross-platform, free)
 - [x] [Virtualbox](#virtualbox): virtual machine software (cross-platform, open-source, and free)
 
-If you wish to run Pigsty sandbox on a cloud vendor server, you will need to download and install [Terraform](#Terraform) locally.
+If you wish to run Pigsty sandbox on a cloud vendor server, you will need to download and install [Terraform](https://www.terraform.io/) locally.
 
 
 

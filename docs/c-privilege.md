@@ -2,7 +2,7 @@
 
 Pigsty provides a battery-included access control model that is simple and practical to meet basic security needs.
 
-PostgreSQL provides a standard access control mechanism: [Authentication](#Authentication) and [Privileges](#Privileges), both of which are based on the [Role](#Role) system.
+PostgreSQL provides a standard access control mechanism: [Authentication](#Authentication) and [Privileges](#Privilege), both of which are based on the [Role](#Role) system.
 
 
 ---------------------
@@ -11,7 +11,7 @@ PostgreSQL provides a standard access control mechanism: [Authentication](#Authe
 
 ## Role
 
-Pigsty's default role system contains four [default roles](#default roles) and four [default users](#default users)：
+Pigsty's default role system contains four [default roles](#default-roles) and four [default users](#default-users)：
 
 | name             | attr                                                         | roles                                                   | desc                                                    |
 | ---------------- | ------------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------- |
@@ -280,7 +280,7 @@ pgbouncer_hba_rules:                          # pgbouncer host-based authenticat
 
 ## Privilege
 
-Pigsty's default privilege model is closely related to the [default role](#default role). When using the Pigsty access control, all newly created business users should belong to one of the four default roles, which have the permissions shown below:
+Pigsty's default privilege model is closely related to the [default role](#default-roles). When using the Pigsty access control, all newly created business users should belong to one of the four default roles, which have the permissions shown below:
 
 
 * All users have access to all schemas

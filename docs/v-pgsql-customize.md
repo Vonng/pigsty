@@ -1,10 +1,10 @@
 # Customize: PGSQL
 
-> The [Patroni template](#Patorni template) is used to customize the **specification config** of the PostgreSQL cluster, while the [Postgres template](#Postgres template) is used to customize the **content** of the PostgreSQL cluster.
+> The [Patroni template](#Patorni-templates) is used to customize the **specification config** of the PostgreSQL cluster, while the [Postgres template](#Postgres-templates) is used to customize the **content** of the PostgreSQL cluster.
 
 Pigsty provides nearly 100 parameters on [PGSQL](v-pgsql.md) describing the PostgreSQL cluster.
 
-However, if you are deeply customizing the database cluster created by Pigsty, you can see the [Patroni template](#Patroni template) and [Postgres template](#Postgres template).
+However, if you are deeply customizing the database cluster created by Pigsty, you can see the [Patroni template](#Patroni-templates) and [Postgres template](#Postgres-templates).
 
 
 
@@ -19,7 +19,7 @@ Users can do most of the PostgreSQL cluster customization through the Patroni co
 
 ### Predefined Patroni templates
 
-Pigsty provides several predefined initialization templates for initializing the cluster definition files, located by default in [`roles/postgres/templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/ templates). Including:
+Pigsty provides several predefined initialization templates for initializing the cluster definition files, located by default in [`roles/postgres/templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/templates). Including:
 
 
 |     Conf     | CPU  |  Mem  | Disk  | Description |

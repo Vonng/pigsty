@@ -73,8 +73,7 @@ Execute `pgsql-migration.yml`, which by default creates the `~/migration/pg-meta
 
 ## Manual Template
 
-
-[**Announcement**](#Announcement)
+[**Announcement**](#migration-tutorial)
 
 * [Operation Notice](#Operation Notice)
 * [Business Party Notification](#Business Party Notification)

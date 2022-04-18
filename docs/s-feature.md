@@ -6,12 +6,12 @@
 ![](_media/WHAT_EN.svg)
 
 
-* **Battery-include** PostgreSQL [database distribution](#PostgreSQL database distribution)
-* Intelligent monitoring and control [O&M solution](#智能监控管控运维解决方案)
-* Easy-to-use Database-as-Code [Developer Toolkit](#Database-as-Code Developer Toolkit)
-* Cost reduction and efficiency of the open-source cloud database [overall alternative](# open source cloud database overall alternative)
+* **Battery-include** PostgreSQL [database distribution](#PostgreSQL-distribution)
+* Intelligent monitoring and control [O&M solution](#Open-source-monitoring-and-control)
+* Easy-to-use Database-as-Code [Developer Toolkit](#Database-as-Code-Developer-Toolkit)
+* Cost reduction and efficiency of the open-source cloud database [overall alternative](#open-source-cloud-database-overall-alternative)
 
-[Distribution](#Distribution) / [High Availability](#High Availability) / [Monitoring System](#Monitoring System) / [One-Click Deployment](#One-Click Deployment) / [Infra as Data](#infra-as-data) / [Application Ecology](#Application Wide) /  [Security and Money Saving](#安全省钱)
+[Distribution](#Distribution) / [High Availability](#High-Availability) / [Monitoring System](#Monitoring-System) / [One-Click Deployment](#One-Click-Deployment) / [Infra as Data](#infra-as-data) / [Application Ecology](#Application-Wide) /  [Security and Money Saving](#安全省钱)
 
 
 ## PostgreSQL Distribution
@@ -21,25 +21,24 @@
 * Pigsty deeply integrates the latest [PostgreSQL](https://www.postgresql.org/) kernel (14) with powerful extensions: [TimescaleDB](https://www.timescale.com/)  2.6,  [PostGIS]( https://postgis.net/) 3.2,  [Citus](https://www.citusdata.com/) 10, and hundreds+ of extensions, all Battery-include.
 * Pigsty packs the infrastructure needed for large-scale production environments: [Grafana](https://grafana.com/), [Prometheus](https://prometheus.io/), [Loki](https://grafana.com/oss/loki/ ), [Ansible](https://docs.ansible.com/), [Consul](https://www.consul.io/), [Docker](https://www.docker.com/), etc. It can also be used as a deployment monitor for other database and application runtimes.
 
-* Pigsty integrates with common tools for data analysis ecology: [Jupyter](https://jupyter.org/), [ECharts](https://echarts.apache.org/zh/index.html), [Grafana](https://), [PostgREST](https://postgrest.org/), [Postgres](https://www.postgresql.org/), which can be used as a [data analysis](#dataanalysis) environment, or a low-code data visualization application development platform.
+* Pigsty integrates with common tools for data analysis ecology: [Jupyter](https://jupyter.org/), [ECharts](https://echarts.apache.org/zh/index.html), [Grafana](https://), [PostgREST](https://postgrest.org/), [Postgres](https://www.postgresql.org/), which can be used as a [data analysis](#Data-Analytics) environment, or a low-code data visualization application development platform.
 
 
 ## Open-source monitoring and control O&M solution
 
 > Auto-Pilot for Postgres! Auto-Pilot! From something to something better for users **Use it for fun**!
 
-* Pigsty comes with an unparalleled database [monitoring system](# monitoring system) that presents over 1200 types of metrics through 30+ carefully designed and organized monitoring panels, providing the ultimate observability from a global overview to individual repository objects at a glance!
-* Pigsty provides a [highly available](#highly available) PostgreSQL database cluster, with any member surviving to provide normal services to the public; each instance is idempotent, providing a distributed database-like experience; self-healing from failure, greatly simplifying operations and maintenance work!
-
-* Pigsty supports the deployment of different kinds of database clusters and instances: classic [PGSQL](d-pgsql.md) [master-slave replication cluster](d-pgsql.md#master-slave cluster)/[disaster recovery cluster](d-pgsql.md#backup cluster), [synchronization](v-pgsql.md#synchronization slave)/[delay](v-pgsql .md#delayed slaves)/[offline](v-pgsql.md#offline slaves)/[cascade instances](v-pgsql.md#cascade slaves), [Citus](v-pgsql.md#Citus cluster deployment)/[Greenplum cluster](d-matrixdb.md), [Redis](d-redis .md) [master-slave](d-redis.md#redis normal master-slave instance definition)/[sentinel](d-redis.md#redis-sentinel cluster definition)/[native cluster](d-redis.md#redis native cluster definition).
+* Pigsty comes with an unparalleled database [monitoring system](#monitoring-system) that presents over 1200 types of metrics through 30+ carefully designed and organized monitoring panels, providing the ultimate observability from a global overview to individual repository objects at a glance!
+* Pigsty provides a [highly available](#high-availability) PostgreSQL database cluster, with any member surviving to provide normal services to the public; each instance is idempotent, providing a distributed database-like experience; self-healing from failure, greatly simplifying operations and maintenance work!
+* Pigsty supports the deployment of different kinds of database clusters and instances: classic [PGSQL](d-pgsql.md) [master-slave replication cluster](d-pgsql.md#M-S-replication)/[disaster recovery cluster](d-pgsql.md#Standby-cluster), [synchronization](d-pgsql.md#Sync-standby)/[delay](d-pgsql.md#delayed-slaves)/[offline](d-pgsql.md#offline-replicas)/[cascade instances](d-pgsql.md#cascade-instance), [Citus](d-pgsql.md#Citus-cluster-deployment)/[Greenplum cluster](d-matrixdb.md), [Redis](d-redis.md) [master-slave](d-redis.md#cluster-definition)/[sentinel](d-redis.md#redis-sentinel-cluster-example)/[native cluster](d-redis.md#redis-native-clustee-example).
 
 ## Database as Code Developer Toolkit
 
 > HashiCorp for Database! Easy to use! From best to easiest for the user **save**!
 
-* Pigsty upholds the Infra as Data design philosophy, users can create it in one click using an idempotent [playbook ](p-playbook.md)with just a few lines of declarative [config](v-config.md#配置文件) file describing the database they want. Just like Kubernetes!
-* Pigsty delivers an easy-to-use database toolkit to developers: one-click download [installation](s-install.md#standalone installation), automatic [configuration](v-config.md#configuration process); one-click deployment of various open-source databases, one-click migration backup, expansion, and reduction, greatly lowering the threshold of database management use, mass production DBA!
-* Pigsty can simplify database deployment and delivery, solve the problem of unified environment configuration: whether thousands of databases tens of thousands of core production environments, or a local 1C1G laptop can be fully operational; Vagrant-based [local sandbox](d-sandbox.md) and Terraform-based [multi-cloud deployment](d-sandbox. md#cloud sandbox), cloud on cloud off, pull up with one click!
+* Pigsty upholds the Infra as Data design philosophy, users can create it in one click using an idempotent [playbook ](p-playbook.md)with just a few lines of declarative [config](v-config.md#Config-file) file describing the database they want. Just like Kubernetes!
+* Pigsty delivers an easy-to-use database toolkit to developers: one-click download [installation](s-install.md#singleton-installation), automatic [configuration](v-config.md#configure); one-click deployment of various open-source databases, one-click migration backup, expansion, and reduction, greatly lowering the threshold of database management use, mass production DBA!
+* Pigsty can simplify database deployment and delivery, solve the problem of unified environment configuration: whether thousands of databases tens of thousands of core production environments, or a local 1C1G laptop can be fully operational; Vagrant-based [local sandbox](d-sandbox.md) and Terraform-based [multi-cloud deployment](d-sandbox.md#cloud-sandbox), cloud on cloud off, pull up with one click!
 
 
 
@@ -73,13 +72,13 @@ It solves all the problems encountered when using **the world's most advanced op
 
 > Self-healing failure, high availability.
 
-Taking PostgreSQL as an example, Pigsty creates a database cluster that is **distributed and highly available** [database cluster](c-arch.md#database cluster). As long as any instance of the cluster survives, the cluster can provide complete [read-write service](c-service.md#primary service) and [read-only service](c-service.md#replica service) to the outside world.
+Taking PostgreSQL as an example, Pigsty creates a database cluster that is **distributed and highly available** [database cluster](c-arch.md#PGSQL-Cluster). As long as any instance of the cluster survives, the cluster can provide complete [read-write service](c-service.md#primary-service) and [read-only service](c-service.md#replica-service) to the outside world.
 
 Pigsty's high availability architecture has been tested in production environments. Pigsty uses Patroni + Consul for fault detection, Fencing, automatic failover, and HAProxy, VIP, or DNS for automatic traffic switching, achieving a complete high availability solution at a very low complexity cost, allowing the master-slave architecture of the database to be used with a cloth-like experience. Database-like experience.
 
-The database cluster can automatically perform fault detection and master-slave switching, and common faults can be self-healing within seconds to tens of seconds: RTO < 1min for master failure, read-only traffic is almost unaffected, [synchronous cluster](d-pgsql.md#synchronous slave) RPO = 0 without data loss.
+The database cluster can automatically perform fault detection and master-slave switching, and common faults can be self-healing within seconds to tens of seconds: RTO < 1min for master failure, read-only traffic is almost unaffected, [synchronous cluster](d-pgsql.md#sync-standby) RPO = 0 without data loss.
 
-Each database instance in the database cluster is idempotent in use, and any instance can provide full read and write services through the built-in load balancing component HAProxy. Anyone or more Haproxy instances can act as a load balancer for the cluster and distribute traffic through health checks, shielding the cluster members from the outside world. Users can flexibly define [services](c-services.md#services) through config and [access](c-services.md#access) through various optional methods.
+Each database instance in the database cluster is idempotent in use, and any instance can provide full read and write services through the built-in load balancing component HAProxy. Anyone or more Haproxy instances can act as a load balancer for the cluster and distribute traffic through health checks, shielding the cluster members from the outside world. Users can flexibly define [services](c-service.md#service) through config and [access](c-service.md#access) through various optional methods.
 
 ![](./_media/HA-PGSQL.svg)
 
@@ -313,6 +312,8 @@ redis-common:
 Starting with Pigsty v1.4, initial support for MatrixDB (Greenplum7) is provided
 <details>
 <summary>Example: Installing and monitoring a MatrixDB cluster</summary>
+
+
 ```yaml
 #----------------------------------#
 # cluster: mx-mdw (gp master)
@@ -367,6 +368,8 @@ mx-sdw:
 
 </details>
 
+
+
 ### Sandbox Environment
 
 Pigsty can use Vagrant and Virtualbox to pull up and install the required virtual machine environment on your own laptop, or through Terraform, automatically request ECS/VPC resources from your cloud provider, creating and destroying them with a single click.
@@ -378,6 +381,7 @@ A full version of the sandbox is also available in a four-node version with thre
 
 <details>
 <summary>Sandbox required machine specifications</summary>
+
 
 **System Requirements**
 
@@ -428,13 +432,13 @@ Pigsty comes with several sample applications for reference.
 * Database prevalence ranking trend [`dbeng`](http://demo.pigsty.cc/d/dbeng-overview) 
 * Query the work commuting schedule of a large factory's [`worktime`](http://demo.pigsty.cc/d/worktime-query) 
 
-![](./_media/overview-covid.jpg)
+![](s-feature.assets/overview-covid.jpg)
 
 
 
 ## Secure and cost-saving
 
-> Our philosophy is: use the **good database**, **use the good **database, **let there be no hard-to-use database in the world!**
+> Our philosophy is: use the **good database**, **use the good** database, **let there be no hard-to-use database in the world**!
 
 The database is the core component of an information system, a relational database is the absolute mainstay of the database, and PostgreSQL is the world's most advanced open-source relational database.
 PG provides a perfect enough database kernel, but it is not that simple to really use it well, and we help users to do that.
@@ -477,4 +481,5 @@ Pigsty is open source based on Apache 2.0 protocol and can be used for commercia
 
 Pigsty has significant cost advantages over using a cloud database. For example, you can purchase a cloud server with the same specifications at half the cost of a cloud database, and deploy the database yourself using Pigsty, while enjoying the convenience of managing a cloud server.
 
-**Pigsty is open source and free, providing a similar or even better experience than the cloud vendor's RDS, reducing the total cost of ownership of the database by 50% to 80%, and putting the data in the hands of the user! **
+**Pigsty is open source and free, providing a similar or even better experience than the cloud vendor's RDS, reducing the total cost of ownership of the database by 50% to 80%, and putting the data in the hands of the user!** 
+

@@ -178,7 +178,7 @@ bin/createpg 10.10.10.13
 
 **Adjusting Roles**
 
-Cluster expansion will result in changes in cluster membership, please refer to [Case 8: Cluster Role Adjustment](#case-8: Cluster Role Adjustment) to distribute the traffic to the new instance.
+Cluster expansion will result in changes in cluster membership, please refer to [Case 8: Cluster Role Adjustment](#case-8：PGSQL-role-adjutment) to distribute the traffic to the new instance.
 
 ### Frequently Asked Questions
 
@@ -275,7 +275,7 @@ Note that the `pgsql-remove` script is not affected by the **security insurance*
 
 **Adjustment of roles**
 
-Note: Cluster downsizing will result in a change in cluster membership. When downsizing, the health check of this instance is false and the traffic originally carried by this instance will be immediately transferred to other members. However, you still need to refer to the instructions in Reference [Case-8: Cluster Role Adjustment](# case-8: Cluster Role Adjustment) to completely remove this offline instance from the cluster config.
+Note: Cluster downsizing will result in a change in cluster membership. When downsizing, the health check of this instance is false and the traffic originally carried by this instance will be immediately transferred to other members. However, you still need to refer to the instructions in Reference [Case-8: Cluster Role Adjustment](#case-8：Cluster-Role-Adjustment) to completely remove this offline instance from the cluster config.
 
 **Downline Offline Instance**
 
@@ -502,13 +502,13 @@ In general, it is highly discouraged to configure more than one Offline instance
 
 When the cluster role changes, the HBA rules that apply to different roles should also be returned.
 
-Use the method described in [Case-6: Cluster HBA Rule Adjustment](# case-6: Cluster HBA Rule Adjustment) to adjust the cluster HBA rules
+Use the method described in [Case-6: Cluster HBA Rule Adjustment](#case-6：SPPLY-PGSQL-HBA) to adjust the cluster HBA rules
 
 **3. Adjusting the cluster load balancing config**
 
 HAProxy dynamically distributes request traffic based on the health check results returned by Patroni in the cluster, so node failure does not affect external requests. However, users should adjust the cluster load balancing config at the right time (e.g., after waking up in the morning). For example, take the failure out of the cluster config completely instead of continuing to freeze in the cluster with a health check DOWN status.
 
-Use the method described in [Case-7: Cluster Traffic Control](# case-7: Cluster Traffic Control) to tune the cluster load balancing config.
+Use the method described in [Case-7: Cluster Traffic Control](#case-7：PGSQL-LB-Traffic-control) to tune the cluster load balancing config.
 
 **4. Consolidation Operations**
 
@@ -590,7 +590,7 @@ For example, if you want to perform a Failover on the three-node demo cluster `p
 pg failover <cluster>
 ```
 
-Then follow the wizard prompts to execute Failover. After cluster Failover, you should refer to the instructions in [Case 8: Cluster Role Adjustment](# case-8: Cluster Role Adjustment) to fix the cluster role.
+Then follow the wizard prompts to execute Failover. After cluster Failover, you should refer to the instructions in [Case 8: Cluster Role Adjustment](#case-8：PGSQL-Role-Adjustment) to fix the cluster role.
 
 <details>
 <summary>Execute Failover's operation log</summary>

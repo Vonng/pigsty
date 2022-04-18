@@ -42,9 +42,9 @@ This playbook accomplishes the following：
 * Register the database instance to the infrastructure to be supervised (`register`)
 
 **This script use will delete the database by mistake, because initializing the database will erase traces of the original database**.
-The [insurance parameter](#保护机制) provides options to avoid accidental deletion and automatically abort or skip high-risk operations during initialization when an existing running instance is detected. 
+The [insurance parameter](#protection mechanism) provides options to avoid accidental deletion and automatically abort or skip high-risk operations during initialization when an existing running instance is detected. 
 
-Nevertheless, when **using `pgsql.yml`，double-check that the `--tags|-t` and `--limit|-l` parameters are correct. Make sure you are performing the right task on the right target.  Using `-pgsql.yml` without parameters is a high-risk operation in a production environment. **
+Nevertheless, when **using `pgsql.yml`，double-check that the `--tags|-t` and `--limit|-l` parameters are correct. Make sure you are performing the right task on the right target.  Using `-pgsql.yml` without parameters is a high-risk operation in a production environment.** 
 
 
 ![](./_media/playbook/pgsql.svg)
@@ -176,7 +176,7 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 ## `pgsql-createdb`
 
-[**created business database**](pgsql-createdb): Create a new database in an existing cluster or modify an existing **database**: [`pgsql-createdb.yml`][**创建业务数据库**]
+[**created business database**](#pgsql-createdb): Create a new database in an existing cluster or modify an existing **database**: [`pgsql-createdb.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createdb.yml)
 
 ![](./_media/playbook/pgsql-createdb.svg)
 
@@ -190,7 +190,7 @@ The author recommends creating a new database in an existing cluster via a playb
 
 ### Daily management
 
-Please refer to the section [Database](c-database.md#创建数据库) for the creation of the database.
+Please refer to the section [Database](c-pgdbuser.md#create-databsae) for the creation of the database.
 
 ```bash
 # Create a database named test in the pg-test cluster
@@ -208,13 +208,13 @@ bin/createdb <pg_cluster> <dbname>
 
 ## `pgsql-createuser`
 
-[**create business users**](pgsql-createuser)：Create a new user or modify an existing **user** in an existing cluster：[`pgsql-createuser.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createuser.yml)
+[**create business users**](#pgsql-createuser)：Create a new user or modify an existing **user** in an existing cluster：[`pgsql-createuser.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createuser.yml)
 
 ![](./_media/playbook/pgsql-createuser.svg)
 
 ### Daily management
 
-Please refer to the section [User](c-user.md#创建用户) for the create of business users.
+Please refer to the section [User](c-pgdbuser.md#create-user) for the create of business users.
 
 ```bash
 # Create a user named test in the pg-test cluster

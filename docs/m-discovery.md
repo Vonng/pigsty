@@ -6,8 +6,8 @@ The basis of service discovery is **identity**, for more information about ident
 
 Once you have the identity, you also need to associate **monitoring targets** with the identity in the monitoring system, and Pigsty provides two implementations.
 
-* [Static File Service Discovery](静态文件服务发现)： using an automatically maintained configuration file (default)
-* [Consul service discovery](Consul service discovery): uses automatically maintained Consul service registration information
+* [Static File Service Discovery](#static-file-service-discovery)： using an automatically maintained configuration file (default)
+* [Consul service discovery](Consul-service-discovery): uses automatically maintained Consul service registration information
 
 The static file is the default service discovery mechanism. Before v1.0.0, Consul was the default service discovery method, and the discovery mechanism could be configured via parameters.
 
@@ -40,7 +40,7 @@ Identity information is business-given metadata, and the database instance itsel
 
 Identity assignment can take many forms, and the most rudimentary way to associate identities is **Operator's memory**: the DBA remembers in his mind that the database instance on IP address `10.2.3.4` is the one used for payments, while the database instance on the other one is used for user management. A better way to manage the identity of cluster members is through the **profile**, or by using **service discovery**.
 
-Pigsty provides both ways of identity management: service discovery based on the [**Consul**](#consul service discovery), and service discovery based on the [**config file**](#static file service discovery).
+Pigsty provides both ways of identity management: service discovery based on the [**Consul**](#consul-service-discovery), and service discovery based on the [**config file**](#static-file-service-discovery).
 
 The parameter [`prometheus_sd_method`](v-infra.md#prometheus_sd_method) controls this behavior.
 
@@ -111,9 +111,9 @@ Each managed Postgres instance includes several capture ports.
 * [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3) for capturing high availability components
 * [HAProxy](https://github.com/Vonng/haproxy-rpm) for capturing load balancer metrics (built-in support, no separate deployment required)
 
-![](_media/nodes.svg)
+![](./_media/nodes.svg)
 
-These capture ports are captured by Prometheus on the [meta node](c-arch.md#management node).
+These capture ports are captured by Prometheus on the [meta node](c-arch.md#meta-node).
 In addition, the optional Promtail for collecting Postgres, Patroni, and Pgbouncer logs is an optional additional installed component.
 
 By default, all monitoring endpoints are registered to Consul, but Prometheus manages these tasks by default using static file service discovery.

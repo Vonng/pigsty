@@ -78,7 +78,7 @@ Follow the prompts to add MatrixDB nodes in order: 10.10.10.11, 10.10.10.12, 10.
 
 Since monitoring uses `mxadmin:mxadmin` as the monitoring username password by default, please fill in `mxadmin` or your password. 
 
-If you specified a different password in the installation wizard, change the [`pg_monitor_username`](v-pgsql.md#pg_monitor_username) and [`pg_monitor_password`](v-pgsql.md#pg_monitor_ password) variables together. password) variables (if using a different user than dbsu, additional HBAs usually need to be configured on all instances as well).
+If you specified a different password in the installation wizard, change the [`pg_monitor_username`](v-pgsql.md#pg_monitor_username) and [`pg_monitor_password`](v-pgsql.md#pg_monitor_password) variables together. password) variables (if using a different user than dbsu, additional HBAs usually need to be configured on all instances as well).
 
 Note that the logic for MatrixDB / Greenplum to assign Segments on nodes is currently uncertain. Once initialization is complete, the definition of Segment instances in [`pg_instances`](v-pgsql.md#pg_instances) can be modified and monitoring redeployed to reflect the true topology.
 
@@ -101,7 +101,7 @@ All MatrixDB clusters can then be observed from the monitoring system. the Matri
 
 ## Optional
 
-You can treat MatrixDB's Master cluster as a normal PostgreSQL cluster and use [`pgsql-createdb`](p-pgsql.md#pgsql-createdb) with [`pgsql-createuser`](p-pgsql.md#pgsql- createuser) to create a business database with users.
+You can treat MatrixDB's Master cluster as a normal PostgreSQL cluster and use [`pgsql-createdb`](p-pgsql.md#pgsql-createdb) with [`pgsql-createuser`](p-pgsql.md#pgsql-createuser) to create a business database with users.
 
 ```bash
 bin/createuser mx-mdw  dbuser_monitor   # Create monitoring user on Master

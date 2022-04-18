@@ -10,10 +10,10 @@
 
 > Before installing Pigsty, you need to prepare the required resources: physical/virtual machine nodes, administrative users, and download Pigsty software.
 
-- [Node provisioning](d-prepare.md#node preparation)
-- [Meta-node provisioning](d-prepare.md#管理节点置备)
-- [ Manage user provisioning](d-prepare.md#管理用户置备)
-- [Software provisioning](d-prepare.md#软件置备)
+- [Node provisioning](d-prepare.md#Node-Provisioning)
+- [Meta-node provisioning](d-prepare.md#Meta-Node-Provisioning)
+- [ Manage user provisioning](d-prepare.md#Admin-Provisioning)
+- [Software provisioning](d-prepare.md#Software-Provisioning)
 
 
 ----------------
@@ -22,7 +22,7 @@
 
 ## [Configuration](v-config.md)
 
-> After completing the preparation, you need to indicate to Pigsty what infrastructure and database services you need via [config](v-config.md#configuration process).
+> After completing the preparation, you need to indicate to Pigsty what infrastructure and database services you need via [config](v-config.md#configure).
 
 * [Configure Infra](v-infra.md)
 * [Configure Nodes](v-nodes.md)

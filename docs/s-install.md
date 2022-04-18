@@ -7,7 +7,7 @@
 
 ![](_media/HOW_EN.svg)
 
-There are two typical modes: [Singleton](#单机安装) & [Cluster Management](#集群管理)
+There are two typical modes: [Singleton](#Singleton-installation) & [Cluster Management](#cluster-mange)
 
 * **Singleton**: Install Pigsty on a single node and use it as a battery-included Postgres database (development testing)
 * **Cluster Manage**:  Deploy, monitor, and manage other nodes with many different kinds of databases on top of a single installation (O&M management)
@@ -18,7 +18,7 @@ There are two typical modes: [Singleton](#单机安装) & [Cluster Management](#
 
 When Pigsty is installed on one node, Pigsty deploys a complete **infrastructure runtime** with a single node PostgreSQL **database cluster** on that node. For individual users, simple scenarios, and small and micro businesses, you can use this database right out of the box.
 
-Prepare a **new installation** machine (Linux x86_64 CentOS 7.8.2003), configure [admin user](d-prepare.md#admin user placement) ssh local sudo access, then [download Pigsty](d-prepare.md#software download).
+Prepare a **new installation** machine (Linux x86_64 CentOS 7.8.2003), configure [admin user](d-prepare.md#Admin-Provisioning) ssh local sudo access, then [download Pigsty](d-prepare.md#Software-Provisioning).
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)" 	# Download the latest pigsty source code
@@ -30,7 +30,7 @@ cd ~/pigsty; . /configure 								# Generate configuration based on current envi
 
 After execution, you have completed the installation of Pigsty on the **current node** with a complete infrastructure and an out-of-the-box PostgreSQL database instance. 5432 of the current node provides database [services](c-service.md# services) externally, and port 80 provides all WebUI-type services externally.
 
-Port 80 is the access endpoint for all Web GUI services. Although it is possible to bypass Nginx and access services directly using the port, such as Grafana on port 3000, it is highly recommended that you access each Web subservice using a domain name by [configuring static DNS](d-sandbox.md#DNS configuration) on the local machine.
+Port 80 is the access endpoint for all Web GUI services. Although it is possible to bypass Nginx and access services directly using the port, such as Grafana on port 3000, it is highly recommended that you access each Web subservice using a domain name by [configuring static DNS](d-sandbox.md#DNS-Config) on the local machine.
 
 > Visit http://g.pigsty or `http://<primary_ip>:3000` to view the Pigsty monitoring system home page (username: admin, password: pigsty)
 
@@ -41,7 +41,7 @@ Port 80 is the access endpoint for all Web GUI services. Although it is possible
 
 ## Cluster Mange
 
-Pigsty can also be used as a cluster/database manager for large-scale production environments. You can initiate control from a single machine installation of Pigsty on a node that will act as the [meta node](c-arch.md#management node) of the cluster, or **meta-node/Meta**, to include more [machine nodes](p-nodes.md) in the management and monitoring of Pigsty.
+Pigsty can also be used as a cluster/database manager for large-scale production environments. You can initiate control from a single machine installation of Pigsty on a node that will act as the [meta node](c-arch.md#meta-node) of the cluster, or **meta-node/Meta**, to include more [machine nodes](p-nodes.md) in the management and monitoring of Pigsty.
 More importantly, Pigsty can also deploy and manage various database clusters and applications on these nodes: create highly available [PostgreSQL database clusters](d-pgsql.md); create different types of [Redis clusters](d-redis.md); deploy [Greenplum/MatrixDB](d-matrixdb.md) data warehouse and get real-time insights about nodes, databases, and applications.
 
 ```bash

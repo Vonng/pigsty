@@ -48,7 +48,7 @@ The former defines roles that are common to the entire env, while the latter def
   Where `pg_default_roles` users do not have the `login` attribute by default, and `pg_users` have the `login` attribute by default, which can be overridden by explicit config.
 * `expire_at` and `expire_in` are used to control the user expiration time. `expire_at` uses a date timestamp in the shape of `YYYY-mm-DD`. `expire_in` uses the number of days to expire from now and overrides the `expire_at` option if `expire_in` exists.
 * `pgbouncer: true` is used to control whether new users are added to the Pgbouncer user list. This parameter must be explicitly defined as `true` for the corresponding user to be added to the Pgbouncer user list.
-* `roles` are the group to which the role/user belongs, multiple groups can be specified, e.g. add a [**default role**](#default role) for the user.
+* `roles` are the group to which the role/user belongs, multiple groups can be specified, e.g. add a [**default role**](#Define-User) for the user.
 
 
 

@@ -2,7 +2,7 @@
 
 > Learn about the pre-set playbooks provided by Pigsty，the features, how to use them and the considerations.
 
-Pigsty implements core control functions at the bottom through the [Ansible Playbook](#Ansible快速上手) , and Pigsty provides pre-set playbooks in four main categories:
+Pigsty implements core control functions at the bottom through the [Ansible Playbook](#Ansible-quick-start) , and Pigsty provides pre-set playbooks in four main categories:
 
 * [`infra`](p-infra.md) : Use the `infra` series of playbooks to install Pigsty standalone on the meta node with optional features.
 * [`nodes`](p-nodes.md) : Use the `nodes` series of playbooks to include more nodes in Pigsty monitoring and management and for subsequent use.
@@ -71,10 +71,10 @@ When you are dealing with an existing database cluster or operating in a product
 
 Pigsty playbooks are written in Ansible and you don't need to fully understand Ansible's principles, only a little knowledge is enough to take full advantage of Ansible playbooks.
 
-* [Ansible Installation](#Ansible安装)：How to install Ansible?（Pigsty users usually don't have to worry about）
-* [Host Subset](#主机子集)：How to execute a playbook for a specific host?
-* [Task Subset](#任务子集)：How to perform certain specific tasks in the playbook？
-* [Additional parameters](#额外参数)：How to pass in additional command line arguments to control playbook behavior？
+* [Ansible Installation](#Instalation)：How to install Ansible?（Pigsty users usually don't have to worry about）
+* [Host Subset](#limit-host)：How to execute a playbook for a specific host?
+* [Task Subset](#task-subset)：How to perform certain specific tasks in the playbook？
+* [Additional parameters](#extra-params)：How to pass in additional command line arguments to control playbook behavior？
 
 ### Installation
 
