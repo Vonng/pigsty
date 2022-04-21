@@ -4,7 +4,7 @@
 
 Pigsty在底层通过 [Ansible Playbook](#Ansible快速上手) 实现核心管控功能，Pigsty提供的预置剧本分为四大类：
 
-* [`infra`](p-infra.md) : 使用 `infra` 系列剧本在管理节点上单机安装Pigsty，并加装可选功能。
+* [`infra`](p-infra.md) : 使用 `infra` 系列剧本在元节点上单机安装Pigsty，并加装可选功能。
 * [`nodes`](p-nodes.md) : 使用 `nodes` 系列剧本将更多节点纳入Pigsty监控管理，并供后续使用。
 * [`pgsql`](p-pgsql.md) : 使用 `pgsql` 系列剧本在已有节点上部署与管理PostgreSQL数据库集群。
 * [`redis`](p-redis.md) : 使用 `redis` 系列剧本在已有节点上部署与管理各种模式的Redis集群。 
@@ -13,10 +13,10 @@ Pigsty在底层通过 [Ansible Playbook](#Ansible快速上手) 实现核心管�
 
 | 剧本 | 功能                                                           | 链接                                                         |
 |--------|----------------------------------------------------------------| ------------------------------------------------------------ |
-|  [**infra**](p-infra.md#infra)                        |        **在管理节点上完整安装Pigsty**                                 |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
+|  [**infra**](p-infra.md#infra)                        |        **在元节点上完整安装Pigsty**                                 |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
 |  [`infra-demo`](p-infra.md#infra-demo)              |        一次性完整初始化四节点演示沙箱环境的特殊剧本                           |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
-|  [`infra-jupyter`](p-infra.md#infra-jupyter)        |        在管理节点上加装**可选**数据分析服务组件Jupyter Lab              |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
-|  [`infra-pgweb`](p-infra.md#infra-pgweb)            |        在管理节点上加装**可选**的Web客户端工具PGWeb                     |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
+|  [`infra-jupyter`](p-infra.md#infra-jupyter)        |        在元节点上加装**可选**数据分析服务组件Jupyter Lab              |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
+|  [`infra-pgweb`](p-infra.md#infra-pgweb)            |        在元节点上加装**可选**的Web客户端工具PGWeb                     |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)      |
 |  [**nodes**](p-nodes.md#nodes)                        |        **节点置备，将节点纳入Pigsty管理，可用于后续数据库部署**                    |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
 |  [`nodes-remove`](p-nodes.md#nodes-remove)          |        节点移除，卸载节点DCS与监控，不再纳入Pigsty管理                     |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
 |  [**pgsql**](p-pgsql.md#pgsql)                        |        **部署PostgreSQL集群，或集群扩容**                             |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
@@ -32,21 +32,21 @@ Pigsty在底层通过 [Ansible Playbook](#Ansible快速上手) 实现核心管�
 
 典型使用流程如下：
 
-1. 使用 [`infra`](p-infra.md) 系列剧本在管理节点/本机安装 Pigsty ，部署基础设施。
+1. 使用 [`infra`](p-infra.md) 系列剧本在元节点/本机安装 Pigsty ，部署基础设施。
    
-   所有剧本都在管理节点上发起执行，`infra` 系列剧本只作用于管理节点本身。
+   所有剧本都在元节点上发起执行，`infra` 系列剧本只作用于元节点本身。
 
 2. 使用 [`nodes`](p-nodes.md) 系列剧本将其他节点纳入或移除Pigsty管理
 
-   节点被托管后，可从管理节点Grafana访问节点监控与日志，节点加入Consul集群。
+   节点被托管后，可从元节点Grafana访问节点监控与日志，节点加入Consul集群。
 
 3. 使用 [`pgsql`](p-pgsql.md) 系列剧本在纳入管理的节点上部署PostgreSQL集群
 
-   在托管节点上执行部署后，可以从管理节点访问PostgreSQL监控与日志。
+   在托管节点上执行部署后，可以从元节点访问PostgreSQL监控与日志。
 
 4. 使用 [`redis`](p-redis.md) 系列剧本在纳入管理的节点上部署Redis集群
 
-   在托管节点上执行部署后，可以从管理节点访问Redis监控与日志。
+   在托管节点上执行部署后，可以从元节点访问Redis监控与日志。
 
 ```
                                            meta     node

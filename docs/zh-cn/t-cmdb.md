@@ -10,7 +10,7 @@
 
 Pigsty CMDB的模式会在`pg-meta`元数据库初始化时自动创建（[`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)），位于`meta`数据库的`pigsty` 模式中。使用`bin/load_conf.py`可以将静态配置文件加载至CMDB中。
 
-!> 必须在管理节点完整执行`infra.yml`，安装完毕后，方可使用CMDB
+!> 必须在元节点完整执行`infra.yml`，安装完毕后，方可使用CMDB
 
 ```bash
 usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]

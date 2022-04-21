@@ -42,7 +42,7 @@ cd ~/pigsty; ./configure                               # 根据当前环境生�
 ## 集群管理
 
 
-Pigsty还可以用作大规模生产环境的集群/数据库管理。您可以从单机安装Pigsty的节点（将作为集群的[管理节点](c-arch.md#管理节点)，或称作**元节点/Meta**）上发起控制，将更多的 [机器节点](p-nodes.md) 纳入Pigsty的管理与监控中。
+Pigsty还可以用作大规模生产环境的集群/数据库管理。您可以从单机安装Pigsty的节点（将作为集群的[元节点](c-arch.md#元节点)，或称作**元节点/Meta**）上发起控制，将更多的 [机器节点](p-nodes.md) 纳入Pigsty的管理与监控中。
 更重要的是，Pigsty还可以在这些节点上部署并管理各式各样的数据库集群与应用：创建高可用的[PostgreSQL数据库集群](d-pgsql.md)；创建不同类型的[Redis集簇](d-redis.md)；部署 [Greenplum/MatrixDB](d-matrixdb.md) 数据仓库，并获取关于节点、数据库与应用的实时洞察。
 
 ```bash
@@ -64,7 +64,7 @@ Pigsty设计了一个标准的，4节点的演示教学环境,称为**沙箱环�
 
 [![](../_media/SANDBOX.gif)](d-sandbox.md)
 
-以默认的[沙箱环境](d-sandbox.md)为例，假设您已经在`10.10.10.10`管理节点上完成单机Pigsty的安装：
+以默认的[沙箱环境](d-sandbox.md)为例，假设您已经在`10.10.10.10`元节点上完成单机Pigsty的安装：
 
 ```bash
 ./infra.yml # 在沙箱环境的 10.10.10.10 meta 机器上，完成完整的单机Pigsty安装

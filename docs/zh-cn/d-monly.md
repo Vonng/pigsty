@@ -28,7 +28,7 @@
 
 3. 针对该集群执行剧本：`./pgsql-monly.yml -l pg-test`
 
-4. 该剧本会在Grafana中注册目标PostgreSQL数据源，因此PGCAT功能完整可用。该剧本会在管理节点本地部署PG Exporter监控远程PG实例，故PGSQL中纯数据库相关指标可用。但主机节点、连接池、负载均衡、高可用Patroni相关指标则不可用。
+4. 该剧本会在Grafana中注册目标PostgreSQL数据源，因此PGCAT功能完整可用。该剧本会在元节点本地部署PG Exporter监控远程PG实例，故PGSQL中纯数据库相关指标可用。但主机节点、连接池、负载均衡、高可用Patroni相关指标则不可用。
 
 
 
@@ -36,7 +36,7 @@
 
 如果用户只希望使用Pigsty的**监控系统**部分，比如希望使用Pigsty监控系统监控已有的PostgreSQL实例，那么可以使用 **仅监控部署（monitor only）** 模式。仅监控模式下，您可以使用Pigsty管理监控其他PostgreSQL实例（目前默认支持10+以上的版本，更老的版本可以通过手工修改 `pg_exporter` 配置文件支持）
 
-首先，您需要在1台管理节点上完成标准的Pigsty的标准安装流程，然后便可以将更多的数据库实例接入监控。按照目标数据库节点的访问权限，又可以分为两种情况：
+首先，您需要在1台元节点上完成标准的Pigsty的标准安装流程，然后便可以将更多的数据库实例接入监控。按照目标数据库节点的访问权限，又可以分为两种情况：
 
 
 
@@ -62,9 +62,9 @@ exporter_repo_url: http://<your primary ip address>/pigsty.repo
 
 **如果只有数据库连接串**
 
-如果您**只能通过PGURL**（数据库连接串）的方式访问目标数据库，则可以考虑使用**仅监控模式/精简模式**（Monitor Only：Monly）监控目标数据库。在此模式下，所有监控组件均部署在安装Pigsty的管理节点上。**监控系统不会有 节点，连接池，负载均衡器，高可用组件的相关指标**，但数据库本身，以及数据目录（Catalog）中的实时状态信息仍然可用。
+如果您**只能通过PGURL**（数据库连接串）的方式访问目标数据库，则可以考虑使用**仅监控模式/精简模式**（Monitor Only：Monly）监控目标数据库。在此模式下，所有监控组件均部署在安装Pigsty的元节点上。**监控系统不会有 节点，连接池，负载均衡器，高可用组件的相关指标**，但数据库本身，以及数据目录（Catalog）中的实时状态信息仍然可用。
 
-为了执行精简监控部署，您同样需要参考本节的内容手工在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)，并确保可以从管理节点上使用监控用户访问目标数据库。此后，针对目标集群执行 [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly)剧本即可完成部署。
+为了执行精简监控部署，您同样需要参考本节的内容手工在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)，并确保可以从元节点上使用监控用户访问目标数据库。此后，针对目标集群执行 [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly)剧本即可完成部署。
 
 **本文着重介绍此种监控部署模式**。
 
@@ -90,13 +90,13 @@ Pigsty监控系统由三个核心模块组成：
 |   连接池指标   |       ❌ 不可用        |                            ⚠️ 选装                            |                           ✅ 预装项                           |
 | 负载均衡器指标 |       ❌ 不可用        |                            ⚠️ 选装                            |                           ✅ 预装项                           |
 |   PGLOG功能    |       ❌ 不可用        |                            ⚠️ 选装                            |                           ✅ 预装项                           |
-|  PG Exporter   |   ⚠️ 部署于管理节点    |                        ✅ 部署于DB节点                        |                        ✅ 部署于DB节点                        |
+|  PG Exporter   |   ⚠️ 部署于元节点    |                        ✅ 部署于DB节点                        |                        ✅ 部署于DB节点                        |
 | Node Exporter  |       ❌ 不部署        |                        ✅ 部署于DB节点                        |                        ✅ 部署于DB节点                        |
 |   侵入DB节点   |       ✅ 无侵入        |                        ⚠️ 安装Exporter                        |                      ⚠️ 完全由Pigsty管理                      |
 |  监控现有实例  |       ✅ 可支持        |                           ✅ 可支持                           |                    ❌ 仅用于Pigsty托管实例                    |
 | 监控用户与视图 |       人工创建        |                           人工创建                           |                        Pigsty自动创建                        |
 |  部署使用剧本  |   `pgsql-monly.yml`   | `pgsql.yml -t pg-exporter,promtail`<br />`nodes.yml -t node-exporter` | `pgsql.yml -t pg-exporter`<br />`nodes.yml -t node-exporter` |
-|    所需权限    |  管理节点可达的PGURL  |                     DB节点ssh与sudo权限                      |                     DB节点ssh与sudo权限                      |
+|    所需权限    |  元节点可达的PGURL  |                     DB节点ssh与sudo权限                      |                     DB节点ssh与sudo权限                      |
 |    功能概述    | 基础功能：PGCAT+PGSQL |                          大部分功能                          |                           完整功能                           |
 
 
@@ -202,7 +202,7 @@ pg-test:
 
 ### 执行部署剧本
 
-集群声明完成后，将其纳入监控非常简单，在管理节点上针对目标集群使用剧本 [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) 即可：
+集群声明完成后，将其纳入监控非常简单，在元节点上针对目标集群使用剧本 [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) 即可：
 
 ```bash
 ./pgsql-monly.yml -l <cluster>     # 在指定集群上完成监控部署

@@ -19,7 +19,7 @@ Pigsty提供了三个样例应用：
 * 数据文件（各类资源，需要下载的文件），放置于`data`目录
 * 逻辑脚本（执行各类逻辑），放置于`bin`目录
 
-一个Pigsty应用会在应用根目录提供一个安装脚本：`install`或相关快捷方式。您需要使用[管理用户](d-prepare.md#管理应用置备)在[管理节点](d-prepare.md#管理节点置备)执行安装。安装脚本会检测当前的环境（获取 `METADB_URL`， `PIGSTY_HOME`，`GRAFANA_ENDPOINT`等信息以执行安装）
+一个Pigsty应用会在应用根目录提供一个安装脚本：`install`或相关快捷方式。您需要使用[管理用户](d-prepare.md#管理应用置备)在[元节点](d-prepare.md#元节点置备)执行安装。安装脚本会检测当前的环境（获取 `METADB_URL`， `PIGSTY_HOME`，`GRAFANA_ENDPOINT`等信息以执行安装）
 
 通常，带有`APP`标签的面板会被列入Pigsty Grafana首页导航中App下拉菜单中，带有`APP`和`Overview`标签的面板则会列入首页面板导航中。
 
@@ -35,7 +35,7 @@ Pigsty提供了三个样例应用：
 
 PGLOG是Pigsty自带的一个样例应用，固定使用MetaDB中`pglog.sample`表作为数据来源。您只需要将日志灌入该表，然后访问相关Dashboard即可。
 
-Pigsty提供了一些趁手的命令，用于拉取csv日志，并灌入样本表中。在管理节点上，默认提供下列快捷命令：
+Pigsty提供了一些趁手的命令，用于拉取csv日志，并灌入样本表中。在元节点上，默认提供下列快捷命令：
 
 ```bash
 catlog  [node=localhost]  [date=today]   # 打印CSV日志到标准输出

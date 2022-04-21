@@ -2,7 +2,7 @@
 
 > 本文给出了Pigsty中PGSQL数据库相关的常用运维操作命令
 
-大多数集群管理操作都需要使用到管理节点上的管理用户，并在Pigsty根目录执行相应Ansible Playbook。以下示例如无特殊说明，均以沙箱环境，三节点集群 `pg-test`作为演示对象。
+大多数集群管理操作都需要使用到元节点上的管理用户，并在Pigsty根目录执行相应Ansible Playbook。以下示例如无特殊说明，均以沙箱环境，三节点集群 `pg-test`作为演示对象。
 
 - [集群创建/扩容](#case-1：集群创建扩容)
 - [集群下线/缩容](#Case-2：集群下线缩容)
@@ -25,7 +25,7 @@
 
 ### 集群实例管理
 
-在管理节点上使用管理用户执行以下命令管理PostgreSQL集群与实例：
+在元节点上使用管理用户执行以下命令管理PostgreSQL集群与实例：
 
 ```bash
 bin/createpg   pg-test       # 初始化PGSQL集群 pg-test
@@ -72,7 +72,7 @@ bin/createdb   pg-test -e pg_database=test # 在PG集群pg-test创建数据库te
 
 Pigsty默认使用Patroni管理PostgreSQL实例数据库。这意味着您需要使用`patronictl`命令来管理Postgres集群，包括：集群配置变更，重启，Failover，Switchover，重做特定实例，切换自动/手动高可用模式等。
 
-用户可以使用`patronictl`在管理节点上的管理用户，或任意数据库节点的`dbsu`执行。快捷命令`pg`已经在所有托管的机器上创建，用户可以使用它对所有目标Postgres集群发起管理。
+用户可以使用`patronictl`在元节点上的管理用户，或任意数据库节点的`dbsu`执行。快捷命令`pg`已经在所有托管的机器上创建，用户可以使用它对所有目标Postgres集群发起管理。
 
 常用的管理命令如下所示，更多命令请参考`pg --help`
 
@@ -122,7 +122,7 @@ systemctl reload vip-manager         # 重载配置： vip-manager
 systemctl reload consul              # 重载配置： Consul
 ```
 
-在管理节点上，还可以通过 `systemctl reload` 重新加载基础设施组件的配置：
+在元节点上，还可以通过 `systemctl reload` 重新加载基础设施组件的配置：
 
 ```bash
 systemctl reload nginx          # 重载配置： Nginx （更新Haproxy管理界面索引，以及外部访问域名）
@@ -138,9 +138,9 @@ systemctl reload grafana-server # 重载配置： Grafana
 ### 常用命令集锦
 
 ```bash
-./infra.yml -t environ             # 重新在管理节点上配置环境变量与访问凭证
-./infra.yml -t repo_upstream       # 重新在管理节点上添加上游repo
-./infra.yml -t repo_download       # 重新在管理节点上下载软件包
+./infra.yml -t environ             # 重新在元节点上配置环境变量与访问凭证
+./infra.yml -t repo_upstream       # 重新在元节点上添加上游repo
+./infra.yml -t repo_download       # 重新在元节点上下载软件包
 ./infra.yml -t nginx_home          # 重新生成Nginx首页内容
 ./infra.yml -t nginx_config,nginx_restart # 重新生成Nginx配置文件并重启应用
 ./infra.yml -t prometheus_config   # 重置Prometheus配置
@@ -279,8 +279,6 @@ pg list -W # 查阅集群状态，确认故障实例没有clonefrom标签
 
 
 <details><summary>常见问题5：如何使用现有用户创建固定的管理员用户</summary>
-
-
 系统默认使用 `dba` 作为管理员用户，该用户应当可以从管理机通过ssh免密码登陆远程数据库节点，并免密码执行sudo命令。
 
 如果分配的机器默认没有该用户，但您有其他的管理用户（例如`vagrant`）可以ssh登陆远程节点并执行sudo，则可以执行以下命令，使用其他的用户登陆远程机器并自动创建标准的管理用户：
@@ -293,7 +291,7 @@ BECOME password[defaults to SSH password]:
 
 如果指定`-k|--ask-pass -K|--ask-become-pass` 参数，则在执行前应当输入该管理用户的SSH登陆密码与sudo密码。
 
-执行完毕后，即可从管理节点上的管理用户（默认为`dba`） 登陆目标数据库机器，并执行其他剧本。
+执行完毕后，即可从元节点上的管理用户（默认为`dba`） 登陆目标数据库机器，并执行其他剧本。
 
 </details>
 
@@ -601,7 +599,7 @@ Pigsty默认使用静态文件服务发现的方式管理 Prometheus 监控对�
 ./pgsql.yml -t register_prometheus -l pg-test
 ```
 
-PostgreSQL的服务发现对象定义默认存储于所有管理节点的 `/etc/prometheus/targets/pgsql` 目录中：每一个实例对应一个yml文件，包含目标的标签，与Exporter暴露的端口。
+PostgreSQL的服务发现对象定义默认存储于所有元节点的 `/etc/prometheus/targets/pgsql` 目录中：每一个实例对应一个yml文件，包含目标的标签，与Exporter暴露的端口。
 
 ```yaml
 # pg-meta-1 [primary] @ 172.21.0.11
@@ -717,8 +715,8 @@ $ pg list pg-test
 常用的基础设施重新配置命令包括：
 
 ```bash
-./infra.yml -t repo_upstream       # 重新在管理节点上添加上游repo
-./infra.yml -t repo_download       # 重新在管理节点上下载软件包
+./infra.yml -t repo_upstream       # 重新在元节点上添加上游repo
+./infra.yml -t repo_download       # 重新在元节点上下载软件包
 ./infra.yml -t nginx_home          # 重新生成Nginx首页内容
 ./infra.yml -t prometheus_config   # 重置Prometheus配置
 ./infra.yml -t grafana_provision   # 重置Grafana监控面板
@@ -802,7 +800,6 @@ pg resume pg-test
 ```bash
 # 强制重置目标集群上的Consul Agent（因为HA处于维护模式，不会影响新数据库集群）
 ./nodes.yml -l pg-test -t consul -e dcs_exists_action=clean
-
 ```
 
 当Patroni完成重启后（维护模式中，Patroni重启不会导致Postgres关停），会将集群元数据KV写入新的Consul集群中，所以必须确保原主库上的Patroni服务首先完成重启。

@@ -12,6 +12,7 @@
 [发行版](#发行版) / [高可用](#高可用) / [监控系统](#监控系统) / [一键部署](#一键部署) / [Infra as Data](#infra-as-data) / [应用生态](#应用广泛) / [安全省钱](#安全省钱)
 
 
+
 ## PostgreSQL数据库发行版
 
 > RedHat for Linux! 开箱即用！ 从无到有，让用户**用得上**！
@@ -21,6 +22,7 @@
 * Pigsty打包了大规模生产环境所需的基础设施：[Grafana](https://grafana.com/)，[Prometheus](https://prometheus.io/)，[Loki](https://grafana.com/oss/loki/)，[Ansible](https://docs.ansible.com/)，[Consul](https://www.consul.io/)，[Docker](https://www.docker.com/)等， 亦可作为部署监控其他数据库与应用的运行时。
 
 * Pigsty集成了数据分析生态的常用工具：[Jupyter](https://jupyter.org/)，[ECharts](https://echarts.apache.org/zh/index.html)，[Grafana](https://grafana.com/)，[PostgREST](https://postgrest.org/)，[Postgres](https://www.postgresql.org/)，可作为[数据分析](#数据分析)环境，或低代码数据可视化应用开发平台。
+
 
 
 ## 开源监控管控运维解决方案
@@ -69,7 +71,9 @@
 > Pigsty是围绕PostgreSQL为核心的开源数据库发行版
 
 Pigsty集成整合了PostgreSQL生态最强力的扩展插件：PostGIS，TimescaleDB，Citus，提供了原生的分布式、时序、空间能力支持，上百扩展开箱即用。
+
 并将高可用集群部署，扩容缩容，主从复制，故障切换，流量代理，连接池，服务发现，访问控制，监控系统，告警系统，日志采集等生产级成熟**解决方案**封装为发行版。
+
 一次性解决在生产环境与各类场景下使用 **世界上最先进的开源关系型数据库 —— [PostgreSQL](https://www.postgresql.org/)** 时会遇到的各种问题，真正做到开箱即用。
 
 ![](../_media/ARCH.svg)
@@ -126,7 +130,7 @@ Pigsty有两种典型使用模式：**单机**与**集群**。它既可完整运
 
 Pigsty内置了一套以Ansible为核心的数据库管控方案，并基于此封装了命令行工具与图形界面。它集成了数据库管理中的核心功能：包括数据库集群的创建，销毁，扩缩容；用户、数据库、服务的创建等。
 
-更重要的是，Pigsty打包并提供了一套完整的应用运行时，用户可以使用该节点管理任意数量的数据库集群。您可以从安装Pigsty的节点（又名"管理节点"/"元节点"）上发起控制，将更多节点纳入Pigsty的管理中。 您既可以使用它监控已有（包括云厂商RDS在内）的数据库实例，也可以直接在节点上自行部署高可用故障自愈的PostgreSQL数据库集群，以及其他种类的应用或数据库，例如 [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) ，并获取关于节点、数据库与应用的实时洞察。
+更重要的是，Pigsty打包并提供了一套完整的应用运行时，用户可以使用该节点管理任意数量的数据库集群。您可以从安装Pigsty的节点（又名"元节点"/"元节点"）上发起控制，将更多节点纳入Pigsty的管理中。 您既可以使用它监控已有（包括云厂商RDS在内）的数据库实例，也可以直接在节点上自行部署高可用故障自愈的PostgreSQL数据库集群，以及其他种类的应用或数据库，例如 [Redis](d-redis.md) 与 [MatrixDB](d-matrixdb.md) ，并获取关于节点、数据库与应用的实时洞察。
 
 ![](../_media/SANDBOX.gif)
 
@@ -401,7 +405,7 @@ Pigsty可以利用Vagrant与Virtualbox，在您自己的笔记本电脑上拉起
 
 **四节点基本规格**
 
-* 管理节点要求同**单节点**所述
+* 元节点要求同**单节点**所述
 * 部署一个额外的三节点PostgreSQL数据库集群`pg-test`
 * 普通数据库节点，最低规格：1核，1GB，建议使用2GB内存。
 * 三节点的IP地址固定为：`10.10.10.11`, `10.10.10.12`, `10.10.10.13`
@@ -419,7 +423,7 @@ Pigsty可以利用Vagrant与Virtualbox，在您自己的笔记本电脑上拉起
 
 > 一键拉起生产级SaaS应用，数据分析快速上手，低代码开发可视化大屏
 
-Pigsty在管理节点上默认安装了Docker，您可以一键拉起各类SaaS应用：开源私有代码托管平台Gitlab，开源论坛Discourse，开源社交网络Mastodon，开源ERP软件Odoo，以及用友、金蝶等软件。
+Pigsty在元节点上默认安装了Docker，您可以一键拉起各类SaaS应用：开源私有代码托管平台Gitlab，开源论坛Discourse，开源社交网络Mastodon，开源ERP软件Odoo，以及用友、金蝶等软件。
 您可以使用Docker拉起无状态的部分，修改其数据库连接串使用外部数据库，获取丝滑的云原生管理体验与生产级的数据持久性。详情请参考 [教程:Docker应用](t-docker.md)。
 
 

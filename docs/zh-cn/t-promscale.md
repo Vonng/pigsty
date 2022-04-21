@@ -33,7 +33,7 @@ psql postgres://dbuser_prometheus:DBUser.Prometheus@10.10.10.10:5432/prometheus 
 
 ## 配置Promscale
 
-在管理节点上执行以下命令安装 `promscale`
+在元节点上执行以下命令安装 `promscale`
 
 ```bash
 yum install -y promscale 

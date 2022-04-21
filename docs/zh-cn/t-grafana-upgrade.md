@@ -85,7 +85,7 @@ postgres://dbuser_grafana:DBUser.Grafana@10.10.10.12:5436/grafana # 直连defaul
 postgres://dbuser_grafana:DBUser.Grafana@10.10.10.12:5433/grafana # 连接串读写服务
 ```
 
-因为默认情况下Pigsty安装在**单个管理节点**上，接下来的步骤我们会在已有的`pg-meta`数据库集群上创建Grafana所需的用户与数据库，而并非使用这里创建的`pg-grafana`集群。
+因为默认情况下Pigsty安装在**单个元节点**上，接下来的步骤我们会在已有的`pg-meta`数据库集群上创建Grafana所需的用户与数据库，而并非使用这里创建的`pg-grafana`集群。
 
 
 

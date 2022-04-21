@@ -1,6 +1,6 @@
 # 容器指南
 
-Pigsty v1.4.1 带有Docker与Docker Compose部署支持，其中，Docker Daemon将默认在管理节点上启用，以供安装更多SaaS服务
+Pigsty v1.4.1 带有Docker与Docker Compose部署支持，其中，Docker Daemon将默认在元节点上启用，以供安装更多SaaS服务
 
 您可以使用Docker，快速部署启动软件应用，在容器中，您可以直接使用连接串访问部署于宿主机上的PostgreSQL/Redis数据库。
 
@@ -48,7 +48,7 @@ nginx_upstreams:
 
 ## PG管理工具：PgAdmin
 
-[PGAdmin4](https://www.pgadmin.org/)是流行的PG管控工具，使用以下命令，在管理节点上拉起PgAdmin4服务，默认为主机`8080`端口，用户名 `admin@pigsty.cc`，密码：`pigsty`
+[PGAdmin4](https://www.pgadmin.org/)是流行的PG管控工具，使用以下命令，在元节点上拉起PgAdmin4服务，默认为主机`8080`端口，用户名 `admin@pigsty.cc`，密码：`pigsty`
 
 ```bash
 docker run --init --name pgadmin --restart always --detach --publish 8080:80 \
@@ -72,7 +72,7 @@ docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty
 
 ## PGWeb客户端工具
 
-[PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在管理节点上拉起PGWEB服务，默认为主机`8081`端口。
+[PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在元节点上拉起PGWEB服务，默认为主机`8081`端口。
 
 ```bash
 # docker stop pgweb; docker rm pgweb
@@ -107,7 +107,7 @@ docker run --init --name postgrest --restart always --detach --net=host -p 8082:
 
 ## 模式迁移工具：ByteBase
 
-[ByteBase](https://bytebase.com/)是一个进行数据库模式变更的工具，以下命令将在管理节点 8083 端口启动一个ByteBase。
+[ByteBase](https://bytebase.com/)是一个进行数据库模式变更的工具，以下命令将在元节点 8083 端口启动一个ByteBase。
 
 ```bash
 docker run --init --name bytebase --restart always --detach --publish 8083:8083 --volume ~/.bytebase/data:/var/opt/bytebase \

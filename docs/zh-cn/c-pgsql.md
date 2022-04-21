@@ -1,36 +1,70 @@
-# 实体与标识
+# PGSQL 概念
 
-> 名之必可言也，言之必可行也。
-
-概念及其命名是非常重要的东西，命名风格体现了工程师对系统架构的认知。
-定义不清的概念将导致沟通困惑，随意设定的名称将产生意想不到的额外负担。
-本文介绍 Pigsty 中的领域实体概念，以及使用的标识命名规则。
-
--------------
-
-## 核心实体模型
-
-在Pigsty中有四类核心实体：[**数据库集群**](c-arch.md#数据库集群) **（Cluster）**， [**数据库服务**](c-service.md) **（Service）**，**数据库实例（Instance）**，[**数据库节点**](c-arch.md#数据库节点) **（Node）**
-以下简称为集群、服务、实例、节点。
-
-![](../_media/er-core.svg)
+> 介绍 PostgreSQL 数据库集群管理所需的核心概念
 
 
-**核心实体说明**
+* [集群概览](#集群概览) / [实体模型](#实体模型) / [身份参数](#身份参数)
+* [集群](#集群（cluster）) /  [实例](#实例（instance）) / [节点](#节点（node） ) / [服务](#服务（service）) 
+* [PostgreSQL高可用](#高可用)
+
+
+
+
+* [部署：PGSQL](d-pgsql.md) ｜[配置：PGSQL](v-pgsql.md)  | [剧本：PGSQL](p-pgsql.md) ｜ [定制：PGSQL](v-pgsql-customize.md)
+* [PGSQL服务](c-service.md#服务) 与 [PGSQL接入](c-service.md#接入)
+* [PGSQL权限](c-privilege.md#权限) 与 [PGSQL认证](c-privilege.md#认证)
+* [PGSQL业务用户](c-pgdbuser.md#用户) 与 [PGSQL业务数据库](c-pgdbuser.md#数据库)
+
+
+
+## 集群概览
+
+生产环境的PGSQL数据库以**集群**为单位进行组织，**集群**是一个由**主从复制**所关联的一组数据库**实例**所构成的**逻辑实体**。每个**数据库集群**是一个**自组织**的业务服务单元，由至少一个**数据库实例**组成。
+
+集群是基本的业务服务单元，下图展示了沙箱环境中的复制拓扑。其中`pg-meta-1`单独构成一个数据库集群`pg-meta`，而`pg-test-1`，`pg-test-2`，`pg-test-3`共同构成另一个逻辑集群`pg-test`。
+
+```
+pg-meta-1
+(primary)
+
+pg-test-1 -------------> pg-test-2
+(primary)      |         (replica)
+               |
+               ^-------> pg-test-3
+                         (replica)
+```
+
+![](../_media/SANDBOX.gif)
+
+
+
+
+
+## 实体模型
+
+在Pigsty中，PostgreSQL有四类核心实体：
+
+* [**PGSQL集群**](#集群) **（Cluster）**，以下简称为集群
+* [**PGSQL服务**](#服务) **（Service）**，以下简称为服务
+* [**PGSQL实例**](#实例) **（Instance）** ，以下简称为实例
+* [**PGSQL节点**](#节点) **（Node）** ，以下简称为节点
+
+
+### 实体说明
 
 * **集群（Cluster）** 是基本自治单元，由**用户指定**唯一标识，表达业务含义，作为顶层命名空间。
 * 集群在硬件层面上包含一系列的**节点（Node）**，即物理机，虚机（或Pod），可以通过**IP**唯一标识。
 * 集群在软件层面上包含一系列的**实例（Instance）**，即软件服务器，可以通过**IP:Port**唯一标识。
 * 集群在服务层面上包含一系列的**服务（Service）**，即可访问的域名与端点，可以通过**域名**唯一标识。
 
-**核心实体命名规则**
+![](../_media/ER-PGSQL.gif)
+
+### 实体命名规则
 
 * 集群的命名可以使用任意满足DNS域名规范的名称，不能带点（`[a-zA-Z0-9-]+`）。
 * 节点命名采用集群名称作为前缀，后接`-`，再接一个整数序号（建议从0开始分配，与k8s保持一致）
-* 因为Pigsty采用独占式部署，节点与实例一一对应。则实例命名可与节点命名保持一致，即`${cluster}-${seq}`的方式。
-* 服务命名亦采用集群名称作为前缀，后接`-`连接服务具体内容，如`primary`,` replica`,`offline`,`delayed`等。
-
-**命名样例**
+* PGSQL采用独占式部署，节点与实例一一对应，因此实例命名可与节点命名一致，即`${cluster}-${seq}`的方式。
+* 服务命名亦采用集群名称作为前缀，后接`-`连接服务具体内容，如`primary`,` replica`,`offline`,`standby`等。
 
 以沙箱环境的测试数据库集群 `pg-test` 为例：
 
@@ -38,75 +72,61 @@
 * 两种角色：`primary` 与 `replica`，分别是集群主库与从库。
 * 三个实例：集群由三个数据库实例：`pg-test-1`, `pg-test-2`, `pg-test-3`组成
 * 三个节点：集群部署在三个节点上：`10.10.10.11`, `10.10.10.12`, `10.10.10.13`上。
-* 四个服务：读写服务`pg-test-primary`，只读服务`pg-test-replica`，直连管理服务`pg-test-default`，离线读服务`pg-test-offline`
-
--------------
-
-## 完整实体模型
-
-Pigsty的四类核心实体可以分别向上向下扩展出**完整实体模型**，如下图所示：
-
-![](../_media/er-full.svg)
-
-**扩展实体说明**
-
-* **环境（Environment）** ，或曰 **部署（Deployment）** 是一套完整的Pigsty系统。
-* 每一套环境都有一份 [配置](v-config.md)（Config），与一套 [基础设施](c-arch.md#基础设施)（Infrastructure），管理有多套[数据库集群](c-arch.md#数据库集群)
-* 每一个数据库实例上有若干个[**业务数据库**](c-database.md)（Database），作为逻辑层面的顶级命名空间
-* 每一个数据库内都会有各种**数据库对象**，例如表、索引、序列号、函数等。
-
-**扩展实体标识**
-
-* 每一套**环境**，通过一个自定义标识符表示，Pigsty默认使用的环境标识符为`pgsql`。您可以使用任意有意义的名称：`prod`，`staging`，`uat`，`testing`，`pgsql`，`pgsql-prod`等。
-* **水平分片（Sharding）** 目前并非Pigsty原生支持的实体层次，但您可以通过集群命名的规则来模拟这一层次。水平分片的所属集群可以通过使用统一的命名规则：`xxx-shard\d+`来标识本集群属于一个水平分片。
-* **数据库** 的命名由用户自行决定，但建议使用与集群名相同的约束规则，例如：`test`，`meta`，`grafana`。
-* **数据库对象** 的命名由用户自行决定，建议使用与集群名相同的标识符约束规则，Pigsty使用带有模式名的完整名称标识对象，例如：`public.cluster`。
+* 四个服务：
+  * 读写服务： [`pg-test-primary`](c-service.md#Primary服务)
+  * 只读服务： [`pg-test-replica`](c-service.md#Replica服务)
+  * 直连管理服务： [`pg-test-default`](c-service.md#Default服务)
+  * 离线查询服务： [`pg-test-offline`](c-service.md#Offline服务)
 
 
 
--------------
-
-## 身份标识
+## 身份参数
 
 实体与标识符是一种概念模型，下面介绍Pigsty中的具体实现。
 
-Pigsty标识符最具代表型的实现，就是Prometheus中时序数据的**标签（Label）**。如下表所示
+[`pg_cluster`](#pg_cluster)，[`pg_role`](#pg_role)，[`pg_seq`](#pg_seq) 属于 **身份参数** ，用于生成实体标识。
 
-| 实体         | 标识名    | 标识样例                             | 标签                       |
-| ------------ | --------- | ------------------------------------ | -------------------------- |
-| Environment  | **`job`** | `pgsql`, `redis`, `staging`          | `{job}`                    |
-| Shard        |           | `pg-test-shard\d+`                   | `{job, cls*}`              |
-| **Cluster**  | **`cls`** | `pg-meta`, `pg-test`                 | `{job, cls}`               |
-| Service      |           | `pg-meta-primary`, `pg-test-replica` | `{job, cls}`               |
-| **Instance** | **`ins`** | `pg-meta-1`, `pg-test-1`             | `{job, cls, ins}`          |
-| Database     |           | `test`                               | `{..., datname}`           |
-| Object       |           | `public.pgbench_accounts`            | `{..., datname, <object>}` |
+除IP地址外，这三个参数是定义一套新的数据库集群的最小必须参数集
 
-最为关键的 **集群标识符（cls）** 与 **实例标识符（ins）** 通过集群配置中的[身份参数](v-config.md#身份参数)自动生成，包括：
+* 集群标识：`pg_cluster` ： `{{ pg_cluster }}`
+* 实例标识：`pg_instance` ： `{{ pg_cluster }}-{{ pg_seq }}`
+* 服务标识：`pg_service` ：`{{ pg_cluster }}-{{ pg_role }}`
+* 节点标识：`nodename`：
+  * 若 `pg_hostname: true`: 使用与 `pg_instance`相同的：`{{ pg_cluster }}-{{ pg_seq }}`
+  * 若 `pg_hostname: false`: 显式指定`{{ nodename }}`则直接使用，否则使用现有主机名。
 
-|                    名称                     |        属性        |   说明   |         例子         |
-| :-----------------------------------------: | :----------------: | :------: | :------------------: |
-| [`pg_cluster`](v-pgsql.md#pg_cluster) | **必选**，集群级别 |  集群名  |      `pg-test`       |
-|    [`pg_role`](v-pgsql.md#pg_role)    | **必选**，实例级别 | 实例角色 | `primary`, `replica` |
-|     [`pg_seq`](v-pgsql.md#pg_seq)     | **必选**，实例级别 | 实例序号 | `1`, `2`, `3`,`...`  |
-
-身份参数是定义数据库集群所需的**最小必须参数集**，核心身份参数**必须显式指定**，不可忽略。
-
-- `pg_cluster` (`cls`) 标识了集群的名称，在集群层面进行配置，作为集群资源的顶层命名空间。
-- `pg_instance` (`ins`) 用于唯一标识一个数据库实例，它由`pg_cluster`与`pg_seq`通过`-`拼合而成。
-- `pg_seq` 用于在集群内标识实例，通常采用从0或1开始递增的整数，一旦分配不再更改。
-- `pg_service`（`svc`）唯一标识了集群中的服务，它由`pg_cluster`与`pg_role`通过`-`拼合而成。
-- `pg_role`标识了实例在集群中扮演的角色，在实例层面进行配置，可选值包括：
-  - `primary`：集群中的**唯一主库**，集群领导者，提供写入服务。
-  - `replica`：集群中的**普通从库**，承接常规生产只读流量。
-  - `offline`：集群中的**离线从库**，承接ETL/SAGA/个人用户/交互式/分析型查询。
-  - `standby`：集群中的**同步从库**，采用同步复制，没有复制延迟。
-  - `delayed`：集群中的**延迟从库**，显式指定复制延迟，用于执行回溯查询与数据抢救。
+下面是沙箱环境中 `pg-test` 集群的定义样例：
 
 
+```yaml
+pg-test:
+  hosts:
+    10.10.10.11: {pg_seq: 1, pg_role: replica}
+    10.10.10.12: {pg_seq: 2, pg_role: primary}
+    10.10.10.13: {pg_seq: 3, pg_role: replica}
+  vars:
+    pg_cluster: pg-test
+    pg_hostname: true     # 使用1:1 PG实例的身份作为节点的身份
+```
+
+因此，该集群三个成员的身份标识如下：
+
+|     host      |  cluster  |  instance   |      service      |  nodename   |
+| :-----------: | :-------: | :---------: | :---------------: | :---------: |
+| `10.10.10.11` | `pg-test` | `pg-test-1` | `pg-test-primary` | `pg-test-1` |
+| `10.10.10.12` | `pg-test` | `pg-test-2` | `pg-test-replica` | `pg-test-2` |
+| `10.10.10.13` | `pg-test` | `pg-test-3` | `pg-test-replica` | `pg-test-3` |
+
+在监控系统中，相关的时序监控数据标签为：
+
+```json
+pg_up{cls="pg-meta", ins="pg-meta-1", ip="10.10.10.10", job="pgsql"}
+pg_up{cls="pg-test", ins="pg-test-1", ip="10.10.10.11", job="pgsql"}
+pg_up{cls="pg-test", ins="pg-test-2", ip="10.10.10.12", job="pgsql"}
+pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
+```
 
 
--------------
 
 
 
@@ -146,6 +166,8 @@ cluster_name := [a-z][a-z0-9-]*
 
 典型的集群名称包括：`pg-meta`, `pg-test-fin`, `pg-infrastructure-biz`
 
+
+
 -------------
 
 ## 实例（Instance）
@@ -166,6 +188,8 @@ Pigsty默认使用从1开始的自增序列号依次为集群中的新数据库�
 实例名`ins`一旦分配即不可变，该实例将在整个集群的生命周期中使用此标识符。
 
 此外，采用独占节点部署模式时，数据库实例与机器节点可以互相使用对方的标识符。即我们也可用数据库实例标识`ins`来唯一指称一个机器节点。
+
+
 
 
 -------------
@@ -208,8 +232,6 @@ Pigsty使用 `ip` 地址作为节点唯一标识符，如果机器有多个IP地
 
 更多关于服务的介绍，请参考[服务](c-service.md)一章。
 
-
-
 ### 服务命名规则
 
 **服务标识** (`svc`) 由两部分组成：作为命名空间的 `cls`， 与服务承载的**角色**（`role`）
@@ -222,4 +244,56 @@ Pigsty使用 `ip` 地址作为节点唯一标识符，如果机器有多个IP地
 * 指向 同步复制从库（`standby`）的服务，叫做`pg-test-standby`
 
 请注意，**服务并不够成对实例的划分**，同一个服务可以指向集群内多个不同的实例，然而同一个实例也可以承接来自不同服务的请求。例如，角色为 `standby`的同步从库既可以承接来自 `pg-test-standby` 的同步读取请求，也可以承接来自 `pg-test-replica` 的普通读取请求。
+
+
+
+
+
+
+
+## 高可用
+
+> 主库故障RTO ≈ 30s~1min，RPO < 10MB，从库故障RTO≈0（仅故障实例连接中断）
+
+Pigsty默认创建创建**高可用PostgreSQL数据库集群**。只要集群中有任意实例存活，集群就可以对外提供完整的读写服务与只读服务。Pigsty可以**自动进行故障切换**，业务方只读流量不受影响；读写流量的影响视具体配置与负载，通常在几秒到几十秒的范围。
+
+默认情况下， Pigsty部署的集群采用 **可用性优先** 模式，主库宕机时，未及时复制至从库部分的数据可能会丢失（正常约几百KB，不超过10MB），您可以参考 [同步从库](d-pgsql.md#同步从库) 的说明，使用 **一致性优先** 模式，此模式下 RPO = 0 。
+
+
+
+![](../_media/HA-PGSQL.svg)
+
+
+
+Pigsty的高可用使用 Patroni + HAProxy实现，前者负责故障切换，后者负责流量切换。Patroni会利用DCS服务进行心跳保活，集群主库默认会注册一个时长为15秒的租约并定期续租。当主库故障无法续租时，租约释放，触发新一轮集群选举。通常，复制延迟最小者（数据损失最小化）会被选举为新的集群领导者。集群进入新的时间线，包括旧主库在内的其他成员都会重新追随新的领导者。
+
+Pigsty提供了多种流量接入方式，如果您使用默认的HAProxy接入，则无需担心集群故障切换对业务流量产生影响。HAProxy会自动检测集群中的实例状态，并正确分发流量。例如，5433端口上的 Primary服务，会使用HTTP GET `ip:8008/primary` 健康检查，从集群中所有的Patroni处获取信息，找出集群主库，并将流量分发至主库上。HAProxy本身是无状态的，均匀部署在每个节点/实例上。任意或所有HAProxy都可以作为集群的服务接入点。
+
+
+
+### 组件交互
+
+在单个数据库节点/实例上，各组件通过以下联系相互配合：
+
+![](../_media/ARCH.gif)
+
+
+
+* vip-manager通过**查询**Consul获取集群主库信息，将集群专用L2 VIP绑定至主库节点（默认沙箱接入方案）。
+* Haproxy是数据库**流量**入口，用于对外暴露服务，使用不同端口（543x）区分不同的服务。
+  * Haproxy的9101端口暴露Haproxy的内部监控指标，同时提供Admin界面控制流量。
+  * Haproxy 5433端口默认指向集群主库连接池6432端口
+  * Haproxy 5434端口默认指向集群从库连接池6432端口
+  * Haproxy 5436端口默认直接指向集群主库5432端口
+  * Haproxy 5438端口默认直接指向集群离线实例5432端口
+* Pgbouncer用于**池化**数据库连接，缓冲故障冲击，暴露额外指标。
+  * 生产服务（高频非交互，5433/5434）必须通过Pgbouncer访问。
+  * 直连服务（管理与ETL，5436/5438）必须绕开Pgbouncer直连。
+* Postgres提供实际数据库服务，通过流复制构成主从数据库集群。
+* Patroni用于**监管**Postgres服务，负责主从选举与切换，健康检查，配置管理。
+  * Patroni使用Consul达成**共识**，作为集群领导者选举的依据。
+* Consul Agent用于下发配置，接受服务注册，服务发现，提供DNS查询。
+  * 所有使用端口的进程服务都会**注册**至Consul中
+* PGB Exporter，PG Exporter， Node Exporter分别用于**暴露**数据库，连接池，节点的监控指标
+* Promtail是日志收集组件，用于向基础设施Loki发送采集到的PG，PGB，Patroni与节点日志
 

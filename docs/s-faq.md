@@ -1,98 +1,128 @@
 # FAQ: Frequently Asked Questions
 
-> Here is a list of common problems encountered by Pigsty users. If you encounter a problem that is difficult to solve, you can [Contact Us](community.md), or submit an [Issue](https://github.com/Vonng/pigsty/issues/new).
+> Here are some frequently asked questions. If you have some unlisted questions,  [Contact Us](community.md), or submit an [Issue](https://github.com/Vonng/pigsty/issues/new).
 
 
 
-## Download Issues
 
-#### Where to download the source code?
 
-Pigsty source package: `pigsty.tgz` can be obtained from the following location.
+## Preparation
 
-* [Github Release](https://github.com/Vonng/pigsty/releases) is the most authoritative and comprehensive download address, containing all historical releases.
-* When mainland users cannot access Github, they can visit the Baidu cloud disk to download: [https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw](https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw) (Extraction code: `8su9`)
-* If users need to do the offline installation, they can download the source package and offline installation package from Github or other channels in advance, and upload them to the server via scp, ftp, etc.
+
+
+### Node Requirement
+
+At least **1Core/2GB** is required from [singleton meta](c-arch.md#singleton-meta) installation. 1C1G works but is not stable.
+
+**x86_64** Processor is required. ARM is not supported yet.
+
+
+
+### OS requirements
+
+**Pigsty strongly recommends using CentOS 7.8 to avoid meaningless efforts.**
+
+It's fully tested and verified in a real-world production environment. And we develop, test, and package pigsty under CentOS 7.8. CentOS 7.6 is also fully tested. Other centos 7.x and its compatible are fine, b
+
+
+
+### Versioning Policy
+
+Pigsty use semantic version number: `<major>. <minor>. <release>`. A **major** version update implies fundamental architectural change. A minor version number increase means a significant update, including packages version updates, minor API changes, and other incremental features. The release version number is usually used for bug fixes and doc updates, and a release version increase does not change the package version (i.e. v1.0.1 and v1.0.0 usually use the same `pkg.tgz`).
+
+
+
+
+
+## Download
+
+#### Where to download Pigsty source code?
+
+Pigsty [source](d-prepare.md#pigsty-source-code) package: `pigsty.tgz` can be obtained from the following location.
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz -o ~/pigsty.tgz
+https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz   # Github Release 
+http://download.pigsty.cc/v1.4.1/pigsty.tgz                           # CDN
 ```
 
------------
+* [Github Release](https://github.com/Vonng/pigsty/releases) contains the authoritative releases. While CDN is especially for mainland China GFW.
+* If you don't have internet access on production env, download source & offline packages first and ship them via scp/sftp...
 
-#### **versioning policy for source packages**
+Please use a specific version release rather than the master branch.
 
-Pigsty follows the semantic version numbering rule: `<major>. <minor>. <release>`. A major version update implies a major fundamental architectural change (which usually doesn't happen), and
-A minor version number increase means a significant update, which usually means package version updates, minor API changes, and other incremental feature changes, and usually includes a note on upgrade considerations.
-The release version number is usually used for bug fixes and doc updates, and a release version increase does not change the package version (i.e. v1.1.0 and v1.0.0 correspond to the same `pkg.tgz`).
+!> WARN:  Github `master` branch is for developing purposes, and may in a broken status.
 
------------
 
-#### Where to download the offline packages?
 
-During `configure`, if the offline installer `/tmp/pkg.tgz` does not exist, the user will be automatically prompted to download it, by default from Github Release.
+#### Where to download Pigsty offline software packages?
 
-If the user needs to install in an environment where **no internet access** or Github access is restricted, they will need to download and upload it to the target server at the specified location themselves.
+You can download [offline software package](d-prepare.md#Pigsty-Offline-Package) via `curl` and put it to `/tmp/pkg.tgz`. Or ship it to prod env with scp/sftp.
 
-```bash  
-# curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz -o /tmp/pkg.tgz
+```bash
+curl https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz -o /tmp/pkg.tgz
+curl http://download.pigsty.cc/v1.4.1/pkg.tgz -o /tmp/pkg.tgz       
 ```
 
------------
+During [`configure`](v-config.md#configure) procedure, if `/tmp/pkg.tgz` not exist, it will ask whether to download it. 'Y' will download from Github.
 
-#### How to use the offline package？
-
-Place the downloaded offline package `pkg.tgz` under the `/tmp/pkg.tgz` path on the installation machine to use it automatically during the installation process.
-
-The offline package is extracted to `/www/pigsty` by default. During installation, when the `/www/pigsty/` dir exists along with the marker file `/www/pigsty/repo_complete`, Pigsty will use the package directly, skipping the lengthy download process.
+Besides, the built-in `download` script can be used for downloading too: `./download pkg`.
 
 
------------
 
-#### Install without offline packages?
+#### Download RPMs too slow
 
-Offline installers contain packages collected and downloaded from various Yum repos and Github Releases, or users can choose not to use pre-packaged offline installers and download them directly from the original upstream.
+Pigsty use mirrors for RPMs downloading. If it's too slow, try the following solutions:
 
-When the `/www/pigsty/` dir does not exist, or the tag file `/www/pigsty/repo_complete` does not exist, Pigsty will download all software dependencies from the original upstream specified by [`repo_upsteram`](v-infra.md#repo_upstream).
-
-To not use the offline installer simply select no `n` when prompted to download during `configure`.
-
------------
-
-#### Error when installing the yum package
-
-The default offline software package is based on CentOS 7.8.2003 Linux x86_64 environment and is guaranteed to install successfully on a freshly installed node of this operating system.
-
-The vast majority of CentOS 7. x and its compatible distributions may have very few package dependency issues. Users should be aware of this when using a non-CentOS 7.8.2003 operating system version.
-
-If RPM dependency and versioning issues arise, consider downloading the correct RPM dependencies directly from upstream Repo without using an offline install, which can usually be used to resolve most dependency errors and omissions.
-
-If there are only scattered individual RPM packages with compatibility issues, you may consider removing the relevant RPM package(s) in `/www/pigsty` that is in question, as well as the `/www/pigsty/repo_complete` flag file.
-This will speed up the standard installation by only actually downloading the missing problematic RPM packages.
-
--------------
-
-#### Some packages are too slow to download
-
-Pigsty has been using domestic yum repos for downloads as much as possible, however, a few packages are still affected by **GFW**, causing slow downloads, such as software related to direct downloads from Github. The following solutions are available.
-
-1. Pigsty provides an **offline software installer**, which pre-packages all software and its dependencies. It will automatically prompt the download when to `configure`. 
+1. Pigsty has **offline software package**, which pre-packed resources (made under CentOS 7.8).
 
 2. Specify a proxy server via [`proxy_env`](v-infra#proxy_env) and download through the proxy server, or use an off-wall server directly.
 
+3. Use a different repo mirror with [`repo_upsteram`](v-infra.md#repo_upstream).
+
+#### 
+
+## Sandbox
+
+
+
+
+
+#### How to use the offline software package？
+
+Place the downloaded offline package `pkg.tgz` under the `/tmp/pkg.tgz` path. And it will be used automatically during [configure](v-config.md#configure) procedure.
+
+The offline software package is extracted to `/www/pigsty` by default. During installation, if the `/www/pigsty/` dir exists along with the flag `/www/pigsty/repo_complete`. Pigsty will treat this as a provisioned repo and use it directly. (skip download & build).
+
 
 -----------
+
+#### Install without offline software packages?
+
+Offline installers contain packages collected and downloaded from various sources and Github URLs. If you trying to install Pigsty without offline software packages. (Which is indicated by `/www/pigsty` & `/www/pigsty/repo_complete` not exists). All these packages will be fetched from the [`repo_upsteram`](v-infra.md#repo_upstream)  directly during installation. 
+
+-----------
+
+#### Install node packages error
+
+The default offline software package is made under CentOS 7.8.2003 Linux x86_64. It's guaranteed to work on that specific OS Release.  It may work on the vast majority of any CentOS 7.x & compatible releases. But some RPMs may be incompatible.
+
+In case of rpm confliction. Try to install Pigsty without offline software packages. It will download corresponding RPMs from available sources. Most dependency issues could be resolved by this approach.
+
+If only several RPMs are incompatible. You could just remove the flag file `/www/pigsty/repo_complete`. Then pigsty will rebuild & download missing deps. Which could be much faster.
+
+-------------
 
 #### Vagrant sandbox is too slow to start for the first time
 
 Pigsty sandbox uses CentOS 7 virtual machine by default. When Vagrant starts the virtual machine for the first time, it will download the `CentOS/7` ISO image Box, which is not small in size. (Of course, users can also choose to download the CentOS 7 installation disk ISO installation by themselves).
+
 Using a proxy will increase the download speed, and downloading the CentOS 7 Box only needs to be done when the sandbox is first started and will be reused directly when the sandbox is subsequently rebuilt.
 
 
 -----------
-#### **Deploying and installing RPM on AliCloud standard CentOS 7 virtual machine reports an error**
+#### **RPMs error on Aliyun CentOS 7.8 VM**
 
-AliCloud's CentOS 7.8 server image has `nscd` installed by default, locking out the glibc version, which can cause RPM dependency errors during installation.
+Aliyun's CentOS 7.8 image has `nscd` installed by default, locking its glibc version, which can cause RPM dependency errors during installation.
 
 `"Error: Package: nscd-2.17-307.el7.1.x86_64 (@base)`
 
@@ -112,24 +142,15 @@ A separate command-line tool [`pigsty-cli`](https://github.com/Vonng/pigsty-cli)
 
 
 
-## Environment Issues
 
 
-#### Pigsty's installation environment
+## Environment
 
-Installation of Pigsty requires at least one machine node: specifications of at least 1 core and 2 GB, with Linux kernel, CentOS 7 distribution installed, and x86_64 architecture for the processor. It is recommended to use a **brand new** node (just after installing the OS).
 
-In a production environment, it is recommended to use a higher specification machine and deploy **multiple meta nodes** as disaster recovery redundancy. In the production environment, **meta nodes** are responsible for issuing control commands, managing the deployment of database clusters, collecting monitoring data, running timing tasks, etc.
 
 -----------
 
-#### Pigsty's OS requirements (very important!) 
 
-Pigsty strongly recommends using CentOS 7.8 operating system to install the meta-node and database node, which is a well-proven operating system version **to effectively avoid expending energy on unnecessary issues**.
-
-**Pigsty's default development, testing, and deployment environments are based on CentOS 7.8**, and CentOS 7.6 is also fully validated. Other CentOS 7. x and its equivalents RHEL7, and Oracle Linux 7 are theoretically fine but have not been tested and validated.
-
-Pigsty has no requirements for the target node's OS when monitoring existing PostgreSQL instances using monitor-only mode.
 
 
 -----------
@@ -154,7 +175,7 @@ Pigsty was designed from the beginning with the need for containerization in the
 
 #### Is it possible to monitor existing PG instances?
 
-For external databases created by non-Pigsty provisioning schemes, you can use [monitor-only mode](d-monly) deployment, please refer to the doc for details.
+For external databases created by non-Pigsty provisioning schemes, you can use [Monitor-Only](d-monly) deployment, please refer to the doc for details.
 
 If the instance can be managed by Pigsty, you may consider deploying components such as node_exporter, pg_exporter, etc. on the target node in the same manner as a standard deployment.
 
@@ -196,7 +217,85 @@ A typical production instance, producing 5,000-time series, takes about 200ms fo
 
 
 
-## Architecture Issues
+
+## Software
+
+### Sandbox VM time out of sync 
+
+The time inside the virtual machine after Virtualbox virtual shutdown may not be consistent with the host. You can try the following command: ``make sync`` to force NTP time synchronization.
+
+```bash
+sudo ntpdate -u pool.ntp.org
+make sync4 #  Time synchronization shortcuts
+make ss
+```
+
+That is, it can solve the problem of no data in the monitoring system after a long hibernation or shutdown and restart.
+
+And you can always reset vm node time with vagrant reboot:
+
+```bash
+make dw4; make up4
+```
+
+It will sync vm time with host machine without Internet access for NTP services. 
+
+
+
+## DCS
+
+
+-----------
+
+#### Abort because consul instance already exists
+
+Pigsty has a [safeguard](p-nodes.md#SafeGuard) for dcs service (consul), avoid accidental purge of running consul instances (server or agent).
+
+Pigsty will act according to [`dcs_exists_action`](v-infra.md#dcs_exists_action) if running consul instance is detected:
+
+* `abort` will halt the entire playbook immediately
+* `clean` will continue and purge existing dcs & force reset it
+
+And it will be force to `abort` if [`dcs_disable_purge`](v-infra.md#dcs_disable_purge) is set to true.
+
+You can change these variables in configuration files or manually overwrite it with extra args:
+
+```bash
+./nodes.yml -e dcs_exists_action=clean
+```
+
+
+-----------
+
+
+
+## Postgres
+
+-----------
+
+#### Abort because Postgres instance already exists
+
+Pigsty has a [safeguard](p-pgsql.md#SafeGuard) for dcs service (consul), avoid accidental purge of running PostgreSQL instances.
+
+Pigsty will act according to [`pg_exists_action`](v-pgsql.md#pg_exists_action) if running consul instance is detected:
+
+* `abort` will halt the entire playbook immediately
+* `clean` will continue and purge existing dcs & force reset it
+
+And it will be force to `abort` if [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) is set to true.
+
+You can change these variables in configuration files or manually overwrite it with extra args:
+
+```bash
+./pgsql.yml -e pg_exists_action=clean
+```
+
+
+-----------
+
+
+
+
 
 #### What does Pigsty have installed?
 
@@ -217,58 +316,3 @@ The availability of the DCS itself is guaranteed by multi-node consensus, so it 
 
 -----------
 
-
-
-
-
-## Software Issues
-
-#### No monitoring data in the virtual machine after shutdown
-
-The time inside the virtual machine after Virtualbox virtual shutdown may not be consistent with the host. You can try the following command: ``make sync`` to force NTP time synchronization.
-
-```bash
-sudo ntpdate -u pool.ntp.org
-make sync4 #  Time synchronization shortcuts
-make ss
-```
-
-That is, it can solve the problem of no data in the monitoring system after a long hibernation or shutdown and restart.
-
-
-
-
-
-## DCS Issues
-
-
------------
-
-#### Abort because consul instance already exists
-
-When performing database & infrastructure initialization, a protection mechanism is provided to avoid accidental library deletion.
-
-When Pigsty finds that Consul is already running, it takes different actions based on the parameter [`dcs_exists_action`](v-infra.md#dcs_exists_action).
-
-The default `abort` means that the execution of the entire playbook will be aborted immediately. `clean`, on the other hand, will force a shutdown to delete existing instances, so please use this parameter with caution.
-
-In addition, if the parameter [`dcs_disable_purge`](v-infra.md#dcs_disable_purge) is true, then `dcs_exists_action` will be forced to be configured as `abort` to avoid accidental deletion of DCS instances.
-
-
------------
-
-
-
-## Postgres Issues
-
------------
-
-#### Abort because Postgres instance already exists
-
-When performing database & infrastructure initialization, a protection mechanism is provided to avoid accidental deletion of Postgres instances.
-
-When Pigsty finds that Postgres is already running, it takes different actions based on the parameter [`pg_exists_action`](v-pgsql.md#pg_exists_action)
-
-The default `abort` means that the execution of the entire playbook will be aborted immediately. `clean`, on the other hand, will force a shutdown to delete the existing instance, so please use this parameter with caution.
-
-In addition, if the parameter [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) is true, then `pg_exists_action` will force the configuration to `abort` to avoid the accidental deletion of database instances.

@@ -141,7 +141,7 @@ pg-test:
     pg_conf: crit.yml
 ```
 
-或者，您可以在集群创建完毕后，通过在管理节点上执行 `pg edit-config <cluster.name>` ，编辑集群配置文件，修改参数`synchronous_mode`的值为`true`并应用即可。
+或者，您可以在集群创建完毕后，通过在元节点上执行 `pg edit-config <cluster.name>` ，编辑集群配置文件，修改参数`synchronous_mode`的值为`true`并应用即可。
 
 ```bash
 $ pg edit-config pg-test
@@ -332,7 +332,7 @@ pg-testdelay:
     pg_version: 14          
 ```
 
-创建完毕后，在管理节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
+创建完毕后，在元节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
 
 ```bash
  standby_cluster:

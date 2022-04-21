@@ -87,7 +87,7 @@ pg-testdelay:
     pg_version: 14          
 ```
 
-创建完毕后，在管理节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
+创建完毕后，在元节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
 
 ```bash
  standby_cluster:
