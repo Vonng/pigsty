@@ -63,7 +63,7 @@ migration_context_dir: ~/migration     # this dir will be created
 
 ```
 
-执行`pgsql-migration.yml`，该脚本默认会在管理节点上创建 `~/migration/pg-meta.meta` 目录，包含有迁移使用的资源与脚本。
+执行`pgsql-migration.yml`，该脚本默认会在元节点上创建 `~/migration/pg-meta.meta` 目录，包含有迁移使用的资源与脚本。
 
 
 ## 迁移模板

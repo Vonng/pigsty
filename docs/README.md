@@ -114,7 +114,7 @@ It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Doc
 
 It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres, which can be used as a low-code data app development IDE, too.
 
-![](_media/ARCH.svg)
+![](_media/ARCH.gif)
 
 
 
@@ -166,8 +166,6 @@ pg-test:
 
 ![](_media/interface.jpg)
 
-
-</details>
 
 <details>
 <summary>Example of Redis Native Cluster</summary>

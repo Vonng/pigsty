@@ -28,7 +28,7 @@ All instances have an **Identity** and the **Identifier** is the **metadata** as
 | instance | `pg_instance` | `ins` | derived identity parameters | `${pg_cluster}-${pg_seq}` |
 | service | `pg_service` | `svc` | derived identity parameters | `${pg_cluster}-${pg_role}` |
 
-![](_media/identifier.svg)
+![](_media/LABELS.svg)
 
 
 

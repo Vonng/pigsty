@@ -42,9 +42,7 @@ pg-test:
 
 > `offline` = Warm Standby，温备，不承担在线流量。备用，或仅用于离线/分析查询。
 
-温备（Warm Standby）：与热备类似，但不承载线上流量。
-
-请参考[离线从库部署](d-pgsql.md#离线从库)。
+温备（Warm Standby）：与热备类似，但不承载线上流量。请参考[离线从库部署](d-pgsql.md#离线从库)。
 
 
 
@@ -52,11 +50,7 @@ pg-test:
 
 > `standby` = Sync Standby，与主库保持严格实时同步。
 
-请参考[同步从库部署](d-pgsql.md#同步从库)
-
-
-
-
+使用同步提交的从库，又称做同步备库，详情请参考[同步从库部署](d-pgsql.md#同步从库)
 
 
 
@@ -87,7 +81,7 @@ pg-testdelay:
     pg_version: 14          
 ```
 
-创建完毕后，在管理节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
+创建完毕后，在元节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。
 
 ```bash
  standby_cluster:
@@ -97,14 +91,6 @@ pg-testdelay:
    port: 5432
 +  recovery_min_apply_delay: 1h
 ```
-
-
-
-
-
-
-
-
 
 
 
@@ -190,5 +176,6 @@ openssl enc -rc4 -d -k ${PASSWORD} -in ${backup_latest} | unlz4 -d -c | tar -xC 
 # 重新拉起数据库
 systemctl restart patroni
 
-
+# 重做集群的其他从库
+pg reinit <cluster> # 依次重置集群的其他实例成员
 ```

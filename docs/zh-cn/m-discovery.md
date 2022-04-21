@@ -27,7 +27,7 @@
 | 实例 | `pg_instance` | `ins`  | 衍生身份参数     | `${pg_cluster}-${pg_seq}`                     |
 | 服务 | `pg_service`  | `svc`  | 衍生身份参数     | `${pg_cluster}-${pg_role}`                    |
 
-![](../_media/identifier.svg)
+![](../_media/LABELS.svg)
 
 
 
@@ -111,7 +111,7 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
 
 ![](../_media/nodes.svg)
 
-这些采集端口会被[管理节点](c-arch.md#管理节点)上的Prometheus所采集。
+这些采集端口会被[元节点](c-nodes.md#元节点)上的Prometheus所采集。
 此外，可选的Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。
 
 默认情况下，所有监控端点都会被注册至Consul，但Prometheus默认会通过静态文件服务发现的方式管理这些任务。

@@ -98,7 +98,7 @@ all:                      # 顶层对象 all
   vars: <123 keys>        # 全局配置 all.vars
 
   children:               # 分组定义：all.children 每一个项目定义了一个数据库集群 
-    meta: <2 keys>...     # 特殊分组 meta ，定义了环境管理节点
+    meta: <2 keys>...     # 特殊分组 meta ，定义了环境元节点
     
     pg-meta: <2 keys>...  # 数据库集群 pg-meta 的详细定义
     pg-test: <2 keys>...  # 数据库集群 pg-test 的详细定义

@@ -1,6 +1,6 @@
 # 配置：PGSQL
 
-> 使用 [PGSQL剧本](p-pgsql.md)，[l部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
+> 使用 [PGSQL剧本](p-pgsql.md)，[部署PGSQL](d-pgsql.md)集群，将集群状态调整至 [PGSQL配置](v-pgsql.md)所描述的状态。
 
 您需要通过配置，向Pigsty表达自己对数据库的需求。Pigsty提供了100+参数来对PostgreSQL集群进行完备的描述。但用户通常只需要关心 [身份参数](#PG_IDENTITY) 与 [业务对象](#PG_BUSINESS) 中的个别参数即可：前者表达数据库集群“是谁？在哪？”，后者表达这个数据库“啥样？有啥？”。
 
@@ -895,7 +895,7 @@ Patroni Watchdog模式, 类型：`enum`，层级：C，默认值为：`"automati
 * `automatic`：如果内核启用了`softdog`，则启用`watchdog`，不强制，默认行为。
 * `required`：强制使用`watchdog`，如果系统未启用`softdog`则拒绝启动。
 
-启用Watchdog意味着系统会优先确保数据一致性，而放弃可用性，如果您的系统更重视可用性，则可以关闭Watchdog，建议关闭管理节点上的Watchdog。
+启用Watchdog意味着系统会优先确保数据一致性，而放弃可用性，如果您的系统更重视可用性，则可以关闭Watchdog，建议关闭元节点上的Watchdog。
 
 
 

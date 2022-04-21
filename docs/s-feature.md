@@ -64,7 +64,7 @@ Pigsty integrates the most powerful extension plug-ins of the PostgreSQL ecosyst
 And high availability cluster deployment, scale-up and scale-down, master-slave replication, failover, traffic proxy, connection pooling, service discovery, access control, monitoring system, alarm system, log collection, and other production-grade mature solutions package as a release.
 It solves all the problems encountered when using **the world's most advanced open-source relational database -- [PostgreSQL](https://www.postgresql.org/)** in production environments and various scenarios, truly battery-include.
 
-![](./_media/ARCH.svg)
+![](./_media/ARCH.gif)
 
 
 
@@ -136,13 +136,13 @@ Pigsty creates the required database clusters from bare metal nodes in minutes b
 
 For example, creating a one-master-two-slave database cluster `pg-test` on three machines requires only a few lines of config and a single command `pgsql.yml -l pg-test` to create a highly available database cluster as described in the following section.
 
-![](./_media/provision.jpg)
+![](_media/PROVISION.gif)
 
 <details>
 <summary>Customizing the database cluster with more parameters</summary>
 
 
-![](./_media/interface.jpg)
+![](_media/interface.jpg)
 
 ```yaml
 #----------------------------------#

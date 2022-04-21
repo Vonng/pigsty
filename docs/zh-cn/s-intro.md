@@ -6,11 +6,11 @@
 
 ## 新用户
 
-新接触PostgreSQL与Pigsty的用户，可以访问Pigsty演示站点：[http://demo.pigsty.cc](http://demo.pigsty.cc) 概览其功能。
+新接触PostgreSQL与Pigsty的用户，可以参阅 [亮点特性](s-feature.md)了解Pigsty的功能，或访问Pigsty演示站点：[http://demo.pigsty.cc](http://demo.pigsty.cc) 进行直观地交互式体验狡猾概览其功能。如果您想自己动手试一试，可以按照 [快速上手](s-install.md) 中的介绍，一键在本地拉起一样的[沙箱环境](d-sandbox.md)。
 
-Pigsty演示中内置了两个基于Pigsty开发的[数据应用](t-application.md)，用于演示此发型版的能力：
-  * WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)
-  * 全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)
+Pigsty演示中内置了几个典型基于Pigsty开发的[数据应用](t-application.md)，用于演示此发型版的能力，例如：[`pglog`](http://demo.pigsty.cc/d/pglog-overview)，[`covid`](http://demo.pigsty.cc/d/covid-overview)，[`isd`](http://demo.pigsty.cc/d/isd-overview)，[`dbeng`](http://demo.pigsty.cc/d/dbeng-overview)，[`worktime`](http://demo.pigsty.cc/d/worktime-query)等，此外，您还可以参考 [Docker应用教程](t-docker.md)，使用Pigsty部署生产级的SaaS软件服务。
+
+
 
 
 ## 开发者（Dev）
@@ -28,14 +28,17 @@ Pigsty中的数据库，对外以[服务](c-service.md)的方式交付，用户�
 部署完成后，开发者可以参考**教程**中的内容，熟悉[基本管理操作](r-sop.md)，并了解[访问数据库](c-service.md#接入)的方法，如果有问题
 
 如果您想要深入了解Pigsty本身的设计与架构，可以参考**概念**一章中的主题：
-   * [架构](c-arch.md)
-   * [实体](c-entity.md)
-   * [配置](v-config.md)
+   * [系统架构](c-arch.md)
+   * [基础设施](c-entity.md)
+   * [元节点](c-nodes.md#元节点) 与 [节点](v-nodes.md#节点)
+   * [概念：PGSQL数据库集群](c-pgsql.md)
    * [PGSQL服务](c-service.md#服务) 与 [PGSQL接入](c-service.md#接入)
    * [PGSQL权限](c-privilege.md#权限) 与 [PGSQL认证](c-privilege.md#认证)
    * [PGSQL业务用户](c-pgdbuser.md#用户) 与 [PGSQL业务数据库](c-pgdbuser.md#数据库)
 
-   
+Pigsty中的绝大多数操作都是一键傻瓜式的，而真正的精髓隐藏在[配置](v-config.md)中。
+
+
 
 
 ## 运维人员 （OPS）
@@ -80,6 +83,7 @@ DBA通常更关注监控系统的用法与日常维护的具体方式。
 - [集群主从切换](r-sop.md#Case-10：集群主从切换)
 - [重置组件](r-sop.md#Case-11：重置组件)
 - [替换集群DCS服务器](r-sop.md#Case-12：替换集群DCS服务器)
+
 
 
 ## 专业用户

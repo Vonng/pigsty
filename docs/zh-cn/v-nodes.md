@@ -322,7 +322,7 @@ node_meta_packages:                           # packages for meta nodes only
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
 
-与[`node_packages`](#node_packages)类似，但[`node_meta_packages`](#node_meta_packages)中列出的软件包只会在元节点上安装，通常在管理节点上使用的基础设施软件需要在此指定
+与[`node_packages`](#node_packages)类似，但[`node_meta_packages`](#node_meta_packages)中列出的软件包只会在元节点上安装，通常在元节点上使用的基础设施软件需要在此指定
 
 
 
@@ -635,7 +635,7 @@ Pigsty默认会启用`ntp`, `tcpstat`, `processes` 三个额外的指标收集�
 
 启用 [`promtail`](#promtail) 后，Pigsty会根据配置清单中的定义，生成Promtail的配置文件，抓取下列日志并发送至由[`loki_endpoint`](#loki_endpoint)指定的Loki实例。
 
-* `INFRA`：基础设施日志，只在管理节点上收集
+* `INFRA`：基础设施日志，只在元节点上收集
   * `nginx-access`: `/var/log/nginx/access.log`
   * `nginx-error`: `/var/log/nginx/error.log`
   * `grafana`: `/var/log/grafana/grafana.log`

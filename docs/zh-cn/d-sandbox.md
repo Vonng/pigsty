@@ -12,11 +12,11 @@
 
 沙箱环境是一个配置规格、对象标识符、与默认数据库**预先确定**的环境，无论是本地版还是云端版都保持一致。
 
-沙箱环境使用固定的IP地址，以便于演示说明，沙箱的管理节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中管理节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会被为管理节点的实际IP地址
+沙箱环境使用固定的IP地址，以便于演示说明，沙箱的元节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中元节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会被为元节点的实际IP地址
 
 ![](../_media/SANDBOX.gif)
 
-您可以使用单节点沙箱，这种部署下，只有一个管理节点`meta`，节点上部署有完整的基础设施，和一个单例Postgres数据库`pg-meta`。
+您可以使用单节点沙箱，这种部署下，只有一个元节点`meta`，节点上部署有完整的基础设施，和一个单例Postgres数据库`pg-meta`。
 
 * `meta    10.10.10.10  pg-meta.pg-meta-1`
 
@@ -69,7 +69,7 @@ make dns     # 向本机/etc/hosts写入静态域名 (需sudo输入密码)
 make start   # 使用Vagrant拉起单个meta节点  (start4则为4个节点)
 ```
 
-接下来，您可以 `ssh meta` 登陆默认管理节点，管理节点访问所有节点的SSH sudo已经配置完毕，您可以直接执行Pigsty安装。
+接下来，您可以 `ssh meta` 登陆默认元节点，元节点访问所有节点的SSH sudo已经配置完毕，您可以直接执行Pigsty安装。
 
 
 
@@ -81,16 +81,16 @@ Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、
 
 [https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。
 
-这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**管理节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
+这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**元节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
 
 
 通常为了测试“数据库集群”这样的系统，用户需要事先准备若干台虚拟机。尽管云服务已经非常方便，但本地虚拟机访问通常比云虚拟机访问方便，响应迅速，成本低廉。本地虚拟机配置相对繁琐，[**Vagrant**](https://www.vagrantup.com/) 可解决这一问题。
 
 Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、快捷地按照用户的需求，在笔记本、PC或Mac上拉起若干台虚拟机。用户需要完成的工作，就是将自己的虚拟机需求，以**Vagrant配置文件**的形式表达出来。
 
-[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**管理节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
+[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**元节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
 
-通过`make up` , `make new`, `make start`等快捷方式使用沙箱时，默认只会使用单个管理节点`meta`。而`make up4`，`make new4`，`make start4`则会使用全部的虚拟机。这里`N`值定义了额外的数据库节点数量（3台）。如果您的机器配置不足，则可以考虑使用更小的`N`值，减少数据库节点的数量。用户还可以修改每台机器的CPU核数和内存资源等，如配置文件中的注释所述。更详情的定制请参考Vagrant与Virtualbox文档。
+通过`make up` , `make new`, `make start`等快捷方式使用沙箱时，默认只会使用单个元节点`meta`。而`make up4`，`make new4`，`make start4`则会使用全部的虚拟机。这里`N`值定义了额外的数据库节点数量（3台）。如果您的机器配置不足，则可以考虑使用更小的`N`值，减少数据库节点的数量。用户还可以修改每台机器的CPU核数和内存资源等，如配置文件中的注释所述。更详情的定制请参考Vagrant与Virtualbox文档。
 
 <details><summary>Vagrantfile样例</summary>
 
@@ -103,15 +103,15 @@ Vagrant.configure("2") do |config|
     config.vm.box_check_update = false
     config.ssh.insert_key = false
 
-    # 管理节点
-    config.vm.define "meta", primary: true do |meta|  # 管理节点默认的ssh别名为`meta`
+    # 元节点
+    config.vm.define "meta", primary: true do |meta|  # 元节点默认的ssh别名为`meta`
         meta.vm.hostname = "meta"
         meta.vm.network "private_network", ip: "10.10.10.10"
         meta.vm.provider "virtualbox" do |v|
             v.linked_clone = true
             v.customize [
                     "modifyvm", :id,
-                    "--memory", 4096, "--cpus", "2",   # 管理节点的内存与CPU核数：默认为2核/4GB
+                    "--memory", 4096, "--cpus", "2",   # 元节点的内存与CPU核数：默认为2核/4GB
                     "--nictype1", "virtio", "--nictype2", "virtio",
                     "--hwv·irtex", "on", "--ioapic", "on", "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
                 ]
@@ -568,18 +568,18 @@ fi
 然后，您可以通过SSH别名`demo`访问该云端管理机了。
 
 ```bash
-# 添加本地到管理节点的免密访问
+# 添加本地到元节点的免密访问
 sshpass -p ${ssh_pass} ssh-copy-id demo 
 ```
 
-然后，您就可以免密从本地访问该节点了，如果只需要进行单节点安装，这样就行了。接下来，在该管理节点上完成标准安装
+然后，您就可以免密从本地访问该节点了，如果只需要进行单节点安装，这样就行了。接下来，在该元节点上完成标准安装
 
 
 ### DNS配置
 
 Pigsty默认通过**域名**访问所有Web系统，尽管您可以使用 IP：Port的方式访问主要系统的Web界面，但这并不是推荐的行为。
 
-云端沙箱环境使用的静态DNS记录如下所示，您需要填入管理节点的公网IP地址
+云端沙箱环境使用的静态DNS记录如下所示，您需要填入元节点的公网IP地址
 
 ```bash
 <public_ip> meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty matrix.pigsty

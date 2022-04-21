@@ -27,12 +27,12 @@ MatrixDB在逻辑上由两部分组成，Master与Segments，两者均由Postgre
 
 MatrixDB & Greenplum 的RPM包并不是标准Pigsty部署的一部分，因此不会放入默认的`pkg.tgz`中。
 MatrixDB & Greenplum 的RPM包及其完整依赖将打包为一个单独的离线软件包 [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.4.1/matrix.tgz)。
-您可以向Pigsty管理节点上添加新的`matrix`源。
+您可以向Pigsty元节点上添加新的`matrix`源。
 
 ```bash
 # 下载地址（Github）：https://github.com/Vonng/pigsty/releases/download/v1.4.1/matrix.tgz
 # 下载地址（China CDN）：http://download.pigsty.cc/v1.4.1/matrix.tgz
-# 下载脚本，在管理节点上，pigsty目录下，直接使用 download matrix 下载并解压
+# 下载脚本，在元节点上，pigsty目录下，直接使用 download matrix 下载并解压
 ./download matrix
 ```
 

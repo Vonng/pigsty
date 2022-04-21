@@ -283,7 +283,7 @@ In Pigsty's default config, a fully functional load balancer (HAProxy) is deploy
 
 Pigsty provides a rich set of access methods that you can choose based on your network infrastructure and preferences. As a sample, the Pigsty sandbox uses an L2 VIP bound to the cluster master and a domain name bound to that VIP. The application accesses the load-balancing instance on the cluster master through the L2 VIP via the domain name. When this node becomes unavailable, the VIP drifts with the cluster master, and the traffic is then carried by the load balancer on the new master, as shown in the following figure.
 
-![](_media/access.svg)
+![](_media/HA-PGSQL.svg)
 
 Another classic strategy is to use DNS polling directly to resolve DNS domain names to all instances. Several common access patterns will be given in this article.
 
@@ -399,7 +399,7 @@ Pigsty recommends the use of Haproxy-based access schemes (1/2), and in producti
 | 6 | [Static DNS](#static-dns) | Traditional static DNS access |
 | 7 | [IP](#ip) | Using Smart Client Access |
 
-![](./_media/access-decision.svg)
+![](./_media/ACCESS_EN.svg)
 
 
 
@@ -437,7 +437,7 @@ The L2 VIP of the cluster has a **domain name** corresponding to it. The domain 
 
 #### Schematic of the solution
 
-![](./_media/access.svg)
+![](./_media/HA-PGSQL.svg)
 
 
 
@@ -470,9 +470,6 @@ The availability of Haproxy itself **is achieved through idempotent copies**, wh
   DNS should have a polling mechanism, clients should use long connections, and there should be a retry mechanism for failing to build a connection. This is so that a single Haproxy failure can automatically drift to other Haproxy instances in the cluster. If this is not possible, consider using **Access Scenario 2**, which uses L2/L4 VIPs to ensure Haproxy high availability.
 
 #### Schematic of the solution
-
-![](./_media/access-dns-ha.svg)
-
 
 
 

@@ -14,7 +14,7 @@
 ## Pigsty是什么？
 
 * **开箱即用** 的PostgreSQL[数据库发行版](s-feature.md#PostgreSQL数据库发行版)
-* **自动驾驶** 的智能监控管控[运维解决方案](s-feature.md#开源监控管控运维解决方案)
+* **自动驾驶** 的智能监控管控[PaaS解决方案](s-feature.md#开源监控管控PaaS解决方案)
 * **简单易用** 的数据库即代码[开发者工具箱](s-feature.md#数据库即代码开发者工具箱)
 * **降本增效** 的开源云数据库[整体替代方案](s-feature.md#开源云数据库整体替代方案)
 
@@ -55,14 +55,14 @@ make install                                          # 安装
 
 * Pigsty深度整合最新 [PostgreSQL](https://www.postgresql.org/) 内核 (14) 与强力扩展：时序数据 [TimescaleDB](https://www.timescale.com/) 2.6，地理空间 [PostGIS](https://postgis.net/) 3.2，分布式 [Citus](https://www.citusdata.com/) 10，及上百+海量扩展插件，全部开箱即用。
 
-* Pigsty打包了大规模生产环境所需的基础设施：[Grafana](https://grafana.com/)，[Prometheus](https://prometheus.io/)，[Loki](https://grafana.com/oss/loki/)，[Ansible](https://docs.ansible.com/)，[Consul](https://www.consul.io/)，[Docker](https://www.docker.com/)等， 亦可作为部署监控其他数据库与应用的运行时。
+* Pigsty打包了大规模生产环境所需的基础设施：[Grafana](https://grafana.com/)，[Prometheus](https://prometheus.io/)，[Loki](https://grafana.com/oss/loki/)，[Ansible](https://docs.ansible.com/)，[Consul](https://www.consul.io/)，[Docker](https://www.docker.com/)等， 亦可作为部署监控其他数据库与应用的运行时/PaaS。
 
 * Pigsty集成了数据分析生态的常用工具：[Jupyter](https://jupyter.org/)，[ECharts](https://echarts.apache.org/zh/index.html)，[Grafana](https://grafana.com/)，[PostgREST](https://postgrest.org/)，[Postgres](https://www.postgresql.org/)，可作为[数据分析](#数据分析)环境，或低代码数据可视化应用开发平台。
 
-![](../_media/ARCH.svg)
+[![](../_media/ARCH.gif)](c-infra.md#概览)
 
 
-### 开源监控管控运维解决方案
+### 开源监控管控PaaS解决方案
 
 > Auto-Pilot for Postgres! 自动驾驶！ 从有到优，让用户**用的爽**！
 
@@ -72,7 +72,7 @@ make install                                          # 安装
 
 * Pigsty支持部署不同种类的数据库集群与实例：经典 [PGSQL](d-pgsql.md) [主从复制集群](d-pgsql.md#主从集群)/[灾备集群](d-pgsql.md#备份集群)，[同步](v-pgsql.md#同步从库)/[延迟](v-pgsql.md#延迟从库)/[离线](v-pgsql.md#离线从库)/[级联实例](v-pgsql.md#级联从库)，[Citus](v-pgsql.md#Citus集群部署)/[Greenplum集群](d-matrixdb.md)，[Redis](d-redis.md) [主从](d-redis.md#redis普通主从实例定义)/[哨兵](d-redis.md#redis-sentinel集群定义)/[原生集群](d-redis.md#redis原生集群定义)。
 
-![](../_media/HA-PGSQL.svg)
+[![](../_media/HA-PGSQL.svg)](c-pgsql.md#高可用)
 
 
 ### 数据库即代码开发者工具箱
@@ -85,7 +85,7 @@ make install                                          # 安装
   
 * Pigsty能够简化数据库部署与交付、解决环境配置统一的难题：无论是上千套数据库几万核的生产环境，还是本地1C1G的笔记本均可完整运行；基于Vagrant的[本地沙箱](d-sandbox.md)与基于Terraform的[多云部署](d-sandbox.md#云端沙箱)，云上云下，一键拉起！
 
-![](../_media/SANDBOX.gif)
+[![](../_media/SANDBOX.gif)](d-prepare.md)
 
 
 ### 开源云数据库整体替代方案
@@ -98,7 +98,7 @@ make install                                          # 安装
 
 * 开源免费的生产级数据库解决方案，用于补全云原生生态缺失的最后一块拼图。稳定可靠，经过长时间大规模生产部署验证，提供可选的专业技术支持服务。
 
-![](../_media/overview-monitor.jpg)
+[![](../_media/overview-monitor.jpg)](http://demo.pigsty.cc)
 
 
 

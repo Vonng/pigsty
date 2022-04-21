@@ -107,7 +107,7 @@ The main relationships between the infrastructures are as follows.
   * Timed task controller (supports backup, cleanup, statistics, patrol, etc.), which accesses CMDB
   * Command-line tool pigsty-cli will call Ansible Playbook
 
-![](_media/meta.svg)
+![](_media/INFRA.gif)
 
 The infrastructure is deployed on a [meta-node](#meta-node). A set of envs containing one or more meta nodes for infrastructure deployment.
 All infrastructure components are deployed replica-style, except for **Distributed Config Storage (DCS)**.
@@ -162,7 +162,7 @@ pg-test-1 -------------> pg-test-2
 
 The following figure rearranges the location of related components in the `pg-test` cluster from the perspective of a database cluster.
 
-![](_media/access.svg)
+![](_media/HA-PGSQL.svg)
 
 
 Pigsty is a database provisioning solution that creates **highly available database clusters** on-demand. Pigsty can **automatically failover**, with business-side read-only traffic unaffected; the impact of reading and write traffic is usually in the range of a few seconds to tens of seconds, depending on the specific config and load.
@@ -197,7 +197,7 @@ A typical service running on a database node is shown below.
 | vip-manager | x | Bind VIPs to the cluster master |
 
 
-![](_media/node.svg)
+![](_media/NODES.gif)
 
 The main interactions are as follows:
 
@@ -225,7 +225,7 @@ The main interactions are as follows:
 
 Here is an example of a single [meta node](#meta-node) and a single [database node](#database-node). The architecture is shown in the following figure:
 
-![](_media/infra.svg)
+![](_media/ARCH.gif)
 
 The interaction between the meta nodes and the database nodes mainly consists of:
 * The domain name of the database cluster/node depends on the Nameserver of the meta node for **resolution** (optional).

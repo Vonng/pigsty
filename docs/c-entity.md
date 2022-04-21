@@ -15,7 +15,7 @@ This article introduces the concept of domain entities in Pigsty, and the naming
 There are four types of core entities in Pigsty: [Database Cluster](c-arch.md#PGSQL-cluster) **(Cluster)**, [Database Service](c-service.md) **(Service)**, **Database Instance**, [Database Node](c-arch.md#database-node) **(Node)**.
 Hereafter referred to as cluster, service, instance, and node:
 
-![](_media/er-core.svg)
+![](_media/ER-PGSQL.gif.svg)
 
 
 **Description**
@@ -50,7 +50,7 @@ Take the test database cluster `pg-test` for a sandbox env as an example:
 
 The four-entity model can be expanded:
 
-![](_media/er-full.svg)
+![](_media/ER-INFRA.gif)
 
 **Description**
 

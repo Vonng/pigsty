@@ -61,9 +61,10 @@ Nevertheless, when **using `pgsql.yml`，double-check that the `--tags|-t` and `
 * You can continue with subsequent steps from the `Wait for patroni replica online`  task via Ansible's `--start-at-task` after the slave library is automatically made. Please refer to [SOP](r-sop.md)。
 
 
-### Protection mechanism
 
-The`pgsql.yml`provides **protection mechanism** determined by configuration parameter [`pg_exists_action`](v-pgsql.md#pg_exists_action).  When there is a running PostgreSQL instance on the target machine before the playbook is executed, pigsty will take action according to the configuration `abort|clean|skip` of [`pg_exists_action`](v-pgsql.md#pg_exists_action).
+### SafeGuard
+
+The`pgsql.yml`provides **SafeGuard** determined by configuration parameter [`pg_exists_action`](v-pgsql.md#pg_exists_action).  When there is a running PostgreSQL instance on the target machine before the playbook is executed, pigsty will take action according to the configuration `abort|clean|skip` of [`pg_exists_action`](v-pgsql.md#pg_exists_action).
 
 * `abort`：Set as the default configuration to abort script execution in case of existing instances to avoid accidental library deletion.
 * `clean`：Use in a local sandbox environment and clear the existing database if an existing instance is encountered.

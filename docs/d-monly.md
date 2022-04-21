@@ -54,7 +54,7 @@ To perform a lean monitoring deployment, you will also need to manually [create 
 
 **This article focuses on this monitoring deployment mode**.
 
-![](./_media/monly.svg)
+![](_media/MONLY.gif)
 
 > Figure: Schematic diagram of the monitor-only mode architecture, with multiple PG Exporter, deployed locally on the management machine for monitoring multiple remote database instances.
 

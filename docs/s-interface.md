@@ -30,7 +30,7 @@ Pigsty will provide services to the public through a series of ports, and web se
 | Dnsmasq | 53 | - | The DNS name resolution server used by the environment |
 
 
-![](_media/infra.svg)
+![](_media/ARCH.gif)
 
 Users can configure their own existing domain names for these services, or use the `make dns` shortcut to write the default domain names to `/etc/hosts`.
 Users can still access most services directly using the IP: Port method, for example, the entry point to the Pigsty monitoring system is the meta node IP+3000 port.

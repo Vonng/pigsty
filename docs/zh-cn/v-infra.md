@@ -6,7 +6,7 @@
 
 基础设施配置主要处理此类问题：本地Yum源，机器节点基础服务：DNS，NTP，内核模块，参数调优，管理用户，安装软件包，DCS Server的架设，监控基础设施的安装与初始化（Grafana，Prometheus，Alertmanager），全局流量入口Nginx的配置等等。
 
-通常来说，基础设施部分需要修改的内容很少，通常涉及到的主要修改只是对管理节点的IP地址进行文本替换，这一步会在[`./configure`](v-config.md#配置过程)过程中自动完成，另一处偶尔需要改动的地方是 [`nginx_upstream`](nginx_upstream)中定义的访问域名。其他参数很少需要调整，按需即可。
+通常来说，基础设施部分需要修改的内容很少，通常涉及到的主要修改只是对元节点的IP地址进行文本替换，这一步会在[`./configure`](v-config.md#配置过程)过程中自动完成，另一处偶尔需要改动的地方是 [`nginx_upstream`](nginx_upstream)中定义的访问域名。其他参数很少需要调整，按需即可。
 
 
 
@@ -26,7 +26,7 @@
 
 ## 参数概览
 
-部署于管理节点上的 [**基础设施**](c-arch.md#基础设施) 由下列配置项所描述。
+部署于元节点上的 [**基础设施**](c-infra.md#基础设施) 由下列配置项所描述。
 
 | ID  |                            Name                             |           Section           |    Type    | Level |            Comment             |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|
@@ -151,7 +151,7 @@ proxy_env: # global proxy env when downloading packages
 ----------------
 ## `REPO`
 
-当在管理节点上安装Pigsty时，Pigsty会在本地拉起一个YUM软件源，供当前环境安装RPM软件包使用。
+当在元节点上安装Pigsty时，Pigsty会在本地拉起一个YUM软件源，供当前环境安装RPM软件包使用。
 
 Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](#repo_upstreams)指定）， 下载所有软件包及其依赖（由 [`repo_packages`](#repo_packages)指定）至 [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  （默认为`/www/pigsty`）。所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
 
@@ -168,7 +168,7 @@ Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](
 
 是否启用本地源, 类型：`bool`，层级：G，默认值为：`true`
 
-执行正常的本地YUM源创建流程，设置为`false`则会在当前节点跳过构建本地源的操作。当您有多个管理节点时，可以在备用管理节点上设置此参数为`false`。
+执行正常的本地YUM源创建流程，设置为`false`则会在当前节点跳过构建本地源的操作。当您有多个元节点时，可以在备用元节点上设置此参数为`false`。
 
 
 
@@ -198,7 +198,7 @@ Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](
 
 本地源端口, 类型：`int`，层级：G，默认值为：`80`
 
-Pigsty通过管理节点上的该端口访问所有Web服务，请确保您可以访问元节点上的该端口。
+Pigsty通过元节点上的该端口访问所有Web服务，请确保您可以访问元节点上的该端口。
 
 
 
@@ -222,7 +222,7 @@ Pigsty通过管理节点上的该端口访问所有Web服务，请确保您可�
 
 是否移除已有REPO文件, 类型：`bool`，层级：A，默认值为：`true`
 
-如果为真，在执行本地源初始化的过程中，管理节点上`/etc/yum.repos.d`中所有已有的repo会被全部移除，备份至`/etc/yum.repos.d/backup` 目录中。
+如果为真，在执行本地源初始化的过程中，元节点上`/etc/yum.repos.d`中所有已有的repo会被全部移除，备份至`/etc/yum.repos.d/backup` 目录中。
 
 因为操作系统已有的源内容不可控，建议强制移除已有源并通过 [`repo_upstreams`](#repo_upstreams) 进行显式配置。
 
@@ -369,7 +369,7 @@ CA私钥名称, 类型：`string`，层级：G，默认值为：`"ca.key"`
 ----------------
 ## `NGINX`
 
-Pigsty通过管理节点上的Nginx对外暴露所有Web类服务，如首页，Grafana，Prometheus，AlertManager，Consul，以及可选的PGWeb与Jupyter Lab。此外，本地软件源，本地文档，与其他本地WEB工具如Pev2，Pgbouncer也由Nginx对外提供服务。
+Pigsty通过元节点上的Nginx对外暴露所有Web类服务，如首页，Grafana，Prometheus，AlertManager，Consul，以及可选的PGWeb与Jupyter Lab。此外，本地软件源，本地文档，与其他本地WEB工具如Pev2，Pgbouncer也由Nginx对外提供服务。
 
 您可以绕过Nginx直接通过端口访问元节点上的部分服务，但部分服务出于安全性原因不宜对外暴露，只能通过Nginx代理访问。Nginx通过域名区分不同的服务，因此，如果您为各个服务配置的域名在当前环境中无法解析，则需要您自行在`/etc/hosts`中配置后使用。
 
@@ -397,7 +397,7 @@ nginx_upstream:                  # domain names and upstream servers
 
 `domain`是外部访问此上游服务器时应当使用的域名，当您访问Pigsty Web服务时，应当使用域名通过Nginx代理访问。
 
-`endpoint`是内部可达的TCP端点，占位IP地址`10.10.10.10`会在Configure过程中被替换为管理节点IP。
+`endpoint`是内部可达的TCP端点，占位IP地址`10.10.10.10`会在Configure过程中被替换为元节点IP。
 
 
 
@@ -430,7 +430,7 @@ app_list:                            # application nav links on home page
 
 是否启用本地文档, 类型：`bool`，层级：G，默认值为：`true`。
 
-本地文档会被自动拷贝至管理节点的 `{{ repo_home }}` / docs 路径下，通过Nginx从默认Server提供服务。
+本地文档会被自动拷贝至元节点的 `{{ repo_home }}` / docs 路径下，通过Nginx从默认Server提供服务。
 
 默认访问地址为：`http://pigsty/docs`。
 
@@ -442,7 +442,7 @@ app_list:                            # application nav links on home page
 
 Pev2是一个方便的PostgreSQL执行计划可视化工具，静态单页应用。
 
-如果启用，Pev2资源会被拷贝至管理节点的 `{{ repo_home }}` / pev2 路径下，并通过Nginx从默认Server提供服务。默认访问地址为：`http://pigsty/pev2`。
+如果启用，Pev2资源会被拷贝至元节点的 `{{ repo_home }}` / pev2 路径下，并通过Nginx从默认Server提供服务。默认访问地址为：`http://pigsty/pev2`。
 
 
 
@@ -454,7 +454,7 @@ Pev2是一个方便的PostgreSQL执行计划可视化工具，静态单页应用
 
 Pgbadger是一个方便的PostgreSQL日志分析工具，可以从PG日志中生成全面美观的网页报告。
 
-如果启用，Pigsty会在管理节点上创建 `{{ repo_home }}` / logs 占位目录，后续Pgbouncer生成的报告会自动放置于此。默认访问地址为：`http://pigsty/logs`。
+如果启用，Pigsty会在元节点上创建 `{{ repo_home }}` / logs 占位目录，后续Pgbouncer生成的报告会自动放置于此。默认访问地址为：`http://pigsty/logs`。
 
 
 
@@ -464,7 +464,7 @@ Pgbadger是一个方便的PostgreSQL日志分析工具，可以从PG日志中生
 ----------------
 ## `NAMESERVER`
 
-Pigsty默认会使用DNSMASQ在管理节点上搭建一个可选的开箱即用的域名服务器。
+Pigsty默认会使用DNSMASQ在元节点上搭建一个可选的开箱即用的域名服务器。
 
 
 
@@ -585,7 +585,7 @@ Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值
 
 * `none`：不安装，（默认行为，Exporter已经在先前由 [`node.pkgs`](v-nodes.md#node_packages) 任务完成安装）
 * `yum`：使用yum安装（如果启用yum安装，在部署Exporter前执行yum安装 [`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) ）
-* `binary`：使用拷贝二进制的方式安装（从管理节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) 二进制，不推荐）
+* `binary`：使用拷贝二进制的方式安装（从元节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) 二进制，不推荐）
 
 使用`yum`安装时，如果指定了`exporter_repo_url`（不为空），在执行安装时会首先将该URL下的REPO文件安装至`/etc/yum.repos.d`中。这一功能可以在不执行节点基础设施初始化的环境下直接进行Exporter的安装。
 不推荐普通用户使用`binary`安装，这种模式通常用于紧急故障抢修与临时问题修复。
@@ -666,7 +666,7 @@ Grafana管理员密码, 类型：`string`，层级：G，默认值为：`"pigsty
 
 Grafana后端数据库类型, 类型：`enum`，层级：G，默认值为：`"sqlite3"`
 
-备选为`postgres`，使用`postgres`时，必须确保目标数据库已经存在并可以访问。即首次初始化基础设施前，无法使用管理节点上的Postgres，因为Grafana先于该数据库而创建。
+备选为`postgres`，使用`postgres`时，必须确保目标数据库已经存在并可以访问。即首次初始化基础设施前，无法使用元节点上的Postgres，因为Grafana先于该数据库而创建。
 
 为了避免产生循环依赖（Grafana依赖Postgres，PostgreSQL依赖包括Grafana在内的基础设施），您需要在首次完成安装后，修改此参数并重新执行 [`grafana`](#grafana)相关任务。
 详情请参考【[教程:使用Postgres作为Grafana后端数据库](t-grafana-upgrade.md)】
@@ -807,7 +807,7 @@ Consul服务的可用性对于数据库高可用至关重要，因此在生产�
 Pigsty使用的DCS服务器通过参数 [`dcs_servers`](#dcs_servers) 指定，您可以使用外部的现有DCS服务器集群。也可以使用Pigsty本身管理的节点部署DCS Servers。
 
 在默认情况下，Pigsty会在节点纳入管理时（[`nodes.yml`](p-nodes.md#nodes)）部署设置DCS服务，如果当前节点定义于 [`dcs_servers`](#dcs_servers) 中，则该节点会被初始化为 DCS Server。
-Pigsty会在管理节点本身部署一个单节点的DCS Server，使用多个管理节点时，您也可以将其复用为DCS Server。尽管如此，管理节点与DCS Server并不绑定。您可以使用任意节点作为DCS Servers。
+Pigsty会在元节点本身部署一个单节点的DCS Server，使用多个元节点时，您也可以将其复用为DCS Server。尽管如此，元节点与DCS Server并不绑定。您可以使用任意节点作为DCS Servers。
 但大的原则是，在部署任意高可用数据库集群前，您应当确保所有DCS Servers已经完成初始化。
 
 
@@ -818,14 +818,14 @@ DCS服务器, 类型：`dict`，层级：G，默认值为：
 
 ```yaml
 dcs_servers:
-  meta-1: 10.10.10.10      # 默认在管理节点上部署单个DCS Server
+  meta-1: 10.10.10.10      # 默认在元节点上部署单个DCS Server
   # meta-2: 10.10.10.11
   # meta-3: 10.10.10.12 
 ```
 
 字典格式，Key为DCS服务器实例名称，Value为服务器IP地址。 默认情况下，Pigsty将在[节点初始化](p-nodes.md#nodes)剧本中为节点配置DCS服务，默认为Consul。
 
-您可以使用外部的DCS服务器，依次填入所有外部DCS Servers的地址即可，否则Pigsty默认将在管理节点（`10.10.10.10`占位）上部署一个单实例DCS Server。
+您可以使用外部的DCS服务器，依次填入所有外部DCS Servers的地址即可，否则Pigsty默认将在元节点（`10.10.10.10`占位）上部署一个单实例DCS Server。
 如果当前节点定义于 [`dcs_servers`](#dcs_servers) 中，即IP地址与任意Value匹配，则该节点会被初始化为 DCS Server，其Key将被用作Consul Server
 
 
@@ -910,7 +910,7 @@ Etcd数据目录, 类型：`string`，层级：G，默认值为：`"/data/etcd"`
 
 Jupyter Lab 是基于 IPython Notebook 的完整数据科学研发环境，可用于数据分析与可视化。目前为可选Beta功能，默认只在Demo中启用
 
-因为JupyterLab提供了Web Terminal功能，因此不建议在生产环境中开启，可以使用 [`infra-jupyter`](p-infra.md#infra-jupyter) 在管理节点上手动部署。
+因为JupyterLab提供了Web Terminal功能，因此不建议在生产环境中开启，可以使用 [`infra-jupyter`](p-infra.md#infra-jupyter) 在元节点上手动部署。
 
 
 
@@ -950,7 +950,7 @@ Jupyter Lab的密码, 类型：`bool`，层级：G，默认值为：`"pigsty"`
 
 PGWeb 是基于浏览器的PostgreSQL客户端工具，可用于小批量个人数据查询等场景。目前为可选Beta功能，默认只在Demo中启用
 
-在Demo中该功能默认启用，其他情况下默认关闭，可以使用 [`infra-pgweb`](p-infra.md#infra-pgweb) 在管理节点上手动部署。
+在Demo中该功能默认启用，其他情况下默认关闭，可以使用 [`infra-pgweb`](p-infra.md#infra-pgweb) 在元节点上手动部署。
 
 
 ### `pgweb_enabled`
