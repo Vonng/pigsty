@@ -36,7 +36,7 @@ cd ~/pigsty && ./configure                             # pre-check and config te
 ./infra.yml                                            # install pigsty on current node
 ```
 
-Now you have a battery-included Postgres on port **5432**, and infra web services available on port **80**.
+Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
 
 Check [Installation](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 
@@ -54,7 +54,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz | g
 
 <details><summary>Mange More Nodes</summary>
 
-You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after meta node is installed with [`infra.yml`](p-infra.md#infra).
+You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after installing the meta node with [`infra.yml`](p-infra.md#infra).
 
 ```bash
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
@@ -85,12 +85,12 @@ You can create Postgres with different [roles](d-pgsql.md) by declaring them: pr
 
 You can deploy different types of databases & clusters with corresponding playbooks.
 
-* [`pgsql.yml`](p-pgsql.md#pgsql): Deploy PostgreSQL HA clusters.
+* [`pgsql.yml`](p-pgsql.md#pgsql): Deploy HA PostgreSQL clusters.
 * [`redis.yml`](p-redis.md#redis): Deploy Redis clusters.
 * [`pgsql-matrix.yml`](p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
 
 ```bash
-./pgsql.yml         -l pg-test      # init 1-primary-2-replica pgsql cluster
+./pgsql.yml         -l pg-test      # init 1-primary & 2-replica pgsql cluster
 ./redis.yml         -l redis-test   # init redis cluster redis-test
 ./pigsty-matrix.yml -l mx-*         # init MatrixDB cluster mx-mdw,mx-sdw .....
 ```
@@ -108,9 +108,9 @@ You can deploy different types of databases & clusters with corresponding playbo
 
 > Just like RedHat for Linux!
 
-Packaging the latest PostgreSQL kernel & TimescaleDB, PostGIS, Citus, and hundreds of extensions, all battery-included!
+We are packaging the latest PostgreSQL kernel & TimescaleDB, PostGIS, Citus, and hundreds of extensions, all battery-included!
 
-It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Docker,… can be used as a runtime for other databases & applications.
+It also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Docker,… can be used as a runtime for other databases & applications.
 
 It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres, which can be used as a low-code data app development IDE, too.
 
@@ -120,13 +120,13 @@ It also includes common tools for data analysis: Jupyter, ECharts, Grafana, Post
 
 ### Observability
 
-> You can't manage you don't measure
+> You can't manage what you don't measure.
 
 Unparalleled monitoring system with 30+ dashboards & 1200+ metrics. Just bring the ultimate observability for you!
 
 Pigsty comes with a professional-grade PostgreSQL monitoring system specially designed for large-scale PostgreSQL cluster management, which supports: PGSQL monitoring, Redis monitoring, Nodes monitoring & self-monitoring.
 
-It is built upon popular open-source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purposes, e.g.: data-visualization platforms.
+It is built upon popular open-source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purposes, e.g., data-visualization platforms.
 
 ![](_media/overview-monitor.jpg)
 
@@ -147,11 +147,11 @@ The clusters created by Pigsty are **distributive** HA clusters powered by Patro
 
 > HashiCorp for Database!
 
-Pigsty follows the philosophy of **"Database as Data"**, just like Kubernetes. Describe the database you want and pull them up in one click.
+Pigsty follows the philosophy of "**Database as Data**," just like Kubernetes. Describe the database you want and pull them up in one click.
 
-You can create a common primary-replica replication PGSQL cluster with several lines. And assign different roles: primary, replica, standby, offline, delayed, cascade.
+You can create a common primary-replica PGSQL cluster with several lines. And assign different roles: primary, replica, standby, offline, delayed, cascade.
 
-You can also create a horizontal sharding cluster with Citus or deploy a time-series data warehouse MatrixDB. Redis standalone/sentinel/cluster are also supported!
+You can also create a horizontal sharding cluster with Citus or deploy a time series data warehouse MatrixDB. Redis standalone/sentinel/cluster are also supported!
 
 ```yaml
 pg-test:
@@ -258,7 +258,7 @@ Pigsty is designed for large-scale production usage but can also be operational 
 
 You can run the complete 4-node sandbox on your laptop with vagrant with one command `make up`. Or prepare cloud ECS/VPC with Terraform with the same procedure.
 
-Everything is described in the `pigsty.yml` config file, it's the only difference between different envs: prod, staging/UAT, dev/test sandbox.
+Everything is described in the `pigsty.yml` config file; it's the only difference between different envs: prod, staging/UAT, dev/test sandbox.
 
 ![](_media/SANDBOX.gif)
 
@@ -272,7 +272,7 @@ Everything is described in the `pigsty.yml` config file, it's the only differenc
 
 #### SaaS with Docker
 
-Pigsty has docker installed on meta nodes by default. You can pull up all kinds of SaaS applications with one command： Gitlab, Jira, Confluence, Mastodon, Discourse, Odoo, Kingdee, etc...
+Pigsty has docker installed on meta nodes by default. You can pull up all kinds of SaaS applications with one command: Gitlab, Jira, Confluence, Mastodon, Discourse, Odoo, Kingdee, etc...
 
 You can also pull up stateless parts and use external databases by changing their connection string to acquire production-grade durability.
 
@@ -300,7 +300,7 @@ Check [Tutorial: Pigsty Applications](t-application.md) for detail.
 
 ## About
 
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
+> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle."
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 

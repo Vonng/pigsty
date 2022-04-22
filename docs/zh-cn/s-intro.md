@@ -8,7 +8,7 @@
 
 新接触PostgreSQL与Pigsty的用户，可以访问Pigsty演示站点：[http://demo.pigsty.cc](http://demo.pigsty.cc) 概览其功能。
 
-Pigsty演示中内置了两个基于Pigsty开发的[数据应用](t-application.md)，用于演示此发型版的能力：
+Pigsty演示中内置了两个基于Pigsty开发的[数据应用](t-application.md)，用于演示此发行版的能力：
   * WHO新冠疫情数据大盘：[`covid`](http://demo.pigsty.cc/d/covid-overview)
   * 全球地表气象站历史数据查询：[`isd`](http://demo.pigsty.cc/d/isd-overview)
 
@@ -25,7 +25,7 @@ Pigsty提供了预置的 [Vagrant](d-sandbox.md#本地沙箱) & [Terraform](d-sa
 
 Pigsty中的数据库，对外以[服务](c-service.md)的方式交付，用户通过PG连接串进行[接入](c-service.md#接入)。
 
-部署完成后，开发者可以参考**教程**中的内容，熟悉[基本管理操作](r-sop.md)，并了解[访问数据库](c-service.md#接入)的方法，如果有问题
+部署完成后，开发者可以参考**教程**中的内容，熟悉[基本管理操作](r-sop.md)，并了解[访问数据库](c-service.md#接入)的方法。
 
 如果您想要深入了解Pigsty本身的设计与架构，可以参考**概念**一章中的主题：
    * [架构](c-arch.md)

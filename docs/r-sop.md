@@ -317,7 +317,7 @@ The ``pending restart`` notation is displayed in the ``pg list <cluster>` with t
 
 
 
-## Case 4: Create PGSQL Biz User
+## Case 4: Create PGSQL BIZ User
 
 A new [business user](c-pgdbuser.md#user) can be created in an existing database via [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser).
 
