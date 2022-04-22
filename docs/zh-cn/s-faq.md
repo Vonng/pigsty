@@ -54,7 +54,7 @@ Pigsty计划会每1-3个月发布一个Minor Release，每1-2年发布一个Majo
 
 ### 沙箱虚拟机置备
 
-!> 使用Vagrant一键拉起基于本地虚拟机的[本地沙箱](d-sandbox.md#本地沙箱)，或使用Terraform在公有云厂商创建[云端沙箱](d-sandbox.md#云端沙箱)。
+!> 使用Vagrant一键拉起基于本地虚拟机的[本地沙箱](d-sandbox.md#本地沙箱)，或使用Terraform在公有云厂商创建[云端沙箱](d-sandbox.md#多云部署)。
 
 部署Pigsty需要用到物理机/虚拟机节点，您可以直接自备物理机/虚拟机用于部署。但IaaS资源置备仍然是一件麻烦事，所以Pigsty提供了基于Vagrant与HashiCorp的IaaS层资源模板，您可以一键获取部署Pigsty4节点沙箱环境所需的虚拟机资源。
 

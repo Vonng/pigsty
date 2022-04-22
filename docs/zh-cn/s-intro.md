@@ -19,7 +19,7 @@ Pigsty演示中内置了几个典型基于Pigsty开发的[数据应用](t-applic
 
 Pigsty针对易用性进行了大量优化，在全新CentOS 7.8节点上，[无需互联网访问](t-offline.md)即可完成一键安装。
 
-Pigsty提供了预置的 [Vagrant](d-sandbox.md#本地沙箱) & [Terraform](d-sandbox.md#云端沙箱) 模板，用于在本地x86笔记本/PC或云上一键拉起4台虚拟机，部署[沙箱环境](d-sandbox.md.md)。
+Pigsty提供了预置的 [Vagrant](d-sandbox.md#本地沙箱) & [Terraform](d-sandbox.md#多云部署) 模板，用于在本地x86笔记本/PC或云上一键拉起4台虚拟机，部署[沙箱环境](d-sandbox.md.md)。
 
 用户也可以自行[准备](d-prepare.md)虚拟机，云虚拟机，或生产物理机器来进行标准[部署](d-deploy.md)流程。
 
