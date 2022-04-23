@@ -64,7 +64,7 @@ Pigsty integrates the most powerful extension plug-ins of the PostgreSQL ecosyst
 And high availability cluster deployment, scale-up and scale-down, master-slave replication, failover, traffic proxy, connection pooling, service discovery, access control, monitoring system, alarm system, log collection, and other production-grade mature solutions package as a release.
 It solves all the problems encountered when using **the world's most advanced open-source relational database -- [PostgreSQL](https://www.postgresql.org/)** in production environments and various scenarios, truly battery-include.
 
-![](./_media/ARCH.gif)
+![](_media/ARCH.gif)
 
 
 
@@ -80,7 +80,7 @@ The database cluster can automatically perform fault detection and master-slave 
 
 Each database instance in the database cluster is idempotent in use, and any instance can provide full read and write services through the built-in load balancing component HAProxy. Anyone or more Haproxy instances can act as a load balancer for the cluster and distribute traffic through health checks, shielding the cluster members from the outside world. Users can flexibly define [services](c-service.md#service) through config and [access](c-service.md#access) through various optional methods.
 
-![](./_media/HA-PGSQL.svg)
+![](_media/HA-PGSQL.svg)
 
 
 
@@ -96,7 +96,7 @@ Pigsty is unmatched in PostgreSQL monitoring, presenting about 1200+ categories 
 
 Pigsty's monitoring system can be used to monitor all kinds of database instances deployed natively: PGSQL, REDIS, GPSQL, etc. It can also be used [standalone](d-monly.md) to monitor existing database instances or remote cloud vendor RDS, or just as a host monitoring, it can also be used as a showcase for data visualization works.
 
-![](./_media/overview-monitor.jpg)
+![](_media/overview-monitor.jpg)
 
 
 
@@ -120,7 +120,7 @@ Pigsty has a built-in database management solution with Ansible as the core and 
 
 What's more, Pigsty packages and provides a complete set of application runtime, which allows users to use the node to manage any number of database clusters. You can initiate control from the node where Pigsty is installed (aka "meta node") to bring more nodes under Pigsty's management. You can use it to monitor existing database instances (including cloud vendor RDS) or deploy your own highly available fail-safe PostgreSQL database cluster directly on the node, as well as other kinds of applications or databases, such as [Redis](d-redis.md) and [MatrixDB](d-matrixdb.md), and Get real-time insights about nodes, databases, and applications.
 
-![](./_media/SANDBOX.gif)
+![](_media/SANDBOX.gif)
 
 In addition, Pigsty provides templates for **Local Sandbox** and **Multi-Cloud Deployment** based on Vagrant and Terraform, so you can prepare the resources you need for your Pigsty deployment with one click.
 

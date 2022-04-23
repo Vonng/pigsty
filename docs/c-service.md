@@ -399,7 +399,7 @@ Pigsty recommends the use of Haproxy-based access schemes (1/2), and in producti
 | 6 | [Static DNS](#static-dns) | Traditional static DNS access |
 | 7 | [IP](#ip) | Using Smart Client Access |
 
-![](./_media/ACCESS_EN.svg)
+![](_media/ACCESS_EN.svg)
 
 
 
@@ -437,7 +437,7 @@ The L2 VIP of the cluster has a **domain name** corresponding to it. The domain 
 
 #### Schematic of the solution
 
-![](./_media/HA-PGSQL.svg)
+![](_media/HA-PGSQL.svg)
 
 
 

@@ -14,7 +14,7 @@ The sandbox environment is a config specification, object identifier, and consis
 
 The sandbox environment uses a fixed IP address for demonstration purposes. The IP address of the meta node of the sandbox is fixed to: `10.10.10.10`. `10.10.10.10` is also a placeholder for the IP address of the meta node in all config file templates, which will be the actual IP address of the meta node when executing [config](v-config.md#configure).
 
-![](./_media/SANDBOX.gif)
+![](_media/SANDBOX.gif)
 
 You can use a single-node sandbox, a deployment where there is only one meta-node `meta`, with a full infrastructure deployed on the node, and a single instance of the Postgres database `pg-meta`.
 
@@ -185,6 +185,8 @@ On macOS and Linux, running `sudo make dns` will write the above records to `/et
 ## Cloud Sandbox
 
 If you don't have a PC, laptop, or Mac with x86_64 architecture, using a ready-to-use cloud virtual machine may be another good option.
+
+### Terraform
 
 [Terraform](https://www.terraform.io/) is an open-source and free infrastructure-as-code tool. Just declare the required cloud VMs, network, security group configs, etc., and pull up the corresponding resources with a single click.
 

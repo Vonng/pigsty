@@ -47,7 +47,7 @@ The [insurance parameter](#protection mechanism) provides options to avoid accid
 Nevertheless, when **using `pgsql.yml`，double-check that the `--tags|-t` and `--limit|-l` parameters are correct. Make sure you are performing the right task on the right target.  Using `-pgsql.yml` without parameters is a high-risk operation in a production environment.** 
 
 
-![](./_media/playbook/pgsql.svg)
+![](_media/playbook/pgsql.svg)
 
 
 
@@ -157,7 +157,7 @@ rm_pgdata: false        # remove postgres data? false by default
 rm_pgpkgs: false        # uninstall pg_packages? false by default
 ```
 
-![](./_media/playbook/pgsql-remove.svg)
+![](_media/playbook/pgsql-remove.svg)
 
 
 ### Daily management
@@ -179,7 +179,7 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 [**created business database**](#pgsql-createdb): Create a new database in an existing cluster or modify an existing **database**: [`pgsql-createdb.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createdb.yml)
 
-![](./_media/playbook/pgsql-createdb.svg)
+![](_media/playbook/pgsql-createdb.svg)
 
 The author recommends creating a new database in an existing cluster via a playbook or scripting tool, which ensures that.
 
@@ -211,7 +211,7 @@ bin/createdb <pg_cluster> <dbname>
 
 [**create business users**](#pgsql-createuser)：Create a new user or modify an existing **user** in an existing cluster：[`pgsql-createuser.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-createuser.yml)
 
-![](./_media/playbook/pgsql-createuser.svg)
+![](_media/playbook/pgsql-createuser.svg)
 
 ### Daily management
 
@@ -238,7 +238,7 @@ Note, ` PG_ User ` the specified user, **must**  already exist in the cluster `p
 Dedicated playbook for performing monitoring deployments, see:  [monitor-only deployments](d-monly.md) for details.
 
 
-![](./_media/playbook/pgsql-monly.svg)
+![](_media/playbook/pgsql-monly.svg)
 
 
 ------------------
@@ -247,7 +247,7 @@ Dedicated playbook for performing monitoring deployments, see:  [monitor-only de
 
 Dedicated playbook for deploying MatrixDB, see: [Deploying MatrixDB Cluster](d-matrixdb.md) for details.
 
-![](./_media/playbook/pgsql-matrix.svg)
+![](_media/playbook/pgsql-matrix.svg)
 
 
 ------------------
@@ -256,4 +256,4 @@ Dedicated playbook for deploying MatrixDB, see: [Deploying MatrixDB Cluster](d-m
 
 Playbook for automated database migration, still in Beta status, see [database cluster migration](t-migration.md) for details.
 
-![](./_media/playbook/pgsql-migration.svg)
+![](_media/playbook/pgsql-migration.svg)

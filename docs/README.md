@@ -12,17 +12,40 @@
 
 ## What is Pigsty?
 
+
+[![](_media/WHAT_EN.svg)](s-feature.md)
+
+**Pigsty** is battery-included open-source database [distribution](s-feature.md#PostgreSQL database distribution), with the latest [PostgreSQL](https://www.postgresql.org/) kernel & [TimescaleDB](https:// www.timescale.com/), [PostGIS](https://postgis.net/), [Citus](https://www.citusdata.com/) alone with 100+ extensions, an entire PaaS [Infra](c-infra.md), unparalleled [monitoring](s-feature.md#Monitoring) system with ultimate observability, [high-available](c-pgsql.md#High-Available) PostgreSQL with self-healing design, and data analysis & [visualization](s-feature.md#Data-Visualization) tools.
+
+Pigsty is a handy toolbox for developers, you can download, install, deploy, scale, backup, migration with one command. Just describe the database you want and you will get it.
+
+
+
+equired for large-scale production environments. .md#infrastructure) and [data analysis](s-feature.md#data analysis and visualization application) components required for large-scale production environments: the experience of top DBAs is precipitated into software to solve all kinds of problems encountered when using databases at once.
+
+Pigst is also an autopilot [O&M solution](s-feature.md#intelligent monitoring and control O&M solution) with a comprehensive and professional [monitoring system](s-feature.md#excellent and observable), and an easy-to-use [high availability](s-feature.md#autopilot high availability) database deployment and control solution. Users simply declare what kind of database they want and create it with one click: [PostgreSQL](c-pgsql.md) / [Redis](c-redis.md) / [Greenplum](d-matrixdb.md).
+
+Pigsty is an easy-to-use [developer toolkit](s-feature.md#database i.e. code developer toolkit), whether it is downloading, installing, or deploying migrating backing up restoring expanding and shrinking, all can be done in one click. Based on [Vagrant](d-sandbox.md#Vagrant)'s [local sandbox](d-sandbox.md) and [Terraform](d-sandbox.md#terraform)'s multi-cloud deployment capability, Pigsty can be pulled up in all environments with a single click, bringing a unified experience.
+
+Pigsty is versatile and can support all kinds of upper layer [SaaS applications](s-feature.md#SaaS software applications) or produce [big screen/demo](s-feature.md#data analysis and visualization applications). Compared with using cloud database, data security [autonomous and controllable](s-feature.md#autonomous and controllable), simple operation and maintenance, low cost, full functionality, excellent experience, can significantly save database operation and maintenance manpower, and save **50% ~ 80%** of database [comprehensive cost](s-feature.md#cost reduction and efficiency). Significant value and appeal to all types of enterprise users, ISVs, and individual users.
+
+Please refer to the section [Highlighted Features](s-feature.md) for more information about the functional features of Pigsty products.
+
+Translated with www.DeepL.com/Translator (free version)
+
+
+
+
 * [**Battery-Included**](#highlights) Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
-* [**Unparalleled Monitoring**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
+* [**Obervability**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
 * [**High-Available**](#High-Available): Auto-Piloting Postgres with idempotent instances & services, self-healing from hardware failures!
 * [**Infra as Data**](#infra-as-data): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum in minutes!
 * [**Ubiquitous**](#Ubiquitous): Prod env or 1C1G VM sandbox with vagrant/terraform deployed with one click!
 * [**Versatile**](#versatile):  Databases management or host monitoring. Supporting SaaS or developing data apps.
 * [**Open Source & Free**](#Specification): 50% - 80% cost saving versus Cloud RDS. Proven in real-world, large-scale env.
 
-[![](_media/WHAT_EN.svg)](docs/s-feature.md)
 
-Check [Features](s-feature.md) & [Highlights](#highlights) for Detail.
+
 
 
 

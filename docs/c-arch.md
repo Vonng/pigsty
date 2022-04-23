@@ -1,20 +1,19 @@
 # Architecture
 
-> Pigsty consists of several [modules](#modules), which can be composed freely for different scenarios.
->
+> Pigsty consists of several [modules](#module), which can be composed freely for different scenarios.
 
 
 
-## Modules
+## Module
 
 Pigsty now consists of 4 modules which can be freely composed for different scenarios
 
 The whole system is decoupled into 4 independent modules, which can be maintained independently and freely arranged and combined for use.
 
-* `INFRA` is the infrastructure part of Pigsty, including monitoring/alerting/visualization/logging/DNS/NTP and other public components.
-* `NODES` is the host node management module, which is used to configure nodes, install software, and collect monitoring metrics and logs.
-* [**`PGSQL`**](d-pgsql.md) is a PostgreSQL database deployment control module, including various types of PG cluster deployment and monitoring.
-* [**`REDIS`**](d-redis.md) is the Redis database  control module, including Redis standalone/native cluster/sentinel [deployment](d-redis.md) and monitoring
+* [`INFRA`](c-infra.md) is the infrastructure part of Pigsty, including monitoring/alerting/visualization/logging/DNS/NTP and other public components.
+* [`NODES`](c-nodes.md) is the host node management module, which is used to configure nodes, install software, and collect monitoring metrics and logs.
+* [`PGSQL`](c-pgsql.md) is a PostgreSQL database deployment control module, including various types of PG cluster deployment and monitoring.
+* [`REDIS`](c-redis.md) is the Redis database  control module, including Redis standalone/native cluster/sentinel [deployment](d-redis.md) and monitoring
 
 ![](_media/SANDBOX.gif)
 
@@ -221,20 +220,3 @@ The main interactions are as follows:
 
 
 
-## Interaction
-
-Here is an example of a single [meta node](#meta-node) and a single [database node](#database-node). The architecture is shown in the following figure:
-
-![](_media/ARCH.gif)
-
-The interaction between the meta nodes and the database nodes mainly consists of:
-* The domain name of the database cluster/node depends on the Nameserver of the meta node for **resolution** (optional).
-* Database node software **installation** requires the use of Yum Repo on the meta node.
-* Prometheus will collect database cluster/node monitoring metrics on the meta node.
-* Logs from Postgres, Patroni, and Pgbouncer in the database cluster will be collected by Promtail and sent to Loki.
-* Pigsty will initiate **administration** of database nodes from the meta node:
-  * Perform cluster creation, expansion, and contraction, instance/cluster recycling
-  * Creating business users, business databases, modifying services, and HBA modifications.
-  * Performing log collection, garbage cleanup, backup, patrol, etc.
-* Consul of database node will synchronize locally registered services to DCS of meta node and proxy state read/write operations.
-* Database node will synchronize time from meta node (or other NTP server).

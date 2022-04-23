@@ -111,7 +111,7 @@ Each managed Postgres instance includes several capture ports.
 * [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3) for capturing high availability components
 * [HAProxy](https://github.com/Vonng/haproxy-rpm) for capturing load balancer metrics (built-in support, no separate deployment required)
 
-![](./_media/nodes.svg)
+![](_media/nodes.svg)
 
 These capture ports are captured by Prometheus on the [meta node](c-arch.md#meta-node).
 In addition, the optional Promtail for collecting Postgres, Patroni, and Pgbouncer logs is an optional additional installed component.
