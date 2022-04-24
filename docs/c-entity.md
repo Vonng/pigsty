@@ -1,10 +1,6 @@
-# Entity & Identifier
+# Entity & Identity
 
-Entity and their naming are very important.
-
-The naming pattern reflects the engineer's knowledge of the system architecture. Poorly defined concepts will lead to confusing communication, and arbitrarily set names will create an unexpected extra burden.
-
-This article introduces the concept of domain entities in Pigsty, and the naming pattern used to identify them.
+This article introduces the concept of entities in Pigsty and their naming pattern.
 
 
 
@@ -12,33 +8,33 @@ This article introduces the concept of domain entities in Pigsty, and the naming
 
 ## Core Model
 
-There are four types of core entities in Pigsty: [Database Cluster](c-arch.md#PGSQL-cluster) **(Cluster)**, [Database Service](c-service.md) **(Service)**, **Database Instance**, [Database Node](c-arch.md#database-node) **(Node)**.
-Hereafter referred to as cluster, service, instance, and node:
+Pigsty has four core entities: **[PGSQL Cluster](c-arch.md#PGSQL-cluster)**, **[PGSQL Service](c-service.md)**, **[Instance](#instance)**, and **[PGSQL Node](c-arch.md#database-node)**.
+Hereafter referred to as Cluster, Service, Instance, and Node.
 
-![](_media/ER-PGSQL.gif.svg)
+![](./_media/ER-PGSQL.gif)
 
 
 **Description**
 
 * **Cluster** is the basic autonomous unit, uniquely identified by **user designation**, expressing business meaning, and serving as a top-level namespace.
-* Clusters contain a series of **Nodes** at the hardware level, i.e., physical machines, and virtual machines (or Pods) that can be uniquely identified by **IP**.
+* The clusters contain a series of **Nodes** at the hardware level, i.e., physical machines and VMs (or Pods) that IP can uniquely identify.
 * The cluster contains a series of **Instances** at the software level, i.e., software servers, which can be uniquely identified by **IP: Port**.
-* The cluster contains a series of **Services** at the service level, i.e., accessible domains and endpoints that can be uniquely identified by **domains**.
+* The cluster contains a series of **Services** at the service level, i.e., accessible domains and ports that can be uniquely identified by **domains**.
 
 **Naming Pattern**
 
 * Cluster naming can use any name that satisfies the DNS domain name specification, not with a dot ( `[a-zA-Z0-9-]+`).
-* Node naming uses the cluster name as a prefix, followed by `-`, and then an integer ordinal number (recommended to be assigned starting from 0, consistent with k8s).
-* Because Pigsty uses exclusive deployment, nodes correspond to instances one by one. Then the instance naming can be consistent with the node naming, i.e. `${cluster}-${seq}` way.
+* Node naming uses the cluster name as a prefix, followed by `-`and an ordinal integer number.
+* Instance naming can be consistent with the node naming, i.e., `${cluster}-${seq}`.
 * Service naming also uses the cluster name as the prefix, followed by `-` to connect the service specifics, such as `primary`, ` replica`, `offline`, `delayed`, etc.
 
 **Naming Example**
 
-Take the test database cluster `pg-test` for a sandbox env as an example:
+Take the test database cluster `pg-test` for a sandbox as an example.
 
-* One cluster: the database cluster for testing is named `pg-test`".
-* Two roles: `primary` and `replica`, which are the cluster master and slave respectively.
-* Three instances: The cluster consists of three database ins: `pg-test-1`, `pg-test-2`, `pg-test-3`
+* One cluster: The database cluster for testing is named `pg-test`".
+* Two roles: `primary` and `replica`.
+* Three instances: The cluster consists of three database instances: `pg-test-1`, `pg-test-2`, `pg-test-3`.
 * Three nodes: The cluster is deployed on three nodes: `10.10.10.11`, `10.10.10.12`, and `10.10.10.13`.
 * Four services: read-write service `pg-test-primary`, read-only service `pg-test-replica`, directly connected management service `pg-test-default`, offline read service `pg-test-offline`.
 
@@ -48,23 +44,23 @@ Take the test database cluster `pg-test` for a sandbox env as an example:
 
 ## Full Model
 
-The four-entity model can be expanded:
+The four entity models can be expanded.
 
 ![](_media/ER-INFRA.gif)
 
 **Description**
 
 * **Environment** or **Deployment** is a complete Pigsty system.
-* Each set of envs has a [config](v-config.md) (Config), with a set of [infrastructure](c-arch.md#infrastructure) (Infrastructure) that manages multiple sets of [database clusters](c-arch.md#PGSQL-clusters).
-* There are several [**business databases**](c-pgdbuser.md) (Databases) on each database instance that serve as the top-level namespace at the logical level.
-* There are various **Database objects** within each database, such as tables, indexes, sequence numbers, functions, etc.
+* Each environment has a [config](v-config.md) with a set of [infra](c-arch.md#infrastructure) that manages multiple [PGSQL clusters](c-arch.md#PGSQL-clusters).
+* There are several [**business databases**](c-pgdbuser.md) on each database instance that serve as the top-level namespace at the logical level.
+* Each database has various **Database objects**, such as tables, indexes, sequence numbers, functions, etc.
 
 **Identifiers**
 
-* For each set of **environments**, represented by a custom identifier, Pigsty uses the environment identifier `pgsql` by default. You can use any meaningful name: `prod`, `staging`, `uat`, `testing`, `pgsql`, `pgsql-prod`, etc.
-* **Horizontal sharding** is currently not a hierarchy of entities natively supported by Pigsty, but you can emulate this hierarchy through the rules of cluster naming. The cluster to which a horizontal shard belongs can be identified as belonging to a horizontal shard by using a uniform naming rule: `xxx-shard\d+`.
-* **Database** naming is at the discretion of the user, but it is recommended to use the same constraint rules as the cluster name, e.g. `test`, `meta`, `grafana`.
-* **Database objects** are named at the user's discretion, but it is recommended to use the same constraint rules as the cluster name. Pigsty uses the full name with the schema name to identify the object, for example `public.cluster`.
+* For each set of **environments**, represented by a custom identifier, Pigsty uses the environment identifier `pgsql` by default. 
+* **A horizontal sharding cluster** is currently not an entity hierarchy natively supported by Pigsty, but you can emulate this hierarchy with a cluster naming pattern. Use the uniform naming pattern: `xxx-shard/d+`.
+* **Database** naming is recommended to use the same pattern as the cluster name, e.g., `test`, `meta`, `grafana`.
+* **Database objects** are recommended to use the same pattern as the cluster name. Pigsty uses the full name with the pattern name to identify the object, e.g., `public.cluster`.
 
 
 
@@ -72,40 +68,40 @@ The four-entity model can be expanded:
 
 ## Identity
 
-Entities and identifiers are a conceptual model, and the following describes the specific implementation in Pigsty.
+Entity and identity is a conceptual model, and the specific implementation in Pigsty is described below.
 
-The most representative implementation of Pigsty identifiers is the **Label** for temporal data in Prometheus. This is shown in the following table：
+The most representative implementation of Pigsty identities is the **Label** for temporal data in Prometheus. 
 
-| Entity       | Identifier | Identifier Example                   | Label                      |
-| ------------ | ---------- | ------------------------------------ | -------------------------- |
-| Environment  | **`job`**  | `pgsql`, `redis`, `staging`          | `{job}`                    |
-| Shard        |            | `pg-test-shard\d+`                   | `{job, cls*}`              |
-| **Cluster**  | **`cls`**  | `pg-meta`, `pg-test`                 | `{job, cls}`               |
-| Service      |            | `pg-meta-primary`, `pg-test-replica` | `{job, cls}`               |
-| **Instance** | **`ins`**  | `pg-meta-1`, `pg-test-1`             | `{job, cls, ins}`          |
-| Database     |            | `test`                               | `{..., datname}`           |
-| Object       |            | `public.pgbench_accounts`            | `{..., datname, <object>}` |
+| Entity       | Identity  | Example                              | Label                      |
+| ------------ | --------- | ------------------------------------ | -------------------------- |
+| Environment  | **`job`** | `pgsql`, `redis`, `staging`          | `{job}`                    |
+| Shard        |           | `pg-test-shard\d+`                   | `{job, cls*}`              |
+| **Cluster**  | **`cls`** | `pg-meta`, `pg-test`                 | `{job, cls}`               |
+| Service      |           | `pg-meta-primary`, `pg-test-replica` | `{job, cls}`               |
+| **Instance** | **`ins`** | `pg-meta-1`, `pg-test-1`             | `{job, cls, ins}`          |
+| Database     |           | `test`                               | `{..., datname}`           |
+| Object       |           | `public.pgbench_accounts`            | `{..., datname, <object>}` |
 
-The most critical **cluster identifiers (cls)** and **instance identifiers (ins)** are automatically generated through [identity parameters](#Identity) in the cluster config, including：
+The most critical **cluster identities (cls)** and **instance identities (ins)** are automatically generated via [identity parameters](#Identity) in the cluster configuration.
 
-| name | attributes | description | example |
+| Name | Attribute | Description | Example |
 | :-----------------------------------------: | :----------------: | :------: | :------------------: |
-| [`pg_cluster`](v-pgsql.md#pg_cluster) | **REQUIRED**, cluster level | cluster name | `pg-test` |
-| [`pg_role`](v-pgsql.md#pg_role) | **REQUIRED**, instance level | instance role | `primary`, `replica` |
-| [`pg_seq`](v-pgsql.md#pg_seq) | **REQUIRED**, instance level | serial number | `1`, `2`, `3`,`... ` |
+| [`pg_cluster`](v-pgsql.md#pg_cluster) | **MUST**, cluster level | cluster name | `pg-test` |
+| [`pg_role`](v-pgsql.md#pg_role) | **MUST**, instance level | instance role | `primary`, `replica` |
+| [`pg_seq`](v-pgsql.md#pg_seq) | **MUST**, instance level | serial number | `1`, `2`, `3`,`... ` |
 
-The identity parameters are the **minimum set of mandatory parameters** required to define the database cluster. The core identity parameters **must be explicitly specified** and cannot be ignored.
+The identity parameters are the **smallest set of mandatory parameters** that define the database cluster. The core identity parameters **must be explicitly specified**.
 
-- `pg_cluster` (`cls`) identifies the name of the cluster, configured at the cluster level, and serves as the top-level namespace for cluster resources.
-- `pg_instance` (`ins`) is used to uniquely identify a database instance, which is composed of `pg_cluster` and `pg_seq` spelled together by `-`.
-- `pg_seq` is used to identify an instance within a cluster, usually as an integer incrementing from 0 or 1, and will not be changed once assigned.
-- `pg_service` (`svc`) uniquely identifies the service in the cluster, and is formed by combining `pg_cluster` and `pg_role` via `-`.
-- `pg_role` identifies the role that the instance plays in the cluster and is configured at the instance level, with optional values including
-  - `primary`: the **unique primary repository** in the cluster, the cluster leader, which provides writing services.
-  - `replica`: the **ordinary slave library** in the cluster, which takes on regular production read-only traffic.
-  - `offline`: **offline slave** in the cluster, takes ETL/SAGA/personal user/interactive/analytical queries.
-  - `standby`: **synchronous slave** in the cluster, with synchronous replication and no replication latency.
-  - `delayed`: **delayed slave** in the cluster, explicitly specifying replication delay, used to perform backtracking queries and data salvage.
+- `pg_cluster` (`cls`): Identities the name of the cluster, configured at the cluster level, and serves as the top-level namespace for cluster sources.
+- `pg_instance` (`ins`): Uniquely identity a database instance consisting of `pg_cluster` and `pg_seq` spelled by `-`.
+- `pg_seq`: Identity an instance in a cluster, usually an integer incrementing from 0 or 1, and will not be changed once assigned.
+- `pg_service` (`svc`): Uniquely identities a service in the cluster consisting of `pg_cluster` and `pg_role` spelled by `-`.
+- `pg_role`: Identifies the role of the instance in the cluster, configured at the instance level, with optional values including:
+  - `primary`: the **unique Primary** in the cluster, providing writing service.
+  - `replica`: the **ordinary Replica** in the cluster, providing read-only traffic service.
+  - `offline`: the **Offline replica** in the cluster accepts ETL/SAGA/personal user/interactive/analytical queries.
+  - `standby`: the **Standby** in the cluster, with synchronous replication and no replication latency.
+  - `delayed`: the **Delayed** in the cluster with specified replication delay for performing backtracking queries and data salvage.
 
 
 
@@ -117,32 +113,32 @@ The identity parameters are the **minimum set of mandatory parameters** required
 
 ## **Cluster**
 
-A **cluster** is a basic autonomous business unit, which means that the cluster can be organized as a whole to provide services to the outside. Similar to the concept of Deployment in k8s. Note that cluster here is a software-level concept, not to be confused with PG Cluster (Database Set Cluster, i.e., a data dir containing multiple PG with a single PG ins) or Node Cluster (Machine Cluster).
+**A cluster** is the basic autonomous business unit, which means that the cluster can provide services as a whole. Note that cluster here is a software-level concept, not to be confused with PG Cluster (database set cluster, i.e., a data directory containing multiple PGs of a singleton) or Node Cluster (machine cluster).
 
-A cluster is one of the basic units of management, an organizational unit used to unify various types of resources. For example, a PG cluster may include：
+A cluster is one of the basic management units, and an organizational unit is used to unify various sources. A PG cluster may include.
 
-* Three physical machine nodes.
-* A master ins that provides database read and write services to the outside.
-* Two slave instances, which provide read-only copies of the database to the public.
-* Two externally exposed services: read-write service, and read-only copy service.
+* Three physical machine nodes
+* One primary instance provides database read and writes services to.
+* Two replica instances provide read-only copies of the database.
+* Two exposed services: read-write service, and read-only copy service.
 
 ### **Naming Pattern**
 
-Each cluster has a unique identifier defined by the user based on business requirements, in this case, a cluster named `pg-test` is defined.
+Each cluster has a unique identity. In this case, a database cluster named `pg-test` is defined.
 
-The cluster name, in fact, is similar to the role of a namespace. All resources belonging to this cluster will use this namespace.
+The cluster name is similar to the role of a namespace. All sources belonging to this cluster will use this namespace.
 
-The **cluster identifier** (`cls`) must be unique within a set of envs, and it is recommended to use an identifier that conforms to the DNS standard [RFC1034](https://tools.ietf.org/html/rfc1034) naming rules.
+The **cluster identity** (`cls`) must be unique within a set of environments, and naming patterns that conform to the DNS standard [RFC1034](https://tools.ietf.org/html/rfc1034) is recommended.
 
-A good cluster name should use only lowercase letters, numbers, and the hyphen `-`, and use only letter starters. This way all objects in the cluster can use the identifier as a prefix to their own identifier and the tightly constrained identifier can be applied to a wider range of scenarios.
+A good cluster name should use only lowercase letters, numbers, and the hyphen `-`, and use letter starters. 
 
 ```c
 cluster_name := [a-z][a-z0-9-]*
 ```
 
-Cluster naming should not include the **dot`. `** The reason for the emphasis on not using **dots** in cluster names is that there is a popular naming style that uses dot-separated level identifiers, such as `com.foo.bar`. This naming style is simple and fast, but the number of domain levels in the name given by the user is not controllable. Such names can cause problems if the cluster needs to interact with external systems that have constraints on naming. The most intuitive example is Pods in Kubernetes, where Pod naming rules do not allow `. `.
+Cluster naming should not include the **dot`. `** A popular naming pattern uses dot-separated hierarchical identities, such as `com.foo.bar`. This naming is simple, but the number of domain hierarchies is not controllable. The most intuitive example is Pods in Kubernetes, where Pod naming patterns do not allow`. `
 
-**Connotation of cluster naming**, `-`-separated two-paragraph, three-paragraph names are recommended, e.g:
+**Connotation of cluster naming** is recommended by-separated two-paragraph and three-paragraph names.
 
 ```bashba s
 <cluster type>-<business>-<business line>
@@ -156,26 +152,20 @@ Typical cluster names include: `pg-meta`, `pg-test-fin`, `pg-infrastructure-biz`
 
 ## Instance
 
-An instance refers to **a specific database server**, which can be a single process, a group of processes sharing a common fate, or several closely related containers in a Pod. The key elements of an instance are:
+An instance refers to **a specific database server**, which can be a single process, a group of processes, or several associated containers within a Pod. The critical elements of an instance are.
 
-* can be uniquely identified by the **instance identifier** (`ins`) character.
-* the ability to process requests (regardless of whether the request is received from a database, a connection pool, or a load balancer).
-
-For example, we can consider a Postgres process, the exclusive Pgbouncer connection pool that serves it, the PgExporter monitoring component, the high availability component, and the Management Agent as a whole that provides a service as a database instance, using the same identifier designation.
+* Can be uniquely identified by the **instance identity** (`ins`).
+* Can handle requests (regardless of whether the request is received from a database, a connection pool, or a load balancer).
 
 ### Naming Pattern
 
-Instances are part of a cluster, and each ins has its own unique identifier to distinguish it within the cluster. The ins identifier `ins` is recommended to use the same naming rules as Kubernetes Pods: i.e., cluster names are concatenated with integer sequences `<cls>-<seq>` assigned incrementally from 0/1.
+Instances belong to clusters, and each instance has its unique identity within the cluster. The instance identity `ins` is recommended to use a naming pattern consistent with Kubernetes Pods: i.e., cluster name linked to an ordinal integer number in increments from 0/1 `<cls>-<seq>`.
 
-By default, Pigsty names the new database ins in the cluster sequentially using increasing sequential numbers starting from 1. For example, if the cluster `pg-test` has three database ins, then the three ins can be named sequentially: `pg-test-1`, `pg-test-2`, and `pg-test-3`.
+By default, Pigsty names the database instances in a cluster, increasing order starting from 1. For example, the database cluster `pg-test` has three database instances: `pg-test-1`, `pg-test-2`, and `pg-test-3`.
 
-The instance name `ins` is immutable once it is assigned and the instance will use this identifier for the entire lifetime of the cluster.
+Once the instance name `ins` is assigned immutable, the instance will be used for the entire lifetime of the cluster.
 
-In addition, with the exclusive node deployment model, the database instance and the machine node can use each other's identifiers. That is, we can also use the database instance identifier `ins` to uniquely refer to a machine node.
-
-
-
-
+In addition, with a singleton deployment, the database instance and the machine node can use each other's identities.
 
 
 
@@ -184,22 +174,20 @@ In addition, with the exclusive node deployment model, the database instance and
 
 ## Node
 
-**A Node** is an abstraction of a hardware resource, usually referring to a working machine, whether it is a physical machine (bare metal) or a virtual machine (vm), or a Pod in Kubernetes.
+**A Node** is an abstraction of a hardware resource, usually referring to a working machine, whether a physical machine (bare metal), a VM, or a Pod in Kubernetes.
 
-Note that Node in Kubernetes is an abstraction of a hardware resource, but in terms of actual management usage, the concept of Node here is similar to the concept of Pod in Kubernetes.
+?> Note that Node in Kubernetes is an abstraction of hardware sources, but in reality, the concept of Node is similar to the concept of Pod in Kubernetes.
 
-The key features of a Node are:
+The key features of a Node are.
 
-* Nodes are abstractions of hardware resources that can run software services and deploy database instances.
-* **Nodes can use IP addresses as unique identifiers**.
+* Nodes are abstractions of hardware sources that can run software services and deploy database instances.
+* **Nodes can use IP as unique identities**.
 
 ### Naming Pattern
 
-Pigsty uses the `ip` address as a unique identifier for the node, and if the machine has multiple IP addresses, the IP address specified in the inventory that is actually used for access is used. For administrative purposes, the node should have a human-readable and meaningful name as the hostname of the node. The hostname `nodename`,  instance identifier `ins`, and node identifier `ip` correspond to each other one by one in Pigsty and can be cross-mixed as identifiers for database instances, machine nodes, and HAProxy load balancers.
+Pigsty uses `ip` as the node's unique identity. If the machine has more than one IP, the actual access IP specified in the inventory will prevail. The hostname `nodename`, database instance identity `ins`, and node identity `ip` correspond to each other in Pigsty and can be cross-used as identities for database instances, machine nodes, and HAProxy load balancers.
 
-The node naming is consistent with the database instance and remains the same throughout the cluster lifecycle for easy monitoring and management.
-
-
+The node naming is consistent with the database instance and remains the same throughout the cluster's life.
 
 
 
@@ -207,29 +195,29 @@ The node naming is consistent with the database instance and remains the same th
 
 ## Service
 
-A [service](c-service.md) is a **named abstraction** of a software service (e.g. Postgres, Redis). Services can be implemented in a variety of ways, but the key elements are:
+A [service](c-service.md) is a **named abstraction** of a software service (e.g., Postgres, Redis). Services have various implementations, but the key elements are:
 
-* **an addressable and accessible service name** for providing access to the outside world:
+* **An addressable and accessible service name** for providing access:
   * A DNS domain name (`pg-test-primary`)
-  * An Nginx/Haproxy Endpoint
-* **Service traffic routing resolution and load balancing mechanism** for deciding which instance is responsible for handling requests, e.g:
+  * An Nginx/Haproxy Port
+* **Service traffic routing and load balancing mechanism** for deciding which instance handles requests:
   * DNS L7: DNS resolution records
-  * HTTP Proxy: Nginx/Ingress L7: Nginx Upstream config 
-  * TCP Proxy: Haproxy L4: Haproxy Backend config
-  * Kubernetes: Ingress: **Pod Selector Selector**.
+  * HTTP Proxy: Nginx/Ingress L7: Nginx Upstream Config 
+  * TCP Proxy: Haproxy L4: Haproxy Backend Config
+  * Kubernetes: Ingress: **Pod Selector**.
   * The service also needs to decide which component will handle the request: the connection pool, or the database itself.
 
-For more info about services, see the chapter [Services](c-service.md).
+For more information about services, see the chapter [Services](c-service.md).
 
 ### Naming Pattern
 
-**The service identity** (`svc`) consists of two parts: `cls` as a namespace, and **role** (`role`) as the service bearer.
+**The service identity** (`svc`) consists of `cls` as a namespace and (`role`) as the service bearer.
 
-In a PostgreSQL cluster, instances may have different identities: cluster leader (master), normal slave, synchronous slave, offline slave, deferred slave, and different instances may provide different services; also a connection to the database and access to the database through connection pool middleware are services of different nature. Usually, we use the identity role of the service target instance to identify the service, e.g. in the database cluster `pg-test`.
+In a PostgreSQL cluster, instances have different identities: primary, replica, standby, offline, and delayed. Different instances will provide different services; direct connection to the database and access to the database through connection pools are services of varying nature. It is common to use the role of the service target to identify the service, e.g., in the database cluster `pg-test`.
 
-* A service that points to an instance of the master connection pool (`primary`) role is called `pg-test-primary`
-* A service that points to a slave connection pool (`replica`) role instance, called `pg-test-replica`
-* A service that points to an offline slave database (`offline`), called `pg-test-offline`
-* A service that points to a synchronous replication slave (`standby`) called `pg-test-standby`
+* A service that points to an instance of the primary connection pool (`primary`) role is called `pg-test-primary`.
+* A service that points to a replica connection pool (`replica`) role is called `pg-test-replica`.
+* A service that points to an (`offline`) is called `pg-test-offline`.
+* A service that points to a (`standby`) is called `pg-test-standby`.
 
-Note that **services are not enough to divide pairs of instances**, the same service can point to multiple different instances within the cluster, however, the same instance can also take requests from different services. For example, a synchronous slave with the role `standby` can take both synchronous read requests from `pg-test-standby` and normal read requests from `pg-test-replica`.
+Note that **services are not enough to divide pairs of instances**. The same service can point to multiple instances. However, the same instance can also handle requests from different services.
