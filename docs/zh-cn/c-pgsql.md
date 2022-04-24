@@ -275,12 +275,12 @@ Pigsty使用 `ip` 地址作为节点唯一标识符，如果机器有多个IP地
 
 * **可以寻址访问的服务名称**，用于对外提供接入，例如：
   * 一个DNS域名（`pg-test-primary`）
-  * 一个Nginx/Haproxy Endpoint
+  * 一个Nginx/Haproxy Port
 * **服务流量路由解析与负载均衡机制**，用于决定哪个实例负责处理请求，例如：
   * DNS L7：DNS解析记录
-  * HTTP Proxy：Nginx/Ingress L7：Nginx Upstream配置 
-  * TCP Proxy：Haproxy L4：Haproxy Backend配置
-  * Kubernetes：Ingress：**Pod Selector 选择器**。
+  * HTTP Proxy： Nginx/Ingress L7：Nginx Upstream配置 
+  * TCP Proxy： Haproxy L4：Haproxy Backend配置
+  * Kubernetes：Ingress： **Pod Selector**。
   * 服务也需要决定由哪个组件来处理请求：连接池，或是数据库本身。
   
 
@@ -298,7 +298,6 @@ Pigsty使用 `ip` 地址作为节点唯一标识符，如果机器有多个IP地
 * 指向 同步复制从库（`standby`）的服务，叫做`pg-test-standby`
 
 请注意，**服务并不够成对实例的划分**，同一个服务可以指向集群内多个不同的实例，然而同一个实例也可以承接来自不同服务的请求。例如，角色为 `standby`的同步从库既可以承接来自 `pg-test-standby` 的同步读取请求，也可以承接来自 `pg-test-replica` 的普通读取请求。
-
 
 
 

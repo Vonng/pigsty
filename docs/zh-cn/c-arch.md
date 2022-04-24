@@ -62,7 +62,7 @@ Pigsty目前提供四个功能模块：
 
 使用 [`pgsql.yml`](p-pgsql.md#pgsql) 创建高可用的PostgreSQL数据库集群，使用 [`redis.yml`](p-redis.md#redis)创建主从、集群、哨兵模式的Redis集簇，使用 [`pigsty-matrix.yml`](p-pgsql.md#pgsql-matrix) 部署 Greenplum/MatrixDB 数据仓库。
 
-Pigsty后续会按需逐步添加新类型的数据库功能模块：**KAFKA**, **MINIO**, **MONGO**，……。
+Pigsty后续会按需逐步添加新类型的数据库功能模块：**KAFKA**, **MINIO**, **MONGO**等。
 
 
 
@@ -72,11 +72,11 @@ Pigsty后续会按需逐步添加新类型的数据库功能模块：**KAFKA**, 
 
 一套完整的Pigsty系统，可称为一个**部署（Deployment）**/ **环境（Environment）** 。
 
-> 例如：生产环境，测试环境，预发环境等……。
+> 例如：生产环境，测试环境，预发环境等。
 
 **一套Pigsty部署在架构上分为两个部分：一套基础设施，与多套集群**，两者均通过一份[配置清单](v-config.md#配置文件)（Inventory）进行描述。
 
-* [基础设施](c-infra.md)（Infra） ：部署于[元节点](c-nodes.md#元节点)上，监控，DNS，NTP，DCS，Yum源等……
+* [基础设施](c-infra.md)（Infra） ：部署于[元节点](c-nodes.md#元节点)上，监控，DNS，NTP，DCS，Yum源等。
 * [集群](#数据库集群)：自治的（数据库）服务单元，部署于[节点](c-nodes.md#节点)上。
 
 集群包含有**节点**，**实例**，**服务**三种核心资源：一个集群会包含多个实例，部署于多个 [节点](c-nodes.md#节点)（Node）上，提供多种不同的 [服务](c-service.md)（Service），每个数据库实例之下又会有更细分的ER模型。
@@ -84,7 +84,6 @@ Pigsty后续会按需逐步添加新类型的数据库功能模块：**KAFKA**, 
 
 
 ![](../_media/ER-INFRA.gif)
-
 
 
 
