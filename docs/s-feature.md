@@ -1,4 +1,4 @@
-# Pigsty Highlights
+# Features
 
 > The battery-include, auto-piloting, handy & thrifty distribution for open-source databases.
 
@@ -6,25 +6,30 @@
 ![](_media/WHAT_EN.svg)
 
 
-* **Battery-include** PostgreSQL [database distribution](#PostgreSQL-distribution)
-* Intelligent monitoring and control [O&M solution](#Open-source-monitoring-and-control)
-* Easy-to-use Database-as-Code [Developer Toolkit](#Database-as-Code-Developer-Toolkit)
-* Cost reduction and efficiency of the open-source cloud database [overall alternative](#open-source-cloud-database-overall-alternative)
+* Battery-Include Open-Source Postgres [Distribution](#PostgreSQL-distribution)
+* Auto-Piloting monitoring and management [SRE Solution](#SRE-Solution)
+* Easy-to-use Database-as-Code [Developer Toolbox](#Developer-Toolbox)
+* Safe & Thrifty open-source alternative to Cloud [RDS](#open-source-rds)/PaaS
 
-[Distribution](#Distribution) / [High Availability](#High-Availability) / [Monitoring System](#Monitoring-System) / [One-Click Deployment](#One-Click-Deployment) / [Infra as Data](#infra-as-data) / [Application Ecology](#Application-Wide) /  [Security and Money Saving](#安全省钱)
+ [High Availability](#High-Availability) / [Ultimate Observability](#Ultimate-Observability) / [Handy Toolbox](#Handy-Toolbox) / [Database as Code](#database-as-code) / [Versatile Scenario](#Versatile-Scenario) /  [Safety & Thrifty](#Safety-and-Thrifty)
+
 
 
 ## PostgreSQL Distribution
 
-> RedHat for Linux! Battery-include! From scratch, making it **usable** for users!
+> RedHat for Linux!
 
 * Pigsty deeply integrates the latest [PostgreSQL](https://www.postgresql.org/) kernel (14) with powerful extensions: [TimescaleDB](https://www.timescale.com/)  2.6,  [PostGIS]( https://postgis.net/) 3.2,  [Citus](https://www.citusdata.com/) 10, and hundreds+ of extensions, all Battery-include.
 * Pigsty packs the infrastructure needed for large-scale production environments: [Grafana](https://grafana.com/), [Prometheus](https://prometheus.io/), [Loki](https://grafana.com/oss/loki/ ), [Ansible](https://docs.ansible.com/), [Consul](https://www.consul.io/), [Docker](https://www.docker.com/), etc. It can also be used as a deployment monitor for other database and application runtimes.
 
 * Pigsty integrates with common tools for data analysis ecology: [Jupyter](https://jupyter.org/), [ECharts](https://echarts.apache.org/zh/index.html), [Grafana](https://), [PostgREST](https://postgrest.org/), [Postgres](https://www.postgresql.org/), which can be used as a [data analysis](#Data-Analytics) environment, or a low-code data visualization application development platform.
 
+[![](_media/DISTRIBUTION.gif)](c-infra.md#Overview)
 
-## Open-source monitoring and control O&M solution
+
+
+
+## SRE Solution
 
 > Auto-Pilot for Postgres! Auto-Pilot! From something to something better for users **Use it for fun**!
 
@@ -32,45 +37,44 @@
 * Pigsty provides a [highly available](#high-availability) PostgreSQL database cluster, with any member surviving to provide normal services to the public; each instance is idempotent, providing a distributed database-like experience; self-healing from failure, greatly simplifying operations and maintenance work!
 * Pigsty supports the deployment of different kinds of database clusters and instances: classic [PGSQL](d-pgsql.md) [master-slave replication cluster](d-pgsql.md#M-S-replication)/[disaster recovery cluster](d-pgsql.md#Standby-cluster), [synchronization](d-pgsql.md#Sync-standby)/[delay](d-pgsql.md#delayed-slaves)/[offline](d-pgsql.md#offline-replicas)/[cascade instances](d-pgsql.md#cascade-instance), [Citus](d-pgsql.md#Citus-cluster-deployment)/[Greenplum cluster](d-matrixdb.md), [Redis](d-redis.md) [master-slave](d-redis.md#cluster-definition)/[sentinel](d-redis.md#redis-sentinel-cluster-example)/[native cluster](d-redis.md#redis-native-clustee-example).
 
-## Database as Code Developer Toolkit
+[![](_media/ARCH.gif)](c-arch.md)
 
-> HashiCorp for Database! Easy to use! From best to easiest for the user **save**!
+
+
+
+
+## Developer Toolbox
+
+> HashiCorp for Database!
 
 * Pigsty upholds the Infra as Data design philosophy, users can create it in one click using an idempotent [playbook ](p-playbook.md)with just a few lines of declarative [config](v-config.md#Config-file) file describing the database they want. Just like Kubernetes!
 * Pigsty delivers an easy-to-use database toolkit to developers: one-click download [installation](s-install.md#singleton-installation), automatic [configuration](v-config.md#configure); one-click deployment of various open-source databases, one-click migration backup, expansion, and reduction, greatly lowering the threshold of database management use, mass production DBA!
 * Pigsty can simplify database deployment and delivery, solve the problem of unified environment configuration: whether thousands of databases tens of thousands of core production environments, or a local 1C1G laptop can be fully operational; Vagrant-based [local sandbox](d-sandbox.md) and Terraform-based [multi-cloud deployment](d-sandbox.md#cloud-sandbox), cloud on cloud off, pull up with one click!
 
+[![](_media/interface.jpg)](s-install.md)
 
 
-## Total Alternative for Open Source Cloud Database
 
-> Alternative for RDS! Reduce Costs and Increase Efficiency! From easy to cheap, for users **Save money**！
+## Open Source RDS
+
+> Alternative for RDS!
 
 * Pigsty can save 50% - 80% of database hardware and software costs compared to cloud vendor RDS with a lower usage threshold and richer features, and junior R&D staff can manage hundreds of databases on their own.
 * Pigsty is modular and can be freely combined and extended on demand. It can [deploy](d-deploy.md) and [manage](r-sop.md) various databases in a production environment, or just use them as a host to monitor; it can be used to develop data [database visualization demos](t-application.md) or support various [SaaS applications](t-docker.md).
 
 * Open source, free production-grade database solution to fill in the last missing piece of the cloud-native ecosystem. Stable and reliable, proven over time in large-scale production deployments, with optional professional technical support services.
 
+[![](_media/overview-monitor.jpg)](http://demo.pigsty.cc)
+
 
 
 -----------------------
 
 
-## Distributions
-
->  Pigsty is an open-source database distribution based around PostgreSQL as its core.
-
-Pigsty integrates the most powerful extension plug-ins of the PostgreSQL ecosystem: PostGIS, TimescaleDB, and Citus, providing native distributed, temporal, and spatial capability support with hundreds of extensions out of the box.
-And high availability cluster deployment, scale-up and scale-down, master-slave replication, failover, traffic proxy, connection pooling, service discovery, access control, monitoring system, alarm system, log collection, and other production-grade mature solutions package as a release.
-It solves all the problems encountered when using **the world's most advanced open-source relational database -- [PostgreSQL](https://www.postgresql.org/)** in production environments and various scenarios, truly battery-include.
-
-![](_media/ARCH.gif)
-
-
 
 ## High Availability
 
-> Self-healing failure, high availability.
+> Self-healing & Auto-Piloting.
 
 Taking PostgreSQL as an example, Pigsty creates a database cluster that is **distributed and highly available** [database cluster](c-arch.md#PGSQL-Cluster). As long as any instance of the cluster survives, the cluster can provide complete [read-write service](c-service.md#primary-service) and [read-only service](c-service.md#replica-service) to the outside world.
 
@@ -84,7 +88,9 @@ Each database instance in the database cluster is idempotent in use, and any ins
 
 
 
-## Monitoring system
+
+
+## Ultimate Observability
 
 > You can't manage you don't measure.
 
@@ -104,9 +110,7 @@ Pigsty's monitoring system can be used to monitor all kinds of database instance
 
 
 
-
-
-## One-click deployment
+## Handy Toolbox
 
 > Every additional command line in the install script halves the number of users.
 
@@ -125,7 +129,8 @@ What's more, Pigsty packages and provides a complete set of application runtime,
 In addition, Pigsty provides templates for **Local Sandbox** and **Multi-Cloud Deployment** based on Vagrant and Terraform, so you can prepare the resources you need for your Pigsty deployment with one click.
 
 
-## Infra as Data
+
+## Database as Code
 
 A database is a software that manages the data, and a control system is software that manages the database.
 
@@ -139,10 +144,7 @@ For example, creating a one-master-two-slave database cluster `pg-test` on three
 ![](_media/PROVISION.gif)
 
 <details>
-<summary>Customizing the database cluster with more parameters</summary>
-
-
-![](_media/interface.jpg)
+<summary>Example: Customize PGSQL Clusters</summary>
 
 ```yaml
 #----------------------------------#
@@ -255,8 +257,7 @@ pg-meta:                                # required, ansible group name , pgsql c
 
 In addition, in addition to PostgreSQL, support for Redis deployment and monitoring has been provided since Pigsty v1.3
 <details>
-<summary>Example: Customizing different types of Redis clusters</summary>
-
+<summary>Example: Redis Cache Cluster</summary>
 
 ```yaml
 #----------------------------------#
@@ -311,8 +312,7 @@ redis-common:
 
 Starting with Pigsty v1.4, initial support for MatrixDB (Greenplum7) is provided
 <details>
-<summary>Example: Installing and monitoring a MatrixDB cluster</summary>
-
+<summary>Example: MatrixDB Data WareHouse</summary>
 
 ```yaml
 #----------------------------------#
@@ -370,19 +370,22 @@ mx-sdw:
 
 
 
-### Sandbox Environment
+## Ubiquitous Deployment
 
 Pigsty can use Vagrant and Virtualbox to pull up and install the required virtual machine environment on your own laptop, or through Terraform, automatically request ECS/VPC resources from your cloud provider, creating and destroying them with a single click.
 
 The virtual machines in the sandbox environment have fixed resource names and IP addresses, making them very suitable for software development testing and experimental demonstrations.
 
 The default sandbox configuration is a single node with 2 cores and 4GB, IP address 10.10.10.10, with a single database instance named `pg-meta-1` deployed.
+
 A full version of the sandbox is also available in a four-node version with three additional database nodes, which can be used to fully demonstrate the capabilities of Pigsty's highly available architecture and monitoring system.
 
+
+
+[![](_media/SANDBOX.gif)](d-sandbox.md)
+
 <details>
-<summary>Sandbox required machine specifications</summary>
-
-
+<summary>System Requirements</summary>
 **System Requirements**
 
 * Linux kernel, x86_64 processor
@@ -412,15 +415,18 @@ A full version of the sandbox is also available in a four-node version with thre
 
 
 
-## Widely used
+## Versatile Scenario
 
 > One-click to pull up production SaaS applications, data analysis quickly, low code development visualization large screen
 
+### SaaS Software
+
 Pigsty installs Docker by default on the meta node, and you can pull up all kinds of SaaS applications with one click: Gitlab, an open-source private code hosting platform; Discourse, an open-source forum; Mastodon, an open-source social network; Odoo, an open-source ERP software; and UFIDA, Kingdee, and other software.
+
 You can use Docker to pull up stateless parts, modify their database connection strings to use external databases, and get a silky smooth cloud-native management experience with production-grade data persistence. For more details, please refer to [Tutorial: Docker Application](t-docker.md).
 
 
-#### Data Analytics
+### Data Analysis
 
 Pigsty is both a battery-include PostgreSQL distribution and can be used as a data analysis environment, or to make low-code visualization applications. You can go directly from SQL data processing to Echarts plotting in one step, or you can use more elaborate workflows: for example, using PG as the main database, storing data and implementing business logic with SQL; using the built-in PostgREST to automate the back-end API, using the built-in JupyterLab to perform complex data analysis in Python, and using Echarts for data visualization, and Grafana for interaction capabilities.
 
@@ -432,54 +438,37 @@ Pigsty comes with several sample applications for reference.
 * Database prevalence ranking trend [`dbeng`](http://demo.pigsty.cc/d/dbeng-overview) 
 * Query the work commuting schedule of a large factory's [`worktime`](http://demo.pigsty.cc/d/worktime-query) 
 
-![](s-feature.assets/overview-covid.jpg)
+![](_media/overview-covid.jpg)
 
 
 
-## Secure and cost-saving
+## Safety and Thrifty
 
-> Our philosophy is: use the **good database**, **use the good** database, **let there be no hard-to-use database in the world**!
+> Pigsty can reduce the total cost of ownership of a database by 50% to 80% and put the data in the hands of the users themselves!
 
-The database is the core component of an information system, a relational database is the absolute mainstay of the database, and PostgreSQL is the world's most advanced open-source relational database.
-PG provides a perfect enough database kernel, but it is not that simple to really use it well, and we help users to do that.
+The public cloud database/RDS is a so-called "out-of-the-box" solution, but it delivers a long way from satisfying users: expensive compared to building your own database, many features that require super-user privileges are neutered, stupid UI and pot-luck features, but among all the problems, the most important one is the cloud software **safty** and **cost** issues.
 
-What kind of database do traditional enterprises, especially SMEs, need for information technology? Is the distributed cloud-native lake warehouse integrated flow batch time hyper-converged HTAP database?
-No, most of the enterprise's database needs, even Excel will be enough to solve! The pain point does not lie in the database kernel cattle or not, but the user can not **use it**!
+#### Safty
 
-99% of enterprises, the complete life cycle of data needs, **stand-alone PostgreSQL is sufficient!**
+- Software that runs on your own computer can continue to run even if the software provider goes out of business. But if the company/department providing the cloud software goes out of business or decides to stop supporting it, that software won't work, and the data you created with that software is locked up. Because the data is only stored in the cloud, not on your own server's disk, and the only compensation you can expect is usually a chicken scratch voucher.
+- The problem of not being able to customize or scale is further exacerbated in cloud databases. Cloud databases typically do not offer database super users to users, which locks out a whole host of advanced features, as well as the ability to add extensions on your own. In contrast, 'stream replication', 'high availability', which should be standard in databases, are often sold to users as value-added items.
+- Cloud services may suddenly suspend your account without warning or recourse. You could be judged by an automated system to be in violation of the TOS when you are completely innocent: undocumented use of ports 80 & 53, account blasted and used to send malware or phishing emails, triggering a breach of the TOS. Or hammered over by a cloud vendor for some political reason, such as Parler.
+- The domestic habit of not using SaaS to insist on self-research or open-source is educated by the poor ecological industrial environment for real money. Putting your core asset -- data, on someone else's storage is just like leaving gold over the counter. There is nothing you can do to prevent, monitor, or even be aware of cloud vendors, or simply malicious or curious OPS and DBAs snooping around and stealing your precious data.
 
--------------
+Not so with Pigsty, which can be deployed anywhere, including on your own servers. It is open source and free, requires no License, no Internet access, and does not collect any user data. You can run it on your own server until the sea runs out.
 
-However, it is one thing to build a personal toy demo to use the database, and another thing to deploy and maintain the database in a production environment: installation and deployment, operation and maintenance management, supporting facilities, platform construction, service access, high availability, failover, load balancing, connection pooling, database and table splitting, monitoring, logging, auditing, backup, recovery, upgrade strategy, schema change ...... The following are some of the most common problems that need to be solved.
-There are countless practical problems to solve, not just `yum install postgresql14* && systemctl start postgresql`.
+#### Thrifty
 
-Cloud database/RDS, a so-called "battery-include" solution, has delivered a lot of pain points away from user satisfaction.
+The cost of cloud databases is another issue: saving money is an immediate need for users. Public cloud vendors' RDS may have advantages over traditional commercial databases, but they are still sky-high before building their own open-source databases. According to statistics, the comprehensive holding cost of RDS is up to **2~3x higher** than self-build based on cloud servers, and even higher **5~10 times higher** than self-build hosted by IDC.
 
-**High cost**
+| 52C/400GB/3TB x 2 | Price 5Y | Cost/Year |
+| ----------------- | -------- | --------- |
+| IDC & Your own    | 810K ¥   | 160K ¥    |
+| ECS               | 310K ¥   | 63K ¥     |
+| RDS               | 150K ¥   | 30K ¥     |
 
-* The cost of RDS is **5 to 10 times** higher than IDC hosting self-build, and even compared to cloud VM self-build, it is **2 to 3 times** higher.
-* The price of RDS may be advantageous relative to commercial databases, but it is still ridiculously high in front of self-build.
+Pigsty has significant cost advantages over using a cloud database. For example, you can buy **the same size cloud server** for half the overhead of a cloud database and deploy the database yourself using Pigsty. In this case, you can enjoy most of the ease and convenience of managing a public cloud (IaaS), while instantly saving more than half the overhead.
 
-**Life is not your choice**.
+What's more, Pigsty can significantly improve user performance: it allows one or two senior DBAs to leave all the trivial chores to the software and easily manage hundreds of database clusters; it also allows a junior R&D staff, after a simple learning training, can quickly reach a senior DBA's cheap 70% correct level.
 
-* Cloud vendors can access all types of your data, and many are not truly neutral third-party operators.
-* Cloud vendor failures are not uncommon, and the only compensation you can have is usually a poor hourly voucher.
-
-**Feature Castration**
-
-* You don't have true superuser access to RDS and some advanced features are not available.
-* 'Stream replication', and 'high availability' which should be standard are often sold as value-added items.
-
-**Limited experience**
-
-* Cloud vendor RDS provides observability often with only a few sporadic monitoring metrics, lacking global integration and God's perspective.
-* Installation, deployment, access, and use still require a lot of UI interaction and manipulation.
-
-Pigsty aims to inherit and surpass the ease of use of cloud databases while addressing the above issues.
-
-Pigsty is open source based on Apache 2.0 protocol and can be used for commercial purposes for free. Pigsty has no vendor lock-in, does not use proprietary hardware or software, and does not collect any user data. You can freely deploy it on your server, on your laptop, or even on any cloud vendor's cloud server, and get a unified experience that is truly autonomous and controlled.
-
-Pigsty has significant cost advantages over using a cloud database. For example, you can purchase a cloud server with the same specifications at half the cost of a cloud database, and deploy the database yourself using Pigsty, while enjoying the convenience of managing a cloud server.
-
-**Pigsty is open source and free, providing a similar or even better experience than the cloud vendor's RDS, reducing the total cost of ownership of the database by 50% to 80%, and putting the data in the hands of the user!** 
-
+**Pigsty open source and free, in the premise of providing similar or even exceed the cloud vendor RDS experience, can reduce the comprehensive cost of ownership of the database by 50% ~ 80%, and let the data really control in the hands of the user himself! **

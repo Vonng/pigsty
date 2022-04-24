@@ -305,7 +305,7 @@ Modify the IP address of the replication upstream in `standby_cluster.host` and 
 
 
 
-## Delayed Slave
+## Delayed Cluster
 
 High availability and master-slave replication can solve the problems caused by machine hardware failure, but cannot solve the problems caused by software Bugs and human operation, for example, mistakenly deleting libraries and tables. A  [cold backup](t-backup.md) is usually needed for accidental data deletion, but a more elegant and efficient way is to prepare a delayed slave beforehand.
 
@@ -366,7 +366,7 @@ pg-test:
 
 
 
-## Citus Cluster Deployment
+## Citus Deployment
 
 [Citus](https://www.citusdata.com/) is a distributed extension plugin for the PostgreSQL ecology. By default, Pigsty installs Citus but does not enable it. [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) provides a config file case for deploying a Citus cluster. To enable Citus, you need to modify the following parameters.
 
@@ -469,7 +469,7 @@ For more Citus-related features, please refer to the [Citus official doc](https:
 
 
 
-## MatrixDB Cluster Deployment
+## MatrixDB Deployment
 
 MatrixDB is a branch of Greenplum, based on Greenplum 7 and using the PostgreSQL 12 kernel. Because Greenplum 7 has not been officially released yet, Pigsty currently uses MatrixDB as an alternative implementation of Greenplum.
 

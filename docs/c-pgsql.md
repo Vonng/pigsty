@@ -17,11 +17,11 @@
 
 
 
-## PGSQL集群
+## PGSQL Cluster
 
 生产环境的PGSQL数据库以**集群**为单位进行组织，**集群**是一个由**主从复制**所关联的一组数据库**实例**所构成的**逻辑实体**。每个**数据库集群**是一个**自组织**的业务服务单元，由至少一个**数据库实例**组成。
 
-### 沙箱环境
+### Sandbox
 
 集群是基本的业务服务单元，下图展示了沙箱环境中的复制拓扑。其中`pg-meta-1`单独构成一个数据库集群`pg-meta`，而`pg-test-1`，`pg-test-2`，`pg-test-3`共同构成另一个逻辑集群`pg-test`。
 
@@ -40,9 +40,9 @@ pg-test-1 -------------> pg-test-2
 
 
 
-### High-Available
+### High-Availability
 
-> 主库故障RTO ≈ 30s~1min，RPO < 10MB，从库故障RTO≈0（仅故障实例连接中断）
+> Primary Failure RTO ≈ 30s~1min, RPO < 10MB, Replica Failure RTO≈0 (reset current conn)
 
 Pigsty默认创建创建**高可用PostgreSQL数据库集群**。只要集群中有任意实例存活，集群就可以对外提供完整的读写服务与只读服务。Pigsty可以**自动进行故障切换**，业务方只读流量不受影响；读写流量的影响视具体配置与负载，通常在几秒到几十秒的范围。
 
@@ -299,7 +299,6 @@ Pigsty使用 `ip` 地址作为节点唯一标识符，如果机器有多个IP地
 * 指向 同步复制从库（`standby`）的服务，叫做`pg-test-standby`
 
 请注意，**服务并不够成对实例的划分**，同一个服务可以指向集群内多个不同的实例，然而同一个实例也可以承接来自不同服务的请求。例如，角色为 `standby`的同步从库既可以承接来自 `pg-test-standby` 的同步读取请求，也可以承接来自 `pg-test-replica` 的普通读取请求。
-
 
 
 

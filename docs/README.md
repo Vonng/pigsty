@@ -12,40 +12,17 @@
 
 ## What is Pigsty?
 
-
 [![](_media/WHAT_EN.svg)](s-feature.md)
 
-**Pigsty** is battery-included open-source database [distribution](s-feature.md#PostgreSQL database distribution), with the latest [PostgreSQL](https://www.postgresql.org/) kernel & [TimescaleDB](https:// www.timescale.com/), [PostGIS](https://postgis.net/), [Citus](https://www.citusdata.com/) alone with 100+ extensions, an entire PaaS [Infra](c-infra.md), unparalleled [monitoring](s-feature.md#Monitoring) system with ultimate observability, [high-available](c-pgsql.md#High-Available) PostgreSQL with self-healing design, and data analysis & [visualization](s-feature.md#Data-Visualization) tools.
+**Pigsty** is battery-included open-source database [distribution](s-feature.md#postgres-distribution), with the latest [PostgreSQL](https://www.postgresql.org/) kernel, [TimescaleDB](https://www.timescale.com), [PostGIS](https://postgis.net/), [Citus](https://www.citusdata.com/) & 100+ extensions, along with an entire [Infra](c-infra.md): Grafana, Prometheus, Loki, Ansible, [Docker](t-docker.md) to support your databases & [applications](s-feature.md#SaaS-Software). It also includes common tools for [data analysis](s-feature.md#data-analysis).
 
-Pigsty is a handy toolbox for developers, you can download, install, deploy, scale, backup, migration with one command. Just describe the database you want and you will get it.
+Pigsty is a [monitoring](s-feature.md#ultimate-observability) & management [SRE Solution](s-feature.md#SRE-Solution). Which includes an unparalleled [monitoring](s-feature.md#Monitoring) system with ultimate observability, and [high-available](c-pgsql.md#High-Available) PostgreSQL with self-healing architecture. You can deploy various clusters & instances: [primary, replica](d-pgsql.md#m-s-replication), [standby](d-pgsql.md#Sync-Standby), [offline](d-pgsql.md#Offline-Replica), [delayed](d-pgsql.md#Delayed-Cluster), [cascade](d-pgsql.md#Cascade Instance), and even [Citus](d-pgsql.md#Citus-Deployment), [Redis](d-redis.md), and [Greenplum](d-matrixdb.md) clusters.
 
+Pigsty is a handy [toolbox](s-feature.md#developer-toolbox) for developers. It treats [**Database as Code**](s-feature.md#database-as-code), Infra as Data. You just [describe](v-config.md) what database you want, and pigsty will create it for you. You can download, install, deploy, scale, backup, migration with [one command](s-install.md).  It can be deployed [everywhere](s-feature.md#Ubiquitous-Deployment): a 10k+ core prod env or local 1C/2G VM, [cloud](d-sandbox.md#cloud-sandbox), or [on-premises](d-sandbox.md#local-sandbox).
 
+Pigsty is a [secure](s-feature.md#Safty) & [thrifty](s-feature.md#Thrifty) alternative to [Cloud RDS](s-feature.md#Open-Source-RDS)/PaaS. It can empower a single DEV/DBA to manage hundreds of databases clusters, with all data under your own control. It can [save](s-feature.md#thrifty) 50% - 80% cost compared to cloud RDS using ECS or on-premise deployment. And the software itself is completely [open-source](https://github.com/Vonng/Capslock/blob/master/LICENSE) & free!
 
-equired for large-scale production environments. .md#infrastructure) and [data analysis](s-feature.md#data analysis and visualization application) components required for large-scale production environments: the experience of top DBAs is precipitated into software to solve all kinds of problems encountered when using databases at once.
-
-Pigst is also an autopilot [O&M solution](s-feature.md#intelligent monitoring and control O&M solution) with a comprehensive and professional [monitoring system](s-feature.md#excellent and observable), and an easy-to-use [high availability](s-feature.md#autopilot high availability) database deployment and control solution. Users simply declare what kind of database they want and create it with one click: [PostgreSQL](c-pgsql.md) / [Redis](c-redis.md) / [Greenplum](d-matrixdb.md).
-
-Pigsty is an easy-to-use [developer toolkit](s-feature.md#database i.e. code developer toolkit), whether it is downloading, installing, or deploying migrating backing up restoring expanding and shrinking, all can be done in one click. Based on [Vagrant](d-sandbox.md#Vagrant)'s [local sandbox](d-sandbox.md) and [Terraform](d-sandbox.md#terraform)'s multi-cloud deployment capability, Pigsty can be pulled up in all environments with a single click, bringing a unified experience.
-
-Pigsty is versatile and can support all kinds of upper layer [SaaS applications](s-feature.md#SaaS software applications) or produce [big screen/demo](s-feature.md#data analysis and visualization applications). Compared with using cloud database, data security [autonomous and controllable](s-feature.md#autonomous and controllable), simple operation and maintenance, low cost, full functionality, excellent experience, can significantly save database operation and maintenance manpower, and save **50% ~ 80%** of database [comprehensive cost](s-feature.md#cost reduction and efficiency). Significant value and appeal to all types of enterprise users, ISVs, and individual users.
-
-Please refer to the section [Highlighted Features](s-feature.md) for more information about the functional features of Pigsty products.
-
-Translated with www.DeepL.com/Translator (free version)
-
-
-
-
-* [**Battery-Included**](#highlights) Distribution: PostgreSQL, PostGIS, TimescaleDB, Citus, even Redis, United in One!
-* [**Obervability**](#Observability): Grafana, Prometheus, Loki, AlertManager, bring the ultimate observability!
-* [**High-Available**](#High-Available): Auto-Piloting Postgres with idempotent instances & services, self-healing from hardware failures!
-* [**Infra as Data**](#infra-as-data): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus/Greenplum in minutes!
-* [**Ubiquitous**](#Ubiquitous): Prod env or 1C1G VM sandbox with vagrant/terraform deployed with one click!
-* [**Versatile**](#versatile):  Databases management or host monitoring. Supporting SaaS or developing data apps.
-* [**Open Source & Free**](#Specification): 50% - 80% cost saving versus Cloud RDS. Proven in real-world, large-scale env.
-
-
-
+Check [FEATURES](s-feature.md) for more detail.
 
 
 
@@ -59,9 +36,13 @@ cd ~/pigsty && ./configure                             # pre-check and config te
 ./infra.yml                                            # install pigsty on current node
 ```
 
-Now you have a battery-included Postgres on port **5432**, and infra web services available on port **80**.
+Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
 
 Check [Installation](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
+
+![](_media/HOW_EN.svg)
+
+
 
 <details><summary>Download Packages Directly</summary>
 
@@ -77,7 +58,7 @@ curl -SL https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz | g
 
 <details><summary>Mange More Nodes</summary>
 
-You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after meta node is installed with [`infra.yml`](p-infra.md#infra).
+You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after installing the meta node with [`infra.yml`](p-infra.md#infra).
 
 ```bash
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
@@ -108,12 +89,12 @@ You can create Postgres with different [roles](d-pgsql.md) by declaring them: pr
 
 You can deploy different types of databases & clusters with corresponding playbooks.
 
-* [`pgsql.yml`](p-pgsql.md#pgsql): Deploy PostgreSQL HA clusters.
+* [`pgsql.yml`](p-pgsql.md#pgsql): Deploy HA PostgreSQL clusters.
 * [`redis.yml`](p-redis.md#redis): Deploy Redis clusters.
 * [`pgsql-matrix.yml`](p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
 
 ```bash
-./pgsql.yml         -l pg-test      # init 1-primary-2-replica pgsql cluster
+./pgsql.yml         -l pg-test      # init 1-primary & 2-replica pgsql cluster
 ./redis.yml         -l redis-test   # init redis cluster redis-test
 ./pigsty-matrix.yml -l mx-*         # init MatrixDB cluster mx-mdw,mx-sdw .....
 ```
@@ -123,208 +104,12 @@ You can deploy different types of databases & clusters with corresponding playbo
 
 
 
-
-## Highlights
-
-
-### Battery-Included PostgreSQL Distribution
-
-> Just like RedHat for Linux!
-
-Packaging the latest PostgreSQL kernel & TimescaleDB, PostGIS, Citus, and hundreds of extensions, all battery-included!
-
-It Also ships infrastructure components: Grafana, Prometheus, Loki, Ansible, Docker,… can be used as a runtime for other databases & applications.
-
-It also includes common tools for data analysis: Jupyter, ECharts, Grafana, PostgREST, and Postgres, which can be used as a low-code data app development IDE, too.
-
-![](_media/ARCH.gif)
-
-
-
-### Observability
-
-> You can't manage you don't measure
-
-Unparalleled monitoring system with 30+ dashboards & 1200+ metrics. Just bring the ultimate observability for you!
-
-Pigsty comes with a professional-grade PostgreSQL monitoring system specially designed for large-scale PostgreSQL cluster management, which supports: PGSQL monitoring, Redis monitoring, Nodes monitoring & self-monitoring.
-
-It is built upon popular open-source components such as Prometheus & Grafana. There's no vendor locking, and the infra can be easily reused for other purposes, e.g.: data-visualization platforms.
-
-![](_media/overview-monitor.jpg)
-
-
-### High-Available
-
-> Auto-Piloting & Self-Healing
-
-**High** **Available** PostgreSQL cluster. Idempotent instances & services, self-healing from hardware failures.
-
-The clusters created by Pigsty are **distributive** HA clusters powered by Patroni & HAProxy. Each instance is idempotent from the application's point of view. As long as any instance in the cluster survives, the cluster serves.
-
-
-![](_media/HA-PGSQL.svg)
-
-
-### Infra as Data
-
-> HashiCorp for Database!
-
-Pigsty follows the philosophy of **"Database as Data"**, just like Kubernetes. Describe the database you want and pull them up in one click.
-
-You can create a common primary-replica replication PGSQL cluster with several lines. And assign different roles: primary, replica, standby, offline, delayed, cascade.
-
-You can also create a horizontal sharding cluster with Citus or deploy a time-series data warehouse MatrixDB. Redis standalone/sentinel/cluster are also supported!
-
-```yaml
-pg-test:
-  hosts:
-    10.10.10.11: {pg_seq: 1, pg_role: primary}
-    10.10.10.12: {pg_seq: 2, pg_role: replica}
-    10.10.10.13: {pg_seq: 3, pg_role: replica}
-  vars: 
-    pg_cluster: pg-test
-    vip_address: 10.10.10.3
-```
-
-![](_media/interface.jpg)
-
-
-<details>
-<summary>Example of Redis Native Cluster</summary>
-
-```yaml
-redis-test:
-  hosts:
-    10.10.10.11:
-      redis_node: 1
-      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-    10.10.10.12:
-      redis_node: 2
-      redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-  vars:
-    redis_cluster: redis-test           # name of this redis 'cluster'
-    redis_mode: cluster                 # standalone,cluster,sentinel
-    redis_max_memory: 64MB              # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru       # memory eviction policy
-
-```
-
-</details>
-
-<details>
-<summary>Example of MatrixDB Data Warehouse</summary>
-
-```yaml
-#----------------------------------#
-# cluster: mx-mdw (gp master)
-#----------------------------------#
-mx-mdw:
-  hosts:
-    10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
-  vars:
-    gp_role: master          # this cluster is used as greenplum master
-    pg_shard: mx             # pgsql sharding name & gpsql deployment name
-    pg_cluster: mx-mdw       # this master cluster name is mx-mdw
-    pg_databases:
-      - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
-      - { name: meta }
-    pg_users:
-      - { name: meta , password: DBUser.Meta , pgbouncer: true }
-      - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
-
-    pgbouncer_enabled: true                # enable pgbouncer for greenplum master
-    pgbouncer_exporter_enabled: false      # enable pgbouncer_exporter for greenplum master
-    pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
-
-#----------------------------------#
-# cluster: mx-sdw (gp master)
-#----------------------------------#
-mx-sdw:
-  hosts:
-    10.10.10.11:
-      nodename: mx-sdw-1        # greenplum segment node
-      pg_instances:             # greenplum segment instances
-        6000: { pg_cluster: mx-seg1, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
-        6001: { pg_cluster: mx-seg2, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
-    10.10.10.12:
-      nodename: mx-sdw-2
-      pg_instances:
-        6000: { pg_cluster: mx-seg2, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633  }
-        6001: { pg_cluster: mx-seg3, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634  }
-    10.10.10.13:
-      nodename: mx-sdw-3
-      pg_instances:
-        6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
-        6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
-  vars:
-    gp_role: segment               # these are nodes for gp segments
-    pg_shard: mx                   # pgsql sharding name & gpsql deployment name
-    pg_cluster: mx-sdw             # these segment clusters name is mx-sdw
-    pg_preflight_skip: true        # skip preflight check (since pg_seq & pg_role & pg_cluster not exists)
-    pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
-    pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
-```
-
-</details>
-
-
-
-
-### Ubiquitous
-
-> Local **sandbox** or multi-cloud deployment, It's all the same!
-
-Pigsty is designed for large-scale production usage but can also be operational on a local 1C1G VM node.
-
-You can run the complete 4-node sandbox on your laptop with vagrant with one command `make up`. Or prepare cloud ECS/VPC with Terraform with the same procedure.
-
-Everything is described in the `pigsty.yml` config file, it's the only difference between different envs: prod, staging/UAT, dev/test sandbox.
-
-![](_media/SANDBOX.gif)
-
-
-
-
-
-### Versatile
-
-> Data apps, SaaS, Database & Host monitoring, Analysis or Visualization, it's all your choice!
-
-#### SaaS with Docker
-
-Pigsty has docker installed on meta nodes by default. You can pull up all kinds of SaaS applications with one command： Gitlab, Jira, Confluence, Mastodon, Discourse, Odoo, Kingdee, etc...
-
-You can also pull up stateless parts and use external databases by changing their connection string to acquire production-grade durability.
-
-Other handy tools such as Jupyter lab server, PGWeb CLI tools, PGAdmin4, pgbadger, ByteBase, and PostgREST can also be served with docker. Check [Tutorial: Docker Applications](t-docker.md) for detail.
-
-#### Analysis
-
-Pigsty ships with handy tools such as Jupyterlab, PostgreSQL, Grafana, and ECharts. Which is great for data analysis & visualization.
-
-You can turn pigsty sandbox into an IDE for making data-intensive applications and demos: Processing data with SQL & Python, Backend API auto-gen with PostGREST. Visualize with Grafana & ECharts.
-
-Pigsty comes with some example apps:  [`covid`](http://demo.pigsty.cc/d/covid-overview) for covid-19 data visualization and [`isd`](http://demo.pigsty.cc/d/isd-overview) for visualizing global surface weather station data.
-
-* PG CSV Log Sample Analysis: [`pglog`](http://demo.pigsty.cc/d/pglog-overview)
-* COVID-19 WHO Data Query [`covid`](http://demo.pigsty.cc/d/covid-overview)
-* NOAA ISD Surface Station Weather Data Query: [`isd`](http://demo.pigsty.cc/d/isd-overview)
-* DB-Engine Popularity Trending [`dbeng`](http://demo.pigsty.cc/d/dbeng-overview)
-
-[![](_media/overview-covid.jpg)](http://demo.pigsty.cc/d/covid-overview)
-
-Check [Tutorial: Pigsty Applications](t-application.md) for detail.
-
-
-
-
 ## About
 
-> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle"
+> Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle."
 
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
 License: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)R
+Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)

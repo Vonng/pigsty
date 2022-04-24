@@ -4,9 +4,12 @@
   - [Features](s-feature.md)  
   - [FAQ](s-faq.md)
 
-- Concept
+- [Concept](c-concept.md)
   - [Architecture](c-arch.md)
-  - [Entities](c-entity.md)
+  - [Concept: INFRA](c-infra.md)
+  - [Concept: NODES](c-nodes.md)
+  - [Concept: PGSQL](c-pgsql.md)
+  - [Concept: REDIS](c-redis.md)
   - [PGSQL Service/Access](c-service.md)
   - [PGSQL Database/User](c-pgdbuser.md)
   - [PGSQL Auth/Privilege](c-privilege.md)

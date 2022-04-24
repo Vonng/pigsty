@@ -11,6 +11,7 @@
 > 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 
 
+
 ## Pigsty是什么？
 
 [![](../_media/WHAT_ZH.svg)](s-feature.md)
@@ -48,6 +49,7 @@ make install                                          # 安装
 ## 协议
 
 Pigsty基于Apache 2.0协议开源，可以免费用于商业目的，但改装与衍生需遵守[Apache License 2.0](https://raw.githubusercontent.com/Vonng/pigsty/master/LICENSE)的显著声明条款。如需帮助或专业支持，请参阅[社区交流](community.md)。
+
 
 
 ## 关于
