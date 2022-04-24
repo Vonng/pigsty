@@ -9,7 +9,7 @@
 Pigsty currently offers four modules.
 
 * [`INFRA`](c-infra.md) is Pigsty's infrastructure module, including monitoring/alerting/visualization/logging/DNS/NTP components.
-* [`NODES`](c-nodes.md) is the node management module for configuring nodes, installing software, and collecting monitoring metrics and logs.
+* [`NODES`](c-nodes.md) is the node management module for configuring nodes, installing software, and collecting metrics and logs.
 * [`PGSQL`](c-pgsql.md) is a PostgreSQL deployment management module, including various PG cluster deployments and monitoring.
 * [`REDIS`](c-redis.md) is the Redis deployment management module, including Redis standalone/native cluster/sentinel [deployment](d-redis.md) and monitoring.
 
@@ -70,11 +70,11 @@ Pigsty will subsequently add new types of database modules on demand: **KAFKA**,
 
 ## Model
 
-A complete Pigsty system can be called a **Deployment**/ **Environment**.
+A complete Pigsty system can be called a **Deployment** or **Environment**.
 
 > For example, production environment, test environment, pre-distribution environment, etc.
 
-**One Pigsty deployment is in two parts: one infrastructure set with multiple clusters**, both described by an [inventory](v-config.md#config file).
+**A Pigsty deployment consists of two parts: an infra set & multiple clusters**, both described by an [Inventory](v-config.md#config file).
 
 * [Infra](c-infra.md): deployed on [meta-nodes](c-nodes.md#meta-nodes), monitoring, DNS, NTP, DCS, Yum repos, etc. 
 * [Database Cluster](#database-cluster): autonomous (database) service unit deployed on [nodes](c-nodes.md#nodes).

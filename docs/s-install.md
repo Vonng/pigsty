@@ -85,7 +85,7 @@ There's a standard 4-node demo env for pigsty, named '[Sandbox](d-sandbox.md)'. 
 
 [![](_media/SANDBOX.gif)](d-sandbox.md)
 
-Take [sandbox](s-sandbox.md) as an example, install pigsty on meta node `10.10.10.10` with:
+Take [sandbox](d-sandbox.md) as an example, install pigsty on meta node `10.10.10.10` with:
 
 ```bash
 . /infra.yml     # install pigsty on meta node 10.10.10.10

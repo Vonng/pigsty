@@ -72,7 +72,7 @@
 
 
 
-在[配置清单](v-config.md)中，隶属于 `meta`分组下的节点将被设置 [`meta_node`](v-meta#meta_node) 标记，用作 Pigsty 的元节点。
+在[配置清单](v-config.md)中，隶属于 `meta`分组下的节点将被设置 [`meta_node`](v-infra.md#meta_node) 标记，用作 Pigsty 的元节点。
 
 
 

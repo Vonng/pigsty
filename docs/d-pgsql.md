@@ -28,7 +28,7 @@ The **Core Identity Parameters** are information that must be provided when defi
 |    [`pg_role`](v-pgsql.md#pg_role)    | **MUST**, instance level |  Instance Role  | `primary`, `replica` |
 |     [`pg_seq`](v-pgsql.md#pg_seq)     | **MUST**, instance level | Instance number | `1`, `2`, `3`,`...`  |
 
-The content of the identity parameter follows the [entity naming convention](c-entity.md). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, which are the **minimum set of mandatory parameters required to define the database cluster**, the core identity parameters **must be explicitly specified** and cannot be ignored.
+The content of the identity parameter follows the [entity naming convention](c-pgsql.md#ER-Model). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, which are the **minimum set of mandatory parameters required to define the database cluster**, the core identity parameters **must be explicitly specified** and cannot be ignored.
 
 - `pg_cluster` identifies the name of the cluster, configured at the cluster level, and serves as the top-level namespace for cluster resources.
 

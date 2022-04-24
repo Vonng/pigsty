@@ -4,7 +4,7 @@
 
 ## Index
 
-| [Module](c-arch.md#module) | [Conecpt](c-concept.md) | [Deploy](d-deploy.md) | [Config](v-config.md) | [Playbook](p-playbook.md) |
+| [Module](c-arch.md#module) | [Concept](c-concept.md) | [Deploy](d-deploy.md) | [Config](v-config.md) | [Playbook](p-playbook.md) |
 | :---: | :--: | :--: |  :--: | :--: |
 | `INFRA` | [Concept: INFRA](c-infra.md)     | [Deploy: INFRA](d-infra.md)     | [Config: INFRA](v-infra.md) | [Playbook: INFRA](p-infra.md)|
 | `NODES` | [Concept: NODES](c-nodes.md)     | [Deploy: NODES](d-nodes.md)     | [Config: NODES](v-nodes.md) | [Playbook: NODES](p-nodes.md)|

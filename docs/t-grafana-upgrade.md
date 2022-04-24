@@ -78,7 +78,7 @@ This command actually calls Ansible Playbook [`pgsql.yml`](p-pgsq.md) to create 
 . /pgsql.yml -l pg-grafana # The actual equivalent Ansible playbook command executed 
 ```
 
-The business users and business databases defined in `pg_users` and `pg_databases` are created automatically when the cluster is initialized, so with this configuration, after the cluster is created, (without DNS support) you can [access](c-access.md) the database (either one will do) using the following connection string.
+The business users and business databases defined in `pg_users` and `pg_databases` are created automatically when the cluster is initialized, so with this configuration, after the cluster is created, (without DNS support) you can [access](c-service.md#access) the database (either one will do) using the following connection string.
 
 ```bash
 postgres://dbuser_grafana:DBUser.Grafana@10.10.10.11:5432/grafana # direct connection to the master database

@@ -2,31 +2,31 @@
 
 ## Parameters
 
-The template database `template1` in a cluster can be customized using the [PG template](v-pg-template) configuration item.
+The template database `template1` in a cluster can be customized using the [PG template](v-pgsql.md#PG_PROVISION) configuration item.
 
 This ensures that any database **newly created** in this database cluster comes with the same default configuration: schema, extensions, and default permissions.
 
 | name | type | hierarchy | description |
 | :----------------------------------------------------------: | :-----------: | :---: | ------------------------- |
-| [pg_init](v-pg-template.md#pg_init) | `string` | G/C | Custom PG initialization scripts |
-| [pg_replication_username](v-pg-template.md#pg_replication_username) | `string` | G | PG replication user |
-| [pg_replication_password](v-pg-template.md#pg_replication_password) | `string` | G | PG replication user's password |
-| [pg_monitor_username](v-pg-template.md#pg_monitor_username) | `string` | G | PG monitor user |
-| [pg_monitor_password](v-pg-template.md#pg_monitor_password) | `string` | G | PG monitor user password |
-| [pg_admin_username](v-pg-template.md#pg_admin_username) | `string` | G | PG Admin User |
-| [pg_admin_password](v-pg-template.md#pg_admin_password) | `string` | G | PG admin user password |
-| [pg_default_roles](v-pg-template.md#pg_default_roles) | `role[]` | G | Default created roles and users |
-| [pg_default_privilegs](v-pg-template.md#pg_default_privilegs) | `string[]` | G | Database default permissions configuration |
-| [pg_default_schemas](v-pg-template.md#pg_default_schemas) | `string[]` | G | The schema created by default |
-| [pg_default_extensions](v-pg-template.md#pg_default_extensions) | `extension[]` | G | Default installed extensions |
-| [pg_offline_query](v-pg-template.md#pg_offline_query) | `bool` | **I** | Whether to allow **offline** queries |
-| [pg_reload](v-pg-template.md#pg_reload) | `bool` | **A** | Whether to reload database configuration (HBA) |
-| [pg_hba_rules](v-pg-template.md#pg_hba_rules) | `rule[]` | G | Global HBA rules |
-| [pg_hba_rules_extra](v-pg-template.md#pg_hba_rules_extra) | `rule[]` | C/I | Cluster/instance specific HBA rules |
-| [pgbouncer_hba_rules](v-pg-template.md#pgbouncer_hba_rules) | `rule[]` | G/C | Pgbouncer global HBA rules |
-| [pgbouncer_hba_rules_extra](v-pg-template.md#pgbouncer_hba_rules_extra) | `rule[]` | G/C | Pgbounce specific HBA rules |
-| [pg_databases](v-pg-template.md#pg_databases) | `database[]` | G/C | **business database definitions** |
-| [pg_users](v-pg-template.md#pg_users) | `user[]` | G/C | **business user definitions** |
+| [pg_init](v-pgsql#pg_init) | `string` | G/C | Custom PG initialization scripts |
+| [pg_replication_username](v-pgsql#pg_replication_username) | `string` | G | PG replication user |
+| [pg_replication_password](v-pgsql#pg_replication_password) | `string` | G | PG replication user's password |
+| [pg_monitor_username](v-pgsql#pg_monitor_username) | `string` | G | PG monitor user |
+| [pg_monitor_password](v-pgsql#pg_monitor_password) | `string` | G | PG monitor user password |
+| [pg_admin_username](v-pgsql#pg_admin_username) | `string` | G | PG Admin User |
+| [pg_admin_password](v-pgsql#pg_admin_password) | `string` | G | PG admin user password |
+| [pg_default_roles](v-pgsql#pg_default_roles) | `role[]` | G | Default created roles and users |
+| [pg_default_privilegs](v-pgsql#pg_default_privilegs) | `string[]` | G | Database default permissions configuration |
+| [pg_default_schemas](v-pgsql#pg_default_schemas) | `string[]` | G | The schema created by default |
+| [pg_default_extensions](v-pgsql#pg_default_extensions) | `extension[]` | G | Default installed extensions |
+| [pg_offline_query](v-pgsql#pg_offline_query) | `bool` | **I** | Whether to allow **offline** queries |
+| [pg_reload](v-pgsql#pg_reload) | `bool` | **A** | Whether to reload database configuration (HBA) |
+| [pg_hba_rules](v-pgsql#pg_hba_rules) | `rule[]` | G | Global HBA rules |
+| [pg_hba_rules_extra](v-pgsql#pg_hba_rules_extra) | `rule[]` | C/I | Cluster/instance specific HBA rules |
+| [pgbouncer_hba_rules](v-pgsql#pgbouncer_hba_rules) | `rule[]` | G/C | Pgbouncer global HBA rules |
+| [pgbouncer_hba_rules_extra](v-pgsql#pgbouncer_hba_rules_extra) | `rule[]` | G/C | Pgbounce specific HBA rules |
+| [pg_databases](v-pgsql#pg_databases) | `database[]` | G/C | **business database definitions** |
+| [pg_users](v-pgsql#pg_users) | `user[]` | G/C | **business user definitions** |
 
 
 
@@ -47,9 +47,9 @@ When customizing the database template, the relevant parameters are first render
 ^-------------(5)--- /pg/tmp/pg-db-{{ db.name }}.sql
 ```
 
-## [pg-init](v-pg-template.md#pg_init)
+## [pg-init](v-pgsql#pg_init)
 
-[`pg-init`](v-pg-template.md#pg_init) is the path to a Shell script for customizing the initialization template that will be executed as a postgres user, **only on the master**, when the database cluster master has been pulled up for execution, and can execute any Shell command, or execute any via psql SQL commands.
+[`pg-init`](v-pgsql#pg_init) is the path to a Shell script for customizing the initialization template that will be executed as a postgres user, **only on the master**, when the database cluster master has been pulled up for execution, and can execute any Shell command, or execute any via psql SQL commands.
 
 If this configuration item is not specified, Pigsty will use the default [`pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/pg-init) Shell script as shown below.
 
@@ -87,7 +87,7 @@ This script can be appended to if the user needs to perform complex customizatio
 
 ## `pg-init-roles.sql`
 
-In [`pg_default_roles`](v-pg-template.md#pg_default_roles) you can customize the **global unified** role system. The definitions therein are rendered as `/pg/tmp/pg-init-roles.sql`, and a sample rendering in the `pg-meta` cluster is shown below.
+In [`pg_default_roles`](v-pgsql#pg_default_roles) you can customize the **global unified** role system. The definitions therein are rendered as `/pg/tmp/pg-init-roles.sql`, and a sample rendering in the `pg-meta` cluster is shown below.
 
 ```sql
 ----------------------------------------------------------------------
@@ -914,7 +914,7 @@ COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
 
 Pigsty uses Patroni to manage and initialize Postgres database clusters.
 
-Pigsty uses Patroni for the main work of provisioning, even if the user selects [no Patroni mode](v-pg-provision#patroni_mode), pulling up the database cluster will be taken care of by Patroni and removing the Patroni component after the creation is complete.
+Pigsty uses Patroni for the main work of provisioning, even if the user selects [no Patroni mode](v-pgsql.md#patroni_mode), pulling up the database cluster will be taken care of by Patroni and removing the Patroni component after the creation is complete.
 
 Users can do most of the PostgreSQL cluster customization through Patroni configuration files. For details of Patroni configuration file format, please refer to [**Patroni official documentation**](https://patroni.readthedocs.io/en/latest/SETTINGS. html).
 
@@ -927,9 +927,9 @@ Pigsty provides four predefined initialization templates, the initialization tem
 - [`crit.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/crit.yml)) Core business template, based on OLTP template optimized for RPO, security, data integrity, enable synchronous replication with data checksum.
 - [`tiny.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/tiny.yml) Micro database template optimized for low-resource scenarios, such as demo database clusters running in virtual machines.
 
-Specify the path to the template to be used via the [`pg_conf`](v-pg-provision.md#pg_conf) parameter, or simply fill in the template file name if using a pre-built template.
+Specify the path to the template to be used via the [`pg_conf`](v-pgsql.md#pg_conf) parameter, or simply fill in the template file name if using a pre-built template.
 
-If a custom [Patroni configuration template](v-pg-provision.md#pg_conf) is used, the companion [node optimization template](v-node#node_tune) should usually be used for the machine node as well.
+If a custom [Patroni configuration template](v-pgsql.md#pg_conf) is used, the companion [node optimization template](v-nodes.md#node_tune) should usually be used for the machine node as well.
 
 
 

@@ -186,7 +186,7 @@ rm_pgpkgs: false        # uninstall pg_packages? false by default
 
 ### 日常管理
 
-数据库的创建请参考 [数据库](c-database.md#创建数据库) 一节。
+数据库的创建请参考 [数据库](c-pgdbuser.md#创建数据库) 一节。
 
 ```bash
 # 在 pg-test 集群创建名为 test 的数据库
