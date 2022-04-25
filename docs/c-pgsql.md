@@ -1,19 +1,19 @@
-# Conecpt: PGSQL
+# Concept: PGSQL
 
-> 介绍 PostgreSQL 数据库集群管理所需的核心概念
-
-
-* [PGSQL集群](#PGSQL集群) / [实体模型](#实体模型) / [身份参数](#身份参数)
-* [集群](#集群（cluster）) /  [实例](#实例（instance）) / [节点](#节点（node） ) / [服务](#服务（service）) 
-* [PostgreSQL高可用](#高可用)
+> This article introduces the core concepts required for PostgreSQL cluster management.
 
 
+* [PGSQL Cluster](#PGSQL-Cluster) / [ER Model](#ER-Model) / [Identity Parameter](#Identity-Parameter)
+* [Cluster](#Cluster) /  [Instance](#Instance) / [Node](#Node) / [Service](#Service) 
+* [PostgreSQL HA](#High-Availability)
 
 
-* [部署：PGSQL](d-pgsql.md) ｜[配置：PGSQL](v-pgsql.md)  | [剧本：PGSQL](p-pgsql.md) ｜ [定制：PGSQL](v-pgsql-customize.md)
-* [PGSQL服务](c-service.md#服务) 与 [PGSQL接入](c-service.md#接入)
-* [PGSQL权限](c-privilege.md#权限) 与 [PGSQL认证](c-privilege.md#认证)
-* [PGSQL业务用户](c-pgdbuser.md#用户) 与 [PGSQL业务数据库](c-pgdbuser.md#数据库)
+
+
+* [Deploy: PGSQL](d-pgsql.md) ｜[Config: PGSQL](v-pgsql.md)  | [Playbook: PGSQL](p-pgsql.md) ｜ [Custom: PGSQL](v-pgsql-customize.md)
+* [PGSQL Service](c-service.md#Service) and [PGSQL Access](c-service.md#Access)
+* [PGSQL Privilege](c-privilege.md#Privilege) and [PGSQL Authentication](c-privilege.md#Authentication)
+* [PGSQL Users](c-pgdbuser.md#Users) and [PGSQL Database](c-pgdbuser.md#Database)
 
 
 
@@ -106,31 +106,32 @@ Pigsty提供了多种流量接入方式，如果您使用默认的HAProxy接入�
 
 ### Entities
 
-![](/Volumes/Data/pigsty/docs/_media/ER-PGSQL.gif)
-
-* **Cluster** is the basic autonomous unit, uniquely identified by **user designation**, expressing business meaning, and serving as a top-level namespace.
-* The clusters contain a series of **Nodes** at the hardware level, i.e., physical machines and VMs (or Pods) that IP can uniquely identify.
-* The cluster contains a series of **Instances** at the software level, i.e., software servers, which can be uniquely identified by **IP: Port**.
-* The cluster contains a series of **Services** at the service level, i.e., accessible domains and ports that can be uniquely identified by **domains**.
+* **集群（Cluster）** 是基本自治单元，由**用户指定**唯一标识，表达业务含义，作为顶层命名空间。
+* 集群在硬件层面上包含一系列的**节点（Node）**，即物理机，虚机（或Pod），可以通过**IP**唯一标识。
+* 集群在软件层面上包含一系列的**实例（Instance）**，即软件服务器，可以通过**IP:Port**唯一标识。
+* 集群在服务层面上包含一系列的**服务（Service）**，即可访问的域名与端点，可以通过**域名**唯一标识。
 
 ![](_media/ER-PGSQL.gif)
 
 ### Naming Pattern
 
-* Cluster naming can use any name that satisfies the DNS domain name specification, not with a dot ( `[a-zA-Z0-9-]+`).
-* Node naming uses the cluster name as a prefix, followed by `-`and an ordinal integer number.
-* Instance naming can be consistent with the node naming, i.e., `${cluster}-${seq}`.
-* Service naming also uses the cluster name as the prefix, followed by `-` to connect the service specifics, such as `primary`, ` replica`, `offline`, `delayed`, etc.
 
-**Naming Example**
+* 集群的命名可以使用任意满足DNS域名规范的名称，不能带点（`[a-zA-Z0-9-]+`）。
+* 节点命名采用集群名称作为前缀，后接`-`，再接一个整数序号（建议从0开始分配，与k8s保持一致）
+* PGSQL采用独占式部署，节点与实例一一对应，因此实例命名可与节点命名一致，即`${cluster}-${seq}`的方式。
+* 服务命名亦采用集群名称作为前缀，后接`-`连接服务具体内容，如`primary`,` replica`,`offline`,`standby`等。
 
-Take the test database cluster `pg-test` for a sandbox as an example.
+以沙箱环境的测试数据库集群 `pg-test` 为例：
 
-* One cluster: The database cluster for testing is named `pg-test`".
-* Two roles: `primary` and `replica`.
-* Three instances: The cluster consists of three database instances: `pg-test-1`, `pg-test-2`, `pg-test-3`.
-* Three nodes: The cluster is deployed on three nodes: `10.10.10.11`, `10.10.10.12`, and `10.10.10.13`.
-* Four services: read-write service `pg-test-primary`, read-only service `pg-test-replica`, directly connected management service `pg-test-default`, offline read service `pg-test-offline`.
+* 一个集群：用于测试的数据库集群名为“`pg-test`”
+* 两种角色：`primary` 与 `replica`，分别是集群主库与从库。
+* 三个实例：集群由三个数据库实例：`pg-test-1`, `pg-test-2`, `pg-test-3`组成
+* 三个节点：集群部署在三个节点上：`10.10.10.11`, `10.10.10.12`, `10.10.10.13`上。
+* 四个服务：
+  * 读写服务： [`pg-test-primary`](c-service.md#Primary服务)
+  * 只读服务： [`pg-test-replica`](c-service.md#Replica服务)
+  * 直连管理服务： [`pg-test-default`](c-service.md#Default服务)
+  * 离线查询服务： [`pg-test-offline`](c-service.md#Offline服务)
 
 
 
@@ -142,12 +143,12 @@ Take the test database cluster `pg-test` for a sandbox as an example.
 
 除IP地址外，这三个参数是定义一套新的数据库集群的最小必须参数集
 
-* Cluster Identity：`pg_cluster` ： `{{ pg_cluster }}`
-* Instance Identity：`pg_instance` ： `{{ pg_cluster }}-{{ pg_seq }}`
-* Service Identity：`pg_service` ：`{{ pg_cluster }}-{{ pg_role }}`
-* Node Identity：`nodename`：
-  * if `pg_hostname: true`: 使用与 `pg_instance`相同的：`{{ pg_cluster }}-{{ pg_seq }}`
-  * if `pg_hostname: false`: 显式指定`{{ nodename }}`则直接使用，否则使用现有主机名。
+* 集群标识：`pg_cluster` ： `{{ pg_cluster }}`
+* 实例标识：`pg_instance` ： `{{ pg_cluster }}-{{ pg_seq }}`
+* 服务标识：`pg_service` ：`{{ pg_cluster }}-{{ pg_role }}`
+* 节点标识：`nodename`：
+  * 若 `pg_hostname: true`: 使用与 `pg_instance`相同的：`{{ pg_cluster }}-{{ pg_seq }}`
+  * 若 `pg_hostname: false`: 显式指定`{{ nodename }}`则直接使用，否则使用现有主机名。
 
 下面是沙箱环境中 `pg-test` 集群的定义样例：
 
@@ -182,40 +183,43 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
 
 
 
-## **Cluster**
 
-**A cluster** is the basic autonomous business unit, which means that the cluster can provide services as a whole. Note that cluster here is a software-level concept, not to be confused with PG Cluster (database set cluster, i.e., a data directory containing multiple PGs of a singleton) or Node Cluster (machine cluster).
 
-A cluster is one of the basic management units, and an organizational unit is used to unify various sources. A PG cluster may include.
 
-* Three physical machine nodes
-* One primary instance provides database read and writes services.
-* Two replica instances provide read-only copies of the database.
-* Two exposed services: read-write service, and read-only copy service.
+## Cluster
 
-### Cluster **Naming Pattern**
+**集群**是基本的自治业务单元，这意味着集群能够作为一个整体组织对外提供服务。类似于k8s中Deployment的概念。注意这里的集群是软件层面的概念，不要与PG Cluster（数据库集簇，即包含多个PG Database的单个PG实例的数据目录）或Node Cluster（机器集群）混淆。
 
-Each cluster has a unique identity. In this case, a database cluster named `pg-test` is defined.
+集群是管理的基本单位之一，是用于统合各类资源的组织单位。例如一个PG集群可能包括：
 
-The cluster name is similar to the role of a namespace. All sources belonging to this cluster will use this namespace.
+* 三个物理机器节点
+* 一个主库实例，对外提供数据库读写服务。
+* 两个从库实例，对外提供数据库只读副本服务。
+* 两个对外暴露的服务：读写服务，只读副本服务。
 
-The **cluster identity** (`cls`) must be unique within a set of environments, and naming patterns that conform to the DNS standard [RFC1034](https://tools.ietf.org/html/rfc1034) is recommended.
+### Cluster Naming Pattern
 
-A good cluster name should use only lowercase letters, numbers, and the hyphen `-`, and use letter starters. 
+每个集群都有用户根据业务需求定义的唯一标识符，本例中定义了一个名为`pg-test`的数据库集群。
+
+集群名称，其实类似于命名空间的作用。所有隶属本集群的资源，都会使用该命名空间。
+
+**集群标识符**（`cls`）必须在一套环境中唯一，建议采用符合DNS标准 [RFC1034](https://tools.ietf.org/html/rfc1034) 命名规则的标识符。
+
+良好的集群名称应当仅使用小写字母，数字，以及 减号连字符（hyphen）`-`，且只使用字母启头。这样集群中所有对象都可以该标识符作为自己标识符的前缀，严格约束的标识符可以应用于更广泛地场景。
 
 ```c
 cluster_name := [a-z][a-z0-9-]*
 ```
 
-Cluster naming should not include the **dot`. `** A popular naming pattern uses dot-separated hierarchical identities, such as `com.foo.bar`. This naming is simple, but the number of domain hierarchies is not controllable. The most intuitive example is Pods in Kubernetes, where Pod naming patterns do not allow`. `
+集群命名中不应该包括**点（dot）`.`**，之所以强调不要在集群名称中用**点**，是因为有一种流行的命名方式便是采用点号分隔的层次标识符，例如`com.foo.bar`。这种命名方式虽然简洁名快，但用户给出的名字中域名层次数目不可控。如果集群需要与外部系统交互，而外部系统对于命名有约束，这样的名字就会带来麻烦。最直观的例子是Kubernetes中的Pod，Pod的命名规则中不允许出现`.`。
 
-**Connotation of cluster naming** is recommended by-separated two-paragraph and three-paragraph names.
+**集群命名的内涵**，建议采用`-`分隔的两段式，三段式名称，例如：
 
 ```bashba s
-<cluster type>-<business>-<business line>
+<集群类型>-<业务>-<业务线>
 ```
 
-Typical cluster names include: `pg-meta`, `pg-test-fin`, `pg-infrastructure-biz`.
+典型的集群名称包括：`pg-meta`, `pg-test-fin`, `pg-infrastructure-biz`
 
 
 
@@ -223,20 +227,22 @@ Typical cluster names include: `pg-meta`, `pg-test-fin`, `pg-infrastructure-biz`
 
 ## Instance
 
-An instance refers to **a specific database server**, which can be a single process, a group of processes, or several associated containers within a Pod. The critical elements of an instance are.
+实例指带**一个具体的数据库服务器**，它可以是单个进程，也可能是共享命运的一组进程，也可以是一个Pod中几个紧密关联的容器。实例的关键要素在于：
 
-* Can be uniquely identified by the **instance identity** (`ins`).
-* Can handle requests (regardless of whether the request is received from a database, a connection pool, or a load balancer).
+* 可以通过**实例标识**（`ins`）符唯一标识
+* 具有处理请求的能力（而不管接收请求的究竟是数据库，还是连接池或负载均衡器）
+
+例如，我们可以把一个Postgres进程，为之服务的独占Pgbouncer连接池，PgExporter监控组件，高可用组件，管理Agent看作一个提供服务的整体，视为一个数据库实例，使用同样的标识符指称。
 
 ### Instance Naming Pattern
 
-Instances belong to clusters, and each instance has its unique identity within the cluster. The instance identity `ins` is recommended to use a naming pattern consistent with Kubernetes Pods: i.e., cluster name linked to an ordinal integer number in increments from 0/1 `<cls>-<seq>`.
+实例隶属于集群，每个实例在集群范围内都有着自己的唯一标识用于区分。实例标识符`ins`建议采用与Kubernetes Pod一致的命名规则：即集群名称连以从0/1开始递增分配的整数序号`<cls>-<seq>`。
 
-By default, Pigsty names the database instances in a cluster, increasing order starting from 1. For example, the database cluster `pg-test` has three database instances: `pg-test-1`, `pg-test-2`, and `pg-test-3`.
+Pigsty默认使用从1开始的自增序列号依次为集群中的新数据库实例命名，例如，数据库集群`pg-test`有三个数据库实例，那么这三个实例就可以依次命名为：`pg-test-1`, `pg-test-2`和`pg-test-3`。
 
-Once the instance name `ins` is assigned immutable, the instance will be used for the entire lifetime of the cluster.
+实例名`ins`一旦分配即不可变，该实例将在整个集群的生命周期中使用此标识符。
 
-In addition, with a singleton deployment, the database instance and the machine node can use each other's identities.
+此外，采用独占节点部署模式时，数据库实例与机器节点可以互相使用对方的标识符。即我们也可用数据库实例标识`ins`来唯一指称一个机器节点。
 
 
 
@@ -245,20 +251,20 @@ In addition, with a singleton deployment, the database instance and the machine 
 
 ## Node
 
-**A Node** is an abstraction of a hardware resource, usually referring to a working machine, whether a physical machine (bare metal), a VM, or a Pod in Kubernetes.
+[节点](c-nodes.md#节点)是对硬件资源的一种抽象，通常指代一台工作机器，无论是物理机（bare metal）还是虚拟机（vm），或者是Kubernetes 中的Pod。
 
-?> Note that Node in Kubernetes is an abstraction of hardware sources, but in reality, the concept of Node is similar to the concept of Pod in Kubernetes.
+?> 注意 Kubernetes 中Node是硬件资源的抽象，但在实际管理使用上，这里Node概念类似于Kubernetes中Pod的概念。
 
-The key features of a Node are.
+节点的关键特征是：
 
-* Nodes are abstractions of hardware sources that can run software services and deploy database instances.
-* **Nodes can use IP as unique identities**.
+* 节点是硬件资源的抽象，可以运行软件服务，部署数据库实例
+* **节点可以使用IP地址作为唯一标识符**
 
 ### Node Naming Pattern
 
-Pigsty uses `ip` as the node's unique identity. If the machine has more than one IP, the actual access IP specified in the inventory will prevail. The hostname `nodename`, database instance identity `ins`, and node identity `ip` correspond to each other in Pigsty and can be cross-used as identities for database instances, machine nodes, and HAProxy load balancers.
+Pigsty使用 `ip` 地址作为节点唯一标识符，如果机器有多个IP地址，则以配置清单中指定的，实际访问使用的IP地址为准。为便于管理，节点应当拥有一个人类可读的充满意义的名称作为节点的主机名。主机名`nodename`，数据库实例标识`ins`，节点标识`ip` 三者在Pigsty中彼此一一对应，可交叉混用做数据库实例、机器节点、HAProxy负载均衡器的标识符。
 
-The node naming is consistent with the database instance and remains the same throughout the cluster's life.
+节点的命名与数据库实例一致，在整个集群的生命周期中保持不变，便于监控与管理。
 
 
 
@@ -266,30 +272,35 @@ The node naming is consistent with the database instance and remains the same th
 
 ## Service
 
-A [service](c-service.md) is a **named abstraction** of a software service (e.g., Postgres, Redis). Services have various implementations, but the key elements are:
+[服务](c-service.md) 是对软件服务（例如Postgres，Redis）的一种**命名抽象（named abstraction）**。服务可以有各种各样的实现，但其的关键要素在于：
 
-* **An addressable and accessible service name** for providing access:
-  * A DNS domain name (`pg-test-primary`)
-  * An Nginx/Haproxy Port
-* **Service traffic routing and load balancing mechanism** for deciding which instance handles requests:
-  * DNS L7: DNS resolution records
-  * HTTP Proxy: Nginx/Ingress L7: Nginx Upstream Config 
-  * TCP Proxy: Haproxy L4: Haproxy Backend Config
-  * Kubernetes: Ingress: **Pod Selector**.
-  * The service also needs to decide which component will handle the request: the connection pool, or the database itself.
+* **可以寻址访问的服务名称**，用于对外提供接入，例如：
+  * 一个DNS域名（`pg-test-primary`）
+  * 一个Nginx/Haproxy Endpoint
+* **服务流量路由解析与负载均衡机制**，用于决定哪个实例负责处理请求，例如：
+  * DNS L7：DNS解析记录
+  * HTTP Proxy：Nginx/Ingress L7：Nginx Upstream配置 
+  * TCP Proxy：Haproxy L4：Haproxy Backend配置
+  * Kubernetes：Ingress：**Pod Selector 选择器**。
+  * 服务也需要决定由哪个组件来处理请求：连接池，或是数据库本身。
+  
 
-For more information about services, see the chapter [Services](c-service.md).
+更多关于服务的介绍，请参考[Service](c-service.md#service)一章。
 
 ### Service Naming Pattern
 
-**The service identity** (`svc`) consists of `cls` as a namespace and (`role`) as the service bearer.
+**服务标识** (`svc`) 由两部分组成：作为命名空间的 `cls`， 与服务承载的**角色**（`role`）
 
-In a PostgreSQL cluster, instances have different identities: primary, replica, standby, offline, and delayed. Different instances will provide different services; direct connection to the database and access to the database through connection pools are services of varying nature. It is common to use the role of the service target to identify the service, e.g., in the database cluster `pg-test`.
+在PostgreSQL数据库集群中，实例可能有不同的身份：集群领导者（主库），普通从库，同步从库，离线从库，延迟从库，不同的实例可能会提供不同的服务；同时直连数据库与通过连接池中间件访问数据库也属于性质不同的服务。通常我们会使用服务目标实例的身份角色来标识服务，例如在数据库集群`pg-test`中：
 
-* A service that points to an instance of the primary connection pool (`primary`) role is called `pg-test-primary`.
-* A service that points to a replica connection pool (`replica`) role is called `pg-test-replica`.
-* A service that points to an (`offline`) is called `pg-test-offline`.
-* A service that points to a (`standby`) is called `pg-test-standby`.
+* 指向 主库连接池（`primary`）角色实例的服务，叫做`pg-test-primary`
+* 指向 从库连接池（`replica`）角色实例的服务，叫做`pg-test-replica`
+* 指向 离线从库数据库（`offline`）的服务，叫做`pg-test-offline`
+* 指向 同步复制从库（`standby`）的服务，叫做`pg-test-standby`
 
-Note that **services are not enough to divide pairs of instances**. The same service can point to multiple instances. However, the same instance can also handle requests from different services.
+请注意，**服务并不够成对实例的划分**，同一个服务可以指向集群内多个不同的实例，然而同一个实例也可以承接来自不同服务的请求。例如，角色为 `standby`的同步从库既可以承接来自 `pg-test-standby` 的同步读取请求，也可以承接来自 `pg-test-replica` 的普通读取请求。
+
+
+
+
 

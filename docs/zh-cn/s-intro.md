@@ -29,7 +29,7 @@ Pigsty中的数据库，对外以[服务](c-service.md)的方式交付，用户�
 
 如果您想要深入了解Pigsty本身的设计与架构，可以参考**概念**一章中的主题：
    * [系统架构](c-arch.md)
-   * [基础设施](c-infra.md)
+   * [基础设施](c-entity.md)
    * [元节点](c-nodes.md#元节点) 与 [节点](v-nodes.md#节点)
    * [概念：PGSQL数据库集群](c-pgsql.md)
    * [PGSQL服务](c-service.md#服务) 与 [PGSQL接入](c-service.md#接入)

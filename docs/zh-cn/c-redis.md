@@ -8,7 +8,7 @@
 
 ### 实体概念模型
 
-Redis的实体概念模型与[PostgreSQL](c-pgsql.md#实体模型)几乎相同，同样包括 **集群（Cluster）** 与 **实例（Instance）** 的概念。注意这里的Cluster概念指的不是 Redis原生集群方案中的集群。
+Redis的实体概念模型与[PostgreSQL](c-entity.md)几乎相同，同样包括 **集群（Cluster）** 与 **实例（Instance）** 的概念。注意这里的Cluster概念指的不是 Redis原生集群方案中的集群。
 
 核心的区别在于，Redis通常采用单机多实例部署，一个物理/虚拟机节点上通常会部署**多个** Redis实例，以充分利用多核CPU。因此，定义Redis实例的方式与PGSQL稍有不同。
 

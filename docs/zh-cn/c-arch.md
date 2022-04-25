@@ -9,9 +9,9 @@
 Pigsty目前提供四个功能模块：
 
 * [`INFRA`](c-infra.md) 是Pigsty的基础设施部分，包括监控/告警/可视化/日志/DNS/NTP等公共组件。
-* [`NODES`](c-nodes.md) 是主机节点管理模块，用于配置节点，安装软件，收集监控指标与日志。
-* [`PGSQL`](c-pgsql.md) 是PostgreSQL数据库部署管控模块，包括各种类型的PG集群部署与监控。
-* [`REDIS `](c-redis.md)是Redis数据库部署管控模块，包括Redis 主从/集群/哨兵[部署](d-redis.md)与监控
+* [`NODES`](c-nodes.md) 是主机节点管理模块，用于配制节点，安装软件，收集监控指标与日志。
+* [`PGSQL`](c-pgsql.md)是PostgreSQL数据库部署管控模块，包括各种类型的PG集群部署与监控。
+* [`REDIS`](c-redis.md)是Redis数据库部署管控模块，包括Redis 主从/集群/哨兵[部署](d-redis.md)与监控
 
 | [模块](c-arch.md#模块) |   [概念](c-concept.md)    |    [部署](d-deploy.md)    |    [配置](v-config.md)    |   [剧本](p-playbook.md)   |
 | :--------------------: | :-----------------------: | :-----------------------: | :-----------------------: | :-----------------------: |

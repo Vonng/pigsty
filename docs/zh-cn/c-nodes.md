@@ -76,13 +76,11 @@
 
 ### 使用多个元节点
 
-复数个元节点是可能的，通常一个元节点足矣，两个元节点可以互为备份，三个元节点自身便足以部署生产级DCS Server集群。
-
-本着开箱即用的原则，Pigsty默认在所有元节点上部署DCS Server。但如果单纯是为了追求DCS Server集群的高可用而使用超过3个管理节点并没有太大的意义。您可以使用一个外部维护管理的，3～5节点的DCS集群来保证DCS服务可用性。
+复数个元节点是可能的，通常一个元节点足矣，两个元节点可以互为备份，三个元节点自身便足以部署生产级DCS Server集群。超过三个的元节点意义不大，如果只是为了追求DCS Server集群的高可用，您可以使用外部的专用DCS Server集群。DCS（Consul/Etcd）对于生产环境PostgreSQL数据库高可用至关重要，Pigsty建议使用3-5个外部的专用DCS Server集群以确保元数据库本身的高可用。但本着开箱即用的原则，Pigsty默认在所有元节点上部署DCS Server。
 
 元节点的特征是节点地址配置于配置文件的 `all.children.meta.host` 分组中，带有`meta_node: true` 标记。在 [`configure`](v-config.md#配置过程) 过程中，执行安装的当前节点会被配置为元节点，复数个元节点则需要手工配置，可参考三管理节点样例配置文件： [`pigsty-dcs3.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-dcs3.yml)。
 
-如果您没有使用任何外部DCS集群服务作为仲裁者，那么有意义的高可用最少需要3个节点。如果您只有两个节点，建议主库故障时人工介入以避免脑裂出现。
+
 
 
 
@@ -96,13 +94,13 @@
 
 ### 节点身份
 
-每个节点都有[身份参数](v-nodes.md#身份参数)，通过在`<cluster>.hosts`与`<cluster>.vars`中的相关参数进行配置。
+每个节点都有**身份参数**，通过在`<cluster>.hosts`与`<cluster>.vars`中的相关参数进行配置。
 
-在Pigsty中，节点有两个重要的身份参数： [`nodename`](v-nodes.md#nodename) 与 [`node_cluster`](v-nodes.md#node_cluster)，这两者将在监控系统中用作节点的 **实例标识**（`ins`） 与 **集群标识** （`cls`）。[`nodename`](v-nodes.md#nodename) 与 [`node_cluster`](v-nodes.md#node_cluster) 并不是必选参数，当留白或置空时，[`nodename`](#nodename) 会使用节点当前的主机名，而 [`node_cluster`](#node_cluster) 则会使用固定的默认值：`nodes`。
+Pigsty使用**IP地址**作为**数据库节点**的唯一标识，**该IP地址必须是数据库实例监听并对外提供服务的IP地址**，但不宜使用公网IP地址。尽管如此，用户并不一定非要通过该IP地址连接至该数据库。例如，通过SSH隧道或跳板机中转的方式间接操作管理目标节点也是可行的。但在标识数据库节点时，首要IPv4地址依然是节点的核心标识符，**这一点非常重要，用户应当在配置时保证这一点。** IP地址即配置清单中主机的`inventory_hostname` ，体现为`<cluster>.hosts`对象中的`key`。
 
-此外，Pigsty还会使用**IP地址**作为**数据库节点**的唯一标识， IP地址即配置清单中主机的`inventory_hostname` ，体现为`<cluster>.hosts`对象中的`key`。尽管一个节点可能有多块网卡和多个IP地址，但您必须指定一个首要IP地址作为节点唯一标识。**该地址应当为内网地址，即您访问该节点上的数据库时使用那个IP地址。**
+除此之外，在Pigsty监控系统中，节点还有两个重要的身份参数： [`nodename`](v-nodes.md#nodename) 与 [`node_cluster`](v-nodes.md#node_cluster)，这两者将在监控系统中用作节点的 **实例标识**（`ins`） 与 **集群标识** （`cls`）。在执行默认的PostgreSQL部署时，因为Pigsty默认采用节点独占1:1部署，因此可以通过 [`pg_hostname`](v-pgsql.md#pg_hostname) 参数，将数据库实例的身份参数（[`pg_cluster`](v-pgsql.md#pg_cluster) 与 `pg_instance`）借用至节点的`ins`与`cls`标签上。 
 
-该IP地址并不一定是管理节点SSH访问使用的IP地址，您可以通过 [`Ansible Connect`](v-infra.md#CONNECT) 相关参数，通过SSH隧道或跳板机中转的方式间接操作管理目标节点。
+ [`nodename`](v-nodes.md#nodename) 与 [`node_cluster`](v-nodes.md#node_cluster) #node_cluster)并不是必选的，当留白或置空时，[`nodename`](#nodename) 会使用节点当前的主机名，而 [`node_cluster`](#node_cluster) 则会使用固定的默认值：`nodes`。
 
 |              名称               |   类型   | 层级  | 必要性   | 说明             |
 | :-----------------------------: | :------: | :---: | -------- | ---------------- |
@@ -148,9 +146,7 @@ node_load1{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="nodes"}
 
 ### PGSQL节点服务
 
-**PGSQL节点**是用于部署PostgreSQL集群的节点， 在标准节点上额外加装了 [PGSQL](c-pgsql.md) 模块。 
-
-在执行默认的PostgreSQL部署时，因为Pigsty默认采用节点独占1:1部署，因此可以通过 [`pg_hostname`](v-pgsql.md#pg_hostname) 参数，将数据库实例的身份参数（[`pg_cluster`](v-pgsql.md#pg_cluster) 与 `pg_instance`）借用至节点的 [`nodename`](v-nodes.md#nodename) 与 [`node_cluster`](v-nodes.md#node_cluster) 身份参数上。 
+**PGSQL节点**是用于部署PostgreSQL集群的节点， 在Pigsty中，PGSQL实例固定采用**独占式部署**，一个节点上有且仅有一个数据库实例，因此节点与数据库实例可以互用唯一标识（IP地址与实例名）。在这种情况下，您可以使用 [`pg_hostname`](v-pgsql.md#pg_hostname) 参数，将节点上数据库的身份参数借调赋予节点。
 
 除了 [节点默认服务]((c-nodes.md#节点默认服务)) 外，PGSQL节点上运行有下列服务：
 

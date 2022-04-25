@@ -14,7 +14,7 @@ Similar to PostgreSQL, deploying Redis requires the same two steps.
 
 ### ER Model
 
-The Redis ER model is almost identical to [PostgreSQL](c-pgsql.md#ER-Model), and also includes the concepts of **Cluster** and **Instance**. Note that the concept of Cluster here does not refer to the clusters in Redis' native clustering scheme.
+The Redis ER model is almost identical to [PostgreSQL](c-entity.md), and also includes the concepts of **Cluster** and **Instance**. Note that the concept of Cluster here does not refer to the clusters in Redis' native clustering scheme.
 
 The core difference is that Redis is typically deployed in a single multi-instance deployment, with **many** Redis instances typically deployed on a single physical/virtual machine node to take advantage of multi-core CPUs. Therefore, how Redis instances are defined is slightly different from PGSQL.
 

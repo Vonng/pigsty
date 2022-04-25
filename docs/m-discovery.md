@@ -2,7 +2,7 @@
 
 Service discovery has various uses, and this article describes the mechanism used by the Pigsty monitoring system Prometheus to discover monitoring objects.
 
-The basis of service discovery is **identity**, for more information about identity, please refer to the section [**entity**](c-pgsql.md#ER-Model)
+The basis of service discovery is **identity**, for more information about identity, please refer to the section [**entity**](c-entity.md)
 
 Once you have the identity, you also need to associate **monitoring targets** with the identity in the monitoring system, and Pigsty provides two implementations.
 
