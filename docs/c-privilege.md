@@ -1,7 +1,5 @@
 # PGSQL Authentication and Privilege
 
-Pigsty provides a battery-included access control model that is simple and practical to meet basic security needs.
-
 PostgreSQL provides a standard access control mechanism: [Authentication](#Authentication) and [Privileges](#Privilege), both of which are based on the [Role](#Role) system.
 
 
@@ -27,14 +25,14 @@ Pigsty's default role system contains four [default roles](#default-roles) and f
 
 ### Default Roles
 
-Pigsty comes with four default roles：
+Pigsty has four default roles：
 
 * Read-only role (`dbrole_readonly`): Has read-only access to all data tables.
-* Read-write role (`dbrole_readwrite`): has to write access to all data tables, inherits `dbrole_readonly`.
-* Administrative role (`dbrole_admin`): can execute DDL changes, inherits `dbrole_readwrite`.
-* Offline role (`dbrole_offline`): a special read-only role for executing slow queries/ETL/interactive queries, only allowed to access on specific instances.
+* Read-write role (`dbrole_readwrite`): Has to write access to all data tables, inherits `dbrole_readonly`.
+* Admin role (`dbrole_admin`): Can execute DDL changes, inherits `dbrole_readwrite`.
+* Offline role (`dbrole_offline`): A special read-only role for executing slow queries/ETL/interactive queries, only allowed access to specific instances.
 
-Its definition is shown below:
+The definition is shown below.
 
 ```yaml
 - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
@@ -43,17 +41,17 @@ Its definition is shown below:
 - { name: dbrole_admin , login: false , roles: [pg_monitor, dbrole_readwrite] , comment: role for object creation } # production DDL change role
 ```
 
-It is not recommended for normal users to change the default role name.
+!> Common users should not change the name of the default role.
 
 
 ### Default Users
 
-Pigsty comes with four default users.
+Pigsty has four default users.
 
-* superuser (`postgres`), the owner and creator of the database, the same as the operating system user.
-* Replication user (`replicator`), the system user used for master-slave replication.
-* monitor user (`dbuser_monitor`), a user used to monitor database and connection pool metrics.
-* Administrator (`dbuser_dba`), the administrator user who performs daily administrative operations and database changes.
+* superuser (`postgres`), the owner and creator of the database, the same as the OS user.
+* Replication user (`replicator`), the system user used for primary-replica.
+* Monitor user (`dbuser_monitor`), a user used to monitor database and connection pool metrics.
+* Admin user (`dbuser_dba`), the admin user who performs daily operations and database changes.
 
 The definitions are shown below:
 
@@ -64,7 +62,7 @@ The definitions are shown below:
 - { name: dbuser_monitor , roles: [pg_monitor, dbrole_readonly] , comment: system monitor user , parameters: {log_min_duration_statement: 1000 } } # monitor user
 ```
 
-In Pigsty, the user names and passwords of the four default important users are controlled and managed by independent parameters:
+In Pigsty, four important default usernames and passwords are controlled and managed by separate parameters.
 
 ```yaml
 pg_dbsu: postgres                             # os user for the database
@@ -78,15 +76,15 @@ pg_admin_username: dbuser_dba                 # system admin user
 pg_admin_password: DBUser.DBA                 # system admin password
 ```
 
-For security reasons, it is not recommended to set a password or allow remote access for the default superuser `postgres`, so there is no dedicated `dbsu_password` option.
+It is not recommended to set a password or allow remote access for the default superuser `postgres`, so there is no dedicated `dbsu_password` option.
 If there is such a need, you can set a password for the dbsu in [`pg_default_roles`](v-pgsql.md#pg_default_roles).
 
-**Be sure to change the passwords of all default users when using in a production env**.
+!> **Be sure to change the passwords of all default users**.
 
 In addition, users can define cluster-specific [business users](c-pgdbuser.md#users) in [`pg_users`](p-pgsql.md#pg_users) in the same way as [`pg_default_roles`](v-pgsql.md#pg_default_roles).
 
 
-It is recommended to remove the `dborle_readony` role from `dbuser_monitor` if there is a higher data security requirement, some of the monitoring system features will not be available.
+!> It is recommended to remove the `dborle_readony` role from `dbuser_monitor` if there is a higher data security requirement. Some of the monitoring system features will not be available.
 
 
 
@@ -99,21 +97,21 @@ It is recommended to remove the `dborle_readony` role from `dbuser_monitor` if t
 
 ## Authentication
 
-Pigsty uses `md5` password auth by default and provides access control based on the PostgreSQL HBA mechanism.
+Pigsty uses `md5` password authentication by default and provides access control based on the PostgreSQL HBA mechanism.
 
-> HBA stands for Host-Based Auth, which can be thought of as an IP black and white list.
+> HBA(Host Based Authentication)can be treated as an IP blocklist and allowlist.
 
 ### Config: HBA
 
-In Pigsty, the HBA of all instances is generated from the config file, and the final generated HBA rules vary depending on the role of the instance (`pg_role`).
-Pigsty's HBAs are controlled by the following variables.
+In Pigsty, the HBA of all instances is generated from the config file, and HBA rules vary depending on the instance's role (`pg_role`).
+The following variables control pigsty's HBAs.
 
 * [`pg_hba_rules`](v-pgsql.md#pg_hba_rules): Environmentally uniform HBA rules
-* [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra): instance- or cluster-specific HBA rules
-* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): HBA rules used by linked pools
-* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): HBA rules for the linked pool specific to the instance or cluster.
+* [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra): HBA rules for a specific instance or cluster
+* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): HBA rules used for connection pooling
+* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): HBA rules for a specific instance or cluster connection pooling
 
-Each variable is an array of rules in the following style.
+Each variable is an array consisting of the following rules.
 
 ```yaml
 - title: allow intranet admin password access
@@ -126,16 +124,16 @@ Each variable is an array of rules in the following style.
 
 ### Role-Based HBA
 
-The HBA rule set with `role = common` is installed to all instances, while other fetch values, for example (`role: primary`) are only installed to instances with `pg_role = primary`. Thus users can define flexible HBA rules through the role system.
+The HBA rule set with `role = common` is installed to all instances,(`role: primary`) are only installed to instances with `pg_role = primary`.
 
 As a **special case**, the HBA rule for the `role: offline` will be installed to instances with `pg_role == 'offline'` as well as to instances with `pg_offline_query == true`.
 
 The rendering priority rules for HBA are:
 
-* `hard_coded_rules` global hard-coded rules
+* `hard_coded_rules` Global hard-coded rules
 * `pg_hba_rules_extra.common` Cluster common rules
 * `pg_hba_rules_extra.pg_role` Cluster role rules
-* `pg_hba_rules.pg_role` global role rules
+* `pg_hba_rules.pg_role` Global role rules
 * `pg_hba_rules.offline` Cluster offline rules
 * `pg_hba_rules_extra.offline` Global offline rules
 * `pg_hba_rules.common` Global common rules
@@ -143,23 +141,20 @@ The rendering priority rules for HBA are:
 
 ### Default HBA Rules
 
-Under the default config, the master and slave libraries will use the following HBA rules:
+Under the default config, the primary and replica will use the following HBA rules:
 
-* Superuser access with local OS auth
-* Other users can access it with a password from local
-* Replicated users can access from the LAN segment with a password
-* Monitoring users can access locally
-* Everyone can access it with a password on the meta-node
-* Administrators can access via password from the LAN
-* Everyone can access from the intranet with a password
-* Read and write users (production business accounts) can be accessed locally (link pool)
-  (some access control is transferred to the link pool for processing)
-* On the slave: read-only users (individuals) can access from the local (link pool).
-  (implies that read-only user connections are denied on the master)
+* Superuser access with local OS auth.
+* Other users can access it with a password from local.
+* Replica users can access via password from the LAN segment.
+* Monitor users can access it locally.
+* Everyone can access it with a password on the meta node.
+* Admin users can access via password from the LAN.
+* Everyone can access the intranet with a password.
+* Read and write users (production business users) can be accessed locally (Connection Pool).
+* On the replica: read-only users (individuals) can access from the local (Connection Pool).
 * On instances with `pg_role == 'offline'` or with `pg_offline_query == true`, HBA rules that allow access to `dbrole_offline` grouped users are added.
 
-<details><summary>Default HBA rule details</summary>
-
+<details><summary>Default HBA rule information</summary>
 
 ```ini
 #==============================================================#
@@ -224,32 +219,29 @@ host    all     +dbrole_readonly           127.0.0.1/32         md5
 #===========================================================
 ```
 
+</details>
 
 
 
+### Change HBA Rules
 
-### Change HBA
-
-HBA rules are automatically generated when the cluster/instance is initialized.
-
-Users can modify and apply the new HBA rules through a playbook after the database cluster/instance is created and running.
+Users can modify and apply the new HBA rules through a playbook after the cluster/instance is created and running.
 
 ```bash
 ./pgsql.yml -t pg_hba    # Specify the target cluster with -l
-bin/reloadhba <cluster>  # Reload the HBA rules for the target cluster
+bin/reloadhba <cluster>  # Reload the HBA rules
 ```
-When the cluster dir is destroyed and rebuilt, the new copy will have the same HBA rules as the cluster master (because the slave's dataset cluster dir is a binary copy of the master, and the HBA rules are also in the dataset cluster dir).
-This is not usually the behavior expected by users. You can use the above command to perform HBA repair for a specific instance.
+When the database cluster directory is destroyed and rebuilt, the new copy will have the same HBA rules as the cluster primary. You can use the above command to perform HBA repair for a specific instance.
 
 
 
 
 ### Pgbouncer HBA
 
-In Pigsty, Pgbouncer also uses HBA for access control, the usage is basically the same as Postgres HBA:
+In Pigsty, Pgbouncer also uses HBA for access control. The usage is the same as Postgres HBA:
 
-* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): HBA rules used by the link pool
-* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): instance or cluster-specific HBA rules for the linked pool
+* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): HBA rules used by the connection pool
+* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): Instance- or cluster-specific connection pooling HBA rules
 
 The default Pgbouncer HBA rules allow password access from local and intranet.
 
@@ -280,14 +272,14 @@ pgbouncer_hba_rules:                          # pgbouncer host-based authenticat
 
 ## Privilege
 
-Pigsty's default privilege model is closely related to the [default role](#default-roles). When using the Pigsty access control, all newly created business users should belong to one of the four default roles, which have the permissions shown below:
+Pigsty's default privilege model is related to the [default role](#default-roles). When using the Pigsty access control, all newly created business users should belong to one of the four default roles, which have the privileges shown below:
 
 
-* All users have access to all schemas
-* Read-only users can read all tables
-* Read-write users can perform DML operations (INSERT, UPDATE, DELETE) on all tables
-* Administrators can perform DDL change operations (CREATE, USAGE, TRUNCATE, REFERENCES, TRIGGER)
-* Offline users are similar to read-only users, but are only allowed to access instances of `pg_role == 'offline'` or `pg_offline_query = true`
+* All users have access to all schemas.
+* Read-only users can read all tables.
+* Read-write users can perform DML operations (INSERT, UPDATE, DELETE).
+* Admin users can perform DDL change operations (CREATE, USAGE, TRUNCATE, REFERENCES, TRIGGER).
+* Offline and read-only users are only allowed to access instances of `pg_role == 'offline'` or `pg_offline_query = true`.
 
 ```sql
 GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly;
@@ -328,23 +320,22 @@ GRANT USAGE                         ON TYPES     TO dbrole_admin;
 
 ### Privilege Maintenance
 
-Default access to database objects is ensured by PostgreSQL's `ALTER DEFAULT PRIVILEGES`.
+PostgreSQL's `ALTER DEFAULT PRIVILEGES` ensures default access to database objects.
 
-All objects created by `{{ dbsu }}`, `{{ pg_admin_username }}`, `{{ dbrole_admin }}` will have the above default permissions.
-Conversely, objects created by other roles will not be configured with the correct default access permissions.
+All objects created by `{{ dbsu }}`, `{{ pg_admin_username }}`, `{{ dbrole_admin }}` will have the default privileges.
 
-Pigsty strongly discourages the use of **business users** to execute DDL changes, because PostgreSQL's `ALTER DEFAULT PRIVILEGE` only takes effect for `objects created by specific users'. dbuser_dba` has the default privilege config. If you want to grant business users the privilege to execute DDL, then in addition to giving the `dbrole_admin` role to business users, users should also keep in mind that when executing DDL changes, you should first execute:
+PostgreSQL's `ALTER DEFAULT PRIVILEGE` only takes effect for "objects created by specific users" objects created by superuser `postgres,` and `dbuser_dba` have default privileges. Suppose you want to give business users privileges to execute DDL besides giving the dbrole_admin role to business users. You should also remember that you should first run the following command when executing DDL changes.
 
 ```sql
 SET ROLE dbrole_admin; -- dbrole_admin creates objects with the correct default permissions
 ```
 
-The objects created in this way will only have default access rights.
+
 
 
 ### Database Privileges
 
-The database has three privileges: `CONNECT`, `CREATE`, `TEMP`, and a special genus `OWNERSHIP`. The definition of the database is controlled by the parameter `pg_database`. A complete database definition is shown below:
+The database has three privileges: `CONNECT`, `CREATE`, `TEMP`, and a special genus `OWNERSHIP`. The parameter `pg_database` controls the definition of the database. A complete database definition is shown below:
 
 ```yaml
 pg_databases:                       # define business databases on this cluster, array of database definition
@@ -370,15 +361,13 @@ pg_databases:                       # define business databases on this cluster,
 
 ```
 
-By default, the `dbsu` will be the default `OWNER` of the database if the database is not configured with an owner, otherwise, it will be the specified user.
+If the database is not configured with an owner, `dbsu` will be the default `OWNER` of the database. Otherwise, it will be the specified user.
 
-By default, all users have the `CONNECT` permission for newly created databases, which will be reclaimed by setting `revokeconn == true` if you wish to reclaim the permission. Only the default user (dbsu|admin|monitor|replicator) with the database's owner is explicitly given the `CONNECT` permission. Also, the `admin|owner` will have `GRANT OPTION` for the `CONNECT` permission and can delegate the `CONNECT` permission to others.
+All users have the `CONNECT` privilege to the newly created database; set `revokeconn == true` if you wish to reclaim this privilege. Only the default user (dbsu|admin|monitor|replicator) with the database's owner is explicitly given the `CONNECT` privilege. Also, `admin|owner` will have `GRANT OPTION` for the `CONNECT` privilege and can transfer the `CONNECT` privilege to others.
 
-If you want to achieve **access isolation** between different databases, you can create a corresponding business user as the `owner` for each database and set the `revokeconn` option for all of them, this config is especially useful for multi-tenant instances.
+If you implement **access isolation** between different databases, you can create a business user as the `owner` for each database and set the `revokeconn` option for all of them.
 
-<details>
-<summary>A sample database for privilege isolation</summary>
-
+<details><summary>A sample database for privilege isolation</summary>
 
 ```yaml
 #--------------------------------------------------------------#
@@ -416,20 +405,20 @@ pg-infra:
 
 ```
 
+</details>
 
 
 
+### Create Privilege
 
-### CREATE Privilege
+Pigsty revokes the `PUBLIC` user's privilege to `CREATE` a new schema under the database for security reasons.
+It also revokes the `PUBLIC` user's privilege to create new relationships in the `PUBLIC` schema.
+The database superuser and admin user are not subject to this restriction.
 
-By default, Pigsty revokes the `PUBLIC` user's permission to `CREATE` a new schema under the database.
-It also revokes the `PUBLIC` user's permission to create new relationships in the `PUBLIC` schema.
-Database superusers and administrators are not subject to this restriction and can always perform DDL changes anywhere.
-
-**Permissions to create objects in the database are independent of whether the user is the database owner or not, it only depends on whether the user was given administrator privileges when it was created**.
+**Privileges to create objects in the database are independent of whether the user is the database owner or not. It only depends on whether the user was given admin privileges when it was created**.
 
 ```yaml
 pg_users:
-  - {name: test1, password: xxx , groups: [dbrole_readwrite]}  # Cannot create Schema with objects
+  - {name: test1, password: xxx , groups: [dbrole_readwrite]}  # Schema with objects cannot be created 
   - {name: test2, password: xxx , groups: [dbrole_admin]}      # Schema and objects can be created
 ```

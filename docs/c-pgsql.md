@@ -1,29 +1,29 @@
-# Conecpt: PGSQL
+# Concept: PGSQL
 
-> 介绍 PostgreSQL 数据库集群管理所需的核心概念
-
-
-* [PGSQL集群](#PGSQL集群) / [实体模型](#实体模型) / [身份参数](#身份参数)
-* [集群](#集群（cluster）) /  [实例](#实例（instance）) / [节点](#节点（node） ) / [服务](#服务（service）) 
-* [PostgreSQL高可用](#高可用)
+> This article introduces the core concepts required for PostgreSQL cluster management.
 
 
+* [PGSQL Cluster](#PGSQL-Cluster) / [ER Model](#ER-Model) / [Identity Parameter](#Identity-Parameter)
+* [Cluster](#Cluster) /  [Instance](#Instance) / [Node](#Node) / [Service](#Service)
+* [PostgreSQL HA](#High-Availability)
 
 
-* [部署：PGSQL](d-pgsql.md) ｜[配置：PGSQL](v-pgsql.md)  | [剧本：PGSQL](p-pgsql.md) ｜ [定制：PGSQL](v-pgsql-customize.md)
-* [PGSQL服务](c-service.md#服务) 与 [PGSQL接入](c-service.md#接入)
-* [PGSQL权限](c-privilege.md#权限) 与 [PGSQL认证](c-privilege.md#认证)
-* [PGSQL业务用户](c-pgdbuser.md#用户) 与 [PGSQL业务数据库](c-pgdbuser.md#数据库)
+
+
+* [Deploy: PGSQL](d-pgsql.md) ｜[Config: PGSQL](v-pgsql.md)  | [Playbook: PGSQL](p-pgsql.md) ｜ [Custom: PGSQL](v-pgsql-customize.md)
+* [PGSQL Service](c-service.md#Service) and [PGSQL Access](c-service.md#Access)
+* [PGSQL Privilege](c-privilege.md#Privilege) and [PGSQL Authentication](c-privilege.md#Authentication)
+* [PGSQL Users](c-pgdbuser.md#Users) and [PGSQL Database](c-pgdbuser.md#Database)
 
 
 
 ## PGSQL Cluster
 
-生产环境的PGSQL数据库以**集群**为单位进行组织，**集群**是一个由**主从复制**所关联的一组数据库**实例**所构成的**逻辑实体**。每个**数据库集群**是一个**自组织**的业务服务单元，由至少一个**数据库实例**组成。
+PGSQL for production environments is organized in **clusters**, which **clusters** are **logical entities** consisting of a set of database **instances** associated by **primary-replica**. Each **database cluster** is a **self-organizing** business service unit consisting of at least one **database instance**.
 
 ### Sandbox
 
-集群是基本的业务服务单元，下图展示了沙箱环境中的复制拓扑。其中`pg-meta-1`单独构成一个数据库集群`pg-meta`，而`pg-test-1`，`pg-test-2`，`pg-test-3`共同构成另一个逻辑集群`pg-test`。
+Clusters are the basic business service units, and the following diagram shows the replication topology in a sandbox where `pg-meta-1` constitutes a database cluster `pg-meta`. In contrast, `pg-test-1`, `pg-test-2`, and `pg-test-3` form another logical cluster `pg-test`.
 
 ```
 pg-meta-1
@@ -44,9 +44,9 @@ pg-test-1 -------------> pg-test-2
 
 > Primary Failure RTO ≈ 30s~1min, RPO < 10MB, Replica Failure RTO≈0 (reset current conn)
 
-Pigsty默认创建创建**高可用PostgreSQL数据库集群**。只要集群中有任意实例存活，集群就可以对外提供完整的读写服务与只读服务。Pigsty可以**自动进行故障切换**，业务方只读流量不受影响；读写流量的影响视具体配置与负载，通常在几秒到几十秒的范围。
+Pigsty creates a **HA PostgreSQL cluster** by default. Pigsty can **automatic failover,** and read-only business traffic is not affected; the impact of reading and write traffic depends on the specific configuration and load, usually in a few seconds to tens of seconds.
 
-默认情况下， Pigsty部署的集群采用 **可用性优先** 模式，主库宕机时，未及时复制至从库部分的数据可能会丢失（正常约几百KB，不超过10MB），您可以参考 [同步从库](d-pgsql.md#同步从库) 的说明，使用 **一致性优先** 模式，此模式下 RPO = 0 。
+By default, Pigsty deploys clusters in **availability first** mode. When the primary goes down, data not replicated to the replica part may be lost (generally about a few hundred KB, no more than 10 MB); you can refer to [Sync Standby](d-pgsql.md#Sync-Standby) and use **consistency first** mode, RPO = 0 in this mode.
 
 
 
@@ -54,37 +54,39 @@ Pigsty默认创建创建**高可用PostgreSQL数据库集群**。只要集群中
 
 
 
-Pigsty的高可用使用 Patroni + HAProxy实现，前者负责故障切换，后者负责流量切换。Patroni会利用DCS服务进行心跳保活，集群主库默认会注册一个时长为15秒的租约并定期续租。当主库故障无法续租时，租约释放，触发新一轮集群选举。通常，复制延迟最小者（数据损失最小化）会被选举为新的集群领导者。集群进入新的时间线，包括旧主库在内的其他成员都会重新追随新的领导者。
+Pigsty's HA is achieved using Patroni + HAProxy, with the former failing over and the latter switching over traffic.
 
-Pigsty提供了多种流量接入方式，如果您使用默认的HAProxy接入，则无需担心集群故障切换对业务流量产生影响。HAProxy会自动检测集群中的实例状态，并正确分发流量。例如，5433端口上的 Primary服务，会使用HTTP GET `ip:8008/primary` 健康检查，从集群中所有的Patroni处获取信息，找出集群主库，并将流量分发至主库上。HAProxy本身是无状态的，均匀部署在每个节点/实例上。任意或所有HAProxy都可以作为集群的服务接入点。
+Patroni uses DCS service for heartbeat preservation, and the primary will register a 15-second lease by default and renew it periodically. When the primary fails to renew the lease, the lease is released, and a new primary election round is triggered. Usually, the one with the lowest delay is elected as the new primary. The cluster enters a new timeline, and all other clusters, including the old primary, re-follow the new primary.
+
+HAProxy automatically detects the state of the instances and distributes the traffic correctly. Haproxy is stateless and deployed uniformly on each node/instance. All HAProxy can act as service access for the cluster. For example, the Primary service on port 5433 will use HTTP GET `ip:8008/primary` health check to get information from all Patroni in the cluster, find out the primary, and distribute traffic to the primary.
 
 
 
 ### Interaction
 
-在单个数据库节点/实例上，各组件通过以下联系相互配合：
+On a singleton node/instance, the components work with each other through the following connections.
 
 ![](_media/ARCH.gif)
 
 
 
-* vip-manager通过**查询**Consul获取集群主库信息，将集群专用L2 VIP绑定至主库节点（默认沙箱接入方案）。
-* Haproxy是数据库**流量**入口，用于对外暴露服务，使用不同端口（543x）区分不同的服务。
-  * Haproxy的9101端口暴露Haproxy的内部监控指标，同时提供Admin界面控制流量。
-  * Haproxy 5433端口默认指向集群主库连接池6432端口
-  * Haproxy 5434端口默认指向集群从库连接池6432端口
-  * Haproxy 5436端口默认直接指向集群主库5432端口
-  * Haproxy 5438端口默认直接指向集群离线实例5432端口
-* Pgbouncer用于**池化**数据库连接，缓冲故障冲击，暴露额外指标。
-  * 生产服务（高频非交互，5433/5434）必须通过Pgbouncer访问。
-  * 直连服务（管理与ETL，5436/5438）必须绕开Pgbouncer直连。
-* Postgres提供实际数据库服务，通过流复制构成主从数据库集群。
-* Patroni用于**监管**Postgres服务，负责主从选举与切换，健康检查，配置管理。
-  * Patroni使用Consul达成**共识**，作为集群领导者选举的依据。
-* Consul Agent用于下发配置，接受服务注册，服务发现，提供DNS查询。
-  * 所有使用端口的进程服务都会**注册**至Consul中
-* PGB Exporter，PG Exporter， Node Exporter分别用于**暴露**数据库，连接池，节点的监控指标
-* Promtail是日志收集组件，用于向基础设施Loki发送采集到的PG，PGB，Patroni与节点日志
+* vip-manager gets the primary information by **querying** the Consul and binds the cluster-specific L2 VIP to the primary (default sandbox access).
+* Haproxy is the database **traffic** portal for exposing services, with different ports (543x) distinguishing between different services.
+  * Haproxy port 9101 exposes Haproxy monitoring metrics and provides Admin interface traffic control.
+  * Haproxy port 5433 defaults point to primary connection pool port 6432
+  * Haproxy port 5434 defaults point to replica connection pool port 6432
+  * Haproxy port 5436 defaults point to primary 5432 port.
+  * Haproxy port 5438 defaults point to offline 5432 port.
+* Pgbouncer is used for **pooling** database connections, buffering failures, and exposing additional metrics.
+  * Production services (HF non-interactive, 5433/5434) must be accessed via Pgbouncer.
+  * Directly connected services (management and ETL, 5436/5438) must be directly connected, bypassing Pgbouncer.
+* Postgres provides database services that form a primary-replica cluster via streaming replication.
+* Patroni **oversees** the Postgres service, primary-replica election and switchover, health checks, and config management.
+  * Patroni uses Consul to reach **Consensus**, the basis for the primary election.
+* The Consul Agent is used to issue configs, accept service registrations, service discovery, and provide DNS queries.
+  * All services that use the port are **registered** with Consul.
+* PGB Exporter, PG Exporter, and Node Exporter are used to **expose** database, connection pool, and node monitoring metrics.
+* Promtail is the log collection component used to send the collected PG, PGB, Patroni, and node logs to the infrastructure Loki.
 
 
 
@@ -96,17 +98,15 @@ Pigsty提供了多种流量接入方式，如果您使用默认的HAProxy接入�
 
 ## ER Model
 
-在Pigsty中，PostgreSQL有四类核心实体：
+In Pigsty, PostgreSQL has four types of core entities.
 
-* [**PGSQL集群**](#集群) **（Cluster）**，以下简称为集群
-* [**PGSQL服务**](#服务) **（Service）**，以下简称为服务
-* [**PGSQL实例**](#实例) **（Instance）** ，以下简称为实例
-* [**PGSQL节点**](#节点) **（Node）** ，以下简称为节点
+* [**PGSQL Cluster**](#Cluster)， Hereafter referred to as clusters
+* [**PGSQL Service**](#Service)， Hereafter referred to as services
+* [**PGSQL Instance**](#Instance)， Hereafter referred to as instances
+* [**PGSQL Node**](#Node)， Hereafter referred to as nodes
 
 
 ### Entities
-
-![](/Volumes/Data/pigsty/docs/_media/ER-PGSQL.gif)
 
 * **Cluster** is the basic autonomous unit, uniquely identified by **user designation**, expressing business meaning, and serving as a top-level namespace.
 * The clusters contain a series of **Nodes** at the hardware level, i.e., physical machines and VMs (or Pods) that IP can uniquely identify.
@@ -117,39 +117,42 @@ Pigsty提供了多种流量接入方式，如果您使用默认的HAProxy接入�
 
 ### Naming Pattern
 
+
 * Cluster naming can use any name that satisfies the DNS domain name specification, not with a dot ( `[a-zA-Z0-9-]+`).
 * Node naming uses the cluster name as a prefix, followed by `-`and an ordinal integer number.
 * Instance naming can be consistent with the node naming, i.e., `${cluster}-${seq}`.
 * Service naming also uses the cluster name as the prefix, followed by `-` to connect the service specifics, such as `primary`, ` replica`, `offline`, `delayed`, etc.
 
-**Naming Example**
-
 Take the test database cluster `pg-test` for a sandbox as an example.
 
-* One cluster: The database cluster for testing is named `pg-test`".
+* One cluster: The database cluster for testing is named `pg-test`.
 * Two roles: `primary` and `replica`.
 * Three instances: The cluster consists of three database instances: `pg-test-1`, `pg-test-2`, `pg-test-3`.
 * Three nodes: The cluster is deployed on three nodes: `10.10.10.11`, `10.10.10.12`, and `10.10.10.13`.
-* Four services: read-write service `pg-test-primary`, read-only service `pg-test-replica`, directly connected management service `pg-test-default`, offline read service `pg-test-offline`.
+* Four services:
+  *  read-write service:  [`pg-test-primary`](c-service.md#Primary-Service)
+  * read-only service: [`pg-test-replica`](c-service.md#Replica-Service)
+  * directly connected management service: [`pg-test-default`](c-service.md#Default-Service)
+  * offline read service: [`pg-test-offline`](c-service.md#Offline-Service)
 
 
 
 ## Identity Parameter
 
-实体与标识符是一种概念模型，下面介绍Pigsty中的具体实现。
+Entities and identities are a conceptual model, and the following describes the implementation in Pigsty.
 
-[`pg_cluster`](#pg_cluster)，[`pg_role`](#pg_role)，[`pg_seq`](#pg_seq) 属于 **身份参数** ，用于生成实体标识。
+[`pg_cluster`](v-pgsql.md#pg-cluster)，[`pg_role`](v-pgsql.md#pg-role)， and [`pg_seq`](v-pgsql.md#pg-seq) are **identity parameters** used to generate entity identities.
 
-除IP地址外，这三个参数是定义一套新的数据库集群的最小必须参数集
+In addition to the IP address, these three parameters are the minimum set of parameters necessary to define database clusters.
 
 * Cluster Identity：`pg_cluster` ： `{{ pg_cluster }}`
 * Instance Identity：`pg_instance` ： `{{ pg_cluster }}-{{ pg_seq }}`
 * Service Identity：`pg_service` ：`{{ pg_cluster }}-{{ pg_role }}`
 * Node Identity：`nodename`：
-  * if `pg_hostname: true`: 使用与 `pg_instance`相同的：`{{ pg_cluster }}-{{ pg_seq }}`
-  * if `pg_hostname: false`: 显式指定`{{ nodename }}`则直接使用，否则使用现有主机名。
+  *  `pg_hostname: true`: Use the same as `pg_instance`：`{{ pg_cluster }}-{{ pg_seq }}`
+  *  `pg_hostname: false`: Explicitly specifying `{{ nodename }}` is used directly. Otherwise, the existing hostname is used.
 
-下面是沙箱环境中 `pg-test` 集群的定义样例：
+The following is a sample definition of a `pg-test` cluster in a sandbox.
 
 
 ```yaml
@@ -160,10 +163,10 @@ pg-test:
     10.10.10.13: {pg_seq: 3, pg_role: replica}
   vars:
     pg_cluster: pg-test
-    pg_hostname: true     # 使用1:1 PG实例的身份作为节点的身份
+    pg_hostname: true     # The identity of the PG instance as the identity of the node(1:1)
 ```
 
-因此，该集群三个成员的身份标识如下：
+The three members of the cluster are identified as follows.
 
 |     host      |  cluster  |  instance   |      service      |  nodename   |
 | :-----------: | :-------: | :---------: | :---------------: | :---------: |
@@ -171,7 +174,7 @@ pg-test:
 | `10.10.10.12` | `pg-test` | `pg-test-2` | `pg-test-replica` | `pg-test-2` |
 | `10.10.10.13` | `pg-test` | `pg-test-3` | `pg-test-replica` | `pg-test-3` |
 
-在监控系统中，相关的时序监控数据标签为：
+In the monitoring system, the monitoring time series data is labeled as：
 
 ```json
 pg_up{cls="pg-meta", ins="pg-meta-1", ip="10.10.10.10", job="pgsql"}
@@ -182,18 +185,21 @@ pg_up{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="pgsql"}
 
 
 
-## **Cluster**
+
+
+
+## Cluster
 
 **A cluster** is the basic autonomous business unit, which means that the cluster can provide services as a whole. Note that cluster here is a software-level concept, not to be confused with PG Cluster (database set cluster, i.e., a data directory containing multiple PGs of a singleton) or Node Cluster (machine cluster).
 
 A cluster is one of the basic management units, and an organizational unit is used to unify various sources. A PG cluster may include.
 
 * Three physical machine nodes
-* One primary instance provides database read and writes services.
+* One primary instance provides database read and writes services to.
 * Two replica instances provide read-only copies of the database.
 * Two exposed services: read-write service, and read-only copy service.
 
-### Cluster **Naming Pattern**
+### Cluster Naming Pattern
 
 Each cluster has a unique identity. In this case, a database cluster named `pg-test` is defined.
 
@@ -201,7 +207,7 @@ The cluster name is similar to the role of a namespace. All sources belonging to
 
 The **cluster identity** (`cls`) must be unique within a set of environments, and naming patterns that conform to the DNS standard [RFC1034](https://tools.ietf.org/html/rfc1034) is recommended.
 
-A good cluster name should use only lowercase letters, numbers, and the hyphen `-`, and use letter starters. 
+A good cluster name should use only lowercase letters, numbers, and the hyphen `-`and use letter starters.
 
 ```c
 cluster_name := [a-z][a-z0-9-]*
@@ -232,7 +238,7 @@ An instance refers to **a specific database server**, which can be a single proc
 
 Instances belong to clusters, and each instance has its unique identity within the cluster. The instance identity `ins` is recommended to use a naming pattern consistent with Kubernetes Pods: i.e., cluster name linked to an ordinal integer number in increments from 0/1 `<cls>-<seq>`.
 
-By default, Pigsty names the database instances in a cluster, increasing order starting from 1. For example, the database cluster `pg-test` has three database instances: `pg-test-1`, `pg-test-2`, and `pg-test-3`.
+Pigsty names the database instances in a cluster by default, increasing order starting from 1. For example, the database cluster `pg-test` has three database instances: `pg-test-1`, `pg-test-2`, and `pg-test-3`.
 
 Once the instance name `ins` is assigned immutable, the instance will be used for the entire lifetime of the cluster.
 
@@ -245,7 +251,7 @@ In addition, with a singleton deployment, the database instance and the machine 
 
 ## Node
 
-**A Node** is an abstraction of a hardware resource, usually referring to a working machine, whether a physical machine (bare metal), a VM, or a Pod in Kubernetes.
+**[A Node](c-nodes.md#Node)** is an abstraction of a hardware resource, usually referring to a working machine, whether a physical machine (bare metal), a VM or a Pod in Kubernetes.
 
 ?> Note that Node in Kubernetes is an abstraction of hardware sources, but in reality, the concept of Node is similar to the concept of Pod in Kubernetes.
 
@@ -273,7 +279,7 @@ A [service](c-service.md) is a **named abstraction** of a software service (e.g.
   * An Nginx/Haproxy Port
 * **Service traffic routing and load balancing mechanism** for deciding which instance handles requests:
   * DNS L7: DNS resolution records
-  * HTTP Proxy: Nginx/Ingress L7: Nginx Upstream Config 
+  * HTTP Proxy: Nginx/Ingress L7: Nginx Upstream Config
   * TCP Proxy: Haproxy L4: Haproxy Backend Config
   * Kubernetes: Ingress: **Pod Selector**.
   * The service also needs to decide which component will handle the request: the connection pool, or the database itself.
@@ -286,10 +292,13 @@ For more information about services, see the chapter [Services](c-service.md).
 
 In a PostgreSQL cluster, instances have different identities: primary, replica, standby, offline, and delayed. Different instances will provide different services; direct connection to the database and access to the database through connection pools are services of varying nature. It is common to use the role of the service target to identify the service, e.g., in the database cluster `pg-test`.
 
-* A service that points to an instance of the primary connection pool (`primary`) role is called `pg-test-primary`.
+* A service that points to the primary connection pool (primary) role instance is called `pg-test-primary`.
 * A service that points to a replica connection pool (`replica`) role is called `pg-test-replica`.
 * A service that points to an (`offline`) is called `pg-test-offline`.
 * A service that points to a (`standby`) is called `pg-test-standby`.
 
 Note that **services are not enough to divide pairs of instances**. The same service can point to multiple instances. However, the same instance can also handle requests from different services.
+
+
+
 
