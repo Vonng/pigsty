@@ -10,9 +10,9 @@
 
 ## 沙箱环境简介
 
-沙箱环境是一个配置规格、对象标识符、与默认数据库**预先确定**的环境，无论是本地版还是云端版都保持一致。
+沙箱环境的配置规格、对象标识符与默认数据库**预先确定**的环境，无论是本地版还是云端版都保持一致。
 
-沙箱环境使用固定的IP地址，以便于演示说明，沙箱的元节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中元节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会被为元节点的实际IP地址
+沙箱环境使用固定的IP地址，以便于演示说明，沙箱的元节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中元节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会作为元节点的实际IP地址。
 
 ![](../_media/SANDBOX.gif)
 
@@ -61,7 +61,7 @@ Pigsty本地沙箱底层依托于 [Vagrant](https://www.vagrantup.com/) 托管�
 brew install vagrant virtualbox # 在MacOS宿主机上安装Vagrant与Virtualbox
 ```
 
-在 MacOS 操作系统中，可以通过以下四条快捷方式快捷方式来安装软件依赖，配置本地静态DNS，拉起虚拟机。在Windows与Linux下则需要少量额外手工步骤。
+在 MacOS 操作系统中，可以通过以下四条快捷方式来安装软件依赖，配置本地静态DNS，拉起虚拟机。在Windows与Linux下则需要少量额外手工步骤。
 
 ```bash
 make deps    # 安装homebrew，并通过homebrew安装vagrant与virtualbox（需重启）
@@ -82,13 +82,6 @@ Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、
 [https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。
 
 这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**元节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
-
-
-通常为了测试“数据库集群”这样的系统，用户需要事先准备若干台虚拟机。尽管云服务已经非常方便，但本地虚拟机访问通常比云虚拟机访问方便，响应迅速，成本低廉。本地虚拟机配置相对繁琐，[**Vagrant**](https://www.vagrantup.com/) 可解决这一问题。
-
-Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、快捷地按照用户的需求，在笔记本、PC或Mac上拉起若干台虚拟机。用户需要完成的工作，就是将自己的虚拟机需求，以**Vagrant配置文件**的形式表达出来。
-
-[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**元节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
 
 通过`make up` , `make new`, `make start`等快捷方式使用沙箱时，默认只会使用单个元节点`meta`。而`make up4`，`make new4`，`make start4`则会使用全部的虚拟机。这里`N`值定义了额外的数据库节点数量（3台）。如果您的机器配置不足，则可以考虑使用更小的`N`值，减少数据库节点的数量。用户还可以修改每台机器的CPU核数和内存资源等，如配置文件中的注释所述。更详情的定制请参考Vagrant与Virtualbox文档。
 
