@@ -108,8 +108,8 @@ Pigsty的HBA由下列变量控制：
 
 * [`pg_hba_rules`](v-pgsql.md#pg_hba_rules): 环境统一的HBA规则
 * [`pg_hba_rules_extra`](v-pgsql.md#pg_hba_rules_extra): 特定于实例或集群的HBA规则
-* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): 链接池使用的HBA规则
-* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): 特定于实例或集群的链接池HBA规则
+* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): 连接池使用的HBA规则
+* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): 特定于实例或集群的连接池HBA规则
 
 每个变量都是由下列样式的规则组成的数组：
 
@@ -150,9 +150,9 @@ HBA的渲染优先级规则为：
 * 所有人都可以在元节点上使用密码访问
 * 管理员可以从局域网通过密码访问
 * 所有人都可以从内网通过密码访问
-* 读写用户（生产业务账号）可以通过本地（链接池）访问
-  （部分访问控制转交链接池处理）
-* 在从库上：只读用户（个人）可以从本地（链接池）访问。
+* 读写用户（生产业务账号）可以通过本地（连接池）访问
+  （部分访问控制转交连接池处理）
+* 在从库上：只读用户（个人）可以从本地（连接池）访问。
   （意味主库上拒绝只读用户连接）
 * `pg_role == 'offline'` 或带有`pg_offline_query == true`的实例上，会添加允许`dbrole_offline`分组用户访问的HBA规则。
 
@@ -246,8 +246,8 @@ bin/reloadhba <cluster>  # 重载目标集群的HBA规则
 
 在Pigsty中，Pgbouncer亦使用HBA进行访问控制，用法与Postgres HBA基本一致
 
-* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): 链接池使用的HBA规则
-* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): 特定于实例或集群的链接池HBA规则
+* [`pgbouncer_hba_rules`](v-pgsql.md#pgbouncer_hba_rules): 连接池使用的HBA规则
+* [`pgbouncer_hba_rules_extra`](v-pgsql.md#pgbouncer_hba_rules_extra): 特定于实例或集群的连接池HBA规则
 
 默认的Pgbouncer HBA规则允许从本地和内网通过密码访问
 

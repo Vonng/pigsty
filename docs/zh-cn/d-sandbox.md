@@ -12,7 +12,7 @@
 
 沙箱环境是一个配置规格、对象标识符、与默认数据库**预先确定**的环境，无论是本地版还是云端版都保持一致。
 
-沙箱环境使用固定的IP地址，以便于演示说明，沙箱的元节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中元节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会被为元节点的实际IP地址
+沙箱环境使用固定的IP地址，以便于演示说明，沙箱的元节点IP地址固定为：`10.10.10.10`。`10.10.10.10` 也是所有配置文件模板中元节点IP地址的占位符，执行 [配置](v-config.md#配置过程) 时，该IP地址会被作为元节点的实际IP地址
 
 ![](../_media/SANDBOX.gif)
 
@@ -61,7 +61,7 @@ Pigsty本地沙箱底层依托于 [Vagrant](https://www.vagrantup.com/) 托管�
 brew install vagrant virtualbox # 在MacOS宿主机上安装Vagrant与Virtualbox
 ```
 
-在 MacOS 操作系统中，可以通过以下四条快捷方式快捷方式来安装软件依赖，配置本地静态DNS，拉起虚拟机。在Windows与Linux下则需要少量额外手工步骤。
+在 MacOS 操作系统中，可以通过以下四条快捷方式来安装软件依赖，配置本地静态DNS，拉起虚拟机。在Windows与Linux下则需要少量额外手工步骤。
 
 ```bash
 make deps    # 安装homebrew，并通过homebrew安装vagrant与virtualbox（需重启）

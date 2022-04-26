@@ -2,13 +2,13 @@
 
 > How to use Pigsty to monitor existing PostgreSQL instances?
 
-For instances created by Pigsty, all monitoring components are automatically configured. However, for existing Pigsty instances not created by Pigsty, some additional config is required if you wish to monitor them using parts of the Pigsty monitoring system.
+For existing Pigsty instances that Pigsty does not create, some additional configuration is required if they are monitored using Pigsty's monitoring system.
 
 
 
 ## TL; DR
 
-1. Create the monitoring object in the target instance: [monitoring object configuration](#monitor-preparation)
+1. Create the monitoring object in the target instance: [monitoring object configuration](#Target-Config).
 
 2. Declare the cluster in the inventory.
 
@@ -28,35 +28,45 @@ For instances created by Pigsty, all monitoring components are automatically con
 
 3. Execute the playbook against the cluster: `. /pgsql-monly.yml -l pg-test`.
 
-2. The playbook registers the target PostgreSQL data source in Grafana so that PGCAT functionality is fully available. The playbook deploys PG Exporter locally on the meta node to monitor remote PG instances, so pure database-related metrics in PGSQL are available. However, host node, connection pool, load balancing, and high availability Patroni-related metrics are not available.
+2. The playbook registers the target PostgreSQL data source in Grafana so that PGCAT functionality is fully available. The playbook deploys PG Exporter on the meta node to monitor remote PG instances, so pure database-related metrics in PGSQL are available. However, host node, connection pool, load balancing, and HA Patroni metrics are unavailable.
 
 
 
 ## Overview
 
-If you want to use only the **monitoring system** part of Pigsty, for example, if you want to use the Pigsty monitoring system to monitor existing PostgreSQL instances, then you can use the **monitor only** mode. In monitor only mode, you can use Pigsty to manage and monitor other PostgreSQL instances (currently 10+ versions are supported by default, older versions can be supported by manually modifying the `pg_exporter` config file).
+Suppose you want to use Pigsty for monitoring only. In that case, you can use **monly** mode. You can use Pigsty to manage and monitor other PostgreSQL instances (currently, 10+ versions are supported by default, the `pg_exporter` configuration file can manually modify older versions).
 
-First, you need to complete the standard Pigsty installation process on one meta node, and then you can add more database instances to the monitoring. Depending on the access rights of the target database node, there are two further cases:
+First, you need to complete the standard installation process of Pigsty on one meta node, and then you can connect more database instances to monitoring. According to the access rights of the target database node, there are two different cases.
 
-**Target nodes can be managed**
+**Target nodes can be managed.**
 
-If the target DB node **can be managed by Pigsty** (ssh reachable, sudo available), then you can use the `pg-exporter` task of the [`pgsql.yml`](p-pgsql.md) playbook to deploy the monitoring component on the target node in the same way: PG Exporter, or you can use the other tasks of the playbook to deploy the additional components and their monitoring on the existing instance node: connection pool Pgbouncer and load balancer HAProxy. In addition, you can also use the `node-exporter` and `promtail` tasks in [`nodes.yml`](p-nodes.yml#nodes) to deploy the host node monitoring and log collection components. This results in a fully consistent experience with the native Pigsty database instance.
+If the target DB node **can be managed by Pigsty** (ssh reachable, sudo available), you can use the `pg-exporter` task of the [`pgsql.yml`](p-pgsql.md) playbook to deploy the monitoring component on the target node in the same way: PG Exporter. You can also use the other tasks of the playbook to deploy additional components and their monitoring on the existing instance node: connection pool Pgbouncer and load balancer HAProxy. In addition, the `node-exporter` and `promtail` tasks in [`nodes.yml`](p-nodes.yml#nodes) can also be used to deploy the host node monitoring and log collection components on existing instance nodes. And log collection components.
 
-Since the target database cluster already exists, you will need to manually [create monitoring users, schemas, and extensions](#monitor-preparation) on the target database cluster as described in this section. The rest of the process is no different from a full deployment.
+Since the target database cluster already exists, you will need to manually [create monitoring users, modes, and extensions](#Monitor-Preparation) on the target database cluster as described in this section. The rest of the process is no different from full deployment.
+
+```bash
+# Modify the pigsty config, add the yum repo to the node, and install the package via yum
+exporter_install: yum # none|yum|binary, none by default
+exporter_repo_url: http://<your primary ip address>/pigsty.repo
+
+./nodes.yml -l <yourcluster> -t node-exporter  # Deployment Node Metrics Monitoring
+./nodes.yml -l <yourcluster> -t promtail       # Deployment Node Log Collection
+./pgsql.yml -l <yourcluster> -t pg-exporter    # Deployment of PG metrics monitoring collection
+```
 
 
 
-**Database connection string only**
+**Database connection string only.**
 
-If you **can only access the target database by means of a PGURL** (database connection string), consider using **Monitor Only mode/Lite mode** to monitor the target database. In this mode, all monitoring components are deployed on the meta node where Pigsty is installed. **The monitoring system will not have metrics related to nodes, connection pools, load balancers, and high availability components**, but the database itself, as well as real-time status information in the Data Catalog, will still be available.
+If you **can only access the target database using a PGURL** (database connection string), consider monitoring the target database's Monly mode/Basic mode. All monitoring components are deployed on the meta node where Pigsty is installed in this mode. **The monitoring system will not have metrics related to nodes, connection pools, load balancers, and HA components**, but the database and real-time status information in the Data Catalog will still be available.
 
-To perform a lean monitoring deployment, you will also need to manually [create monitoring users, schema, and extensions](#monitor-preparation) on the target database cluster as described in this section and ensure that the target database can be accessed from the meta node using monitoring users. After that, execute the [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) playbook against the target cluster to complete the deployment.
+To perform a lean monitoring deployment, you will also need to manually [create monitoring users, modes, and extensions](#monitor-preparation) on the target database cluster as described in this section and ensure that the target database can be accessed from the meta node using monitoring users. After that, execute the [`pgsql-monly.yml`](p-pgsql.md#pgsql-monly) playbook against the target cluster to complete the deployment.
 
-**This article focuses on this monitoring deployment mode**.
+**This article focuses on this monly deployment mode**.
 
 ![](_media/MONLY.gif)
 
-> Figure: Schematic diagram of the monitor-only mode architecture, with multiple PG Exporter, deployed locally on the management machine for monitoring multiple remote database instances.
+> Figure: the monly mode architecture, with multiple PG Exporter, deployed locally on the management machine for monitoring multiple remote database instances.
 
 
 
@@ -93,25 +103,27 @@ The Pigsty monitoring system consists of three core modules:
 
 ## Basic Deploy
 
-Deploying a monitoring system for a database instance is divided into three steps: [Prepare monitoring objects](#monitor-praparation), [Modify inventory](#Modify-inventory), and [Execute the deployment playbook](#Execute-playbook).
+Deploying a monitoring system for a database instance is divided into three steps: [Prepare Targets](#Prepare-Targets), [Modify Inventory](#Modify-inventory), and [Execute Playbook](#Execute-playbook).
 
 ### Prepare Targets
 
-In order to include an external existing PostgreSQL instance in monitoring, you need to have a connection string that can be used to access that instance/cluster. Any reachable connection string (business user, superuser) can be used, but we recommend using a dedicated monitoring user to avoid privilege leaks.
+To include an external existing PostgreSQL instance in monitoring, a connection string that can be used to access the instance/cluster is required. It is recommended to use a dedicated monitoring user to avoid privilege leaks.
 
-- [ ] Monitor user: The default user name used is `dbuser_monitor`, this user needs to belong to the `pg_monitor` role group, or ensure that they have the relevant view access rights.
-- [ ] Monitor Auth: Default is password access, you need to make sure the HBA policy allows the monitor user to access the database locally from the meta machine or DB node.
-- [ ] Monitor Mode: Fixed using the name `monitor` for installing additional **monitor views** with extended plugins, not required but highly recommended to create.
-- [ ] Monitor Extensions: It is highly recommended to enable the monitor extension `pg_stat_statements` that comes with PG.
+- [ ] Monitor User: The default user name used is `dbuser_monitor`, which should belong to the `pg_monitor` role group or ensure that it has access to the relevant view.
+- [ ] Monitor Auth: Default is password access. You need to ensure the HBA policy allows the monitor user to access the database locally from the management machine or DB node.
+- [ ] Monitor Mode: Fixed using the name `monitor` for installing additional **monitor views** with extended plugins, optional but highly recommended.
+- [ ] Monitor Extensions: It is highly recommended to enable the monitor extension `pg_stat_statements` with PG.
 
-For details on the preparation of monitoring objects, please refer to the section after the article: [Monitoring Object Config](# Monitor-praeparation).
+For details on the preparation of monitoring objects, please refer to [Monitoring Object Config](# Monitor-praeparation).
+
+
 
 
 ### Modify Inventory
 
-As with deploying a brand new Pigsty instance, you need to declare this target cluster in the inventory (config file or CMDB). For example, specify [Identifier](d-pgsql.md#identity) for the cluster with the instance. The difference is that you also need to manually assign a unique local port number ([`pg_exporter_port`](v-pgsql.md#pg_exporter_port)) to each instance at the **instance level**.
+This target cluster must be declared in the inventory (config file or CMDB). For example, specify the [identity](d-pgsql.md#identity) for the cluster with the instance. It is also necessary to manually assign a unique local port ( [`pg_exporter_port`](v-pgsql.md#pg_exporter_port)) to each instance at the **instance level**.
 
-The following is a sample database cluster declaration:
+The following is a sample database cluster declaration.
 
 ```yaml
 pg-test:
@@ -127,30 +139,29 @@ pg-test:
 #  Provide monitoring user passwords in global/cluster/instance configs  pg_monitor_username/pg_monitor_password
 ```
 
-> Note, even if you access the database through a domain name, you still need to declare the database cluster by filling in the actual IP address.
+> Even if you access the database through a domain name, you still need to declare the database cluster by filling in the actual IP.
 
-To enable the PGCAT feature, you need to explicitly list the database names of the target cluster in [`pg_databases`](v-pgsql.md#pg_databases), and the databases in this list will be registered as Grafana's data source, and you can access Catalog data for this instance directly through Grafana. If you do not want to use PGCAT-related functions, you can leave this variable unset or set it to an empty array.
+To enable the **PGCAT** feature, you need to explicitly list in [`pg_databases`](v-pgsql.md#pg_databases) the list of database names of the target cluster registered as  Grafana's data source and can access the Catalog data of that instance through Grafana. If you do not use the **PGCAT** function, do not set this variable or set it to an empty array.
 
 
 
 #### Connect Info
 
-Note: Pigsty will generate the monitor connection string by default using the following rules. However, the parameter [`pg_exporter_url`](v-pgsql.md#pg_exporter_url) will directly override the spliced connection string if it exists.
+Note: Pigsty will default generate the monitor connection string using the following rules. However, the [`pg_exporter_url`](v-pgsql.md#pg_exporter_url) will directly override the spliced connection string if it exists.
 
 ```bash
 postgres://{{ pg_monitor_username }}:{{ pg_monitor_password }}@{{ inventory_hostname }}:{{ pg_port }}/postgres?sslmode=disable
 ```
 
-You can use uniform monitoring user/password settings globally, or configure the following connection parameters on-demand at the **cluster level** or **instance level** as appropriate.
+You can constantly monitor user/password globally or configure the following connection parameters on-demand at the **cluster** or **instance level**.
 
 ```yaml
-pg_monitor_username: dbuser_monitor  # Monitor username, no need to configure here if using global config
-pg_monitor_password: DBUser.Monitor  # Monitor user passwords, no need to configure here if using global config
+pg_monitor_username: dbuser_monitor  # Monitor user name, no need to configure here if using the global config
+pg_monitor_password: DBUser.Monitor  # Monitor user passwords, no need to configure here if using the global config
 pg_port: 5432                        # If you use a non-standard database port, modify it here
 ```
 
-<details><summary>Example: Specifying connect info at the instance level</summary>
-
+<details><summary>Example: Specifying connect information at the instance-level</summary>
 
 
 ```yaml
@@ -179,13 +190,13 @@ pg-test:
     pg_databases: [{ name: test }]      # Fill in the database list (each database object as an array element)
 ```
 
-
+</details>
 
 
 
 ### Execute Playbook
 
-Once the cluster declaration is complete, incorporating it into monitoring is very simple, using the playbook [`pgsql-monitor.yml`](p-pgsql.md#pgsql-monly) on the meta node against the target cluster will do the following:
+Once the cluster declaration is complete,  use the playbook [`pgsql-monitor.yml`](p-pgsql.md#pgsql-monly) on the meta node against the target cluster.
 
 ```bash
 ./pgsql-monitor.yml  -l  <cluster>     # Complete monitoring deployment on a specified cluster
@@ -199,9 +210,37 @@ Once the cluster declaration is complete, incorporating it into monitoring is ve
 
 ## Monitor Preparation
 
+In monitor mode, the target DB nodes **can be managed by Pigsty** (ssh reachable, sudo available), and the user will install the following monitoring components on the existing nodes: promtail, node_exporter, pg_exporter.
+
+You can use the `node-exporter` task in [`nodes.yml`](p-nodes.md#nodes) and the `pg-exporter` task in the [`pgsql.yml`](p-pgsql.md) playbook to deploy the monitoring component on the target node: `node_exporter ` with `pg_exporter`.
+
+Because the target database cluster already exists, you need to [create monitor users, modes & extensions](#Targets-Config) on the target database cluster.
+
+```bash
+# Modify the pigsty config parameters, add the yum repo to the node, and install the package via yum
+exporter_install: yum # none|yum|binary, none by default
+exporter_repo_url: http://<your primary ip address>/pigsty.repo
+
+./nodes.yml -l <yourcluster> -t promtail       # Deployment node log collection (optional)
+./nodes.yml -l <yourcluster> -t node-exporter  # Deployment Node Metrics Monitoring
+./pgsql.yml -l <yourcluster> -t pg-exporter    # Deployment of PG metrics collection
+```
+
+When the value of [`exporter_install`](v-infra.md#exporter_install) is `yum`, Pigsty will download from the URL specified by the [`exporter_repo_url`](v-infra.md#exporter_repo_url) Repo file to the node's local `/etc/yum.repos.d`. You should fill in the Pigsty local source address on the meta node, for example, `http://10.10.10.10/pigsty.repo`.
+
+
+
+
+
+---------------------
+
+## Targets Config
+
+> How to configure users, modes, extensions, views, and functions required for monitoring existing instances.
+
 ### Monitor user
 
-Using the default monitoring user ``dbuser_monitor`` used by Pigsty as an example, create the following user on the target database cluster.
+Take the monitoring user `dbuser_monitor` used by Pigsty by default as an example, and create the following user in the target cluster.
 
 ```sql
 CREATE USER dbuser_monitor;
@@ -211,9 +250,9 @@ ALTER USER dbuser_monitor SET log_min_duration_statement = 1000;
 ALTER USER dbuser_monitor PASSWORD 'DBUser.Password'; -- Change monitor user password as needed
 ```
 
-Please note that the monitor user and password created here need to be the same as [`pg_monitor_username`](v-pgsql.md#pg_monitor_username) and [`pg_monitor_password`](v-pgsql.md#pg_monitor_password) Stay consistent.
+Please note that the monitor user and password created need to be the same as [`pg_monitor_username`](v-pgsql.md#pg_monitor_username) and [`pg_monitor_password`](v-pgsql.md#pg_monitor_password) stay consistent.
 
-Configure the database `pg_hba.conf` file by adding the following rules to allow monitoring users to access the database from local, and administrative machines using passwords.
+Configure the database file `pg_hba.conf` by adding the following rules to allow monitoring users to access the database from local, and management machines using passwords.
 
 ```ini
 # allow local role monitor with password
@@ -226,12 +265,12 @@ host all dbuser_monitor <management machine IP address>/32 md5
 
 ### Monitor mode
 
-Monitoring mode and extensions are **optional** and the body of the Pigsty monitoring system will work fine even without them, but we strongly recommend creating monitoring mode and enabling at least the `pg_stat_statements` that comes with the official PG, which provides important data about query performance. Note: This extension must be included in the database parameter `shared_preload_libraries` to take effect, and modifying this parameter requires a database restart.
+It is recommended to create a monitor mode and enable at least the `pg_stat_statements` that come with PG, which provides essential data on query performance. Note: This extension must be included in the database parameter `shared_preload_libraries`. Modifying this parameter requires a database restart.
 
-To create the extension schema.
+Creating an extension mode.
 
 ```sql
-CREATE SCHEMA IF NOT EXISTS monitor; -- Create a monitor-specific schema
+CREATE SCHEMA IF NOT EXISTS monitor; -- Create a monitor-specific mode
 GRANT USAGE ON SCHEMA monitor TO dbuser_monitor; -- Allow monitor users to use
 ```
 
@@ -253,13 +292,12 @@ CREATE EXTENSION IF NOT EXISTS "pg_visibility" WITH SCHEMA "monitor";
 CREATE EXTENSION IF NOT EXISTS "pg_freespacemap" WITH SCHEMA "monitor";
 ```
 
-### Monitoring Views
+### Monitor Views
 
-The monitoring view provides several common pre-processing results and wraps permissions for certain monitoring metrics that require high privileges (e.g. shared memory allocation) for easy query and use. It is highly recommended to create
+The monitoring view shows common preprocessing results and wraps privileges for specific monitoring metrics (e.g., shared memory allocation). It is highly recommended to create it in all databases that need to be monitored.
 
+<details><summary>Monitor Views</summary>
 
-
-<details><summary>Monitoring Views</summary>
 
 ```sql
 --==================================================================--
@@ -485,9 +523,9 @@ COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 
 ```
 
+</details>
 
-
-if PostgreSQL Major version >= 13 , this view can be created to inspect shared memory usage:
+<details><summary>Functions to view shared memory allocations (available for PG13 and above)</summary>
 
 ```sql
 DROP FUNCTION IF EXISTS monitor.pg_shmem() CASCADE;

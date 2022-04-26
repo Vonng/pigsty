@@ -8,7 +8,7 @@
 
 ## 太长；不看
 
-1. 在目标实例创建监控对象：[监控对象配置](#监控对象配置) 
+1. 在目标实例创建监控对象：[监控对象配置](#监控对象配置)
 
 2. 在配置清单中声明该集群：
 
@@ -82,7 +82,7 @@ Pigsty监控系统由三个核心模块组成：
 
 |   事项\等级    |          L1           |                              L2                              |                              L3                              |
 | :------------: | :-------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|      名称      |       精简部署        |                           托管部署                           |                           完整部署                           |
+|      名称      |       基础部署        |                           托管部署                           |                           完整部署                           |
 |      英文      |         basic         |                           managed                            |                             full                             |
 |      场景      |      只有连接串       |                     DB已存在，节点可管理                     |                       实例由Pigsty创建                       |
 |   PGCAT功能    |      ✅ 完整可用       |                          ✅ 完整可用                          |                          ✅ 完整可用                          |
@@ -170,7 +170,7 @@ pg_port: 5432                        # 若使用非标准的数据库端口，�
 <details><summary>示例：在实例层面指定连接信息</summary>
 ```yaml
 pg-test:
-  hosts:                                # 直接为实例指定访问URL
+  hosts:                                # Specify the access URL for the instance
     10.10.10.11: 
       pg_seq: 1
       pg_role: primary
@@ -180,7 +180,7 @@ pg-test:
     10.10.10.12: 
       pg_seq: 2
       pg_role: replica
-      pg_exporter_port: 20002           # 直接指定 pg_exporter_url
+      pg_exporter_port: 20002           # Specify pg_exporter_url directly
       pg_exporter_url: 'postgres://someuser:pass@rds.pg.hongkong.xxx:5432/postgres?sslmode=disable''
     10.10.10.13: 
       pg_seq: 3
@@ -189,9 +189,9 @@ pg-test:
       pg_monitor_username: monitor_user3
       pg_monitor_password: monitor_pass3
   vars:
-    pg_cluster: pg-test                 # 填入集群名称
-    pg_version: 14                      # 填入数据库大版本
-    pg_databases: [{ name: test }]      # 填入数据库列表（每个数据库对象作为一个数组元素）
+    pg_cluster: pg-test                 # Fill in cluster name
+    pg_version: 14                      # Fill in the major version of the database
+    pg_databases: [{ name: test }]      # Fill in the database list (each database object as an array element)
 ```
 
 </details>
@@ -214,7 +214,7 @@ pg-test:
 
 在托管部署模式下，目标DB节点**可以被Pigsty所管理**（ssh可达，sudo可用），用户将在已有的节点上加装以下监控组件：promtail, node_exporter, pg_exporter。
 
-您可以使用 [`nodes.yml`](p-nodes.md#nodes)中的`node-exporter`任务，以及 [`pgsql.yml`](p-pgsql.md) 剧本中的`pg-exporter`任务，在在目标节点上部署监控组件：`node_exporter` 与 `pg_exporter`：
+您可以使用 [`nodes.yml`](p-nodes.md#nodes)中的`node-exporter`任务，以及 [`pgsql.yml`](p-pgsql.md) 剧本中的`pg-exporter`任务，在目标节点上部署监控组件：`node_exporter` 与 `pg_exporter`：
 
 因为目标数据库集群已存在，您需要在目标数据库集群上[创建监控用户、模式与扩展](#监控对象配置)。
 
@@ -280,7 +280,7 @@ GRANT USAGE ON SCHEMA monitor TO dbuser_monitor;   -- 允许监控用户使用
 
 ```sql
 -- 强烈建议启用 pg_stat_statements 扩展
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "monitor"; 
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "monitor";
 
 -- 可选的其他扩展
 CREATE EXTENSION IF NOT EXISTS "pgstattuple" WITH SCHEMA "monitor";
@@ -530,7 +530,7 @@ COMMENT ON VIEW monitor.pg_seq_scan IS 'table that have seq scan';
 ```sql
 DROP FUNCTION IF EXISTS monitor.pg_shmem() CASCADE;
 CREATE OR REPLACE FUNCTION monitor.pg_shmem() RETURNS SETOF
-    pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
+   pg_shmem_allocations AS $$ SELECT * FROM pg_shmem_allocations;$$ LANGUAGE SQL SECURITY DEFINER;
 COMMENT ON FUNCTION monitor.pg_shmem() IS 'security wrapper for pg_shmem';
 ```
 
