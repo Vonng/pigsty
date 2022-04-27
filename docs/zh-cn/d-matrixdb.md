@@ -1,8 +1,8 @@
 # MatrixDB部署与监控
 
-> Pigsty可用于部署与监控MatrixDB（等效于Greenplum 7+时序数据库功能)
+> Pigsty可用于部署与监控MatrixDB（等于Greenplum 7+时序数据库)
 
-因为目前MatrixDB使用的是PostgreSQL 12的内核，而原生Greenplum仍然使用9.6内核，因此优先使用MatrixDB作为Greenplum实现，后续将添加原生的Greenplum支持。
+因为目前MatrixDB使用的是PostgreSQL 12的内核，而原生Greenplum仍然使用9.6内核，因此优先使用MatrixDB替代Greenplum实现，后续将添加原生的Greenplum支持。
 
 
 

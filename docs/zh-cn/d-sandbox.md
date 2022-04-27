@@ -75,14 +75,6 @@ make start   # 使用Vagrant拉起单个meta节点  (start4则为4个节点)
 
 ### Vagrant
 
-通常为了测试“数据库集群”这样的系统，用户需要事先准备若干台虚拟机。尽管云服务已经非常方便，但本地虚拟机访问通常比云虚拟机访问方便，响应迅速，成本低廉。本地虚拟机配置相对繁琐，[**Vagrant**](https://www.vagrantup.com/) 可解决这一问题。
-
-Pigsty用户无需了解vagrant的原理，只需要知道vagrant可以简单、快捷地按照用户的需求，在笔记本、PC或Mac上拉起若干台虚拟机。用户需要完成的工作，就是将自己的虚拟机需求，以**vagrant配置文件**的形式表达出来。
-
-[https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile](https://github.com/Vonng/pigsty/blob/master/vagrant/Vagrantfile) 提供了一个Vagrantfile样例。
-
-这是Pigsty沙箱所使用的Vagrantfile，定义了四台虚拟机，包括一台2核/4GB的中控机/**元节点** `meta`和3台1核/1GB 的**数据库节点** `node-1, node-2, node3`。
-
 
 通常为了测试“数据库集群”这样的系统，用户需要事先准备若干台虚拟机。尽管云服务已经非常方便，但本地虚拟机访问通常比云虚拟机访问方便，响应迅速，成本低廉。本地虚拟机配置相对繁琐，[**Vagrant**](https://www.vagrantup.com/) 可解决这一问题。
 
