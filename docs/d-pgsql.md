@@ -1,62 +1,62 @@
 # PostgreSQL Deployment
 
-> This article describes a few different ways to deploy a PostgreSQL cluster using Pigsty: PGSQL-related [playbook](p-pgsql.md) and [config](v-pgsql.md) please refer to the related doc.
+> This article describes several ways to deploy a PostgreSQL cluster using Pigsty: PGSQL-related [playbook](p-pgsql.md) and [config](v-pgsql.md). Please refer to the related doc.
 
 
 
-* [Identity Parameters](#Identity): Introduces the identity parameters required to define a standard PostgreSQL high availability cluster.
-* [Singleton Deployment](#Singleton) defines a single instance PostgreSQL cluster.
-* [Master-Slave Cluster](#M--S-Replication): Defines a standard availability cluster with one master and one slave.
-* [Synchronous Slave](#Sync-standby): Define a highly consistent cluster with synchronous replication and RPO = 0.
-* [Quorum Synchronous Commit](#Quorum-Commit): defines a cluster with higher data consistency: most slaves return commits on the successful side.
-* [Offline Slave](#Offline-replica): dedicated instance for hosting OLAP analysis, ETL, and interactive personal queries separately.
-* [Backup Cluster](#standby-Cluster): Produces real-time online clones of existing clusters for offsite disaster recovery or deferred slave.
-* [Delayed Slave](#Delayed-Slave): for software/human failures such as accidental table deletion and library deletion, faster than PITR.
-* [Cascade Replication](#Cascade-instance): Used to build cascade replication within a cluster, for a large number of slave scenarios (20+), to reduce master replication pressure.
-* [Citus Cluster Deployment](#Citus-Cluster-Deployment): Deploy Citus distributed database cluster.
-* [MatrixDB Cluster Deployment](#MatrixDB-Cluster-Deployment): Deploy Greenplum7/PostgreSQL12 compatible chronological data warehouse.
+* [Identity Parameters](#Identity): Introduces the identity parameters required to define a standard PostgreSQL HA cluster.
+* [Singleton Deployment](#Singleton): Defines a single instance PostgreSQL cluster.
+* [Primary-Replica Cluster](#M--S-Replication): Defines a standard availability cluster with one primary & one replica.
+* [Sync-Standby](#Sync-standby): Define a highly consistent cluster with sync standby and RPO = 0.
+* [Quorum Commit](#Quorum-Commit): Defines a cluster with higher data consistency: most replicas return commits on the successful side.
+* [Offline Replica](#Offline-replica): Dedicated instances for hosting OLAP analysis, ETL, and interactive personal queries individually.
+* [Standby Cluster](#standby-Cluster): Produces real-time online clones of existing clusters for offsite disaster recovery or delayed.
+* [Delayed Cluster](#Delayed-Cluster): For responding to software/human failures such as mistaken table and database deletion, faster than PITR.
+* [Cascade Instance](#Cascade-instance): Used to build cascade within a cluster for many replica scenarios (20+) to reduce primary pressure.
+* [Citus Deployment](#Citus-Deployment): Deploy Citus distributed database cluster.
+* [MatrixDB Deployment](#MatrixDB-Deployment): Deploy Greenplum7/PostgreSQL12 compatible chronological data warehouse.
 
 
 
 ## Identity
 
-The **Core Identity Parameters** are information that must be provided when defining a PostgreSQL cluster and include:
+The **Core Identity Parameters** are information that must be provided when defining a PostgreSQL cluster.
 
-|                 Name                  |        Properties        |   Description   |       Example        |
+|                 Name                  |        Attribute         |   Description   |       Example        |
 | :-----------------------------------: | :----------------------: | :-------------: | :------------------: |
 | [`pg_cluster`](v-pgsql.md#pg_cluster) | **MUST**, cluster level  |  Cluster name   |      `pg-test`       |
 |    [`pg_role`](v-pgsql.md#pg_role)    | **MUST**, instance level |  Instance Role  | `primary`, `replica` |
 |     [`pg_seq`](v-pgsql.md#pg_seq)     | **MUST**, instance level | Instance number | `1`, `2`, `3`,`...`  |
 
-The content of the identity parameter follows the [entity naming convention](c-pgsql.md#ER-Model). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, which are the **minimum set of mandatory parameters required to define the database cluster**, the core identity parameters **must be explicitly specified** and cannot be ignored.
+The content of the identity parameter follows the [entity naming pattern](c-entity.md). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, the **minimum set of mandatory parameters required** to define the database cluster and core identity parameters **must be explicitly specified**.
 
-- `pg_cluster` identifies the name of the cluster, configured at the cluster level, and serves as the top-level namespace for cluster resources.
+- `pg_cluster` identities the name of the cluster configured at the cluster level and serves as the top-level namespace for cluster resources.
 
-- `pg_role` identifies the role that the instance plays in the cluster, configured at the instance level, with optional values including:
+- `pg_role` identities the role of the instance in the cluster, configured at the instance level, with optional values including:
 
-  - `primary`: the **only master** in the cluster, the cluster leader, provides writing services.
-  - `replica`: **normal slave** in the cluster, takes regular production read-only traffic.
-  - `offline`: **offline slave** in the cluster, takes ETL/SAGA/personal user/interactive/analytical queries.
-  - `standby`: **synchronous slave** in the cluster, with synchronous replication and no replication latency (retention).
-  - `delayed`: **delayed slave** in the cluster, explicitly specifying replication delay, used to perform backtracking queries and data salvage (reserved).
+  - `primary`: the **only primary** in the cluster, that provides writing services.
+  - `replica`: the **ordinary replica** in the cluster, takes regular production read-only traffic.
+  - `offline`: an **offline replica** in the cluster, takes ETL/SAGA/personal user/interactive/analytical queries.
+  - `standby`: a **standby replica** in the cluster, with synchronous replication and no replication latency (reserved).
+  - `delayed`: a **delayed replica** in the cluster, explicitly specifying replication delay, used to perform backtracking queries and data salvage (reserved).
 
-- `pg_seq` is used to identify the instance within the cluster, usually as an integer incrementing from 0 or 1, and will not be changed once assigned.
+- `pg_seq` is used to identify the instance within the cluster. Usually, an integer incrementing from 0 or 1 will not be changed once assigned.
 
-- `pg_shard` Used to identify the upper-level **shard cluster** to which the cluster belongs, only required if the cluster is a member of a horizontally sharded cluster.
+- `pg_shard` is used to identify the upper-level **shard cluster** to which the cluster belongs, and only needs to be set if the cluster belongs to a horizontal sharding cluster.
 
-- `pg_sindex` is used to identify the cluster's **slice cluster** number, and only needs to be set if the cluster is a member of a horizontal slice cluster.
+- `pg_sindex` is used to identify the cluster's **slice cluster** number and only needs to be set if the cluster belongs to a horizontal sharding cluster.
 
 - `pg_instance` is the **derived identity parameter** that uniquely identifies a database instance, with the following composition rules
 
-  `{{ pg_cluster }}-{{ pg_seq }}`. Since `pg_seq` is unique within the cluster, this identifier is globally unique.
+  `{{ pg_cluster }}-{{ pg_seq }}`. Since `pg_seq` is unique within the cluster, this identity is globally unique.
 
 
 
 ### Sharding Cluster
 
-`pg_shard` and `pg_sindex` are used to define special sharded clusters and are optional identity parameters, currently reserved for Citus and Greenplum.
+`pg_shard` and `pg_sindex` define particular sharded clusters and are optional, currently reserved for Citus and Greenplum.
 
-Suppose a user has a horizontal **sharded database cluster (Shard)** with the name `test`. This cluster consists of four separate clusters: `pg-test1`, `pg-test2`, `pg-test3`, and `pg-test-4`. Then the user can bind the identity of `pg_shard: test` to each database cluster and `pg_sindex: 1|2|3|4` to each database cluster separately. This is shown as follows.
+Suppose a user has a horizontal sharding **sharded database cluster** with the name `test`. This cluster consists of four separate clusters: `pg-test1`, `pg-test2`, `pg-test3`, and `pg-test-4`. The user can bind the identity of `pg_shard: test` to each database cluster and `pg_sindex: 1|2|3|4` to each database cluster separately. 
 
 ```yaml
 pg-test1:
@@ -73,7 +73,7 @@ pg-test4:
   hosts: {10.10.10.13: {pg_seq: 1, pg_role: primary}}
 ```
 
-With this definition, you can easily observe the cross-sectional metrics comparison of these four horizontally sharded clusters from the PGSQL Shard monitoring panel. The same functionality works for [Citus](#Citus-cluster-deployment) and MatrixDB clusters as well.
+With this definition, you can easily observe the cross-sectional metrics comparison of four horizontal sharding clusters from the PGSQL Shard monitoring dashboard. The same functionality works for [Citus](#Citus-deployment) and MatrixDB clusters as well.
 
 
 
@@ -89,7 +89,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-Use the following command to create a single master database instance on the `10.10.10.11` node.
+Use the following command to create a primary database instance on the `10.10.10.11` node.
 
 ```bash
 bin/createpg pg-test
@@ -101,9 +101,7 @@ bin/createpg pg-test
 
 ## M-S Replication
 
-Replication can greatly increase database system reliability and is the best means of dealing with hardware failures.
-
-Pigsty natively supports setting up master-slave replication, for example, to declare a typical one-master-one-slave highly available database cluster, you can use:
+Pigsty natively supports M-S replication, e.g., to declare a typical one primary & one replica HA database cluster.
 
 ```yaml
 pg-test:
@@ -114,7 +112,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-Use `bin/createpg pg-test` to create the cluster. If you have already deployed `10.10.10.11` in the first step of [standalone deployment](#singleton), you can also use `bin/createpg 10.10.10.12` to expand the cluster.
+Use `bin/createpg pg-test` to create the cluster. If you have already finished deploying `10.10.10.11` in step 1 [singleton deployment](#singleton), you can also use `bin/createpg 10.10.10.12` to expand the cluster.
 
 
 
@@ -122,11 +120,11 @@ Use `bin/createpg pg-test` to create the cluster. If you have already deployed `
 
 ## Sync Standby
 
-Under normal circumstances, PostgreSQL's replication latency is on the order of tens of KB/10ms, which is approximately negligible for regular business.
+Under normal circumstances, PostgreSQL's replication latency is a few tens of KB/10ms, which is negligible for regular business.
 
-The important thing is that when the master fails, data that has not yet completed replication will be lost! Replication latency can be an issue when you are dealing with very critical and sophisticated business queries (dealing with money). In addition, when you query the slave for a read-your-write immediately after the master writes, you can also be very sensitive to replication latency.
+When the primary fails, data that has not yet completed replication will be lost! Replication latency can be a problem when dealing with critical and sophisticated business queries. Or, in a replica, immediately read-your-write after the primary writes, which can also be very sensitive to replication latency.
 
-To solve such problems, synchronous slave libraries are used. A simple way to configure a synchronous slave is to use the [`pg_conf`](v-pgsql.md#pg_conf) = `crit` template, which automatically enables synchronous replication.
+Sync standbys can solve such problems. A simple way to configure a sync standby is to use the [`pg_conf`](v-pgsql.md#pg_conf) = `crit` template, which automatically enables synchronous replication.
 
 ```yaml
 pg-test:
@@ -139,7 +137,7 @@ pg-test:
     pg_conf: crit.yml
 ```
 
-Alternatively, you can edit the cluster config file by executing `pg edit-config <cluster.name>` on the meta node after the cluster has been created, changing the value of the parameter `synchronous_mode` to `true` and applying it.
+After the cluster is created, you can also execute `pg edit-config <cluster.name>` on the meta node, edit the cluster configuration file, change the value of the `synchronous_mode` to `true` and apply it.
 
 ```bash
 $ pg edit-config pg-test
@@ -158,9 +156,9 @@ Apply these changes? [y/N]: y
 
 ## Quorum Commit
 
-By default, synchronous replication picks one instance **from all candidate slaves** as a synchronous slave, and any master transaction is only considered successfully committed and returned when it is replicated to the slave and flushed to disk. If we expect higher data persistence guarantees, for example, in a four-instance cluster with one master and three slaves, where at least two slaves successfully flush the disk before confirming the commit, then we can use quorum commit.
+By default, synchronous replication picks an instance **from all candidate replicas** as a sync standby. Any primary transaction is only considered successfully committed and returned when replicated to the replica and flushed to the disk. A quorum commit can be used if more persistent data is expected. For example, in a 1primary & 3 replicas cluster, at least two replicas successfully flush to disk before a commit is confirmed.
 
-When using quorum commit, you need to modify the value of the `synchronous_standby_names` parameter in PostgreSQL and the accompanying modify [`synchronous_node_count`](https://patroni.readthedocs.io/en) in Patroni. Assuming that the three slave libraries are `pg-test-2, pg-test-3, and pg-test-4`, then the following should be configured.
+When using quorum commit, you need to modify the `synchronous_standby_names` in PostgreSQL and the value of [`synchronous_node_count`](https://patroni.readthedocs.io/en/) in Patroni. Assuming that the three replicas are `pg-test-2, pg-test-3, and pg-test-4`, the following should be configured.
 
 * `synchronous_standby_names = ANY 2 (pg-test-2, pg-test-3, pg-test-4)`
 * `synchronous_node_count : 2`
@@ -194,7 +192,7 @@ $ pg edit-config pg-test
 Apply these changes? [y/N]: y
 ```
 
-After the application, you can see that the config takes effect and two Sync Standby appear. When the cluster has Failover or expansion and contraction, please adjust these parameters accordingly to avoid service unavailability.
+After the application, the configuration takes effect, and two Sync Standby appear. When the cluster has Failover or expansion and contraction, please adjust these parameters to avoid service unavailability.
 
 ```bash
 + Cluster: pg-test (7080814403632534854) +---------+----+-----------+-----------------+
@@ -214,7 +212,7 @@ After the application, you can see that the config takes effect and two Sync Sta
 
 ## Offline Replica
 
-When the load level of your online business requests is high, placing data analysis/ETL/personal interactive queries on a dedicated offline read-only slave library is a more appropriate option.
+Data analysis/ETL/personal interactive queries should be placed on the offline replica when the high online business request load.
 
 ```yaml
 pg-test:
@@ -226,11 +224,9 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-Use `bin/createpg pg-test` to create the cluster. If you have already completed step 1 [standalone deployment](#singleton) and step 2 [master-slave cluster](#M-S-replication), then you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline slave instance to the cluster.
+Use `bin/createpg pg-test` to create the cluster. If you have already completed [singleton deployment](#singleton-deployment) and [primary-replica-cluster](#M-S-Replication), you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline replica to the cluster.
 
-Offline slaves do not host the [`replica`](c-service.md#replica-service) service by default, and the offline instance will only be used to host read-only traffic in an emergency if all instances in the [`replica`](c-service.md#replica-service) service are unavailable. If you have only one master and one slave, or simply one master and no dedicated offline instance, you can set the [`pg_offline_query`](v-pgsql.md#pg_offline_query) flag for that instance by setting it to still play the original role, but also to host [`offline`](c-service.md#offline-service) service, which is used as a **quasi-offline instance**.
-
-
+Offline replicas do not host the [`replica`](c-service.md#replica-service) service by default, and the offline instance will only host read-only traffic if all instances in the [`replica`](c-service.md#replica-service) service are unavailable. If you have only one primary & one replica, or only one primary, you can set the [`pg_offline_query`](v-pgsql.md#pg_offline_query) flag for an offline instance that also hosts the [`offline`](c-service.md#offline-service) service to be used as a **quasi-offline instance**.
 
 
 
@@ -239,9 +235,9 @@ Offline slaves do not host the [`replica`](c-service.md#replica-service) service
 
 ## Standby Cluster
 
-You can make a clone of an existing cluster using the Standby Cluster approach, using which you can migrate smoothly from an existing database to a Pigsty cluster.
+You can make a clone of an existing cluster using the Standby Cluster method, which allows for a smooth migration from a current database to a Pigsty cluster.
 
-Creating a Standby Cluster is incredibly simple, you just need to make sure that the backup cluster has the appropriate [`pg_upstream`](v-pgsql.md#pg_upstream) parameter configured on the primary library to automatically pull backups from the original upstream.
+Just make sure that the [`pg_upstream`](v-pgsql.md#pg_upstream) parameter is configured on the primary of the backup cluster to pull backups from the original upstream automatically.
 
 ```yaml
 # pg-test is the original database
@@ -270,7 +266,7 @@ bin/createpg pg-test2    # Creating a Backup Cluster
 
 ### Promote Standby Cluster
 
-When you want to promote the whole backup cluster to a standalone operation, edit the Patroni config file of the new cluster to remove all `standby_cluster` configs and the Standby Leader in the backup cluster will be promoted to a standalone master.
+When you want to promote the standby cluster to a standalone cluster, edit the Patroni configuration file of the new cluster to remove all `standby_cluster` configurations, and the Standby Leader in the standby cluster will be elevated to a standalone primary.
 
 ```bash
 pg edit-config pg-test2  # Remove the standby_cluster config definition and apply
@@ -288,7 +284,7 @@ Remove the following config: the entire `standby_cluster` definition section.
 
 ### Change Replication Upstream
 
-You need to adjust the replication source of the backup cluster when the source cluster undergoes a Failover master change. Execute `pg edit-config <cluster>` and change the source address in `standby_cluster` to the new master, and the application will take effect. Note here that replication from the slave of the source cluster is **feasible**, and a Failover in the source cluster does not affect the replication of the backup cluster. However, the new cluster cannot create replication slots on the read-only slave, and there may be related error reports and potential risk of replication interruption, so it is recommended to adjust the upstream replication repo of the backup cluster in time.
+When a Failover primary change occurs in the source cluster, you need to adjust the replication source of the standby cluster. Execute `pg edit-config <cluster>` and change the source address in `standby_cluster` to the new primary, and the application will take effect. Note that replica replication from the source cluster is **feasible**, and a Failover in the source cluster will not affect the replication of the standby cluster. However, the new cluster cannot create replication slots on the read-only replica, and there may be related error reports and a risk of replication interruption. It is recommended to adjust the upstream replication source of the standby cluster in time.
 
 ```yaml
  standby_cluster:
@@ -299,7 +295,7 @@ You need to adjust the replication source of the backup cluster when the source 
    port: 5432
 ```
 
-Modify the IP address of the replication upstream in `standby_cluster.host` and the application will take effect (no need to reboot, just Reload).
+Modify the IP of the replication upstream in `standby,_cluster.host`, and the application will take effect (no need to reboot, Reload).
 
 
 
@@ -307,9 +303,9 @@ Modify the IP address of the replication upstream in `standby_cluster.host` and 
 
 ## Delayed Cluster
 
-High availability and master-slave replication can solve the problems caused by machine hardware failure, but cannot solve the problems caused by software Bugs and human operation, for example, mistakenly deleting libraries and tables. A  [cold backup](t-backup.md) is usually needed for accidental data deletion, but a more elegant and efficient way is to prepare a delayed slave beforehand.
+HA and M-S replication can solve the problems caused by machine hardware failure, but cannot solve the failure caused by software bugs and human operations. A [cold standby](t-backup.md) is usually required for accidental data deletion, but another way is to prepare a delayed cluster.
 
-You can use the function [backup cluster](#standby-cluster) to create a delayed slave. For example, now you want to specify a delayed slave for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. So if there is a mistaken deletion of data, you can immediately retrieve it from the delayed slave and pour it back into the original cluster.
+You can use the function [standby cluster](#standby-cluster) to create a delayed. For example, now you want to specify a delayed for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago.
 
 
 ```yaml
@@ -321,7 +317,7 @@ pg-test:
     pg_cluster: pg-test
     pg_version: 14
 
-# pg-testdelay will be used as a delay slave for the pg-test library
+# pg-testdelay will be used as a delayed for the pg-test
 pg-testdelay:
   hosts:
     10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # The actual role is Standby Leader
@@ -330,7 +326,7 @@ pg-testdelay:
     pg_version: 14          
 ```
 
-After creation, edit the Patroni config file for the delayed cluster with `pg edit-config pg-testdelay` on the meta node, change `standby_cluster.recovery_min_apply_delay` to the value you expect, e.g. `1h`, and apply it.
+After creation, edit the Patroni config file for the delayed cluster using `pg edit-config pg-testdelay` in the meta node and change `standby_cluster.recovery_min_apply_delay` to the delay value you expect.
 
 ```bash
  standby_cluster:
@@ -346,7 +342,7 @@ After creation, edit the Patroni config file for the delayed cluster with `pg ed
 
 ## Cascade Instance
 
-When creating a cluster, if the [`pg_upstream`](v-pgsql.md#pg_upstream) parameter is specified for one of the **slave libraries** in the cluster (specified as **another slave library** in the cluster), then the instance will attempt to build logical replication from that specified slave library.
+When creating a cluster, if the [`pg_upstream`](v-pgsql.md#pg_upstream) parameter is specified for one of the **replicas** in the cluster (defined as **another replica** in the cluster), the instance will attempt to build logical replication from that specified replica.
 
 ```yaml
 pg-test:
@@ -368,11 +364,11 @@ pg-test:
 
 ## Citus Deployment
 
-[Citus](https://www.citusdata.com/) is a distributed extension plugin for the PostgreSQL ecology. By default, Pigsty installs Citus but does not enable it. [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) provides a config file case for deploying a Citus cluster. To enable Citus, you need to modify the following parameters.
+[Citus](https://www.citusdata.com/) is a distributed extension plugin for PostgreSQL. By default, Pigsty installs Citus but does not enable it. [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) provides a config file case for deploying a Citus cluster. To allow Citus to, you need to modify the following parameters.
 
 * `max_prepared_transaction`: Modify to a value greater than `max_connections`, e.g. 800.
-* [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries): must contain `citus` and be placed in the top position.
-* You need to include the `citus` extension plugin in the [business database](c-pgdbuser.md#database) (but you can also manually install it yourself afterward via `CREATE EXTENSION`).
+* [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries): Must contain `citus` and be placed in the top position.
+* You need to include the `citus` extension plugin in the [business database](c-pgdbuser.md#database) (but you can also manually install it via `CREATE EXTENSION`).
 
 <details><summary>Citus cluster sample config</summary>
 
@@ -422,7 +418,7 @@ pg-node3:
 
 ```
 
-
+</details>
 
 Next, you need to refer to the [Citus Multi-Node Deployment Guide,](https://docs.citusdata.com/en/latest/installation/multi_node_rhel.html) and on the Coordinator node, execute the following command to add a data node.
 
@@ -463,7 +459,7 @@ CREATE TABLE github_events
 SELECT create_distributed_table('github_events', 'repo_id');
 ```
 
-For more Citus-related features, please refer to the [Citus official doc](https://docs.citusdata.com/en/v11.0-beta/).
+For more information about Citus, please refer to the [Citus official doc](https://docs.citusdata.com/en/v11.0-beta/).
 
 
 
@@ -471,12 +467,12 @@ For more Citus-related features, please refer to the [Citus official doc](https:
 
 ## MatrixDB Deployment
 
-MatrixDB is a branch of Greenplum, based on Greenplum 7 and using the PostgreSQL 12 kernel. Because Greenplum 7 has not been officially released yet, Pigsty currently uses MatrixDB as an alternative implementation of Greenplum.
+Greenplum is a distributed data warehouse based on the PostgreSQL ecosystem, and MatrixDB is a branch of Greenplum based on Greenplum 7, using the PostgreSQL 12 kernel. Greenplum 7 has not yet been officially released, so Pigsty is currently using MatrixDB as a replacement for Greenplum.
 
-Since MatrixDB is based on the PostgreSQL ecosystem, most PostgreSQL scripts and tasks can be reused on MatrixDB. there are only two additional parameters specific to MatrixDB.
+MatrixDB is based on the PostgreSQL ecosystem, so most PostgreSQL playbooks and tasks can be reused on MatrixDB. There are only two additional parameters specific to MatrixDB.
 
-* [`gp_role`](v-pgsql.md#gp_role): defines the identity of the Greenplum cluster, `master,` or `segment`.
-* [`pg_instances`](v-pgsql.md#pg_instances): defines the Segment instance, which is used to deploy Segment instance monitoring.
+* [`gp_role`](v-pgsql.md#gp_role): Define the identity of the Greenplum cluster, `master,` or `segment`.
+* [`pg_instances`](v-pgsql.md#pg_instances): Define the Segment instance, which is used to deploy the Segment monitoring instance.
 
 For details, please refer to [MatrixDB Deployment](d-matrixdb.md).
 
@@ -535,3 +531,4 @@ mx-sdw:
 
 ```
 
+</details>
