@@ -82,12 +82,6 @@ The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is 
 | 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | disable dcs purge|
 | 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | consul data dir path|
 | 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | etcd data dir path|
-| 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | enable jupyter lab|
-| 221 | [`jupyter_username`](#jupyter_username)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | os user for jupyter lab|
-| 222 | [`jupyter_password`](#jupyter_password)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | password for jupyter lab|
-| 230 | [`pgweb_enabled`](#pgweb_enabled)                           | [`PGWEB`](#PGWEB)           | bool       | G     | enable pgweb|
-| 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | os user for pgweb|
-
 
 
 
@@ -888,77 +882,3 @@ Consul data directory, type: `string`, level: G, default value: `"/data/consul"`
 
 Etcd data directory, type: `string`, level: G, default value: `"/data/etcd"`.
 
-
-
-
-
-
-
-----------------
-## `JUPYTER`
-
-Jupyter Lab is a complete data science R&D env based on IPython Notebook for data analysis and visualization. It is currently an optional Beta feature and is only enabled in the demo by default.
-
-Because JupyterLab provides a Web Terminal feature, it is not recommended to enable it in production env, you can use [`infra-jupyter`](p-infra.md#infra-jupyter) to deploy it manually on the meta node.
-
-
-
-### `jupyter_enabled`
-
-If or not JupyterLab is enabled, type: `bool`, level: G, default value: `false`, not enabled.
-
-
-
-When JupyterLab is enabled, Pigsty will run the local Notebook server using the user-specified by the [`jupyter_username`](jupyter_username) parameter.
-In addition, you need to make sure that the configuration [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) parameter contains the default value `'jupyterlab'`.
-Jupyter Lab can be accessed by navigating from the Pigsty home page or through the default domain `lab.pigsty`, which listens on port 8888 by default.
-
-
-### `jupyter_username`
-
-OS user used by Jupyter, type: `bool`, level: G, default value: `"jupyter"`.
-
-The same goes for other usernames, but the special username `default` will run Jupyter Lab with the user who is currently running the installation (usually administrator), which is more convenient, but also more dangerous.
-
-
-
-### `jupyter_password`
-
-Password for Jupyter Lab, type: `bool`, level: G, default value: `"pigsty"`.
-
-If Jupyter is enabled, it is highly recommended to change this password. Salted and obfuscated passwords are written to `~jupyter/.jupyter/jupyter_server_config.json` by default.
-
-
-
-
-
-
-
-----------------
-## `PGWEB`
-
-PGWeb is a browser-based PostgreSQL client tool that can be used for scenarios such as small-batch personal data queries. It is currently an optional Beta feature and is only enabled in the demo by default.
-
-This feature is enabled by default in the demo and disabled by default in other cases, and can be deployed manually on the meta node using [`infra-pgweb`](p-infra.md#infra-pgweb).
-
-
-### `pgweb_enabled`
-
-Enable PgWeb, type: `bool`, level: G, default value: `false`, enabled by default for demo and personal use, not enabled by default for production env deploy.
-
-The PGWEB web interface is by default only accessible by the Nginx proxy via the domain name, which defaults to `cli.pigsty` and will be run by default with an OS user named `pgweb`.
-
-```yaml
-- { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
-```
-
-
-### `pgweb_username`
-
-OS user used by PgWeb, type: `bool`, level: G, default value: `"pgweb"`.
-
-The operating system user running the PGWEB server. The default is `pgweb`, which means that a low privileged default user `pgweb` will be created.
-
-The special username `default` will run PGWEB with the user who is currently performing the installation (usually administrator).
-
-A connection string to a database that can be accessed from the env via PgWeb. For example: `postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`

@@ -52,6 +52,7 @@
   - [Offline Installation](t-offline.md)
   - [CMDB Inventory](t-cmdb.md)
   - [Upgrade Grafana DB](t-grafana-upgrade.md)
+  - [Jupyter Lab Deploy](t-jupyter.md)
   - [PGSQL Migration](t-migration.md)
   - [Pigsty Applications](t-application.md)
   - [Docker Applications](t-docker.md)

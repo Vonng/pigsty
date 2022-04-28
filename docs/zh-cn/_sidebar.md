@@ -50,11 +50,13 @@
 - 教程
   - [数据库备份与恢复](t-backup.md)
   - [使用与制作离线安装包](t-offline.md)
-  - [使用CMDB替换静态配置](t-cmdb.md)
-  - [升级Grafana后端数据库](t-grafana-upgrade.md)
-  - [数据库迁移](t-migration.md)
   - [Pigsty应用](t-application.md)
   - [Docker应用](t-docker.md)
+  - [使用CMDB替换静态配置](t-cmdb.md)
+  - [升级Grafana后端数据库](t-grafana-upgrade.md)
+  - [数据分析环境Jupyter](t-jupyter.md)
+  - [数据库迁移](t-migration.md)
+
 
 - [社区交流](community.md)
 - [路线规划](../roadmap.md)

@@ -188,8 +188,6 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana可视化平台     | 9     |
 | [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki日志收集平台       | 5     |
 | [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | 分布式配置存储元数据库      | 8     |
-| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab数据分析环境 | 3     |
-| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb网页客户端工具     | 2     |
 | [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | 节点身份参数           | 5     |
 | [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | 节点域名解析           | 5     |
 | [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | 节点软件源            | 3     |
@@ -272,11 +270,6 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 205  | [`dcs_disable_purge`](v-infra.md#dcs_disable_purge)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 完全禁止清理DCS实例                  |
 | 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul数据目录                       |
 | 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd数据目录                         |
-| 220  | [`jupyter_enabled`](v-infra.md#jupyter_enabled)              | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | 是否启用JupyterLab                   |
-| 221  | [`jupyter_username`](v-infra.md#jupyter_username)            | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter使用的操作系统用户            |
-| 222  | [`jupyter_password`](v-infra.md#jupyter_password)            | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Jupyter Lab的密码                    |
-| 230  | [`pgweb_enabled`](v-infra.md#pgweb_enabled)                  | [`PGWEB`](v-infra.md#PGWEB)                     | G     | 是否启用PgWeb                        |
-| 231  | [`pgweb_username`](v-infra.md#pgweb_username)                | [`PGWEB`](v-infra.md#PGWEB)                     | G     | PgWeb使用的操作系统用户              |
 | 300  | [`meta_node`](v-nodes.md#meta_node)                          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 表示此节点为元节点                   |
 | 301  | [`nodename`](v-nodes.md#nodename)                            | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | I     | 指定节点实例标识                     |
 | 302  | [`node_cluster`](v-nodes.md#node_cluster)                    | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 节点集群名，默认名为nodes            |

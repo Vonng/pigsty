@@ -1,5 +1,19 @@
 # Development Log
 
+
+#### 2022-04-28
+
+* Upgrade Loki to v2.5.0 with new rpm packager `nfpm`
+* Upgrade pg_exporter to v0.5.0 with new rpm packager `nfpm`
+* Upgrade grafana version to 8.4.6
+* Upgrade Consul to 1.13
+* Upgrade Pgbouncer to 1.17
+* Upgrade vip-manager to 1.0.2
+* Remove pgweb by default (since docker will cover it)
+* Remove role jupyter, move it's logic into `infra-jupyter.yml`
+* Refactor docker role, it can be enabled per nodes.
+
+
 #### 2022-04-26
 
 Add new options:

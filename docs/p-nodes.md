@@ -173,6 +173,8 @@ The playbook needs to be executed on **meta nodes**, and targeting nodes need to
 
 ![](_media/playbook/nodes-remove.svg)
 
+
+
 ### Task subset
 
 ```bash

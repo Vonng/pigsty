@@ -130,33 +130,7 @@ Following services will be stopped & removed from meta nodes.
 
 Playbook [`infra-jupyter.yml`](https://github.com/Vonng/pigsty/blob/master/infra-jupyter.yml) will install JupyterLab on the meta node.
 
-It's a handy data analysis IDE for python. It's also risky because of its web shell functionality. So it's disabled by default. And enabled only in the Demo environment.
-
-Refer to [Config: Jupyter](v-infra.md#JUPYTER) for configuring Jupiter, then just execute this playbook.
-
-```bash
-./infra-jupyter.yml
-```
-
-
- If you have Jupyter enabled in your production environment, change Jupyter's password!
-
-
-
----------------
-
-## `infra-pgweb`
-
-PGWeb is a browser-based PostgreSQL client tool that can be used in small batch personal queries and other scenarios. It is currently a  beta feature and is only enabled by default in the Demo env.
-
-The [`infra-pgweb.yml`](https://github.com/Vonng/pigsty/blob/master/infra-pgweb.yml) playbook installs the PGWeb service on the meta node.
-
-Refer to [Config: PGWEB](v-infra.md#PGWEB) to configure PGWEB and just execute this playbook.
-
-```bash
-./infra-pgweb.yml
-```
-
+Check [Tutorial: Jupyter Lab](t-jupyter.md) for more details. 
 
 
 
