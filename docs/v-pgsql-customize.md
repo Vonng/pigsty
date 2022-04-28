@@ -4,22 +4,23 @@
 
 Pigsty provides nearly 100 parameters on [PGSQL](v-pgsql.md) describing the PostgreSQL cluster.
 
-However, if you are deeply customizing the database cluster created by Pigsty, you can see the [Patroni template](#Patroni-templates) and [Postgres template](#Postgres-templates).
+However, if you profoundly customize the database cluster created by Pigsty, you can see the [Patroni template](#Patroni-templates) and [Postgres template](#Postgres-templates).
 
 
 
 ## Patroni Templates
 
 Pigsty uses [Patroni](https://github.com/zalando/patroni) to manage and initialize Postgres clusters.
-If you wish to modify the default config params, specifications and tuning schemes, high availability policies, DCS access, and control APIs of the PostgreSQL cluster, you can do so by modifying the Patroni template.
+Suppose you wish to modify the default config params, specifications and tuning schemes, HA policies, DCS access, and control APIs of the PostgreSQL cluster. You can do so by modifying the Patroni template.
 
-Pigsty uses Patroni to do the main work of provisioning, even if the user selects [no Patroni mode](v-pgsql.md#patroni_mode), pulling up the database cluster will be taken care of by Patroni, and removing the Patroni component after the creation is completed.
-Users can do most of the PostgreSQL cluster customization through the Patroni config file. Please refer to [**Patroni's official doc**](https://patroni.readthedocs.io/en/latest/SETTINGS.) for details of the Patroni config file format. 
+Pigsty uses Patroni to do the main provisioning work. Even if the user selects [no Patroni mode](v-pgsql.md#patroni_mode), pulling up the database cluster will be taken care of by Patroni, and removing the Patroni component after the creation is completed.
+
+Users can do most PostgreSQL cluster customization through the Patroni config file. Please refer to [**Patroni's official doc**](https://patroni.readthedocs.io/en/latest/SETTINGS.) for the Patroni config file format. 
 
 
 ### Predefined Patroni templates
 
-Pigsty provides several predefined initialization templates for initializing the cluster definition files, located by default in [`roles/postgres/templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/templates). Including:
+Pigsty provides several predefined initialization templates for initializing the cluster definition files, located by default in [`roles/postgres/templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/templates). 
 
 
 |     Conf     | CPU  |  Mem  | Disk  | Description |
@@ -35,14 +36,14 @@ Pigsty provides several predefined initialization templates for initializing the
 |     [`xlarge`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/xlarge.yml)     |  32  | 64GB  |  2TB  |  32C64G model OLTP template  |
 
 
-Specify the path to the template to be used via the [`pg_conf`](v-pgsql.md#pg_conf), or simply fill in the template name if using a pre-built template. If a custom [Patroni config template](v-pgsql.md#pg_conf) is used, the companion [node optimization template](v-nodes.md#node_tune) should usually be used for the machine nodes as well.
+Specify the path to the template to be used via the [`pg_conf`](v-pgsql.md#pg_conf), or fill in the template name if using a predefined template. If a custom [Patroni config template](v-pgsql.md#pg_conf) is used, the companion [node optimization template](v-nodes.md#node_tune) should also be used for the machine nodes.
 
 ```yaml
 pg_conf:   tiny.yml      # Using tiny.yml to tune templates
 node_tune: tiny          # Node Tuning Mode：oltp|olap|crit|tiny
 ```
 
-During the installation of Pigsty for Configure, Pigsty detects the corresponding default specifications that are automatically selected based on the specifications of the current machine (meta machine).
+During Configure, Pigsty detects the corresponding default specifications that are automatically selected based on the specifications of the current machine (management machine).
 
 
 
@@ -52,15 +53,17 @@ When customizing Patroni templates, you can use several existing templates as a 
 
 Place them in the [`templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/templates) dir, just name them in `<mode>.yml` format.
 
-Please keep the template variables in Patroni, otherwise, the related parameters may not work properly. For example [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries).
+Please keep the template variables in Patroni. Otherwise, the related parameters may not work correctly, for example, [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries).
 
-Finally, in the [`pg_conf`](v-pgsql.md#pg_conf) config file, specify the name of your newly created template, e.g. `olap-32C128G-nvme.yml`.
+Finally, in the [`pg_conf`](v-pgsql.md#pg_conf) config file, specify the name of your newly created template, e.g., `olap-32C128G-nvme.yml`.
+
+
 
 ## Postgres templates
 
-The template `template1` in the cluster can be customized using the [PG template](v-pgsql.md) config entry, and thus.
+The template `template1` in the cluster can be customized using the [PG template](v-pgsql.md) config entry.
 
-In this way ensure that any database **newly created** in that cluster comes with the same default config: schema, extensions, and default permissions.
+This way ensures that any database **newly created** in that cluster comes with the same default config: schema, extensions, and default privileges.
 
 
 ### Related docs
@@ -75,16 +78,16 @@ When customizing a template, the relevant parameters are first rendered as SQL s
           ^---(2)--- /pg/tmp/pg-init-template.sql
           ^---(3)--- <other customize logic in pg-init>
 
-# Business users and DB are not created in the template customization, but are listed here.
+# Business users and DB are not created in the template customization
 ^-------------(4)--- /pg/tmp/pg-user-{{ user.name }}.sql
 ^-------------(5)--- /pg/tmp/pg-db-{{ db.name }}.sql
 ```
 
 ## `pg-init`
 
-[`pg-init`](v-pgsql.md#pg_init) is the path to a Shell script for customizing the initialization template that will be executed as a Postgres user, **only on the master**, with the cluster master pulled up at the time of execution, and can execute any shell command, or any SQL command via psql.
+[`pg-init`](v-pgsql.md#pg_init) is the path to a Shell script for customizing the initialization template that will be executed as a Postgres user, **only on the primary**, with the primary pulled up at execution. It can run any shell command or any SQL command via psql.
 
-If this config entry is not specified, Pigsty will use the default [`pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/pg-init) shell script, as shown below:
+Pigsty will use the default [`pg-init`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/pg-init) shell script if this config entry is not specified.
 
 ```shell
 #!/usr/bin/env bash
@@ -114,5 +117,5 @@ psql postgres  -qAXwtf /pg/tmp/pg-init-template.sql
 # add your template logic here
 ```
 
-This script can be appended if the user needs to perform complex customization logic. Note `pg-init` is used to customize **database clusters**, which is usually achieved by modifying **database templates**. At the time this script is executed, the cluster has been started, but the business users and DB have not yet been created. Therefore the changes to the database templates are reflected in the business database defined by default.
+This script can be appended if the user needs to perform complex customization logic. Note `pg-init` is used to customize **database clusters**, usually achieved by modifying **database templates**. When this script is executed, the cluster has been started, but the business users and DB have not yet been created. Therefore the changes to the database templates are reflected in the business database defined by default.
 

@@ -1,19 +1,17 @@
 # Pigsty Dashboards
 
-Pigsty provides a professional and easy-to-use PostgreSQL monitoring system that distills the industry's monitoring best practices.
+Pigsty provides a professional and easy-to-use PostgreSQL monitor system that distills the industry's monitoring best practices.
 
-Users can easily modify and customize it; reuse the monitoring infrastructure or integrate it with other monitoring systems.
+The Pigsty monitoring dashboard consists of several relatively independent boards.
 
-The Pigsty monitoring panel consists of several relatively independent panels.
-
-| Application                          | Description                       |
-| ------------------------------------ | --------------------------------- |
-| [Home](http://demo.pigsty.cc/d/home) | Home                              |
-| [`PGSQL`](#PGSQL)                    | PostgreSQL Database Monitor       |
-| [`REDIS`](#REDIS)                    | Redis Database Monitor            |
-| [`NODES`](#NODES)                    | Host Node Monitor                 |
-| [`INFRA`](#INFRA)                    | Infrastructure monitoring/logging |
-| [ APP](#APP)                         | Additional retrofit applications  |
+| Application                          | Description                 |
+| ------------------------------------ | --------------------------- |
+| [Home](http://demo.pigsty.cc/d/home) | Home                        |
+| [`PGSQL`](#PGSQL)                    | PostgreSQL Database Monitor |
+| [`REDIS`](#REDIS)                    | Redis Database Monitor      |
+| [`NODES`](#NODES)                    | Host Node Monitor           |
+| [`INFRA`](#INFRA)                    | Infra monitoring/logging    |
+| [ APP](#APP)                         | Extra added applications    |
 
 
 
@@ -27,14 +25,14 @@ Pigsty's home page provides navigation to the various boards.
 
 ## PGSQL
 
-The PostgreSQL monitoring panel has its level, from the top down, as follows：
+The PostgreSQL monitoring dashboard has its level, from the top down, as follows：
 
-* Global: Focuses on the entire **environment**, the big picture global metrics
-* Cluster: Focuses on aggregated metrics for a single database cluster
-* Instance: Focuses on individual instance objects: database instances, nodes, load balancers, various topic panels
-* Database (objects): detailed information about activities, tables, and queries within the database
+* Global: Focuses on the entire **environment**, the big picture global metrics.
+* Cluster: Focuses on aggregated metrics for a single database cluster.
+* Instance: Focuses on singleton instance objects: database instances, nodes, LBs, and various topic boards.
+* Database (objects): Detailed information about activities, tables, and queries within the database.
 
-Most of the monitoring panels can be jumped level through tables, and tuples, allowing you to quickly scroll up and drill down.
+Most of the monitoring dashboards can be jumped level through tables and tuples.
 
 
 |                         Overview                         |                           Cluster                            |                         Instance                         |                           Database                           |
@@ -51,7 +49,7 @@ Most of the monitoring panels can be jumped level through tables, and tuples, al
 
 ## REDIS
 
-REDIS monitoring is divided into three levels: a global overview, individual clusters, and individual instances.
+REDIS monitor is divided into a global overview, singleton clusters, and singleton instances.
 
 * [Redis Overview](http://demo.pigsty.cc/d/redis-overview)
 * [Redis Cluster](http://demo.pigsty.cc/d/redis-cluster)
@@ -61,7 +59,7 @@ REDIS monitoring is divided into three levels: a global overview, individual clu
 
 ## NODES
 
-NODES monitoring is divided into three levels: a global overview, individual node clusters, and individual nodes.
+NODES monitor is divided into a global overview, single-node clusters, and single nodes.
 
 * [Nodes Overview](http://demo.pigsty.cc/d/nodes-overview)
 * [Nodes Cluster](http://demo.pigsty.cc/d/nodes-cluster)
@@ -72,18 +70,18 @@ NODES monitoring is divided into three levels: a global overview, individual nod
 
 ## INFRA
 
-INFRA Monitor is used to monitoring the infrastructure itself and contains the following Dashboards.
+INFRA Monitor is used to monitoring the infra and contains the following Dashboards.
 
-* [Infra Overview](http://demo.pigsty.cc/d/infra-overview): Overview of the infrastructure
-* [Logs Instance](http://demo.pigsty.cc/d/logs-instance): View logs on individual nodes
+* [Infra Overview](http://demo.pigsty.cc/d/infra-overview): Overview of the infra
+* [Logs Instance](http://demo.pigsty.cc/d/logs-instance): View logs on single nodes
 * [Nodes Alert](http://demo.pigsty.cc/d/nodes-alert): Host Alert
-* [PGSQL Alert](http://demo.pigsty.cc/d/pgsql-alert/): PostgreSQL database alert
+* [PGSQL Alert](http://demo.pigsty.cc/d/pgsql-alert/): PostgreSQL Alert
 
 
 
 ## APP
 
-Pigsty comes with a typical application, PGLOG, for analyzing CSV log samples from PG itself.
+Pigsty comes with a typical application, PGLOG, for analyzing CSV log samples from PG.
 
 * [PGLOG Overview](http://demo.pigsty.cc/d/pglog-overview)
 * [PGLOG Session](http://demo.pigsty.cc/d/pglog-session)
