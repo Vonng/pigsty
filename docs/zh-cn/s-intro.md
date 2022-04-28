@@ -6,7 +6,7 @@
 
 ## 新用户
 
-新接触PostgreSQL与Pigsty的用户，可以参阅 [亮点特性](s-feature.md)了解Pigsty的功能，或访问Pigsty演示站点：[http://demo.pigsty.cc](http://demo.pigsty.cc) 进行直观地交互式体验狡猾概览其功能。如果您想自己动手试一试，可以按照 [快速上手](s-install.md) 中的介绍，一键在本地拉起一样的[沙箱环境](d-sandbox.md)。
+新接触PostgreSQL与Pigsty的用户，可以参阅 [亮点特性](s-feature.md)了解Pigsty的功能，或访问Pigsty演示站点：[http://demo.pigsty.cc](http://demo.pigsty.cc) 进行直观地交互式体验概览其功能。如果您想自己动手试一试，可以按照 [快速上手](s-install.md) 中的介绍，一键在本地拉起一样的[沙箱环境](d-sandbox.md)。
 
 Pigsty演示中内置了几个典型基于Pigsty开发的[数据应用](t-application.md)，用于演示此发型版的能力，例如：[`pglog`](http://demo.pigsty.cc/d/pglog-overview)，[`covid`](http://demo.pigsty.cc/d/covid-overview)，[`isd`](http://demo.pigsty.cc/d/isd-overview)，[`dbeng`](http://demo.pigsty.cc/d/dbeng-overview)，[`worktime`](http://demo.pigsty.cc/d/worktime-query)等，此外，您还可以参考 [Docker应用教程](t-docker.md)，使用Pigsty部署生产级的SaaS软件服务。
 
