@@ -1,37 +1,39 @@
 # Config: Infra
 
-> Use the [INFRA Playbook](p-pgsql.md)， [Deploy the PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in [PGSQL Config](v-pgsql.md).
+> Use the [INFRA Playbook](p-pgsql.md), and [deploy the PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in [PGSQL Config](v-pgsql.md).
 >
-> Configure the Pigsty infrastructure for use by the [INFRA](p-infra.md) series playbooks.
+> Use the [INFRA](p-infra.md) series playbooks to configure the Pigsty infra.
 
-Infrastructure configures deal with such issues: local Yum Repos, machine node base services: DNS, NTP, kernel modules, parameter tuning, managing users, installing packages, DCS Server setup, monitoring infrastructure installation and initialization (Grafana, Prometheus, Alertmanager), config of the global traffic portal Nginx, etc.
+Infra config deals with such issues: localYum repos, machine node base services: DNS, NTP, kernel modules, parameter tuning, admin users, installing packages, DCS Server setup, monitor infra installation, and initialization (Grafana, Prometheus, Alertmanager), global traffic portal Nginx config, etc.
 
-The infrastructure section requires very little modification. Usually, it is just a text replacement of the IP address of the meta node, a step that is done automatically during the [`./configure`](v-config.md#configure). The other place that occasionally needs to be changed is the access domain defined in  [`nginx_upstream`](#nginx_upstream). Other parameters rarely need to be tweaked and can be adjusted as needed.
+Usually, the infra requires very few modifications, and the main modification is just a text replacement of the meta node IPs, which is done in [`./configure`](v-config.md#configure) automatically. The other occasional change is to the access domain defined in [`nginx_upstream`](nginx_upstream). Other parameters are adjusted as needed.
+
+
 
 - [`CONNECT`](#CONNECT): Connection parameters
-- [`REPO`](#REPO): Local repo infrastructure
-- [`CA`](#CA): Public-Private Key Infrastructure
+- [`REPO`](#REPO): Local repo infra
+- [`CA`](#CA): Public-Private Key Infra
 - [`NGINX`](#NGINX): Nginx Web Server
 - [`NAMESERVER`](#NAMESERVER): DNS Server
-- [`PROMETHEUS`](#PROMETHEUS): Monitoring Time Series Database
-- [`EXPORTER`](#EXPORTER): Universal Exporter Configuration
+- [`PROMETHEUS`](#PROMETHEUS): Monitor Time Series Database
+- [`EXPORTER`](#EXPORTER): Universal Exporter Config
 - [`GRAFANA`](#GRAFANA) : Grafana Visualization Platform
 - [`LOKI`](#LOKI): Loki log collection platform
-- [`DCS`](#DCS): Distributed Configure Storage Meta-database
+- [`DCS`](#DCS): Distributed Configure Storage Meta DB
 - [`JUPYTER`](#JUPYTER):  JupyterLab Data Analysis Env
-- [`PGWEB`](#PGWEB) : PGWeb Web Client Tool
+- [`PGWEB`](#PGWEB) : PGWeb Web Client Tool  
 
 
 ## Parameter Overview
 
-The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is described by the following config entries.
+The following config entries describe the [**infra**](c-arch.md#infrastructure) deployed on the meta node.
 
 | ID  |                            Name                             |           Section           |    Type    | Level |                Comment                 |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|-----------------------------------------|
 | 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | proxy env variables |
 | 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | enable local yum repo|
 | 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | local yum repo name|
-| 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | external access endpoint of repo|
+| 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | external access port of repo |
 | 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | repo listen address (80)|
 | 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | repo home dir (/www)|
 | 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | rebuild local yum repo |
@@ -92,9 +94,7 @@ The [**infrastructure**](c-arch.md#infrastructure) deployed on the meta node is 
 
 ### `proxy_env`
 
-In some areas where there is an "Internet block", some software downloads may be affected. For example, when accessing the official PostgreSQL from mainland China, the download speed may only be a few KB per second.
-
-With the right HTTP proxy, it is possible to reach several MB per second. So if you have a proxy server, please configure it via `proxy_env`, example is as follows:
+Using a proper HTTP proxy, download speeds of several MB per second can be achieved. If you have a proxy server, please configure it via `proxy_env`. The sample example is as follows.
 
 ```yaml
 proxy_env: # global proxy env when downloading packages
@@ -108,9 +108,9 @@ proxy_env: # global proxy env when downloading packages
 
 ### `ansible_host`
 
-Consider using the **Ansible connection parameter** if the target machine is hidden behind an SSH springboard machine, or if some customization has been made that prevents direct access via the `ssh IP method.
+If considering using the **Ansible connection parameter**, your target machine is hidden behind an SSH springboard machine or is not accessible via `ssh ip`.
 
-As follows, [`ansible_host`](#ansible_host) tells Pigsty to access the target database node by way of `ssh node-1` instead of `ssh 10.10.10.11` by way of SSH alias. In this way, the user can freely specify the connection method to the database node and save the connection config in the `~/.ssh/config` of the administrative user for independent management.
+For example, in the example below, [`ansible_host`](v-infra.md#ansible_host) tells Pigsty to access the target database node using an SSH alias using the `ssh node-1` method instead of the `ssh 10.10.10.11` method. This allows you to freely specify the connection method of the database node and save the connection configuration in the `~/.ssh/config` of the admin user for independent management.
 
 ```yaml
   pg-test:
@@ -121,19 +121,19 @@ As follows, [`ansible_host`](#ansible_host) tells Pigsty to access the target da
       10.10.10.13: {pg_seq: 3, pg_role: offline, ansible_host: node-3}
 ```
 
-`ansible_host` is the most typical of the ansible connection parameters. Usually, as long as the user can access the target machine via `ssh <name>`, configuring the `ansible_host` variable for the instance with a value of `<name>`, and other common Ansible SSH connection parameters are shown below:
+`ansible_host` is the most typical of the ansible connection parameters. Usually, as long as the user can access the target machine via `ssh <name>`, configuring the `ansible_host` variable, for instance, with a value of `<name>` and other common Ansible SSH connection parameters are shown below:
 
-> - ansible_host:   Specify here the IP, hostname, or SSH alias of the target machine
+> - ansible_host: Specify the target machine's IP, hostname, or SSH alias.
 >
-> - ansible_port:   Specify a different SSH port than 22
+> - ansible_port: Specify a different SSH port than 22
 >
-> - ansible_user :   Specify the username to use for SSH
+> - ansible_user: Specify the username to use for SSH
 >
-> - ansible_ssh_pass:   SSH password (Do not store plaintext, and input from the keyboard can be specified by the -k parameter)
+> - ansible_ssh_pass: SSH password (Do not store plaintext, and input from the keyboard can be specified by the -k)
 >
-> - ansible_ssh_private_key_file :    SSH private key path
+> - ansible_ssh_private_key_file: SSH private key path
 >
-> - ansible_ssh_common_args :   SSH General Parameters
+> - ansible_ssh_common_args: SSH General Parameters
 >
 
 
@@ -143,24 +143,24 @@ As follows, [`ansible_host`](#ansible_host) tells Pigsty to access the target da
 ----------------
 ## `REPO`
 
-When Pigsty is installed on the meta node, Pigsty pulls up a local Yum repo for the current env to install RPM packages.
+Pigsty is installed on a meta node. Pigsty pulls up a localYum repo for the current environment to install RPM packages.
 
-During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream repo (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB, and the download speed depends on your network.
+During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream repo (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB or so.
 
-When creating a local Yum repo, if the directory already exists and there is a marker file named `repo_complete` in the directory, Pigsty will assume that the local Yum repo has been initialized and skip the software download phase.
+When creating a localYum repo, Pigsty will skip the software download phase if the directory already exists and if there is a marker file named `repo_complete` in the dir.
 
-Although Pigsty has tried to use mirror repos as much as possible to speed up downloads, a small number of package downloads may still be blocked by firewalls. If the download speed of some packages is too slow, you can set a download proxy to complete the first download with the [`proxy_env`](#proxy_env) config entry, or download the pre-packaged [offline installer](t-offline.md) directly.
+If the download speed of some packages is too slow, you can set the download proxy to complete the first download by using the [`proxy_env`](#proxy_env) config entry or directly download the pre-packaged [offline package](t-offline.md).
 
-The offline installer package is the entire `{{ repo_home }}/{{ repo_name }}` directory as a zip package `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will unzip it to the `{{ repo_home }}/{{ repo_name }}` directory, thus skipping the software download step during installation.
+The offline package is a zip archive of the `{{ repo_home }}/{{ repo_name }}` dir `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will extract it to `{{ repo_home }}/{{ repo_name }}`, skipping the software download step during installation.
 
-The default offline installation package is based on CentOS 7.8.2003 x86_64 operating system, if you are using a different operating system or not using a brand new operating system env, there may be RPM package conflict and dependency error problems, please refer to the FAQ to solve.
+The default offline package is based on CentOS 7.8.2003 x86_64; if you use a different OS, there may be RPM package conflict and dependency error problems; please refer to the FAQ to solve.
 
 
 ### `repo_enabled`
 
 Enable local repo, type: `bool`, level: G, default value: `true`.
 
-Performs the normal local YUM repo creation process, setting `false` will skip the build local repo operation on the current node. When you have multiple meta nodes, you can set this parameter to `false` on the alternate meta node.
+Performs the normal localYUM repo creation process; setting `false` will skip the build local repo operation on the current node. You can set this parameter to `false` on the alternate meta node with multiple meta nodes.
 
 
 
@@ -175,9 +175,9 @@ Local repo name, type: `string`, level: G, default value: `"pigsty"`. It is not 
 
 Local repo external access address, type: `string`, level: G, default value: `"pigsty"`.
 
-The address of the local yum repo for external services, either a domain name or an IP address, the default is `yum. pigsty`.
+The address of the local yum repo for external services, either a domain name or an IP, the default is `yum. pigsty`.
 
-If you use a domain name, you must ensure that in the current env, the domain name will resolve correctly to the server where the local repo is located, i.e. the meta-node.
+If you use a domain name, you must ensure that the domain name will resolve correctly to the server where the local repo is located, i.e., the meta node.
 
 If the local yum repo does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`repo_port`](#repo_port) variable.
 
@@ -188,7 +188,7 @@ The static DNS config [`node_dns_hosts`](v-nodes.md#node_dns_hosts) in the [node
 
 Local repo port, type: `int`, level: G, default value: `80`.
 
-Pigsty accesses all web services through this port on the meta node, make sure you can access this port on the meta node.
+Pigsty accesses all web services through this port on the meta node. Make sure you can access this port on the meta node.
 
 
 
@@ -196,7 +196,7 @@ Pigsty accesses all web services through this port on the meta node, make sure y
 
 Local repo root, type: `path`, level: G, default value: `"/www"`.
 
-This directory will be exposed externally as the root of the HTTP server, containing local repo, and other static file content.
+This dir will be exposed externally as the HTTP server's root, containing local repo and other static file content.
 
 
 
@@ -204,7 +204,7 @@ This directory will be exposed externally as the root of the HTTP server, contai
 
 Rebuild Yum repo, type: `bool`, level: A, default value: `false`.
 
-If `true`, then the Repo rebuild will be performed in all cases, i.e. regardless of whether the offline package exists or not.
+If `true`, then the Repo rebuild will be performed in all cases, i.e., regardless of whether the offline package exists.
 
 
 
@@ -212,11 +212,11 @@ If `true`, then the Repo rebuild will be performed in all cases, i.e. regardless
 
 Remove existing REPO files, type: `bool`, level: A, default value: `true`.
 
-If `true`, the existing repo in `/etc/yum.repos.d` on the meta node will be removed and backed up to the `/etc/yum.repos.d/backup` directory during the local repo initialization process.
+If `true`, the existing repo in `/etc/yum.repos.d` on the meta node will be removed and backed up to the `/etc/yum.repos.d/backup` dir during the local repo initialization process.
 
 Since the content of existing reports in the OS is not controllable, it is recommended to force the removal of existing repos and configure them explicitly via [`repo_upstreams`](#repo_upstreams).
 
-When the node has other self-configured repos or needs to download some special version of RPM packages from a specific repo, it can be set to `false` to keep the existing repos.
+When the node has other self-configured repos or needs to download some particular version of RPM packages from a specific repo, it can be set to `false` to keep the existing repos.
 
 
 
@@ -224,14 +224,14 @@ When the node has other self-configured repos or needs to download some special 
 
 Upstream source of Yum repo, type: `repo[]`, level: G.
 
-By default, we use AliCloud's CentOS7 image source, Tsinghua University's Grafana image source, PackageCloud's Prometheus source, PostgreSQL official source, and software repos such as SCLo, Harbottle, and Nginx.
+We use AliCloud's CentOS7 mirror repo, Tsinghua University's Grafana mirror repo, PackageCloud's Prometheus repo, PostgreSQL official repo, and software repos such as SCLo, Harbottle, and Nginx.
 
 
 
 
 ### `repo_packages`
 
-List of software to download for Yum repo, type: `string[]`, level: G, default value:
+List of software to download for Yum repo, type: `string[]`, level: G, default value.
 
 ```yaml
 - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip
@@ -274,14 +274,14 @@ Software for direct download via URL, type: `url[]`, level: G
 
 Download some software via URL, not YUM:
 
-* `pg_exporter`： **Required**, core components of the monitoring system
-* `vip-manager`： **Required**, package required to enable L2 VIP for managing VIP
-* `loki`, `promtail`： **Required**, log collection server-side and client-side binary.
-* `postgrest`： Optional, automatically generate back-end API interface based on PostgreSQL database schema
-* `polysh`： Optional, execute ssh commands on multiple nodes in parallel
-* `pev2`：Optional, PostgreSQL execution plan visualization
-* `pgweb`：Optional, web-based PostgreSQL command-line tool
-* `redis`： **Optional**, mandatory when Redis is installed
+* `pg_exporter`: **Must**, core components of the monitor system.
+* `vip-manager`: **Must**, package required to enable L2 VIP for managing VIP.
+* `loki`, `promtail`: **Must**, log collection server-side and client-side binary.
+* `postgrest`: Optional, automatically generate backend API interface based on PostgreSQL mode.
+* `polysh`: Optional, execute ssh commands on multiple nodes in parallel.
+* `pev2`: Optional, PostgreSQL execution plan visualization
+* `pgweb`: Optional, web-based PostgreSQL CLI tool
+* `redis`: **Optional**, mandatory when Redis is installed
 
 ```yaml
 - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm
@@ -308,7 +308,7 @@ Download some software via URL, not YUM:
 ----------------
 ## `CA`
 
-Used to build a local public-private key infrastructure. You can use this task when you need advanced security features such as SSL certificates.
+You are used to building a local public-private essential infra. When you need advanced security features such as SSL certificates, you can use this task.
 
 
 
@@ -317,8 +317,8 @@ Used to build a local public-private key infrastructure. You can use this task w
 
 CA creation method, type: `enum`, level: G, default value: `"create"`.
 
-* `create`： Create a new public-private key for CA
-* `copy`： Copy the existing CA public and private keys for building CA
+* `create`： Create a new public-private key for CA.
+* `copy`： Copy the existing CA public and private keys for building CA.
 
 
 
@@ -332,7 +332,7 @@ Self-signed CA theme, type: `string`, level: G, default value: `"/CN=root-ca"`.
 
 ### `ca_homedir`
 
-CA certificate root directory, type: `path`, level: G, default value: `"/ca"`.
+CA certificate root dir, type: `path`, level: G, default value: `"/ca"`.
 
 
 
@@ -361,13 +361,13 @@ CA private key name, type: `string`, level: G, default value: `"ca.key"`.
 
 Pigsty exposes all Web class services such as Home, Grafana, Prometheus, AlertManager, Consul, and optionally PGWeb and Jupyter Lab to the public via Nginx on the meta node. Pgbouncer is also served externally by Nginx.
 
-You can bypass Nginx and access some of the services on the meta-node directly through the port, but some services should not be exposed to the public for security reasons and can only be accessed through the Nginx proxy. Nginx distinguishes different services by the domain name. Therefore, if the domain name configured for each service cannot be resolved in the current env, you need to configure it in `/etc/hosts` before using it.
+Some services on the meta node can be accessed directly through the port, bypassing Nginx, but some services can only be accessed through the Nginx proxy for security reasons. Nginx distinguishes between different services by the domain name. If the domain name configured for each service does not resolve in the current environment, you will need to configure it in `/etc/hosts`.
 
 
 
 ### `nginx_upstream`
 
-Nginx upstream server, Type: `upstream[]`, Hierarchy: G, default value:
+Nginx upstream server, Type: `upstream[]`, Level: G, default value:
 
 ```yaml
 nginx_upstream:                  # domain names and upstream servers
@@ -381,13 +381,13 @@ nginx_upstream:                  # domain names and upstream servers
   - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
 ```
 
-Each record contains three subsections: `name`, `domain`, and `endpoint`, representing the component name, the external access domain, and the internal TCP endpoint, respectively.
+Each record contains three subsections: `name`, `domain`, and `endpoint`, representing the component name, the external access domain, and the internal TCP port, respectively.
 
 The `name` definition of the default record is fixed and referenced by hard-coding, do not modify it. Upstream server records with other names can be added at will.
 
 The `domain` is the domain name that should be used for external access to this upstream server. When accessing the Pigsty Web service, the domain name should be used to access it through the Nginx proxy.
 
-The `endpoint` is an internally reachable TCP endpoint and the placeholder IP address `10.10.10.10` will be replaced with the meta node IP during the Configure.
+The `endpoint` is an internally reachable TCP port. During the Configure, the placeholder IP `10.10.10.10` will be replaced with the meta node IP. 
 
 
 
@@ -407,7 +407,7 @@ app_list:                            # application nav links on home page
   - { name: Covid   , url : '${grafana}/d/covid-overview' , comment: 'covid data visualization' }
 ```
 
-Each record is rendered as a navigation link to the Pigsty home page App drop-down menu, and the apps are all optional items, mounted by default on the Pigsty default server under `http://pigsty/`.
+Each record is rendered as a navigation link to the Pigsty home page App drop-down menu, and the apps are all optional, mounted by default on the Pigsty default server under `http://pigsty/`.
 The `url` parameter specifies the URL PATH for the app, with the exception that if the `${grafana}` string is present in the URL, it will be automatically replaced with the Grafana domain name defined in [`nginx_upstream`](#nginx_upstream).
 
 
@@ -450,13 +450,13 @@ If enabled, Pigsty will create `{{ repo_home }}` / logs placeholder directory on
 ----------------
 ## `NAMESERVER`
 
-By default, Pigsty will use DNSMASQ to build an optional battery-included name server on the meta node.
+Pigsty will default use DNSMASQ to build an optional battery-included name server on the meta node.
 
 
 
 ### `dns_records`
 
-Dynamic DNS resolution record, type: `string[]`, level: G, default value is `[]` empty list, the following resolution records are available by default in the sandbox env.
+Dynamic DNS resolution record, type: `string[]`, level: G, default value is `[]` empty list, the following resolution records are available by default in the sandbox.
 
 ```yaml
 dns_records:                    # dynamic dns record resolved by dnsmasq
@@ -480,13 +480,13 @@ dns_records:                    # dynamic dns record resolved by dnsmasq
 ----------------
 ## `PROMETHEUS`
 
-Prometheus is the core component of the Pigsty monitoring system, used to pull timing data, perform metrics precomputation, and evaluate alarm rules.
+Prometheus is the core component of the Pigsty monitor system, used to pull timing data, perform metrics precomputation, and evaluate alarm rules.
 
 
 
 ### `prometheus_data_dir`
 
-Prometheus directory, type: `path`, level: G, default value: `"/data/prometheus/data"`.
+Prometheus dir, type: `path`, level: G, default value: `"/data/prometheus/data"`.
 
 
 
@@ -494,15 +494,15 @@ Prometheus directory, type: `path`, level: G, default value: `"/data/prometheus/
 
 ### `prometheus_options`
 
-Prometheus command line parameter, type: `string`, level: G, default value: `"--storage.tsdb.retention=15d --enable-feature=promql-negative-offset"`.
+Prometheus CLI parameter, type: `string`, level: G, default value: `"--storage.tsdb.retention=15d --enable-feature=promql-negative-offset"`.
 
-The default parameters will allow Prometheus to enable the negative time offset feature and retain the monitoring data for 15 days by default. If you have a large enough disk, you can increase the length of time that monitoring data is retained.
+The default parameters will allow Prometheus to enable the negative time offset feature and retain the monitoring data for 15 days by default. If you have a large enough disk, you can increase the length of time that monitoring data is kept.
 
 
 
 ### `prometheus_reload`
 
-Reload the configuration instead of rebuilding the whole thing when performing Prometheus tasks. Type: `bool`, Hierarchy: A, Default: `false`.
+Reload the configuration instead of rebuilding the whole thing when performing Prometheus tasks. Type: `bool`, Level: A, Default: `false`.
 
 By default, executing the `prometheus` task will clear existing monitoring data, but if set to `true`, it will not.
 
@@ -513,12 +513,12 @@ By default, executing the `prometheus` task will clear existing monitoring data,
 
 Service discovery mechanism: static|consul, type: `enum`, level: G, default value: `"static"`.
 
-Service discovery mechanism used by Prometheus, default `static`, option `consul` Use Consul for service discovery (will be phased out).
-Pigsty recommends using `static` for service discovery, which provides greater reliability and flexibility.
+Prometheus's service discovery mechanism, default `static`, option `consul` Use Consul for service discovery (will be phased out).
+Pigsty recommends using `static` for service discovery, which provides more excellent reliability and flexibility.
 
 `static` service discovery relies on the config in `/etc/prometheus/targets/{infra,nodes,pgsql,redis}/*.yml` for service discovery.
 
-The advantage of this method is that the monitoring system does not rely on consult. When the node goes down, the monitoring target will give an error prompt instead of disappearing directly. In addition, when the pigsty monitoring system is integrated with the external control scheme, this mode is less invasive to the original system.
+The advantage of this method is that the monitoring system does not rely on consult. The monitoring target will give an error prompt when the node goes down instead of disappearing directly. In addition, when the pigsty monitor system is integrated with the external control mode, this mode is less invasive to the original system.
 
 The following command can be used to generate the required monitoring object profile for Prometheus from the config file.
 
@@ -535,7 +535,7 @@ The following command can be used to generate the required monitoring object pro
 
 Prometheus crawl period, type: `interval`, level: G, default value: `"10s"`.
 
-10 seconds - 30 seconds is a suitable crawl period. If a finer granularity of monitoring data is required, this parameter can be adjusted.
+Ten seconds - 30 seconds is a suitable crawl period. If a finer granularity of monitoring data is required, this parameter can be adjusted.
 
 
 
@@ -549,7 +549,7 @@ Setting the crawl timeout can effectively avoid avalanches caused by monitoring 
 
 Prometheus service discovery refresh period, type: `interval`, level: G, default value: `"10s"`.
 
-Every time specified by this parameter, Prometheus re-examines the local file directory and refreshes the monitoring target object.
+Prometheus re-examines the local file dir every time specified by this parameter and refreshes the monitoring target object.
 
 
 
@@ -564,7 +564,7 @@ Define generic metrics exporter options, such as how the Exporter is installed, 
 
 ### `exporter_install`
 
-The way to install the monitoring component, type: `enum`, level: G, default value: `"none"`.
+To install the monitoring component, type: `enum`, level: G, default value: `"none"`.
 
 Specify how to install Exporter:
 
@@ -573,7 +573,7 @@ Specify how to install Exporter:
 * `binary`： Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the meta node, not recommended)
 
 When installing with `yum`, if `exporter_repo_url` is specified (not empty), the installation will first install the REPO file under that URL into `/etc/yum.repos.d`. This feature allows you to install Exporter directly without initializing the node infrastructure.
-It is not recommended for normal users to use `binary` installation, this mode is usually used for emergency troubleshooting and temporary problem fixes.
+It is not recommended for regular users to use `binary` installation. This mode is usually used for emergency troubleshooting and temporary problem fixes.
 
 ```bash
 <meta>:<pigsty>/files/node_exporter ->  <target>:/usr/bin/node_exporter
@@ -588,7 +588,7 @@ It is not recommended for normal users to use `binary` installation, this mode i
 
 Yum Repo URL of the monitor component, type: `string`, level: G, default value: `""`.
 
-Default is empty, when [`exporter_install`](#exporter_install) is `yum`, the repo specified by this parameter will be added to the node source list.
+Default is empty; when [`exporter_install`](#exporter_install) is `yum`, the repo specified by this parameter will be added to the node source list.
 
 
 
@@ -653,7 +653,7 @@ Grafana backend database type, type: `enum`, tier: G, default value: `"sqlite3"`
 
 The alternative is `postgres`. When using `postgres`, you must ensure that the target database already exists and is accessible. That is, Postgres on the meta node cannot be used before the initialization of the infrastructure for the first time because Grafana was created before that database.
 
-To avoid creating circular dependencies (Grafana depends on Postgres, PostgreSQL depends on the infrastructure including Grafana), you need to modify this parameter and re-execute [`grafana`](#grafana)-related tasks after the first time you complete the installation.
+To avoid creating circular dependencies (Grafana depends on Postgres, PostgreSQL depends on the infra, including Grafana), you need to modify this parameter and re-execute [`grafana`](#grafana)-related tasks after the first time you complete the installation.
 For details, please see [Tutorial: Using Postgres as a Grafana database](t-grafana-upgrade.md).
 
 
@@ -671,7 +671,7 @@ Only valid if the parameter [`grafana_database`](#grafana_database) is `postgres
 
 ### `grafana_plugin`
 
-How to install Grafana plugin, type: `enum`, level: G, default value: `"install"`.
+Install the Grafana plugin, type: `enum`, level: G, default value: `"install"`.
 
 How Grafana plug-ins are provisioned:
 
@@ -680,7 +680,7 @@ How Grafana plug-ins are provisioned:
 * `reinstall`: Re-download and install the Grafana plugin anyway.
 
 Grafana requires Internet access to download several extension plug-ins, and if your meta-node does not have Internet access, you should ensure that you are using an offline installer.
-The offline installation package already contains all downloaded Grafana plugins by default, located under the path specified by [`grafana_cache`](#grafana_cache). When downloading plugins from the Internet, Pigsty will package the downloaded plugins and place them under that path after the download is complete.
+The offline installation package already contains all downloaded Grafana plugins by default, located under the path specified by [`grafana_cache`](#grafana_cache). Pigsty will package the downloaded plugins and place them under that path after the download is complete when downloading plugins from the Internet.
 
 
 
@@ -704,7 +704,7 @@ grafana_plugins:
   - marcusolsson-treemap-panel
 ```
 
-Each array element is a string that represents the name of the plugin. Plugins are installed by means of `grafana-cli plugins install`.
+Each array element is a string that represents the name of the plugin. Plugins are installed using `grafana-cli plugins install`.
 
 
 
@@ -806,10 +806,10 @@ dcs_servers:
   # meta-3: 10.10.10.12 
 ```
 
-Key is the DCS server instance name and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-nodes.md#nodes) playbook, which defaults to Consul.
+Key is the DCS server instance name, and Value is the server IP address. By default, Pigsty will configure the DCS service for the node in the [node initialization](p-nodes.md#nodes) playbook, which defaults to Consul.
 
-You can use an external DCS server, and fill in the addresses of all external DCS Servers in turn that is, otherwise Pigsty will deploy a single instance DCS Server on the meta node (`10.10.10.10` placeholder) by default.
-If the current node is defined in [`dcs_servers`](#dcs_servers), i.e. the IP address matches any Value, the node will be initialized as a DCS Server and its Key will be used as a Consul Server.
+You can use an external DCS server and fill in the addresses of all external DCS Servers. Otherwise, Pigsty will deploy a single instance DCS Server on the meta node (`10.10.10.10` placeholder) by default.
+If the current node is defined in [`dcs_servers`](#dcs_servers), i.e., the IP address matches any Value, the node will be initialized as a DCS Server, and its Key will be used as a Consul Server.
 
 
 
@@ -881,4 +881,5 @@ Consul data directory, type: `string`, level: G, default value: `"/data/consul"`
 ### `etcd_data_dir`
 
 Etcd data directory, type: `string`, level: G, default value: `"/data/etcd"`.
+
 

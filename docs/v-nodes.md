@@ -1,6 +1,6 @@
 # Config: Nodes
 
-Pigsty provides complete host provisioning and monitoring functions. The [`nodes.yml`](p-nodes.md) playbook can be executed to configure the corresponding nodes to the corresponding state and incorporate them into the Pigsty monitoring system.
+Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-nodes.md) playbook can be executed to configure the node to the corresponding state and incorporate it into the Pigsty monitor system.
 
 - [`NODE_IDENTITY`](#NODE_IDENTITY) : Node identity parameters
 - [`NODE_DNS`](#NODE_DNS): Node domain name resolution, configure [static DNS records](#node_dns_hosts) and [dynamic resolution](#node_dns_server)
@@ -10,7 +10,7 @@ Pigsty provides complete host provisioning and monitoring functions. The [`nodes
 - [`NODE_MODULES`](#NODE_MODULES): Node Kernel Module
 - [`NODE_TUNE`](#NODE_TUNE): Node parameter tuning
 - [`NODE_ADMIN`](#NODE_ADMIN): Node Administrator
-- [`NODE_TIME`](#NODE_TIME): Node time zone and time synchronization
+- [`NODE_TIME`](#NODE_TIME): Node time zone and time sync
 - [`NODE_EXPORTER`](#NODE_EXPORTER): Node Indicator Exposer
 - [`PROMTAIL`](#PROMTAIL): Log collection component
 
@@ -66,17 +66,17 @@ Pigsty provides complete host provisioning and monitoring functions. The [`nodes
 ----------------
 ## `NODE_IDENTITY`
 
-Each node has **identity parameters** that are configured through the relevant parameters in `<cluster>.hosts` and `<cluster>.vars`.
+Each node has **identity parameters** that are configured through the parameters in `<cluster>.hosts` and `<cluster>.vars`.
 
-Pigsty uses an **IP address** as a unique identifier for **database nodes**, **this IP address must be the IP address that the database instance listens to and serves externally**, but it is not appropriate to use a public IP address. Nevertheless, users do not necessarily have to connect to that database via that IP address. For example, the management target node is also operated indirectly through SSH tunnels or springboard machine transit. However, the primary IPv4 address is still the core identifier of the node when identifying the database node. **This is very important and users should ensure this when configuring.** The IP address is the `inventory_hostname` of the host in the configuration manifest and is reflected as the `key` in the `<cluster>.hosts` object.
+Pigsty uses **IP** as a unique identifier for **database nodes**. **This IP must be the IP that the database instance listens to and serves externally**, but it is inappropriate to use a public IP. Users can also indirectly operate the management target node through an SSH tunnel or springboard machine transit. However, the primary IPv4 is still the core identity of the node when identifying the database node. **This is very important**. The IP is the `inventory_hostname` of the host in the inventory, which is reflected as the `key` in the `<cluster>.hosts` object.
 
-In addition, nodes have two important identity parameters in the Pigsty monitoring system: [`nodename`](#nodename) and [`node_cluster`](#node_cluster), which will be used in the monitoring system as the node's **instance identifier** (`ins`) and **cluster identifier** (` cls`). When performing the default PostgreSQL deploy, since Pigsty uses node-exclusive 1:1 deploy by default, the identity parameters of the database instance (`pg_cluster` and `pg_instance`) can be [`pg_hostname`](v-pgsql.md#pg_hostname) parameter borrowed to the `ins` and `cls` tags of the node. 
+In the Pigsty monitor system, nodes also have two crucial identity parameters: [`nodename`](#nodename) and [`node_cluster`](#node_cluster). These will be used in the monitor system as the node's **instance identity** (`ins`) and **cluster identity** (`cls`). Pigsty uses node-exclusive 1:1 deployment by default, so the identity params of the instances (`pg_cluster` and `pg_instance`) can be borrowed to the `ins` and `cls` tags of the nodes via the [`pg_hostname`](v-pgsql.md#pg_hostname) parameter. 
 
 [`nodename`](#nodename) and [`node_cluster`](#node_cluster) are not mandatory; when left blank or empty, [`nodename`](#nodename) will use the node's current hostname, while [`node_cluster`](#node_cluster) will use the fixed default value: `nodes`.
 
 |              Name               |   Type   | Level | Necessity    | Comment               |
 | :-----------------------------: | :------: | :---: | ------------ | --------------------- |
-|      `inventory_hostname`       |   `ip`   | **-** | **Required** | **Node IP address**   |
+|      `inventory_hostname`       |   `ip`   | **-** | **Required** | **Node IP**           |
 |     [`nodename`](#nodename)     | `string` | **I** | Optional     | **Node Name**         |
 | [`node_cluster`](#node_cluster) | `string` | **C** | Optional     | **Node cluster name** |
 
@@ -101,19 +101,19 @@ node-test:
 
 This node is a meta node, type: `bool`, level: C, default value: `false`.
 
-In the inventory, nodes under the `meta` grouping carry this flag by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages) with:
-Install the RPM pkgs specified by [`node_meta_packages`](#node_meta_packages) and install the Python pkgs specified by [`node_meta_pip_install`](#node_meta_pip_install).
+Nodes under the `meta` grouping carry this flag in the inventory by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages) with:
+Install the RPM pkgs specified by [`node_meta_packages`](#node_meta_packages) and install the Python pkgs set by [`node_meta_pip_install`](#node_meta_pip_install).
 
 
 
 
 ### `nodename`
 
-Specifies the node name, type: `string`, level: I, the default value is null.
+Specifies the node name, type: `string`, level: I; the default value is null.
 
-This option allows explicitly specifying a name for the node, which is only meaningful when defined at the node instance level. Using the default null value or empty string means that no name is specified for the node and the existing Hostname is used directly as the node name.
+Using the default null value or empty string means no name is specified for the node, and the existing Hostname is used directly as the node name.
 
-The node name `nodename` will be used as the name of the node instance (`ins` tag) in the Pigsty monitoring system. In addition, if [`nodename_overwrite`](#nodename_overwrite) is true, the node name will also be used as the HOSTNAME.
+The node name `nodename` will be used as the name of the node instance (`ins` tag) in the Pigsty monitor system. In addition, if [`nodename_overwrite`](#nodename_overwrite) is true, the node name will also be used as the HOSTNAME.
 
 Note: If the [`pg_hostname`](v-pgsql.md#pg_hostname) option is enabled, Pigsty will borrow the identity parameter of the one-by-one corresponding PG instance on the current node, such as `pg-test-1`, as the node name when initializing the node.
 
@@ -123,9 +123,9 @@ Note: If the [`pg_hostname`](v-pgsql.md#pg_hostname) option is enabled, Pigsty w
 
 Node cluster name, type: `string`, level: C, default value: `"nodes"`.
 
-This option explicitly specifies a cluster name for the node, which is usually meaningful only when defined at the node cluster level. Using the default null value will directly use the fixed value `nodes` as the node cluster identifier.
+The default null value will directly use the fixed value `nodes` as the node cluster identity.
 
-The node cluster name `node_cluster` will be used as the label of the node cluster (`cls`) in the Pigsty monitoring system.
+The node cluster name `node_cluster` will be used as the node cluster (`cls`) label in the Pigsty monitor system.
 
 Note: If the [`pg_hostname`](v-pgsql.md#pg_hostname) option is enabled, Pigsty will borrow the identity parameter of the one-by-one corresponding PG cluster on the current node, such as `pg-test`, as the node cluster name when initializing the node.
 
@@ -137,9 +137,9 @@ Note: If the [`pg_hostname`](v-pgsql.md#pg_hostname) option is enabled, Pigsty w
 
 Override machine HOSTNAME with node name, type: `bool`, level: C, default value: `true`.
 
-Defaults to `true`, i.e. a non-empty node name [`nodename`](#nodename) will override the current hostname of the node.
+Defaults to `true`, a non-empty node name [`nodename`](#nodename) will override the current hostname of the node.
 
-If the [`nodename`](#nodename) parameter is undefined, empty, or an empty string, no changes are made to the hostname.
+No changes are made to the hostname if the [`nodename`](#nodename) parameter is undefined, empty, or an empty string.
 
 
 
@@ -171,7 +171,7 @@ node_dns_hosts:                 # static dns records in /etc/hosts
   - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
 ```
 
-[`node_dns_hosts`](#node_dns_hosts) is an array, each element is a string shaped like an `ip domain_name`, representing a DNS resolution record, each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infrastructure addresses.
+[`node_dns_hosts`](#node_dns_hosts) is an array. Each element is a string shaped like an `ip domain_name`, representing a DNS resolution record. Each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infra addresses.
 
 Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
 
@@ -194,9 +194,9 @@ Config DNS server, type: `enum`, level: C, default value: `"add"`.
 
 The default config of dynamic DNS servers for machine nodes has three modes:
 
-* `add`： Append the records in [`node_dns_servers`](#node_dns_servers) to `/etc/resolv.conf` and keep the existing DNS servers. (default)
-* `overwrite`：Overwrite `/etc/resolv.conf` with the record in [`node_dns_servers`](#node_dns_servers)
-* `none`： If a DNS server is provided in the production env, the DNS server config can be skipped.
+* `add`: Append the records in [`node_dns_servers`](#node_dns_servers) to `/etc/resolv.conf` and keep the existing DNS servers. (default)
+* `overwrite`: Overwrite `/etc/resolv.conf` with the record in [`node_dns_servers`](#node_dns_servers)
+* `none`: If a DNS server is provided in the production env, the DNS server config can be skipped.
 
 
 
@@ -205,7 +205,7 @@ The default config of dynamic DNS servers for machine nodes has three modes:
 
 Config dynamic DNS server list, type: `string[]`, level: C, default value is `10.10.10.10`.
 
-Pigsty adds meta-nodes as DNS Server by default, and DNSMASQ on the meta-node responds to DNS requests in the env.
+Pigsty adds meta nodes as DNS Server by default, and DNSMASQ on the meta node responds to DNS requests in the env.
 
 ```
 node_dns_servers: # dynamic nameserver in /etc/resolv.conf
@@ -247,9 +247,9 @@ A node using Yum repo, type: `enum`, level: C, default value: `"local"`.
 
 The machine node Yum software repo is configured in three modes:
 
-* `local`： Use the local Yum repo on the meta node, the default behavior (recommended).
-* `public`： To install using internet sources, write the public repo in `repo_upstream` to `/etc/yum.repos.d/`.
-* `none`： No config and modification of local repos.
+* `local`: Use the local Yum repo on the meta node, the default behavior (recommended).
+* `public`: To install using internet sources, write the public repo in `repo_upstream` to `/etc/yum.repos.d/`.
+* `none`: No config and modification of local repos.
 
 
 
@@ -300,19 +300,19 @@ node_meta_packages:                           # packages for meta nodes only
 
 ### `node_extra_packages`
 
-List of additional installed software for the node, type: `string[]`, level: C, default value:
+List of extra installed software for the node, type: `string[]`, level: C, default value:
 
-A list of additional pkgs to install via yum, with an empty list by default.
+There is a list of extra pkgs to install via yum, with an empty list by default.
 
-Similar to [`node_packages`](#node_packages), the former is usually configured globally, while [`node_extra_packages`](#node_extra_packages) makes exceptions for specific nodes.
-For example, you can install additional toolkits for the nodes running PG. This variable is usually overridden and defined at the cluster level.
+Like [`node_packages`](#node_packages), the former is usually configured globally, while [`node_extra_packages`](#node_extra_packages) makes exceptions for specific nodes.
+
 
 
 
 
 ### `node_meta_packages`
 
-List of software required by the meta-node, type: `string[]`, level: G, default value:
+List of software required by the meta node, type: `string[]`, level: G, default value:
 
 ```yaml
 node_meta_packages:                           # packages for meta nodes only
@@ -320,16 +320,16 @@ node_meta_packages:                           # packages for meta nodes only
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
 
-Similar to [`node_packages`](#node_packages), the pkgs listed in [`node_meta_packages`](#node_meta_packages) will only be installed on the meta-node, and infrastructure software normally used on the meta node needs to be specified here.
+The pkgs listed in [`node_meta_packages`](#node_meta_packages) will only be installed on the meta node, and infra software generally used on the meta node must be specified here.
 
 
 
 
 ### `node_meta_pip_install`
 
-Package installed on the meta-node via pip3, type: `string`, level: G, default value: `"jupyterlab"`.
+Package installed on the meta node via pip3, type: `string`, level: G, default value: `"jupyterlab"`.
 
-The package will be downloaded to [`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` directory and then installed uniformly.
+The package will be downloaded to [`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` dir and then installed uniformly.
 
 Currently, `jupyterlab` will be installed by default, providing a complete Python runtime env.
 
@@ -351,7 +351,7 @@ Close the node NUMA, type: `bool`, level: C, default value: `false`.
 
 Boolean flag, default is not off. Note that turning off NUMA requires a reboot of the machine before it can take effect!
 
-If you don't know how to set the affinity with a certain CPU core, it is recommended to turn off NUMA when using the database in a production env.
+If you don't know how to set the affinity with a specific CPU core, it is recommended to turn off NUMA when using the database in a production env.
 
 
 
@@ -387,7 +387,7 @@ Close node SELINUX, type: `bool`, level: C, default value: `true`, please keep i
 
 Use static DNS servers, Type: `bool`, Level: C, Default: `true`, Enabled by default.
 
-Enabling static networking means that your DNS Resolv config will not be overwritten by machine reboots with NIC changes. It is recommended to enable it.
+Enabling static networking means that machine reboots will not overwrite your DNS Resolv config with NIC changes. It is recommended to allow for it.
 
 
 
@@ -448,7 +448,7 @@ Prefabricated solutions for machine tuning, based on the `tuned` service. There 
 * `olap `： Regular OLAP templates to optimize throughput
 * `crit`： Core financial business templates, optimizing the number of dirty pages
 
-Normally, the database tuning template [`pg_conf`](v-pgsql.md#pg_conf) should be paired with the machine tuning template, see [Customize PGSQL Template](v-pgsql-customize.md) for details.
+Usually, the database tuning template [`pg_conf`](v-pgsql.md#pg_conf) should be paired with the machine tuning template. See [Customize PGSQL Template](v-pgsql-customize.md) for details.
 
 
 
@@ -467,26 +467,26 @@ OS kernel parameter, type: `dict`, level: C, default value is an empty dictionar
 ## `NODE_ADMIN`
 
 
-Host Node Management Users.
+Host Node Admin Users.
 
 
 ### `node_admin_setup`
 
 Create admin user, type: `bool`, level: G, default value: `true`.
 
-Whether to create an admin user on each node (password-free sudo and ssh), by default an admin user named `dba (uid=88)` will be created, which can access other nodes in the env and perform password-free sudo from the meta-node via SSH password-free.
+To create an admin user on each node (password-free sudo and ssh),  an admin user named `dba (uid=88)` will be created, which can access other nodes in the env and perform sudo from the meta node via SSH password-free.
 
 
 
 ### `node_admin_uid`
 
-Administrator user UID, type: `int`, level: G, default value: `88`, note UID namespace conflict.
+Admin user UID, type: `int`, level: G, default value: `88`, note UID namespace conflict.
 
 
 
 ### `node_admin_username`
 
-Administrator username, type: `string`, level: G, default value: `"dba"`.
+Admin username, type: `string`, level: G, default value: `"dba"`.
 
 
 
@@ -494,7 +494,7 @@ Administrator username, type: `string`, level: G, default value: `"dba"`.
 
 ### `node_admin_ssh_exchange`
 
-Exchange node administrator SSH keys between instances, type: `bool`, level: C, default value: `true`.
+Exchange node admin SSH keys between instances, type: `bool`, level: C, default value: `true`.
 
 When enabled, Pigsty will exchange SSH public keys between members during playbook execution, allowing admins [`node_admin_username`](#node_admin_username) to access each other from different nodes.
 
@@ -503,19 +503,19 @@ When enabled, Pigsty will exchange SSH public keys between members during playbo
 
 ### `node_admin_pk_current`
 
-Whether to add the public key of the current node & user to the administrator account, type: `bool`, level: A, default value: `true`.
+Whether to add the public key of the current node & user to the admin account, type: `bool`, level: A, default value: `true`.
 
-When enabled, on the current node, the SSH public key (`~/.ssh/id_rsa.pub`) of the current user is copied to the `authorized_keys` of the target node administrator user.
+When enabled, on the current node, the SSH public key (`~/.ssh/id_rsa.pub`) of the current user is copied to the `authorized_keys` of the target node admin user.
 
-When deploying in a production env, be sure to pay attention to this parameter, which installs the default public key of the user currently executing the command to the administrative user of all machines
+When deploying in a production env, be sure to pay attention to this parameter, which installs the default public key of the user currently executing the command to the admin user of all machines.
 
 
 
 ### `node_admin_pks`
 
-The list of public keys for login able administrators, type: `key[]`, level: C, default value is an empty array, the demo has the default public key for `vagrant` users.
+The list of public keys for login able admin, type: `key[]`, level: C, default value is an empty array; the demo has the default public key for `vagrant` users.
 
-Each element of the array is a string containing the key written to the administrator user `~/.ssh/authorized_keys`, and the user with the corresponding private key can log in as an administrator.
+Each element of the array is a string containing the key written to the admin user `~/.ssh/authorized_keys`, and the user with the corresponding private key can log in as an admin user.
 
 When deploying in production envs, be sure to note this parameter and add only trusted keys to this list.
 
@@ -537,9 +537,9 @@ If the node is already configured with an NTP server, you can configure [`node_n
 
 NTP time zone setting, type: `string`, level: C, default value is null.
 
-In the demo, the default time zone used is `"Asia/Hong_Kong"`, please adjust it according to your actual situation. (Please don't use `Asia/Shanghai` time zone, the abbreviation CST will cause a series of log time zone parsing problems)
+The default time zone used in the demo is `"Asia/Hong_Kong"` please adjust it according to your actual situation. (Please don't use `Asia/Shanghai` time zone, the abbreviation CST will cause a series of log time zone parsing problems)
 
-Select `false`, or leave it blank and Pigsty will not modify the time zone config of this node.
+Select `false`, or leave it blank, and Pigsty will not modify the time zone config of this node.
 
 
 
@@ -558,12 +558,12 @@ If the server node is already configured with an NTP server, it is recommended t
 
 NTP service type: `ntp` or `chrony`, type: `enum`, level: C, default value: `"ntp"`.
 
-Specify the type of NTP service used by the system, by default `ntp` is used as the time service:
+Specify the type of NTP service used by the system; by default, `ntp` is used as the time service:
 
 * `ntp`： Traditional NTP Service
 * `chrony`： Time services used by CentOS 7/8 by default
 
-Only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
+It only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
 
 
 
@@ -578,7 +578,7 @@ List of NTP servers, type: `string[]`, level: C, default value:
 - server 10.10.10.10 iburst
 ```
 
-Only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
+It only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
 
 
 
@@ -592,7 +592,7 @@ Only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
 ## `NODE_EXPORTER`
 
 
-NodeExporter is used to collect monitoring metrics data from the host.
+NodeExporter is used to collect monitor metrics data from the host.
 
 
 ### `node_exporter_enabled`
@@ -603,7 +603,7 @@ Enable node indicator collector, type: `bool`, level: C, default value: `true`.
 
 ### `node_exporter_port`
 
-Node Indicator Exposure Port, type: `int`, level: C, default value: `9100`.
+NodeExposure Port, type: `int`, level: C, default value: `9100`.
 
 
 
@@ -611,7 +611,7 @@ Node Indicator Exposure Port, type: `int`, level: C, default value: `9100`.
 
 Node metrics collection option, type: `string`, level: C/I, default value: `"--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes"`
 
-Pigsty enables `ntp`, `tcpstat`, `processes` three additional metrics, collectors, by default, and disables `softnet`, `nvme` two default metrics collectors.
+Pigsty enables `ntp`, `tcpstat`, `processes` three extra metrics, collectors, by default, and disables `softnet`, `nvme` two default metrics collectors.
 
 
 
@@ -627,9 +627,9 @@ Host log collection component, used with [Loki](v-infra.md#LOKI) infrastructure 
 
 Enable Protail log collection service at the current node, type: `bool`, level: C, default value: `true`.
 
-When [`promtail`](#promtail) is enabled, Pigsty will generate a configuration file for Promtail, as defined in the inventory, to grab the following logs and send them to the Loki instance specified by [`loki_endpoint`](#loki_endpoint).
+When [`promtail`](#promtail) is enabled, Pigsty will generate a config file for Promtail, as defined in the inventory, to grab the following logs and send them to the Loki instance specified by [`loki_endpoint`](#loki_endpoint).
 
-* `INFRA`： Infrastructure logs, collected only on meta nodes.
+* `INFRA`： Infra logs, collected only on meta nodes.
   * `nginx-access`: `/var/log/nginx/access.log`
   * `nginx-error`: `/var/log/nginx/error.log`
   * `grafana`: `/var/log/grafana/grafana.log`
@@ -654,7 +654,7 @@ When [`promtail`](#promtail) is enabled, Pigsty will generate a configuration fi
 
 Remove existing state information when installing protail, type: `bool`, level: C/A, default value: `false`.
 
-The default is not to clean up, when you choose to clean up, Pigsty will remove the existing state file [`promtail_positions`](#promtail_positions) when deploying Promtail, which means that Promtail will recollect all logs on the current node and send them to Loki.
+The default is not to clean up; when you choose to clean up, Pigsty will remove the existing state file [`promtail_positions`](#promtail_positions) when deploying Promtail, which means that Promtail will recollect all logs on the current node and send them to Loki.
 
 ### `promtail_port`
 
@@ -665,11 +665,11 @@ The default port used by promtail, type: `int`, level: G, default value: `9080`.
 
 ### `promtail_options`
 
-Promtail command line parameter, type: `string`, level: C/I, default value: `"-config.file=/etc/promtail.yml -config.expand-env=true"`.
+Promtail CLI param, type: `string`, level: C/I, default value: `"-config.file=/etc/promtail.yml -config.expand-env=true"`.
 
-Additional command line arguments passed in when running the protail binary, default value: `'-config.file=/etc/promtail.yml -config.expand-env=true'`.
+Extra CLI params passed in when running the protail database, default value: `'-config.file=/etc/promtail.yml -config.expand-env=true'`.
 
-There are already parameters for specifying the config file path and expanding the environment variables in the config file, which are not recommended to be modified.
+There are already params for specifying the config file path and expanding the environment variables in the config file, which are not recommended to be modified.
 
 
 

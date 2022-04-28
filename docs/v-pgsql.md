@@ -1,18 +1,18 @@
 # Config: PGSQL
 
-> Use the [PGSQL Playbook](p-pgsql.md), [l-deployPGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in the [ PGSQL config](v-pgsql.md).
+> Use the [PGSQL Playbook](p-pgsql.md), and [deploy the PGSQL](d-pgsql.md) cluster to adjust the cluster state to the state described in the [ PGSQL config](v-pgsql.md).
 
-Pigsty have 100+ config entries for descripting a PostgreSQL cluster. However, users usually only need to care about individual parameters in [identity params](#PG_IDENTITY) and [business objects](#PG_BUSINESS): the former expresses the database cluster "Who is it? Where is it?" and the latter expresses the database "What does it look like? What's in it?".
+Pigsty has 100+ config parameters for describing a PostgreSQL cluster. However, users usually only need to care about a few parameters in [identity params](#PG_IDENTITY) and [business objects](#PG_BUSINESS): the former expresses the database cluster "Who is it? Where is it?" and the latter represents the database "What does it look like? What's in it?".
 
 The params on the PostgreSQL are divided into seven main sections：
 
 - [`PG_IDENTITY`](#PG_IDENTITY): Defining the identity of a PostgreSQL cluster.
-- [`PG_BUSINESS`](#PG_BUSINESS): Customized cluster templates: users, databases, services, permission rules.
+- [`PG_BUSINESS`](#PG_BUSINESS): Customized cluster templates: users, databases, services, privilege rules.
 - [`PG_INSTALL`](#PG_INSTALL): Install PostgreSQL pkgs, extension plugins, and prepare dir and tool scripts.
-- [`PG_BOOTSTRP`](#PG_BOOTSTRAP): Generate config template, pull up PostgreSQL cluster, build master-slave replication, and enable connection pooling.
-- [`PG_PROVISION`](#PG_PROVISION): PGSQL cluster template provisioning, creating users and databases, configuring permissions role HBA, schema and extensions.
+- [`PG_BOOTSTRP`](#PG_BOOTSTRAP): Generate config template, pull up PostgreSQL cluster, build M-S replication, and enable connection pooling.
+- [`PG_PROVISION`](#PG_PROVISION): PGSQL cluster template provisioning, creating users and databases, configuring privileges role HBA, mode and extensions.
 - [`PG_EXPORTER`](#PG_EXPORTER): PGSQL-exporter, database, and connection pool config monitoring component.
-- [`PG_SERVICE`](#PG_SERVICE): Expose the PostgreSQL service externally, install the load balancer HAProxy, enable VIP, and configure DNS.
+- [`PG_SERVICE`](#PG_SERVICE): Expose the PostgreSQL service, install the LB HAProxy, enable VIP, and configure DNS.
 
 
 | ID  |                              Name                               |             Section             |    Type     | Level |              Comment              |
@@ -24,10 +24,10 @@ The params on the PostgreSQL are divided into seven main sections：
 | 504 | [`pg_role`](#pg_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | I     | PG Instance Role|
 | 505 | [`pg_seq`](#pg_seq)                                             | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | PG Instance Sequence|
 | 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | PG instance on this node |
-| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | PG upstream IP address |
+| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | PG upstream IP |
 | 508 | [`pg_offline_query`](#pg_offline_query)                         | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | allow offline query?|
 | 509 | [`pg_backup`](#pg_backup)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | make base backup on this ins?|
-| 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | relative weight in load balancer|
+| 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | relative weight in LB |
 | 511 | [`pg_hostname`](#pg_hostname)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/I   | set PG ins name as hostname|
 | 512 | [`pg_preflight_skip`](#pg_preflight_skip)                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/A   | skip preflight param validation|
 | 520 | [`pg_users`](#pg_users)                                         | [`PG_BUSINESS`](#PG_BUSINESS)   | user[]      | C     | business users definition|
@@ -58,7 +58,7 @@ The params on the PostgreSQL are divided into seven main sections：
 | 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg main data disk mountpoint|
 | 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg backup disk mountpoint|
 | 565 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | size        | C     | /pg/dummy file size|
-| 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | pg listen IP address|
+| 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | pg listen IP |
 | 567 | [`pg_port`](#pg_port)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pg listen port|
 | 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | pg's UnixSocket address |
 | 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Is patroni & postgres enabled?|
@@ -67,7 +67,7 @@ The params on the PostgreSQL are divided into seven main sections：
 | 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | patroni listen port (8080)|
 | 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni watchdog policy|
 | 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | patroni template|
-| 586 | [`pg_shared_libraries`](#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared libraries|
+| 586 | [`pg_shared_libraries`](#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database |
 | 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | character encoding|
 | 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | locale|
 | 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | collate rule of locale|
@@ -80,7 +80,7 @@ The params on the PostgreSQL are divided into seven main sections：
 | 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | path to postgres init script|
 | 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | list or global default roles/users|
 | 603 | [`pg_default_privilegs`](#pg_default_privilegs)                 | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default privileges|
-| 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default schemas|
+| 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default modes |
 | 605 | [`pg_default_extensions`](#pg_default_extensions)               | [`PG_PROVISION`](#PG_PROVISION) | extension[] | G/C   | list of default extensions|
 | 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | reload config? |
 | 607 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global HBA rules|
@@ -125,7 +125,7 @@ The params on the PostgreSQL are divided into seven main sections：
 
 [`pg_cluster`](#pg_cluster), [`pg_role`](#pg_role), [`pg_seq`](#pg_seq) belong to **identity params** .
 
-In addition to the IP address, these three parameters are the minimum set of parameters necessary to define a new set of clusters. A typical example is shown below:
+In addition to the IP, these three parameters are the minimum set of parameters necessary to define a new set of clusters. A typical example is shown below:
 
 ```yaml
 pg-test:
@@ -139,7 +139,7 @@ pg-test:
 
 All other params can be inherited from the global config or the default config, but the identity params must be **explicitly specified** and **manually assigned**. The current PGSQL identity params are as follows:
 
-|            Name             |   Type   | Level | Comment                                                |
+|            Name             |   Type   | Level | Description                                            |
 | :-------------------------: | :------: | :---: | ------------------------------------------------------ |
 | [`pg_cluster`](#pg_cluster) | `string` | **C** | **PG database cluster name**                           |
 |     [`pg_seq`](#pg_seq)     | `number` | **I** | **PG database ins serial number**                      |
@@ -147,9 +147,9 @@ All other params can be inherited from the global config or the default config, 
 |   [`pg_shard`](#pg_shard)   | `string` | **C** | **PG database slice set cluster name** (placeholder)   |
 |  [`pg_sindex`](#pg_sindex)  | `number` | **C** | **PG database slice set cluster number** (placeholder) |
 
-* [`pg_cluster`](#pg_cluster) identifies the name of the cluster, which is configured at the cluster level.
-* [`pg_role`](#pg_role) Configured at the instance level, identifies the role of the ins, only the `primary` role will be handled specially, if not filled in, the default is the `replica` role, in addition to the special `delayed` and `offline` roles.
-* [`pg_seq` ](#pg_seq) is used to identify the ins within the cluster, usually with an integer number incremented from 0 or 1, which is not changed once it is assigned.
+* [`pg_cluster`](#pg_cluster): It identifies the name of the cluster, which is configured at the cluster level.
+* [`pg_role`](#pg_role): Configured at the instance level, identifies the role of the ins. Only the `primary` role will be handled specially. If not filled in, the default is the `replica` role and the special `delayed` and `offline` roles.
+* [`pg_seq`](#pg_seq): Used to identify the ins within the cluster, usually with an integer number incremented from 0 or 1, which is not changed once it is assigned.
 * `{{ pg_cluster }}-{{ pg_seq }}` is used to uniquely identify the ins, i.e. `pg_instance`.
 * `{{ pg_cluster }}-{{ pg_role }}` is used to identify the services within the cluster, i.e. `pg_service`.
 * [`pg_shard`](#pg_shard) and [`pg_sindex`](#pg_sindex) are used for horizontally sharding clusters, reserved for Citus and Greenplum multicluster management.
@@ -162,17 +162,18 @@ All other params can be inherited from the global config or the default config, 
 
 PG cluster name, type: `string`, level: cluster, no default. **A mandatory parameter must be provided by the user**.
 
-The cluster name will be used as the namespace for the resources within the cluster. The naming needs to follow a specific naming rule: `[a-z][a-z0-9-]*` to be compatible with the requirements of different constraints on the identity.
+The cluster name will be used as the namespace for the resources within the cluster. The naming needs to follow a specific naming pattern: `[a-z][a-z0-9-]*` to be compatible with the requirements of different constraints on the identity.
 
 
 
 
 ### `pg_shard`
 
-Shard to which the PG cluster belongs (reserved), type: `string`, level: cluster, No default, Optional parameter.6
+Shard to which the PG cluster belongs (reserved), type: `string`, level: cluster, No default.
 
 Only sharding clusters require this parameter to be set. When multiple clusters serve the same business in a horizontally sharded fashion, Pigsty refers to this group of clusters as a **Sharding Cluster**.
-`pg_shard` is the name of the shard set cluster to which the cluster belongs. A shard set cluster can be specified with any name, but Pigsty recommends a meaningful naming convention.
+
+`pg_shard` is the name of the shard set cluster to which the cluster belongs. A shard set cluster can be specified with any name, but Pigsty recommends a meaningful naming pattern.
 
 For example, a cluster participating in a sharded cluster can use the shard cluster name [`pg_shard`](#pg_shard) + `shard` + the cluster's shard number [`pg_sindex`](#pg_sindex) to form the cluster name：
 
@@ -201,8 +202,8 @@ The sharded cluster's slice number, used in conjunction with [pg_shard](#pg_shar
 Current role of PG cluster in GP, type: `enum`, level: C, default value：
 
 Greenplum/MatrixDB-specific to specify the role this PG cluster plays in a GP deployment. The optional values are ：
-* `master`： Facilitator Nodes
-* `segment`： Data Nodes
+* `master`: Facilitator Nodes
+* `segment`: Data Nodes
 
 **Identity parameter**, **cluster level parameter**, and **mandatory parameter** when deploying GPSQL.
 
@@ -214,9 +215,9 @@ PG instance role, type: `enum`, level: I, no default,  **mandatory parameter, mu
 
 Roles for PG ins, default roles include   `primary`, `replica`, and `offline`.
 
-* `primary`: Cluster master, there must be one and only one member of the cluster as `primary`.
-* `replica`: Clustered slave repository for carrying online read-only traffic.
-* `offline`: Clustered offline slave libraries for taking on offline read-only traffic, such as statistical analysis/ETL/personal queries, etc.
+* `primary`: Primary, there must be one and only one member of the cluster as `primary`.
+* `replica`: Replica for carrying online read-only traffic.
+* `offline`: Offline replica for taking on offline read-only traffic, such as statistical analysis/ETL/personal queries, etc.
 
 **Identity params, required params, and instance-level params.**
 
@@ -234,7 +235,7 @@ A serial number of the database ins, unique within the **cluster**, is used to d
 
 All PG instances on the current node, type: `{port:ins}`, level: I, default value：
 
-This parameter can be used to describe when the node is deployed by more than one PG ins, such as Greenplum's Segments, or when using [the monitor-only mode](d-monly.md) to supervise existing ins.
+This parameter can be used to describe when the node is deployed by more than one PG ins, such as Greenplum's Segments, or when using [monly mode](d-monly.md) to supervise existing ins.
 [`pg_instances`](#pg_instances) is an array of objects with keys as ins ports and values as a dictionary whose contents can be parameters of any [`PGSQL`](v-pgsql.md) board, see [MatrixDB deploy](d-matrixdb.md) for details.
 
 
@@ -245,13 +246,13 @@ This parameter can be used to describe when the node is deployed by more than on
 
 The replicated upstream node of the instance, type: `string`, level: I, the default value is null.
 
-Ins-level config entry with IP address or hostname to indicate the upstream node for stream replication.
+Ins-level config entry with IP or hostname to indicate the upstream node for stream replication.
 
-* When configuring this parameter for a slave library of a cluster, the IP address filled in must be another node within the cluster. Instances will be stream replicated from that node, and this option can be used to build **cascaded replication**.
+* When configuring this parameter for a replica, the IP filled in must be another node within the cluster. Instances will be stream replicated from that node, and this option can be used to build **cascaded replication**.
 
 * When this parameter is configured for the primary of the cluster, it means that the entire cluster will run as a **Standby Cluster**, receiving changes from upstream nodes. The `primary` in the cluster will play the role of `standby leader`.
 
-Using this parameter flexibly, you can build an offsite disaster recovery cluster, complete the splitting of the sharded cluster, and realize the delayed slave library.
+Using this parameter flexibly, you can build a standby cluster, complete the splitting of the sharded cluster, and realize the delayed cluster.
 
 
 
@@ -261,15 +262,15 @@ Allow offline queries, type: `bool`, level: I, default value: `false`.
 
 When set to `true`, the user group `dbrole_offline` can connect to the ins and perform offline queries, regardless of the role of the current ins.
 
-More practical for cases with a small number of ins (e.g. one master and one slave), the user can mark the only slave as `pg_offline_query = true`, thus accepting ETL, slow queries with interactive access.
+More practical for cases with a small number of ins (one primary & one replica), the user can mark the only replica as `pg_offline_query = true`, thus accepting ETL, slow queries with interactive access.
 
 
 
 ### `pg_backup`
 
-Store cold backups on the ins, type: `bool`, level: I, default value: `false`.
+Store cold standbys on the ins, type: `bool`, level: I, default value: `false`.
 
-Not implemented, the tag bit is reserved and the ins node with this tag is used to store the base cold backup.
+Not implemented, the tag bit is reserved and the ins node with this tag is used to store the base cold standby.
 
 
 
@@ -277,7 +278,7 @@ Not implemented, the tag bit is reserved and the ins node with this tag is used 
 
 The relative weight of the ins in load balancing, type: `int`, level: I, default value: `100`.
 
-When adjusting the relative weight of an ins in service, this parameter can be modified at the ins level and applied to take effect as described in [SOP: Cluster Traffic Adjustment](r-sop.md).
+When adjusting the relative weight of an instance in service, this parameter can be modified at the instance level and applied to take effect as described in [SOP: Cluster Traffic Adjustment](r-sop.md).
 
 
 
@@ -287,7 +288,7 @@ Set PG ins name to HOSTNAME, type: `bool`, level: C/I, default value: `false`, w
 
 Use the PG ins name and cluster name as the node's name and cluster name when initializing the nodean , disabled by default.
 
-When using the node: PG 1:1 exclusive deploy mode, you can assign the identity of the PG ins to the node, making the node consistent with the PG's monitoring identity.
+When using the node: PG 1:1 exclusive deploy mode, you can assign the identity of the PG ins to the node, making the node consistent with the PG's monitor identity.
 
 
 
@@ -295,7 +296,7 @@ When using the node: PG 1:1 exclusive deploy mode, you can assign the identity o
 
 Skip preflight param validation, type: `bool`, level: C/A, default value: `false`.
 
-If not initializing a new cluster (e.g. when dealing with existing instances), the task of Patroni and Postgres initialization can be completely skipped with this parameter.
+If not initializing a new cluster, the task of Patroni and Postgres initialization can be completely skipped with this parameter.
 
 
 
@@ -306,19 +307,19 @@ If not initializing a new cluster (e.g. when dealing with existing instances), t
 
 Users need to **focus on** this part of the parameters to declare their required database objects on behalf of the business.
 
-Customized cluster templates: users, databases, services, permission rules.
+Customized cluster templates: users, databases, services, privilege patterns.
 
-* Business User Definition： [`pg_users`](#pg_users)                                   
-* Business Database Definition： [`pg_databases`](#pg_databases)                           
-* Cluster Proprietary Services Definition： [`pg_services_extra`](#pg_services_extra)                 
-* Cluster/ins specific HBA rules： [`pg_hba_rules_extra`](#pg_hba_rules_extra)               
-* Pgbounce specific HBA rules： [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra) 
+* Business User Definition: [`pg_users`](#pg_users)                                   
+* Business Database Definition: [`pg_databases`](#pg_databases)                           
+* Cluster Proprietary Services Definition: [`pg_services_extra`](#pg_services_extra)                 
+* Cluster/ins specific HBA rules: [`pg_hba_rules_extra`](#pg_hba_rules_extra)               
+* Pgbounce specific HBA rules: [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra) 
 
 Special DB users, it is recommended to change these user passwords in the production env.
 
-* PG Administrator User：[`pg_admin_username`](#pg_admin_username) / [`pg_admin_password`](#pg_admin_password)
-* PG Copy User： [`pg_replication_username`](#pg_replication_username) / [`pg_replication_password`](#pg_replication_password)
-* PG Monitoring Users：[`pg_monitor_username`](#pg_monitor_username) / [`pg_monitor_password`](#pg_monitor_password)
+* PG Admin User: [`pg_admin_username`](#pg_admin_username) / [`pg_admin_password`](#pg_admin_password)
+* PG Replication User:  [`pg_replication_username`](#pg_replication_username) / [`pg_replication_password`](#pg_replication_password)
+* PG Monitor Users: [`pg_monitor_username`](#pg_monitor_username) / [`pg_monitor_password`](#pg_monitor_password)
 
 
 
@@ -366,10 +367,10 @@ pg_users:                           # define business users/roles on this cluste
 * New users are **not** added to the Pgbouncer user list by default, and `pgbouncer: true` must be explicitly defined for the user to be added to the Pgbouncer user list.
 * Users/roles are created sequentially, and users defined later can belong to the roles defined earlier.
 * Users can add [default privilegs](#pg_default_privilegs) groups for business users via the `roles` field:
-    * `dbrole_readonly`： Default production read-only user with global read-only privileges. (Read-only production access)
-    * `dbrole_offline`： Default offline read-only user with read-only access on a specific ins. (offline query, personal account, ETL)
-    * `dbrole_readwrite`： Default production read/write user with global CRUD privileges. (Regular production use)
-    * `dbrole_admin`： Default production management user with permission to execute DDL changes. (Administrator)
+    * `dbrole_readonly`: Default production read-only user with global read-only privileges. (Read-only production access)
+    * `dbrole_offline`: Default offline read-only user with read-only access on a specific ins. (offline query, personal account, ETL)
+    * `dbrole_readwrite`: Default production read/write user with global CRUD privileges. (Regular production use)
+    * `dbrole_admin`: Default production management user with the privilege to execute DDL changes. (Admin User)
 
 Configure `pgbouncer: true` for the production account to allow it to access through the connection pool; regular users should not access the database through the connection pool.
 
@@ -409,21 +410,21 @@ pg_databases:                       # define business databases on this cluster,
 
 In each DB definition, the DB  `name` is mandatory and the rest are optional.
 
-* `name`： Database name, **required option**.
-* `owner`： Database owner, default is `postgres`
-* `template`： The template used for database creation, default is `template1`.
-* `encoding`： The default character encoding of the database, which is `UTF8` by default, is consistent with the ins by default. It is recommended not to configure and modify it.
-* `locale`： The default localization rule for the database, which defaults to `C`, is recommended not to be configured to be consistent with the ins.
-* `lc_collate`： The default localized string sorting rule for the database, which is set the same as the instance by default, should not be modified and must be consistent with the DB template. It is strongly recommended not to configure, or configure to `C`.
-* `lc_ctype`： The default LOCALE of the database, by default, is the same as the ins setting, do not modify or set it, it must be consistent with the DB template. Configure to C or `en_US.UTF8`.
-* `allowconn`： Allow database connection, default is `true`, not recommended to change.
-* `revokeconn`： Reclaim permission to connect to the database. The default is `false`. To be `true`, the `PUBLIC CONNECT` permission on the database will be reclaimed. Only the default user (`dbsu|monitor|admin|replicator|owner`) can connect. In addition, the `admin|owner` will have GRANT OPTION, which can give other users connection privileges.
-* `tablespace`： The tablespace associated with the database, the default is `pg_default`.
-* `connlimit`： Database connection limit, default is `-1`, i.e. no limit.
-* `extensions`： An array of objects, each of which defines an **extension** in the database, and its installed **schema**.
-* `parameters`： K-V objects, each KV defines a parameter that needs to be modified against the database via `ALTER DATABASE`.
-* `pgbouncer`： Boolean option to join this database to Pgbouncer or not. All databases are joined to Pgbouncer unless `pgbouncer: false` is explicitly specified.
-* `comment`： Database note information.
+* `name`: Database name, **Must**.
+* `owner`: Database owner, default is `postgres`
+* `template`: The template used for database creation, default is `template1`.
+* `encoding`: The default character encoding of the database, which is `UTF8` by default, is consistent with the ins by default. It is recommended not to configure and modify it.
+* `locale`: The default localization rule for the database, which defaults to `C`, is recommended not to be configured to be consistent with the instance.
+* `lc_collate`: The default localized string sorting rule for the database, which is set the same as the instance by default, should not be modified and must be consistent with the DB template. It is strongly recommended not to configure, or configure to `C`.
+* `lc_ctype`: The default LOCALE of the database, by default, is the same as the ins setting, do not modify or set it, it must be consistent with the DB template. Configure to C or `en_US.UTF8`.
+* `allowconn`: Allow database connection, default is `true`, not recommended to change.
+* `revokeconn`: Reclaim privilege to connect to the database. The default is `false`. To be `true`, the `PUBLIC CONNECT` privilege on the database will be reclaimed. Only the default user (`dbsu|monitor|admin|replicator|owner`) can connect. In addition, the `admin|owner` will have GRANT OPTION, which can give other users connection privileges.
+* `tablespace`: The tablespace associated with the database, the default is `pg_default`.
+* `connlimit`: Database connection limit, default is `-1`, i.e. no limit.
+* `extensions`: An array of objects, each of which defines an **extension** in the database, and its installed **mode**.
+* `parameters`: K-V objects, each K-V defines a parameter that needs to be modified against the database via `ALTER DATABASE`.
+* `pgbouncer`: Boolean option to join this database to Pgbouncer or not. All databases are joined to Pgbouncer unless `pgbouncer: false` is explicitly specified.
+* `comment`: Database note information.
 
 
 
@@ -459,11 +460,11 @@ Each cluster can define multiple services, each containing any number of cluster
 
 * **Name（`service.name`）**：
 
-  **service name**, the full name of the service is prefixed by the cluster name and suffixed by `service.name`, connected by `-`. For example, the service with `name=primary` in the `pg-test` cluster has the full-service name `pg-test-primary`.
+  The full name of the service is prefixed by the cluster name and suffixed by `service.name`, connected by `-`. For example, the service with `name=primary` in the `pg-test` cluster has the full-service name `pg-test-primary`.
 
 * **Port（`service.port`）**：
 
-  In Pigsty, services are exposed to the public by default in the form of NodePort, so exposing the port is mandatory. However, if you use an external load balancing service access scheme, you can also differentiate the services in other ways.
+  In Pigsty, services are exposed to the public by default in the form of NodePort, so exposing the port is mandatory. However, if you use an external LB service access scheme, you can also differentiate the services in other ways.
 
 * **Selector（`service.selector`）**：
 
@@ -473,15 +474,15 @@ Each cluster can define multiple services, each containing any number of cluster
 
 * **Backup Selector（`service.selector`）**：
 
-  The optional **backup selector** `service.selector_backup` selects or marks the list of ins used for service backup, i.e. the backup ins take over the service only when all other members of the cluster fail. For example, the `primary` ins can be added to the `replica` service's alternative set, so that the master can still carry the cluster's read-only traffic when all slaves fail.
+  The optional **backup selector** `service.selector_backup` selects or marks the list of ins used for service backup, i.e. the backup ins take over the service only when all other members of the cluster fail. For example, the `primary` ins can be added to the `replica` service's alternative set, so that the primary can still carry the cluster's read-only traffic when all replicas fail.
 
 * **Source IP（`service.src_ip`）** ：
 
-  Indicates the IP address used externally by the **service**. The default is `*`, which is all IP addresses on the local. Using `vip` will use the `vip_address` variable to take the value, or you can fill in the specific IP address supported by the NIC.
+  Indicates the IP used externally by the **service**. The default is `*`, which is all IPs on the local. Using `vip` will use the `vip_address` variable to take the value, or you can fill in the specific IP supported by the NIC.
 
 * **Host port（`service.dst_port`）**：
 
-  Which port on the target ins will the service's traffic be directed to? `postgres` will point to the port the database is listening on, `pgbouncer` will point to the port the connection pool is listening on, or you can fill in a fixed port number.
+  Which port on the target ins will the service's traffic be directed to? `postgres` will point to the port the database is listening on, `pgbouncer` will point to the port the connection pool is listening on, or you can fill in a fixed port.
 
 * **Health Check method（`service.check_method`）**:
 
@@ -489,11 +490,11 @@ Each cluster can define multiple services, each containing any number of cluster
 
 * **Health Check Port（`service.check_port`）**:
 
-  Which port of the service check-ins gets the health status of the ins? `patroni` will get it from Patroni (default 8008), `pg_exporter` will get it from PG Exporter (default 9630), or you can fill in a custom port number.
+  Which port of the service check-ins gets the health status of the ins? `patroni` will get it from Patroni (default 8008), `pg_exporter` will get it from PG Exporter (default 9630), or you can fill in a custom port.
 
 * **Health Check Path（`service.check_url`）**:
 
-  The service performs HTTP checks using the URL PATH. `/` is used as a health check by default, and PG Exporter and Patroni provide a variety of health checks that can be used to differentiate between master and slave traffic. For example, `/primary` will only return success for the master, and `/replica` will only return success for the slave. `/read-only`, on the other hand, will return success for any instance that supports read-only (including the master).
+  The service performs HTTP checks using the URL PATH. `/` is used as a health check by default, and PG Exporter and Patroni provide a variety of health checks that can be used to differentiate between primary & replica traffic. For example, `/primary` will only return success for the primary, and `/replica` will only return success for the replica. `/read-only` will return success for any instance that supports read-only (including the primary).
 
 * **Health Check Code（`service.check_code`）**:
 
@@ -513,7 +514,7 @@ Each cluster can define multiple services, each containing any number of cluster
 
   * `balance`
 
-  In the algorithm used by haproxy load balancing, the optional policy is `roundrobin` and `leastconn`, the default is `roundrobin`.
+  In the algorithm used by haproxy LB, the optional policy is `roundrobin`, and `leastconn`, the default is `roundrobin`.
 
   * `default_server_options`
 
@@ -538,7 +539,7 @@ Set the client IP black and white list rules for the database. An array of objec
 * `role`: Apply for roles, `common` means apply to all instances, other values (e.g. `replica`, `offline`) will only be installed to matching roles. For example, `role='replica'` means that this rule will only be applied to instances with `pg_role == 'replica'`.
 * `rules`: Array of strings, each record represents a rule that will eventually be written to `pg_hba.conf`.
 
-As a special case, the HBA rule for `role == 'offline'` is additionally installed on ins of `pg_offline_query == true`.
+As a special case, the HBA rule for `role == 'offline'` is additionally installed on instance of `pg_offline_query == true`.
 
 [`pg_hba_rules`](#pg_hba_rules) is similar, but is typically used for global uniform HBA rule settings, and [`pg_hba_rules_extra`](#pg_hba_rules_extra) will **append** to `pg_hba.conf` in the same way.
 
@@ -552,7 +553,7 @@ If you need to completely **overwrite** the cluster's HBA rules and do not want 
 
 Pgbounce HBA rule, type: `rule[]`, level: C, default value is an empty array.
 
-Similar to [`pg_hba_rules_extra`](#pg_hba_rules_extra) for additional config of Pgbouncer's HBA rules at the cluster level.
+Similar to [`pg_hba_rules_extra`](#pg_hba_rules_extra) for extra config of Pgbouncer's HBA rules at the cluster level.
 
 
 
@@ -564,13 +565,13 @@ Similar to [`pg_hba_rules_extra`](#pg_hba_rules_extra) for additional config of 
 
 PG admin user, type: `string`, level: G, default value: `"dbuser_dba"`.
 
-The DB username is used to perform PG administration tasks (DDL changes), with superuser privileges by default.
+The DB username is used to perform PG management tasks (DDL changes), with superuser privileges by default.
 
 ### `pg_admin_password`
 
 PG admin user password, type: `string`, level: G, default value: `"DBUser.DBA"`.
 
-The database user password used to perform PG administration tasks (DDL changes) must be in plaintext, the default is `DBUser.DBA` and highly recommended changes!
+The database user password used to perform PG management tasks (DDL changes) must be in plaintext. The default is `DBUser.DBA` and highly recommended changes!
 
 It is highly recommended to change this parameter when deploying in production envs!
 
@@ -584,7 +585,7 @@ For performing PostgreSQL stream replication, it is recommended to keep global c
 
 ### `pg_replication_password`
 
-PG replicates the user's password, type: `string`, level: G, default value: `"DBUser.Replicator"`.
+PG's Replication User Password, type: `string`, level: G, default value: `"DBUser.Replicator"`.
 
 The password of the database user used to perform PostgreSQL stream replication must be in plaintext. The default is `DBUser.Replicator`.
 
@@ -615,7 +616,7 @@ It is highly recommended to change this parameter when deploying in production e
 ----------------
 ## `PG_INSTALL`
 
-PG Install is responsible for completing the installation of all PostgreSQL dependencies on a machine with the base software. The user can configure the name, ID, permissions, and access of the dbsu, configure the sources used for the installation, configure the installation address, the version to be installed, and the required pkgs and extensions plugins.
+PG Install is responsible for completing the installation of all PostgreSQL dependencies on a machine with the base software. The user can configure the name, ID, privileges, and access of the dbsu, configure the sources used for the installation, configure the installation address, the version to be installed, and the required pkgs and extensions plugins.
 
 Such parameters only need to be modified when upgrading a major version of the database as a whole. Users can specify the software version to be installed via [`pg_version`](#pg_version) and override it at the cluster level to install different database versions for different clusters.
 
@@ -634,21 +635,21 @@ When installing Greenplum / MatrixDB, modify this parameter to the corresponding
 
 dbsu UID, type: `int`, level: C, default value: `26`.
 
-UID of the dbsu is used by the database by default. the default value is `26`, consistent with the official RPM pkg-config of PG under CentOS, no modification is recommended.
+UID of the dbsu is used by the database by default. The default value is `26`, consistent with the official RPM pkg-config of PG under CentOS, no modification is recommended.
 
 
 
 
 ### `pg_dbsu_sudo`
 
-Sudo priv mode for dbsu, type: `enum`, level: C, default value: `"limit"`.
+Sudo privilege for dbsu, type: `enum`, level: C, default value: `"limit"`.
 
-* `none`： No Sudo priv
-* `limit`： Limited sudo privy to execute systemctl commands for database-related components, default.
-* `all`： Full `sudo` priv, password required.
-* `nopass`： Full `sudo` access without a password (not recommended).
+* `none`: No Sudo privilege
+* `limit`: Limited sudo privilege to execute systemctl commands for database-related components, default.
+* `all`: Full `sudo` privilege, password required.
+* `nopass`: Full `sudo` privileges without a password (not recommended).
 
-The database superuser [`pg_dbsu`](#pg_dbsu) has restricted `sudo` priv by default: `limit`.
+The database superuser [`pg_dbsu`](#pg_dbsu) has restricted `sudo` privilege by default: `limit`.
 
 
 
@@ -667,7 +668,7 @@ Exchange the SSH key of dbsu [`pg_dbsu`](#pg_dbsu) between executing machines. T
 
 Installed major PG version, type: `int`, level: C, default value: `14`.
 
-The current instance's installed major PG version number, default is 14, supported as low as 10.
+The current instance's installed a major PG version. Default is 14, supported as low as 10.
 
 Note that PostgreSQL physical stream replication cannot span major versions, please configure this variable at the global/cluster level to ensure that all ins within the entire cluster have the same major version number.
 
@@ -744,17 +745,17 @@ wal2json_${pg_version}"
 
 On a machine with Postgres, create a set of databases.
 
-* **Cluster identity definition**, clean up existing ins, make dir, copy tools and playbooks, configure environment variables.
-* Render Patroni config templates, pull up master and slave libraries using Patroni.
+* **Cluster identity definition**, clean up existing ins, make dir, copy tools and scripts, configure environment variables.
+* Render Patroni config templates, and pull up primary and replica using Patroni.
 * Configure Pgbouncer, initialize the business users and database, and register the database and data source services to DCS.
 
-With [`pg_conf`](#pg_conf) you can use the default cluster templates (OLTP / OLAP / CRIT / TINY). If you create a custom template, you can clone the default config in `roles/postgres/templates` and adapt it after modifying it yourself, please refer to [customize pgsql cluster](v-pgsql-customize.md) for details.
+With [`pg_conf`](#pg_conf) you can use the default cluster templates (OLTP / OLAP / CRIT / TINY). If you create a custom template, you can clone the default config in `roles/postgres/templates` and adapt it after modifying. Please refer to [customize pgsql cluster](v-pgsql-customize.md) for details.
 
 
 
 ### `pg_exists_action`
 
-Action when PG ins exists, type: `enum`, level: C/A, default value: `"clean"`.
+Action when PG insstance exists, type: `enum`, level: C/A, default value: `"clean"`.
 
 System actions when a PostgreSQL ins exists:
 
@@ -762,8 +763,8 @@ System actions when a PostgreSQL ins exists:
 * `clean`: Erase existing instances and continue (dangerous)
 * `skip`: Ignore targets for which ins exist (abort) and continue execution on other target machines.
 
-To force wipe existing database ins, please use [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove) to complete the cluster and instance offline first, and then reinitialize.
-Otherwise, overwriting needs to be done with the command line argument `-e pg_exists_action=clean` to force the wiping of existing ins during initialization.
+To force wipe existing database instance, please use [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove) to complete the cluster and instance offline first, and then reinitialize.
+Otherwise, overwriting needs to be done with the CLI argument `-e pg_exists_action=clean` to force the wiping of existing ins during initialization.
 
 
 
@@ -774,7 +775,7 @@ Disable pg instance purge, type: `bool`, level: C/A, default value: `false`.
 
 If `true`, force set [`pg_exists_action`](#pg_exists_action) to `abort`, i.e. turn off the cleanup of [`pg_exists_action`](#pg_exists_action) to ensure that PG ins are not wiped out under any circumstances.
 
-Then, you need to clean up the existing ins by [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove), and then finish the database initialization again.
+Then, you need to clean up the existing instance by [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove), and then finish the database initialization again.
 
 
 
@@ -818,7 +819,7 @@ A placeholder file is a pre-allocated empty file that takes up disk space. When 
 
 PG listen IP address, type: `ip`, level: C, default value: `"0.0.0.0"`.
 
-PG listen to IP address, default all IPv4 addresses `0.0.0.0`, if you want to include all IPv6 addresses, you can use `*`.
+PG listen to IP address, default all IPv4 `0.0.0.0`, if you want to include all IPv6, you can use `*`.
 
 
 
@@ -833,7 +834,7 @@ PG listen to Port, type: `int`, level: C, default value: `5432`, not recommended
 
 PG's UnixSocket dir, type: `ip|path`, level: C, default value: `"/var/run/postgresql"`.
 
-The Unix socket dir holds the Unix socket files for PostgreSQL and Pgbouncer, which are accessed through the local Unix socket when the client does not specify an IP address to access the database.
+The Unix socket dir holds the Unix socket files for PostgreSQL and Pgbouncer, which are accessed through the local Unix socket when the client does not specify an IP to access the database.
 
 
 
@@ -847,8 +848,8 @@ If false, Pigsty will skip the process of Patroni pulling up with Postgres direc
 
 Patroni working mode, type: `enum`, level: C, default value: `"default"`.
 
-* `default`: Enable Patroni to enter high availability auto-switching mode.
-* `pause`: Enable Patroni to automatically enter maintenance mode after completing initialization (no automatic master-slave switching).
+* `default`: Enable Patroni to enter HA auto-switching mode.
+* `pause`: Enable Patroni to automatically enter maintenance mode after completing initialization (no automatic M-S S switching).
 * `remove`: Initialize the cluster with Patroni and remove Patroni after initialization.
 
 
@@ -874,11 +875,11 @@ The Patroni API server listens to the port for service and health checks to the 
 
 Patroni Watchdog mode, type: `enum`, level: C, default value: `"automatic"`.
 
-When a master-slave switchover occurs, Patroni will try to shut down the master before elevating the slave. If the master is still not shut down within the specified time, Patroni will use the Linux kernel module `softdog` to fence shutdown according to the config.
+When an M-S switchover occurs, Patroni will try to shut down the primary before elevating the replica. If the primary is still not shut down within the specified time, Patroni will use the Linux kernel module `softdog` to fence shutdown according to the config.
 
-* `off`： No using `watchdog`.
-* `automatic`： Enable `watchdog` if the kernel has `softdog` enabled, not forced, default behavior.
-* `required`： Force `watchdog`, or refuse to start if `softdog` is not enabled on the system.
+* `off`: No using `watchdog`.
+* `automatic`: Enable `watchdog` if the kernel has `softdog` enabled, not forced, default behavior.
+* `required`: Force `watchdog`, or refuse to start if `softdog` is not enabled on the system.
 
 Enabling Watchdog means that the system prioritizes ensuring data consistency and drops availability. If availability is more important to your system, it is recommended to turn off Watchdog on the meta node.
 
@@ -893,17 +894,17 @@ The [Patroni template](v-pgsql-customize.md) was used to pull up the Postgres cl
 
 * [`oltp.yml`](#oltp) Regular OLTP template, default config.
 * [`olap.yml`](#olap) OLAP templates to improve parallelism, optimize for throughput, and optimize for long-running queries.
-* [`crit.yml`](#crit)) Core business templates, based on OLTP templates optimized for security, data integrity, using synchronous replication, forced to enable data checksum.
-* [`tiny.yml`](#tiny) Micro templates optimized for low-resource scenarios have demo clusters running in virtual machines.
+* [`crit.yml`](#crit) Core business templates, based on OLTP templates optimized for security, data integrity, using synchronous replication, forced to enable data checksum.
+* [`tiny.yml`](#tiny) Micro templates optimized for low-resource scenarios have demo clusters running in VMs.
 
 
 
 
 ### `pg_shared_libraries`
 
-Shared library loaded by PG, type: `string`, level: C, default value: `"timescaledb, pg_stat_statements, auto_explain"`.
+Shared database loaded by PG, type: `string`, level: C, default value: `"timescaledb, pg_stat_statements, auto_explain"`.
 
-Fill in the string of the `shared_preload_libraries` parameter in the Patroni template to control the dynamic libraries that PG starts preloading. In the current version, the following libraries are loaded by default: `timescaledb, pg_stat_statements, auand to_explain`.
+Fill in the string of the `shared_preload_libraries` parameter in the Patroni template to control the dynamic database that PG starts preloading. In the current version, the following databases are loaded by default: `timescaledb, pg_stat_statements, auand to_explain`.
 
 If Citus support is enabled by default, you need to modify this parameter by adding `citus` to the first position: `citus, timescaledb, pg_stat_statements, auto_explain`.
 
@@ -938,7 +939,7 @@ Users can implement the localization sorting function by `COLLATE` expression, w
 
 C-type of locale, type: `enum`, level: C, default value: `"en_US.UTF8"`
 
-Some PG extensions (`pg_trgm`) require additional character classification definitions to work properly for internationalized characters, so Pigsty will use the `en_US.UTF8` character set definition by default, and it is not recommended to modify this parameter.
+Some PG extensions (`pg_trgm`) require extra character classification definitions to work properly for internationalized characters, so Pigsty will use the `en_US.UTF8` character set definition by default, and it is not recommended to modify this parameter.
 
 
 
@@ -960,9 +961,9 @@ Pgbouncer listen port, type: `int`, level: C, default value: `6432`.
 
 Pgbouncer pooling mode, type: `int`, level: C, default value: `6432`.
 
-* `transaction`， Transaction-level connection pooling, by default, has good performance but affects the use of PreparedStatements with some other session-level features.
-* `session`， Session-level connection pooling for maximum compatibility.
-* `statements`， Statement-level join pooling, consider using this pattern if the queries are all point-and-click.
+* `transaction`, Transaction-level connection pooling, by default, has good performance but affects the use of PreparedStatements with some other session-level features.
+* `session`, Session-level connection pooling for maximum compatibility.
+* `statements`, Statement-level join pooling, consider using this pattern if the queries are all point-and-click.
 
 
 
@@ -981,20 +982,22 @@ When using Transaction Pooling mode, the number of active server connections is 
 
 [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) is responsible for creating a completely new set of Postgres clusters, while [`PG_PROVISION`](#PG_PROVISION) is responsible for creating the default objects in this new set of database clusters, including:
 
-* Basic roles: read-only role, read-write role, administrative role
+* Basic roles: read-only role, read-write role, admin role
 * Basic users: replica user, dbsu, monitor user, the admin user
-* Default permissions in the template database
-* Default schema
+* Default privileges in the template database
+* Default mode
 * Default Extensions
 * HBA black and white list rules
 
 Pigsty provides rich customization options, if you want to further customize the PG cluster, you can see [Customize: PGSQL Cluster](v-pgsql-customize.md).
 
+
+
 ### `pg_provision`
 
 Provision template to pgsql (app template), type: `bool`, level: C, default: `true.`
 
-Provision of the PostgreSQL cluster. Setting to false will skip the tasks defined by [`PG_TEMPLATE`](#PG_TEMPALTE). Note, however, that the creation of the four default dbsu, replication user, administrative user, and monitoring user is not affected by this.
+Provision of the PostgreSQL cluster. Setting to false will skip the tasks defined by [`PG_TEMPLATE`](#PG_TEMPALTE). Note, however, that the creation of the four default dbsu, replication user, admin user, and monitor user is not affected by this.
 
 ### `pg_init`
 
@@ -1004,8 +1007,8 @@ The path to pg-inits Shell script, which defaults to `pg-init`, is copied to `/p
 
 The default `pg-init` is just a wrapper for the SQL command:
 
-* `/pg/tmp/pg-init-roles.sql` ： Default role creation script generated from [`pg_default_roles`](#pg_default_roles).
-* `/pg/tmp/pg-init-template.sql`，SQL commands produced according to [`pg_default_privileges`](#pg_default_privileges), [`pg_default_schemas`](#pg_default_schemas), [`pg_default_extensions`](#pg_ default_extensions). Will be applied to both the default database template `template1` and the default admin  `postgres`.
+* `/pg/tmp/pg-init-roles.sql`: Default role creation script generated from [`pg_default_roles`](#pg_default_roles).
+* `/pg/tmp/pg-init-template.sql`: SQL commands produced according to [`pg_default_privileges`](#pg_default_privileges), [`pg_default_schemas`](#pg_default_schemas), [`pg_default_extensions`](#pg_ default_extensions). Will be applied to both the default database template `template1` and the default admin `postgres`.
 
 ```bash
 # system default roles
@@ -1045,7 +1048,7 @@ pg_default_roles:
   - { name: dbuser_stats , password: DBUser.Stats , roles: [dbrole_offline] , comment: business offline user for offline queries and ETL }           # ETL user
 ```
 
-This parameter defines the [default role](c-privilege.md#default role) and [default user](c-privilege.md#default user) in PostgreSQL in the form of an array of objects, which are defined in the same form as in [`pg_users`](#pg_users).
+This parameter defines the [default role](c-privilege.md#default-roles) and [default user](c-privilege.md#default-users) in PostgreSQL in the form of an array of objects, which are defined in the same form as in [`pg_users`](#pg_users).
 
 
 
@@ -1110,7 +1113,7 @@ pg_default_extensions:
   - name: intarray
 ```
 
-If the extension does not specify a `schema` field, the extension will install to the corresponding schema based on the current `search_path`, e.g. `public`.
+If the extension does not specify a `schema` field, the extension will install to the corresponding schema based on the current `search_path`, e.g., `public`.
 
 
 
@@ -1161,7 +1164,7 @@ pg_hba_rules:
       - host    all     +dbrole_readonly           127.0.0.1/32        md5
 ```
 
-This parameter is formally identical to [`pg_hba_rules_extra`](#pg_hba_rules_extra), and it is recommended to configure a uniform [`pg_hba_rules`](#pg_hba_rules) globally and use [`pg_hba_rules_extra`](# pg_hba_rules_extra) for additional customization. The rules in both parameters are applied sequentially, with the latter taking higher priority.
+This parameter is formally identical to [`pg_hba_rules_extra`](#pg_hba_rules_extra), and it is recommended to configure a uniform [`pg_hba_rules`](#pg_hba_rules) globally and use [`pg_hba_rules_extra`](# pg_hba_rules_extra) for extra customization. The rules in both parameters are applied sequentially, with the latter taking higher priority.
 
 
 
@@ -1193,8 +1196,8 @@ pgbouncer_hba_rules:
 
 The default Pgbouncer HBA rules are simple:
 
-1. allow login from **local** with password
-2. allow password login from the intranet network break
+1. Allow login from **local** with password
+2. Allow password login from the intranet network break
 
 Users can customize it.
 
@@ -1214,11 +1217,11 @@ PG Exporter for monitoring Postgres with Pgbouncer connection pools.
 
 PG-exporter config file, type: `string`, level: C, default value: `"pg_exporter.yml"`.
 
-The default config file used by `pg_exporter` defines the database and connection pool monitoring metrics in Pigsty. The default is [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pg_exporter/files/pg_exporter.yml).
+The default config file used by `pg_exporter` defines the database and connection pool monitor metrics in Pigsty. The default is [`pg_exporter.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pg_exporter/files/pg_exporter.yml).
 
 The PG-exporter config file used by Pigsty is supported by default from PostgreSQL 10.0 and is currently supported up to the latest PG 14 release. There are several of optional templates.
 
-* [`pg_exporter_basic.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pg_exporter/files/pg_exporter_basic.yml): contains only basic metrics, not Object monitoring metrics within the database.
+* [`pg_exporter_basic.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pg_exporter/files/pg_exporter_basic.yml): contains only basic metrics, not Object monitor metrics within the database.
 * [`pg_exporter_fast.yml`](https://github.com/Vonng/pigsty/blob/master/roles/pg_exporter/files/pg_exporter_fast.yml): metrics with shorter cache time definitions.
 
 
@@ -1252,11 +1255,11 @@ The PG URL used by PG-exporter to connect to the database should be the URL to a
 
 Optional param, defaults to the empty string, if the [`pg_exporter_url`](#pg_exporter_url) option is configured, the URL will be used directly as the monitor target pgurl. Otherwise, Pigsty will generate the target URL for monitoring using the following rule:
 
-* [`pg_monitor_username`](#pg_monitor_username) : Monitor User Name
+* [`pg_monitor_username`](#pg_monitor_username): Monitor User Name
 * [`pg_monitor_password`](#pg_monitor_password): Monitor User password
-* [`pg_localhost`](#pg_localhost):  PG listen to Local IP address or Unix Socket Dir
-* [`pg_port`](#pg_port):   PG Listen Port
-* [`pg_exorter_params`](#pg_exporter_params):  Extra Params for PG-exporter
+* [`pg_localhost`](#pg_localhost): PG listen to Local IP or Unix Socket Dir
+* [`pg_port`](#pg_port): PG Listen Port
+* [`pg_exorter_params`](#pg_exporter_params): Extra Params for PG-exporter
 
 The above params will be stitched together in the following manner:
 
@@ -1275,9 +1278,9 @@ Auto-database-discovery, type: `bool`, level: C/I, default value: `true`.
 
 Enable auto-database-discovery, enabled by default. When enabled, PG Exporter automatically detects changes to the list of databases and creates a crawl connection for each database.
 
-When off, monitoring of objects in the library is not available. (You can turn off this feature if you do not want to expose business-related data in the monitoring system)
+When off, monitoring of objects in the library is not available.
 
-Note that if you have many databases (100+) or a very large number of objects in the database (several k, a dozen), please carefully evaluate the overhead incurred by object monitoring.
+!> Note that if you have many databases (100+) or a very large number of objects in the database (several k, a dozen), please carefully evaluate the overhead incurred by object monitoring.
 
 
 
@@ -1286,7 +1289,7 @@ Note that if you have many databases (100+) or a very large number of objects in
 
 DB auto-discovery exclusion list, type: `string`, level: C/I, default value: `"template0,template1,postgres"`.
 
-Database name list, when auto-database-discovery is enabled, databases in this list **will not be monitored** (excluded from monitoring objects).
+Database name list, when auto-database-discovery is enabled, databases in this list **will not be monitored** (excluded from monitor objects).
 
 
 
@@ -1294,7 +1297,7 @@ Database name list, when auto-database-discovery is enabled, databases in this l
 
 Auto-database-discovery capsule list, type: `string`, level: C/I, default value: `""`.
 
-Database name list, when auto-database-discovery is enabled, databases that are not in this column table will not be monitored (explicitly specifying the databases to be monitored).
+Database name list, when auto-database-discovery is enabled, databases that are not in this column table will not be monitored.
 
 
 
@@ -1407,7 +1410,7 @@ An array consisting of [service definition](c-service.md#service) objects that d
 
 Enable Haproxy, type: `bool`, tier: C/I, default value: `true`.
 
-Pigsty deploys Haproxy on all database nodes by default, enabling Haproxy load balancer only on specific ins/nodes by overriding ins-level variables.
+Pigsty deploys Haproxy on all database nodes by default, enabling Haproxy LB only on specific instance/nodes by overriding ins-level variables.
 
 
 ### `haproxy_reload`
@@ -1429,7 +1432,7 @@ Not enabled by default, we recommend enabling it in production envs or adding ac
 
 ### `haproxy_admin_username`
 
-HAproxy administrator name, type: `string`, level: G, default value: `"admin"`.
+HAproxy admin user name, type: `string`, level: G, default value: `"admin"`.
 
 
 
@@ -1437,7 +1440,7 @@ HAproxy administrator name, type: `string`, level: G, default value: `"admin"`.
 
 ### `haproxy_admin_password`
 
-HAproxy administrator password, type: `string`, level: G, default value: `"pigsty"`.
+HAproxy admin user password, type: `string`, level: G, default value: `"pigsty"`.
 
 
 
@@ -1469,13 +1472,13 @@ HAproxy server timeout, type: `interval`, level: C, default value: `"24h"`.
 
 VIP mode: none, type: `enum`, level: C, default value: `"none"`.
 
-* `none`： No VIP setting, default option.
-* `l2`：Layer 2 VIP bound to the master (requires all members to be in the same Layer 2 network broadcast domain).
-* `l4`： Reserved value for traffic distribution via an external L4 load balancer. (not included in Pigsty's current implementation).
+* `none`: No VIP setting, default option.
+* `l2`: Layer 2 VIP bound to the primary (requires all members to be in the same Layer 2 network broadcast domain).
+* `l4`: Reserved value for traffic distribution via an external L4 load balancer. (not included in Pigsty's current implementation).
 
-VIPs are used to ensure the high availability of **reading and writing services** with **load balancers**. When using L2 VIPs, Pigsty's VIPs are hosted by a `vip-manager` and will be bound to the **cluster master library**.
+VIPs are used to ensure the HA of **reading and writing services** with **LBs**. When using L2 VIPs, Pigsty's VIPs are hosted by a `vip-manager` and will be bound to the **cluster primary**.
 
-This means that it is always possible to access the cluster master through a VIP, or the load balancer on the master through a VIP (which may have performance pressure).
+This means that it is always possible to access the cluster primary through a VIP, or the LB on the primary through a VIP (which may have performance pressure).
 
 > Note that when using Layer 2 VIP, you must ensure that the VIP candidate ins are under the same Layer 2 network (VLAN, switch).
 
@@ -1507,7 +1510,7 @@ Network CIDR mask length for VIP address, type: `int`, level: C, default value.
 
 ### `vip_interface`
 
-Network CIDR mask length for VIP address, type: `int`, level: C, default value:
+Network CIDR mask length for VIP address, type: `int`, level: C, default value.
 
 
 
@@ -1515,7 +1518,7 @@ Network CIDR mask length for VIP address, type: `int`, level: C, default value:
 
 ### `dns_mode`
 
-DNS config mode (reserved parameter), type: `enum`, level: C, default value:
+DNS config mode (reserved parameter), type: `enum`, level: C, default value.
 
 
 
@@ -1523,4 +1526,4 @@ DNS config mode (reserved parameter), type: `enum`, level: C, default value:
 
 ### `dns_selector`
 
-DNS resolution object selector (reserved parameter), type: `string`, level: C, default value:
+DNS resolution object selector (reserved parameter), type: `string`, level: C, default value.
