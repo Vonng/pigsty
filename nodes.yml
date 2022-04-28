@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   nodes.yml
 # Mtime     :   2020-05-12
-# Mtime     :   2022-03-20
+# Mtime     :   2022-04-28
 # Desc      :   init nodes for pigsty
 # Path      :   nodes.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -17,9 +17,9 @@
 # 3. run ./nodes.yml -l <selector> to finish nodes provisioning
 #--------------------------------------------------------------
 # ./nodes.yml -t node-id          # print node identity
-# ./nodes.yml -t node-exporter    # deploy and register node-exporter
-# ./nodes.yml -t node_register    # register node-exporter to prometheus
 # ./nodes.yml -t node_admin       # create admin user for nodes
+# ./nodes.yml -t node-exporter    # deploy and register node-exporter
+# ./nodes.yml -t node-register    # register node_exporter to prometheus
 # ...
 # ./nodes.yml -t dcs -e dcs_exists_action=clean  # force reinstall consul
 # ./nodes.yml -t node_admin -k -K -e ansible_user=<another admin>
@@ -98,7 +98,6 @@
     - role: consul
       tags: [ dcs, consul ]
 
-
 #---------------------------------------------------------------
 # Node monitor
 #---------------------------------------------------------------
@@ -118,6 +117,10 @@
     - role: promtail
       tags: promtail
       when: promtail_enabled|bool
+
+    # register node-exporter & docker to prometheus
+    - role: node_register
+      tags: node-register
 
 #---------------------------------------------------------------
 ...

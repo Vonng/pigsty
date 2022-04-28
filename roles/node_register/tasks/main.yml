@@ -1,0 +1,44 @@
+---
+
+#------------------------------------------------------------------------------
+# Register node_exporter
+#------------------------------------------------------------------------------
+- name: Deregister node exporter from prometheus
+  tags: [ node_deregister, deregister_prometheus ]
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  file: path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml state=absent
+
+- name: Register node exporter as prometheus target
+  tags: [ node_register, register_prometheus ]
+  when: node_exporter_enabled|bool or docker_enabled|bool
+  block:
+
+    # use hostname as nodename if not provided
+    - name: Fetch hostname from server if no node name is given
+      when: nodename is not defined or nodename == ''
+      shell: echo $HOSTNAME
+      register: hostname_result
+
+    - name: Setup nodename according to hostname
+      when: nodename is not defined or nodename == ''
+      set_fact:
+        nodename: "{{ hostname_result.stdout }}"
+
+    # /etc/prometheus/targets/nodes/{{ ip }}.yml
+    - name: Register node exporter as prometheus target
+      tags: [ node_exporter, node_register, register_prometheus ]
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["meta"] }}'
+      copy:
+        dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+        content: |
+          # {{ inventory_hostname }}
+          - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
+            targets: 
+              {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
+          
+              {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+          
+
+...
