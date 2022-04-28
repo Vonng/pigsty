@@ -1791,7 +1791,7 @@ INSERT INTO pigsty.setting(id,name,category,section,type,level,comment_cn,commen
 (364, 'node_admin_pk_current', 'NODES', 'NODE_ADMIN', 'bool', 'A', '是否将当前用户的公钥加入管理员账户', 'pks to be added to admin', '节点管理员', 'true'),
 (365, 'node_admin_pks', 'NODES', 'NODE_ADMIN', 'key[]', 'C', '可登陆管理员的公钥列表', 'add current user''s pkey?', '节点管理员', '["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com"]'),
 (370, 'node_timezone', 'NODES', 'NODE_TIME', 'string', 'C', 'NTP时区设置', 'node timezone', '节点时区与时间同步', '"Asia/Hong_Kong"'),
-(371, 'node_ntp_config', 'NODES', 'NODE_TIME', 'bool', 'C', '是否配置NTP服务？', 'setup ntp on node?', '节点时区与时间同步', 'true'),
+(371, 'node_ntp_enabled', 'NODES', 'NODE_TIME', 'bool', 'C', '是否配置NTP服务？', 'setup ntp on node?', '节点时区与时间同步', 'true'),
 (372, 'node_ntp_service', 'NODES', 'NODE_TIME', 'enum', 'C', 'NTP服务类型：ntp或chrony', 'ntp mode: ntp or chrony?', '节点时区与时间同步', '"ntp"'),
 (373, 'node_ntp_servers', 'NODES', 'NODE_TIME', 'string[]', 'C', 'NTP服务器列表', 'ntp server list', '节点时区与时间同步', '["pool cn.pool.ntp.org iburst", "pool pool.ntp.org iburst", "pool time.pool.aliyun.com iburst", "server 10.10.10.10 iburst", "server ntp.tuna.tsinghua.edu.cn iburst"]'),
 (380, 'node_exporter_enabled', 'NODES', 'NODE_EXPORTER', 'bool', 'C', '启用节点指标收集器', 'node_exporter enabled?', '节点指标暴露器', 'true'),

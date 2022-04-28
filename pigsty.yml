@@ -163,29 +163,36 @@ all:
         10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
         10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
       vars:
-        pg_cluster: pg-test                 # define pgsql cluster name
-        pg_version: 14                      # test postgresql 13 with pg-test cluster
-        pg_users: [{ name: test , password: test  ,pgbouncer: true ,roles: [dbrole_admin], comment: test user }]
-        pg_databases: [{ name: test }]      # create a database and user named 'test'
-        vip_mode: l2                        # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3             # virtual ip address for this cluster
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-        pg_services_extra:                  # extra services in addition to pg_services, array of service definition
+        pg_cluster: pg-test           # define pgsql cluster name
+        pg_version: 14                # test postgresql 13 with pg-test cluster
+        pg_users:
+          - name: test
+            password: test
+            pgbouncer: true
+            roles: [ dbrole_admin ]
+        pg_databases:                 # create a database and user named 'test'
+          - name: test
+
+        vip_mode: l2                  # enable/disable vip (require members in same LAN)
+        vip_address: 10.10.10.3       # virtual ip address for this cluster
+        vip_cidrmask: 8               # cidr network mask length
+        vip_interface: eth1           # interface to add virtual ip
+
+        pg_services:                  # extra services in addition to pg_services_default, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-          - name: standby                   # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-            src_ip: "*"                     # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-            src_port: 5435                  # required, service exposed port (work as kubernetes service node port mode)
-            dst_port: pgbouncer             # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-            check_method: http              # optional, health check method: http is the only available method for now
-            check_port: patroni             # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-            check_url: /sync                # optional, health check url path, /read-only?lag=0 by default
-            check_code: 200                 # optional, health check expected http code, 200 by default
-            selector: "[]"                  # required, JMESPath to filter inventory ()
+          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+            src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
+            src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
+            dst_port: pgbouncer       # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+            check_method: http        # optional, health check method: http is the only available method for now
+            check_port: patroni       # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
+            check_url: /sync          # optional, health check url path, /read-only?lag=0 by default
+            check_code: 200           # optional, health check expected http code, 200 by default
+            selector: "[]"            # required, JMESPath to filter inventory ()
             selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-            haproxy:                        # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-              maxconn: 3000                 # optional, max allowed front-end connection
-              balance: roundrobin           # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+            haproxy:                  # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
+              maxconn: 3000           # optional, max allowed front-end connection
+              balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
               default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
@@ -202,14 +209,27 @@ all:
     #-----------------------------------------------------------------
     # CONNECT
     #-----------------------------------------------------------------
-    # ansible_user: vagrant              # which user to be used (when connecting to remote nodes)
-    # ansible_password: <ssh pass>       # ssh password to be used (sshpass required)
-    # ansible_become_pass: <sudo pass>   # sudo password to be used (not recommended)
-    proxy_env:                           # global proxy env when downloading packages
-      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com"
+    # INSTANCE level ansible connect parameters
+    # ansible_user: vagrant           # which user to be used (when connecting to remote nodes)
+    # ansible_port: 22                # which port to be used (when connecting to remote nodes)
+    # ansible_host: meta              # ssh alias host name (when connecting to remote nodes)
+    # ansible_ssh_private_key_file: ~/.ssh/id_rsa            # ssh private key file
+    # ansible_ssh_common_args: '-o StrictHostKeyChecking=no' # ssh common args
+
+    proxy_env:                        # global proxy env when downloading packages
+      no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn"
       # http_proxy:  # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # https_proxy: # set your proxy here: e.g http://user:pass@proxy.xxx.com
       # all_proxy:   # set your proxy here: e.g http://user:pass@proxy.xxx.com
+
+    #-----------------------------------------------------------------
+    # CA
+    #-----------------------------------------------------------------
+    ca_method: create                # create|copy|recreate
+    ca_subject: "/CN=root-ca"        # self-signed CA subject
+    ca_homedir: /ca                  # ca cert directory
+    ca_cert: ca.crt                  # ca public key/cert
+    ca_key: ca.key                   # ca private key
 
     #-----------------------------------------------------------------
     # REPO
@@ -358,15 +378,6 @@ all:
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
 
     #-----------------------------------------------------------------
-    # CA
-    #-----------------------------------------------------------------
-    ca_method: create                # create|copy|recreate
-    ca_subject: "/CN=root-ca"        # self-signed CA subject
-    ca_homedir: /ca                  # ca cert directory
-    ca_cert: ca.crt                  # ca public key/cert
-    ca_key: ca.key                   # ca private key
-
-    #-----------------------------------------------------------------
     # NGINX
     #-----------------------------------------------------------------
     nginx_upstream:                  # domain names and upstream servers
@@ -394,14 +405,10 @@ all:
     #-----------------------------------------------------------------
     # NAMESERVER
     #-----------------------------------------------------------------
-    nameserver_enabled:  false      # setup dnsmasq
+    nameserver_enabled: false       # setup dnsmasq
     dns_records:                    # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta         # sandbox vip for pg-meta
       - 10.10.10.3  pg-test         # sandbox vip for pg-test
-      - 10.10.10.10 meta-1          # sandbox node meta-1
-      - 10.10.10.11 node-1          # sandbox node node-1
-      - 10.10.10.12 node-2          # sandbox node node-2
-      - 10.10.10.13 node-3          # sandbox node node-3
       - 10.10.10.10 pg-meta-1       # sandbox instance pg-meta-1
       - 10.10.10.11 pg-test-1       # sandbox instance node-1
       - 10.10.10.12 pg-test-2       # sandbox instance node-2
@@ -410,26 +417,26 @@ all:
     #-----------------------------------------------------------------
     # PROMETHEUS
     #-----------------------------------------------------------------
-    prometheus_enabled:  true     # setup prometheus
+    prometheus_enabled: true        # setup prometheus
     prometheus_data_dir: /data/prometheus/data
     prometheus_options: '--storage.tsdb.retention=15d'
     prometheus_reload: false        # reload prometheus instead of recreate it?
     prometheus_sd_method: static    # service discovery method: static|consul
-    prometheus_scrape_interval: 5s # global scrape & evaluation interval
-    prometheus_scrape_timeout: 4s   # scrape timeout
-    prometheus_sd_interval: 5s     # service discovery refresh interval
+    prometheus_sd_interval: 5s      # service discovery refresh interval
+    prometheus_scrape_interval: 10s # global scrape & evaluation interval
+    prometheus_scrape_timeout: 8s   # scrape timeout
 
     #-----------------------------------------------------------------
     # EXPORTER
     #-----------------------------------------------------------------
     exporter_install: none           # none|yum|binary, none by default
-    exporter_repo_url: ''            # if set, repo will be added to /etc/yum.repos.d/ before yum installation
+    exporter_repo_url: ''            # if set, repo will be added to /etc/yum.repos.d/
     exporter_metrics_path: /metrics  # default metric path for pg related exporter
 
     #-----------------------------------------------------------------
     # GRAFANA
     #-----------------------------------------------------------------
-    grafana_enabled: true           # setup grafana
+    grafana_enabled: true           # enable grafana? only works on meta nodes
     grafana_endpoint: http://10.10.10.10:3000     # grafana endpoint url
     grafana_admin_username: admin   # default grafana admin username
     grafana_admin_password: pigsty  # default grafana admin password
@@ -447,7 +454,7 @@ all:
     #-----------------------------------------------------------------
     # LOKI
     #-----------------------------------------------------------------
-    loki_enabled: true              # setup loki
+    loki_enabled: true              # enable loki? only works on meta nodes
     loki_endpoint: http://10.10.10.10:3100/loki/api/v1/push # where to push data
     loki_clean: false               # whether remove existing loki data
     loki_options: '-config.file=/etc/loki.yml -config.expand-env=true'
@@ -470,8 +477,6 @@ all:
     consul_data_dir: /data/consul    # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /data/etcd        # etcd data dir (/var/lib/consul by default)
 
-
-
     #================================================================#
     #                         VARS: NODES                            #
     #================================================================#
@@ -480,11 +485,11 @@ all:
     #-----------------------------------------------------------------
     # NODE_IDENTITY
     #-----------------------------------------------------------------
-    meta_node: false                # node with meta_node flag will be marked as admin node
-    # nodename:                     # [OPTIONAL] node instance's identity, used as `ins`
-    node_cluster: nodes             # [OPTIONAL] node cluster identity, 'nodes' by default, used as `cls`
-    nodename_overwrite: true        # use node's nodename as hostname?
-    nodename_exchange: false        # exchange hostname among play hosts?
+    meta_node: false                  # node with meta_node flag will be marked as admin node
+    # nodename:          # [OPTIONAL] # node instance identity, used as `ins`, hostname by default
+    node_cluster: nodes  # [OPTIONAL] # node cluster identity, used as `cls`, 'nodes' by default
+    nodename_overwrite: true          # overwrite node's hostname with nodename?
+    nodename_exchange: false          # exchange nodename among play hosts?
 
     #-----------------------------------------------------------------
     # NODE_DNS
@@ -502,9 +507,9 @@ all:
     #-----------------------------------------------------------------
     # NODE_REPO
     #-----------------------------------------------------------------
-    node_repo_method: local         # none|local|public
+    node_repo_method: local         # none|local: ad local repo|public: add upstream directly
     node_repo_remove: true          # remove existing repo on nodes?
-    node_local_repo_url:            # list local repo url, if node_repo_method = local
+    node_repo_local_urls:           # list local repo url, if node_repo_method = local
       - http://pigsty/pigsty.repo
 
     #-----------------------------------------------------------------
@@ -521,7 +526,7 @@ all:
     node_meta_pip_install: jupyterlab  # extra pip packages to be installed on meta nodes
 
     #-----------------------------------------------------------------
-    # NODE_FEATURES
+    # NODE_TUNE
     #-----------------------------------------------------------------
     node_disable_numa: false        # disable numa, reboot required
     node_disable_swap: false        # disable swap, use with caution
@@ -529,15 +534,7 @@ all:
     node_disable_selinux: true      # disable selinux
     node_static_network: true       # keep dns resolver settings after reboot
     node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
-
-    #-----------------------------------------------------------------
-    # NODE_MODULES
-    #-----------------------------------------------------------------
     node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
-
-    #-----------------------------------------------------------------
-    # NODE_TUNE
-    #-----------------------------------------------------------------
     node_tune: tiny                 # install and activate tuned profile: none|oltp|olap|crit|tiny
     node_sysctl_params: { }         # set additional sysctl parameters, k:v format
 
@@ -556,7 +553,7 @@ all:
     # NODE_TIME
     #-----------------------------------------------------------------
     node_timezone: Asia/Hong_Kong    # default node timezone, empty will not change
-    node_ntp_config: true            # config ntp service? false will leave it with system default
+    node_ntp_enabled: true           # enable ntp service? false will leave ntp service untouched
     node_ntp_service: ntp            # ntp service provider: ntp|chrony
     node_ntp_servers:                # default NTP servers
       - pool cn.pool.ntp.org iburst
@@ -564,6 +561,8 @@ all:
       - pool time.pool.aliyun.com iburst
       - server 10.10.10.10 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
+    node_crontab: [ ]                # crontab entries
+
 
     #-----------------------------------------------------------------
     # NODE DOCKER
@@ -593,19 +592,19 @@ all:
     #================================================================#
     #                         VARS: PGSQL                            #
     #================================================================#
-    # global variables for PostgreSQL
 
     #-----------------------------------------------------------------
     # PG_IDENTITY
     #-----------------------------------------------------------------
-    # pg_cluster:                    # <CLUSTER>  <REQUIRED>  : pgsql cluster name
-    # pg_shard:                      # <CLUSTER>              : pgsql shard name
-    # pg_sindex: 0                   # <CLUSTER>              : pgsql shard index
-    # gp_role: master                # <CLUSTER>              : gpsql role, master or segment
-    # pg_role: replica               # <INSTANCE> <REQUIRED>  : pg role : primary, replica, offline
-    # pg_seq: 0                      # <INSTANCE> <REQUIRED>  : instance seq number
-    # pg_instances: {}               # <INSTANCE>             : define multiple pg instances on node, used by monly & gpsql
-    # pg_upstream:                   # <INSTANCE>             : replication upstream ip addr
+    # pg_cluster:                     # <CLUSTER>  <REQUIRED>  : pgsql cluster name
+    # pg_role: replica                # <INSTANCE> <REQUIRED>  : pg role : primary, replica, offline
+    # pg_seq: 0                       # <INSTANCE> <REQUIRED>  : instance seq number
+    # pg_instances: {}                # <INSTANCE>             : define multiple pg instances on node, used by monly & gpsql
+    # pg_upstream:                    # <INSTANCE>             : replication upstream ip addr
+
+    # pg_shard:                       # <CLUSTER>              : pgsql shard name
+    # pg_sindex: 0                    # <CLUSTER>              : pgsql shard index
+    # gp_role: master                 # <CLUSTER>              : gpsql role, master or segment
     pg_offline_query: false          # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
     pg_backup: false                 # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
     pg_weight: 100                   # <INSTANCE> [FLAG] default load balance weight (instance level)
@@ -686,7 +685,6 @@ all:
     pgbouncer_port: 6432             # pgbouncer port, 6432 by default
     pgbouncer_poolmode: transaction  # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_max_db_conn: 100       # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
-
 
     #-----------------------------------------------------------------
     # PG_PROVISION
@@ -782,8 +780,8 @@ all:
     #-----------------------------------------------------------------
     # PG_EXPORTER
     #-----------------------------------------------------------------
-    pg_exporter_config: pg_exporter_fast.yml # use fast cache exporter for demo
     pg_exporter_enabled: true              # setup pg_exporter on instance
+    pg_exporter_config: pg_exporter.yml    # use fast cache exporter for demo
     pg_exporter_port: 9630                 # pg_exporter listen port
     pg_exporter_params: 'sslmode=disable'  # url query parameters for pg_exporter
     pg_exporter_url: ''                    # optional, overwrite auto-generate postgres connstr
@@ -806,6 +804,7 @@ all:
         dst_port: pgbouncer          # 5433 route to pgbouncer
         check_url: /primary          # primary health check, success when instance is primary
         selector: "[]"               # select all instance as primary service candidate
+
       - name: replica                # service name {{ pg_cluster }}-replica
         src_ip: "*"
         src_port: 5434
@@ -813,6 +812,7 @@ all:
         check_url: /read-only        # read-only health check. (including primary)
         selector: "[]"               # select all instance as replica service candidate
         selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
+
       - name: default                # service's actual name is {{ pg_cluster }}-default
         src_ip: "*"                  # service bind ip address, * for all, vip for cluster virtual ip address
         src_port: 5436               # bind port, mandatory
@@ -826,6 +826,7 @@ all:
           maxconn: 3000              # default front-end connection
           balance: roundrobin        # load balance algorithm (roundrobin by default)
           default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+
       - name: offline                # service name {{ pg_cluster }}-offline
         src_ip: "*"
         src_port: 5438
@@ -849,44 +850,5 @@ all:
     # vip_interface: eth0             # virtual ip network interface (l2 only)
     # dns_mode: vip                   # vip|all|selector: how to resolve cluster DNS?
     # dns_selector: '[]'              # if dns_mode == vip, filter instances been resolved
-
-
-    #================================================================#
-    #                         VARS: REDIS                            #
-    #================================================================#
-    # REDIS are not enabled by default
-
-    #-----------------------------------------------------------------
-    # REDIS_IDENTITY
-    #-----------------------------------------------------------------
-    #redis_cluster: redis-test       # name of this redis cluster @ cluster level
-    #redis_node: 1                   # redis node identifier, integer sequence @ node level
-    #redis_instances: {}             # redis instances definition of this redis node @ node level
-
-    #-----------------------------------------------------------------
-    # REDIS_PROVISION
-    #-----------------------------------------------------------------
-    #redis_install: yum              # none|yum|binary, yum by default (install from yum repo)
-    #redis_mode: standalone          # standalone,cluster,sentinel
-    #redis_conf: redis.conf          # config template path (except sentinel)
-    #redis_fs_main: /data            # main fs mountpoint for redis data
-    #redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
-    #redis_exists_action: clean      # abort|skip|clean if redis server already exists
-    #redis_disable_purge: false      # force redis_exists_action = abort if true
-    #redis_max_memory: 1GB           # max memory used by each redis instance
-    #redis_mem_policy: allkeys-lru   # memory eviction policy
-    #redis_password: ''              # masterauth & requirepass password, disable by empty string
-    #redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
-    #redis_aof_enabled: false        # redis aof enabled
-    #redis_rename_commands: {}       # rename dangerous commands
-    #redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
-
-    #-----------------------------------------------------------------
-    # REDIS_EXPORTER
-    #-----------------------------------------------------------------
-    #redis_exporter_enabled: true    # install redis exporter on redis nodes ?
-    #redis_exporter_port: 9121       # default port for redis exporter
-    #redis_exporter_options: ''      # default cli args for redis exporter
-
 
 ...

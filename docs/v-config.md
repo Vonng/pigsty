@@ -312,7 +312,7 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 364  | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)  | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | Add the current user's public key to the admin user          |
 | 365  | [`node_admin_pks`](v-nodes.md#node_admin_pks)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Login admin's public key list                                |
 | 370  | [`node_timezone`](v-nodes.md#node_timezone)                  | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP time zone setting                                        |
-| 371  | [`node_ntp_config`](v-nodes.md#node_ntp_config)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | Configure NTP service                                        |
+| 371  | [`node_ntp_enabled`](v-nodes.md#node_ntp_enabled)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | Configure NTP service                                        |
 | 372  | [`node_ntp_service`](v-nodes.md#node_ntp_service)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP service type: ntp or chrony                              |
 | 373  | [`node_ntp_servers`](v-nodes.md#node_ntp_servers)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP Server List                                              |
 | 380  | [`node_exporter_enabled`](v-nodes.md#node_exporter_enabled)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | Enable node metrics collector                                |

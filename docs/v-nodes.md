@@ -50,7 +50,7 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 364 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A   | pks to be added to admin           |
 | 365 | [`node_admin_pks`](#node_admin_pks)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?           |
 | 370 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C   | node timezone                      |
-| 371 | [`node_ntp_config`](#node_ntp_config)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                 |
+| 371 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                 |
 | 372 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C   | ntp mode: ntp or chrony?           |
 | 373 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C   | ntp server list                    |
 | 380 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?             |
@@ -550,7 +550,7 @@ When deploying in production envs, be sure to note this parameter and add only t
 
 The node time zone is synchronized with time.
 
-If the node is already configured with an NTP server, you can configure [`node_ntp_config`](v-nodes.md#node_dns_server) to `false` to skip the setting of the NTP service.
+If the node is already configured with an NTP server, you can configure [`node_ntp_enabled`](v-nodes.md#node_dns_server) to `false` to skip the setting of the NTP service.
 
 
 ### `node_timezone`
@@ -563,7 +563,7 @@ Select `false`, or leave it blank, and Pigsty will not modify the time zone conf
 
 
 
-### `node_ntp_config`
+### `node_ntp_enabled`
 
 Is the NTP service configured? , type: `bool`, level: C, default value: `true`.
 
@@ -583,7 +583,7 @@ Specify the type of NTP service used by the system; by default, `ntp` is used as
 * `ntp`： Traditional NTP Service
 * `chrony`： Time services used by CentOS 7/8 by default
 
-It only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
+It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
 
 
 
@@ -598,7 +598,7 @@ List of NTP servers, type: `string[]`, level: C, default value:
 - server 10.10.10.10 iburst
 ```
 
-It only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
+It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
 
 
 

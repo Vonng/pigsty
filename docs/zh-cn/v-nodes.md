@@ -50,7 +50,7 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 364 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A     | 是否将当前用户的公钥加入管理员账户   |
 | 365 | [`node_admin_pks`](#node_admin_pks)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C     | 可登陆管理员的公钥列表               |
 | 370 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C     | NTP时区设置                          |
-| 371 | [`node_ntp_config`](#node_ntp_config)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C     | 是否配置NTP服务？                    |
+| 371 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C     | 是否配置NTP服务？                    |
 | 372 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C     | NTP服务类型：ntp或chrony             |
 | 373 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C     | NTP服务器列表                        |
 | 380 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C     | 启用节点指标收集器                   |
@@ -538,7 +538,7 @@ node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
 节点时区与时间同步。
 
-如果您的节点已经配置有NTP服务器，则可以配置 [`node_ntp_config`](v-nodes.md#node_dns_server) 为 `false`，跳过NTP服务的设置。
+如果您的节点已经配置有NTP服务器，则可以配置 [`node_ntp_enabled`](v-nodes.md#node_dns_server) 为 `false`，跳过NTP服务的设置。
 
 
 ### `node_timezone`
@@ -551,7 +551,7 @@ NTP时区设置, 类型：`string`，层级：C，默认值为空。
 
 
 
-### `node_ntp_config`
+### `node_ntp_enabled`
 
 是否配置NTP服务？, 类型：`bool`，层级：C，默认值为：`true`
 
@@ -571,7 +571,7 @@ NTP服务类型：`ntp` 或 `chrony`, 类型：`enum`，层级：C，默认值�
 * `ntp`：传统NTP服务
 * `chrony`：CentOS 7/8默认使用的时间服务
 
-只有当 [`node_ntp_config`](#node_ntp_config) 为真时生效。
+只有当 [`node_ntp_enabled`](#node_ntp_enabled) 为真时生效。
 
 
 
@@ -586,7 +586,7 @@ NTP服务器列表, 类型：`string[]`，层级：C，默认值为：
 - server 10.10.10.10 iburst
 ```
 
-只有当 [`node_ntp_config`](#node_ntp_config) 为真时生效。
+只有当 [`node_ntp_enabled`](#node_ntp_enabled) 为真时生效。
 
 
 

@@ -303,7 +303,7 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 364  | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)  | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | 是否将当前用户的公钥加入管理员账户   |
 | 365  | [`node_admin_pks`](v-nodes.md#node_admin_pks)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | 可登陆管理员的公钥列表               |
 | 370  | [`node_timezone`](v-nodes.md#node_timezone)                  | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP时区设置                          |
-| 371  | [`node_ntp_config`](v-nodes.md#node_ntp_config)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | 是否配置NTP服务？                    |
+| 371  | [`node_ntp_enabled`](v-nodes.md#node_ntp_enabled)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | 是否配置NTP服务？                    |
 | 372  | [`node_ntp_service`](v-nodes.md#node_ntp_service)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP服务类型：ntp或chrony             |
 | 373  | [`node_ntp_servers`](v-nodes.md#node_ntp_servers)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP服务器列表                        |
 | 380  | [`node_exporter_enabled`](v-nodes.md#node_exporter_enabled)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | 启用节点指标收集器                   |
