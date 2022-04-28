@@ -15,8 +15,8 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 - [`PROMTAIL`](#PROMTAIL) : 日志收集组件
 
 
-| ID  |                         Name                          |              Section              |   Type   | Level |               Comment                |
-|-----|-------------------------------------------------------|-----------------------------------|----------|-------|--------------------------------------|
+| ID |                         Name                          |              Section              |   Type   | Level |               Comment                |
+|--|-------------------------------------------------------|-----------------------------------|----------|-------|--------------------------------------|
 | 300 | [`meta_node`](#meta_node)                             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C     | 表示此节点为元节点                   |
 | 301 | [`nodename`](#nodename)                               | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | I     | 指定节点实例标识                     |
 | 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C     | 节点集群名，默认名为nodes            |
@@ -61,6 +61,10 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 392 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G     | promtail使用的默认端口               |
 | 393 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I   | promtail命令行参数                   |
 | 394 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C     | promtail状态文件位置                 |
+| 400 | [`docker_enabled`](#docker_enabled)            | [`DOCKER`](#DOCKER)        | bool     | C   | dockerd是否启用?                    |
+| 401 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup驱动               |
+| 402 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker镜像仓库地址    |
+| 403 | [`docker_image_cache`](#docker_image_cache)     | [`DOCKER`](#DOCKER) | string   | C | docker镜像缓存包地址       |
 
 
 ----------------
@@ -686,3 +690,35 @@ promtail命令行参数, 类型：`string`，层级：C/I，默认值为：`"-co
 promtail状态文件路径, 类型：`string`，层级：C，默认值为：`"/var/log/positions.yaml"`
 
 Promtail记录了所有日志的消费偏移量，定期写入[`promtail_positions`](#promtail_positions) 指定的文件中。
+
+
+
+----------------
+
+## `DOCKER`
+
+Pigsty默认在所有元节点上启用Docker，而普通节点不启用。
+
+
+### `docker_enabled`
+
+是否在当前节点启用Docker？类型：`bool`，层级：`C`，默认值为`false`，但元节点默认为`true`。
+
+
+
+### `docker_cgroups_driver`
+
+Docker使用的CGroup驱动，类型：`string`，层级：`C`，默认为`systemd`。
+
+
+
+### `docker_registry_mirrors`
+
+Docker使用的镜像仓库地址，类型：`string[]`，层级：`C`，默认为空，即直接使用 DockerHub。
+
+
+### `docker_image_cache`
+
+本地的Docker镜像离线缓存包，类型：`path`，层级：`C`，默认为：`/www/pigsty/docker.tar.lz4`
+
+如果存在时，配置Docker时会自动加载至本地Docker中。

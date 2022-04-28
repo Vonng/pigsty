@@ -133,7 +133,7 @@ Playbook [`infra-jupyter.yml`](https://github.com/Vonng/pigsty/blob/master/infra
 Check [Tutorial: Jupyter Lab](t-jupyter.md) for more details. 
 
 
-
+![](_media/playbook/infra-jupyter.svg)
 
 
 

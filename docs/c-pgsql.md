@@ -6,10 +6,6 @@
 * [PGSQL Cluster](#PGSQL-Cluster) / [ER Model](#ER-Model) / [Identity Parameter](#Identity-Parameter)
 * [Cluster](#Cluster) /  [Instance](#Instance) / [Node](#Node) / [Service](#Service)
 * [PostgreSQL HA](#High-Availability)
-
-
-
-
 * [Deploy: PGSQL](d-pgsql.md) ｜[Config: PGSQL](v-pgsql.md)  | [Playbook: PGSQL](p-pgsql.md) ｜ [Custom: PGSQL](v-pgsql-customize.md)
 * [PGSQL Service](c-service.md#Service) and [PGSQL Access](c-service.md#Access)
 * [PGSQL Privilege](c-privilege.md#Privilege) and [PGSQL Authentication](c-privilege.md#Authentication)

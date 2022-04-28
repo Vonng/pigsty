@@ -138,11 +138,5 @@
 
 详细教程请参考 [教程：启用Jupyter Lab服务](t-jupyter.md)。
 
-
-
-
-
-
-
-
+![](../_media/playbook/infra-jupyter.svg)
 

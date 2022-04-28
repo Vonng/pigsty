@@ -13,7 +13,6 @@ Once pigsty is installed on the meta node with [`infra.yml`](p-infra.md), You ca
 
 
 
-
 ---------------
 
 ## `nodes`
