@@ -264,8 +264,8 @@ Pigsty使用安全保险机制来避免误删运行中的Consul实例，请使�
 
 </details>
 
+<details><summary>常见问题5：集群从库带有`clonefrom`标签，但因数据损坏不宜使用或拉取失败</summary>
 
-<details><summary>常见问题4：集群从库带有`clonefrom`标签，但因数据损坏不宜使用或拉取失败</summary>
 
 找到问题机器，切换至`postgres`用户，修改 patroni 配置文件并重载生效
 
@@ -277,8 +277,8 @@ pg list -W # 查阅集群状态，确认故障实例没有clonefrom标签
 ```
 </details>
 
+<details><summary>常见问题6：如何使用现有用户创建固定的管理员用户</summary>
 
-<details><summary>常见问题5：如何使用现有用户创建固定的管理员用户</summary>
 系统默认使用 `dba` 作为管理员用户，该用户应当可以从管理机通过ssh免密码登陆远程数据库节点，并免密码执行sudo命令。
 
 如果分配的机器默认没有该用户，但您有其他的管理用户（例如`vagrant`）可以ssh登陆远程节点并执行sudo，则可以执行以下命令，使用其他的用户登陆远程机器并自动创建标准的管理用户：
@@ -295,8 +295,8 @@ BECOME password[defaults to SSH password]:
 
 </details>
 
+<details><summary>偶见问题7：集群从库带有clonefrom标签，但因数据损坏不宜使用或拉取失败</summary>
 
-<details><summary>偶见问题6：集群从库带有clonefrom标签，但因数据损坏不宜使用或拉取失败</summary>
 
 找到问题机器，切换至`postgres`用户，修改 patroni 配置文件并重载生效
 
