@@ -33,8 +33,8 @@
 | S06  |         Connection pool contamination          | An error message similar to Cannot execute XXX on readonly transactions appears | Restart the Pgbouncer connection pool<br />or configure `server_reset_query` |
 | S07  | Connection pool cannot connect to the database |             pgbouncer can not connect to server              | Check whether the user, password, and HBA configuration are correct<br />Execute [Case-4: Cluster Service User Creation](r-sop.md#Case-4：Create-PGSQL-Biz-User) to refresh the user |
 | S08  |     Connection pool reaches QPS bottleneck     |    PGbouncer QPS reaches 3 to 4W, CPU usage reaches 100%     | Use multiple Pgbouncers (not recommended)<br />Use Default service to bypass Pgbouncer<br />Notify business side of speed limit |
-| S09  |          DCS Server is not available           | In auto-switchover mode, all master libraries will go to the unwritable state after TTL | **Set all clusters to [maintenance mode](t-operation#维护模式) immediately** <br /> |
-| S10  |            DCS Agavailableavailable            | If it is a slave, it has no effect, if it is a master, it will be demoted to a slave and the cluster is not writable | **Set all clusters to [maintenance mode](t-operation#维护模式) immediately** |
+| S09  |          DCS Server is not available           | In auto-switchover mode, all master libraries will go to the unwritable state after TTL | **Set all clusters to [maintenance mode](r-sop.md#维护模式) immediately** <br /> |
+| S10  |            DCS Agavailableavailable            | If it is a slave, it has no effect, if it is a master, it will be demoted to a slave and the cluster is not writable | **Set all clusters to [maintenance mode](r-sop.md#维护模式) immediately** |
 | S11  |                 XID Wraparound                 |       Enter protection mode when age remaining 1000w.        | This problem should be avoided in advance through monitoring <br /> locate the over aged databases and tables, perform emergency cleaning<br /> quickly locate the cause of blocking the vacuum and solve<br /> restore in single user mode |
 | S12  |                  WAL Stacking                  |                  WAL size continues to grow                  | Execute `CHECKPOINT`multiple times <br />confirm the wal archive status <br /> confirm whether there are unfinished ultra-longg transactions from the library <br /> confirm whether there are replication slots to prevent wal recycling |
 
@@ -52,7 +52,7 @@
 | M06  | Insert data conflicts due to duplicate primary key serial numbers |     violate constratint ...     |           Grow serial number value (e.g. +100000)            |
 | M07  |                Slow query queuing / avalanche                | Large number of slow query logs | Use pg_terminate_backend to periodically clean up slow queries (e.g. every 1 second) |
 | M08  |                 Deadlock queuing / avalanche                 |          Lock stacking          | Use pg_terminate_backend to periodically clean up queries (e.g. every 1 second) |
-| M09  |                      HBA denied access                       |      no HBA entry for xxx       | [Case 6: Cluster HBA rule tuning](t-operation# case-6: Cluster HBA rule tuning) |
+| M09  |                      HBA denied access                       |      no HBA entry for xxx       | [Case 6: Cluster HBA rule tuning](r-sop.md# case-6: Cluster HBA rule tuning) |
 | M10  |                     User password error                      |  password auth failure for xxx  | [Case 4: Cluster business user creation](case-4: Cluster business user creation) |
 | M11  |                  Insufficient access rights                  |     permission denied for x     | Check if the user created the object with the correct administrator<br />Refer to [Default Privilege](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L793) to manually fix the object privileges |
 

@@ -1,62 +1,64 @@
 ---
-- name: Setup docker service
+
+#------------------------------------------------------------------------------
+# install docker
+#------------------------------------------------------------------------------
+- name: Install docker and docker-compose
+  tags: docker_install
+  package: name={{ item }} state=present
+  with_items:
+    - docker-ce
+    - docker-compose
+
+
+#------------------------------------------------------------------------------
+# docker admin user
+#------------------------------------------------------------------------------
+- name: Add admin user to docker group
+  ignore_errors: true
+  tags: docker_admin
   block:
+    - name: Get current admin user
+      become: no  # get current user
+      command: whoami
+      register: whoami_result
 
-    #------------------------------------------------------------------------------
-    # install docker
-    #------------------------------------------------------------------------------
-    - name: Install docker and kubernetes
-      tags: docker_install
-      package: name={{ item }} state=present
-      with_items:
-        - docker-ce
-        - docker-compose
-
-
-    #------------------------------------------------------------------------------
-    # docker admin user
-    #------------------------------------------------------------------------------
     - name: Add admin user to docker group
-      ignore_errors: true
-      tags: docker_admin
-      block:
-        - name: Get current admin user
-          become: no  # get current user
-          command: whoami
-          register: whoami_result
+      user: name={{ item }} group=docker
+      with_items:
+        - "{{ whoami_result.stdout }}"
+        - "{{ node_admin_username|default('dba') }}"
 
-        - name: Add admin user to docker group
-          user: name={{ item }} group=docker
-          with_items:
-            - "{{ whoami_result.stdout }}"
-            - "{{ node_admin_username|default('dba') }}"
+#------------------------------------------------------------------------------
+# config docker
+#------------------------------------------------------------------------------
+- name: Make sure /etc/docker exists
+  tags: docker_config
+  file: path=/etc/docker state=directory mode=0755
 
-    #------------------------------------------------------------------------------
-    # config docker
-    #------------------------------------------------------------------------------
-    - name: Make sure /etc/docker exists
-      tags: docker_config
-      file: path=/etc/docker state=directory mode=0755
+- name: Overwrite /etc/docker/daemon.json
+  tags: docker_config
+  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
 
-    - name: Overwrite /etc/docker/daemon.json
-      tags: docker_config
-      template: src=daemon.json.j2 dest=/etc/docker/daemon.json
 
-    #------------------------------------------------------------------------------
-    # launch docker
-    #------------------------------------------------------------------------------
-    - name: Launch docker service unit
-      tags: docker_launch
-      systemd: name=docker state=restarted enabled=yes daemon_reload=yes
+#------------------------------------------------------------------------------
+# launch docker
+#------------------------------------------------------------------------------
+- name: Launch docker service unit
+  tags: docker_launch
+  systemd: name=docker state=restarted enabled=yes daemon_reload=yes
 
-    #------------------------------------------------------------------------------
-    # load docker images cache if exists
-    #------------------------------------------------------------------------------
-    - name: Check pigsty repo cache exists
-      stat: path={{ docker_image_cache }}
-      register: docker_cache
 
-    - name: Load docker image cache if exists
-      when: docker_cache.stat.exists
-      shell: cat {{ docker_image_cache }} | lz4 -d - | docker load
+#------------------------------------------------------------------------------
+# load docker images cache if exists
+#------------------------------------------------------------------------------
+- name: Check docker image cache exists
+  tags: docker_image
+  stat: path={{ docker_image_cache }}
+  register: docker_cache
+
+- name: Load docker image cache if exists
+  tags: docker_image
+  when: docker_cache.stat.exists
+  shell: cat {{ docker_image_cache }} | lz4 -d - | docker load
 ...

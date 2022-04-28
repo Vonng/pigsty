@@ -91,7 +91,6 @@
 ```bash
 ./infra.yml              # 在元节点安装 Pigsty
 ./infra-pgweb.yml        # 在元节点加装 PgWeb
-./infra-jupyter.yml      # 在元节点加装 Jupyter
 ./nodes.yml -l pg-test   # 将 pg-test 所属三节点纳入管理
 ./pgsql.yml -l pg-test   # 在 pg-test 三节点上部署数据库集群
 ```
@@ -124,7 +123,6 @@
 - alertmanager
 - node_exporter
 - consul
-- jupyter
 - pgweb
 - loki
 - promtail
@@ -138,34 +136,7 @@
 
 [`infra-jupyter.yml`](https://github.com/Vonng/pigsty/blob/master/infra-jupyter.yml) 剧本用于在元节点上加装 Jupyter Lab服务
 
-Jupyter Lab 是非常实用的Python数据分析环境，但自带WebShell，风险较大。因此默认情况下，Demo环境，单机配置模板中会启用 JupyterLab，生产环境部署模版中默认不会启用JupyterLab
-
-请参照：[配置:Jupyter](v-infra.md#JUPYTER) 中的说明调整配置清单，然后执行此剧本即可。
-
-```bash
-./infra-jupyter.yml
-```
-
-
-如果您在生产环境中启用了Jupyter，请务必修改Jupyter的密码
-
-
-
----------------
-
-## `infra-pgweb`
-
-PGWeb 是基于浏览器的PostgreSQL客户端工具，可用于小批量个人数据查询等场景。目前为可选Beta功能，默认只在Demo中启用
-
-[`infra-pgweb.yml`](https://github.com/Vonng/pigsty/blob/master/infra-pgweb.yml) 剧本用于在元节点上加装 PGWeb 服务。
-
-请参照：[配置: PGWEB](v-infra.md#PGWEB) 中的说明调整配置清单，然后执行此剧本即可。
-
-```bash
-./infra-pgweb.yml
-```
-
-
+详细教程请参考 [教程：启用Jupyter Lab服务](t-jupyter.md)。
 
 
 

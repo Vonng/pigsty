@@ -287,10 +287,9 @@ Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
 * `pg_exporter`： **必须项**，监控系统核心组件
 * `vip-manager`：**必选项**，启用L2 VIP时所必须的软件包，用于管理VIP
 * `loki`, `promtail`：**必选项**，日志收集服务端与客户端二进制。
-* `postgrest`：可选，自动根据PostgreSQL数据库模式生成后端API接口
+* `haproxy`：通常为**必选项**，用于提供负载均衡服务，不启用/不使用时可以跳过。
 * `polysh`：可选，并行在多台节点上执行ssh命令
 * `pev2`：可选，PostgreSQL执行计划可视化
-* `pgweb`：可选，网页版PostgreSQL命令行工具
 * `redis`：**可选**，当安装Redis时为必选
 
 ```yaml
@@ -901,75 +900,3 @@ Etcd数据目录, 类型：`string`，层级：G，默认值为：`"/data/etcd"`
 
 
 
-
-
-
-
-----------------
-## `JUPYTER`
-
-Jupyter Lab 是基于 IPython Notebook 的完整数据科学研发环境，可用于数据分析与可视化。目前为可选Beta功能，默认只在Demo中启用
-
-因为JupyterLab提供了Web Terminal功能，因此不建议在生产环境中开启，可以使用 [`infra-jupyter`](p-infra.md#infra-jupyter) 在元节点上手动部署。
-
-
-
-### `jupyter_enabled`
-
-是否启用JupyterLab, 类型：`bool`，层级：G，默认值为：`false`，不启用。
-
-
-
-启用JupyterLab时，Pigsty会使用[`jupyter_username`](jupyter_username) 参数指定的用户运行本地Notebook服务器。
-此外，需要确保配置[`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) 参数包含默认值 `'jupyterlab'`。
-Jupyter Lab可以从Pigsty首页导航进入，或通过默认域名 `lab.pigsty` 访问，默认监听于8888端口。
-
-
-### `jupyter_username`
-
-Jupyter使用的操作系统用户, 类型：`bool`，层级：G，默认值为：`"jupyter"`
-
-其他用户名亦同理，但特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 Jupyter Lab，这会更方便，但也更危险。
-
-
-
-### `jupyter_password`
-
-Jupyter Lab的密码, 类型：`bool`，层级：G，默认值为：`"pigsty"`
-
-如果启用Jupyter，强烈建议修改此密码。加盐混淆的密码默认会写入`~jupyter/.jupyter/jupyter_server_config.json`。
-
-
-
-
-
-
-
-----------------
-## `PGWEB`
-
-PGWeb 是基于浏览器的PostgreSQL客户端工具，可用于小批量个人数据查询等场景。目前为可选Beta功能，默认只在Demo中启用
-
-在Demo中该功能默认启用，其他情况下默认关闭，可以使用 [`infra-pgweb`](p-infra.md#infra-pgweb) 在元节点上手动部署。
-
-
-### `pgweb_enabled`
-
-是否启用PgWeb, 类型：`bool`，层级：G，默认值为：`false`，对于演示与个人使用默认启用，对于生产环境部署默认不启用。
-
-PGWEB的网页界面默认只能通过域名由 Nginx 代理访问，默认为`cli.pigsty`，默认会使用名为`pgweb`的操作系统用户运行。
-
-```yaml
-- { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
-```
-
-
-### `pgweb_username`
-
-PgWeb使用的操作系统用户, 类型：`bool`，层级：G，默认值为：`"pgweb"`
-
-运行PGWEB服务器的操作系统用户。默认为`pgweb`，即会创建一个低权限的默认用户`pgweb`。
-
-特殊用户名`default`会使用当前执行安装的用户（通常为管理员）运行 PGWEB。
-
-您需要数据库的连接串方可通过PgWeb访问环境中的数据库。例如：`postgres://dbuser_dba:DBUser.DBA@127.0.0.1:5432/meta`
