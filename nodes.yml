@@ -42,6 +42,7 @@
   hosts: all
   gather_facts: no
   tags: [ always, node-id ]
+  connection: local
   tasks:
 
     # overwrite nodes identity with pgsql identity if pg_hostname is true
@@ -56,7 +57,7 @@
     - debug: { msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}" }
 
 #---------------------------------------------------------------
-# init node
+# Node Init
 #---------------------------------------------------------------
 - name: Node Init
   become: yes
@@ -69,15 +70,28 @@
     - role: node
       tags: node
 
-
 #---------------------------------------------------------------
-# init dcs
+# Node Docker
 #---------------------------------------------------------------
-- name: DCS Init
+- name: Node Docker
   become: yes
   hosts: all
   gather_facts: no
-  tags: dcs-init
+  tags: node-docker
+  roles:
+    # init docker if enabled
+    - role: docker
+      tags: docker
+      when: docker_enabled|bool
+
+#---------------------------------------------------------------
+# Node DCS
+#---------------------------------------------------------------
+- name: Node DCS
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: node-dcs
   roles:
 
     # init dcs:consul server/agent
@@ -86,7 +100,7 @@
 
 
 #---------------------------------------------------------------
-# init monitor for node
+# Node monitor
 #---------------------------------------------------------------
 - name: Node Monitor
   become: yes
@@ -98,10 +112,12 @@
     # init & register node exporter
     - role: node_exporter
       tags: node-exporter
+      when: node_exporter_enabled|bool
 
     # init & register promtail log agent
     - role: promtail
       tags: promtail
+      when: promtail_enabled|bool
 
 #---------------------------------------------------------------
 ...

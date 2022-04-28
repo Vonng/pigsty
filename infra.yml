@@ -2,8 +2,8 @@
 ---
 #==============================================================#
 # File      :   infra.yml
-# Ctime     :   2022-02-22
-# Mtime     :   2022-03-20
+# Ctime     :   2021-01-19
+# Mtime     :   2022-04-28
 # Desc      :   init infrastructure on pigsty meta nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -19,18 +19,17 @@
   tags: [ always, node-id ]
   connection: local
   tasks:
+
+    # overwrite nodes identity with pgsql identity if pg_hostname is true
     - name: Overwrite node_cluster
       when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
-      set_fact:
-        node_cluster: "{{ pg_cluster }}"    # use pg_cluster as non-trivial node_cluster name
+      set_fact: { node_cluster: "{{ pg_cluster }}" }  # use pg_cluster as non-trivial node_cluster name
 
     - name: Overwrite nodename
       when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
-      set_fact:
-        nodename: "{{ pg_cluster }}-{{ pg_seq }}"
+      set_fact: { nodename: "{{ pg_cluster }}-{{ pg_seq }}" }
 
-    - debug:
-        msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}"
+    - debug: { msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}" }
 
 #---------------------------------------------------------------
 # bootstrap meta node with local yum repo
@@ -41,6 +40,7 @@
   gather_facts: no
   tags: infra-boot
   roles:
+
     - role: environ             # setup environment on meta nodes
       tags: environ
 
@@ -55,14 +55,18 @@
   become: yes
   hosts: meta
   gather_facts: no
-  tags: infra-node
+  tags: [ infra-node , node-init ]
   roles:
 
     - role: node            # init meta node itself
-      tags: node
+      tags: [ node , node-init ]
+
+    - role: docker          # init docker if enabled
+      tags: docker
+      when: docker_enabled|bool
 
     - role: consul          # init dcs:consul (servers)
-      tags: [ consul , dcs ]
+      tags: [ consul , dcs-init ]
 
 
 #---------------------------------------------------------------
@@ -78,23 +82,25 @@
     - role: ca              # init ca-infrastructure
       tags: ca
 
-    - role: docker          # init docker
-      tags: docker
-
-    # - role: nameserver    # init dns nameserver
-    #   tags: nameserver
+    - role: nameserver    # init dns nameserver
+      tags: nameserver
+      when: nameserver_enabled|bool
 
     - role: nginx           # init nginx
       tags: nginx
+      when: repo_enabled|bool
 
     - role: prometheus      # init prometheus
       tags: prometheus
+      when: prometheus_enabled|bool
 
     - role: grafana         # init grafana
       tags: grafana
+      when: grafana_enabled|bool
 
     - role: loki            # init loki
       tags: loki
+      when: loki_enabled|bool
 
 
 #---------------------------------------------------------------
@@ -104,15 +110,18 @@
   become: yes
   hosts: meta
   gather_facts: no
-  tags: infra-monitor
+  tags: node-monitor
   roles:
 
-    - role: node_exporter   # init node exporter on meta nodes
+    # init & register node exporter
+    - role: node_exporter
       tags: node-exporter
+      when: node_exporter_enabled|bool
 
     # init & register promtail log agent
     - role: promtail
       tags: promtail
+      when: promtail_enabled|bool
 
 
 #---------------------------------------------------------------

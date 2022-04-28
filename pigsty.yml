@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node default config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-03-30
+# Mtime     :   2022-04-26
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -27,22 +27,35 @@ all:
   ##################################################################
   #                            CLUSTERS                            #
   ##################################################################
-  # meta nodes, common nodes, pgsql, redis, pgsql clusters are defined
-  # as k:v pair inside `all.children`. Where the key is cluster name
+  # meta nodes, nodes, pgsql, redis, pgsql clusters are defined as
+  # k:v pair inside `all.children`. Where the key is cluster name
   # and value is cluster definition consist of two parts:
   # `hosts`: cluster members ip and instance level variables
   # `vars` : cluster level variables
+  ##################################################################
   children:                           # groups definition
 
 
     #================================================================#
     #                  Meta Nodes: Admin Controller                  #
     #================================================================#
-    meta:   # meta nodes are defined in special group "meta" with flag: `meta_node=true`
-      vars: { meta_node: true , ansible_group_priority: 99 }
-      hosts: # 10.10.10.10 is the default and only meta node
-        10.10.10.10: { }
+    meta:   # meta nodes are defined in this special group "meta"
+      vars:
+        meta_node: true               # mark this group as meta nodes
+        ansible_group_priority: 99    # overwrite with the highest priority
 
+        repo_enabled:        true     # setup repo & underlying nginx
+        nameserver_enabled:  false    # setup dnsmasq
+        prometheus_enabled:  true     # setup prometheus
+        grafana_enabled:     true     # setup grafana
+        loki_enabled:        true     # setup loki
+        docker_enabled:      true     # setup docker
+
+      hosts:                          # add nodes to group 'meta'
+        10.10.10.10: { }
+        # 10.10.10.11: { repo_enabled: false }
+        # 10.10.10.12: { repo_enabled: false  }
+    #================================================================#
 
     #================================================================#
     #                        PGSQL Clusters                          #
@@ -314,12 +327,12 @@ all:
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
       - readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel       # --- deps:devel -- #
       - ed mlocate parted krb5-devel apr apr-util audit                                                                 # --- deps:gpsql -- #
-      - grafana prometheus2 pushgateway alertmanager consul consul_exporter consul-template etcd dnsmasq                # -----  meta ----- #
+      - grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq                # -----  meta ----- #
       - node_exporter postgres_exporter nginx_exporter blackbox_exporter redis_exporter                                 # ---- exporter --- #
       - ansible python python-pip python-psycopg2                                                                       # - ansible & py3 - #
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
       - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail                           # -- pgsql common - #
-      - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4
+      - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL
       - postgresql14* postgis32_14* citus_14* pglogical_14* timescaledb-2-postgresql-14 pg_repack_14 wal2json_14        # -- pg14 packages -#
       - pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14
       - pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
@@ -340,11 +353,9 @@ all:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/postgrest/postgrest-9.0.0-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
-      - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
-      - https://github.com/sosedoff/pgweb/releases/download/v0.11.10/pgweb_linux_amd64.zip
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm
+      - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
 
     #-----------------------------------------------------------------
     # CA
@@ -383,6 +394,7 @@ all:
     #-----------------------------------------------------------------
     # NAMESERVER
     #-----------------------------------------------------------------
+    nameserver_enabled:  false      # setup dnsmasq
     dns_records:                    # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta         # sandbox vip for pg-meta
       - 10.10.10.3  pg-test         # sandbox vip for pg-test
@@ -398,6 +410,7 @@ all:
     #-----------------------------------------------------------------
     # PROMETHEUS
     #-----------------------------------------------------------------
+    prometheus_enabled:  true     # setup prometheus
     prometheus_data_dir: /data/prometheus/data
     prometheus_options: '--storage.tsdb.retention=15d'
     prometheus_reload: false        # reload prometheus instead of recreate it?
@@ -416,6 +429,7 @@ all:
     #-----------------------------------------------------------------
     # GRAFANA
     #-----------------------------------------------------------------
+    grafana_enabled: true           # setup grafana
     grafana_endpoint: http://10.10.10.10:3000     # grafana endpoint url
     grafana_admin_username: admin   # default grafana admin username
     grafana_admin_password: pigsty  # default grafana admin password
@@ -433,6 +447,7 @@ all:
     #-----------------------------------------------------------------
     # LOKI
     #-----------------------------------------------------------------
+    loki_enabled: true              # setup loki
     loki_endpoint: http://10.10.10.10:3100/loki/api/v1/push # where to push data
     loki_clean: false               # whether remove existing loki data
     loki_options: '-config.file=/etc/loki.yml -config.expand-env=true'
@@ -455,18 +470,6 @@ all:
     consul_data_dir: /data/consul    # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /data/etcd        # etcd data dir (/var/lib/consul by default)
 
-    #-----------------------------------------------------------------
-    # PGWEB (BETA)
-    #-----------------------------------------------------------------
-    pgweb_enabled: true             # setup jupyter lab server?
-    pgweb_username: pgweb           # os user name, special names: default|root (dangerous!)
-
-    #-----------------------------------------------------------------
-    # JUPYTER (BETA)
-    #-----------------------------------------------------------------
-    jupyter_enabled: true           # setup jupyter lab server?
-    jupyter_username: jupyter       # os user name, special names: default|root (dangerous!)
-    jupyter_password: pigsty        # default password for jupyter lab (important!)
 
 
     #================================================================#
@@ -561,6 +564,14 @@ all:
       - pool time.pool.aliyun.com iburst
       - server 10.10.10.10 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
+
+    #-----------------------------------------------------------------
+    # NODE DOCKER
+    #-----------------------------------------------------------------
+    docker_enabled: false            # enable docker on all nodes? (you can enable them on meta nodes only)
+    docker_cgroups_driver: systemd   # docker cgroup fs driver
+    docker_registry_mirrors: []      # docker registry mirror
+    docker_image_cache: /www/pigsty/docker.tar.lz4  # docker images tarball to be loaded if eixsts
 
     #-----------------------------------------------------------------
     # NODE_EXPORTER
