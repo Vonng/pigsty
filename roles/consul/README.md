@@ -4,18 +4,18 @@ This role will install consul on hosts
 
 * if target server in dcs_servers, init it as a server
 * otherwise, init a consul client and join dcs_servers
-* if consul already exists, the action depends on variable `dcs_exists_action`, where:
+* if consul already exists, the action depends on variable `consul_clean`, where:
     * `skip (default)` will skip this **play** on that host
     * `clean (dangerous)` will force remove existing consul instance
     * `abort` treat this as an error and will abort entire playbook for all hosts  
-* variable `dcs_name` will be used as consul data center name
+* variable `consul_name` will be used as consul data center name
 * key in `dcs_servers` will be used as consul server node name
 * host variable `nodename` or node's `hostname` will be used as consul node name
 
 ### Tricks
 
 ```
-./infra.yml --tags=dcs -e dcs_exists_action=clean
+./infra.yml --tags=dcs -e consul_clean=clean
 ```
 
 ### Tasks
@@ -63,11 +63,11 @@ dcs_servers:                    # dcs server dict in name:ip format
   # pg-meta-2: 10.10.10.11      # node with ip in dcs_servers will be initialized as dcs servers
   # pg-meta-3: 10.10.10.12      # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
 
-service_registry: consul        # where to register services: none | consul | etcd | both
+dcs_registry: consul        # where to register services: none | consul | etcd | both
 dcs_type: consul                 # consul | etcd | both
-dcs_name: pigsty                 # consul dc name | etcd initial cluster token
-dcs_exists_action: abort         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
-dcs_disable_purge: false         # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+consul_name: pigsty                 # consul dc name | etcd initial cluster token
+consul_clean: abort         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
+consul_safeguard: false         # set to true to disable purge functionality for good (force consul_clean = abort)
 consul_data_dir: /var/lib/consul # consul data dir (/var/lib/consul by default)
 consul_exists: false             # internal flag that indicate consul existence (DO NOT CHANGE!)
 etcd_data_dir: /var/lib/etcd     # etcd data dir (/var/lib/consul by default)

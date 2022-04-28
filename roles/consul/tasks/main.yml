@@ -21,15 +21,15 @@
     # skip or abort if dcs already exists
     #--------------------------------------------------------------------------
     # when any running instance exists, abort play in two cases:
-    # 1. dcs_disable_purge = true          (global flag to prevent accidentally purge)
-    # 2. dcs_exists_action == 'abort'
+    # 1. consul_safeguard = true          (global flag to prevent accidentally purge)
+    # 2. consul_clean == 'abort'
     - name: Abort due to consul exists
-      when: consul_exists and (dcs_disable_purge or dcs_exists_action == 'abort')
+      when: consul_exists and (consul_safeguard or consul_clean == 'abort')
       any_errors_fatal: true
-      fail: msg="Abort because consul instance already exists and dcs_exists_action=abort"
+      fail: msg="Abort because consul instance already exists and consul_clean=abort"
 
     - name: Skip due to consul exists
-      when: consul_exists and dcs_exists_action == 'skip'
+      when: consul_exists and consul_clean == 'skip'
       meta: end_host
 
 #------------------------------------------------------------------------------
@@ -43,7 +43,7 @@
     #--------------------------------------------------------------------------
     # dangerous: (it will remove consul data!)
     - name: Clean existing consul instance
-      when: not dcs_disable_purge and consul_exists and dcs_exists_action == 'clean' # DANGEROUS!
+      when: not consul_safeguard and consul_exists and consul_clean == 'clean' # DANGEROUS!
       debug:
         msg: "[DANGEROUS] running instance {{ inventory_hostname }} will be purged!"
 

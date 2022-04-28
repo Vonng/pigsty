@@ -267,11 +267,11 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 183  | [`loki_data_dir`](v-infra.md#loki_data_dir)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki's data dir                                              |
 | 184  | [`loki_retention`](v-infra.md#loki_retention)                | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki log default retention days                              |
 | 200  | [`dcs_servers`](v-infra.md#dcs_servers)                      | [`DCS`](v-infra.md#DCS)                         | G     | DCS server name:IP list                                      |
-| 201  | [`service_registry`](v-infra.md#service_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | Service Registration Location                                |
+| 201  | [`dcs_registry`](v-infra.md#dcs_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | Service Registration Location                                |
 | 202  | [`dcs_type`](v-infra.md#dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Type                                                     |
-| 203  | [`dcs_name`](v-infra.md#dcs_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
-| 204  | [`dcs_exists_action`](v-infra.md#dcs_exists_action)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
-| 205  | [`dcs_disable_purge`](v-infra.md#dcs_disable_purge)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
+| 203  | [`consul_name`](v-infra.md#consul_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
+| 204  | [`consul_clean`](v-infra.md#consul_clean)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
+| 205  | [`consul_safeguard`](v-infra.md#consul_safeguard)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
 | 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul Data Catalog                                          |
 | 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd Data Catalog                                            |
 | 220  | [`jupyter_enabled`](v-infra.md#jupyter_enabled)              | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Enable JupyterLab                                            |
@@ -284,33 +284,33 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 302  | [`node_cluster`](v-nodes.md#node_cluster)                    | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Node cluster name, default nodes                             |
 | 303  | [`nodename_overwrite`](v-nodes.md#nodename_overwrite)        | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Nodename overrides HOSTNAME                                  |
 | 304  | [`nodename_exchange`](v-nodes.md#nodename_exchange)          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Exchange hostnames between playbook nodes                    |
-| 310  | [`node_dns_hosts`](v-nodes.md#node_dns_hosts)                | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Static DNS Analysis                                          |
-| 311  | [`node_dns_hosts_extra`](v-nodes.md#node_dns_hosts_extra)    | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | Cluster Level                                                |
-| 312  | [`node_dns_server`](v-nodes.md#node_dns_server)              | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure DNS server method                                  |
+| 310  | [`node_etc_hosts_default`](v-nodes.md#node_etc_hosts_default)                | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Static DNS Analysis                                          |
+| 311  | [`node_etc_hosts`](v-nodes.md#node_etc_hosts)    | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | Cluster Level                                                |
+| 312  | [`node_dns_method`](v-nodes.md#node_dns_method)              | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure DNS server method                                  |
 | 313  | [`node_dns_servers`](v-nodes.md#node_dns_servers)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure a list of dynamic DNS servers                      |
 | 314  | [`node_dns_options`](v-nodes.md#node_dns_options)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure the /etc/resolv.conf                               |
 | 320  | [`node_repo_method`](v-nodes.md#node_repo_method)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | The way nodes use Yum repos                                  |
 | 321  | [`node_repo_remove`](v-nodes.md#node_repo_remove)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | Remove nodes with existing Yum repos                         |
 | 322  | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | URL of the local source                                      |
-| 330  | [`node_packages`](v-nodes.md#node_packages)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Packages for nodes                                           |
-| 331  | [`node_extra_packages`](v-nodes.md#node_extra_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Extra packages for nodes                                     |
-| 332  | [`node_meta_packages`](v-nodes.md#node_meta_packages)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages for meta nodes                                      |
-| 333  | [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install)  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages installed via pip3                                  |
+| 330  | [`node_packages_default`](v-nodes.md#node_packages_default)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Packages for nodes                                           |
+| 331  | [`node_packages`](v-nodes.md#node_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Extra packages for nodes                                     |
+| 332  | [`node_packages_meta`](v-nodes.md#node_packages_meta)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages for meta nodes                                      |
+| 333  | [`node_packages_meta_pip`](v-nodes.md#node_packages_meta_pip)  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages installed via pip3                                  |
 | 340  | [`node_disable_numa`](v-nodes.md#node_disable_numa)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node NUMA                                        |
 | 341  | [`node_disable_swap`](v-nodes.md#node_disable_swap)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node SWAP                                        |
 | 342  | [`node_disable_firewall`](v-nodes.md#node_disable_firewall)  | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node firewall                                    |
 | 343  | [`node_disable_selinux`](v-nodes.md#node_disable_selinux)    | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node SELINUX                                     |
 | 344  | [`node_static_network`](v-nodes.md#node_static_network)      | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Enable static DNS servers                                    |
 | 345  | [`node_disk_prefetch`](v-nodes.md#node_disk_prefetch)        | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Enable disk pre-reading                                      |
-| 346  | [`node_kernel_modules`](v-nodes.md#node_kernel_modules)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | Enable kernel module                                         |
+| 346  | [`node_feature_kernel`](v-nodes.md#node_feature_kernel)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | Enable kernel module                                         |
 | 350  | [`node_tune`](v-nodes.md#node_tune)                          | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | Node Tuning Mode                                             |
-| 351  | [`node_sysctl_params`](v-nodes.md#node_sysctl_params)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | OS kernel parameters                                         |
-| 360  | [`node_admin_setup`](v-nodes.md#node_admin_setup)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Create admin user                                            |
+| 351  | [`node_tune_sysctl`](v-nodes.md#node_tune_sysctl)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | OS kernel parameters                                         |
+| 360  | [`node_admin_enabled`](v-nodes.md#node_admin_enabled)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Create admin user                                            |
 | 361  | [`node_admin_uid`](v-nodes.md#node_admin_uid)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Admin UID                                                    |
 | 362  | [`node_admin_username`](v-nodes.md#node_admin_username)      | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Admin User Name                                              |
 | 363  | [`node_admin_ssh_exchange`](v-nodes.md#node_admin_ssh_exchange) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Exchange admin user SSH keys                                 |
 | 364  | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)  | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | Add the current user's public key to the admin user          |
-| 365  | [`node_admin_pks`](v-nodes.md#node_admin_pks)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Login admin's public key list                                |
+| 365  | [`node_admin_pk_list`](v-nodes.md#node_admin_pk_list)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Login admin's public key list                                |
 | 370  | [`node_timezone`](v-nodes.md#node_timezone)                  | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP time zone setting                                        |
 | 371  | [`node_ntp_enabled`](v-nodes.md#node_ntp_enabled)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | Configure NTP service                                        |
 | 372  | [`node_ntp_service`](v-nodes.md#node_ntp_service)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP service type: ntp or chrony                              |

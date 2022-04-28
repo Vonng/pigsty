@@ -77,11 +77,11 @@
 | 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录                 |
 | 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数           |
 | 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           |
-| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 |
+| 201 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 |
 | 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  |
-| 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | DCS集群名称                    |
-| 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | 若DCS实例存在如何处理          |
-| 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | 完全禁止清理DCS实例            |
+| 203 | [`consul_name`](#consul_name)                                     | [`DCS`](#DCS)               | string     | G     | DCS集群名称                    |
+| 204 | [`consul_clean`](#consul_clean)                   | [`DCS`](#DCS)               | enum       | C/A   | 若DCS实例存在如何处理          |
+| 205 | [`consul_safeguard`](#consul_safeguard)                   | [`DCS`](#DCS)               | bool       | C/A   | 完全禁止清理DCS实例            |
 | 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | Consul数据目录                 |
 | 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | Etcd数据目录                   |
 | 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | 是否启用JupyterLab             |
@@ -189,7 +189,7 @@ Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](
 
 如果您的本地yum源没有使用标准的80端口，您需要在地址中加入端口，并与 [`repo_port`](#repo_port) 变量保持一致。
 
-您可以通过[节点](v-nodes.md)参数中的静态DNS配置 [`node_dns_hosts`](v-nodes.md#node_dns_hosts)) 来为当前环境中的所有节点默认写入`pigsty`本地源域名。
+您可以通过[节点](v-nodes.md)参数中的静态DNS配置 [`node_etc_hosts_default`](v-nodes.md#node_etc_hosts_default)) 来为当前环境中的所有节点默认写入`pigsty`本地源域名。
 
 
 
@@ -582,7 +582,7 @@ Prometheus服务发现刷新周期, 类型：`interval`，层级：G，默认值
 
 指明安装Exporter的方式：
 
-* `none`：不安装，（默认行为，Exporter已经在先前由 [`node.pkgs`](v-nodes.md#node_packages) 任务完成安装）
+* `none`：不安装，（默认行为，Exporter已经在先前由 [`node.pkgs`](v-nodes.md#node_packages_default) 任务完成安装）
 * `yum`：使用yum安装（如果启用yum安装，在部署Exporter前执行yum安装 [`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) ）
 * `binary`：使用拷贝二进制的方式安装（从元节点中直接拷贝[`node_exporter`](#node_exporter) 与 [`pg_exporter`](v-pgsql.md#pg_exporter) 二进制，不推荐）
 
@@ -800,7 +800,7 @@ Loki日志默认保留天数, 类型：`interval`，层级：G，默认值为：
 
 Distributed Configuration Store (DCS) 是一种分布式，高可用的元数据库。Pigsty使用DCS来实现数据库高可用，服务发现等功能也通过DCS实现。
 
-Pigsty目前仅支持使用Consul作为DCS，后续会添加ETCD作为DCS的选项。通过 [`dcs_type`](#dcs_type) 指明使用的DCS种类，通过 [`service_registry`](#service_registry) 指明服务注册的位置。
+Pigsty目前仅支持使用Consul作为DCS，后续会添加ETCD作为DCS的选项。通过 [`dcs_type`](#dcs_type) 指明使用的DCS种类，通过 [`dcs_registry`](#dcs_registry) 指明服务注册的位置。
 
 Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。DCS本身的可用性，通过多副本实现。例如，3节点的Consul集群最多允许1个节点故障，5节点的Consul集群则可以允许两个节点故障，在大规模生产环境中，建议使用至少3个DCS Server。
 Pigsty使用的DCS服务器通过参数 [`dcs_servers`](#dcs_servers) 指定，您可以使用外部的现有DCS服务器集群。也可以使用Pigsty本身管理的节点部署DCS Servers。
@@ -830,7 +830,7 @@ dcs_servers:
 
 
 
-### `service_registry`
+### `dcs_registry`
 
 服务注册的位置, 类型：`enum`，层级：G，默认值为：`"consul"`
 
@@ -849,7 +849,7 @@ dcs_servers:
 
 
 
-### `dcs_name`
+### `consul_name`
 
 DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
 
@@ -857,7 +857,7 @@ DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
 
 
 
-### `dcs_exists_action`
+### `consul_clean`
 
 DCS安全保险，若DCS实例以及存在如何处理, 类型：`enum`，层级：C/A，默认值为：`"abort"`，
 
@@ -869,20 +869,20 @@ DCS安全保险，若DCS实例以及存在如何处理, 类型：`enum`，层级
 
 Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。
 如果您真的需要强制清除已经存在的DCS实例，建议先使用[`nodes-remove.yml`](p-pgsql.md#pgsql-remove)完成集群与实例的下线与销毁，再重新执行初始化。
-否则需要通过命令行参数`./nodes.yml -e dcs_exists_action=clean`完成覆写，强制在初始化过程中抹除已有实例。
+否则需要通过命令行参数`./nodes.yml -e consul_clean=clean`完成覆写，强制在初始化过程中抹除已有实例。
 
 
 
 
 
 
-### `dcs_disable_purge`
+### `consul_safeguard`
 
 DCS双重安全保险，完全禁止清理DCS实例, 类型：`bool`，层级：C/A，默认值为：`false`
 
-双重安全保险，如果启用为`true`，则强制设置 [`dcs_exists_action`](#dcs_exists_action) 变量为`abort`。
+双重安全保险，如果启用为`true`，则强制设置 [`consul_clean`](#consul_clean) 变量为`abort`。
 
-等效于关闭 [`dcs_exists_action`](#dcs_exists_action) 的清理功能，确保**任何情况**下DCS实例都不会被抹除。
+等效于关闭 [`consul_clean`](#consul_clean) 的清理功能，确保**任何情况**下DCS实例都不会被抹除。
 
 
 

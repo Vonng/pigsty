@@ -77,11 +77,11 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | 183 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | loki data path|
 | 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | loki log keeping period|
 | 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | dcs server dict|
-| 201 | [`service_registry`](#service_registry)                     | [`DCS`](#DCS)               | enum       | G     | Registration Services |
+| 201 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | Registration Services |
 | 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | dcs to use (consul/etcd) |
-| 203 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string     | G     | dcs cluster name (dc)|
-| 204 | [`dcs_exists_action`](#dcs_exists_action)                   | [`DCS`](#DCS)               | enum       | C/A   | how to deal with existing dcs|
-| 205 | [`dcs_disable_purge`](#dcs_disable_purge)                   | [`DCS`](#DCS)               | bool       | C/A   | disable dcs purge|
+| 203 | [`consul_name`](#consul_name)                                     | [`DCS`](#DCS)               | string     | G     | dcs cluster name (dc)|
+| 204 | [`consul_clean`](#consul_clean)                   | [`DCS`](#DCS)               | enum       | C/A   | how to deal with existing dcs|
+| 205 | [`consul_safeguard`](#consul_safeguard)                   | [`DCS`](#DCS)               | bool       | C/A   | disable dcs purge|
 | 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | consul data dir path|
 | 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | etcd data dir path|
 
@@ -181,7 +181,7 @@ If you use a domain name, you must ensure that the domain name will resolve corr
 
 If the local yum repo does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`repo_port`](#repo_port) variable.
 
-The static DNS config [`node_dns_hosts`](v-nodes.md#node_dns_hosts) in the [nodes](v-nodes.md) parameter can be used to write the `pigsty` local repo domain name by default for all nodes in the current env.
+The static DNS config [`node_etc_hosts_default`](v-nodes.md#node_etc_hosts_default) in the [nodes](v-nodes.md) parameter can be used to write the `pigsty` local repo domain name by default for all nodes in the current env.
 
 
 ### `repo_port`
@@ -568,7 +568,7 @@ To install the monitoring component, type: `enum`, level: G, default value: `"no
 
 Specify how to install Exporter:
 
-* `none`： No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](v-nodes.md#node_packages) task)
+* `none`： No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](v-nodes.md#node_packages_default) task)
 * `yum`： Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) before deploying Exporter)
 * `binary`： Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the meta node, not recommended)
 
@@ -784,7 +784,7 @@ Loki log default retention days, type: `interval`, level: G, default value: `"15
 
 Distributed Configuration Store (DCS) is a distributed, highly available meta-database that Pigsty uses to achieve high database availability, service discovery, and other functions.
 
-Pigsty currently only supports using Consul as DCS, and will add the option to use ETCD as DCS later. Specify the type of DCS used by [`dcs_type`](#dcs_type) and the location of the service registration by [`service_registry`](#service_registry).
+Pigsty currently only supports using Consul as DCS, and will add the option to use ETCD as DCS later. Specify the type of DCS used by [`dcs_type`](#dcs_type) and the location of the service registration by [`dcs_registry`](#dcs_registry).
 
 The availability of the Consul service is critical for high database availability, so special care needs to be taken when using the DCS service in a production env. Availability of DCS itself is achieved through multiple copies. For example, a 3-node Consul cluster allows up to one node to fail, while a 5-node Consul cluster allows two nodes to fail. In a large-scale production env, it is recommended to use at least three DCS Servers.
 The DCS servers used by Pigsty are specified by the parameter [`dcs_servers`](#dcs_servers), either by using an existing external DCS server cluster or by deploying DCS Servers using nodes managed by Pigsty itself.
@@ -814,7 +814,7 @@ If the current node is defined in [`dcs_servers`](#dcs_servers), i.e., the IP ad
 
 
 
-### `service_registry`
+### `dcs_registry`
 
 Location of the service registration, type: `enum`, level: G, default value: `"consul"`.
 
@@ -833,7 +833,7 @@ There are two options: `consul` and `etcd`, but ETCD is not yet officially suppo
 
 
 
-### `dcs_name`
+### `consul_name`
 
 DCS cluster name, type: `string`, hierarchy: G, default value: `"pigsty"`.
 
@@ -841,7 +841,7 @@ Represents the data center name in Consul, which has no meaning in Etcd.
 
 
 
-### `dcs_exists_action`
+### `consul_clean`
 
 DCS security insurance, if DCS instance and what to do if it exists, type: `enum`, level: C/A, default value: `"abort"`.
 
@@ -853,20 +853,20 @@ When deploying Consul, if Pigsty finds that Consul already exists on the target 
 
 The availability of the Consul service is critical to high database availability, so special care needs to be taken when using the DCS service in a production env.
 If you really need to force the removal of an already existing DCS instance, it is recommended to first use [`nodes-remove.yml`](p-pgsql.md#pgsql-remove) to complete the offline and destruction of the cluster and instance, and then re-execute the initialization.
-Otherwise, you need to pass the command line parameter `. /nodes.yml -e dcs_exists_action=clean` to complete the overwrite and force the wiping of existing instances during the initialization.
+Otherwise, you need to pass the command line parameter `. /nodes.yml -e consul_clean=clean` to complete the overwrite and force the wiping of existing instances during the initialization.
 
 
 
 
 
 
-### `dcs_disable_purge`
+### `consul_safeguard`
 
 Prohibits cleaning up DCS instances, type: `bool`, level: C/A, default value: `false`.
 
-Double security, if enabled as `true`, forces the [`dcs_exists_action`](#dcs_exists_action) variable to be set to `abort`.
+Double security, if enabled as `true`, forces the [`consul_clean`](#consul_clean) variable to be set to `abort`.
 
-Equivalent to disabling the cleanup function of [`dcs_exists_action`](#dcs_exists_action) to ensure that no DCS instances are wiped out under **any circumstances**.
+Equivalent to disabling the cleanup function of [`consul_clean`](#consul_clean) to ensure that no DCS instances are wiped out under **any circumstances**.
 
 
 

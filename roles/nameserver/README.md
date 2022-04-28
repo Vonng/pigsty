@@ -32,5 +32,5 @@ dns_records: [ ]                      # dynamic dns record resolved by dnsmasq
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul              # none | consul | etcd | both
+dcs_registry: consul              # none | consul | etcd | both
 ```

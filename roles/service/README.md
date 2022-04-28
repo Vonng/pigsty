@@ -91,7 +91,7 @@ pg_weight: 100              # default load balance weight (instance level)
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul              # none | consul | etcd | both
+dcs_registry: consul              # none | consul | etcd | both
 dcs_type: consul                      # none | consul | etcd
 
 #-----------------------------------------------------------------

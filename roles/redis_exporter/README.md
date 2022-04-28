@@ -41,6 +41,6 @@ exporter_metrics_path: /metrics  # default metric path for pg related exporter
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul          # where to register services: none | consul | etcd | both
+dcs_registry: consul          # where to register services: none | consul | etcd | both
 ...
 ```

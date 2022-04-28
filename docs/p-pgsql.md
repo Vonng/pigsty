@@ -72,7 +72,7 @@ Nevertheless, **when using `pgsql.yml`, double-check that `-tags|-t` and `-limit
 
 The [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) provides double protection. If this option is enabled, [`pg_exists_action`](v-pgsql.md#pg_exists_action) will be forced to be set to `abort`, and the running database instance will not be erased under any circumstances.
 
-`dcs_exists_action ` and `dcs_disable_purge` have the same effect as the above two options, but it is for DCS。
+`consul_clean ` and `consul_safeguard` have the same effect as the above two options, but it is for DCS。
 
 
 

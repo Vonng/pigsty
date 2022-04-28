@@ -328,6 +328,6 @@ pgbouncer_hba_rules:             # pgbouncer host-based authentication rules
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul              # none | consul | etcd | both
+dcs_registry: consul              # none | consul | etcd | both
 dcs_type: consul                      # none | consul | etcd
 ```

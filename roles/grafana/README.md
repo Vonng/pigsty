@@ -53,7 +53,7 @@ grafana_git_plugins: [ ]        # plugins that will be downloaded via git
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul        # none | consul | etcd | both
+dcs_registry: consul        # none | consul | etcd | both
 ```
 
 

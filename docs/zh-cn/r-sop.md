@@ -234,8 +234,8 @@ Pigsty使用安全保险机制来避免误删运行中的PGSQL数据库，请使
 
 Pigsty使用安全保险机制来避免误删运行中的Consul实例，请使用 [`nodes-remove`](p-nodes.md#nodes-remove) 剧本先完成节点下线，确保Consul已经移除，再复用该节点。如需进行紧急覆盖式安装，可使用以下参数在安装过程中强制抹除运行中实例（危险！！！）
 
-* [`dcs_exists_action`](v-pgsql.md#pg_exists_action) = clean
-* [`dcs_disable_purge`](v-pgsql.md#pg_disable_purge) = false
+* [`consul_clean`](v-pgsql.md#pg_exists_action) = clean
+* [`consul_safeguard`](v-pgsql.md#pg_disable_purge) = false
 * [`rm_dcs_servers`](v-pgsql.md#rm_dcs_servers) = true （仅当移除DCS Server时需要）
 
 </details>
@@ -738,7 +738,7 @@ $ pg list pg-test
 # 较为常用，安全的重置命令，重装监控与重新注册不会影响服务
 ./pgsql.yml -l pg-test -t=monitor  # 重新部署监控
 ./pgsql.yml -l pg-test -t=register # 重新将服务注册至基础设施（Nginx, Prometheus, Grafana, CMDB...）
-./nodes.yml -l pg-test -t=consul -e dcs_exists_action=clean # 在维护模式下重置DCS Agent
+./nodes.yml -l pg-test -t=consul -e consul_clean=clean # 在维护模式下重置DCS Agent
 
 # 略有风险的重置操作
 ./pgsql.yml -l pg-test -t=service    # 重新部署负载均衡，可能导致服务闪断
@@ -799,7 +799,7 @@ pg resume pg-test
 
 ```bash
 # 强制重置目标集群上的Consul Agent（因为HA处于维护模式，不会影响新数据库集群）
-./nodes.yml -l pg-test -t consul -e dcs_exists_action=clean
+./nodes.yml -l pg-test -t consul -e consul_clean=clean
 ```
 
 当Patroni完成重启后（维护模式中，Patroni重启不会导致Postgres关停），会将集群元数据KV写入新的Consul集群中，所以必须确保原主库上的Patroni服务首先完成重启。

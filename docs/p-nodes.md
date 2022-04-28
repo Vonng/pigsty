@@ -59,7 +59,7 @@ This playbook will run the following tasks:
 
 !> **Be careful when running this playbook on provisioned nodes. It may lead to the database being temporarily unavailable because of the removal of the consul service.** 
 
-The [`dcs_exists_action`](v-nodes.md#dcs_exists_action) provides a [SafeGuard](#SafeGuard) to avoid accidental purge. When existing Consul Instance is detected during playbook execution. It will take action about it.
+The [`consul_clean`](v-nodes.md#consul_clean) provides a [SafeGuard](#SafeGuard) to avoid accidental purge. When existing Consul Instance is detected during playbook execution. It will take action about it.
 
 !> When using the complete `nodes.yml` playbook or just the section on `dcs|consul`, please double-check that the `-tags|-t` and `-limit|-l` is correct. Make sure you are running the right tasks on the correct targets. 
 
@@ -67,14 +67,14 @@ The [`dcs_exists_action`](v-nodes.md#dcs_exists_action) provides a [SafeGuard](#
 
 ### SafeGuard
 
-The `nodes.yml` provides a **SafeGuard** determined by the parameter [`dcs_exists_action`](v-nodes.md#dcs_exists_action). Pigsty will take action according to the value: `abort|clean|skip` when a running Consul instance on the target node.
+The `nodes.yml` provides a **SafeGuard** determined by the parameter [`consul_clean`](v-nodes.md#consul_clean). Pigsty will take action according to the value: `abort|clean|skip` when a running Consul instance on the target node.
 
 * `abort`: Default option. Abort play immediately to avoid purging the consul by accident.
 * `clean`: PURGE the existing DCS instance.
 * `skip`: Skip this **host** and continue on to other hosts.
 * Use `./nodes.yml -e pg_exists_action=clean` to overwrite the configuration file option and force the existing instance to be erased.
 
-The [`dcs_disable_purge`](v-nodes.md#dcs_disable_purge) parameter is yet another safeguard, If enabled, the [`dcs_exists_action`](v-nodes.md#dcs_exists_action) will be forcibly set to `abort`, and no running DCS instances will be purged unless  [`nodes-remove.yml`](#nodes-remove) is explicitly used.
+The [`consul_safeguard`](v-nodes.md#consul_safeguard) parameter is yet another safeguard, If enabled, the [`consul_clean`](v-nodes.md#consul_clean) will be forcibly set to `abort`, and no running DCS instances will be purged unless  [`nodes-remove.yml`](#nodes-remove) is explicitly used.
 
 
 
@@ -110,7 +110,7 @@ Common tasks are listed below:
 ./nodes.yml --tags=node_timezone   # Configure node time zone
 ./nodes.yml --tags=node_ntp        # Configure NTP service
 ./nodes.yml --tags=consul          # Configure consul agent/server
-./nodes.yml --tags=consul -e dcs_exists_action=clean   # Force node reinit
+./nodes.yml --tags=consul -e consul_clean=clean   # Force node reinit
 
 ./nodes.yml --tags=node_exporter   # Configure node_exporter on the node and register it
 ./nodes.yml --tags=node_register   # Registering node monitoring to a meta node
@@ -131,10 +131,10 @@ It may require a password to execute ssh & sudo. You can pass them via extra par
 
 The following parameters are used to describe the dedicated admin user.
 
-* [`node_admin_setup`](v-nodes.md#node_admin_setup)
+* [`node_admin_enabled`](v-nodes.md#node_admin_enabled)
 * [`node_admin_uid`](v-nodes.md#node_admin_uid)
 * [`node_admin_username`](v-nodes.md#node_admin_username)
-* [`node_admin_pks`](v-nodes.md#node_admin_pks)
+* [`node_admin_pk_list`](v-nodes.md#node_admin_pk_list)
 
 ```bash
 ./nodes.yml -t node_admin -l <target_hosts> --ask-pass --ask-become-pass

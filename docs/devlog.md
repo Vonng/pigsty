@@ -1,5 +1,28 @@
 # Development Log
 
+#### 2022-04-29
+
+* Rename params
+  - `node_ntp_config` -> `node_ntp_enabled`
+  - `node_admin_setup` -> `node_admin_enabled`
+  - `node_admin_pks` -> `node_admin_pk_list`
+  - `node_dns_hosts` -> `node_etc_hosts_default`
+  - `node_dns_hosts_extra` -> `node_etc_hosts`
+  - `node_dns_server` -> `node_dns_method`
+  - `node_packages` -> `node_packages_default`
+  - `node_extra_packages` -> `node_packages`
+  - `node_packages_meta` -> `node_packages_meta`
+  - `node_meta_pip_install` -> `node_packages_meta_pip`
+  - `node_kernel_modules` -> `node_feature_kernel`
+  - `node_sysctl_params` -> `node_tune_params`
+
+* New params
+  * `node_crontab`
+  * `node_datadir`
+
+
+
+
 
 #### 2022-04-28
 

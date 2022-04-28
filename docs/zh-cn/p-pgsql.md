@@ -68,7 +68,7 @@
 
 [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
 
-`dcs_exists_action`与`dcs_disable_purge`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
+`consul_clean`与`consul_safeguard`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
 
 
 

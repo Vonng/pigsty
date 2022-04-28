@@ -684,7 +684,7 @@ In addition, you can reset specific components on the database node using the fo
 # The more commonly used, safe reset command, re-install monitoring and re-registration will not affect the service
 . /pgsql.yml -l pg-test -t=monitor  # Redeploy monitoring
 . /pgsql.yml -l pg-test -t=register # Re-register the service to the infrastructure (Nginx, Prometheus, Grafana, CMDB...)
-. /nodes.yml -l pg-test -t=consul -e dcs_exists_action=clean # Reset DCS Agent in maintenance mode
+. /nodes.yml -l pg-test -t=consul -e consul_clean=clean # Reset DCS Agent in maintenance mode
 
 # A slightly risky reset operation
 . /pgsql.yml -l pg-test -t=service   # Redeploy load balancing, may cause service to flash off
@@ -739,7 +739,7 @@ First, create the new DCS cluster, then edit the inventory [``dcs_servers``](v-i
 
 ```bash
 # Force reset the Consul Agent on the target cluster (since HA is in maintenance mode and will not affect the new database cluster)
-. /nodes.yml -l pg-test -t consul -e dcs_exists_action=clean
+. /nodes.yml -l pg-test -t consul -e consul_clean=clean
 
 ```
 

@@ -39,7 +39,7 @@ Jupyter监听端口, 类型：`int`，层级：G，默认值为：`8888`。
 
 
 启用JupyterLab时，Pigsty会使用[`jupyter_username`](jupyter_username) 参数指定的用户运行本地Notebook服务器。
-此外，需要确保配置[`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) 参数包含默认值 `'jupyterlab'`。
+此外，需要确保配置[`node_packages_meta_pip`](v-nodes.md#node_packages_meta_pip) 参数包含默认值 `'jupyterlab'`。
 Jupyter Lab可以从Pigsty首页导航进入，或通过默认域名 `lab.pigsty` 访问，默认监听于8888端口。
 
 

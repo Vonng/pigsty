@@ -11,7 +11,7 @@
 
     - name: Remove cluster service from consul
       tags: consul_registry
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-{{ pg_cluster }}-{{ service.name }}.json
         state: absent
@@ -21,13 +21,13 @@
 
     - name: Remove haproxy service from consul
       tags: consul_registry
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-haproxy.json
         state: absent
 
     - name: Reload consul to dereigster haproxy
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     - name: Stop and disable haproxy load balancer

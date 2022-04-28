@@ -13,7 +13,7 @@
 #--------------------------------------------------------------#
 - name: Install ntp or chrony
   tags: [ node_ntp, ntp_config ]
-  when: node_ntp_config|bool
+  when: node_ntp_enabled|bool
   block:
     - name: Install ntp package
       when: node_ntp_service == 'ntp'
@@ -29,7 +29,7 @@
 #--------------------------------------------------------------#
 - name: Config ntpd and chronyd service
   tags: [ node_ntp, ntp_config ]
-  when: node_ntp_config|bool
+  when: node_ntp_enabled|bool
   block:
     - name: Copy the ntp.conf file
       template: src=ntp.conf.j2 dest=/etc/ntp.conf
@@ -42,7 +42,7 @@
 #--------------------------------------------------------------#
 - name: Launch ntpd and chrony service
   tags: [ node_ntp, ntp_launch ]
-  when: node_ntp_config|bool
+  when: node_ntp_enabled|bool
   block:
     - name: Launch ntpd service
       when: node_ntp_service == 'ntp'

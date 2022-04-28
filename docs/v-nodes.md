@@ -3,7 +3,7 @@
 Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-nodes.md) playbook can be executed to configure the node to the corresponding state and incorporate it into the Pigsty monitor system.
 
 - [`NODE_IDENTITY`](#NODE_IDENTITY) : Node identity parameters
-- [`NODE_DNS`](#NODE_DNS): Node domain name resolution, configure [static DNS records](#node_dns_hosts) and [dynamic resolution](#node_dns_server)
+- [`NODE_DNS`](#NODE_DNS): Node domain name resolution, configure [static DNS records](#node_etc_hosts_default) and [dynamic resolution](#node_dns_method)
 - [`NODE_REPO`](#NODE_REPO): Node Software Source
 - [`NODE_PACKAGES`](#NODE_PACKAGES): Node Packages
 - [`NODE_FEATURES`](#NODE_FEATURES): Node Functionality Features
@@ -22,33 +22,33 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C   | node cluster identity              |
 | 303 | [`nodename_overwrite`](#nodename_overwrite)           | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | overwrite hostname with nodename   |
 | 304 | [`nodename_exchange`](#nodename_exchange)             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | exchange static hostname           |
-| 310 | [`node_dns_hosts`](#node_dns_hosts)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | static DNS records                 |
-| 311 | [`node_dns_hosts_extra`](#node_dns_hosts_extra)       | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I | extra static DNS records           |
-| 312 | [`node_dns_server`](#node_dns_server)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?          |
+| 310 | [`node_etc_hosts_default`](#node_etc_hosts_default)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | static DNS records                 |
+| 311 | [`node_etc_hosts`](#node_etc_hosts)       | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I | extra static DNS records           |
+| 312 | [`node_dns_method`](#node_dns_method)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?          |
 | 313 | [`node_dns_servers`](#node_dns_servers)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | dynamic DNS servers                |
 | 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | /etc/resolv.conf options           |
 | 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_REPO`](#NODE_REPO)         | enum     | C   | how to use yum repo (local)        |
 | 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_REPO`](#NODE_REPO)         | bool     | C   | remove existing repo file?         |
 | 322 | [`node_local_repo_url`](#node_local_repo_url)         | [`NODE_REPO`](#NODE_REPO)         | url[]    | C   | local yum repo url                 |
-| 330 | [`node_packages`](#node_packages)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node   |
-| 331 | [`node_extra_packages`](#node_extra_packages)         | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed         |
-| 332 | [`node_meta_packages`](#node_meta_packages)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages            |
-| 333 | [`node_meta_pip_install`](#node_meta_pip_install)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages            |
+| 330 | [`node_packages_default`](#node_packages_default)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node   |
+| 331 | [`node_packages`](#node_packages)         | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed         |
+| 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages            |
+| 333 | [`node_packages_meta_pip`](#node_packages_meta_pip)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages            |
 | 340 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable numa?                      |
 | 341 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable swap?                      |
 | 342 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable firewall?                  |
 | 343 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable selinux?                   |
 | 344 | [`node_static_network`](#node_static_network)         | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | use static DNS config?             |
 | 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | enable disk prefetch?              |
-| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_MODULES`](#NODE_MODULES)   | string[] | C   | kernel modules to be installed     |
+| 346 | [`node_feature_kernel`](#node_feature_kernel)         | [`NODE_MODULES`](#NODE_MODULES)   | string[] | C   | kernel modules to be installed     |
 | 350 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                     |
-| 351 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
-| 360 | [`node_admin_setup`](#node_admin_setup)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                 |
+| 351 | [`node_tune_sysctl`](#node_tune_sysctl)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
+| 360 | [`node_admin_enabled`](#node_admin_enabled)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                 |
 | 361 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G   | admin user UID                     |
 | 362 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G   | admin user name                    |
 | 363 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange) | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | C   | exchange admin ssh keys?           |
 | 364 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A   | pks to be added to admin           |
-| 365 | [`node_admin_pks`](#node_admin_pks)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?           |
+| 365 | [`node_admin_pk_list`](#node_admin_pk_list)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?           |
 | 370 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C   | node timezone                      |
 | 371 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                 |
 | 372 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C   | ntp mode: ntp or chrony?           |
@@ -121,8 +121,8 @@ node-test:
 
 This node is a meta node, type: `bool`, level: C, default value: `false`.
 
-Nodes under the `meta` grouping carry this flag in the inventory by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages) with:
-Install the RPM pkgs specified by [`node_meta_packages`](#node_meta_packages) and install the Python pkgs set by [`node_meta_pip_install`](#node_meta_pip_install).
+Nodes under the `meta` grouping carry this flag in the inventory by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages_default) with:
+Install the RPM pkgs specified by [`node_packages_meta`](#node_packages_meta) and install the Python pkgs set by [`node_packages_meta_pip`](#node_packages_meta_pip).
 
 
 
@@ -178,20 +178,20 @@ When this parameter is enabled, node names are exchanged between the same group 
 
 Pigsty configs static DNS resolution records and dynamic DNS servers for the nodes.
 
-If your node provider has configured a DNS server for you, you can skip the DNS settings by setting [`node_dns_server`](v-nodes.md#node_dns_server) to `none`. 
+If your node provider has configured a DNS server for you, you can skip the DNS settings by setting [`node_dns_method`](v-nodes.md#node_dns_method) to `none`. 
 
 
 
-### `node_dns_hosts`
+### `node_etc_hosts_default`
 
 Write to static DNS resolution of the machine, type: `string[]`, level: C, default value:
 
 ```yaml
-node_dns_hosts:                 # static dns records in /etc/hosts
+node_etc_hosts_default:                 # static dns records in /etc/hosts
   - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
 ```
 
-[`node_dns_hosts`](#node_dns_hosts) is an array. Each element is a string shaped like an `ip domain_name`, representing a DNS resolution record. Each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infra addresses.
+[`node_etc_hosts_default`](#node_etc_hosts_default) is an array. Each element is a string shaped like an `ip domain_name`, representing a DNS resolution record. Each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infra addresses.
 
 Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
 
@@ -199,7 +199,7 @@ Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/ho
 
 
 
-### `node_dns_hosts_extra`
+### `node_etc_hosts`
 
 DNS records specific to the cluster instance level, type: `string[]`, level: C/I, default value is an empty array `[]`.
 
@@ -208,7 +208,7 @@ DNS records specific to the cluster instance level, type: `string[]`, level: C/I
 
 
 
-### `node_dns_server`
+### `node_dns_method`
 
 Config DNS server, type: `enum`, level: C, default value: `"add"`.
 
@@ -238,7 +238,7 @@ node_dns_servers: # dynamic nameserver in /etc/resolv.conf
 
 ### `node_dns_options`
 
-If [`node_dns_server`](#node_dns_server) is configured as `add` or `overwrite`, the records in this config entry will be appended or overwritten to `/etc/resolv.conf`. Please see the Linux doc for `/etc/resolv.conf` for the exact format.
+If [`node_dns_method`](#node_dns_method) is configured as `add` or `overwrite`, the records in this config entry will be appended or overwritten to `/etc/resolv.conf`. Please see the Linux doc for `/etc/resolv.conf` for the exact format.
 
 The default parsing options added by Pigsty:
 
@@ -303,14 +303,14 @@ node_local_repo_url:
 
 
 
-### `node_packages`
+### `node_packages_default`
 
 List of node installation software, type: `string[]`, level: C, default value:
 
 The package list is an array, but each element can contain multiple pkgs separated by **commas**. The list of pkgs installed by Pigsty by default is as follows:
 
 ```yaml
-node_meta_packages:                           # packages for meta nodes only
+node_packages_meta:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
@@ -318,34 +318,34 @@ node_meta_packages:                           # packages for meta nodes only
 
 
 
-### `node_extra_packages`
+### `node_packages`
 
 List of extra installed software for the node, type: `string[]`, level: C, default value:
 
 There is a list of extra pkgs to install via yum, with an empty list by default.
 
-Like [`node_packages`](#node_packages), the former is usually configured globally, while [`node_extra_packages`](#node_extra_packages) makes exceptions for specific nodes.
+Like [`node_packages_default`](#node_packages_default), the former is usually configured globally, while [`node_packages`](#node_packages) makes exceptions for specific nodes.
 
 
 
 
 
-### `node_meta_packages`
+### `node_packages_meta`
 
 List of software required by the meta node, type: `string[]`, level: G, default value:
 
 ```yaml
-node_meta_packages:                           # packages for meta nodes only
+node_packages_meta:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
 
-The pkgs listed in [`node_meta_packages`](#node_meta_packages) will only be installed on the meta node, and infra software generally used on the meta node must be specified here.
+The pkgs listed in [`node_packages_meta`](#node_packages_meta) will only be installed on the meta node, and infra software generally used on the meta node must be specified here.
 
 
 
 
-### `node_meta_pip_install`
+### `node_packages_meta_pip`
 
 Package installed on the meta node via pip3, type: `string`, level: G, default value: `"jupyterlab"`.
 
@@ -432,14 +432,14 @@ Instances deployed against HDDs optimize throughput and are recommended to be en
 Kernel Function Module
 
 
-### `node_kernel_modules`
+### `node_feature_kernel`
 
 Enabled kernel module, type: `string[]`, level: C, default value:
 
 An array consisting of kernel module names declaring the kernel modules that need to be installed on the node. Pigsty will enable the following kernel modules by default:
 
 ```
-node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+node_feature_kernel: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 ```
 
 
@@ -472,7 +472,7 @@ Usually, the database tuning template [`pg_conf`](v-pgsql.md#pg_conf) should be 
 
 
 
-### `node_sysctl_params`
+### `node_tune_sysctl`
 
 OS kernel parameter, type: `dict`, level: C, default value is an empty dictionary. Dictionary K-V structure, Key is kernel `sysctl` parameter name, Value is the parameter value.
 
@@ -490,7 +490,7 @@ OS kernel parameter, type: `dict`, level: C, default value is an empty dictionar
 Host Node Admin Users.
 
 
-### `node_admin_setup`
+### `node_admin_enabled`
 
 Create admin user, type: `bool`, level: G, default value: `true`.
 
@@ -531,7 +531,7 @@ When deploying in a production env, be sure to pay attention to this parameter, 
 
 
 
-### `node_admin_pks`
+### `node_admin_pk_list`
 
 The list of public keys for login able admin, type: `key[]`, level: C, default value is an empty array; the demo has the default public key for `vagrant` users.
 
@@ -550,7 +550,7 @@ When deploying in production envs, be sure to note this parameter and add only t
 
 The node time zone is synchronized with time.
 
-If the node is already configured with an NTP server, you can configure [`node_ntp_enabled`](v-nodes.md#node_dns_server) to `false` to skip the setting of the NTP service.
+If the node is already configured with an NTP server, you can configure [`node_ntp_enabled`](v-nodes.md#node_dns_method) to `false` to skip the setting of the NTP service.
 
 
 ### `node_timezone`

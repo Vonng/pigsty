@@ -10,27 +10,27 @@
     #   lineinfile: path=/etc/hosts line="127.0.0.1 {{ nodename }}"
 
     - name: Write static dns records to /etc/hosts
-      when: node_dns_hosts is defined and node_dns_hosts|length > 0
+      when: node_etc_hosts_default is defined and node_etc_hosts_default|length > 0
       lineinfile: path=/etc/hosts line="{{ item }}"
-      with_items: "{{ node_dns_hosts }}"
+      with_items: "{{ node_etc_hosts_default }}"
 
     - name: Write extra static dns records to /etc/hosts
-      when: node_dns_hosts_extra is defined and node_dns_hosts_extra|length > 0
+      when: node_etc_hosts is defined and node_etc_hosts|length > 0
       lineinfile: path=/etc/hosts line="{{ item }}"
-      with_items: "{{ node_dns_hosts_extra }}"
+      with_items: "{{ node_etc_hosts }}"
 
 
 #------------------------------------------------------------------------------
 # Setup Resolver
 #------------------------------------------------------------------------------
-# add static nameserver to resolv (if node_dns_server != 'none')
+# add static nameserver to resolv (if node_dns_method != 'none')
 - name: Setup node dns resolver
   tags: node_resolv
-  when: node_dns_server is defined and node_dns_server != 'none'
+  when: node_dns_method is defined and node_dns_method != 'none'
   block:
     # add new nameservers to existing nameservers
     - name: Get old nameservers
-      when: node_dns_server == 'add'
+      when: node_dns_method == 'add'
       shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
       register: old_nameservers
 
@@ -48,7 +48,7 @@
     - name: Append existing nameservers
       shell: echo "nameserver {{ item }}" >> /etc/resolv.conf.tmp
       with_items: "{{ old_nameservers.stdout_lines }}"
-      when: node_dns_server == 'add' and item not in node_dns_servers
+      when: node_dns_method == 'add' and item not in node_dns_servers
 
     - name: Swap resolv.conf
       shell: mv -f /etc/resolv.conf /etc/resolv.conf.backup; mv /etc/resolv.conf.tmp /etc/resolv.conf

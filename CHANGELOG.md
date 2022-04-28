@@ -238,7 +238,7 @@ yum install timescaledb-2-postgresql13
 
 ## API Change
 
-* new var :  [`node_meta_pip_install`](http://doc.pigsty.cc/#/zh-cn/v-node?id=node_meta_pip_install)
+* new var :  [`node_packages_meta_pip`](http://doc.pigsty.cc/#/zh-cn/v-node?id=node_packages_meta_pip)
 * rename var: `grafana_url` to [`grafana_endpoint`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_endpoint)
 * new var: [`grafana_admin_username`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_admin_username)
 * new var: [`grafana_database`](http://doc.pigsty.cc/#/zh-cn/v-meta?id=grafana_database)
@@ -292,7 +292,7 @@ yum install timescaledb-2-postgresql13
 ## API Change
 
 * Set default value of `node_disable_swap` to `false`
-* Remove example enties of `node_sysctl_params`.
+* Remove example enties of `node_tune_sysctl`.
 * `grafana_plugin` default `install` will now download from CDN if plugins not exists
 * `repo_url_packages` now download rpm via pigsty CDN to accelerate.
 * `proxy_env.no_proxy` now add pigsty CDN to `noproxy` sites。
@@ -571,7 +571,7 @@ pg_default_privilegs -> pg_default_privileges  # fix typo
 **New Config Entries**
 
 ```yaml
-service_registry: consul                      # none | consul | etcd | both
+dcs_registry: consul                      # none | consul | etcd | both
 prometheus_options: '--storage.tsdb.retention=30d'  # prometheus cli opts
 prometheus_sd_method: consul                  # Prometheus service discovery method：static|consul
 prometheus_sd_interval: 2s                    # Prometheus service discovery refresh interval
@@ -580,7 +580,7 @@ node_exporter_enabled: true                   # enabling Node Exporter
 pg_exporter_enabled: true                     # enabling PG Exporter
 pgbouncer_exporter_enabled: true              # enabling Pgbouncer Exporter
 export_binary_install: false                  # install Node/PG Exporter via copy binary
-dcs_disable_purge: false                      # force dcs_exists_action = abort to avoid dcs purge
+consul_safeguard: false                      # force consul_clean = abort to avoid dcs purge
 pg_disable_purge: false                       # force pg_exists_action = abort to avoid pg purge
 haproxy_weight: 100                           # relative lb weight for backend instance
 haproxy_weight_fallback: 1                    # primary server weight in replica service group
@@ -755,7 +755,7 @@ You can create new users on running postgres clusters with `pgsql-createuser.yml
 **New Config Entries**
 
 ```yaml
-service_registry: consul                      # none | consul | etcd | both
+dcs_registry: consul                      # none | consul | etcd | both
 prometheus_options: '--storage.tsdb.retention=30d'  # prometheus cli opts
 prometheus_sd_method: consul                  # Prometheus service discovery method：static|consul
 prometheus_sd_interval: 2s                    # Prometheus service discovery refresh interval
@@ -764,7 +764,7 @@ node_exporter_enabled: true                   # enabling Node Exporter
 pg_exporter_enabled: true                     # enabling PG Exporter
 pgbouncer_exporter_enabled: true              # enabling Pgbouncer Exporter
 export_binary_install: false                  # install Node/PG Exporter via copy binary
-dcs_disable_purge: false                      # force dcs_exists_action = abort to avoid dcs purge
+consul_safeguard: false                      # force consul_clean = abort to avoid dcs purge
 pg_disable_purge: false                       # force pg_exists_action = abort to avoid pg purge
 haproxy_weight: 100                           # relative lb weight for backend instance
 haproxy_weight_fallback: 1                    # primary server weight in replica service group

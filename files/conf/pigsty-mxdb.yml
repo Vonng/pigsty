@@ -372,11 +372,11 @@ all:
       # pg-meta-2: 10.10.10.11       # node with ip in dcs_servers will be initialized as dcs servers
       # pg-meta-3: 10.10.10.12       # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
 
-    service_registry: consul         # where to register services: none | consul | etcd | both
+    dcs_registry: consul         # where to register services: none | consul | etcd | both
     dcs_type: consul                 # consul | etcd | both
-    dcs_name: pigsty                 # consul dc name | etcd initial cluster token
-    dcs_exists_action: clean         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
-    dcs_disable_purge: false         # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+    consul_name: pigsty                 # consul dc name | etcd initial cluster token
+    consul_clean: clean         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
+    consul_safeguard: false         # set to true to disable purge functionality for good (force consul_clean = abort)
     consul_data_dir: /data/consul    # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /data/etcd        # etcd data dir (/var/lib/consul by default)
 
@@ -411,10 +411,10 @@ all:
     #-----------------------------------------------------------------
     # NODE_DNS
     #-----------------------------------------------------------------
-    node_dns_hosts:                 # static dns records in /etc/hosts
+    node_etc_hosts_default:                 # static dns records in /etc/hosts
       - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
-    node_dns_hosts_extra: []        # extra static dns records in /etc/hosts
-    node_dns_server: add            # add (default) | none (skip) | overwrite (remove old settings)
+    node_etc_hosts: []        # extra static dns records in /etc/hosts
+    node_dns_method: add            # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:               # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
     node_dns_options:               # dns resolv options
@@ -433,15 +433,15 @@ all:
     #-----------------------------------------------------------------
     # NODE_PACKAGES
     #-----------------------------------------------------------------
-    node_packages:                  # common packages for all nodes
+    node_packages_default:                  # common packages for all nodes
       - wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal,ca-certificates
       - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,nc,pv,jq,perf
       - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,consul,etcd,promtail
-    node_extra_packages: [ ]        # extra packages for all nodes
-    node_meta_packages:             # extra packages for meta nodes
+    node_packages: [ ]        # extra packages for all nodes
+    node_packages_meta:             # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
       - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh,docker-ce,docker-compose
-    node_meta_pip_install: jupyterlab  # extra pip packages to be installed on meta nodes
+    node_packages_meta_pip: jupyterlab  # extra pip packages to be installed on meta nodes
 
     #-----------------------------------------------------------------
     # NODE_FEATURES
@@ -456,23 +456,23 @@ all:
     #-----------------------------------------------------------------
     # NODE_MODULES
     #-----------------------------------------------------------------
-    node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+    node_feature_kernel: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
     #-----------------------------------------------------------------
     # NODE_TUNE
     #-----------------------------------------------------------------
     node_tune: tiny                 # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params: { }         # set additional sysctl parameters, k:v format
+    node_tune_sysctl: { }         # set additional sysctl parameters, k:v format
 
     #-----------------------------------------------------------------
     # NODE_ADMIN
     #-----------------------------------------------------------------
-    node_admin_setup: true           # create a default admin user defined by `node_admin_*` ?
+    node_admin_enabled: true           # create a default admin user defined by `node_admin_*` ?
     node_admin_uid: 88               # uid and gid for this admin user
     node_admin_username: dba         # name of this admin user, dba by default
     node_admin_ssh_exchange: true    # exchange admin ssh key among each pgsql cluster ?
     node_admin_pk_current: true      # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pks:                  # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_admin_pk_list:                  # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     #-----------------------------------------------------------------

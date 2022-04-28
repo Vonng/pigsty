@@ -35,14 +35,14 @@
     #---------------------------------------------
     - name: Remove node_exporter service from consul
       tags: register_consul
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-node-exporter.json
         state: absent
 
     - name: Reload consul to dereigster node_exporter
       tags: register_consul
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
@@ -95,7 +95,7 @@
     #------------------------------------------------------------------------------
     - name: Remove DCS Consul
       tags: consul
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       become: yes
       ignore_errors: yes
       block:
