@@ -20,7 +20,7 @@
 
 Jupyter Lab is a complete data science R&D env based on IPython Notebook for data analysis and visualization. It is currently an optional Beta feature and is only enabled in the demo by default.
 
-Because JupyterLab provides a Web Terminal feature, it is not recommended to enable it in production env, you can use [`infra-jupyter`](p-infra.md#infra-jupyter) to deploy it manually on the meta node.
+Because JupyterLab provides a Web Terminal feature, it is recommended to use [`infra-jupyter`](p-infra.md#infra-jupyter) to deploy it manually on the meta node.
 
 
 ### Default Values
@@ -34,14 +34,22 @@ jupyter_port: 8887              # default port for jupyter lab
 
 ### `jupyter_port`
 
-Which port will jupyter lab server listen on? 8888 by default
+Jupyter server listen port, type: `int`, level: G, default value: `8888`.
+
+
+
+When JupyterLab is enabled, Pigsty will run the local Notebook server using the user-specified by the [`jupyter_username`](jupyter_username) parameter.
+
+In addition, you need to make sure that the config [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) parameter contains the default value `'jupyterlab'`.
+
+JupyterLab can be accessed by navigating from the Pigsty home page or through the default domain `lab.pigsty`, and listens on port 8888.
 
 
 ### `jupyter_username`
 
-OS user used by Jupyter, type: `bool`, level: G, default value: `"jupyter"`.
+The OS user used by Jupyter, type: `bool`, level: G, default value: `"jupyter"`.
 
-The same goes for other usernames, but the special username `default` will run Jupyter Lab with the user who is currently running the installation (usually administrator), which is more convenient, but also more dangerous.
+The same goes for other usernames, but the particular username `default` will run Jupyter Lab with the user currently running the installation (usually admin).
 
 
 
@@ -61,5 +69,7 @@ Playbook [`infra-jupyter.yml`](https://github.com/Vonng/pigsty/blob/master/infra
 
 It's a handy data analysis IDE for python. It's also risky because of its web shell functionality. So it's disabled by default. And enabled only in the Demo environment.
 
-Refer to [Config: Jupyter](#JUPYTER-Config) for configuring Jupiter, then just execute this playbook.
+Refer to [Config: Jupyter](#JUPYTER-Config) for configuring Jupiter, then execute this playbook.
+
+!>  If Jupyter is enabled in the production environment, be sure to change the password of Jupyter.
 
