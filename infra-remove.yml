@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   infra-remove.yml
 # Ctime     :   2022-02-22
-# Mtime     :   2022-04-28
+# Mtime     :   2022-04-29
 # Desc      :   uninstall pigsty from meta nodes
 # Path      :   infra-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -16,10 +16,12 @@
 #
 # ./infra-remove.yml -t infra     # remove infra on meta node
 # ./infra-remove.yml -t infra-svc # stop & disable meta services
+# ./infra-remove.yml -e pg_clean=true       # remove pigsty cmdb
 # ./infra-remove.yml -e rm_metadata=true   # remove pigsty data
 # ./infra-remove.yml -e rm_metadpkgs=true  # remove meta pkgs too
 # ./infra-remove.yml -e rm_metadata=true -e rm_metadpkgs=true  #
 #---------------------------------------------------------------
+
 
 #------------------------------------------------------------------------------
 # Remove CMDB
@@ -31,15 +33,17 @@
   gather_facts: no
   ignore_errors: yes
   vars:
-    rm_cmdb: false          # do not remove cmdb unless rm_cmdb=true
-    rm_dcs_server: true     # remove dcs server? false by default
+
+    # pg_clean: true        # override pg_clean
+    # pg_safeguard: false   # override pg_safeguard
     rm_pgdata: false        # remove postgres data? false by default
     rm_pgpkgs: true         # uninstall pg_packages? false by default
 
   roles:
     - role: pg_remove
       tags: pg-remove
-      when: rm_cmdb|bool
+      when: pg_clean|bool   # remove cmdb when pg_clean is true
+
 
 #------------------------------------------------------------------------------
 # Remove Infrastructure

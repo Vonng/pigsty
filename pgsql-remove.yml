@@ -31,8 +31,24 @@
 #     pgsql-remove.yml --tags=haproxy   # remove haproxy
 #==============================================================#
 
+
 #------------------------------------------------------------------------------
-# De-Register Cluster/Instance
+# Honor pg_safeguard
+#------------------------------------------------------------------------------
+- name: PGSQL Remove Precheck
+  hosts: all
+  tags: precheck
+  gather_facts: no
+  tasks:
+
+    - name: Abort due to pg_safeguard enabled
+      connection: local
+      when: pg_safeguard|bool
+      any_errors_fatal: true
+      fail: msg="Abort due to pg_safeguard for {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is enabled, use -e pg_safeguard=false to override"
+
+#------------------------------------------------------------------------------
+# Remove PGSQL from nodes
 #------------------------------------------------------------------------------
 - name: PGSQL Remove
   become: yes
@@ -45,9 +61,10 @@
     rm_pgdata: false        # remove postgres data? false by default
     rm_pgpkgs: false        # uninstall pg_packages? false by default
 
-    # pg_clean: clean      # what to do when found running postgres instance ? (clean are JUST FOR DEMO! do not use this on production)
-    # pg_safeguard: false      # set to true to disable pg purge functionality for good (force pg_clean = abort)
-
   roles:
+
+    # remove pgsql cluster without safeguard
     - role: pg_remove
+      when: not pg_safeguard|bool
+
 ...

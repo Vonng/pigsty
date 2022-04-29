@@ -44,12 +44,13 @@ all:
         meta_node: true               # mark this group as meta nodes
         ansible_group_priority: 99    # overwrite with the highest priority
 
-        nginx_enabled:        true     # setup repo & underlying nginx
+        nginx_enabled:       true     # setup repo & underlying nginx
         nameserver_enabled:  false    # setup dnsmasq
         prometheus_enabled:  true     # setup prometheus
         grafana_enabled:     true     # setup grafana
         loki_enabled:        true     # setup loki
         docker_enabled:      true     # setup docker
+        consul_safeguard:    false    # protect dcs server from fat fingers
 
       hosts:                          # add nodes to group 'meta'
         10.10.10.10: { }
@@ -574,11 +575,10 @@ all:
     #-----------------------------------------------------------------
     # CONSUL
     #-----------------------------------------------------------------
-    consul_enabled: true              # enable consul nodes?
+    consul_safeguard: false           # if true, running consul will not be removed, even with node-remove.yml
+    consul_clean: false               # if true, running consul will be purged during node init, DANGEROUS
     consul_name: pigsty               # consul dc name | etcd initial cluster token
     consul_data_dir: /data/consul     # consul data dir (/var/lib/consul by default)
-    consul_clean: false               # if true, running consul will be purged during node init, DANGEROUS
-    consul_safeguard: false           # if true, running consul will not be removed, even with node-remove.yml
 
     #-----------------------------------------------------------------
     # NODE_EXPORTER
@@ -670,8 +670,8 @@ all:
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
-    pg_clean: false                   # true will clean running postgres during pgsql init (DANGEROUS)
     pg_safeguard: false               # true will disable pg_clean at all, even for pgsql-remove.yml
+    pg_clean: false                   # true will clean running postgres during pgsql init (DANGEROUS)
     pg_data: /pg/data                 # postgres data directory (soft link)
     pg_fs_main: /data                 # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups         # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*

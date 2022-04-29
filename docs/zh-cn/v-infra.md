@@ -794,7 +794,9 @@ Consul服务的可用性对于数据库高可用至关重要，因此在生产�
 Pigsty使用的DCS服务器通过参数 [`dcs_servers`](#dcs_servers) 指定，您可以使用外部的现有DCS服务器集群。也可以使用Pigsty本身管理的节点部署DCS Servers。
 
 在默认情况下，Pigsty会在节点纳入管理时（[`nodes.yml`](p-nodes.md#nodes)）部署设置DCS服务，如果当前节点定义于 [`dcs_servers`](#dcs_servers) 中，则该节点会被初始化为 DCS Server。
+
 Pigsty会在元节点本身部署一个单节点的DCS Server，使用多个元节点时，您也可以将其复用为DCS Server。尽管如此，元节点与DCS Server并不绑定。您可以使用任意节点作为DCS Servers。
+
 但大的原则是，在部署任意高可用数据库集群前，您应当确保所有DCS Servers已经完成初始化。
 
 
