@@ -99,7 +99,7 @@ INSERT INTO series_data VALUES                 -- The underneath sampling data p
 
 Pigsty has four primary sources of monitor data: **database**, **connection pool**, **OS**, and **LB**. Exposed to the public via the corresponding exporter.
 
-![](![](/_media/metrics_source.png))
+![](![](./_media/metrics_source.png))
 
 
 Full sources include.
@@ -154,7 +154,7 @@ The original data is the transaction counters captured from Pgbouncer. There are
 
 The following chart, which is a cross-sectional comparison of QPS for each instance within the entire cluster, uses predefined rules here to first obtain 8 DB-level TPS metrics by deriving the original transaction counters, then aggregating the 8 DB-level time series into four instance-level TPS metrics, and finally aggregating these four instance-level TPS metrics into cluster-level TPS metrics.
 
-![](m-metric.assets/LABELS.svg)
+![](./_media/LABELS.svg)
 
 
 Pigsty defines a total of 360 classes of derived aggregated metrics, with more to come. The rules for defining derived metrics are described in  [**Reference: Derived-Metrics**](#special-meric).
