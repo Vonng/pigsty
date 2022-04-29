@@ -1,5 +1,4 @@
 ---
-
 #------------------------------------------------------------------------------
 # install docker
 #------------------------------------------------------------------------------
@@ -9,7 +8,6 @@
   with_items:
     - docker-ce
     - docker-compose
-
 
 #------------------------------------------------------------------------------
 # docker admin user
@@ -54,11 +52,13 @@
 #------------------------------------------------------------------------------
 - name: Check docker image cache exists
   tags: docker_image
+  ignore_errors: true
   stat: path={{ docker_image_cache }}
   register: docker_cache
 
 - name: Load docker image cache if exists
   tags: docker_image
+  ignore_errors: true
   when: docker_cache.stat.exists
   shell: cat {{ docker_image_cache }} | lz4 -d - | docker load
 ...

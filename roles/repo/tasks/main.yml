@@ -6,7 +6,7 @@
 # cluster initialization, or in case that target machine does
 # not have internet access.
 #
-# RPM packages are downloaded to /{{ nginx_home }}/{{ repo_name }}.
+# RPM packages are downloaded to {{ nginx_home }}/{{ repo_name }}.
 # And it will skip download if all packages already exists
 #
 # Local yum repo url:  http://{{ repo_address }}/{{ repo_name }}/
@@ -57,6 +57,7 @@
       stat: path={{ nginx_home }}/{{ repo_name }}/repo_complete
       register: repo_cache
     - name: Set fact whether repo_exists
+      connection: local
       set_fact:
         repo_exists: "{{ repo_cache.stat.exists }}"
 
@@ -69,8 +70,7 @@
   block:
     # if local yum cache exists, use it instead
     - name: Move upstream repo to backup
-      shell: |
-        mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; true
+      shell: mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
 
     # add local file repo
     - name: Add local file system repos
@@ -83,10 +83,7 @@
     # this usually takes 1~2 minutes according to your network condition
     - name: Remake yum cache if not exists
       environment: "{{ proxy_env }}"
-      shell: yum clean all; yum makecache;
-
-
-
+      shell: yum clean all; yum makecache; || /bin/true
 
 
 #--------------------------------------------------------------#
@@ -97,17 +94,8 @@
 - name: Install repo bootstrap packages
   tags: repo_boot
   yum:
-    name: "{{ item }}"
+    name: "yum-utils,createrepo,nginx,wget,sshpass"
     state: latest
-  with_items:
-    - yum-utils
-    - createrepo
-    - ansible
-    - nginx
-    - wget
-    - unzip
-    - sshpass
-
 
 # launch nginx server for yum repo
 - name: Bootstrap repo nginx server
@@ -138,29 +126,31 @@
 #--------------------------------------------------------------#
 # 5. Download
 #--------------------------------------------------------------#
-
 # if repo cache flag file missing, or force rebuild repo, then download repo packages
 - name: Download local repo packages
   tags: repo_download
   when: not repo_exists
   block:
 
-    # download packages directly via url
-    - name: Download web url packages
-      environment: "{{ proxy_env }}"
-      get_url: dest={{ nginx_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
-      with_items: "{{ repo_url_packages }}"
-
     # download packages from upstream yum repo
     - name: Download repo packages
+      tags: repo_pkg
       environment: "{{ proxy_env }}"
       command:
         cmd: yum install --downloadonly --downloaddir={{ nginx_home }}/{{ repo_name }} {{ item }}
         chdir: "{{ nginx_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
+    # download packages directly via url
+    - name: Download web url packages
+      tags: repo_pkg_url
+      environment: "{{ proxy_env }}"
+      get_url: dest={{ nginx_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
+      with_items: "{{ repo_url_packages }}"
+
     # download rpm according to url
     - name: Download repo pkg dependencies
+      tags: repo_pkg_deps
       environment: "{{ proxy_env }}"
       command:
         cmd: repotrack {{ item }}
@@ -168,12 +158,11 @@
       with_items: "{{ repo_packages }}"
 
     # create local yum repo
-    - name: Create local repo index
-      command: createrepo {{ nginx_home }}/{{ repo_name }}
-
-    # set repo complete flag
-    - name: Mark repo cache as valid
-      copy: content=ok dest={{ nginx_home }}/{{ repo_name }}/repo_complete
-
+    - name: Create local repo
+      tags: repo_create
+      shell: |
+        cd {{ nginx_home }}/{{ repo_name }}
+        createrepo {{ nginx_home }}/{{ repo_name }}
+        md5sum * > repo_complete || /bin/true
 
 ...

@@ -1,0 +1,39 @@
+---
+#------------------------------------------------------------------------------
+# Register Infra Components
+#------------------------------------------------------------------------------
+
+
+
+
+#------------------------------------------------------------------------------
+# Register prometheus & alertmanager service (optional)
+#------------------------------------------------------------------------------
+- name: Register prometheus and alertmanager service
+  when: dcs_registry == 'consul'
+  block:
+    - name: Copy prometheus service definition
+      template: src=svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul mode=0660
+
+    - name: Copy alertmanager service definition
+      template: src=svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul mode=0660
+
+    - name: Reload consul to register prometheus
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
+#--------------------------------------------------------------#
+# Register Grafana Service
+# Only consul|none are currently available
+#--------------------------------------------------------------#
+- name: Register grafana service to consul
+  when: dcs_registry == 'consul'
+  block:
+    - name: Register consul grafana service
+      template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
+
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
+...

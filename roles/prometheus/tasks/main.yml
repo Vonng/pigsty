@@ -2,8 +2,11 @@
 #------------------------------------------------------------------------------
 # Install
 #------------------------------------------------------------------------------
-# install prometheus2 & alertmanager via yum
-- import_tasks: install.yml
+- name: Install prometheus and alertmanager
+  package: name={{ item }} state=present
+  with_items:
+    - prometheus2
+    - alertmanager
 
 #------------------------------------------------------------------------------
 # Cleanup
@@ -40,13 +43,6 @@
 # reload are required to load new rules/alert, not necessary for new targets
 - import_tasks: reload.yml
   tags: prometheus_reload
-
-#------------------------------------------------------------------------------
-# Register
-#------------------------------------------------------------------------------
-# register prometheus service to service registry (consul)
-- import_tasks: register.yml
-  tags: prometheus_register
 
 ...
 
