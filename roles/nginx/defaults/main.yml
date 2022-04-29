@@ -2,16 +2,20 @@
 #-----------------------------------------------------------------
 # NGINX
 #-----------------------------------------------------------------
-nginx_upstream:                  # domain names and upstream servers
+nginx_enabled: true               # build local repo on this node
+nginx_port: 80                    # repo listen address, must same as repo_address
+nginx_home: /www                  # default repo home dir
+
+nginx_upstream:                   # domain names and upstream servers
   - { name: home,         domain: pigsty,     endpoint: "10.10.10.10:80" }
   - { name: grafana,      domain: g.pigsty,   endpoint: "10.10.10.10:3000" }
   - { name: loki,         domain: l.pigsty,   endpoint: "10.10.10.10:3100" }
   - { name: prometheus,   domain: p.pigsty,   endpoint: "10.10.10.10:9090" }
   - { name: alertmanager, domain: a.pigsty,   endpoint: "10.10.10.10:9093" }
   - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
-  - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
-  - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
-nginx_indexes:                        # application nav links on home page
+  - { name: jupyter,      domain: j.pigsty,   endpoint: "127.0.0.1:8888" } # optional
+
+nginx_indexes:                    # application nav links on home page
   - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
   - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
   - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
@@ -19,19 +23,13 @@ nginx_indexes:                        # application nav links on home page
   - { name: Schemas  , url : '/schema'      , comment: 'schemaspy summary report'    }
   - { name: Reports  , url : '/report'      , comment: 'pgbadger summary report'     }
 
-docs_enabled: true              # setup local document under nginx?
-pev2_enabled: true              # setup pev2 query visualizer under nginx?
-pgbadger_enabled: true          # setup pgbadger under nginx?
-
 #-----------------------------------------------------------------
 # Repo (Reference)
 #-----------------------------------------------------------------
-nginx_home: /www                               # default repo dir location
-repo_address: yum.pigsty                      # local repo host (ip or hostname, including port if not using 80)
-nginx_port: 80                                 # repo server listen address, must same as repo_address!
+repo_address: yum.pigsty          # local repo host (ip or hostname, including port if not using 80)
 
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-dcs_registry: consul                      # none | consul | etcd | both
+dcs_registry: consul              # none | consul | etcd | both
 ...
