@@ -64,9 +64,9 @@ scrape_configs:
 
   #------------------------------------------------------------------------------
   # job: infra
-  # targets: grafana | prometheus | altermanager | nginx | etc...
-  # labels: [type, instance]
-  # path: targets/infra/*.yml
+  # targets: prometheus | grafana | altermanager | loki | nginx | consul
+  # labels: [ip, instance, type]
+  # path: targets/infra/<ip>.yml   # except for consul
   #------------------------------------------------------------------------------
   - job_name: infra
     metrics_path: /metrics
@@ -74,11 +74,18 @@ scrape_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/infra/*.yml ]
 
+  - job_name: consul
+    metrics_path: /v1/agent/metrics
+    params:
+      format: ['prometheus']
+    static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+
+
   #------------------------------------------------------------------------------
   # job: nodes
   # node_exporter
   # labels: [ip]
-  # path: targets/pgsql/*.yml
+  # path: targets/pgsql/<ip>.yml
   #------------------------------------------------------------------------------
   - job_name: nodes
     metrics_path: {{ exporter_metrics_path }}
@@ -90,7 +97,7 @@ scrape_configs:
   # job: pgsql
   # node_exporter pg_exporter | pgbouncer_exporter | patroni | haproxy
   # labels: [cls, ins, ip, instance]
-  # path: targets/pgsql/*.yml
+  # path: targets/pgsql/<pg_instance>.yml
   #------------------------------------------------------------------------------
   - job_name: pgsql
     metrics_path: {{ exporter_metrics_path }}
@@ -102,7 +109,7 @@ scrape_configs:
   # job: redis
   # multiple redis targets from redis_exporter @ target nodes
   # labels: [cls, ip, ins, instance]
-  # path: targets/redis/*.yml
+  # path: targets/redis/<redis_node>.yml
   #------------------------------------------------------------------------------
   - job_name: redis
     metrics_path: /scrape
