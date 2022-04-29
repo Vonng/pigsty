@@ -63,14 +63,14 @@ Nevertheless, **when using `pgsql.yml`, double-check that `-tags|-t` and `-limit
 
 ### SafeGuard
 
-`pgsql.yml` provides a **SafeGuard** determined by the parameter [`pg_exists_action`](v-pgsql.md#pg_exists_action). Pigsty will act according to the configuration `abort|clean|skip` of [`pg_exists_action`](v-pgsql.md#pg_exists_action) when the target machine has a running instance before executing the playbook.
+`pgsql.yml` provides a **SafeGuard** determined by the parameter [`pg_clean`](v-pgsql.md#pg_clean). Pigsty will act according to the configuration `abort|clean|skip` of [`pg_clean`](v-pgsql.md#pg_clean) when the target machine has a running instance before executing the playbook.
 
 * `abort`: Set as the default configuration to abort playbook execution in case of existing instances to avoid accidental database deletion.
 * `clean`: To use in a local sandbox and clear the existing database in case of current instances.
 * `skip`: Execute subsequent logic directly on an existing database cluster. 
-* You can use `./pgsql.yml -e pg_exists_action=clean` to override the configuration file options and force the erasure of existing instances.
+* You can use `./pgsql.yml -e pg_clean=clean` to override the configuration file options and force the erasure of existing instances.
 
-The [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) provides double protection. If this option is enabled, [`pg_exists_action`](v-pgsql.md#pg_exists_action) will be forced to be set to `abort`, and the running database instance will not be erased under any circumstances.
+The [`pg_safeguard`](v-pgsql.md#pg_safeguard) provides double protection. If this option is enabled, [`pg_clean`](v-pgsql.md#pg_clean) will be forced to be set to `abort`, and the running database instance will not be erased under any circumstances.
 
 `consul_clean ` and `consul_safeguard` have the same effect as the above two options, but it is for DCS。
 

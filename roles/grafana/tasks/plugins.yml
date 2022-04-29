@@ -1,6 +1,6 @@
 #--------------------------------------------------------------#
 # behavior
-#   grafana_plugin
+#   grafana_plugin_method
 #      = none     :  skip grafana plugins installation at all
 #      = install  :  use cache if exists, otherwise download from internet
 #      = always   :  always download from internet not matter cache exists or not
@@ -11,15 +11,15 @@
 # Extract plugins cache if applicable
 #--------------------------------------------------------------#
 - name: Check grafana plugin cache exists
-  stat: path={{ grafana_cache }}
+  stat: path={{ grafana_plugin_cache }}
   register: grafana_plugins_cache
 
-# skip if grafana_plugin = none
+# skip if grafana_plugin_method = none
 - name: Provision grafana plugins via cache if exists
   tags: grafana_plugins_unzip
-  when: grafana_plugins_cache.stat.exists  and grafana_plugin != 'none'
+  when: grafana_plugins_cache.stat.exists  and grafana_plugin_method != 'none'
   shell: |
-    [[ -a "{{ grafana_cache }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf {{ grafana_cache }} -C /var/lib/grafana
+    [[ -a "{{ grafana_plugin_cache }}" ]] && rm -rf /var/lib/grafana/plugins && tar -xf {{ grafana_plugin_cache }} -C /var/lib/grafana
     chown -R grafana /var/lib/grafana
 
 
@@ -27,19 +27,19 @@
 # download plugins from internet
 #--------------------------------------------------------------#
 - name: Download grafana plugins via internet
-  when: grafana_plugin != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin == 'always')
+  when: grafana_plugin_method != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin_method == 'always')
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
   grafana_plugin: name={{ item }}
-  with_items: "{{ grafana_plugins  }}"
+  with_items: "{{ grafana_plugin_list  }}"
 
 
 - name: Download grafana plugins via git
-  when: grafana_plugin != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin == 'always')
+  when: grafana_plugin_method != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin_method == 'always')
   ignore_errors: true
   environment: "{{ proxy_env | default({}) }}"
   git:
     repo: '{{ item }}'
     dest: /var/lib/grafana/plugins/{{ item | basename }}
     update: yes
-  with_items: "{{ grafana_git_plugins }}"
+  with_items: "{{ grafana_plugin_git }}"

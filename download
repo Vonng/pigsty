@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   download
 # Ctime     :   2022-03-23
-# Mtime     :   2022-03-25
+# Mtime     :   2022-04-29
 # Desc      :   download pigsty source and software packages
 # Usage     :   ./download pigsty pkg
 # Note      :   run as admin user (nopass sudo)
@@ -19,8 +19,8 @@ BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
 
 REPO_NAME=pigsty
-REPO_HOME=/www
-REPO_DIR=${REPO_HOME}/${REPO_NAME}
+NGINX_HOME=/www
+REPO_DIR=${NGINX_HOME}/${REPO_NAME}
 
 #----------------------------------------------#
 # usage & exit
@@ -70,7 +70,7 @@ function log_hint() { printf "${__CB}$*${__CN}\n"; }
 function extract_pkg() {
 	local pkg_path=${1-/tmp/pkg.tgz} # default download path : /tmp/pkg.tgz
 	local repo_dir=${2-${REPO_DIR}}  # default repo directory: /www/pigsty
-	local repo_home=$(dirname ${repo_dir})
+	local nginx_home=$(dirname ${repo_dir})
 	local repo_name=$(basename ${repo_dir})
 	if [[ -f ${repo_dir}/repo_complete ]]; then
 		log_info "repo = ${repo_dir} ok"
@@ -80,17 +80,17 @@ function extract_pkg() {
 		log_warn "repo = skip (${pkg_path} not exists)"
 		return 0
 	fi
-	sudo mkdir -p ${repo_home}
+	sudo mkdir -p ${nginx_home}
 	if [[ -d ${repo_dir} ]]; then
 		log_warn "repo = invalid, remove"
 		sudo rm -rf ${repo_dir}
 	fi
 	log_info "repo = extract from ${pkg_path}"
-	sudo tar -xf ${pkg_path} -C ${repo_home} # extract to /www/pigsty
+	sudo tar -xf ${pkg_path} -C ${nginx_home} # extract to /www/pigsty
 
 	# write static repofile
 	local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
-	if [[ ! -f ${repo_home}/${repo_name}/repo_complete ]]; then
+	if [[ ! -f ${nginx_home}/${repo_name}/repo_complete ]]; then
 		log_warn "repo file = skip due to repo not exists"
 		return 0
 	else
@@ -99,7 +99,7 @@ function extract_pkg() {
 	cat >/tmp/pigsty-local.repo <<-EOF
 		[${repo_name}-local]
 		name=${repo_name} local \$releasever - \$basearch
-		baseurl=file://${repo_home}/${repo_name}/
+		baseurl=file://${nginx_home}/${repo_name}/
 		enabled=1
 		gpgcheck=0
 	EOF
@@ -113,20 +113,20 @@ function extract_pkg() {
 function extract_matrix() {
 	local pkg_path=${1-'/tmp/matrix.tgz'} # default download path : /tmp/matrix.tgz
 	local repo_dir=${2-'/www/matrix'}     # default repo directory: /www/matrix
-	local repo_home=$(dirname ${repo_dir})
+	local nginx_home=$(dirname ${repo_dir})
 	local repo_name="matrix"
-	sudo mkdir -p ${repo_home}
+	sudo mkdir -p ${nginx_home}
 	if [[ -d ${repo_dir} ]]; then
 		log_warn "remove existing repo ${repo_dir}"
 		sudo rm -rf ${repo_dir}
 	fi
 	log_info "matrix = extract from ${pkg_path}"
-	sudo tar -xf ${pkg_path} -C ${repo_home} # extract to /www/pigsty
+	sudo tar -xf ${pkg_path} -C ${nginx_home} # extract to /www/pigsty
 
 	cat >/tmp/matrix-local.repo <<-EOF
 		[${repo_name}-local]
 		name=${repo_name} local \$releasever - \$basearch
-		baseurl=file://${repo_home}/${repo_name}/
+		baseurl=file://${nginx_home}/${repo_name}/
 		enabled=1
 		gpgcheck=0
 	EOF
@@ -225,7 +225,7 @@ function extract() {
 		fi
 		;;
 	matrix)
-		extract_matrix ${dir}/matrix.tgz ${REPO_HOME}/matrix
+		extract_matrix ${dir}/matrix.tgz ${NGINX_HOME}/matrix
 		;;
 	pigsty.tgz | pkg.tgz | app.tgz | matrix.tgz) ;;
 	*) usage ;;

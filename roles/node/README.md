@@ -146,13 +146,13 @@ node_disk_prefetch: false       # setup disk prefetch on HDD to increase perform
 #-----------------------------------------------------------------
 # NODE MODULES
 #-----------------------------------------------------------------
-node_feature_kernel: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
 #-----------------------------------------------------------------
 # NODE TUNE
 #-----------------------------------------------------------------
 node_tune: tiny                 # install and activate tuned profile: none|oltp|olap|crit|tiny
-node_tune_sysctl: { }         # set additional sysctl parameters, k:v format
+node_sysctl_params: { }         # set additional sysctl parameters, k:v format
 
 #-----------------------------------------------------------------
 # NODE ADMIN

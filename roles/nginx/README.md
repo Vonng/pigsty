@@ -2,7 +2,7 @@
 
 * Update or install nginx
 * Upstream proxy for prometheus, grafana, altermanager and etc,...
-* Render home page with app_list
+* Render home page with nginx_indexes
 * Install and activate nginx-exporter
 * Register nginx and nginx-exporter to dcs
 
@@ -51,7 +51,7 @@ nginx_upstream:                  # domain names and upstream servers
   - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
   - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
   - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
-app_list:                            # application nav links on home page
+nginx_indexes:                            # application nav links on home page
   - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
   - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
   - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }

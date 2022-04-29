@@ -11,16 +11,16 @@
     - name: Create local html directory
       file: path={{ item }} state=directory
       with_items:
-        - "{{ repo_home }}"
-        - "{{ repo_home }}/pev2"
-        - "{{ repo_home }}/docs"
-        - "{{ repo_home }}/logs"
-        - "{{ repo_home }}/schema"
-        - "{{ repo_home }}/report"
+        - "{{ nginx_home }}"
+        - "{{ nginx_home }}/pev2"
+        - "{{ nginx_home }}/docs"
+        - "{{ nginx_home }}/logs"
+        - "{{ nginx_home }}/schema"
+        - "{{ nginx_home }}/report"
 
     # copy icon.svg used by index.html
     - name: Copy pigsty logo file
-      copy: src=icon.svg dest=/{{ repo_home }}/icon.svg
+      copy: src=icon.svg dest=/{{ nginx_home }}/icon.svg
 
 
 - name: Create nginx index page
@@ -29,21 +29,21 @@
 
     # overwrite default home page
     - name: Render default nginx home page
-      template: src=index.html.j2 dest=/{{ repo_home }}/index.html
+      template: src=index.html.j2 dest=/{{ nginx_home }}/index.html
       vars:
         home_domain:           "http://{{ nginx_upstream | json_query('[?name==`home`].domain') | first }}"
         consul_domain:         "http://{{ nginx_upstream | json_query('[?name==`consul`].domain') | first }}"
         prometheus_domain:     "http://{{ nginx_upstream | json_query('[?name==`prometheus`].domain') | first }}"
         grafana_domain:        "http://{{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}"
         alertmanager_domain:   "http://{{ nginx_upstream | json_query('[?name==`alertmanager`].domain') | first }}"
-        pgweb_domain:          "http://{{ nginx_upstream | json_query('[?name==`pgweb`].domain') | first }}"
-        jupyter_domain:        "http://{{ nginx_upstream | json_query('[?name==`jupyter`].domain') | first }}"
+        #pgweb_domain:          "http://{{ nginx_upstream | json_query('[?name==`pgweb`].domain') | first }}"
+        #jupyter_domain:        "http://{{ nginx_upstream | json_query('[?name==`jupyter`].domain') | first }}"
         home_endpoint:                "{{ nginx_upstream | json_query('[?name==`home`].endpoint') | first }}"
         consul_endpoint:              "{{ nginx_upstream | json_query('[?name==`consul`].endpoint') | first }}"
         prometheus_endpoint:          "{{ nginx_upstream | json_query('[?name==`prometheus`].endpoint') | first }}"
         grafana_endpoint:             "{{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first }}"
         alertmanager_endpoint:        "{{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first }}"
-        pgweb_endpoint:               "{{ nginx_upstream | json_query('[?name==`pgweb`].endpoint') | first }}"
-        jupyter_endpoint:             "{{ nginx_upstream | json_query('[?name==`jupyter`].endpoint') | first }}"
+        #pgweb_endpoint:               "{{ nginx_upstream | json_query('[?name==`pgweb`].endpoint') | first }}"
+        #jupyter_endpoint:             "{{ nginx_upstream | json_query('[?name==`jupyter`].endpoint') | first }}"
 
 ...

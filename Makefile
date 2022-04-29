@@ -121,7 +121,7 @@ infra:
 
 # reinit pgsql cmdb
 pgsql:
-	./infra.yml --tags=cmdb -e pg_exists_action=clean
+	./infra.yml --tags=cmdb -e pg_clean=clean
 
 # rebuild repo
 repo:

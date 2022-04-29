@@ -40,9 +40,9 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 343 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable selinux?                   |
 | 344 | [`node_static_network`](#node_static_network)         | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | use static DNS config?             |
 | 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | enable disk prefetch?              |
-| 346 | [`node_feature_kernel`](#node_feature_kernel)         | [`NODE_MODULES`](#NODE_MODULES)   | string[] | C   | kernel modules to be installed     |
+| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_MODULES`](#NODE_MODULES)   | string[] | C   | kernel modules to be installed     |
 | 350 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                     |
-| 351 | [`node_tune_sysctl`](#node_tune_sysctl)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
+| 351 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
 | 360 | [`node_admin_enabled`](#node_admin_enabled)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                 |
 | 361 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G   | admin user UID                     |
 | 362 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G   | admin user name                    |
@@ -349,7 +349,7 @@ The pkgs listed in [`node_packages_meta`](#node_packages_meta) will only be inst
 
 Package installed on the meta node via pip3, type: `string`, level: G, default value: `"jupyterlab"`.
 
-The package will be downloaded to [`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` dir and then installed uniformly.
+The package will be downloaded to [`{{ nginx_home }}`](v-infra.md#nginx_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` dir and then installed uniformly.
 
 Currently, `jupyterlab` will be installed by default, providing a complete Python runtime env.
 
@@ -432,14 +432,14 @@ Instances deployed against HDDs optimize throughput and are recommended to be en
 Kernel Function Module
 
 
-### `node_feature_kernel`
+### `node_kernel_modules`
 
 Enabled kernel module, type: `string[]`, level: C, default value:
 
 An array consisting of kernel module names declaring the kernel modules that need to be installed on the node. Pigsty will enable the following kernel modules by default:
 
 ```
-node_feature_kernel: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 ```
 
 
@@ -472,7 +472,7 @@ Usually, the database tuning template [`pg_conf`](v-pgsql.md#pg_conf) should be 
 
 
 
-### `node_tune_sysctl`
+### `node_sysctl_params`
 
 OS kernel parameter, type: `dict`, level: C, default value is an empty dictionary. Dictionary K-V structure, Key is kernel `sysctl` parameter name, Value is the parameter value.
 

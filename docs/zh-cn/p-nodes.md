@@ -70,7 +70,7 @@
 * `abort`：建议设置为默认配置，如遇现存DCS实例，中止剧本执行，避免误删库。
 * `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有DCS实例。
 * `skip`：  跳过此主机，在其他主机上执行后续逻辑。
-* 您可以通过`./nodes.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
+* 您可以通过`./nodes.yml -e pg_clean=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
 
 [`consul_safeguard`](v-nodes.md#consul_safeguard) 选项提供了双重保护，如果启用该选项，则 [`consul_clean`](v-nodes.md#consul_clean) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例，除非您显式执行 [`nodes-remove.yml`](#nodes-remove)。
 

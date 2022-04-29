@@ -31,11 +31,11 @@
 | ID  |                            Name                             |           Section           |    Type    | Level |            Comment             |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|
 | 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置                 |
-| 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | 是否启用本地源                 |
+| 110 | [`nginx_enabled`](#nginx_enabled)                             | [`REPO`](#REPO)             | bool       | G     | 是否启用本地源                 |
 | 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称                     |
 | 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址             |
-| 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | 本地源端口                     |
-| 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | 本地源文件根目录               |
+| 113 | [`nginx_port`](#nginx_port)                                   | [`REPO`](#REPO)             | int        | G     | 本地源端口                     |
+| 114 | [`nginx_home`](#nginx_home)                                   | [`REPO`](#REPO)             | path       | G     | 本地源文件根目录               |
 | 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源                  |
 | 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件           |
 | 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源                |
@@ -47,7 +47,7 @@
 | 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书                         |
 | 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称                     |
 | 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                |
-| 131 | [`app_list`](#app_list)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       |
+| 131 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       |
 | 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用本地文档               |
 | 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用PEV2组件               |
 | 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | 是否启用Pgbadger               |
@@ -67,10 +67,10 @@
 | 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员密码              |
 | 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | Grafana后端数据库类型          |
 | 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana的PG数据库连接串        |
-| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件            |
-| 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址            |
-| 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表          |
-| 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件         |
+| 175 | [`grafana_plugin_method`](#grafana_plugin_method)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件            |
+| 176 | [`grafana_plugin_cache`](#grafana_plugin_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址            |
+| 177 | [`grafana_plugin_list`](#grafana_plugin_list)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表          |
+| 178 | [`grafana_plugin_git`](#grafana_plugin_git)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件         |
 | 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | 用于接收日志的loki服务endpoint |
 | 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | 是否在安装Loki时清理数据库目录 |
 | 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | Loki的命令行参数               |
@@ -153,18 +153,18 @@ proxy_env: # global proxy env when downloading packages
 
 当在元节点上安装Pigsty时，Pigsty会在本地拉起一个YUM软件源，供当前环境安装RPM软件包使用。
 
-Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](#repo_upstreams)指定）， 下载所有软件包及其依赖（由 [`repo_packages`](#repo_packages)指定）至 [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  （默认为`/www/pigsty`）。所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
+Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](#repo_upstreams)指定）， 下载所有软件包及其依赖（由 [`repo_packages`](#repo_packages)指定）至 [`{{ nginx_home }}`](#nginx_home) / [`{{ repo_name }}`](#repo_name)  （默认为`/www/pigsty`）。所有依赖的软件总大小约1GB左右，下载速度取决于您的网络情况。
 
 建立本地Yum源时，如果该目录已经存在，而且目录中存在名为`repo_complete`的标记文件，Pigsty会认为本地Yum源已经初始化完毕，跳过软件下载阶段。
 
 尽管Pigsty已经尽量使用镜像源以加速下载，但少量包的下载仍可能受到防火墙的阻挠。如果某些软件包的下载速度过慢，您可以通过[`proxy_env`](#proxy_env)配置项设置下载代理以完成首次下载，或直接下载预先打包好的[离线安装包](t-offline.md)。
 
-离线安装包即是把`{{ repo_home }}/{{ repo_name }}`目录整个打成压缩包`pkg.tgz`。在`configure`过程中，如果Pigsty发现离线软件包`/tmp/pkg.tgz`存在，则会将其解压至`{{ repo_home }}/{{ repo_name }}`目录，进而在安装时跳过软件下载的步骤。
+离线安装包即是把`{{ nginx_home }}/{{ repo_name }}`目录整个打成压缩包`pkg.tgz`。在`configure`过程中，如果Pigsty发现离线软件包`/tmp/pkg.tgz`存在，则会将其解压至`{{ nginx_home }}/{{ repo_name }}`目录，进而在安装时跳过软件下载的步骤。
 
 默认的离线安装包基于CentOS 7.8.2003 x86_64操作系统制作，如果您使用的操作系统与此不同，或并非使用全新安装的操作系统环境，则有概率出现RPM软件包冲突与依赖错误的问题，请参照FAQ解决。
 
 
-### `repo_enabled`
+### `nginx_enabled`
 
 是否启用本地源, 类型：`bool`，层级：G，默认值为：`true`
 
@@ -187,14 +187,14 @@ Pigsty在初始化过程中，会从互联网上游源（由 [`repo_upstreams`](
 
 如果使用域名，您必须确保在当前环境中，该域名会正确解析到本地源所在的服务器，也就是元节点。
 
-如果您的本地yum源没有使用标准的80端口，您需要在地址中加入端口，并与 [`repo_port`](#repo_port) 变量保持一致。
+如果您的本地yum源没有使用标准的80端口，您需要在地址中加入端口，并与 [`nginx_port`](#nginx_port) 变量保持一致。
 
 您可以通过[节点](v-nodes.md)参数中的静态DNS配置 [`node_etc_hosts_default`](v-nodes.md#node_etc_hosts_default)) 来为当前环境中的所有节点默认写入`pigsty`本地源域名。
 
 
 
 
-### `repo_port`
+### `nginx_port`
 
 本地源端口, 类型：`int`，层级：G，默认值为：`80`
 
@@ -202,7 +202,7 @@ Pigsty通过元节点上的该端口访问所有Web服务，请确保您可以�
 
 
 
-### `repo_home`
+### `nginx_home`
 
 本地源文件根目录, 类型：`path`，层级：G，默认值为：`"/www"`
 
@@ -401,12 +401,12 @@ nginx_upstream:                  # domain names and upstream servers
 
 
 
-### `app_list`
+### `nginx_indexes`
 
 首页导航栏显示的应用列表, 类型：`app[]`，层级：G，默认值为：
 
 ```yaml
-app_list:                            # application nav links on home page
+nginx_indexes:                            # application nav links on home page
   - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
   - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
   - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
@@ -429,7 +429,7 @@ app_list:                            # application nav links on home page
 
 是否启用本地文档, 类型：`bool`，层级：G，默认值为：`true`。
 
-本地文档会被自动拷贝至元节点的 `{{ repo_home }}` / docs 路径下，通过Nginx从默认Server提供服务。
+本地文档会被自动拷贝至元节点的 `{{ nginx_home }}` / docs 路径下，通过Nginx从默认Server提供服务。
 
 默认访问地址为：`http://pigsty/docs`。
 
@@ -441,7 +441,7 @@ app_list:                            # application nav links on home page
 
 Pev2是一个方便的PostgreSQL执行计划可视化工具，静态单页应用。
 
-如果启用，Pev2资源会被拷贝至元节点的 `{{ repo_home }}` / pev2 路径下，并通过Nginx从默认Server提供服务。默认访问地址为：`http://pigsty/pev2`。
+如果启用，Pev2资源会被拷贝至元节点的 `{{ nginx_home }}` / pev2 路径下，并通过Nginx从默认Server提供服务。默认访问地址为：`http://pigsty/pev2`。
 
 
 
@@ -453,7 +453,7 @@ Pev2是一个方便的PostgreSQL执行计划可视化工具，静态单页应用
 
 Pgbadger是一个方便的PostgreSQL日志分析工具，可以从PG日志中生成全面美观的网页报告。
 
-如果启用，Pigsty会在元节点上创建 `{{ repo_home }}` / logs 占位目录，后续Pgbouncer生成的报告会自动放置于此。默认访问地址为：`http://pigsty/logs`。
+如果启用，Pigsty会在元节点上创建 `{{ nginx_home }}` / logs 占位目录，后续Pgbouncer生成的报告会自动放置于此。默认访问地址为：`http://pigsty/logs`。
 
 
 
@@ -683,7 +683,7 @@ Grafana的PostgreSQL数据库连接串, 类型：`url`，层级：G，默认值�
 
 
 
-### `grafana_plugin`
+### `grafana_plugin_method`
 
 如何安装Grafana插件, 类型：`enum`，层级：G，默认值为：`"install"`
 
@@ -694,12 +694,12 @@ Grafana插件的供给方式
 * `reinstall`: 无论如何都重新下载安装Grafana插件
 
 Grafana需要访问互联网以下载若干扩展插件，如果您的元节点没有互联网访问，则应当确保使用了离线安装包。
-离线安装包中默认已经包含了所有下载好的Grafana插件，位于 [`grafana_cache`](#grafana_cache) 指定的路径下。当从互联网下载插件时，Pigsty会在下载完成后打包下载好的插件，并放置于该路径下。
+离线安装包中默认已经包含了所有下载好的Grafana插件，位于 [`grafana_plugin_cache`](#grafana_plugin_cache) 指定的路径下。当从互联网下载插件时，Pigsty会在下载完成后打包下载好的插件，并放置于该路径下。
 
 
 
 
-### `grafana_cache`
+### `grafana_plugin_cache`
 
 Grafana插件缓存地址, 类型：`path`，层级：G，默认值为：`"/www/pigsty/plugins.tgz"`
 
@@ -707,12 +707,12 @@ Grafana插件缓存地址, 类型：`path`，层级：G，默认值为：`"/www/
 
 
 
-### `grafana_plugins`
+### `grafana_plugin_list`
 
 安装的Grafana插件列表, 类型：`string[]`，层级：G，默认值为：
 
 ```yaml
-grafana_plugins:
+grafana_plugin_list:
   - marcusolsson-csv-datasource
   - marcusolsson-json-datasource
   - marcusolsson-treemap-panel
@@ -725,12 +725,12 @@ grafana_plugins:
 
 
 
-### `grafana_git_plugins`
+### `grafana_plugin_git`
 
 从Git安装的Grafana插件, 类型：`url[]`，层级：G，默认值为：
 
 ```yaml
-grafana_git_plugins:                          # plugins that will be downloaded via git
+grafana_plugin_git:                          # plugins that will be downloaded via git
   - https://github.com/Vonng/vonng-echarts-panel
 ```
 

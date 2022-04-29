@@ -217,11 +217,11 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | ID   | Name                                                         | Section                                         | Level | Description                          |
 | ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------ |
 | 100  | [`proxy_env`](v-infra.md#proxy_env)                          | [`CONNECT`](v-infra.md#CONNECT)                 | G     | 代理服务器配置                       |
-| 110  | [`repo_enabled`](v-infra.md#repo_enabled)                    | [`REPO`](v-infra.md#REPO)                       | G     | 是否启用本地源                       |
+| 110  | [`nginx_enabled`](v-infra.md#nginx_enabled)                    | [`REPO`](v-infra.md#REPO)                       | G     | 是否启用本地源                       |
 | 111  | [`repo_name`](v-infra.md#repo_name)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源名称                           |
 | 112  | [`repo_address`](v-infra.md#repo_address)                    | [`REPO`](v-infra.md#REPO)                       | G     | 本地源外部访问地址                   |
-| 113  | [`repo_port`](v-infra.md#repo_port)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源端口                           |
-| 114  | [`repo_home`](v-infra.md#repo_home)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源文件根目录                     |
+| 113  | [`nginx_port`](v-infra.md#nginx_port)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源端口                           |
+| 114  | [`nginx_home`](v-infra.md#nginx_home)                          | [`REPO`](v-infra.md#REPO)                       | G     | 本地源文件根目录                     |
 | 115  | [`repo_rebuild`](v-infra.md#repo_rebuild)                    | [`REPO`](v-infra.md#REPO)                       | A     | 是否重建Yum源                        |
 | 116  | [`repo_remove`](v-infra.md#repo_remove)                      | [`REPO`](v-infra.md#REPO)                       | A     | 是否移除已有REPO文件                 |
 | 117  | [`repo_upstreams`](v-infra.md#repo_upstreams)                | [`REPO`](v-infra.md#REPO)                       | G     | Yum源的上游来源                      |
@@ -233,7 +233,7 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 123  | [`ca_cert`](v-infra.md#ca_cert)                              | [`CA`](v-infra.md#CA)                           | G     | CA证书                               |
 | 124  | [`ca_key`](v-infra.md#ca_key)                                | [`CA`](v-infra.md#CA)                           | G     | CA私钥名称                           |
 | 130  | [`nginx_upstream`](v-infra.md#nginx_upstream)                | [`NGINX`](v-infra.md#NGINX)                     | G     | Nginx上游服务器                      |
-| 131  | [`app_list`](v-infra.md#app_list)                            | [`NGINX`](v-infra.md#NGINX)                     | G     | 首页导航栏显示的应用列表             |
+| 131  | [`nginx_indexes`](v-infra.md#nginx_indexes)                            | [`NGINX`](v-infra.md#NGINX)                     | G     | 首页导航栏显示的应用列表             |
 | 132  | [`docs_enabled`](v-infra.md#docs_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用本地文档                     |
 | 133  | [`pev2_enabled`](v-infra.md#pev2_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用PEV2组件                     |
 | 134  | [`pgbadger_enabled`](v-infra.md#pgbadger_enabled)            | [`NGINX`](v-infra.md#NGINX)                     | G     | 是否启用Pgbadger                     |
@@ -253,10 +253,10 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 172  | [`grafana_admin_password`](v-infra.md#grafana_admin_password) | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana管理员密码                    |
 | 173  | [`grafana_database`](v-infra.md#grafana_database)            | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana后端数据库类型                |
 | 174  | [`grafana_pgurl`](v-infra.md#grafana_pgurl)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana的PG数据库连接串              |
-| 175  | [`grafana_plugin`](v-infra.md#grafana_plugin)                | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 如何安装Grafana插件                  |
-| 176  | [`grafana_cache`](v-infra.md#grafana_cache)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana插件缓存地址                  |
-| 177  | [`grafana_plugins`](v-infra.md#grafana_plugins)              | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 安装的Grafana插件列表                |
-| 178  | [`grafana_git_plugins`](v-infra.md#grafana_git_plugins)      | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 从Git安装的Grafana插件               |
+| 175  | [`grafana_plugin_method`](v-infra.md#grafana_plugin_method)                | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 如何安装Grafana插件                  |
+| 176  | [`grafana_plugin_cache`](v-infra.md#grafana_plugin_cache)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana插件缓存地址                  |
+| 177  | [`grafana_plugin_list`](v-infra.md#grafana_plugin_list)              | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 安装的Grafana插件列表                |
+| 178  | [`grafana_plugin_git`](v-infra.md#grafana_plugin_git)      | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | 从Git安装的Grafana插件               |
 | 180  | [`loki_endpoint`](v-infra.md#loki_endpoint)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | 用于接收日志的loki服务endpoint       |
 | 181  | [`loki_clean`](v-infra.md#loki_clean)                        | [`LOKI`](v-infra.md#LOKI)                       | A     | 是否在安装Loki时清理数据库目录       |
 | 182  | [`loki_options`](v-infra.md#loki_options)                    | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki的命令行参数                     |
@@ -293,9 +293,9 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 343  | [`node_disable_selinux`](v-nodes.md#node_disable_selinux)    | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 关闭节点SELINUX                      |
 | 344  | [`node_static_network`](v-nodes.md#node_static_network)      | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 是否使用静态DNS服务器                |
 | 345  | [`node_disk_prefetch`](v-nodes.md#node_disk_prefetch)        | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | 是否启用磁盘预读                     |
-| 346  | [`node_feature_kernel`](v-nodes.md#node_feature_kernel)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | 启用的内核模块                       |
+| 346  | [`node_kernel_modules`](v-nodes.md#node_kernel_modules)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | 启用的内核模块                       |
 | 350  | [`node_tune`](v-nodes.md#node_tune)                          | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 节点调优模式                         |
-| 351  | [`node_tune_sysctl`](v-nodes.md#node_tune_sysctl)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 操作系统内核参数                     |
+| 351  | [`node_sysctl_params`](v-nodes.md#node_sysctl_params)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | 操作系统内核参数                     |
 | 360  | [`node_admin_enabled`](v-nodes.md#node_admin_enabled)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 是否创建管理员用户                   |
 | 361  | [`node_admin_uid`](v-nodes.md#node_admin_uid)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 管理员用户UID                        |
 | 362  | [`node_admin_username`](v-nodes.md#node_admin_username)      | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | 管理员用户名                         |
@@ -349,8 +349,8 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 548  | [`pg_bin_dir`](v-pgsql.md#pg_bin_dir)                        | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG二进制目录                         |
 | 549  | [`pg_packages`](v-pgsql.md#pg_packages)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的PG软件包列表                   |
 | 550  | [`pg_extensions`](v-pgsql.md#pg_extensions)                  | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | 安装的PG插件列表                     |
-| 560  | [`pg_exists_action`](v-pgsql.md#pg_exists_action)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | PG存在时如何处理                     |
-| 561  | [`pg_disable_purge`](v-pgsql.md#pg_disable_purge)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | 禁止清除存在的PG实例                 |
+| 560  | [`pg_clean`](v-pgsql.md#pg_clean)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | PG存在时如何处理                     |
+| 561  | [`pg_safeguard`](v-pgsql.md#pg_safeguard)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | 禁止清除存在的PG实例                 |
 | 562  | [`pg_data`](v-pgsql.md#pg_data)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG数据目录                           |
 | 563  | [`pg_fs_main`](v-pgsql.md#pg_fs_main)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG主数据盘挂载点                     |
 | 564  | [`pg_fs_bkup`](v-pgsql.md#pg_fs_bkup)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG备份盘挂载点                       |
@@ -364,7 +364,7 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 583  | [`patroni_port`](v-pgsql.md#patroni_port)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni服务端口                      |
 | 584  | [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni Watchdog模式                 |
 | 585  | [`pg_conf`](v-pgsql.md#pg_conf)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni使用的配置模板                |
-| 586  | [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG默认加载的共享库                   |
+| 586  | [`pg_libs`](v-pgsql.md#pg_libs)      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG默认加载的共享库                   |
 | 587  | [`pg_encoding`](v-pgsql.md#pg_encoding)                      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG字符集编码                         |
 | 588  | [`pg_locale`](v-pgsql.md#pg_locale)                          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化规则                   |
 | 589  | [`pg_lc_collate`](v-pgsql.md#pg_lc_collate)                  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG使用的本地化排序规则               |
@@ -398,7 +398,7 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 640  | [`pg_services`](v-pgsql.md#pg_services)                      | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 全局通用服务定义                     |
 | 641  | [`haproxy_enabled`](v-pgsql.md#haproxy_enabled)              | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C/I   | 是否启用Haproxy                      |
 | 642  | [`haproxy_reload`](v-pgsql.md#haproxy_reload)                | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | 是否重载Haproxy配置                  |
-| 643  | [`haproxy_admin_auth_enabled`](v-pgsql.md#haproxy_admin_auth_enabled) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 是否对Haproxy管理界面启用认证        |
+| 643  | [`haproxy_auth_enabled`](v-pgsql.md#haproxy_auth_enabled) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | 是否对Haproxy管理界面启用认证        |
 | 644  | [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy管理员名称                    |
 | 645  | [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy管理员密码                    |
 | 646  | [`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port)  | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy指标暴露器端口                |

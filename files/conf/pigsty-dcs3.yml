@@ -43,8 +43,8 @@ all:
       vars: { meta_node: true , ansible_group_priority: 99 }
       hosts: # 10.10.10.10 is the default and only meta node
         10.10.10.10: { }
-        10.10.10.11: { repo_enabled: false } # disable repo on secondary meta nodes
-        10.10.10.12: { repo_enabled: false }
+        10.10.10.11: { nginx_enabled: false } # disable repo on secondary meta nodes
+        10.10.10.12: { nginx_enabled: false }
 
 
     #================================================================#
@@ -105,11 +105,11 @@ all:
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
-    repo_enabled: true               # build local repo on this node
+    nginx_enabled: true               # build local repo on this node
     repo_name: pigsty                # repo name, pigsty by default
     repo_address: pigsty             # external address to this repo (ip:port or url)
-    repo_port: 80                    # repo listen address, must same as repo_address
-    repo_home: /www                  # default repo home dir
+    nginx_port: 80                    # repo listen address, must same as repo_address
+    nginx_home: /www                  # default repo home dir
     repo_rebuild: false              # force re-download packages
     repo_remove: true                # remove existing upstream repo
     repo_upstreams:                  # where to download packages?
@@ -271,7 +271,7 @@ all:
       - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
       - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
       - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
-    app_list:                        # application nav links on home page
+    nginx_indexes:                        # application nav links on home page
       - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
       - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
       - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
@@ -324,13 +324,13 @@ all:
     grafana_admin_password: pigsty  # default grafana admin password
     grafana_database: sqlite3       # default grafana database type: sqlite3|postgres
     grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-    grafana_plugin: install         # none|install, none will skip plugin installation
-    grafana_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
-    grafana_plugins:                # plugins that will be downloaded via grafana-cli
+    grafana_plugin_method: install         # none|install, none will skip plugin installation
+    grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
+    grafana_plugin_list:                # plugins that will be downloaded via grafana-cli
       - marcusolsson-csv-datasource
       - marcusolsson-json-datasource
       - marcusolsson-treemap-panel
-    grafana_git_plugins:            # plugins that will be downloaded via git
+    grafana_plugin_git:            # plugins that will be downloaded via git
       - https://github.com/Vonng/vonng-echarts-panel
 
     #-----------------------------------------------------------------
@@ -433,13 +433,13 @@ all:
     #-----------------------------------------------------------------
     # NODE_MODULES
     #-----------------------------------------------------------------
-    node_feature_kernel: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+    node_kernel_modules: [softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
     #-----------------------------------------------------------------
     # NODE_TUNE
     #-----------------------------------------------------------------
     node_tune: tiny                 # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_tune_sysctl: { }         # set additional sysctl parameters, k:v format
+    node_sysctl_params: { }         # set additional sysctl parameters, k:v format
 
     #-----------------------------------------------------------------
     # NODE_ADMIN
@@ -554,8 +554,8 @@ all:
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
-    pg_exists_action: clean          # abort|clean|skip (DANGEROUS!)
-    pg_disable_purge: false          # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
+    pg_clean: clean          # abort|clean|skip (DANGEROUS!)
+    pg_safeguard: false          # set to true to disable pg purge functionality for good (force pg_clean = abort)
     pg_data: /pg/data                # postgres data directory (soft link)
     pg_fs_main: /data                # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups        # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
@@ -569,7 +569,7 @@ all:
     patroni_port: 8008               # default patroni port
     patroni_watchdog_mode: automatic # watchdog mode: off|automatic|required
     pg_conf: tiny.yml                # pgsql template:  {oltp|olap|crit|tiny}.yml
-    pg_shared_libraries: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
+    pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_encoding: UTF8                # database cluster encoding, UTF8 by default
     pg_locale: C                     # database cluster local, C by default
     pg_lc_collate: C                 # database cluster collate, C by default
@@ -728,7 +728,7 @@ all:
 
     haproxy_enabled: true             # enable haproxy on this node?
     haproxy_reload: true              # reload haproxy after config?
-    haproxy_admin_auth_enabled: false # enable authentication for haproxy admin?
+    haproxy_auth_enabled: false # enable authentication for haproxy admin?
     haproxy_admin_username: admin     # default haproxy admin username
     haproxy_admin_password: pigsty    # default haproxy admin password
     haproxy_exporter_port: 9101       # default admin/exporter port

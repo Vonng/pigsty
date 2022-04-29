@@ -38,9 +38,9 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 343 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_TUNE`](#NODE_TUNE) | bool     | C     | 关闭节点SELINUX                      |
 | 344 | [`node_static_network`](#node_static_network)         | [`NODE_TUNE`](#NODE_TUNE) | bool     | C     | 是否使用静态DNS服务器                |
 | 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_TUNE`](#NODE_TUNE) | bool     | C     | 是否启用磁盘预读                     |
-| 346 | [`node_feature_kernel`](#node_feature_kernel)         | [`NODE_TUNE`](#NODE_FEATURE)   | string[] | C     | 启用的内核模块                       |
+| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_TUNE`](#NODE_FEATURE)   | string[] | C     | 启用的内核模块                       |
 | 350 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C     | 节点调优模式                         |
-| 351 | [`node_tune_sysctl`](#node_tune_sysctl)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C     | 操作系统内核参数                     |
+| 351 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C     | 操作系统内核参数                     |
 | 360 | [`node_datadir`](#node_datadir)               | [`NODE_ADMIN`](#NODE_ADMIN)       | path     | G     | 节点的数据盘挂载路径 |
 | 361 | [`node_admin_enabled`](#node_admin_enabled)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G     | 是否创建管理员用户                   |
 | 362 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G     | 管理员用户UID                        |
@@ -333,7 +333,7 @@ node_packages_meta:                           # packages for meta nodes only
 
 元节点上通过pip3安装的软件包, 类型：`string`，层级：G，默认值为：`"jupyterlab"`
 
-软件包会下载至[`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python`目录后统一安装。
+软件包会下载至[`{{ nginx_home }}`](v-infra.md#nginx_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python`目录后统一安装。
 
 目前默认会安装`jupyterlab`，提供完整的Python运行时环境。
 
@@ -406,14 +406,14 @@ node_packages_meta:                           # packages for meta nodes only
 
 
 
-### `node_feature_kernel`
+### `node_kernel_modules`
 
 启用的内核模块, 类型：`string[]`，层级：C，默认值为：
 
 由内核模块名称组成的数组，声明了需要在节点上安装的内核模块，Pigsty默认会启用以下内核模块：
 
 ```
-node_feature_kernel: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
+node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 ```
 
 
@@ -435,7 +435,7 @@ node_feature_kernel: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
 
 
 
-### `node_tune_sysctl`
+### `node_sysctl_params`
 
 操作系统内核参数, 类型：`dict`，层级：C，默认值为空字典。字典KV结构，Key为内核`sysctl`参数名，Value为参数值。
 

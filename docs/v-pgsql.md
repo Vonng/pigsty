@@ -52,8 +52,8 @@ The params on the PostgreSQL are divided into seven main sections：
 | 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG binary dir|
 | 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG packages to be installed|
 | 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG extension pkgs to be installed|
-| 560 | [`pg_exists_action`](#pg_exists_action)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C/A   | how to deal with existing pg ins|
-| 561 | [`pg_disable_purge`](#pg_disable_purge)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge|
+| 560 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C/A   | how to deal with existing pg ins|
+| 561 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge|
 | 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg data dir|
 | 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg main data disk mountpoint|
 | 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg backup disk mountpoint|
@@ -67,7 +67,7 @@ The params on the PostgreSQL are divided into seven main sections：
 | 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | patroni listen port (8080)|
 | 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni watchdog policy|
 | 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | patroni template|
-| 586 | [`pg_shared_libraries`](#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database |
+| 586 | [`pg_libs`](#pg_libs)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database |
 | 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | character encoding|
 | 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | locale|
 | 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | collate rule of locale|
@@ -101,7 +101,7 @@ The params on the PostgreSQL are divided into seven main sections：
 | 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | global service definition|
 | 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | haproxy enabled ?|
 | 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | haproxy reload instead of reset|
-| 643 | [`haproxy_admin_auth_enabled`](#haproxy_admin_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | enable auth for haproxy admin ?|
+| 643 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | enable auth for haproxy admin ?|
 | 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin user name|
 | 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin password|
 | 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | haproxy exporter listen port|
@@ -753,7 +753,7 @@ With [`pg_conf`](#pg_conf) you can use the default cluster templates (OLTP / OLA
 
 
 
-### `pg_exists_action`
+### `pg_clean`
 
 Action when PG insstance exists, type: `enum`, level: C/A, default value: `"clean"`.
 
@@ -764,16 +764,16 @@ System actions when a PostgreSQL ins exists:
 * `skip`: Ignore targets for which ins exist (abort) and continue execution on other target machines.
 
 To force wipe existing database instance, please use [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove) to complete the cluster and instance offline first, and then reinitialize.
-Otherwise, overwriting needs to be done with the CLI argument `-e pg_exists_action=clean` to force the wiping of existing ins during initialization.
+Otherwise, overwriting needs to be done with the CLI argument `-e pg_clean=clean` to force the wiping of existing ins during initialization.
 
 
 
 
-### `pg_disable_purge`
+### `pg_safeguard`
 
 Disable pg instance purge, type: `bool`, level: C/A, default value: `false`.
 
-If `true`, force set [`pg_exists_action`](#pg_exists_action) to `abort`, i.e. turn off the cleanup of [`pg_exists_action`](#pg_exists_action) to ensure that PG ins are not wiped out under any circumstances.
+If `true`, force set [`pg_clean`](#pg_clean) to `abort`, i.e. turn off the cleanup of [`pg_clean`](#pg_clean) to ensure that PG ins are not wiped out under any circumstances.
 
 Then, you need to clean up the existing instance by [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove), and then finish the database initialization again.
 
@@ -900,7 +900,7 @@ The [Patroni template](v-pgsql-customize.md) was used to pull up the Postgres cl
 
 
 
-### `pg_shared_libraries`
+### `pg_libs`
 
 Shared database loaded by PG, type: `string`, level: C, default value: `"timescaledb, pg_stat_statements, auto_explain"`.
 
@@ -1422,7 +1422,7 @@ If turned off, Pigsty will not perform Reload operation after rendering the HAPr
 
 
 
-### `haproxy_admin_auth_enabled`
+### `haproxy_auth_enabled`
 
 Enable auth for Haproxy, type: `bool`, level: G/C, default value: `false`.
 

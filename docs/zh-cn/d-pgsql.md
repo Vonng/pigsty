@@ -373,7 +373,7 @@ pg-test:
 [Citus](https://www.citusdata.com/)是一个PostgreSQL生态的分布式扩展插件，默认情况下Pigsty安装Citus，但不启用。 [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) 提供了一个部署Citus集群的配置文件案例。为了启用Citus，您需要修改以下参数：
 
 * `max_prepared_transaction`： 修改为一个大于`max_connections`的值，例如800。
-* [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)：必须包含`citus`，并放置在最前的位置。
+* [`pg_libs`](v-pgsql.md#pg_libs)：必须包含`citus`，并放置在最前的位置。
 * 您需要在[业务数据库](c-pgdbuser.md#数据库)中包含 `citus` 扩展插件（但您也可以事后手工通过`CREATE EXTENSION`自行安装）
 
 <details><summary>Citus集群样例配置</summary>

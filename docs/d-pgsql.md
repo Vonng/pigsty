@@ -367,7 +367,7 @@ pg-test:
 [Citus](https://www.citusdata.com/) is a distributed extension plugin for PostgreSQL. By default, Pigsty installs Citus but does not enable it. [`pigsty-citus.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-citus.yml) provides a config file case for deploying a Citus cluster. To allow Citus to, you need to modify the following parameters.
 
 * `max_prepared_transaction`: Modify to a value greater than `max_connections`, e.g. 800.
-* [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries): Must contain `citus` and be placed in the top position.
+* [`pg_libs`](v-pgsql.md#pg_libs): Must contain `citus` and be placed in the top position.
 * You need to include the `citus` extension plugin in the [business database](c-pgdbuser.md#database) (but you can also manually install it via `CREATE EXTENSION`).
 
 <details><summary>Citus cluster sample config</summary>

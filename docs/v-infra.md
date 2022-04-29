@@ -31,11 +31,11 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | ID  |                            Name                             |           Section           |    Type    | Level |                Comment                 |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|-----------------------------------------|
 | 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | proxy env variables |
-| 110 | [`repo_enabled`](#repo_enabled)                             | [`REPO`](#REPO)             | bool       | G     | enable local yum repo|
+| 110 | [`nginx_enabled`](#nginx_enabled)                             | [`REPO`](#REPO)             | bool       | G     | enable local yum repo|
 | 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | local yum repo name|
 | 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | external access port of repo |
-| 113 | [`repo_port`](#repo_port)                                   | [`REPO`](#REPO)             | int        | G     | repo listen address (80)|
-| 114 | [`repo_home`](#repo_home)                                   | [`REPO`](#REPO)             | path       | G     | repo home dir (/www)|
+| 113 | [`nginx_port`](#nginx_port)                                   | [`REPO`](#REPO)             | int        | G     | repo listen address (80)|
+| 114 | [`nginx_home`](#nginx_home)                                   | [`REPO`](#REPO)             | path       | G     | repo home dir (/www)|
 | 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | rebuild local yum repo |
 | 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | remove existing repo file |
 | 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | upstream repo definition|
@@ -47,7 +47,7 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | ca cert file name|
 | 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | ca private key name|
 | 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | nginx upstream definition|
-| 131 | [`app_list`](#app_list)                                     | [`NGINX`](#NGINX)           | app[]      | G     | app list on home page navbar|
+| 131 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | app list on home page navbar|
 | 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable local docs|
 | 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable pev2|
 | 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | enable pgbadger|
@@ -67,10 +67,10 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | 172 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | grafana admin password|
 | 173 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | grafana backend database type|
 | 174 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | grafana backend postgres url|
-| 175 | [`grafana_plugin`](#grafana_plugin)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | Install grafana plugin method |
-| 176 | [`grafana_cache`](#grafana_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | grafana plugins cache path|
-| 177 | [`grafana_plugins`](#grafana_plugins)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | grafana plugins to be installed|
-| 178 | [`grafana_git_plugins`](#grafana_git_plugins)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | grafana plugins via git|
+| 175 | [`grafana_plugin_method`](#grafana_plugin_method)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | Install grafana plugin method |
+| 176 | [`grafana_plugin_cache`](#grafana_plugin_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | grafana plugins cache path|
+| 177 | [`grafana_plugin_list`](#grafana_plugin_list)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | grafana plugins to be installed|
+| 178 | [`grafana_plugin_git`](#grafana_plugin_git)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | grafana plugins via git|
 | 180 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G     | loki endpoint to receive log|
 | 181 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | remove existing loki data |
 | 182 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | loki cli args|
@@ -145,18 +145,18 @@ For example, in the example below, [`ansible_host`](v-infra.md#ansible_host) tel
 
 Pigsty is installed on a meta node. Pigsty pulls up a localYum repo for the current environment to install RPM packages.
 
-During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream repo (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ repo_home }}`](#repo_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB or so.
+During initialization, Pigsty downloads all packages and their dependencies (specified by [`repo_packages`](#repo_packages)) from the Internet upstream repo (specified by [`repo_upstreams`](#repo_upstreams)) to [`{{ nginx_home }}`](#nginx_home) / [`{{ repo_name }}`](#repo_name)  (default is `/www/pigsty`). The total size of all dependent software is about 1GB or so.
 
 When creating a localYum repo, Pigsty will skip the software download phase if the directory already exists and if there is a marker file named `repo_complete` in the dir.
 
 If the download speed of some packages is too slow, you can set the download proxy to complete the first download by using the [`proxy_env`](#proxy_env) config entry or directly download the pre-packaged [offline package](t-offline.md).
 
-The offline package is a zip archive of the `{{ repo_home }}/{{ repo_name }}` dir `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will extract it to `{{ repo_home }}/{{ repo_name }}`, skipping the software download step during installation.
+The offline package is a zip archive of the `{{ nginx_home }}/{{ repo_name }}` dir `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will extract it to `{{ nginx_home }}/{{ repo_name }}`, skipping the software download step during installation.
 
 The default offline package is based on CentOS 7.8.2003 x86_64; if you use a different OS, there may be RPM package conflict and dependency error problems; please refer to the FAQ to solve.
 
 
-### `repo_enabled`
+### `nginx_enabled`
 
 Enable local repo, type: `bool`, level: G, default value: `true`.
 
@@ -179,12 +179,12 @@ The address of the local yum repo for external services, either a domain name or
 
 If you use a domain name, you must ensure that the domain name will resolve correctly to the server where the local repo is located, i.e., the meta node.
 
-If the local yum repo does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`repo_port`](#repo_port) variable.
+If the local yum repo does not use the standard port 80, you need to add the port to the address and keep it consistent with the [`nginx_port`](#nginx_port) variable.
 
 The static DNS config [`node_etc_hosts_default`](v-nodes.md#node_etc_hosts_default) in the [nodes](v-nodes.md) parameter can be used to write the `pigsty` local repo domain name by default for all nodes in the current env.
 
 
-### `repo_port`
+### `nginx_port`
 
 Local repo port, type: `int`, level: G, default value: `80`.
 
@@ -192,7 +192,7 @@ Pigsty accesses all web services through this port on the meta node. Make sure y
 
 
 
-### `repo_home`
+### `nginx_home`
 
 Local repo root, type: `path`, level: G, default value: `"/www"`.
 
@@ -392,12 +392,12 @@ The `endpoint` is an internally reachable TCP port. During the Configure, the pl
 
 
 
-### `app_list`
+### `nginx_indexes`
 
 List of applications displayed in the home navigation bar, type: `app[]`, level: G, default value:
 
 ```yaml
-app_list:                            # application nav links on home page
+nginx_indexes:                            # application nav links on home page
   - { name: Pev2    , url : '/pev2'        , comment: 'postgres explain visualizer 2' }
   - { name: Logs    , url : '/logs'        , comment: 'realtime pgbadger log sample' }
   - { name: Report  , url : '/report'      , comment: 'daily log summary report ' }
@@ -418,7 +418,7 @@ The `url` parameter specifies the URL PATH for the app, with the exception that 
 
 Enable local documentation, type: `bool`, level: G, default value: `true`.
 
-Local documents are automatically copied to the `{{ repo_home }}` / docs path of the meta node and served from the default Server via Nginx.
+Local documents are automatically copied to the `{{ nginx_home }}` / docs path of the meta node and served from the default Server via Nginx.
 
 The default access address is: `http://pigsty/docs`.
 
@@ -430,7 +430,7 @@ Enable PEV2 component, type: `bool`, level: G, default value: `true`.
 
 Pev2 is a handy PostgreSQL execution plan visualization tool for static single-page apps.
 
-If enabled, Pev2 resources are copied to the `{{ repo_home }}` / pev2 path of the meta node and served from the default Server via Nginx. The default access address is: `http://pigsty/pev2`.
+If enabled, Pev2 resources are copied to the `{{ nginx_home }}` / pev2 path of the meta node and served from the default Server via Nginx. The default access address is: `http://pigsty/pev2`.
 
 
 
@@ -442,7 +442,7 @@ Enable Pgbadger, type: `bool`, level: G, default value: `true`.
 
 Pgbadger is a handy PostgreSQL log analysis tool that generates comprehensive and beautiful web reports from PG logs.
 
-If enabled, Pigsty will create `{{ repo_home }}` / logs placeholder directory on the meta node where subsequent reports generated by Pgbouncer will be automatically placed. The default access address is: `http://pigsty/logs`.
+If enabled, Pigsty will create `{{ nginx_home }}` / logs placeholder directory on the meta node where subsequent reports generated by Pgbouncer will be automatically placed. The default access address is: `http://pigsty/logs`.
 
 
 
@@ -669,7 +669,7 @@ Only valid if the parameter [`grafana_database`](#grafana_database) is `postgres
 
 
 
-### `grafana_plugin`
+### `grafana_plugin_method`
 
 Install the Grafana plugin, type: `enum`, level: G, default value: `"install"`.
 
@@ -680,12 +680,12 @@ How Grafana plug-ins are provisioned:
 * `reinstall`: Re-download and install the Grafana plugin anyway.
 
 Grafana requires Internet access to download several extension plug-ins, and if your meta-node does not have Internet access, you should ensure that you are using an offline installer.
-The offline installation package already contains all downloaded Grafana plugins by default, located under the path specified by [`grafana_cache`](#grafana_cache). Pigsty will package the downloaded plugins and place them under that path after the download is complete when downloading plugins from the Internet.
+The offline installation package already contains all downloaded Grafana plugins by default, located under the path specified by [`grafana_plugin_cache`](#grafana_plugin_cache). Pigsty will package the downloaded plugins and place them under that path after the download is complete when downloading plugins from the Internet.
 
 
 
 
-### `grafana_cache`
+### `grafana_plugin_cache`
 
 Grafana plugin cache address, type: `path`, level: G, default value: `"/www/pigsty/plugins.tgz"`.
 
@@ -693,12 +693,12 @@ Grafana plugin cache address, type: `path`, level: G, default value: `"/www/pigs
 
 
 
-### `grafana_plugins`
+### `grafana_plugin_list`
 
 List of installed Grafana plugins, type: `string[]`, level: G, default value:
 
 ```yaml
-grafana_plugins:
+grafana_plugin_list:
   - marcusolsson-csv-datasource
   - marcusolsson-json-datasource
   - marcusolsson-treemap-panel
@@ -711,12 +711,12 @@ Each array element is a string that represents the name of the plugin. Plugins a
 
 
 
-### `grafana_git_plugins`
+### `grafana_plugin_git`
 
 Grafana plugin installed from Git, type: `url[]`, level: G, default value:
 
 ```yaml
-grafana_git_plugins:                          # plugins that will be downloaded via git
+grafana_plugin_git:                          # plugins that will be downloaded via git
   - https://github.com/Vonng/vonng-echarts-panel
 ```
 

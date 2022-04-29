@@ -59,14 +59,14 @@
 
 ### 保护机制
 
-`pgsql.yml`提供**保护机制**，由配置参数 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 的配置`abort|clean|skip`行动。
+`pgsql.yml`提供**保护机制**，由配置参数 [`pg_clean`](v-pgsql.md#pg_clean) 决定。当执行剧本前会目标机器上有正在运行的PostgreSQL实例时，Pigsty会根据 [`pg_clean`](v-pgsql.md#pg_clean) 的配置`abort|clean|skip`行动。
 
 * `abort`：建议设置为默认配置，如遇现存实例，中止剧本执行，避免误删库。
 * `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有数据库。
 * `skip`：  直接在已有数据库集群上执行后续逻辑。
-* 您可以通过`./pgsql.yml -e pg_exists_action=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
+* 您可以通过`./pgsql.yml -e pg_clean=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
 
-[`pg_disable_purge`](v-pgsql.md#pg_disable_purge) 选项提供了双重保护，如果启用该选项，则 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
+[`pg_safeguard`](v-pgsql.md#pg_safeguard) 选项提供了双重保护，如果启用该选项，则 [`pg_clean`](v-pgsql.md#pg_clean) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例。
 
 `consul_clean`与`consul_safeguard`与上述两个选项效果一致，但针对DCS（Consul Agent）实例。
 

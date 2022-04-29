@@ -20,20 +20,20 @@
         pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"
 
     # when any running instance exists, abort play in two cases:
-    # 1. pg_disable_purge = true          (global flag to prevent accidentally purge)
-    # 2. pg_exists_action == 'abort'
+    # 1. pg_safeguard = true          (global flag to prevent accidentally purge)
+    # 2. pg_clean == 'abort'
     - name: Abort due to existing postgres instance
-      when: pg_exists and pg_disable_purge or pg_exists and pg_exists_action == 'abort'
+      when: pg_exists and pg_safeguard or pg_exists and pg_clean == 'abort'
       any_errors_fatal: true
       fail: msg="Abort because pg instance {{ pg_instance }} is already running"
 
     - name: Skip due to running instance
-      when: pg_exists and pg_exists_action == 'skip'
+      when: pg_exists and pg_clean == 'skip'
       any_errors_fatal: true
       meta: end_host
 
     - name: Clean existing postgres instance
-      when: pg_exists and pg_exists_action == 'clean' # DANGEROUS!
+      when: pg_exists and pg_clean == 'clean' # DANGEROUS!
       debug:
         msg: "[DANGEROUS] running instance {{ pg_instance }} will be purged!"
 

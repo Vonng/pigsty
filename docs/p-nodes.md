@@ -72,7 +72,7 @@ The `nodes.yml` provides a **SafeGuard** determined by the parameter [`consul_cl
 * `abort`: Default option. Abort play immediately to avoid purging the consul by accident.
 * `clean`: PURGE the existing DCS instance.
 * `skip`: Skip this **host** and continue on to other hosts.
-* Use `./nodes.yml -e pg_exists_action=clean` to overwrite the configuration file option and force the existing instance to be erased.
+* Use `./nodes.yml -e pg_clean=clean` to overwrite the configuration file option and force the existing instance to be erased.
 
 The [`consul_safeguard`](v-nodes.md#consul_safeguard) parameter is yet another safeguard, If enabled, the [`consul_clean`](v-nodes.md#consul_clean) will be forcibly set to `abort`, and no running DCS instances will be purged unless  [`nodes-remove.yml`](#nodes-remove) is explicitly used.
 

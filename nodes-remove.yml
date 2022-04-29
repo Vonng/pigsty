@@ -50,6 +50,7 @@
     #---------------------------------------------
 
 
+
 #------------------------------------------------------------------------------
 # Remove Node Exporter
 #------------------------------------------------------------------------------
@@ -124,6 +125,19 @@
             - /etc/consul.d
             - "{{ consul_data_dir }}"
 
+
+#---------------------------------------------------------------
+# Docker
+#---------------------------------------------------------------
+- name: Docker Remove
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: docker
+  tasks:
+
+    - name: Stop and disable docker service
+      systemd: name=promtail state=stopped enabled=no daemon_reload=yes
 
 
 ...

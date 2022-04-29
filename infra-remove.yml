@@ -31,12 +31,15 @@
   gather_facts: no
   ignore_errors: yes
   vars:
+    rm_cmdb: false          # do not remove cmdb unless rm_cmdb=true
     rm_dcs_server: true     # remove dcs server? false by default
     rm_pgdata: false        # remove postgres data? false by default
     rm_pgpkgs: true         # uninstall pg_packages? false by default
+
   roles:
     - role: pg_remove
       tags: pg-remove
+      when: rm_cmdb|bool
 
 #------------------------------------------------------------------------------
 # Remove Infrastructure
@@ -80,7 +83,7 @@
         - /etc/prometheus/targets
         - /etc/nginx/conf.d/
         - /var/lib/grafana
-        - "{{ repo_home }}"
+        - "{{ nginx_home }}"
         - "{{ pg_data }}"
         - "{{ prometheus_data_dir }}"
         - "{{ consul_data_dir }}"
