@@ -65,14 +65,24 @@
 
 ### 保护机制
 
-`nodes.yml`提供**保护机制**，由配置参数 [`consul_clean`](v-nodes.md#consul_clean) 决定。当执行剧本前会目标机器上有正在运行的Consul实例时，Pigsty会根据 [`consul_clean`](v-nodes.md#consul_clean) 的配置`abort|clean|skip`行动。
+Pigsty提供**保护机制**，避免误删运行中的Consul实例，包括了两个相关参数：
 
-* `abort`：建议设置为默认配置，如遇现存DCS实例，中止剧本执行，避免误删库。
-* `clean`：建议在本地沙箱环境使用，如遇现存实例，清除已有DCS实例。
-* `skip`：  跳过此主机，在其他主机上执行后续逻辑。
-* 您可以通过`./nodes.yml -e pg_clean=clean`的方式来覆盖配置文件选项，强制抹掉现有实例
+* [`consul_safeguard`](v-nodes.md#consul_safeguard)：默认关闭，只要打开，在任意情况下该数据库实例不会被清理。
+* [`consul_clean`](v-nodes.md#consul_clean)：默认关闭，当打开时，初始化节点/[`nodes.yml`](#nodes) 会抹除掉现有Consul实例（有可能影响PG主库写入）
 
-[`consul_safeguard`](v-nodes.md#consul_safeguard) 选项提供了双重保护，如果启用该选项，则 [`consul_clean`](v-nodes.md#consul_clean) 会被强制设置为`abort`，在任何情况下都不会抹掉运行中的数据库实例，除非您显式执行 [`nodes-remove.yml`](#nodes-remove)。
+当遇到现存实例时，[`nodes.yml`](#nodes) 剧本会有以下行为表现：
+
+| `consul_safeguard` / `pg_clean` | `consul_clean=true` | `consul_clean=false` |
+| :-------------------------: | :-------------: | :--------------: |
+|     `consul_safeguard=true`     |    中止执行     |     中止执行     |
+|    `consul_safeguard=false`     |  **抹除实例**   |     中止执行     |
+
+当遇到现存实例时， [`nodes-remove.yml`](#nodes-remove)剧本会有以下行为表现：
+
+| `consul_safeguard` / `pg_clean` | `consul_clean=true` | `consul_clean=false` |
+| :-------------------------: | :-------------: | :--------------: |
+|     `consul_safeguard=true`     |    中止执行     |     中止执行     |
+|    `consul_safeguard=false`     |  **抹除实例**   |   **抹除实例**   |
 
 
 

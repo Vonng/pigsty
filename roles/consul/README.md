@@ -15,7 +15,7 @@ This role will install consul on hosts
 ### Tricks
 
 ```
-./infra.yml --tags=dcs -e consul_clean=clean
+./infra.yml --tags=dcs -e consul_clean=true
 ```
 
 ### Tasks

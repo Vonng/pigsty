@@ -67,18 +67,32 @@ The [`consul_clean`](v-nodes.md#consul_clean) provides a [SafeGuard](#SafeGuard)
 
 ### SafeGuard
 
-The `nodes.yml` provides a **SafeGuard** determined by the parameter [`consul_clean`](v-nodes.md#consul_clean). Pigsty will take action according to the value: `abort|clean|skip` when a running Consul instance on the target node.
+Pigsty provides a SafeGuard to avoid purging running consul instances with fat fingers. There are two parameters.
 
-* `abort`: Default option. Abort play immediately to avoid purging the consul by accident.
-* `clean`: PURGE the existing DCS instance.
-* `skip`: Skip this **host** and continue on to other hosts.
-* Use `./nodes.yml -e pg_clean=clean` to overwrite the configuration file option and force the existing instance to be erased.
+* [`consul_safeguard`](v-nodes.md#consul_safeguard): Disabled by default, if enabled, running consul will not be purged by any circumstance.
+* [`consul_clean`](v-nodes.md#consul_clean): disabled by default, [`nodes.yml`](#nodes) will purge running consul during node init.
 
-The [`consul_safeguard`](v-nodes.md#consul_safeguard) parameter is yet another safeguard, If enabled, the [`consul_clean`](v-nodes.md#consul_clean) will be forcibly set to `abort`, and no running DCS instances will be purged unless  [`nodes-remove.yml`](#nodes-remove) is explicitly used.
+When running consul exists, [`nodes.yml`](#nodes) will act as:
+
+| `consul_safeguard` / `pg_clean` | `consul_clean=true` | `consul_clean=false` |
+| :-----------------------------: | :-----------------: | :------------------: |
+|     `consul_safeguard=true`     |        ABORT        |        ABORT         |
+|    `consul_safeguard=false`     |      **PURGE**      |        ABORT         |
+
+When running consul exists,  [`nodes-remove.yml`](#nodes-remove) will act as:
+
+| `consul_safeguard` / `pg_clean` | `consul_clean=true` | `consul_clean=false` |
+| :-----------------------------: | :-----------------: | :------------------: |
+|     `consul_safeguard=true`     |        ABORT        |        ABORT         |
+|    `consul_safeguard=false`     |      **PURGE**      |      **PURGE**       |
 
 
 
-### Selective execution
+
+
+
+
+### Selective Execution
 
 You can **selectively** execute a subset of this playbook through **tags**.
 
@@ -109,8 +123,9 @@ Common tasks are listed below:
 ./nodes.yml --tags=node_admin      # Create node admin user and configure SSH access
 ./nodes.yml --tags=node_timezone   # Configure node time zone
 ./nodes.yml --tags=node_ntp        # Configure NTP service
+./nodes.yml --tags=docker          # Configure dockerd daemon
 ./nodes.yml --tags=consul          # Configure consul agent/server
-./nodes.yml --tags=consul -e consul_clean=clean   # Force node reinit
+./nodes.yml --tags=consul -e consul_clean=clean   # Force consul reinit
 
 ./nodes.yml --tags=node_exporter   # Configure node_exporter on the node and register it
 ./nodes.yml --tags=node_register   # Registering node monitoring to a meta node
@@ -174,7 +189,7 @@ The playbook needs to be executed on **meta nodes**, and targeting nodes need to
 
 
 
-### Task subset
+### Task Subsets
 
 ```bash
 # play
@@ -182,6 +197,7 @@ The playbook needs to be executed on **meta nodes**, and targeting nodes need to
 ./nodes-remove.yml --tags=node-exporter # Remove node metrics collector
 ./nodes-remove.yml --tags=promtail      # Remove Promtail log agent
 ./nodes-remove.yml --tags=consul        # Remove Consul Agent service
+./nodes-remove.yml --tags=docker        # Remove Docker service
 ./nodes-remove.yml --tags=consul -e rm_dcs_servers=true # Remove Consul (Including Server!)
 ```
 
