@@ -65,11 +65,11 @@
 
 The following parameters are related to the PostgreSQL database dir:
 
-* [pg_dbsu_home](v-pgsql.md#pg_dbsu_home): Postgres default user's home dir, default is `/var/lib/pgsql`
-* [pg_bin_dir](v-pgsql.md#pg_bin_dir): Postgres binary dir, defaults to `/usr/pgsql/bin/`
-* [pg_data](v-pgsql.md#pg_data): Postgres database dir, default is `/pg/data`
-* [pg_fs_main](v-pgsql.md#pg_fs_main): Postgres main data disk mount point, default is `/export`
-* [pg_fs_bkup](v-pgsql.md#pg_fs_bkup): Postgres backup disk mount point, default is `/var/backups` (optional, you can also choose to backup to a subdirectory on the main data disk)
+* [pg_dbsu_home](v-pgsql.md#pg_dbsu_home): Postgres default user's home dir, default is `/var/lib/pgsql`.
+* [pg_bin_dir](v-pgsql.md#pg_bin_dir): Postgres binary dir, defaults to `/usr/pgsql/bin/`.
+* [pg_data](v-pgsql.md#pg_data): Postgres database dir, default is `/pg/data`.
+* [pg_fs_main](v-pgsql.md#pg_fs_main): Postgres main data disk mount point, default is `/export`.
+* [pg_fs_bkup](v-pgsql.md#pg_fs_bkup): Postgres backup disk mount point, default is `/var/backups` (optional, you can also choose to backup to a subdirectory on the primary data disk).
 
 ```yaml
 #------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ On RedHat/CentOS, the default installation location for the Postgres distributio
 /usr/pgsql-${pg_version}/
 ```
 
-The installation playbook automatically creates a softlink to the currently installed version, for example, if version 14 of Postgres is installed, there are.
+The installation playbook automatically creates a soft link to the currently installed version. For example, if version 14 of Postgres is installed, there are.
 
 ```bash
 /usr/pgsql -> /usr/pgsql-14
@@ -141,7 +141,7 @@ Therefore, the default `pg_bin_dir` is `/usr/pgsql/bin/`, and this path is added
 
 ## PG Data FHS
 
-Pigsty assumes that there is at least one primary data disk (`pg_fs_main`), and an optional backup data disk (`pg_fs_bkup`) on the single node used to deploy the database instance. Usually, the primary data disk is a high-performance SSD, while the backup disk is a high-capacity inexpensive HDD.
+Pigsty assumes at least one primary data disk (`pg_fs_main`) and an optional backup data disk (`pg_fs_bkup`) on the single node used to deploy the database instance. Usually, the primary data disk is a high-performance SSD, while the backup disk is a high-capacity inexpensive HDD.
 
 ```yaml
 #------------------------------------------------------------------------------
@@ -200,20 +200,20 @@ Pigsty assumes that there is at least one primary data disk (`pg_fs_main`), and 
 
 ## Pgbouncer FHS
 
-Pgbouncer is run using the Postgres user and the config file is located in `/etc/pgbouncer`. The config file includes.
+Pgbouncer is run using the Postgres user, and the config file is located in `/etc/pgbouncer`. The config file includes.
 
-* `pgbouncer.ini`, the main config file
+* `pgbouncer.ini`: the main config file
 * `userlist.txt`: lists the users in the connection pool
-* `pgb_hba.conf`: lists the access rights of the connection pool users
+* `pgb_hba.conf`: lists the access privileges of the connection pool users
 * `database.txt`: lists the databases in the connection pool
 
 
 
 ## Redis FHS
 
-Pigsty provides basic support for Redis deployment and monitoring.
+Pigsty provides essential support for Redis deployment and monitoring.
 
-Redis binaries are installed in `/bin/` using RPM packages or copied binaries, including:
+Redis binaries are installed in `/bin/` using RPM-packages or copied binaries, including:
 
 ```bash
 redis-server    

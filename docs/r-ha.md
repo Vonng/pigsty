@@ -1,17 +1,17 @@
 # HA Scenarios
 
-You can strengthen your confidence in the cluster's high availability capability through a high availability scenario experiment.
+You can strengthen your confidence in the cluster's HA capability through a HA scenario experiment.
 
-Below is a list of 24 typical high availability failure scenarios, divided into three categories: Primary failure, Replica failure, and DCS failure, with 8 specific scenarios in each category.
+Below is a list of 24 typical HA failure scenarios, divided into three categories: Primary failure, Replica failure, and DCS failure, with eight specific scenarios in each category.
 
-All experiments assume that **high availability auto-switchover mode** is enabled, where Patroni should correctly handle Primary and Replica failures.
+All experiments assume that **HA auto-switchover mode** is enabled, where Patroni should correctly handle Primary and Replica failures.
 
 |                           Number                           | Case Name                                                    |                Auto Mode                |  Manual switch  |
 | :--------------------------------------------------------: | :----------------------------------------------------------- | :-------------------------------------: | :-------------: |
 |                   [A](#Primary-failure)                    | **Primary Node Failures**                                    |                                         |                 |
 |                [1A](#1A-Primary-node-down)                 | Primary Node node down                                       |              **Failover**               |  Manual switch  |
 |        [2A](#2A-primary-postgres-process-shutdown)         | Primary Node Postgres process shutdown (`pg_ctl or kill -9`) |              **Failover**               |  Manual reboot  |
-|         [3A](#3A-primary-patroni-process-shutdown)         | The Primary Node Patroni process is shut down normally (`systemctl stop patroni`) |              **Failover**               |  Manual reboot  |
+|         [3A](#3A-primary-patroni-process-shutdown)         | The Primary Node Patroni process is shut down usually (`systemctl stop patroni`) |              **Failover**               |  Manual reboot  |
 | [4A](#4A-primary-node-patroni-process-abnormally-shutdown) | Abnormal shutdown of the Primary Node Patroni process (`kill -9`) |         **Needs confirmation**          |    No effect    |
 |                             5A                             | Primary Node load hit full, false death (watchdog)           |         **Needs confirmation**          |    No effect    |
 |                             6A                             | Primary DCS Agent is not available (`systemctl stop consul`) |      **Cluster Primary demotion**       |    No effect    |
@@ -20,7 +20,7 @@ All experiments assume that **high availability auto-switchover mode** is enable
 |           [B](#Replica-node-failure-experiment)            | **Replica bank failure (1/n , n>1)**                         |                                         |                 |
 |                             1B                             | Replica Node down                                            |                No effect                |    No effect    |
 |                             2B                             | Replica Node Postgres process shutdown (`pg_ctl or kill -9`) |                No effect                |    No effect    |
-|                             3B                             | Replica Replica Node process Postgres  Manual Shutdown (`pg_ctl`) |                No effect                |    No effect    |
+|                             3B                             | Replica Node process Postgres  Manual Shutdown (`pg_ctl`)    |                No effect                |    No effect    |
 |                             4B                             | Replica Node Patroni process exception Kill (`kill -9`)      |                No effect                |    No effect    |
 |                             5B                             | Replica DCS Agent is not available (`systemctl stop consul`) |                No effect                |    No effect    |
 |                             6B                             | Replica Node Load hit full, false death                      |                 Depends                 |     Depends     |
@@ -28,7 +28,7 @@ All experiments assume that **high availability auto-switchover mode** is enable
 |                             8B                             | Boosting a Replica node by mistake (`pg_ctl promte`)         |         **Automatic recovery**          | **Split Brain** |
 |                [C](#dcs-failure-experiment)                | **DCS failure**                                              |                                         |                 |
 |                             1C                             | DCS Server is completely unavailable (most nodes are unavailable) | **Downgrade all cluster Primary nodes** |    No effect    |
-|                             2C                             | DCS pass Primary, not Replica (1 Primary, 1 Replica)         |                No effect                |    No effect    |
+|                             2C                             | DCS pass Primary, not Replica (1 Primary & 1 Replica)        |                No effect                |    No effect    |
 |                             3C                             | DCS pass Primary, not Replica (1 Primary n Replica, n>1)     |                No effect                |    No effect    |
 |                             4C                             | DCS pass Replica, not Primary (1 Primary, 1 Replica)         |                No effect                |    No effect    |
 |                             5C                             | DCS pass Replica, not Primary (1 Primary n Replica, n>1)     |         **Automatic Failover**          |    No effect    |
@@ -55,7 +55,7 @@ make test-rw     # Generate pgbench write traffic
 make test-ro     # Generate pgbench read-only traffic
 ```
 
-If you wish to emulate other styles of traffic, you can directly adjust the load generation commands and execute them.
+If you wish, you can directly adjust the load generation commands and execute them if you want to emulate other traffic styles.
 
 ```bash
 # 4 connections, total 64 read/write TPS
@@ -67,9 +67,9 @@ while true; do pgbench -nv -P1 -c8 --select-only --rate=512 -T10 postgres://test
 
 **Observation Status**
 
-The [PGSQL Cluster](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?orgId=1&var-cls=pg-test&var-primary=pg-test-1) panel provides important monitoring information about the `pg-test` cluster, you can review the last 5-15 minutes of metrics and set it to automatically refresh every 5 seconds.
+The [PGSQL Cluster](http://demo.pigsty.cc/d/pgsql-cluster/pgsql-cluster?orgId=1&var-cls=pg-test&var-primary=pg-test-1) panel provides important monitor information about the `pg-test` cluster. You can review the last 5-15 minutes of metrics and automatically set it to refresh every 5 seconds.
 
-Pigsty's monitoring metrics collection period is 10 seconds by default, while the typical time taken for Patroni Primary-Replica switchover is usually between a few and a dozen seconds. You can use `patronictl` to obtain sub-second observation accuracy.
+Pigsty's monitor metrics collection period is 10 seconds by default, while the typical time taken for Patroni Primary-Replica switchover is usually between a few and a dozen seconds. You can use `patronictl` to obtain sub-second observation accuracy.
 
 ```bash
 pg list pg-test          # View pg-test cluster status (in a separate window)
@@ -78,10 +78,10 @@ pg list pg-test -w 0.1   # View pg-test cluster status, refreshed every 0.1s
 
 You can open four Terminal windows for.
 
-* Execute administrative commands on the meta node (the command used to trigger a simulated failure)
-* Initiate and observe read and write request loads (`pgbench`)
-* Initiate and observe read-only request load (`pgbench --select-only`)
-* Real-time access to cluster Primary-Replica status (`pg list`)
+* Execute admin commands on the meta node (the command used to trigger a simulated failure).
+* Initiate and observe read and write request loads (`pgbench`).
+* Initiate and observe read-only request load (`pgbench --select-only`).
+* Real-time access to cluster Primary-Replica status (`pg list`).
 
 
 
@@ -97,9 +97,9 @@ ssh 10.10.10.3 sudo reboot    # Reboot the pg-test-1 Primary node directly (VIP 
 
 **Operation results**
 
-Patroni can handle the Primary node downtime normally, performing automatic Failover.
+Patroni can handle the Primary node downtime, typically performing automatic Failover.
 
-When the cluster is in maintenance mode, manual intervention is required (manual execution of `pg failover <cluster>`)
+Manual intervention is required when the cluster is in maintenance mode (manual execution of `pg failover <cluster>`).
 
 <details><summary>patronictl list results</summary>
 
@@ -191,7 +191,7 @@ ssh 10.10.10.3 'sudo kill -9 $(sudo cat /pg/data/postPrimary.pid | head -n1)'
 
 After shutting down Postgres, Patroni tries to pull up the Postgres process again. If successful, the cluster returns to normal.
 
-If the PostgreSQL process cannot be pulled up properly, the cluster will automatically Failover.
+If the PostgreSQL process cannot be pulled up correctly, the cluster will automatically Failover.
 
 <details><summary>patronictl list results</summary>
 
@@ -231,9 +231,9 @@ ssh 10.10.10.3 'sudo systemctl stop patroni'
 
 **Operation results**
 
-Shutting down the Primary Patroni in the normal way **causes the PostgreSQL instances managed by Patroni to shut down together** and **immediately** trigger a cluster Failover.
+Shutting down the Primary Patroni commonly **causes the PostgreSQL instances managed by Patroni to shut down together** and **immediately** trigger a cluster Failover.
 
-Shutting down Patroni in maintenance mode in the normal way, shutting down Patroni does not affect the managed PostgreSQL instances, which can be used to restart Patroni to reload the config (e.g. change the DCS used).
+Shutting down Patroni in maintenance mode normally, shutting down Patroni does not affect the managed PostgreSQL instances, which can restart Patroni to reload the config (e.g., change the DCS used).
 
 <details><summary>patronictl list results</summary>
 
@@ -294,7 +294,7 @@ Shutting down Patroni in maintenance mode in the normal way, shutting down Patro
 
 !> This situation requires special attention!
 
-If you use Kill -9 to forcibly kill the Primary Patroni, there is a high probability that the Primary Patroni will not be able to shut down the managed PostgreSQL Primary instances. This will cause the original Primary PostgreSQL instance to survive Patroni's death, while the remaining Replica nodes in the cluster will hold a leadership election to elect a new Primary, **leading to a split brain**.
+Suppose you use Kill -9 to kill the Primary Patroni forcibly. In that case, there is a high probability that the Primary Patroni will not be able to shut down the managed PostgreSQL Primary instances. This will cause the original Primary PostgreSQL instance to survive Patroni's death. At the same time, the remaining Replica nodes in the cluster will hold a leadership election to elect a new Primary, **leading to a split-brain**.
 
 **Operating Instructions**
 
@@ -306,17 +306,17 @@ ssh 10.10.10.3 'sudo kill -9 723'
 
 **Operation results**
 
-This operation may cause a cluster split-brain: because Patroni dies violently and has no time to kill the PostgreSQL process it manages. Instead, the other cluster members conduct a new round of elections to elect a new Primary node after the TTL timeout.
+This operation may cause a cluster split-brain: because Patroni dies violently and cannot kill the PostgreSQL process it manages. Instead, the other cluster members elect a new Primary node after the TTL timeout.
 
-If you use the standard load balancing health check-based service [access](c-service#access) mechanism, **there will be no problem** because the original Primary node Patroni is dead and the health check is false. The load balancer will not distribute traffic to this instance even if that Primary is alive. However, if you continue to write to this Primary by other means, **then you may have a split brain!
+If you use the standard load balancing health check-based service [access](c-service#access) mechanism, **there will be no problem** because the original Primary node Patroni is dead, and the health check is false. The LB will not distribute traffic to this instance even if that Primary is alive. However, if you continue to write to this Primary by other means, **you may have a split-brain!**
 
-Patroni uses the Watchdog mechanism to underwrite this situation, which you need to use as appropriate (parameter [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)). When watchdog is enabled, if the original Primary cannot shut down the PG Primary in time to avoid split-brain in Failover for various reasons (Patroni crash, machine load fake death, VM scheduling, PG shutdown too slow), etc., the Linux kernel module `softdog` will be used to force a shutdown to avoid split brain.
+Patroni uses the Watchdog mechanism to underwrite this situation, which you need to use as appropriate (parameter [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)). When watchdog is enabled, if the original Primary cannot shut down the PG Primary in time to avoid split-brain in Failover for various reasons (Patroni crash, machine load fake death, VM scheduling, PG shutdown too slow), etc., the Linux kernel module `softdog` will be used to force a shutdown to avoid split-brain.
 
 <details><summary>patronictl list results</summary>
 
 
 ```bash
-# Use Kill-9 to force kill the main Patroni library (pg-test-2) 
+# Use Kill-9 to force kill the primary Patroni (pg-test-2) 
 + Cluster: pg-test (7037370797549923387) -----+----+-----------+-----------------+
 | Member    | Host        | Role    | State   | TL | Lag in MB | Tags            |
 +-----------+-------------+---------+---------+----+-----------+-----------------+
@@ -345,8 +345,8 @@ Patroni uses the Watchdog mechanism to underwrite this situation, which you need
 +-----------+-------------+---------+---------+----+-----------+-----------------+
 
 # Attention must be paid at this point! The original cluster Primary is still alive and allowing writes!!!
-# If you use the standard load balancing health check based traffic distribution mechanism there will be no problem because Patroni is dead and the health check is false.
-# The Primary is alive, but the load balancer will not distribute traffic to this instance. However, if you write directly to this Primary through other means, you will have a split brain!
+# If you use the standard load balancing health check based traffic distribution mechanism, there will be no problem because Patroni is dead and the health check is false.
+# The Primary is alive, but the LB will not distribute traffic to this instance. However, if you write directly to this Primary through other means, you will have a split-brain!
 $ psql -AXtwh 10.10.10.12 -d postgres -c 'select pg_is_in_recovery();'
 t
 ```
@@ -357,7 +357,7 @@ t
 
 **Recovering from this situation**
 
-When Patroni dies violently, you should first manually shut down the original PostgreSQL Primary instance that is managed by it and still running. Then restart Patroni again and have the PostgreSQL instance pulled up by Patroni, as follows.
+When Patroni dies violently, first manually shut down the original PostgreSQL Primary that is managed by it and still running, then restarts Patroni again and have the PostgreSQL instance pulled up by Patroni.
 
 ```bash
 /usr/pgsql/bin/pg_ctl -D /pg/data stop
@@ -376,22 +376,22 @@ If not, an error may occur where Patroni does not start properly.
 > Explanation of parameter [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode).
 >
 > * If mode is `required` but `/dev/watchdog` is not available, it will not affect Patroni startup, only the leadership candidacy of the current instance.
-> * If the mode is the `required`, but `/dev/watchdog` is not available, then the instance cannot be a qualified Primary candidate, i.e., it cannot participate in Failover, even if manually forced to specify it: a `Switchover failed, details: 412, switchover is not possible possible: no good candidates have been found` error. To solve this problem, change the `patroni_watchdog` option in the `/pg/bin/patroni.yml` file to `automatic|off`.
-> * If the mode is `automatic`, there is no restriction and the instance will be able to run in the Primary election regardless of whether `/dev/watchdog` is available or not.
+> * If the mode is `required`, but `/dev/watchdog` is not available. The instance cannot be a qualified Primary candidate, i.e., it cannot participate in Failover, even if manually forced to specify it: a `Switchover failed, details: 412, switchover is not possible: no good candidates have been found` error. To solve this problem, change the `patroni_watchdog` option in the `/pg/bin/patroni.yml` file to `automatic|off`.
+> * If the mode is `automatic`, there is no restriction, and the instance will be able to run in the Primary election regardless of whether `/dev/watchdog` is available or not.
 > * Two conditions are required for `/dev/watchdog` to be available, the `softdog` kernel module is loaded, and `/dev/watchdog` is owned by `postgres` (dbsu).
 
 
 
 
 
-### 5A - Primary DCS Agent is not available
+### 5A-Primary DCS Agent is not available
 
-In this case, the Patroni on the Primary will demote itself to a normal Replica because it cannot connect to the DCS service, but if the Replica Patroni is still aware that the Primary is alive (e.g., streaming replication is still going on normally), it does not trigger Failover!
+In this case, the Patroni on the Primary will demote itself to a normal Replica because it cannot connect to the DCS service. However, if the Replica Patroni is still aware that the Primary is alive (e.g., streaming replication is still going on normally), it does not trigger Failover!
 
-In this case, Pigsty's access mechanism will cause **the whole cluster to enter a Primaryless state and be unwritable because the original Primary node health check is false and requires special attention!**
+In this case, Pigsty's access mechanism will **cause the whole cluster to enter a Primaryless state and be unwritable because the original Primary node health check is false**!
 
 
-In maintenance mode, no changes will occur.
+In maintenance mode, no changes.
 
 
 
@@ -414,7 +414,7 @@ TBD
 
 ## Replica node failure experiment
 
-### 1B - Replica node down
+### 1B-Replica node down
 
 **Operating Instructions**
 
@@ -424,11 +424,13 @@ ssh 10.10.10.3 sudo reboot    # Reboot the pg-test-1 Primary node directly (VIP 
 
 **Operation Result**
 
-A Replica node going down will cause services such as `HAPorxy`, `Patroni`, `Postgres`, etc. on that node to become unavailable. Usually, the business side will notice a very small number of transient error reports (the connection to the failed instance will be broken), and then the other load balancers in the cluster will take this failed node off the backend list.
+A Replica node going down will cause services such as `HAPorxy`, `Patroni`, `Postgres`, etc., on that node to become unavailable. Usually, the business side will notice a minimal number of transient error reports (the connection to the failed instance will be broken), and then the other LBs in the cluster will take this failed node off the backend list.
 
-Note that if the cluster is a one-Primary-one-Replica structure and the only Replica is down, the offline query service may be affected (no available bearer instances).
+Note that if the cluster is one Primary & one Replica and the only Replica is down, the offline query service may be affected (no available bearer instances).
 
-Once the node restart is complete, the Patroni service will automatically pull up and the instance will automatically rejoin the cluster.
+Once the node restart is complete, the Patroni service will automatically pull up, and the instance will automatically rejoin the cluster.
+
+
 
 ### 2B-Replica node Postgres process shutdown
 
@@ -446,7 +448,7 @@ ssh 10.10.10.3 'sudo kill -9 $(sudo cat /pg/data/postPrimary.pid | head -n1)'
 
 **Operation Results**
 
-After shutting down Postgres, Patroni tries to pull up the Postgres process again. If successful, the cluster returns to normal. If the Replica goes down causes the health check for that instance to be Down, the cluster's load balancer will not redistribute traffic to that instance and a small number of transient errors will be reported for application read-only requests.
+After shutting down Postgres, Patroni tries to pull up the Postgres process again. If successful, the cluster returns to normal. If the Replica goes down causes the health check for that instance to be Down, the cluster's LB will not redistribute traffic to that instance, and a few transient errors will be reported for application read-only requests.
 
 
 
@@ -480,19 +482,17 @@ After shutting down Postgres, Patroni tries to pull up the Postgres process agai
 
 ### 1C-DCS Server is completely unavailable
 
-**DCS is completely unavailable is an extremely serious failure that will cause all database clusters to be unwritable by default**. If you use L2 VIP access, the L2 VIP bound to the Primary node is also unavailable by default, which means the whole cluster may not be able to read or write! You should do your best to avoid this failure!
+**DCS is completely unavailable is a severe failure that will cause all database clusters to be unwritable by default**. If L2 VIP access is used, the L2 VIP bound to the Primary node is also unavailable by default, resulting in the entire cluster being potentially unreadable!
 
-The good thing is that DCS itself is designed to solve this problem: it has a distributed architecture and a reliable disaster recovery mechanism that can tolerate all kinds of common hardware failures. For example, a 3-node DCS cluster allows one server to fail, while a 5-node DCS cluster allows up to two server nodes to fail at the same time.
-
-There are a number of ways to mitigate this issue.
+DCS can solve this problem: by using a distributed architecture with a reliable disaster recovery mechanism. For example, a 3-node DCS cluster allows one server to fail, while a 5-node DCS cluster allows up to two server nodes to fall simultaneously.
 
 
 
-After shutting down Consul, **all** database cluster Primarys with high availability auto-switchover mode enabled to trigger the demotion logic (because the Patroni of the Primary are not aware of the presence of other cluster members and have to assume that the other Replicas already constitute a quorum majority of the partition and are elected, thus demoting themselves as Replicas to avoid split-brain)
+After shutting down Consul, **all** database cluster Primary with HA auto-switchover mode enabled to trigger the demotion logic (because the Patroni of the Primary are not aware of the presence of other cluster members and have to assume that the other Replicas already constitute a quorum majority of the partition and are elected, thus demoting themselves as Replicas to avoid split-brain).
 
 **Operating Instructions**
 
-Shut down the DCS Server on the meta node, at least 2 if there are 3 and at least 3 if there are 5.
+Shut down the DCS Server on the meta node, at least two if three and at least three if there are 5.
 
 ```bash
 systemctl stop consul
@@ -500,7 +500,7 @@ systemctl stop consul
 
 ### Solution
 
-1. In maintenance mode, the user loses the ability to automatically Failover, but a DCS failure will not cause the Primary node to be unwritable. (manual fast switchover is still possible).
+1. In maintenance mode, the user loses the ability to automatically Failover, but a DCS failure will not cause the Primary node to be unwritable. (fast manual switchover is still possible).
 2. Use more DCS instances to ensure DCS availability (DCS itself was created to solve this problem).
 3. Configure a long enough timeout retry time for Patroni and set the highest response priority for DCS failures.
 
