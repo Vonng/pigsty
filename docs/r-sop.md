@@ -130,7 +130,7 @@ After entering maintenance mode via `pg pause <cluster>`, you can manually manag
 
 
 
-## Case 1: Cluster Create/Expand
+## Case 1: Cluster Create and Expand
 
 Cluster create/expand uses the playbook [`pgsql.yml`](p-pgsql.md#pgsql) to create a cluster using the cluster name as the execution object and to create a new instance/cluster expand using a single instance in the cluster as the execution object.
 
@@ -275,7 +275,7 @@ pg list -W # Check the cluster status and confirm that the failed instance does 
 
 -----------------------
 
-## Case 2: Cluster Destruction/Downsize
+## Case 2: Cluster Destruction and Downsize
 
 Cluster destruction/downsize uses a dedicated playbook [`pgsql-remove`](p-pgsql-remove) that, when used against a cluster, will take the entire cluster destruction.
 
@@ -319,7 +319,7 @@ Note that in the default config, if an instance with `pg_role = offline` or `pg_
 
 
 
-## Case 3: Cluster Config Change/Restart
+## Case 3: Cluster Config Change and Restart
 
 ### Cluster config modification
 

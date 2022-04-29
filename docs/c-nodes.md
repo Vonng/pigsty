@@ -31,7 +31,7 @@ Taking Pigsty [Sandbox](d-sandbox.md) as an example, the distribution of compone
 
 ![](_media/SANDBOX.gif)
 
-The sandbox consists of a [meta node](#meta-node) with 4 [nodes](#nodes). The sandbox is deployed with one set of [infra](c-infra.md) and 2 [database clusters](c-pgsql.md#cluster). `meta` is the meta node, deployed with **infra** and reused as a regular node, deployed with meta DB cluster `pg-meta`. `node-1`, `node-2`, and `node-3` are normal nodes deployed with cluster `pg-test`.
+The sandbox consists of a [meta node](#Meta-Node) with 4 [nodes](#node). The sandbox is deployed with one set of [infra](c-infra.md) and 2 [database clusters](c-pgsql.md#cluster). `meta` is the meta node, deployed with **infra** and reused as a regular node, deployed with meta DB cluster `pg-meta`. `node-1`, `node-2`, and `node-3` are normal nodes deployed with cluster `pg-test`.
 
 
 
@@ -103,7 +103,7 @@ The nodes managed by Pigsty are adjusted by [`nodes.yml`](p-nodes.md#nodes) to t
 
 Each node has [identity parameters](v-nodes.md#NODE_IDENTITY) that are configured by parameters in `<cluster>.hosts` and `<cluster>.vars`.
 
-There are two important node identity parameters: [`nodename`](v-nodes.md#nodename) and [`node_cluster`](v-nodes.md#node-cluster), which will be used as the node's **instance identity** (`ins`) and **cluster identity** (`cls`)  in the monitoring system. [`nodename`](v-nodes.md#nodename) and [`node_cluster`](v-nodes.md#node-cluster) are NOT **REQUIRED** since they all have proper default values: Hostname and constant `nodes`.
+There are two important node identity parameters: [`nodename`](v-nodes.md#nodename) and [`node_cluster`](v-nodes.md#node_cluster), which will be used as the node's **instance identity** (`ins`) and **cluster identity** (`cls`)  in the monitoring system. [`nodename`](v-nodes.md#nodename) and [`node_cluster`](v-nodes.md#node_cluster) are NOT **REQUIRED** since they all have proper default values: Hostname and constant `nodes`.
 
 Besides, Pigsty uses an **IP address** as a unique node identifier, too. Which is the `inventory_hostname`  reflected as the `key` in the `<cluster>.hosts` object. A node may have multiple interfaces & IP addresses. But you must explicitly designate one as the **PRIMARY IP ADDRESS**. **Which should be an intranet IP for service access**. It's not mandatory to use that same IP address to ssh from the meta node, you can use ssh tunnel & jump server with  [`Ansible Connect`](v-infra.md#CONNECT) parameters.
 
@@ -111,7 +111,7 @@ Besides, Pigsty uses an **IP address** as a unique node identifier, too. Which i
 | :---------------------------------------: | :------: | :---: | ------------ | --------------------- |
 |           `inventory_hostname`            |   `ip`   | **-** | **REQUIRED** | **Node IP**           |
 |     [`nodename`](v-nodes.md#nodename)     | `string` | **I** | Optional     | **Node Name**         |
-| [`node_cluster`](v-nodes.md#node-cluster) | `string` | **C** | Optional     | **Node Cluster Name** |
+| [`node_cluster`](v-nodes.md#node_cluster) | `string` | **C** | Optional     | **Node Cluster Name** |
 
 The following cluster configuration declares a three-node cluster.
 
@@ -155,9 +155,9 @@ node_load1{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", job="nodes"}
 
 A **PGSQL Node** is a node with a [PGSQL](c-pgsql.md) module installed.
 
-Pigsty uses **exclusively** deploy policy for PGSQL. This means the node's identity and pgsql's identity are exchangeable.  The [`pg_hostname`](v-pgsql.md#pg-hostname) parameter is designed to assign the Postgres identity to its underlying node: `pg_instance` and `pg_cluster` will be assigned to the node's [`nodename`](v-nodes.md#nodename) & [`node_cluster`](v-nodes.md#node_cluster).
+Pigsty uses **exclusively** deploy policy for PGSQL. This means the node's identity and pgsql's identity are exchangeable.  The [`pg_hostname`](v-pgsql.md#pg_hostname) parameter is designed to assign the Postgres identity to its underlying node: `pg_instance` and `pg_cluster` will be assigned to the node's [`nodename`](v-nodes.md#nodename) & [`node_cluster`](v-nodes.md#node_cluster).
 
-In addition to [node default services]((c-nodes.md#node default services)), the following services are available on PGSQL nodes.
+In addition to [node default services](#node-services), the following services are available on PGSQL nodes.
 
 |     Component      | Port | Description                                                |
 | :----------------: | :--: | ---------------------------------------------------------- |

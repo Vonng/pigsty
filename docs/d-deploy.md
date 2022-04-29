@@ -52,7 +52,7 @@
 
 ## Deployment
 
-* [Standard Deployment](d-deploy.md): Prepare brand new nodes to complete the standard Pigsty deployment process.
+* [Standard Deployment](d-prepare.md): Prepare brand new nodes to complete the standard Pigsty deployment process.
 * [Sandbox Deployment](d-sandbox.md.md): Pull up a local VM sandbox environment with one click using a pre-built `vagrant` template.
 * Multi-Cloud Deployment: Use `terraform` template to pull up the required VM resources at the cloud service vendor and perform the deployment.
 * [Monly Deployment](d-monly): Use singleton Pigsty to monitor existing database clusters.

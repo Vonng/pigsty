@@ -8,7 +8,7 @@ Pigsty, as a battery-included PaaS solution, will integrate the basic infra into
 
 ## Overview
 
-Pigsty deploys a complete set of infra on [meta-nodes](c-nodes.md#meta-nodes) (the currently installed node), including:
+Pigsty deploys a complete set of infra on [meta nodes](c-nodes.md#meta-nodes) (the currently installed node), including:
 
 |     Component     | Port |   Default Domain   | Description             |
 | :----------: | :--: | :----------: | --------------------------- |
@@ -41,7 +41,7 @@ Nginx is the portal for all Pigsty's WebUI services, default port 80.
 Many infra components with WebUIs are exposed for service through Nginx, such as Grafana, Prometheus, AlertManager, Consul, and HAProxy traffic management pages.
 In addition, static file sources such as YumRepo, document, and execution plan visualizers are also served through Nginx.
 
-Nginx forwards access requests to the corresponding upstream component via **domain name** based on the contents of [`nginx_upstream`](v-infra.md).
+Nginx forwards access requests to the corresponding upstream component via **domain name** based on the contents of [`nginx_upstream`](v-infra.md#nginx_upstream).
 Pigsty strongly recommends using domain names to access the Pigsty UI system for several reasons:
 
 * Some components only listen to 127.0.0.1 by default.
@@ -138,14 +138,14 @@ Consul configuration parameters are located at [Config: INFRA - DCS](v-infra.md#
 
 Pigsty installs Docker on the meta-node by default, and you can pull up various stateless applications and use an external database to get production-level persistence.
 
-Docker configuration parameters are located at [Config: INFRA - DOCKER](v-infra.md#DOCKER).
+Docker configuration parameters are located at [Config: INFRA - DOCKER](v-nodes.md#DOCKER).
 
 
 
 
 ## PostgreSQL
 
-PostgreSQL configuration parameters are located at [Config: PGSQL](v-infra.md#PGSQL), using CMDB as the configuration source, please refer to the [CMDB tutorial](t-cmdb.md).
+PostgreSQL configuration parameters are located at [Config: PGSQL](v-pgsql.md), using CMDB as the configuration source, please refer to the [CMDB tutorial](t-cmdb.md).
 
 * MetaDB for supporting various advanced features (also a standard database cluster, pulled up by Ansible).
 * Ansible for executing playbooks, initiating control, and accessing the CMDB when using dynamic Inventory.
@@ -176,7 +176,7 @@ DNSMASQ configuration parameters are located at [Config: INFRA - Nameserver](v-i
 
 NTP service for synchronizing the time of all nodes (optional).
 
-NTP configuration parameters are located at [Config: NODES - NTP](v-infra.md#NTP).
+NTP configuration parameters are located at [Config: NODES - NTP](v-nodes.md#node_time).
 
 
 

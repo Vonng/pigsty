@@ -70,18 +70,18 @@ DBAs are more concerned with the usage of monitoring systems and the way of dail
 
 #### Daily maintenance management
 
-- [Cluster Create/Expand](r-sop.md#Case-1：Cluster-Create/Expand)
-- [Cluster Destruction/Downsize](r-sop.md#Case-2：Cluster-Destruction/Downsize)
-- [Cluster Config Change/Restart](r-sop.md#Case-3：Cluster-Config-Change/Restart)
-- [Create PGSQL BIZ User](r-sop.md#Case-4：Create-PGSQL-Biz-User)
-- [Create PGSQL BIZ DB](r-sop.md#Case-5：Create-PGSQL-BIZ-DB)
-- [Apply PGSQL HBA](r-sop.md#Case-6：APPLY-PGSQL-HBA)
-- [PGSQL LB Traffic Control](r-sop.md#Case-7：PGSQL-LB-Traffic-Control)
-- [PGSQL Role Adjustment](r-sop.md#Case-8：PGSQL-Role-Adjustment)
-- [Monitoring Targets](r-sop.md#Case-9：Monitoring-Targets)
-- [Cluster Switchover](r-sop.md#Case-10：Cluster-Switchover)
-- [Reset Component](r-sop.md#Case-11：Reset-Component)
-- [Switching DCS Servers](r-sop.md#Case-12：Switching-DCS-Servers)
+- [Cluster Create/Expand](r-sop.md#Case-1-Cluster-Create-and-Expand)
+- [Cluster Destruction/Downsize](r-sop.md#Case-2-Cluster-Destruction-and-Downsize)
+- [Cluster Config Change/Restart](r-sop.md#Case-3-Cluster-Config-Change-and-Restart)
+- [Create PGSQL BIZ User](r-sop.md#Case-4-Create-PGSQL-Biz-User)
+- [Create PGSQL BIZ DB](r-sop.md#Case-5-Create-PGSQL-BIZ-DB)
+- [Apply PGSQL HBA](r-sop.md#Case-6-APPLY-PGSQL-HBA)
+- [PGSQL LB Traffic Control](r-sop.md#Case-7-PGSQL-LB-Traffic-Control)
+- [PGSQL Role Adjustment](r-sop.md#Case-8-PGSQL-Role-Adjustment)
+- [Monitor Targets](r-sop.md#Case-9-Monitor-Targets)
+- [Cluster Switchover](r-sop.md#Case-10-Cluster-Switchover)
+- [Reset Component](r-sop.md#Case-11-Reset-Component)
+- [Switching DCS Servers](r-sop.md#Case-12-Switching-DCS-Servers)
 
 
 
