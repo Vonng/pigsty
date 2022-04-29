@@ -1,17 +1,14 @@
 # CMDB Usage
 
-You can use `postgres` as a config source for Pigsty, instead of a static config file.
+Instead of a static config file, you can use `postgres` as an inventory for Pigsty.
 
-Using CMDB as a dynamic Inventory for Ansible has several advantages: metadata is presented as data tables in a highly structured manner, and consistency is ensured by database constraints. The CMDB also allows you to use third-party tools to edit and manage Pigsty metadata, facilitating inter-integration with external systems.
+Using CMDB as a dynamic Inventory for Ansible has several advantages: metadata is presented as data tables in a highly structured way, and database constraints ensure consistency. The CMDB also allows you to use third-party tools to manage Pigsty metadata.
 
-Currently, Pigsty's CMDB only supports PostgreSQL clusters, if your pigsty.yml contains Redis and MatrixDB, it will report an error, it is recommended to use a separate pigsty.yml configuration file to manage Redis and Greenplum clusters. 
+Currently, Pigsty's CMDB only supports PostgreSQL clusters. If your pigsty.yml contains Redis and MatrixDB, it will report an error. It is recommended to use a separate pigsty.yml config file to manage Redis and Greenplum clusters. 
 
+The Pigsty CMDBmode is automatically created during the initialization of the `pg-meta` meta DB ([`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)) and is located in the `meta` database's ` pigsty` mode of the meta DB. Static config files can be loaded into the CMDB using `bin/load_conf.py`.
 
-### Load Config
-
-The Pigsty CMDB schema is automatically created during the initialization of the `pg-meta` metadatabase ([`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)) and is located in the `meta` database's ` pigsty` schema of the meta-database. Static configuration files can be loaded into the CMDB using `bin/load_conf.py`.
-
-! > You must execute `infra.yml` completely in the meta node, after installation, before you can use CMDB.
+!>  You must execute `infra.yml` entirely in the meta node after installation before you can use CMDB.
 
 ```bash 
 usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]
@@ -41,21 +38,21 @@ bin/load_conf.py  -n demo4  -p files/conf/pigsty-demo4.yml
 
 ### CMDB as Inventory
 
-Once the original config file is loaded into the CMDB as the initial data, Ansible can be configured to use the CMDB as the config source: 
+Once the original config file is loaded into the CMDB as the initial data, Ansible can be configured to use the CMDB as the inventory.
 
 
 ```bash
 bin/inventory_cmdb
 ```
 
-You can switch back to a static config file: 
+You can switch back to a static config file. 
 
 ```bash
 bin/inventory_conf
 ```
 
 
-Modifying the config source is essentially a matter of editing ``ansible. cfg`` in the Pigsty dir.
+Modifying the inventory is essentially a matter of editing ``ansible. cfg`` in the Pigsty dir.
 
 ```bash
 ---
