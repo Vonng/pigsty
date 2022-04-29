@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-
 # make sure that:
 # * consul is dead
 # * conf and data dir removed
 # * conf and data dir recreate
-
 
 # graceful shutdown
 if ps -u consul -o command | grep -q 'consul agent' ; then
