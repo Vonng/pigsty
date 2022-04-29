@@ -123,9 +123,7 @@
 - alertmanager
 - node_exporter
 - consul
-- pgweb
 - loki
-- promtail
 
 
 

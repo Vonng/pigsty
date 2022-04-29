@@ -396,16 +396,16 @@ DCS Server与元节点并没有对应关系：在默认情况下，Pigsty会在�
 
 ### Abort because consul instance already exists
 
-!> Pigsty提供了DCS误删保护机制，配置`dcs_exists_action = clean` 可以硬干。
+!> Pigsty提供了DCS误删保护机制，配置`consul_clean = clean` 可以硬干。
 
-Pigsty在执行数据库&基础设施初始化时，为了避免误删运行中的DCS实例(Consul Agent/Server)，提供了[保护机制](p-nodes.md#保护机制)。当Pigsty发现Consul已经在运行时，会根据参数 [`dcs_exists_action`](v-infra.md#dcs_exists_action) 来采取不同的行为： `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此配置。
+Pigsty在执行数据库&基础设施初始化时，为了避免误删运行中的DCS实例(Consul Agent/Server)，提供了[保护机制](p-nodes.md#保护机制)。当Pigsty发现Consul已经在运行时，会根据参数 [`consul_clean`](v-infra.md#consul_clean) 来采取不同的行为： `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此配置。
 
-此外若参数 [`dcs_disable_purge`](v-infra.md#dcs_disable_purge) 为真，则 `dcs_exists_action` 将会强制配置为 `abort`，提供了双重保险。
+此外若参数 [`consul_safeguard`](v-infra.md#consul_safeguard) 为真，则 `consul_clean` 将会强制配置为 `abort`，提供了双重保险。
 
 您可以在配置文件 `pigsty.yml` 中修改这些参数，也可以直接在执行剧本时，通过额外参数机制指定：
 
 ```bash
-./nodes.yml -e dcs_exists_action=clean
+./nodes.yml -e consul_clean=clean
 ```
 
 
@@ -419,16 +419,16 @@ Pigsty在执行数据库&基础设施初始化时，为了避免误删运行中�
 
 ### Abort because postgres instance already exists
 
-!> Pigsty提供了数据库误删保护机制，配置`pg_exists_action = clean` 可以硬干。
+!> Pigsty提供了数据库误删保护机制，配置`pg_clean = clean` 可以硬干。
 
-在执行数据库&基础设施初始化时，为了避免误删Postgres实例，提供了[保护机制](p-pgsql.md#保护机制)。当Pigsty发现目标节点上已经有正在运行的Postgres实例，会根据参数 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 来采取不同的行为： `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
+在执行数据库&基础设施初始化时，为了避免误删Postgres实例，提供了[保护机制](p-pgsql.md#保护机制)。当Pigsty发现目标节点上已经有正在运行的Postgres实例，会根据参数 [`pg_clean`](v-pgsql.md#pg_clean) 来采取不同的行为： `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
 
-此外，若参数 [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) 为真，则 [`pg_exists_action`](v-pgsql.md#pg_exists_action) 将会强制配置为 `abort`，以免误删数据库实例。
+此外，若参数 [`pg_safeguard`](v-pgsql.md#pg_safeguard) 为真，则 [`pg_clean`](v-pgsql.md#pg_clean) 将会强制配置为 `abort`，以免误删数据库实例。
 
 您可以在配置文件 `pigsty.yml` 中修改这些参数，也可以直接在执行剧本时，通过额外参数机制指定：
 
 ```bash
-./pgsql.yml -e pg_exists_action=clean
+./pgsql.yml -e pg_clean=clean
 ```
 
 

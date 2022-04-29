@@ -61,18 +61,32 @@ Nevertheless, **when using `pgsql.yml`, double-check that `-tags|-t` and `-limit
 
 
 
+
+
 ### SafeGuard
 
-`pgsql.yml` provides a **SafeGuard** determined by the parameter [`pg_exists_action`](v-pgsql.md#pg_exists_action). Pigsty will act according to the configuration `abort|clean|skip` of [`pg_exists_action`](v-pgsql.md#pg_exists_action) when the target machine has a running instance before executing the playbook.
+Pigsty provides a SafeGuard to avoid purging running PostgreSQL instances with fat fingers. There are two parameters.
 
-* `abort`: Set as the default configuration to abort playbook execution in case of existing instances to avoid accidental database deletion.
-* `clean`: To use in a local sandbox and clear the existing database in case of current instances.
-* `skip`: Execute subsequent logic directly on an existing database cluster. 
-* You can use `./pgsql.yml -e pg_exists_action=clean` to override the configuration file options and force the erasure of existing instances.
+* [`pg_safeguard`](v-pgsql.md#pg_safeguard): Disabled by default, if enabled, running PostgreSQL will not be purged by any circumstance.
+* [`pg_clean`](v-pgsql.md#pg_clean): disabled by default, [`pgsql.yml`](#pgsql) will purge running PostgreSQL during node init.
 
-The [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) provides double protection. If this option is enabled, [`pg_exists_action`](v-pgsql.md#pg_exists_action) will be forced to be set to `abort`, and the running database instance will not be erased under any circumstances.
+When running pg exists, [`pgsql.yml`](#pgsql) will act as:
 
-`dcs_exists_action ` and `dcs_disable_purge` have the same effect as the above two options, but it is for DCS。
+| `pg_safeguard` / `pg_clean` | `pg_clean=true` | `pg_clean=false` |
+| :-----------------------------: | :-----------------: | :------------------: |
+|     `pg_safeguard=true`     |        ABORT        |        ABORT         |
+|    `pg_safeguard=false`     |      **PURGE**      |        ABORT         |
+
+When running pg exists,  [`pgsql-remove.yml`](#pgsql-remove) will act as:
+
+| `pg_safeguard` / `pg_clean` | `pg_clean=true` | `pg_clean=false` |
+| :-----------------------------: | :-----------------: | :------------------: |
+|     `pg_safeguard=true`     |        ABORT        |        ABORT         |
+|    `pg_safeguard=false`     |      **PURGE**      |      **PURGE**       |
+
+
+
+
 
 
 

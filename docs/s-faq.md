@@ -251,17 +251,17 @@ It will sync vm time with host machine without Internet access for NTP services.
 
 Pigsty has a [safeguard](p-nodes.md#SafeGuard) for dcs service (consul), avoid accidental purge of running consul instances (server or agent).
 
-Pigsty will act according to [`dcs_exists_action`](v-infra.md#dcs_exists_action) if running consul instance is detected:
+Pigsty will act according to [`consul_clean`](v-infra.md#consul_clean) if running consul instance is detected:
 
 * `abort` will halt the entire playbook immediately
 * `clean` will continue and purge existing dcs & force reset it
 
-And it will be force to `abort` if [`dcs_disable_purge`](v-infra.md#dcs_disable_purge) is set to true.
+And it will be force to `abort` if [`consul_safeguard`](v-infra.md#consul_safeguard) is set to true.
 
 You can change these variables in configuration files or manually overwrite it with extra args:
 
 ```bash
-./nodes.yml -e dcs_exists_action=clean
+./nodes.yml -e consul_clean=clean
 ```
 
 
@@ -277,17 +277,17 @@ You can change these variables in configuration files or manually overwrite it w
 
 Pigsty has a [safeguard](p-pgsql.md#SafeGuard) for dcs service (consul), avoid accidental purge of running PostgreSQL instances.
 
-Pigsty will act according to [`pg_exists_action`](v-pgsql.md#pg_exists_action) if running consul instance is detected:
+Pigsty will act according to [`pg_clean`](v-pgsql.md#pg_clean) if running consul instance is detected:
 
 * `abort` will halt the entire playbook immediately
 * `clean` will continue and purge existing dcs & force reset it
 
-And it will be force to `abort` if [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) is set to true.
+And it will be force to `abort` if [`pg_safeguard`](v-pgsql.md#pg_safeguard) is set to true.
 
 You can change these variables in configuration files or manually overwrite it with extra args:
 
 ```bash
-./pgsql.yml -e pg_exists_action=clean
+./pgsql.yml -e pg_clean=clean
 ```
 
 

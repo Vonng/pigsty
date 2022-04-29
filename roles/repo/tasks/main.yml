@@ -6,7 +6,7 @@
 # cluster initialization, or in case that target machine does
 # not have internet access.
 #
-# RPM packages are downloaded to /{{ repo_home }}/{{ repo_name }}.
+# RPM packages are downloaded to /{{ nginx_home }}/{{ repo_name }}.
 # And it will skip download if all packages already exists
 #
 # Local yum repo url:  http://{{ repo_address }}/{{ repo_name }}/
@@ -19,7 +19,7 @@
 # create repo directory and check cache existence
 - name: Create local repo directory
   tags: repo_dir
-  file: path={{ repo_home }}/{{ repo_name }} state=directory mode=0755
+  file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
 
 #--------------------------------------------------------------#
 # 2. Upstream repo
@@ -47,14 +47,14 @@
 # 3. Prepare repo (if cache exists)
 #--------------------------------------------------------------#
 # a valid local yum repo is identified with existence of flag file:
-# {{ repo_home }}/{{ repo_name }}/repo_complete (/www/pigsty/repo_complete)
+# {{ nginx_home }}/{{ repo_name }}/repo_complete (/www/pigsty/repo_complete)
 
 - name: Check local repo exists
   tags: repo_prepare
   block:
     # set repo_exists = true if local repo already exists
     - name: Check repo pkgs cache exists
-      stat: path={{ repo_home }}/{{ repo_name }}/repo_complete
+      stat: path={{ nginx_home }}/{{ repo_name }}/repo_complete
       register: repo_cache
     - name: Set fact whether repo_exists
       set_fact:
@@ -77,7 +77,7 @@
       yum_repository:
         name: "{{ repo_name }}-local"
         description: CentOS-$releasever - Updates - Aliyun Mirror
-        baseurl: "file://{{ repo_home }}/{{ repo_name }}"
+        baseurl: "file://{{ nginx_home }}/{{ repo_name }}"
         gpgcheck: no
 
     # this usually takes 1~2 minutes according to your network condition
@@ -119,8 +119,8 @@
       with_items:
         - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
         - {src: default.conf.j2,  dest: /etc/nginx/conf.d/default.conf}
-        - {src: index.html.j2,    dest: "{{ repo_home }}/index.html" }
-        - {src: local.repo.j2,    dest: "{{ repo_home }}/{{ repo_name }}.repo"}
+        - {src: index.html.j2,    dest: "{{ nginx_home }}/index.html" }
+        - {src: local.repo.j2,    dest: "{{ nginx_home }}/{{ repo_name }}.repo"}
 
     # nginx sometimes may not work if selinux is enabled
     - name: Disable selinux for repo server
@@ -148,15 +148,15 @@
     # download packages directly via url
     - name: Download web url packages
       environment: "{{ proxy_env }}"
-      get_url: dest={{ repo_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
+      get_url: dest={{ nginx_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
       with_items: "{{ repo_url_packages }}"
 
     # download packages from upstream yum repo
     - name: Download repo packages
       environment: "{{ proxy_env }}"
       command:
-        cmd: yum install --downloadonly --downloaddir={{ repo_home }}/{{ repo_name }} {{ item }}
-        chdir: "{{ repo_home }}/{{ repo_name }}"
+        cmd: yum install --downloadonly --downloaddir={{ nginx_home }}/{{ repo_name }} {{ item }}
+        chdir: "{{ nginx_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
     # download rpm according to url
@@ -164,16 +164,16 @@
       environment: "{{ proxy_env }}"
       command:
         cmd: repotrack {{ item }}
-        chdir: "{{ repo_home }}/{{ repo_name }}"
+        chdir: "{{ nginx_home }}/{{ repo_name }}"
       with_items: "{{ repo_packages }}"
 
     # create local yum repo
     - name: Create local repo index
-      command: createrepo {{ repo_home }}/{{ repo_name }}
+      command: createrepo {{ nginx_home }}/{{ repo_name }}
 
     # set repo complete flag
     - name: Mark repo cache as valid
-      copy: content=ok dest={{ repo_home }}/{{ repo_name }}/repo_complete
+      copy: content=ok dest={{ nginx_home }}/{{ repo_name }}/repo_complete
 
 
 ...

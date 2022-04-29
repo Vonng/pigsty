@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # check postgres instance precondition
 #  --- empty  ---> clean ---> init
-#  --- exist  ^--> [action=abort] ---> abort entire playbook (for the sake of data safety)
+#  --- exist  ^--> [pg_clean=true] ---> abort entire playbook (for the sake of data safety)
 #             ^--> [action=skip]  ---> skip current play for this instance
 #             ^--> [action=clean] ---> clean ---> init
 #------------------------------------------------------------------------------
@@ -16,27 +16,19 @@
       register: check_pg_port_result
 
     - name: Set fact whether pg port is open
+      connection: local
       set_fact:
         pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"
 
     # when any running instance exists, abort play in two cases:
-    # 1. pg_disable_purge = true          (global flag to prevent accidentally purge)
-    # 2. pg_exists_action == 'abort'
+    # 2. pg_clean = false
+    # 1. pg_safeguard = true          (global flag to prevent accidentally purge)
+
     - name: Abort due to existing postgres instance
-      when: pg_exists and pg_disable_purge or pg_exists and pg_exists_action == 'abort'
+      connection: local
+      when: pg_exists and (pg_safeguard or not pg_clean)
       any_errors_fatal: true
-      fail: msg="Abort because pg instance {{ pg_instance }} is already running"
-
-    - name: Skip due to running instance
-      when: pg_exists and pg_exists_action == 'skip'
-      any_errors_fatal: true
-      meta: end_host
-
-    - name: Clean existing postgres instance
-      when: pg_exists and pg_exists_action == 'clean' # DANGEROUS!
-      debug:
-        msg: "[DANGEROUS] running instance {{ pg_instance }} will be purged!"
-
+      fail: msg="Abort because pg instance {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is running, use -e pg_clean=true"
 
 
 #------------------------------------------------------------------------------
@@ -48,9 +40,18 @@
   tags: pg_clean
   become: yes
   block:
+
+    - name: CLEAN RUNNING POSTGRESQL INSTANCE <DANGEROUSE!>
+      # connection: local # leave some time for manual intervention
+      when: not pg_safeguard and pg_exists and pg_clean  # DANGEROUS!
+      debug:
+        msg: "[DANGEROUS] RUNNING PGSQL INSTANCE {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} WILL BE PURGED!"
+
+
     - name: Shutdown existing postgres service
       shell: |
-        # first, gracefully stop service
+        # first, gracefully stop related service
+        systemctl stop haproxy
         systemctl stop patroni
         systemctl stop postgres
         systemctl stop pgbouncer
@@ -174,26 +175,6 @@
       tags: pg_dummy
       command: fallocate -l {{ pg_dummy_filesize }} /pg/dummy
 
-
-
-#------------------------------------------------------------------------------
-# Write metadata
-#------------------------------------------------------------------------------
-# - name: Create pgsql meta data
-#   tags: pg_meta
-#   become: yes
-#   ignore_errors: yes
-#   block:
-#     - name: Copy pg_cluster to /pg/meta/cluster
-#       copy: content={{ pg_cluster }} dest=/pg/meta/cluster owner={{ pg_dbsu }} group=postgres mode=0660
-#     - name: Copy pg_version to /pg/meta/version
-#       copy: content={{ pg_version }} dest=/pg/meta/version owner={{ pg_dbsu }} group=postgres mode=0660
-#     - name: Copy pg_instance to /pg/meta/instance
-#       copy: content={{ pg_cluster }}-{{ pg_seq }} dest=/pg/meta/instance owner={{ pg_dbsu }} group=postgres mode=0660
-#     - name: Copy pg_seq to /pg/meta/sequence
-#       copy: content={{ pg_seq }} dest=/pg/meta/sequence owner={{ pg_dbsu }} group=postgres mode=0660
-#     - name: Copy pg_role to /pg/meta/role
-#       copy: content={{ pg_role }} dest=/pg/meta/role owner={{ pg_dbsu }} group=postgres mode=0660
 
 
 #------------------------------------------------------------------------------

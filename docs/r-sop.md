@@ -463,7 +463,7 @@ HAProxy controls the cluster traffic of PostgreSQL in Pigsty by default, and use
 
 **Controlling traffic using HAProxy Admin UI**
 
-Pigsty's HAProxy provides an Admin UI on port 9101 ([`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port) by default, which can be accessed by default via Pigsty's default domain name suffixed with the instance name (`pg_ cluster-pg_seq`) to access it. The admin UI has optional auth options enabled by the parameter ([`haproxy_admin_auth_enabled`](v-pgsql#haproxy_admin_auth_enabled)). Admin interface auth is not enabled by default, and when enabled, it is required to use the username specified by [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) and [`haproxy_admin_password`](v-pgsql.md#haproxy_ admin_password) with the username and password to log in.
+Pigsty's HAProxy provides an Admin UI on port 9101 ([`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port) by default, which can be accessed by default via Pigsty's default domain name suffixed with the instance name (`pg_ cluster-pg_seq`) to access it. The admin UI comes with optional auth options enabled by the parameter ([`haproxy_auth_enabled`](v-pgsql#haproxy_auth_enabled)). Admin interface auth is not enabled by default, and when enabled, it is required to use the username specified by [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) and [`haproxy_admin_password`](v-pgsql.md#haproxy_ admin_password) with the username and password to log in.
 
 Use your browser to access `http://pigsty/<ins>` (the domain name varies by configuration, you can also click there from the PGSQL Cluster Dashboard) to access the LB admin interface on the corresponding instance. [Sample Interface](http://home.pigsty.cc/pg-meta-1/)
 
@@ -714,10 +714,17 @@ You can also forcibly reinstall these components.
 In addition, you can reset specific components on the database node using the following command.
 
 ```bash
+<<<<<<< HEAD
+# The more commonly used, safe reset command, re-install monitoring and re-registration will not affect the service
+. /pgsql.yml -l pg-test -t=monitor  # Redeploy monitoring
+. /pgsql.yml -l pg-test -t=register # Re-register the service to the infrastructure (Nginx, Prometheus, Grafana, CMDB...)
+. /nodes.yml -l pg-test -t=consul -e consul_clean=clean # Reset DCS Agent in maintenance mode
+=======
 # The more commonly used, safe reset command, re-install monitor and re-registration will not affect the service
 . /pgsql.yml -l pg-test -t=monitor  # Redeploy monitor
 . /pgsql.yml -l pg-test -t=register # Re-register the service to the infra (Nginx, Prometheus, Grafana, CMDB...)
 . /nodes.yml -l pg-test -t=consul -e dcs_exists_action=clean # Reset DCS Agent in maintenance mode
+>>>>>>> 3a8ad098dc81da2857a34806aca8b1c9065951c6
 
 # A slightly risky reset operation
 . /pgsql.yml -l pg-test -t=service   # Redeploy load balancing, may cause service to flash off
@@ -774,7 +781,7 @@ First, create the new DCS cluster, then edit the inventory [``dcs_servers``](v-i
 
 ```bash
 # Force reset the Consul Agent on the target cluster (since HA is in maintenance mode and will not affect the new database cluster)
-. /nodes.yml -l pg-test -t consul -e dcs_exists_action=clean
+. /nodes.yml -l pg-test -t consul -e consul_clean=clean
 
 ```
 

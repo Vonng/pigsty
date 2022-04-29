@@ -1,5 +1,39 @@
 # Development Log
 
+#### 2022-04-29
+
+New Vars:
+
+node_data_dir
+node_crontab
+
+Bulk Rename:
+
+node_ntp_config -> node_ntp_enabled
+node_admin_setup -> node_admin_enabled
+node_admin_pks -> node_admin_pk_list
+node_dns_hosts -> node_etc_hosts_default
+node_dns_hosts_extra -> node_etc_hosts
+node_dns_server -> node_dns_method
+node_packages -> node_packages_default
+node_extra_packages -> node_packages
+node_packages_meta -> node_packages_meta
+node_meta_pip_install -> node_packages_meta_pip
+node_sysctl_params -> node_tune_params
+dcs_name -> consul_name
+dcs_exists_action -> consul_clean
+dcs_disable_purge -> consul_safeguard
+app_list -> nginx_indexes
+grafana_plugin -> grafana_plugin_method
+grafana_cache -> grafana_plugin_cache
+grafana_plugins -> grafana_plugin_list
+grafana_git_plugin_git -> grafana_plugin_git
+haproxy_admin_auth_enabled -> haproxy_auth_enabled
+pg_exists_action -> pg_clean
+pg_disable_purge -> pg_safeguard
+pg_shared_libraries -> pg_libs
+
+
 
 #### 2022-04-28
 
@@ -9,6 +43,7 @@
 * Upgrade Consul to 1.13
 * Upgrade Pgbouncer to 1.17
 * Upgrade vip-manager to 1.0.2
+* Upgrade Grafana to 8.5.0
 * Remove pgweb by default (since docker will cover it)
 * Remove role jupyter, move it's logic into `infra-jupyter.yml`
 * Refactor docker role, it can be enabled per nodes.
@@ -43,7 +78,7 @@ English Document Released!
 * Get the latest source with `bash -c "$(curl -fsSL http://download.pigsty.cc/get)"`
 * add download script to get pigsty/pkg/app/matrix packages from github
 * if Github is not viable, use CDN instead.
- 
+
 
 #### 2022-03-20
 
@@ -67,7 +102,7 @@ English Document Released!
   * Remove playbook `gpsql-post.yml`
   * Update default pigsty-mxdb.yml example
 * Fix all example configs
-* Add `-d postgres` when execute `pgsql-createuser.yml` 
+* Add `-d postgres` when execute `pgsql-createuser.yml`
 * Software update:
   * pg_exporter v0.4.1 : new timeout parameter, bug fix, pgbouncer v1.16 support, etc...
   * greenplum 6.19.1 -> 6.19.3
@@ -78,7 +113,7 @@ English Document Released!
 
 * Overhaul dashboards
   * Nodes Cluster / Nodes Instance / Nodes Overview
-  * Add ds datasource variable to all dashboards (so you can change prometheus datasource by select hidden variables)  
+  * Add ds datasource variable to all dashboards (so you can change prometheus datasource by select hidden variables)
   * Reforge PGSQL Cluster Dashboards
   * Add new dashboards: PGSQL Databases which focus on database dimension among cluster
   * Adjust links for pgsql-node to nodes-instance
@@ -87,7 +122,7 @@ English Document Released!
 #### 2022-02-22
 
 * software upgrade
-  * postgres minor version update: 14.1 -> 14.2 
+  * postgres minor version update: 14.1 -> 14.2
   * prometheus version 2.33
   * timescaledb 2.6.0
   * postgis 3.2
@@ -147,11 +182,11 @@ English Document Released!
 #### 2021-12-29
 
 * disable repo on other meta nodes in infra-demo.yml
-  Now bootstrap on multiple meta nodes are much easier 
+  Now bootstrap on multiple meta nodes are much easier
 * enhancement: remove Require=consul from patroni systemd service
   Which makes dcs migration much easier
 * fix pg_exporter.yml pg_index column sequence
-  Which is a workaround for a known bug of PostgreSQL 
+  Which is a workaround for a known bug of PostgreSQL
 
 #### 2021-12-17
 
@@ -186,7 +221,7 @@ English Document Released!
 * Add redis support for pigsty
 * pgcat overhaul
 * new key metrics panel for pgsql cluster & pgsql instance
-....
+  ....
 
 
 #### 2021-09-23
@@ -254,7 +289,7 @@ English Document Released!
 
 #### 2021-07-20
 
-* bug fix: register role does not run on all meta nodes 
+* bug fix: register role does not run on all meta nodes
 * add check for createpg createdb createuser scripts
 
 #### 2021-07-19
@@ -273,11 +308,11 @@ English Document Released!
 * add `pg_shared_libraries` to customize extensions
 * install citus, timescaledb by default
 * prepare for v1.0.0-beta1
- 
+
 
 #### 2021-07-14
 
-* add pgsql-xacts dashboard 
+* add pgsql-xacts dashboard
 * add pgsql-persist dashboard
 * add pgsql-tables dashboard
 * add pglog-analysis dashboard
@@ -353,8 +388,8 @@ v1.0.0-alpha2 Release
 
 #### 2021-07-06
 
-* Use v1.0.0-alpha1 instead. Since the change are significant, it is not appropriate to use v0.10. 
-* Remove the crud haproxy index pages, using grafana table & data links instead 
+* Use v1.0.0-alpha1 instead. Since the change are significant, it is not appropriate to use v0.10.
+* Remove the crud haproxy index pages, using grafana table & data links instead
 * At last register by instance may be the easiest way to implement and manage
 * Add new role `loki`
 * Add new role `promtail`
@@ -364,8 +399,8 @@ v1.0.0-alpha2 Release
 #### 2021-07-05
 
 * Extract a new role named `register` to handler all interaction between pgsql & infra.
-* Extract a new role named `envrion` to setup meta node environment including: ssh, metadb, env vars, etc... 
-* Dashboard tags now have hierarchy:  `Pigsty` is the top tier, Application name `PGSQL` `PGLOG` is second tier 
+* Extract a new role named `envrion` to setup meta node environment including: ssh, metadb, env vars, etc...
+* Dashboard tags now have hierarchy:  `Pigsty` is the top tier, Application name `PGSQL` `PGLOG` is second tier
   * `Overview`, `Cluster`, `Instance`,`Database` are filter with `Pigsty` and `<Level>` tags. which means the nav-link can cross multiple applications
 
 #### 2021-07-04
@@ -387,13 +422,13 @@ v1.0.0-alpha2 Release
 * Remake release system
 * Have a draft on application installation standard
 * Use 'v' prefixed fully qualified version string
-* remove polysh from default pkg (unstable when downloading) 
+* remove polysh from default pkg (unstable when downloading)
 * remove grafana plugins, since lot's of them were covered in grafana 8.0
 
 
 #### 2021-06-28
 
-* Remake alerting rules 
+* Remake alerting rules
 
 
 #### 2021-06-25
@@ -408,7 +443,7 @@ v1.0.0-alpha2 Release
 #### 2021-06-10
 
 It's time to have an overhaul on monitoring system, which includes:
-* Upgrade `pg_exporter` to 0.4.0 , re-write metric definition and add support for PostgreSQL 14  
+* Upgrade `pg_exporter` to 0.4.0 , re-write metric definition and add support for PostgreSQL 14
 * Use static file service discovery by default to reduce dependency for monitoring system
 * Use static label set (job,cls,ins), remove (svc,role,ip) from labels, Which makes identity immutable
 * Redesign entire monitoring system to use new label system and embrace Grafana 8.0

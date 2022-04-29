@@ -14,6 +14,7 @@
       register: check_consul_port_result
 
     - name: Consul exists flag fact set
+      connection: local
       set_fact:
         consul_exists: "{{ 'consul' in check_consul_port_result.stdout }}"
 
@@ -21,16 +22,14 @@
     # skip or abort if dcs already exists
     #--------------------------------------------------------------------------
     # when any running instance exists, abort play in two cases:
-    # 1. dcs_disable_purge = true          (global flag to prevent accidentally purge)
-    # 2. dcs_exists_action == 'abort'
-    - name: Abort due to consul exists
-      when: consul_exists and (dcs_disable_purge or dcs_exists_action == 'abort')
+    # 1. consul_safeguard = true          (global flag to prevent accidentally purge)
+    # 2. consul_clean = true
+    - name: Abort due to existing consul instance
+      connection: local
       any_errors_fatal: true
-      fail: msg="Abort because consul instance already exists and dcs_exists_action=abort"
+      when: consul_exists and (consul_safeguard or not consul_clean)
+      fail: msg="Abort because consul instance {{ inventory_hostname }} is running, use consul_clean=true"
 
-    - name: Skip due to consul exists
-      when: consul_exists and dcs_exists_action == 'skip'
-      meta: end_host
 
 #------------------------------------------------------------------------------
 # Clean consul
@@ -43,9 +42,10 @@
     #--------------------------------------------------------------------------
     # dangerous: (it will remove consul data!)
     - name: Clean existing consul instance
-      when: not dcs_disable_purge and consul_exists and dcs_exists_action == 'clean' # DANGEROUS!
+      # connection: local, leave a chance for human intervention
+      when: not consul_safeguard and consul_exists and consul_clean # DANGEROUS!
       debug:
-        msg: "[DANGEROUS] running instance {{ inventory_hostname }} will be purged!"
+        msg: "[DANGEROUS] RUNNING CONSUL INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
 
     - name: Stop any running consul instance
       script: stop_consul.sh

@@ -132,5 +132,5 @@ haproxy_exporter_port: 9101                   # default admin/exporter port
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul        # where to register services: none | consul | etcd | both
+dcs_registry: consul        # where to register services: none | consul | etcd | both
 ```

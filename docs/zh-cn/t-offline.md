@@ -18,19 +18,19 @@ Pigsty是一个复杂的软件系统，为了确保系统的稳定，Pigsty会�
 离线安装包收纳了本地Yum源的所有软件包。默认情况下，Pigsty会在[基础设施初始化](p-meta)时创建本地Yum源，
 
 ```
-{{ repo_home }}
+{{ nginx_home }}
   |---- {{ repo_name }}.repo
   ^---- {{ repo_name}}/repo_complete
   ^---- {{ repo_name}}/**************.rpm
 ```
 
-默认情况下，`{{ repo_home }}` 是Nginx静态文件服务器的根目录，默认为`/www`，`repo_name`是自定义的本地源名称，默认为`pigsty`
+默认情况下，`{{ nginx_home }}` 是Nginx静态文件服务器的根目录，默认为`/www`，`repo_name`是自定义的本地源名称，默认为`pigsty`
 
 以默认情况为例，`/www/pigsty` 目录包含了所有 RPM 软件包，离线安装包实际上就是 `/www/pigsty` 目录的压缩包 。
 
 离线安装包的原理是，Pigsty在执行基础设施初始化的过程中，会[检查](https://github.com/Vonng/pigsty/blob/master/roles/repo/tasks/main.yml#L49)本地Yum源相关文件是否已经存在。如果已经存在，则会跳过下载软件包及其依赖的过程。
 
-检测所用的标记文件为`{{ repo_home }}/{{ repo_name }}/repo_complete`，默认情况下为`/www/pigsty/repo_complete`，如果该标记文件存在，（通常是由Pigsty在创建本地源之后设置），则表示本地源已经建立完成，可以直接使用。否则，Pigsty会执行常规的下载逻辑。下载完毕后，您可以将该目录压缩复制归档，用于加速其他环境的初始化。
+检测所用的标记文件为`{{ nginx_home }}/{{ repo_name }}/repo_complete`，默认情况下为`/www/pigsty/repo_complete`，如果该标记文件存在，（通常是由Pigsty在创建本地源之后设置），则表示本地源已经建立完成，可以直接使用。否则，Pigsty会执行常规的下载逻辑。下载完毕后，您可以将该目录压缩复制归档，用于加速其他环境的初始化。
 
 
 

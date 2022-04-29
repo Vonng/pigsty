@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2022-03-20
+# Mtime     :   2022-04-29
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
@@ -32,8 +32,6 @@ BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
 DEFAULT_SRC_URL="${BASEURL_GITHUB}/src.tgz"
 DEFAULT_PKG_URL="${BASEURL_GITHUB}/pkg.tgz"
 
-
-
 # if you can't access github in your country (e.g Mainland China):
 # BaiduNetDisk: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw  8su9
 
@@ -45,8 +43,8 @@ PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
 PIGSTY_HOME="${PROG_DIR}"
 REPO_NAME=pigsty
-REPO_HOME=/www
-REPO_DIR=${REPO_HOME}/${REPO_NAME}
+NGINX_HOME=/www
+REPO_DIR=${NGINX_HOME}/${REPO_NAME}
 BIN_DIR=${PIGSTY_HOME}/files/bin
 
 
@@ -459,7 +457,7 @@ function check_pkg(){
 function check_repo(){
     local pkg_path=${1-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
     local repo_dir=${2-${REPO_DIR}}          # default repo directory: /www/pigsty
-    local repo_home=$(dirname ${repo_dir})
+    local nginx_home=$(dirname ${repo_dir})
     local repo_name=$(basename ${repo_dir})
     if [[ -f ${repo_dir}/repo_complete ]]; then
         log_info "repo = ${repo_dir} ok"
@@ -469,13 +467,13 @@ function check_repo(){
         log_warn "repo = skip (${pkg_path} not exists)"
         return 0
     fi
-    sudo mkdir -p ${repo_home}
+    sudo mkdir -p ${nginx_home}
     if [[ -d ${repo_dir} ]]; then
         log_warn "repo = invalid, remove"
         sudo rm -rf ${repo_dir}
     fi
     log_info "repo = extract from ${pkg_path}"
-    sudo tar -xf ${pkg_path} -C ${repo_home}  # extract to /www/pigsty
+    sudo tar -xf ${pkg_path} -C ${nginx_home}  # extract to /www/pigsty
 }
 
 
@@ -484,9 +482,9 @@ function check_repo(){
 #----------------------------------------------#
 function check_repo_file(){
     local repo_name=${1-${REPO_NAME}}
-    local repo_home=${2-${REPO_HOME}}
+    local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
-    if [[ ! -f ${repo_home}/${repo_name}/repo_complete ]]; then
+    if [[ ! -f ${nginx_home}/${repo_name}/repo_complete ]]; then
         log_warn "repo file = skip due to repo not exists"
         return 0
     else
@@ -497,7 +495,7 @@ function check_repo_file(){
     cat > /tmp/pigsty-local.repo  <<-EOF
 [${repo_name}-local]
 name=${repo_name} local \$releasever - \$basearch
-baseurl=file://${repo_home}/${repo_name}/
+baseurl=file://${nginx_home}/${repo_name}/
 enabled=1
 gpgcheck=0
 EOF
@@ -513,7 +511,7 @@ EOF
 # install ansible sshpass unzip wget yum , etc...
 function check_utils(){
     local repo_name=${1-${REPO_NAME}}
-    local repo_home=${2-${REPO_HOME}}
+    local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
     # use local file repo if available
     if [[ -f ${repo_file} ]]; then

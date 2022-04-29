@@ -52,8 +52,8 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 | 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG二进制目录                   |
 | 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | 安装的PG软件包列表             |
 | 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | 安装的PG插件列表               |
-| 560 | [`pg_exists_action`](#pg_exists_action)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C/A   | PG存在时如何处理               |
-| 561 | [`pg_disable_purge`](#pg_disable_purge)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | 禁止清除存在的PG实例           |
+| 560 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | 彻底禁止清除存在的PG实例         |
+| 561 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool     | C/A   | 允许初始化时清除现存PG |
 | 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG数据目录                     |
 | 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG主数据盘挂载点               |
 | 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | PG备份盘挂载点                 |
@@ -67,7 +67,7 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 | 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Patroni服务端口                |
 | 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni Watchdog模式           |
 | 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | Patroni使用的配置模板          |
-| 586 | [`pg_shared_libraries`](#pg_shared_libraries)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | PG默认加载的共享库             |
+| 586 | [`pg_libs`](#pg_libs)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | PG默认加载的共享库             |
 | 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG字符集编码                   |
 | 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化规则             |
 | 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化排序规则         |
@@ -101,7 +101,7 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 | 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | 全局通用服务定义               |
 | 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | 是否启用Haproxy                |
 | 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | 是否重载Haproxy配置            |
-| 643 | [`haproxy_admin_auth_enabled`](#haproxy_admin_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | 是否对Haproxy管理界面启用认证  |
+| 643 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | 是否对Haproxy管理界面启用认证  |
 | 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | HAproxy管理员名称              |
 | 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | HAproxy管理员密码              |
 | 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | HAproxy指标暴露器端口          |
@@ -765,31 +765,25 @@ wal2json_${pg_version}"
 
 
 
-### `pg_exists_action`
+### `pg_safeguard`
 
-PG存在时如何处理, 类型：`enum`，层级：C/A，默认值为：`"clean"`
+安全保险，禁止清除存在的PG实例, 类型：`bool`，层级：C/A，默认值为：`false`
 
-安全保险，当PostgreSQL实例已经存在时，系统应当执行的动作
+如果为`true`，任何情况下，Pigsty剧本都不会移除运行中的PostgreSQL实例，包括 [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove)。
 
-* `abort`: 中止整个剧本的执行（默认行为）
-* `clean`: 抹除现有实例并继续（极端危险）
-* `skip`: 忽略存在实例的目标（中止），在其他目标机器上继续执行。
-
-如果您真的需要强制清除已经存在的数据库实例，建议先使用[`pgsql-remove.yml`](p-pgsql.md#pgsql-remove)完成集群与实例的下线与销毁，再重新执行初始化。
-否则，则需要通过命令行参数`-e pg_exists_action=clean`完成覆写，强制在初始化过程中抹除已有实例。
+详情请参考 [保护机制](p-pgsql.md#保护机制)。
 
 
 
+### `pg_clean`
 
-### `pg_disable_purge`
+是否抹除运行中的PG实例？类型：`bool`，层级：C/A，默认值为：`false`。
 
-双重安全保险，禁止清除存在的PG实例, 类型：`bool`，层级：C/A，默认值为：`false`
+针对 [`pgsql.yml`](p-pgsql.md#pgsql) 剧本的抹除豁免，如果指定该参数为真，那么在 [`pgsql.yml`](p-pgsql.md#pgsql) 剧本执行时，会自动抹除已有的PostgreSQL实例
 
-如果为`true`，将强制设置 [`pg_exists_action`](#pg_exists_action) 变量为`abort`，等效于关闭 [`pg_exists_action`](#pg_exists_action) 的清理功能，确保任何情况下Postgres实例都不会被抹除。
+这是一个危险的操作，因此必须显式指定。
 
-这意味着您需要通过专用下线脚本[`pgsql-remove.yml`](p-pgsql.md#pgsql-remove)来完成已有实例的清理，然后才可以在清理干净的节点上重新完成数据库的初始化。
-
-
+当安全保险参数 [`pg_safeguard`](#pg_safeguard) 打开时，本参数无效。
 
 
 
@@ -914,7 +908,7 @@ Patroni使用的配置模板, 类型：`string`，层级：C，默认值为：`"
 
 
 
-### `pg_shared_libraries`
+### `pg_libs`
 
 PG默认加载的共享库, 类型：`string`，层级：C，默认值为：`"timescaledb, pg_stat_statements, auto_explain"`
 
@@ -1451,7 +1445,7 @@ Pigsty默认会在所有数据库节点上部署Haproxy，您可以通过覆盖�
 
 
 
-### `haproxy_admin_auth_enabled`
+### `haproxy_auth_enabled`
 
 是否对Haproxy管理界面启用认证, 类型：`bool`，层级：G/C，默认值为：`false`
 

@@ -17,13 +17,14 @@ To **quickly** pull up Pigsty, it is **recommended** to use the offline package 
 The offline pkg includes all packages from the local Yum repo. Pigsty is installed at [Infra Init](p-infra.md) when the local Yum repo is created by default.
 
 ```
-{{ repo_home }}
+{{ nginx_home }}
   |---- {{ repo_name }}.repo
   ^---- {{ repo_name}}/repo_complete
   ^---- {{ repo_name}}/**************.rpm
 ```
 
-`{{ repo_home }}` is the root dir of the Nginx static file server, which defaults to `/www`, and `repo_name` is a custom local source name, which defaults to `pigsty`.
+
+By default, `{{ nginx_home }}` is the root dir of the Nginx static file server, which defaults to `/www`, and `repo_name` is a custom local source name, which defaults to `pigsty`.
 
 The `/www/pigsty` dir contains all RPM packages, and the offline pkg is actually a zip archive of the `/www/pigsty` dir.
 
@@ -32,6 +33,7 @@ The principle of the offline pkg is that Pigsty [checks](https://github.com/Vonn
 The marker file used for the check is `{{ repo_home }}/{{ repo_name }}/repo_complete`, which defaults to `/www/pigsty/repo_complete`. If this marker file exists, it means that the local YUM repo has been created. Otherwise, Pigsty will perform the usual download logic. Once the download is complete, you can archive a compressed copy of the dir for accelerating the initialization of other environments.
 
 
+The marker file used for the check is `{{ nginx_home }}/{{ repo_name }}/repo_complete`, by default `/www/pigsty/repo_complete`, if this marker file exists, (usually set by Pigsty after the local source is created), then the local source has created and can be used directly. Otherwise, Pigsty will perform the usual download logic. Once the download is complete, you can archive a compressed copy of the directory, which can be used to speed up the initialization of other environments.
 
 
 

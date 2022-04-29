@@ -84,11 +84,11 @@ all:
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
-    repo_enabled: true               # build local repo on this node
+    nginx_enabled: true               # build local repo on this node
     repo_name: pigsty                # repo name, pigsty by default
     repo_address: pigsty             # external address to this repo (ip:port or url)
-    repo_port: 80                    # repo listen address, must same as repo_address
-    repo_home: /www                  # default repo home dir
+    nginx_port: 80                    # repo listen address, must same as repo_address
+    nginx_home: /www                  # default repo home dir
     repo_rebuild: false              # force re-download packages
     repo_remove: true                # remove existing upstream repo
     repo_upstreams:                  # where to download packages?
@@ -250,7 +250,7 @@ all:
       - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
       - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8081" }
       - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
-    app_list:                        # application nav links on home page
+    nginx_indexes:                        # application nav links on home page
       - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
       - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
       - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
@@ -293,13 +293,13 @@ all:
     grafana_admin_password: pigsty  # default grafana admin password
     grafana_database: sqlite3       # default grafana database type: sqlite3|postgres
     grafana_pgurl: ''
-    grafana_plugin: install         # none|install, none will skip plugin installation
-    grafana_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
-    grafana_plugins:                # plugins that will be downloaded via grafana-cli
+    grafana_plugin_method: install         # none|install, none will skip plugin installation
+    grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
+    grafana_plugin_list:                # plugins that will be downloaded via grafana-cli
       - marcusolsson-csv-datasource
       - marcusolsson-json-datasource
       - marcusolsson-treemap-panel
-    grafana_git_plugins:            # plugins that will be downloaded via git
+    grafana_plugin_git:            # plugins that will be downloaded via git
       - https://github.com/Vonng/vonng-echarts-panel
 
     #-----------------------------------------------------------------
@@ -319,11 +319,11 @@ all:
       # pg-meta-2: 10.10.10.11       # node with ip in dcs_servers will be initialized as dcs servers
       # pg-meta-3: 10.10.10.12       # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
 
-    service_registry: consul         # where to register services: none | consul | etcd | both
+    dcs_registry: consul         # where to register services: none | consul | etcd | both
     dcs_type: consul                 # consul | etcd | both
-    dcs_name: pigsty                 # consul dc name | etcd initial cluster token
-    dcs_exists_action: abort         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
-    dcs_disable_purge: false         # set to true to disable purge functionality for good (force dcs_exists_action = abort)
+    consul_name: pigsty                 # consul dc name | etcd initial cluster token
+    consul_clean: abort         # abort|skip|clean if dcs server already exists (FOR DEMO ONLY!)
+    consul_safeguard: false         # set to true to disable purge functionality for good (force consul_clean = abort)
     consul_data_dir: /data/consul    # consul data dir (/var/lib/consul by default)
     etcd_data_dir: /data/etcd        # etcd data dir (/var/lib/consul by default)
 
@@ -358,10 +358,10 @@ all:
     #-----------------------------------------------------------------
     # NODE_DNS
     #-----------------------------------------------------------------
-    node_dns_hosts:                 # static dns records in /etc/hosts
+    node_etc_hosts_default:                 # static dns records in /etc/hosts
       - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
-    node_dns_hosts_extra: []        # extra static dns records in /etc/hosts
-    node_dns_server: none           # add (default) | none (skip) | overwrite (remove old settings)
+    node_etc_hosts: []        # extra static dns records in /etc/hosts
+    node_dns_method: none           # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers:               # dynamic nameserver in /etc/resolv.conf
       - 10.10.10.10
     node_dns_options:               # dns resolv options
@@ -379,15 +379,15 @@ all:
     #-----------------------------------------------------------------
     # NODE_PACKAGES
     #-----------------------------------------------------------------
-    node_packages:                  # common packages for all nodes
+    node_packages_default:                  # common packages for all nodes
       - wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal,ca-certificates
       - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,nc,pv,jq,perf
       - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,consul,etcd,promtail
-    node_extra_packages: [ ]        # extra packages for all nodes
-    node_meta_packages:             # extra packages for meta nodes
+    node_packages: [ ]        # extra packages for all nodes
+    node_packages_meta:             # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
       - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh,docker-ce,docker-compose
-    node_meta_pip_install: jupyterlab  # extra pip packages to be installed on meta nodes
+    node_packages_meta_pip: jupyterlab  # extra pip packages to be installed on meta nodes
 
     #-----------------------------------------------------------------
     # NODE_FEATURES
@@ -413,18 +413,18 @@ all:
     #-----------------------------------------------------------------
     # NODE_ADMIN
     #-----------------------------------------------------------------
-    node_admin_setup: true           # create a default admin user defined by `node_admin_*` ?
+    node_admin_enabled: true           # create a default admin user defined by `node_admin_*` ?
     node_admin_uid: 88               # uid and gid for this admin user
     node_admin_username: dba         # name of this admin user, dba by default
     node_admin_ssh_exchange: true    # exchange admin ssh key among each pgsql cluster ?
     node_admin_pk_current: true      # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pks: [ ]              # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_admin_pk_list: [ ]              # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
 
     #-----------------------------------------------------------------
     # NODE_TIME
     #-----------------------------------------------------------------
     node_timezone: ''                # default node timezone, empty will not change
-    node_ntp_config: false           # config ntp service? false will leave it with system default
+    node_ntp_enabled: false           # config ntp service? false will leave it with system default
     node_ntp_service: ntp            # ntp service provider: ntp|chrony
     node_ntp_servers:                # default NTP servers
       - pool cn.pool.ntp.org iburst
@@ -522,8 +522,8 @@ all:
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
-    pg_exists_action: abort          # abort|clean|skip (DANGEROUS!)
-    pg_disable_purge: false          # set to true to disable pg purge functionality for good (force pg_exists_action = abort)
+    pg_clean: abort          # abort|clean|skip (DANGEROUS!)
+    pg_safeguard: false          # set to true to disable pg purge functionality for good (force pg_clean = abort)
     pg_data: /pg/data                # postgres data directory (soft link)
     pg_fs_main: /data                # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups        # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
@@ -537,7 +537,7 @@ all:
     patroni_port: 8008               # default patroni port
     patroni_watchdog_mode: automatic # watchdog mode: off|automatic|required
     pg_conf: tiny.yml                # pgsql template:  {oltp|olap|crit|tiny}.yml
-    pg_shared_libraries: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
+    pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_encoding: UTF8                # database cluster encoding, UTF8 by default
     pg_locale: C                     # database cluster local, C by default
     pg_lc_collate: C                 # database cluster collate, C by default
@@ -696,7 +696,7 @@ all:
 
     haproxy_enabled: true             # enable haproxy on this node?
     haproxy_reload: true              # reload haproxy after config?
-    haproxy_admin_auth_enabled: false # enable authentication for haproxy admin?
+    haproxy_auth_enabled: false # enable authentication for haproxy admin?
     haproxy_admin_username: admin     # default haproxy admin username
     haproxy_admin_password: pigsty    # default haproxy admin password
     haproxy_exporter_port: 9101       # default admin/exporter port

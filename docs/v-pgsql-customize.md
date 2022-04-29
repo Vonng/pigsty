@@ -53,10 +53,9 @@ When customizing Patroni templates, you can use several existing templates as a 
 
 Place them in the [`templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/templates) dir, just name them in `<mode>.yml` format.
 
-Please keep the template variables in Patroni. Otherwise, the related parameters may not work correctly, for example, [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries).
+Please keep the template variables in Patroni, otherwise, the related parameters may not work properly. For example [`pg_libs`](v-pgsql.md#pg_libs).
 
 Finally, in the [`pg_conf`](v-pgsql.md#pg_conf) config file, specify the name of your newly created template, e.g., `olap-32C128G-nvme.yml`.
-
 
 
 ## Postgres templates

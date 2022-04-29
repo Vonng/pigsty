@@ -13,7 +13,7 @@
 
 
 
-# v1.3.1 Bug fix & Dashboard Adjust 
+# v1.3.1 Bug fix & Dashboard Adjust
 
 [Monitor]
 * PGSQL & PGCAT Dashboard polish
@@ -22,11 +22,11 @@
 * add table/index bloat panels to pgcat database, remove pgcat bloat dashboard.
 * add index information in pgcat database dashboard
 * fix broken panels in grafana 8.3
-* add redis index in nginx homepage 
+* add redis index in nginx homepage
 
 [Deploy]
 * New `infra-demo.yml` playbook for one-pass bootstrap
-* Use `infra-jupyter.yml` playbook to deploy optional jupyter lab server  
+* Use `infra-jupyter.yml` playbook to deploy optional jupyter lab server
 * Use `infra-pgweb.yml` playbook to deploy optional pgweb server
 * New `pg` alias on meta node, can initiate postgres cluster from admin user (in addition to postgres)
 * Adjust all patroni conf templates's `max_locks_per_transactions` according to `timescaledb-tune` 's advise
@@ -52,18 +52,18 @@
   * Redis Cluster Dashboard
   * Redis Instance Dashboard
 
-* [ENHANCEMENT] monitor: PGCAT Overhaul 
-  * New Dashboard: PGCAT Instance 
+* [ENHANCEMENT] monitor: PGCAT Overhaul
+  * New Dashboard: PGCAT Instance
   * New Dashboard: PGCAT Database Dashboard
   * Remake Dashboard: PGCAT Table
 
 * [ENHANCEMENT] monitor: PGSQL Enhancement
-  * New Panels: PGSQL Cluster, add 10 key metrics panel (toggled by default) 
+  * New Panels: PGSQL Cluster, add 10 key metrics panel (toggled by default)
   * New Panels: PGSQL Instance, add 10 key metrics panel (toggled by default)
   * Simplify & Redesign: PGSQL Service
   * Add cross-references between PGCAT & PGSL dashboards
 
-* [ENHANCEMENT] monitor deploy 
+* [ENHANCEMENT] monitor deploy
   * Now grafana datasource is automatically registered during monly deployment
 
 * [ENHANCEMENT] software upgrade
@@ -75,11 +75,11 @@
 
 
 # v1.2.0
- 
+
 * [ENHANCEMENT] Use PostgreSQL 14 as default version
 * [ENHANCEMENT] Use TimescaleDB 2.5 as default extension
   * now timescaledb & postgis are enabled in cmdb by default
-* [ENHANCEMENT] new monitor-only mode: 
+* [ENHANCEMENT] new monitor-only mode:
   * you can use pigsty to monitor existing pg instances with a connectable url only
   * pg_exporter will be deployed on meta node locally
   * new dashboard PGSQL Cluster Monly for remote clusters
@@ -88,14 +88,14 @@
   * pev2 to v0.11.9
   * promscale to 0.6.2
   * pgweb to 0.11.9
-  * Add new extensions: pglogical pg_stat_monitor orafce 
-* [ENHANCEMENT] Automatic detect machine spec and use proper `node_tune` and `pg_conf` templates 
+  * Add new extensions: pglogical pg_stat_monitor orafce
+* [ENHANCEMENT] Automatic detect machine spec and use proper `node_tune` and `pg_conf` templates
 * [ENHANCEMENT] Rework on bloat related views, now more information are exposed
 * [ENHANCEMENT] Remove timescale & citus internal monitoring
 * [ENHANCEMENT] New playbook `pgsql-audit.yml` to create audit report.
 * [BUG FIX] now pgbouncer_exporter resource owner are {{ pg_dbsu }} instead of postgres
 * [BUG FIX] fix pg_exporter duplicate metrics on pg_table pg_index while executing `REINDEX TABLE CONCURRENTLY`
-* [CHANGE] now all config templates are minimize into two: auto & demo. (removed: `pub4, pg14, demo4, tiny, oltp` ) 
+* [CHANGE] now all config templates are minimize into two: auto & demo. (removed: `pub4, pg14, demo4, tiny, oltp` )
   * `pigsty-demo` is configured if `vagrant` is the default user, otherwise `pigsty-auto` is used.
 
 
@@ -107,10 +107,10 @@ For the infrastructure part. Re-execution of `repo` will do most of the parts
 
 As for the database. You can still use the existing PG13 instances. In-place upgrade is quite
 tricky especially when involving extensions such as PostGIS & Timescale. I would highly recommend
-performing a database migration with logical replication. 
+performing a database migration with logical replication.
 
 The new playbook `pgsql-migration.yml` will make this a lot easier. It will create a series of
-scripts which will help you to migrate your cluster with near-zero downtime. 
+scripts which will help you to migrate your cluster with near-zero downtime.
 
 
 
@@ -121,7 +121,7 @@ scripts which will help you to migrate your cluster with near-zero downtime.
 * [BUG FIX] now pg_exporter config dir's owner are {{ pg_dbsu }} instead of prometheus
 
 **How to upgrade from v1.1.0**
-  The major change in this release is timescaledb. Which replace old `apache` license version with `timescale` license version
+The major change in this release is timescaledb. Which replace old `apache` license version with `timescale` license version
 
 ```bash
 stop/pause postgres instance with timescaledb
@@ -139,7 +139,7 @@ yum install timescaledb-2-postgresql13
 
 # v1.1.0
 
-* [ENHANCEMENT] add `pg_dummy_filesize` to create fs space placeholder 
+* [ENHANCEMENT] add `pg_dummy_filesize` to create fs space placeholder
 * [ENHANCEMENT] home page overhaul
 * [ENHANCEMENT] add jupyter lab integration
 * [ENHANCEMENT] add pgweb console integration
@@ -163,7 +163,7 @@ yum install timescaledb-2-postgresql13
 * new config entries: `docs_enabled`, setup local docs on default server.
 * new config entries: `pev2_enabled`, setup local pev2 utils.
 * new config entries: `pgbadger_enabled`, create log summary/report dir
-* new config entries: `jupyter_enabled`, enable jupyter lab server on meta node 
+* new config entries: `jupyter_enabled`, enable jupyter lab server on meta node
 * new config entries: `jupyter_username`, specify which user to run jupyter lab
 * new config entries: `jupyter_password`, specify jupyter lab default password
 * new config entries: `pgweb_enabled`, enable pgweb server on meta node
@@ -188,7 +188,7 @@ yum install timescaledb-2-postgresql13
   * citus will force max_prepared_transaction to non-zero value
 * Bug Fix: ssh sudo checking in `configure`:
   * now `ssh -t sudo -n ls` is used for privilege checking
-* Typo Fix: `pg-backup` script typo   
+* Typo Fix: `pg-backup` script typo
 * Alert Adjust: Remove ntp sanity check alert (dupe with ClockSkew)
 * Exporter Adjust: remove collector.systemd to reduce overhead
 
@@ -208,17 +208,17 @@ yum install timescaledb-2-postgresql13
 * Architecture Changes
   * Add citus & timescaledb as part of default installation
   * Add PostgreSQL 14beta2 support
-  * Simply haproxy admin page index 
+  * Simply haproxy admin page index
   * Decouple infra & pgsql by adding a new role `register`
-  * Add new role `loki` and `promtail` for logging 
+  * Add new role `loki` and `promtail` for logging
   * Add new role `environ` for setting up environment for admin user on admin node
   * Using `static` service-discovery for prometheus by default (instead of `consul`)
   * Add new role `remove` to gracefully remove cluster & instance
   * Upgrade prometheus & grafana provisioning logics.
-  * Upgrade to vip-manager 1.0 , node_exporter 1.2 , pg_exporter 0.4, grafana 8.0  
-  * Now every database on every instance can be auto-registered as grafana datasource  
+  * Upgrade to vip-manager 1.0 , node_exporter 1.2 , pg_exporter 0.4, grafana 8.0
+  * Now every database on every instance can be auto-registered as grafana datasource
   * Move consul register tasks to role `register`, change consul service tags
-  * Add cmdb.sql as pg-meta baseline definition (CMDB & PGLOG) 
+  * Add cmdb.sql as pg-meta baseline definition (CMDB & PGLOG)
 
 * Application Framework
   * Extensible framework for new functionalities
@@ -227,12 +227,12 @@ yum install timescaledb-2-postgresql13
   * core app: PostgreSQL Csvlog Analyzer: `pglog`
   * add example app `covid` for visualizing covid-19 data.
   * add example app `isd` for visualizing isd data.
-    
+
 * Misc
   * Add jupyterlab which brings entire python environment for data science
   * Add `vonng-echarts-panel` to bring Echarts support back.
   * Add wrap script `createpg` , `createdb`, `createuser`
-  * Add cmdb dynamic inventory scripts: `load_conf.py`, `inventory_cmdb`, `inventory_conf`   
+  * Add cmdb dynamic inventory scripts: `load_conf.py`, `inventory_cmdb`, `inventory_conf`
   * Remove obsolete playbooks: `pgsql-monitor`, `pgsql-service`, `node-remove`, etc....
 
 
@@ -267,7 +267,7 @@ yum install timescaledb-2-postgresql13
 
 * MetaDB provisioning
 
-  Now you can use pgsql database on meta node as inventory instead of static yaml file affter bootstrap. 
+  Now you can use pgsql database on meta node as inventory instead of static yaml file affter bootstrap.
 
 * Add Loki & Prometail as optinal logging collector
 
@@ -275,15 +275,15 @@ yum install timescaledb-2-postgresql13
 
 * Pigsty CLI/GUI (beta)
 
-  Mange you pigsty deployment with much more human-friendly command line interface. 
+  Mange you pigsty deployment with much more human-friendly command line interface.
 
 ## Bug Fix
 
 * Log related issues
   * fix `connection reset by peer` entries in postgres log caused by Haproxy health check.
   * fix `Connect Reset Exception` in patroni logs caused by haproxy health check
-  * fix patroni log time format (remove mill seconds, add timezone) 
-  * set `log_min_duration_statement=1s` for `dbuser_monitor` to get ride of monitor logs. 
+  * fix patroni log time format (remove mill seconds, add timezone)
+  * set `log_min_duration_statement=1s` for `dbuser_monitor` to get ride of monitor logs.
 * Fix `pgbouncer-create-user` does not handle md5 password properly
 * Fix obsolete `Makefile` entries
 * Fix node dns nameserver lost when abort during resolv.conf rewrite
@@ -447,9 +447,9 @@ A service has some mandatory fields:
 
 ## Database
 
-Add additional locale support: `lc_ctype` and `lc_collate`. 
+Add additional locale support: `lc_ctype` and `lc_collate`.
 
-It's mainly because of `pg_trgm` 's weird behavior on i18n characters. 
+It's mainly because of `pg_trgm` 's weird behavior on i18n characters.
 
 ```yaml
 pg_databases:
@@ -480,12 +480,12 @@ pg_databases:
 ## Overview
 
 * Monitor Only Deployment
-      * Now you can monitoring existing postgres clusters without Pigsty provisioning solution.
-      * Intergration with other provisioning solution is available and under further test.
+  * Now you can monitoring existing postgres clusters without Pigsty provisioning solution.
+  * Intergration with other provisioning solution is available and under further test.
 
 * Database/User Management
-      * Update user/database definition schema to cover more usecases.
-      * Add `pgsql-createdb.yml` and `pgsql-createuser.yml` to mange user/db on running clusters.
+  * Update user/database definition schema to cover more usecases.
+  * Add `pgsql-createdb.yml` and `pgsql-createuser.yml` to mange user/db on running clusters.
 
 ## Features
 
@@ -1040,4 +1040,3 @@ The first public beta (v0.3.0) of pigsty is available now ! 🎉
 ## **Offline Installation**
 
 * [pkg.tgz](https://github.com/Vonng/pigsty/releases/download/v0.3.0/pkg.tgz) is the latest offline install package (1GB rpm packages, made under CentOS 7.8)
-

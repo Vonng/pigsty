@@ -52,7 +52,7 @@ node_tune: tiny          # 节点调优模式：oltp|olap|crit|tiny
 
 并放置于[`templates/`](https://github.com/Vonng/pigsty/tree/master/roles/postgres/templates)目录中，以`<mode>.yml`格式命名即可。
 
-Patroni中的模板变量请保留，否则相关参数可能无法正常工作。例如 [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)
+Patroni中的模板变量请保留，否则相关参数可能无法正常工作。例如 [`pg_libs`](v-pgsql.md#pg_libs)
 
 最后，在配置文件的 [`pg_conf`](v-pgsql.md#pg_conf) 配置项，指定您新创建的模板名称即可，例如 `olap-32C128G-nvme.yml`
 

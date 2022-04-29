@@ -54,7 +54,7 @@ redis_rename_commands: {}           # rename dangerous commands
 redis_cluster_replicas: 1           # how many replicas for a master in redis cluster ?
 
 # - reference - #
-service_registry: consul            # which service registry to be used
+dcs_registry: consul            # which service registry to be used
 ...
 ```
 

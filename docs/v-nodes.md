@@ -3,16 +3,27 @@
 Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-nodes.md) playbook can be executed to configure the node to the corresponding state and incorporate it into the Pigsty monitor system.
 
 - [`NODE_IDENTITY`](#NODE_IDENTITY) : Node identity parameters
-- [`NODE_DNS`](#NODE_DNS): Node domain name resolution, configure [static DNS records](#node_dns_hosts) and [dynamic resolution](#node_dns_server)
-- [`NODE_REPO`](#NODE_REPO): Node Software Source
-- [`NODE_PACKAGES`](#NODE_PACKAGES): Node Packages
+
+- [`NODE_DNS`](#NODE_DNS): Node domain name resolution
+
+- [`NODE_PACKAGE`](#NODE_PACKAGE): Node Repo & Packages
+
 - [`NODE_FEATURES`](#NODE_FEATURES): Node Functionality Features
-- [`NODE_MODULES`](#NODE_MODULES): Node Kernel Module
-- [`NODE_TUNE`](#NODE_TUNE): Node parameter tuning
-- [`NODE_ADMIN`](#NODE_ADMIN): Node Administrator
-- [`NODE_TIME`](#NODE_TIME): Node time zone and time sync
-- [`NODE_EXPORTER`](#NODE_EXPORTER): Node Indicator Exposer
-- [`PROMTAIL`](#PROMTAIL): Log collection component
+
+- [`NODE_TUNE`](#NODE_TUNE): Node features & kernel tuning
+
+- [`NODE_ADMIN`](#NODE_ADMIN): Node admin user & dir
+
+- [`NODE_TIME`](#NODE_TIME): Node time zone, NTP, crontab
+
+- [`CONSUL`](#CONSUL): Node consul agent
+
+- [`DOCKER`](#DOCKER): Node docker daemon 
+
+
+- [`NODE_EXPORTER`](#NODE_EXPORTER): Node metrics exporter
+
+- [`PROMTAIL`](#PROMTAIL): Logger agent
 
 
 | ID  | Name                                                  | Section                           |   Type   | Level | Comment                            |
@@ -22,63 +33,55 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C   | node cluster identity              |
 | 303 | [`nodename_overwrite`](#nodename_overwrite)           | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | overwrite hostname with nodename   |
 | 304 | [`nodename_exchange`](#nodename_exchange)             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | exchange static hostname           |
-| 310 | [`node_dns_hosts`](#node_dns_hosts)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | static DNS records                 |
-| 311 | [`node_dns_hosts_extra`](#node_dns_hosts_extra)       | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I | extra static DNS records           |
-| 312 | [`node_dns_server`](#node_dns_server)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?          |
+| 310 | [`node_etc_hosts_default`](#node_etc_hosts_default)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | static DNS records                 |
+| 311 | [`node_etc_hosts`](#node_etc_hosts)       | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I | extra static DNS records           |
+| 312 | [`node_dns_method`](#node_dns_method)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?          |
 | 313 | [`node_dns_servers`](#node_dns_servers)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | dynamic DNS servers                |
 | 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | /etc/resolv.conf options           |
 | 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_REPO`](#NODE_REPO)         | enum     | C   | how to use yum repo (local)        |
 | 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_REPO`](#NODE_REPO)         | bool     | C   | remove existing repo file?         |
 | 322 | [`node_local_repo_url`](#node_local_repo_url)         | [`NODE_REPO`](#NODE_REPO)         | url[]    | C   | local yum repo url                 |
-| 330 | [`node_packages`](#node_packages)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node   |
-| 331 | [`node_extra_packages`](#node_extra_packages)         | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed         |
-| 332 | [`node_meta_packages`](#node_meta_packages)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages            |
-| 333 | [`node_meta_pip_install`](#node_meta_pip_install)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages            |
-| 340 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable numa?                      |
-| 341 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable swap?                      |
-| 342 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable firewall?                  |
-| 343 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable selinux?                   |
+| 330 | [`node_packages_default`](#node_packages_default)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node   |
+| 331 | [`node_packages`](#node_packages)         | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed         |
+| 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages            |
+| 333 | [`node_packages_meta_pip`](#node_packages_meta_pip)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages            |
+| 340 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable firewall?                  |
+| 341 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable selinux?                   |
+| 342 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable numa?                      |
+| 343 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable swap?                      |
 | 344 | [`node_static_network`](#node_static_network)         | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | use static DNS config?             |
 | 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | enable disk prefetch?              |
 | 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_MODULES`](#NODE_MODULES)   | string[] | C   | kernel modules to be installed     |
-| 350 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                     |
-| 351 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
-| 360 | [`node_admin_setup`](#node_admin_setup)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                 |
-| 361 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G   | admin user UID                     |
-| 362 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G   | admin user name                    |
-| 363 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange) | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | C   | exchange admin ssh keys?           |
-| 364 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A   | pks to be added to admin           |
-| 365 | [`node_admin_pks`](#node_admin_pks)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?           |
-| 370 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C   | node timezone                      |
-| 371 | [`node_ntp_config`](#node_ntp_config)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                 |
-| 372 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C   | ntp mode: ntp or chrony?           |
-| 373 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C   | ntp server list                    |
-| 380 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?             |
-| 381 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port          |
-| 382 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I | node_exporter extra cli args       |
-| 390 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C   | promtail enabled ?                 |
-| 391 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A | remove promtail status file ?      |
-| 392 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G   | promtail listen port               |
-| 393 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I | promtail cli args                  |
-| 394 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C   | path to store promtail status file |
-| 400 | [`docker_enabled`](#docker_enabled)            | [`DOCKER`](#DOCKER)        | bool     | C   | docker enabled?                    |
-| 401 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup driver               |
-| 402 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker registry mirror location    |
-| 402 | [`docker_image_cache`](#docker_image_cache)     | [`DOCKER`](#DOCKER) | string   | C | docker image cache tarball         |
-
-
-
-### `docker_cgroups_driver`
-
-systemd   # docker cgroup fs driver
-
-
-### `docker_registry_mirrors`
-
-
-### `docker_image_cache`
-
-/www/pigsty/docker.tar.lz4  # docker images tarball to be loaded if eixsts
+| 347 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                     |
+| 348 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
+| 350 | [`node_data_dir`](#node_data_dir) | [`NODE_ADMIN`](#NODE_ADMIN) | path | C | default data disk mountpoint |
+| 351 | [`node_admin_enabled`](#node_admin_enabled)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                 |
+| 352 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G   | admin user UID                     |
+| 353 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G   | admin user name                    |
+| 354 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange) | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | C   | exchange admin ssh keys?           |
+| 355 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A   | pks to be added to admin           |
+| 356 | [`node_admin_pk_list`](#node_admin_pk_list)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?           |
+| 360 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C   | node timezone                      |
+| 361 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                 |
+| 362 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C   | ntp mode: ntp or chrony?           |
+| 363 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C   | ntp server list                    |
+| 364 | [`node_crontab`](#node_crontab) | [`NODE_TIME`](#NODE_TIME) | string[] | C/I | crontab list of node |
+| 370 | [`docker_enabled`](#docker_enabled)            | [`DOCKER`](#DOCKER)        | bool     | C   | docker enabled?                    |
+| 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup driver               |
+| 372 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker registry mirror location    |
+| 373 | [`docker_image_cache`](#docker_image_cache)     | [`DOCKER`](#DOCKER) | string   | C | docker image cache tarball         |
+| 380 | [`consul_safeguard`](#consul_safeguard)                   | [`CONSUL`](#CONSUL) | bool       | C/A   | avoid consul remove at all |
+| 381 | [`consul_clean`](#consul_clean)                   | [`CONSUL`](#CONSUL) | bool    | C/A   | purge consul during init? |
+| 382 | [`consul_name`](#consul_name)                                     | [`CONSUL`](#CONSUL) | string     | G     | dcs cluster name (dc)|
+| 383 | [`consul_data_dir`](#consul_data_dir)                       | [`CONSUL`](#CONSUL) | string     | G     | consul data dir path|
+| 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?             |
+| 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port          |
+| 392 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I | node_exporter extra cli args       |
+| 400 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C   | promtail enabled ?                 |
+| 401 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A | remove promtail status file ?      |
+| 402 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G   | promtail listen port               |
+| 403 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I | promtail cli args                  |
+| 404 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C   | path to store promtail status file |
 
 
 
@@ -121,17 +124,20 @@ node-test:
 
 This node is a meta node, type: `bool`, level: C, default value: `false`.
 
-Nodes under the `meta` grouping carry this flag in the inventory by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages) with:
-Install the RPM pkgs specified by [`node_meta_packages`](#node_meta_packages) and install the Python pkgs set by [`node_meta_pip_install`](#node_meta_pip_install).
+Nodes under the `meta` grouping carry this flag in the inventory by default. Nodes with this flag will be additionally configured at node [package installation](#node_packages_default) with:
+
+Install the RPM pkgs specified by [`node_packages_meta`](#node_packages_meta) and install the Python pkgs set by [`node_packages_meta_pip`](#node_packages_meta_pip).
 
 
 
 
 ### `nodename`
 
-Specifies the node name, type: `string`, level: I; the default value is null.
+Specifies the node name, type: `string`, level: I, the default value is `null`.
 
-Using the default null value or empty string means no name is specified for the node, and the existing Hostname is used directly as the node name.
+Null or empty string means `nodename` will be set to node's current hostname.
+
+no name is specified for the node, and the existing Hostname is used directly as the node name.
 
 The node name `nodename` will be used as the name of the node instance (`ins` tag) in the Pigsty monitor system. In addition, if [`nodename_overwrite`](#nodename_overwrite) is true, the node name will also be used as the HOSTNAME.
 
@@ -176,22 +182,30 @@ When this parameter is enabled, node names are exchanged between the same group 
 ----------------
 ## `NODE_DNS`
 
-Pigsty configs static DNS resolution records and dynamic DNS servers for the nodes.
+Pigsty configs static DNS records and dynamic DNS resolver for the nodes.
 
-If your node provider has configured a DNS server for you, you can skip the DNS settings by setting [`node_dns_server`](v-nodes.md#node_dns_server) to `none`. 
+If you already have a DNS server, set [`node_dns_method`](v-nodes.md#node_dns_method) to `none` to disable dynamic DNS setup.
 
 
 
-### `node_dns_hosts`
+### `node_etc_hosts`
+
+DNS records specific to the cluster instance level, type: `string[]`, level: C/I, default value is an empty array `[]`.
+
+[`node_etc_hosts`](#node_etc_hosts) is an array. Each element is a string shaped like an `ip domain_name`, representing a DNS resolution record. Each of which is written to `/etc/hosts` when the machine node is initialized, suitable for cluster/instance specific records.
+
+
+
+### `node_etc_hosts_default`
 
 Write to static DNS resolution of the machine, type: `string[]`, level: C, default value:
 
 ```yaml
-node_dns_hosts:                 # static dns records in /etc/hosts
+node_etc_hosts_default:                 # static dns records in /etc/hosts
   - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
 ```
 
-[`node_dns_hosts`](#node_dns_hosts) is an array. Each element is a string shaped like an `ip domain_name`, representing a DNS resolution record. Each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infra addresses.
+[`node_etc_hosts_default`](#node_etc_hosts_default) is an array. Each element is a string shaped like an `ip domain_name`, representing a DNS resolution record. Each of which is written to `/etc/hosts` when the machine node is initialized, suitable for global config of infra addresses.
 
 Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/hosts` to ensure that the local yum repo can be accessed using the domain name before the DNS Nameserver starts.
 
@@ -199,16 +213,8 @@ Make sure to write a DNS record like `10.10.10.10 pigsty yum.pigsty` to `/etc/ho
 
 
 
-### `node_dns_hosts_extra`
 
-DNS records specific to the cluster instance level, type: `string[]`, level: C/I, default value is an empty array `[]`.
-
-
-
-
-
-
-### `node_dns_server`
+### `node_dns_method`
 
 Config DNS server, type: `enum`, level: C, default value: `"add"`.
 
@@ -238,7 +244,7 @@ node_dns_servers: # dynamic nameserver in /etc/resolv.conf
 
 ### `node_dns_options`
 
-If [`node_dns_server`](#node_dns_server) is configured as `add` or `overwrite`, the records in this config entry will be appended or overwritten to `/etc/resolv.conf`. Please see the Linux doc for `/etc/resolv.conf` for the exact format.
+If [`node_dns_method`](#node_dns_method) is configured as `add` or `overwrite`, the records in this config entry will be appended or overwritten to `/etc/resolv.conf`. Please see the Linux doc for `/etc/resolv.conf` for the exact format.
 
 The default parsing options added by Pigsty:
 
@@ -255,10 +261,11 @@ The default parsing options added by Pigsty:
 
 
 ----------------
-## `NODE_REPO`
+## `NODE_PACKAGE`
+
+Pigsty configure yum repos & install packages from it.
 
 
-Pigsty configs the Yum repos for the nodes to be included in the management and installs the packages.
 
 
 ### `node_repo_method`
@@ -278,7 +285,9 @@ The machine node Yum software repo is configured in three modes:
 
 Remove nodes with existing Yum repos, type: `bool`, level: C, default value: `true`.
 
-If enabled, Pigsty will **removal** the original config file in `/etc/yum.repos.d` on the node and backup it to `/etc/yum.repos.d/backup`
+If enabled, Pigsty will move repo file in `/etc/yum.repos.d` to backup dir: `/etc/yum.repos.d/backup`
+
+
 
 
 ### `node_local_repo_url`
@@ -303,53 +312,51 @@ node_local_repo_url:
 
 
 
+
 ### `node_packages`
+
+List of extra installed software for the node, type: `string[]`, level: C, default value:
+
+There is a list of extra pkgs to install via yum, with an empty list by default.
+
+Like [`node_packages_default`](#node_packages_default), the former is usually configured globally, while [`node_packages`](#node_packages) makes exceptions for specific nodes.
+
+
+
+### `node_packages_default`
 
 List of node installation software, type: `string[]`, level: C, default value:
 
 The package list is an array, but each element can contain multiple pkgs separated by **commas**. The list of pkgs installed by Pigsty by default is as follows:
 
 ```yaml
-node_meta_packages:                           # packages for meta nodes only
+node_packages_meta:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
 
 
 
-
-### `node_extra_packages`
-
-List of extra installed software for the node, type: `string[]`, level: C, default value:
-
-There is a list of extra pkgs to install via yum, with an empty list by default.
-
-Like [`node_packages`](#node_packages), the former is usually configured globally, while [`node_extra_packages`](#node_extra_packages) makes exceptions for specific nodes.
-
-
-
-
-
-### `node_meta_packages`
+### `node_packages_meta`
 
 List of software required by the meta node, type: `string[]`, level: G, default value:
 
 ```yaml
-node_meta_packages:                           # packages for meta nodes only
+node_packages_meta:                           # packages for meta nodes only
   - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
   - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,polysh,coreutils,diffutils
 ```
 
-The pkgs listed in [`node_meta_packages`](#node_meta_packages) will only be installed on the meta node, and infra software generally used on the meta node must be specified here.
+The pkgs listed in [`node_packages_meta`](#node_packages_meta) will only be installed on the meta node, and infra software generally used on the meta node must be specified here.
 
 
 
 
-### `node_meta_pip_install`
+### `node_packages_meta_pip`
 
 Package installed on the meta node via pip3, type: `string`, level: G, default value: `"jupyterlab"`.
 
-The package will be downloaded to [`{{ repo_home }}`](v-infra.md#repo_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` dir and then installed uniformly.
+The package will be downloaded to [`{{ nginx_home }}`](v-infra.md#nginx_home)/[`{{ repo_name }}`](v-infra.md#repo_name)/`python` dir and then installed uniformly.
 
 Currently, `jupyterlab` will be installed by default, providing a complete Python runtime env.
 
@@ -359,10 +366,26 @@ Currently, `jupyterlab` will be installed by default, providing a complete Pytho
 
 
 ----------------
-## `NODE_FEATURES`
+
+## `NODE_TUNE`
+
+Configure some features, kernel modules, and tuning templates on the node.
 
 
-Configure some specific features on the host node.
+
+### `node_disable_firewall`
+
+Turn off node firewall, type: `bool`, level: C, default value: `true`, please keep it off.
+
+
+
+
+
+### `node_disable_selinux`
+
+Close node SELINUX, type: `bool`, level: C, default value: `true`, please keep it off.
+
+
 
 
 ### `node_disable_numa`
@@ -384,20 +407,6 @@ Turn off node SWAP, type: `bool`, level: C, default value: `false`.
 Turning off SWAP is not recommended and can be done to improve performance if there is enough memory and the database is deployed exclusively.
 
 SWAP should be disabled when your node is used for a Kubernetes deployment.
-
-
-
-### `node_disable_firewall`
-
-Turn off node firewall, type: `bool`, level: C, default value: `true`, please keep it off.
-
-
-
-
-
-### `node_disable_selinux`
-
-Close node SELINUX, type: `bool`, level: C, default value: `true`, please keep it off.
 
 
 
@@ -424,35 +433,15 @@ Instances deployed against HDDs optimize throughput and are recommended to be en
 
 
 
-
-----------------
-## `NODE_MODULES`
-
-
-Kernel Function Module
-
-
 ### `node_kernel_modules`
 
 Enabled kernel module, type: `string[]`, level: C, default value:
 
 An array consisting of kernel module names declaring the kernel modules that need to be installed on the node. Pigsty will enable the following kernel modules by default:
 
+```yaml
+node_kernel_modules: [ softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
 ```
-node_kernel_modules: [softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh]
-```
-
-
-
-
-
-
-
-
-----------------
-## `NODE_TUNE`
-
-Host Node Tuning
 
 
 
@@ -486,11 +475,24 @@ OS kernel parameter, type: `dict`, level: C, default value is an empty dictionar
 ----------------
 ## `NODE_ADMIN`
 
-
 Host Node Admin Users.
 
 
-### `node_admin_setup`
+
+### `node_data_dir`
+
+Mountpoint of major data disk, level: C, default value: `/data`.
+
+If specified, this path will be used as major data disk mountpoint.
+
+And a dir will be created and throwing a warning if path not exists.
+
+The data dir is owned by root with mode `0777`.
+
+
+
+
+### `node_admin_enabled`
 
 Create admin user, type: `bool`, level: G, default value: `true`.
 
@@ -531,7 +533,7 @@ When deploying in a production env, be sure to pay attention to this parameter, 
 
 
 
-### `node_admin_pks`
+### `node_admin_pk_list`
 
 The list of public keys for login able admin, type: `key[]`, level: C, default value is an empty array; the demo has the default public key for `vagrant` users.
 
@@ -550,7 +552,7 @@ When deploying in production envs, be sure to note this parameter and add only t
 
 The node time zone is synchronized with time.
 
-If the node is already configured with an NTP server, you can configure [`node_ntp_config`](v-nodes.md#node_dns_server) to `false` to skip the setting of the NTP service.
+If the node is already configured with an NTP server, you can configure [`node_ntp_enabled`](v-nodes.md#node_dns_method) to `false` to skip the setting of the NTP service.
 
 
 ### `node_timezone`
@@ -563,7 +565,7 @@ Select `false`, or leave it blank, and Pigsty will not modify the time zone conf
 
 
 
-### `node_ntp_config`
+### `node_ntp_enabled`
 
 Is the NTP service configured? , type: `bool`, level: C, default value: `true`.
 
@@ -583,7 +585,7 @@ Specify the type of NTP service used by the system; by default, `ntp` is used as
 * `ntp`： Traditional NTP Service
 * `chrony`： Time services used by CentOS 7/8 by default
 
-It only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
+It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
 
 
 
@@ -598,11 +600,96 @@ List of NTP servers, type: `string[]`, level: C, default value:
 - server 10.10.10.10 iburst
 ```
 
-It only takes effect if [`node_ntp_config`](#node_ntp_config) is true.
+It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
+
+
+
+### `node_crontab`
+
+Crontab of this node, type: `string[]`, level: C/I, default value: `[]`
 
 
 
 
+
+----------------
+## `DOCKER`
+
+Pigsty install docker on all meta nodes by default, disabled on common nodes by default.
+
+
+
+
+### `docker_enabled`
+
+Enable docker on current node? type: `bool`, level: C, default value: `false`. default `true` on meta nodes.
+
+
+
+
+### `docker_cgroups_driver`
+
+CGroup drivers for docker, type: `string`, level: C, default value: `systemd`.
+
+
+
+### `docker_registry_mirrors`
+
+Docker registry mirror list, type: `string[]`, level：`C`, default value: `[]`.
+
+
+
+
+### `docker_image_cache`
+
+Local image cache, type: `string`, level: C, default value: `"/var/pigsty/docker.tar.lz4"`.
+
+The local image cache will be loaded into docker when the target path exists.
+
+
+
+
+
+----------------
+
+## `Consul`
+
+Consul is used for service mesh, traffic control, health check, service registry, service discovery & consensus.
+
+
+
+
+### `consul_safeguard`
+
+Assure that any running consul instance will not be purged by any [`nodes`](p-nodes.md) playbook., level: C/A, default: `false`
+
+Check [SafeGuard](p-nodes.md#SafeGuard) for details.
+
+
+
+### `consul_clean`
+
+Remove existing consul during node init? level: C/A, default: `false`
+
+This allows the removal of any running consul instance during [`nodes.yml`](p-nodes.yml#nodes), which makes it a true idempotent playbook.
+
+It's a dangerous option so you'd better disable it by default and use it with `-e` CLI args.
+
+!> This parameter not working when [`consul_safeguard`](#consul_safeguard) is set to `true`
+
+
+
+### `consul_name`
+
+DCS cluster name, type: `string`, level: G, default value: `"pigsty"`.
+
+Represents the data center name in Consul, which has no meaning in Etcd.
+
+
+
+### `consul_data_dir`
+
+Consul data directory, type: `string`, level: G, default value: `"/data/consul"`.
 
 
 
@@ -698,38 +785,4 @@ There are already params for specifying the config file path and expanding the e
 Path to promtail status file, type: `string`, level: C, default value：`"/var/log/positions.yaml"`
 
 Promtail records the consumption offsets of all logs, which are periodically written to the file specified by [`promtail_positions`](#promtail_positions).
-
-
-
-----------------
-
-## `DOCKER`
-
-
-## `DOCKER`
-
-Pigsty install docker on all meta nodes by default, disabled on common nodes by default.
-
-
-### `docker_enabled`
-
-Enable docker on current node? type: `bool`, level: C, default value: `false`. default `true` on meta nodes.
-
-
-### `docker_cgroups_driver`
-
-CGroup drivers for docker, type: `string`, level: C, default value: `systemd`.
-
-
-
-### `docker_registry_mirrors`
-
-Docker registry mirror list, type: `string[]`, level：`C`, default value: `[]`.
-
-
-### `docker_image_cache`
-
-Local image cache, type: `string`, level: C, default value: `"/var/pigsty/docker.tar.lz4"`.
-
-Local cache will be loaded into docker when image exists.
 

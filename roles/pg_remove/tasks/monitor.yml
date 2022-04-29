@@ -13,13 +13,13 @@
     #---------------------------------------------
     - name: Remove pg_exporter service from consul
       tags: consul_registry
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-pg-exporter.json
         state: absent
 
     - name: Reload consul to dereigster pg_exporter
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
@@ -39,13 +39,13 @@
   block:
     - name: Remove pgbouncer_exporter service from consul
       tags: consul_registry
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-pgbouncer-exporter.json
         state: absent
 
     - name: Reload consul to dereigster pgbouncer_exporter
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     - name: Stop and disable pgbouncer_exporter service

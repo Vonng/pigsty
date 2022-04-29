@@ -35,19 +35,20 @@
     #---------------------------------------------
     - name: Remove node_exporter service from consul
       tags: register_consul
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-node-exporter.json
         state: absent
 
     - name: Reload consul to dereigster node_exporter
       tags: register_consul
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
     # Other Deregister Logic
     #---------------------------------------------
+
 
 
 #------------------------------------------------------------------------------
@@ -77,17 +78,30 @@
       systemd: name=promtail state=stopped enabled=no daemon_reload=yes
 
 
+
+#---------------------------------------------------------------
+# Docker
+#---------------------------------------------------------------
+- name: Docker Remove
+  become: yes
+  hosts: all
+  gather_facts: no
+  tags: docker
+  tasks:
+
+    - name: Stop and disable docker service
+      systemd: name=docker state=stopped enabled=no daemon_reload=yes
+
+
 #---------------------------------------------------------------
 # Remove DCS:Consul
 #---------------------------------------------------------------
+# force remove with ./nodes-remove.yml -t consul -e consul_safeguard=false
 - name: DCS Remove
   become: yes
   hosts: all
   gather_facts: no
   tags: dcs
-  vars:
-    rm_dcs_server: false    # override this with command line args  e.g.
-                            #./nodes-remove.yml -e rm_dcs_server=true
   tasks:
 
     #------------------------------------------------------------------------------
@@ -95,35 +109,30 @@
     #------------------------------------------------------------------------------
     - name: Remove DCS Consul
       tags: consul
-      when: service_registry == 'consul'
+      when: dcs_registry == 'consul'
       become: yes
-      ignore_errors: yes
       block:
 
-        #------------------------------------------------------------------------------
-        # if host is a DCS SERVER
-        # you MUST specify rm_dcs_server = true to force remove it
-        # to prevent crash entire environment by accident
-        #------------------------------------------------------------------------------
-        - name: Avoid removing dcs servers
+        - name: Abort due to consul_safeguard enabled
           connection: local
-          ignore_errors: no
+          when: consul_safeguard|bool
           any_errors_fatal: true
-          when: inventory_hostname in dcs_servers.values() and not rm_dcs_server|bool
-          fail: msg="Abort trying to remove consul server without rm_dcs_server=true"
+          fail: msg="Abort due to consul_safeguard for {{ inventory_hostname }} is enabled, use -e consul_safeguard=false to override"
 
         - name: Consul leave cluster
+          ignore_errors: yes
           command: consul leave
 
         - name: Stop and disable consul
+          ignore_errors: yes
           systemd: name=consul state=stopped enabled=no daemon_reload=yes
 
         - name: Remove consul config and data
+          ignore_errors: yes
           file: path={{ item }} state=absent
           with_items:
             - /etc/consul.d
             - "{{ consul_data_dir }}"
-
 
 
 ...

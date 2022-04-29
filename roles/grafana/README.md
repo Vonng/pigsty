@@ -14,10 +14,10 @@ This role will provision a grafana server
 ```yaml
 Make sure grafana installed	TAGS: [grafana, grafana_install, infra-svcs]
 Stop grafana service	TAGS: [grafana, grafana_stop, infra-svcs]
-Check grafana plugin cache exists	TAGS: [grafana, grafana_plugins, infra-svcs]
-Provision grafana plugins via cache if exists	TAGS: [grafana, grafana_plugins, grafana_plugins_unzip, infra-svcs]
-Download grafana plugins via internet	TAGS: [grafana, grafana_plugins, infra-svcs]
-Download grafana plugins via git	TAGS: [grafana, grafana_plugins, infra-svcs]
+Check grafana plugin cache exists	TAGS: [grafana, grafana_plugin_list, infra-svcs]
+Provision grafana plugins via cache if exists	TAGS: [grafana, grafana_plugin_list, grafana_plugins_unzip, infra-svcs]
+Download grafana plugins via internet	TAGS: [grafana, grafana_plugin_list, infra-svcs]
+Download grafana plugins via git	TAGS: [grafana, grafana_plugin_list, infra-svcs]
 Remove grafana provisioning config	TAGS: [grafana, grafana_config, infra-svcs]
 Remake grafana resource dir	TAGS: [grafana, grafana_config, infra-svcs]
 Templating /etc/grafana/grafana.ini	TAGS: [grafana, grafana_config, infra-svcs]
@@ -45,15 +45,15 @@ grafana_admin_username: admin   # default grafana admin username
 grafana_admin_password: pigsty  # default grafana admin password
 grafana_database: sqlite3       # default grafana database type: sqlite3|postgres
 grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-grafana_plugin: install         # none|install, none will skip plugin installation
-grafana_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
-grafana_plugins: [ ]            # plugins that will be downloaded via grafana-cli
-grafana_git_plugins: [ ]        # plugins that will be downloaded via git
+grafana_plugin_method: install         # none|install, none will skip plugin installation
+grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
+grafana_plugin_list: [ ]            # plugins that will be downloaded via grafana-cli
+grafana_plugin_git: [ ]        # plugins that will be downloaded via git
 
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-service_registry: consul        # none | consul | etcd | both
+dcs_registry: consul        # none | consul | etcd | both
 ```
 
 

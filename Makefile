@@ -121,7 +121,7 @@ infra:
 
 # reinit pgsql cmdb
 pgsql:
-	./infra.yml --tags=cmdb -e pg_exists_action=clean
+	./infra.yml --tags=cmdb -e pg_clean=clean
 
 # rebuild repo
 repo:
@@ -415,6 +415,9 @@ publish:
 
 # create pkg.tgz on initialized meta node
 cache:
+	tar -cf files/docs.tgz docs
+	scp files/docs.tgz meta:/tmp/docs.tgz
+	ssh meta 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
 	scp bin/cache meta:/tmp/cache
 	ssh meta "sudo bash /tmp/cache"
 
@@ -433,6 +436,10 @@ svg:
 d: doc
 doc:
 	bin/doc
+
+# make docs tarball
+docs:
+	tar -cf files/docs.tgz docs
 
 ###############################################################
 
@@ -453,5 +460,5 @@ doc:
         di dd dc dashboard-init dashboard-dump dashboard-clean \
         copy copy2 copy-src copy-pkg copy-pkg2 copy-app copy-all use-src use-pkg use-pkg2 use-all  \
         r releast rp release-pkg rp2 release-matrix-pkg p publish cache \
-        svg doc d
+        svg doc d docs
 ###############################################################

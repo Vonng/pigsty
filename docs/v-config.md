@@ -221,11 +221,11 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | ID   | Name                                                         | Section                                         | Level | Description                                                  |
 | ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------------------------------ |
 | 100  | [`proxy_env`](v-infra.md#proxy_env)                          | [`CONNECT`](v-infra.md#CONNECT)                 | G     | Proxy server config                                          |
-| 110  | [`repo_enabled`](v-infra.md#repo_enabled)                    | [`REPO`](v-infra.md#REPO)                       | G     | Enable local sources                                         |
+| 110  | [`nginx_enabled`](v-infra.md#nginx_enabled)                    | [`REPO`](v-infra.md#REPO)                       | G     | Enable local sources                                         |
 | 111  | [`repo_name`](v-infra.md#repo_name)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source name                                            |
 | 112  | [`repo_address`](v-infra.md#repo_address)                    | [`REPO`](v-infra.md#REPO)                       | G     | Local source external access address                         |
-| 113  | [`repo_port`](v-infra.md#repo_port)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source port                                            |
-| 114  | [`repo_home`](v-infra.md#repo_home)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source file root dir                                   |
+| 113  | [`nginx_port`](v-infra.md#nginx_port)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source port                                            |
+| 114  | [`nginx_home`](v-infra.md#nginx_home)                          | [`REPO`](v-infra.md#REPO)                       | G     | Local source file root dir                                   |
 | 115  | [`repo_rebuild`](v-infra.md#repo_rebuild)                    | [`REPO`](v-infra.md#REPO)                       | A     | Rebuild Yum repo                                             |
 | 116  | [`repo_remove`](v-infra.md#repo_remove)                      | [`REPO`](v-infra.md#REPO)                       | A     | Remove existing REPO files                                   |
 | 117  | [`repo_upstreams`](v-infra.md#repo_upstreams)                | [`REPO`](v-infra.md#REPO)                       | G     | Upstream sources of Yum repo                                 |
@@ -237,7 +237,7 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 123  | [`ca_cert`](v-infra.md#ca_cert)                              | [`CA`](v-infra.md#CA)                           | G     | CA Certificate                                               |
 | 124  | [`ca_key`](v-infra.md#ca_key)                                | [`CA`](v-infra.md#CA)                           | G     | CA private key name                                          |
 | 130  | [`nginx_upstream`](v-infra.md#nginx_upstream)                | [`NGINX`](v-infra.md#NGINX)                     | G     | Nginx upstream servers                                       |
-| 131  | [`app_list`](v-infra.md#app_list)                            | [`NGINX`](v-infra.md#NGINX)                     | G     | List of apps displayed on the navigation bar                 |
+| 131  | [`nginx_indexes`](v-infra.md#nginx_indexes)                            | [`NGINX`](v-infra.md#NGINX)                     | G     | List of apps displayed on the navigation bar                 |
 | 132  | [`docs_enabled`](v-infra.md#docs_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | Enable local documents                                       |
 | 133  | [`pev2_enabled`](v-infra.md#pev2_enabled)                    | [`NGINX`](v-infra.md#NGINX)                     | G     | Enable PEV2 component                                        |
 | 134  | [`pgbadger_enabled`](v-infra.md#pgbadger_enabled)            | [`NGINX`](v-infra.md#NGINX)                     | G     | Enable Pgbadger                                              |
@@ -257,21 +257,21 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 172  | [`grafana_admin_password`](v-infra.md#grafana_admin_password) | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana Admin User Password                                  |
 | 173  | [`grafana_database`](v-infra.md#grafana_database)            | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana Database Types                                       |
 | 174  | [`grafana_pgurl`](v-infra.md#grafana_pgurl)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana's PG connection string                               |
-| 175  | [`grafana_plugin`](v-infra.md#grafana_plugin)                | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana plugin installation method                           |
-| 176  | [`grafana_cache`](v-infra.md#grafana_cache)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana plugin cache location                                |
-| 177  | [`grafana_plugins`](v-infra.md#grafana_plugins)              | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Installation list of Grafana plugins                         |
-| 178  | [`grafana_git_plugins`](v-infra.md#grafana_git_plugins)      | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Installing Grafana Plugin from Git                           |
+| 175  | [`grafana_plugin_method`](v-infra.md#grafana_plugin_method)                | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana plugin installation method                           |
+| 176  | [`grafana_plugin_cache`](v-infra.md#grafana_plugin_cache)                  | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Grafana plugin cache location                                |
+| 177  | [`grafana_plugin_list`](v-infra.md#grafana_plugin_list)              | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Installation list of Grafana plugins                         |
+| 178  | [`grafana_plugin_git`](v-infra.md#grafana_plugin_git)      | [`GRAFANA`](v-infra.md#GRAFANA)                 | G     | Installing Grafana Plugin from Git                           |
 | 180  | [`loki_endpoint`](v-infra.md#loki_endpoint)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | Receiving logs for the loki service                          |
 | 181  | [`loki_clean`](v-infra.md#loki_clean)                        | [`LOKI`](v-infra.md#LOKI)                       | A     | Clean up the database dir during Loki installation           |
 | 182  | [`loki_options`](v-infra.md#loki_options)                    | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki's CLI parameters                                        |
 | 183  | [`loki_data_dir`](v-infra.md#loki_data_dir)                  | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki's data dir                                              |
 | 184  | [`loki_retention`](v-infra.md#loki_retention)                | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki log default retention days                              |
 | 200  | [`dcs_servers`](v-infra.md#dcs_servers)                      | [`DCS`](v-infra.md#DCS)                         | G     | DCS server name:IP list                                      |
-| 201  | [`service_registry`](v-infra.md#service_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | Service Registration Location                                |
+| 201  | [`dcs_registry`](v-infra.md#dcs_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | Service Registration Location                                |
 | 202  | [`dcs_type`](v-infra.md#dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Type                                                     |
-| 203  | [`dcs_name`](v-infra.md#dcs_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
-| 204  | [`dcs_exists_action`](v-infra.md#dcs_exists_action)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
-| 205  | [`dcs_disable_purge`](v-infra.md#dcs_disable_purge)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
+| 203  | [`consul_name`](v-infra.md#consul_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
+| 204  | [`consul_clean`](v-infra.md#consul_clean)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
+| 205  | [`consul_safeguard`](v-infra.md#consul_safeguard)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
 | 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul Data Catalog                                          |
 | 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd Data Catalog                                            |
 | 220  | [`jupyter_enabled`](v-infra.md#jupyter_enabled)              | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Enable JupyterLab                                            |
@@ -284,18 +284,18 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 302  | [`node_cluster`](v-nodes.md#node_cluster)                    | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Node cluster name, default nodes                             |
 | 303  | [`nodename_overwrite`](v-nodes.md#nodename_overwrite)        | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Nodename overrides HOSTNAME                                  |
 | 304  | [`nodename_exchange`](v-nodes.md#nodename_exchange)          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | Exchange hostnames between playbook nodes                    |
-| 310  | [`node_dns_hosts`](v-nodes.md#node_dns_hosts)                | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Static DNS Analysis                                          |
-| 311  | [`node_dns_hosts_extra`](v-nodes.md#node_dns_hosts_extra)    | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | Cluster Level                                                |
-| 312  | [`node_dns_server`](v-nodes.md#node_dns_server)              | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure DNS server method                                  |
+| 310  | [`node_etc_hosts_default`](v-nodes.md#node_etc_hosts_default)                | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Static DNS Analysis                                          |
+| 311  | [`node_etc_hosts`](v-nodes.md#node_etc_hosts)    | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C/I   | Cluster Level                                                |
+| 312  | [`node_dns_method`](v-nodes.md#node_dns_method)              | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure DNS server method                                  |
 | 313  | [`node_dns_servers`](v-nodes.md#node_dns_servers)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure a list of dynamic DNS servers                      |
 | 314  | [`node_dns_options`](v-nodes.md#node_dns_options)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure the /etc/resolv.conf                               |
 | 320  | [`node_repo_method`](v-nodes.md#node_repo_method)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | The way nodes use Yum repos                                  |
 | 321  | [`node_repo_remove`](v-nodes.md#node_repo_remove)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | Remove nodes with existing Yum repos                         |
 | 322  | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | URL of the local source                                      |
-| 330  | [`node_packages`](v-nodes.md#node_packages)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Packages for nodes                                           |
-| 331  | [`node_extra_packages`](v-nodes.md#node_extra_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Extra packages for nodes                                     |
-| 332  | [`node_meta_packages`](v-nodes.md#node_meta_packages)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages for meta nodes                                      |
-| 333  | [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install)  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages installed via pip3                                  |
+| 330  | [`node_packages_default`](v-nodes.md#node_packages_default)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Packages for nodes                                           |
+| 331  | [`node_packages`](v-nodes.md#node_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Extra packages for nodes                                     |
+| 332  | [`node_packages_meta`](v-nodes.md#node_packages_meta)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages for meta nodes                                      |
+| 333  | [`node_packages_meta_pip`](v-nodes.md#node_packages_meta_pip)  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages installed via pip3                                  |
 | 340  | [`node_disable_numa`](v-nodes.md#node_disable_numa)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node NUMA                                        |
 | 341  | [`node_disable_swap`](v-nodes.md#node_disable_swap)          | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node SWAP                                        |
 | 342  | [`node_disable_firewall`](v-nodes.md#node_disable_firewall)  | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | C     | Disable the node firewall                                    |
@@ -305,14 +305,14 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 346  | [`node_kernel_modules`](v-nodes.md#node_kernel_modules)      | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | C     | Enable kernel module                                         |
 | 350  | [`node_tune`](v-nodes.md#node_tune)                          | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | Node Tuning Mode                                             |
 | 351  | [`node_sysctl_params`](v-nodes.md#node_sysctl_params)        | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | C     | OS kernel parameters                                         |
-| 360  | [`node_admin_setup`](v-nodes.md#node_admin_setup)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Create admin user                                            |
+| 360  | [`node_admin_enabled`](v-nodes.md#node_admin_enabled)            | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Create admin user                                            |
 | 361  | [`node_admin_uid`](v-nodes.md#node_admin_uid)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Admin UID                                                    |
 | 362  | [`node_admin_username`](v-nodes.md#node_admin_username)      | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | G     | Admin User Name                                              |
 | 363  | [`node_admin_ssh_exchange`](v-nodes.md#node_admin_ssh_exchange) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Exchange admin user SSH keys                                 |
 | 364  | [`node_admin_pk_current`](v-nodes.md#node_admin_pk_current)  | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | A     | Add the current user's public key to the admin user          |
-| 365  | [`node_admin_pks`](v-nodes.md#node_admin_pks)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Login admin's public key list                                |
+| 365  | [`node_admin_pk_list`](v-nodes.md#node_admin_pk_list)                | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | C     | Login admin's public key list                                |
 | 370  | [`node_timezone`](v-nodes.md#node_timezone)                  | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP time zone setting                                        |
-| 371  | [`node_ntp_config`](v-nodes.md#node_ntp_config)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | Configure NTP service                                        |
+| 371  | [`node_ntp_enabled`](v-nodes.md#node_ntp_enabled)              | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | Configure NTP service                                        |
 | 372  | [`node_ntp_service`](v-nodes.md#node_ntp_service)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP service type: ntp or chrony                              |
 | 373  | [`node_ntp_servers`](v-nodes.md#node_ntp_servers)            | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | C     | NTP Server List                                              |
 | 380  | [`node_exporter_enabled`](v-nodes.md#node_exporter_enabled)  | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | C     | Enable node metrics collector                                |
@@ -358,8 +358,8 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 548  | [`pg_bin_dir`](v-pgsql.md#pg_bin_dir)                        | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | PG Binary Dir                                                |
 | 549  | [`pg_packages`](v-pgsql.md#pg_packages)                      | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | List of installed PG packages                                |
 | 550  | [`pg_extensions`](v-pgsql.md#pg_extensions)                  | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | C     | List of installed PG plug-ins                                |
-| 560  | [`pg_exists_action`](v-pgsql.md#pg_exists_action)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | Handling method when PG exists                               |
-| 561  | [`pg_disable_purge`](v-pgsql.md#pg_disable_purge)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | Prohibit clearing of existing PG instances                   |
+| 560  | [`pg_clean`](v-pgsql.md#pg_clean)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | Handling method when PG exists                               |
+| 561  | [`pg_safeguard`](v-pgsql.md#pg_safeguard)            | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C/A   | Prohibit clearing of existing PG instances                   |
 | 562  | [`pg_data`](v-pgsql.md#pg_data)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG data dir                                                  |
 | 563  | [`pg_fs_main`](v-pgsql.md#pg_fs_main)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG master data disk mount point                              |
 | 564  | [`pg_fs_bkup`](v-pgsql.md#pg_fs_bkup)                        | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG backup disk mount point                                   |
@@ -373,7 +373,7 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 583  | [`patroni_port`](v-pgsql.md#patroni_port)                    | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni service port                                         |
 | 584  | [`patroni_watchdog_mode`](v-pgsql.md#patroni_watchdog_mode)  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni Watchdog mode                                        |
 | 585  | [`pg_conf`](v-pgsql.md#pg_conf)                              | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Patroni's config templates                                   |
-| 586  | [`pg_shared_libraries`](v-pgsql.md#pg_shared_libraries)      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG Default Shared database                                   |
+| 586  | [`pg_libs`](v-pgsql.md#pg_libs)      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG Default Shared database                                   |
 | 587  | [`pg_encoding`](v-pgsql.md#pg_encoding)                      | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | PG character set encoding                                    |
 | 588  | [`pg_locale`](v-pgsql.md#pg_locale)                          | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Localization rules for PG                                    |
 | 589  | [`pg_lc_collate`](v-pgsql.md#pg_lc_collate)                  | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | C     | Localized sorting rules for PG                               |
@@ -407,7 +407,7 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 640  | [`pg_services`](v-pgsql.md#pg_services)                      | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | Global Common Service Definition                             |
 | 641  | [`haproxy_enabled`](v-pgsql.md#haproxy_enabled)              | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C/I   | Enable Haproxy                                               |
 | 642  | [`haproxy_reload`](v-pgsql.md#haproxy_reload)                | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | A     | Reload Haproxy config                                        |
-| 643  | [`haproxy_admin_auth_enabled`](v-pgsql.md#haproxy_admin_auth_enabled) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | Enable authentication for the Haproxy management interface   |
+| 643  | [`haproxy_auth_enabled`](v-pgsql.md#haproxy_auth_enabled) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G/C   | Enable authentication for the Haproxy management interface   |
 | 644  | [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy admin user name                                      |
 | 645  | [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | G     | HAproxy admin user password                                  |
 | 646  | [`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port)  | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | C     | HAproxy metrics exposer port                                 |

@@ -125,7 +125,7 @@ yum install ansible
 
 ```bash
 ./nodes.yml -e ansible_user=admin -k -K      # 在配置节点时，使用另一个管理员用户 admin，并输入ssh与sudo密码
-./pgsql.yml -e pg_exists_action=clean        # 在安装PG时，强制抹除已有运行中数据库实例（危险）
+./pgsql.yml -e pg_clean=clean        # 在安装PG时，强制抹除已有运行中数据库实例（危险）
 ./infra-remove.yml -e rm_metadata=true       # 在卸载Pigsty时，一并移除数据
 ./infra-remove.yml -e rm_metadpkgs=true      # 在卸载Pigsty时，一并卸载软件
 ./nodes-remove.yml -e rm_dcs_server=true     # 在移除节点时，即使上面有DCS Server也强制移除

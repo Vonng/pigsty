@@ -126,7 +126,7 @@ For example, some of the behavior of the following playbooks can be controlled v
 
 ```bash
 ./nodes.yml -e ansible_user=admin -k -K      # When configuring the node, use another admin user, and enter ssh with the sudo password
-./pgsql.yml -e pg_exists_action=clean        # Force erase existing running database instances when installing PG (dangerous)
+./pgsql.yml -e pg_clean=clean        # Force erase existing running database instances when installing PG (dangerous)
 ./infra-remove.yml -e rm_metadata=true       # Remove data when uninstalling Pigsty
 ./infra-remove.yml -e rm_metadpkgs=true      # Uninstall the software when uninstalling Pigsty
 ./nodes-remove.yml -e rm_dcs_server=true     # When removing a node, force removal even if there is a DCS server on it
