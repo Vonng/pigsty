@@ -24,6 +24,7 @@ Usually, the infra requires very few modifications, and the main modification is
 - [`PGWEB`](#PGWEB) : PGWeb Web Client Tool  
 
 
+
 ## Parameter Overview
 
 The following config entries describe the [**infra**](c-arch.md#infrastructure) deployed on the meta node.
@@ -31,11 +32,16 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | ID  |                            Name                             |           Section           |    Type    | Level |                Comment                 |
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|-----------------------------------------|
 | 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | proxy env variables |
-| 110 | [`nginx_enabled`](#nginx_enabled)                             | [`REPO`](#REPO)             | bool       | G     | enable local yum repo|
+| 110 | [`nginx_enabled`](#nginx_enabled)                             | [`NGINX`](#NGINX) | bool       | G     | enable nginx web server |
+| 114 | [`nginx_home`](#nginx_home)                                   | [`NGINX`](#NGINX) | path       | G     | nginx home dir (/www) |
+| 113 | [`nginx_port`](#nginx_port)                                   | [`NGINX`](#NGINX) | int        | G     | nginx listen address (80) |
+| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | nginx upstream definition|
+| 131 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | nginx index page nav entries |
+| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable local docs|
+| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable pev2|
+| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | enable pgbadger|
 | 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | local yum repo name|
 | 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | external access port of repo |
-| 113 | [`nginx_port`](#nginx_port)                                   | [`REPO`](#REPO)             | int        | G     | repo listen address (80)|
-| 114 | [`nginx_home`](#nginx_home)                                   | [`REPO`](#REPO)             | path       | G     | repo home dir (/www)|
 | 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | rebuild local yum repo |
 | 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | remove existing repo file |
 | 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | upstream repo definition|
@@ -46,11 +52,6 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | 122 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | ca cert home dir|
 | 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | ca cert file name|
 | 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | ca private key name|
-| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | nginx upstream definition|
-| 131 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | app list on home page navbar|
-| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable local docs|
-| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | enable pev2|
-| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | enable pgbadger|
 | 140 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | dynamic DNS records|
 | 150 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | prometheus data dir|
 | 151 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | prometheus cli args|
@@ -79,11 +80,6 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | dcs server dict|
 | 201 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | Registration Services |
 | 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | dcs to use (consul/etcd) |
-| 203 | [`consul_name`](#consul_name)                                     | [`DCS`](#DCS)               | string     | G     | dcs cluster name (dc)|
-| 204 | [`consul_clean`](#consul_clean)                   | [`DCS`](#DCS)               | enum       | C/A   | how to deal with existing dcs|
-| 205 | [`consul_safeguard`](#consul_safeguard)                   | [`DCS`](#DCS)               | bool       | C/A   | disable dcs purge|
-| 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | consul data dir path|
-| 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | etcd data dir path|
 
 
 
@@ -830,56 +826,4 @@ Location of the service registration, type: `enum`, level: G, default value: `"c
 DCS type used, type: `enum`, hierarchy: G, default value: `"consul"`.
 
 There are two options: `consul` and `etcd`, but ETCD is not yet officially supported.
-
-
-
-### `consul_name`
-
-DCS cluster name, type: `string`, hierarchy: G, default value: `"pigsty"`.
-
-Represents the data center name in Consul, which has no meaning in Etcd.
-
-
-
-### `consul_clean`
-
-DCS security insurance, if DCS instance and what to do if it exists, type: `enum`, level: C/A, default value: `"abort"`.
-
-When deploying Consul, if Pigsty finds that Consul already exists on the target instance, it will take the corresponding behavior according to this parameter:
-
-* `abort`: Abort the execution of the entire playbook (default behavior)
-* `clean`: Erase the existing DCS instance and continue (extremely dangerous, use this method only in the demo)
-* `skip`: Ignore targets where DCS instances exist (abort) and continue execution on other target machines.
-
-The availability of the Consul service is critical to high database availability, so special care needs to be taken when using the DCS service in a production env.
-If you really need to force the removal of an already existing DCS instance, it is recommended to first use [`nodes-remove.yml`](p-pgsql.md#pgsql-remove) to complete the offline and destruction of the cluster and instance, and then re-execute the initialization.
-Otherwise, you need to pass the command line parameter `. /nodes.yml -e consul_clean=clean` to complete the overwrite and force the wiping of existing instances during the initialization.
-
-
-
-
-
-
-### `consul_safeguard`
-
-Prohibits cleaning up DCS instances, type: `bool`, level: C/A, default value: `false`.
-
-Double security, if enabled as `true`, forces the [`consul_clean`](#consul_clean) variable to be set to `abort`.
-
-Equivalent to disabling the cleanup function of [`consul_clean`](#consul_clean) to ensure that no DCS instances are wiped out under **any circumstances**.
-
-
-
-### `consul_data_dir`
-
-Consul data directory, type: `string`, level: G, default value: `"/data/consul"`.
-
-
-
-
-
-### `etcd_data_dir`
-
-Etcd data directory, type: `string`, level: G, default value: `"/data/etcd"`.
-
 

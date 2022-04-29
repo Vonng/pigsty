@@ -52,8 +52,8 @@ The params on the PostgreSQL are divided into seven main sections：
 | 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG binary dir|
 | 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG packages to be installed|
 | 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG extension pkgs to be installed|
-| 560 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C/A   | how to deal with existing pg ins|
-| 561 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge|
+| 560 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge|
+| 561 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool     | C/A   | purge existing pgsql during init |
 | 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg data dir|
 | 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg main data disk mountpoint|
 | 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg backup disk mountpoint|
@@ -753,30 +753,26 @@ With [`pg_conf`](#pg_conf) you can use the default cluster templates (OLTP / OLA
 
 
 
-### `pg_clean`
-
-Action when PG insstance exists, type: `enum`, level: C/A, default value: `"clean"`.
-
-System actions when a PostgreSQL ins exists:
-
-* `abort`: Abort playbook execution (default behavior)
-* `clean`: Erase existing instances and continue (dangerous)
-* `skip`: Ignore targets for which ins exist (abort) and continue execution on other target machines.
-
-To force wipe existing database instance, please use [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove) to complete the cluster and instance offline first, and then reinitialize.
-Otherwise, overwriting needs to be done with the CLI argument `-e pg_clean=clean` to force the wiping of existing ins during initialization.
-
 
 
 
 ### `pg_safeguard`
 
-Disable pg instance purge, type: `bool`, level: C/A, default value: `false`.
+Assure that any running pg instance will not be purged by any [`pgsql`](p-pgsql.md) playbook., level: C/A, default: `false`
 
-If `true`, force set [`pg_clean`](#pg_clean) to `abort`, i.e. turn off the cleanup of [`pg_clean`](#pg_clean) to ensure that PG ins are not wiped out under any circumstances.
+Check [SafeGuard](p-pgsql.md#SafeGuard) for details.
 
-Then, you need to clean up the existing instance by [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove), and then finish the database initialization again.
 
+
+### `pg_clean`
+
+Remove existing pg during node init? level: C/A, default: `false`
+
+This allows the removal of any running pg instance during [`pgsql.yml`](p-pgsql.yml#pgsql), which makes it a true idempotent playbook.
+
+It's a dangerous option so you'd better disable it by default and use it with `-e` CLI args.
+
+!> This parameter not working when [`pg_safeguard`](#pg_safeguard) is set to `true`
 
 
 
@@ -1125,6 +1121,8 @@ Reload Database Config (HBA), type: `bool`, level: A, default value: `true`.
 When set to `true`, Pigsty will execute the `pg_ctl reload` application immediately after generating HBA rules.
 
 When generating the `pg_hba.conf` file and manually comparing it before applying it to take effect, you can specify `-e pg_reload=false` to disable it.
+
+
 
 ### `pg_hba_rules`
 

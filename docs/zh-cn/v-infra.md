@@ -32,10 +32,15 @@
 |-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|
 | 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置                 |
 | 110 | [`nginx_enabled`](#nginx_enabled)                             | [`REPO`](#REPO)             | bool       | G     | 是否启用本地源                 |
+| 113 | [`nginx_port`](#nginx_port)                                   | [`REPO`](#REPO)             | int        | G     | Nginx端口                |
+| 114 | [`nginx_home`](#nginx_home)                                   | [`REPO`](#REPO)             | path       | G     | Nginx文件根目录          |
+| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用本地文档               |
+| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用PEV2组件               |
+| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | 是否启用Pgbadger               |
+| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                |
+| 131 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       |
 | 111 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称                     |
 | 112 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址             |
-| 113 | [`nginx_port`](#nginx_port)                                   | [`REPO`](#REPO)             | int        | G     | 本地源端口                     |
-| 114 | [`nginx_home`](#nginx_home)                                   | [`REPO`](#REPO)             | path       | G     | 本地源文件根目录               |
 | 115 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源                  |
 | 116 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件           |
 | 117 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源                |
@@ -46,11 +51,6 @@
 | 122 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | CA证书根目录                   |
 | 123 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书                         |
 | 124 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称                     |
-| 130 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                |
-| 131 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       |
-| 132 | [`docs_enabled`](#docs_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用本地文档               |
-| 133 | [`pev2_enabled`](#pev2_enabled)                             | [`NGINX`](#NGINX)           | bool       | G     | 是否启用PEV2组件               |
-| 134 | [`pgbadger_enabled`](#pgbadger_enabled)                     | [`NGINX`](#NGINX)           | bool       | G     | 是否启用Pgbadger               |
 | 140 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | 动态DNS解析记录                |
 | 150 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | Prometheus数据库目录           |
 | 151 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | Prometheus命令行参数           |
@@ -79,18 +79,6 @@
 | 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           |
 | 201 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 |
 | 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  |
-| 203 | [`consul_name`](#consul_name)                                     | [`DCS`](#DCS)               | string     | G     | DCS集群名称                    |
-| 204 | [`consul_clean`](#consul_clean)                   | [`DCS`](#DCS)               | enum       | C/A   | 若DCS实例存在如何处理          |
-| 205 | [`consul_safeguard`](#consul_safeguard)                   | [`DCS`](#DCS)               | bool       | C/A   | 完全禁止清理DCS实例            |
-| 206 | [`consul_data_dir`](#consul_data_dir)                       | [`DCS`](#DCS)               | string     | G     | Consul数据目录                 |
-| 207 | [`etcd_data_dir`](#etcd_data_dir)                           | [`DCS`](#DCS)               | string     | G     | Etcd数据目录                   |
-| 220 | [`jupyter_enabled`](#jupyter_enabled)                       | [`JUPYTER`](#JUPYTER)       | bool       | G     | 是否启用JupyterLab             |
-| 221 | [`jupyter_username`](#jupyter_username)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter使用的操作系统用户      |
-| 222 | [`jupyter_password`](#jupyter_password)                     | [`JUPYTER`](#JUPYTER)       | bool       | G     | Jupyter Lab的密码              |
-| 230 | [`pgweb_enabled`](#pgweb_enabled)                           | [`PGWEB`](#PGWEB)           | bool       | G     | 是否启用PgWeb                  |
-| 231 | [`pgweb_username`](#pgweb_username)                         | [`PGWEB`](#PGWEB)           | bool       | G     | PgWeb使用的操作系统用户        |
-
-
 
 
 ----------------
@@ -846,57 +834,5 @@ dcs_servers:
 使用的DCS类型, 类型：`enum`，层级：G，默认值为：`"consul"`
 
 有两种选项：`consul` 与 `etcd` ，但ETCD尚未正式支持。
-
-
-
-### `consul_name`
-
-DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
-
-在Consul中代表数据中心名称，在Etcd中没有意义。
-
-
-
-### `consul_clean`
-
-DCS安全保险，若DCS实例以及存在如何处理, 类型：`enum`，层级：C/A，默认值为：`"abort"`，
-
-在部署Consul时，如果Pigsty发现目标实例上Consul已经存在，则会根据本参数采取对应的行为：
-
-* `abort`: 中止整个剧本的执行（默认行为）
-* `clean`: 抹除现有DCS实例并继续（极端危险，仅Demo中使用此方式）
-* `skip`: 忽略存在DCS实例的目标（中止），在其他目标机器上继续执行。
-
-Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。
-如果您真的需要强制清除已经存在的DCS实例，建议先使用[`nodes-remove.yml`](p-pgsql.md#pgsql-remove)完成集群与实例的下线与销毁，再重新执行初始化。
-否则需要通过命令行参数`./nodes.yml -e consul_clean=clean`完成覆写，强制在初始化过程中抹除已有实例。
-
-
-
-
-
-
-### `consul_safeguard`
-
-DCS双重安全保险，完全禁止清理DCS实例, 类型：`bool`，层级：C/A，默认值为：`false`
-
-双重安全保险，如果启用为`true`，则强制设置 [`consul_clean`](#consul_clean) 变量为`abort`。
-
-等效于关闭 [`consul_clean`](#consul_clean) 的清理功能，确保**任何情况**下DCS实例都不会被抹除。
-
-
-
-### `consul_data_dir`
-
-Consul数据目录, 类型：`string`，层级：G，默认值为：`"/data/consul"`
-
-
-
-
-
-### `etcd_data_dir`
-
-Etcd数据目录, 类型：`string`，层级：G，默认值为：`"/data/etcd"`
-
 
 

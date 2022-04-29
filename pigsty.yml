@@ -232,12 +232,37 @@ all:
     ca_key: ca.key                   # ca private key
 
     #-----------------------------------------------------------------
-    # REPO
+    # NGINX
     #-----------------------------------------------------------------
     nginx_enabled: true              # build local repo on this node
     nginx_port: 80                    # repo listen address, must same as repo_address
     nginx_home: /www                  # default repo home dir
 
+    nginx_upstream:                   # domain names and upstream servers
+      - { name: home,         domain: pigsty,     endpoint: "10.10.10.10:80" }
+      - { name: grafana,      domain: g.pigsty,   endpoint: "10.10.10.10:3000" }
+      - { name: loki,         domain: l.pigsty,   endpoint: "10.10.10.10:3100" }
+      - { name: prometheus,   domain: p.pigsty,   endpoint: "10.10.10.10:9090" }
+      - { name: alertmanager, domain: a.pigsty,   endpoint: "10.10.10.10:9093" }
+      - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
+      - { name: jupyter,      domain: j.pigsty,   endpoint: "127.0.0.1:8888" } # optional
+
+    nginx_indexes:                    # application nav links on home page
+      - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
+      - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
+      - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
+      - { name: PGLogs   , url : '/logs'        , comment: 'postgres raw csv logs'       }
+      - { name: Schemas  , url : '/schema'      , comment: 'schemaspy summary report'    }
+      - { name: Reports  , url : '/report'      , comment: 'pgbadger summary report'     }
+
+    docs_enabled: true                # setup local document under nginx?
+    pev2_enabled: true                # setup pev2 query visualizer under nginx?
+    pgbadger_enabled: true            # setup pgbadger under nginx?
+
+
+    #-----------------------------------------------------------------
+    # REPO
+    #-----------------------------------------------------------------
     repo_name: pigsty                # repo name, pigsty by default
     repo_address: pigsty             # external address to this repo (ip:port or url)
     repo_rebuild: false              # force re-download packages
@@ -377,30 +402,6 @@ all:
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm
       - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
-
-    #-----------------------------------------------------------------
-    # NGINX
-    #-----------------------------------------------------------------
-    nginx_upstream:                   # domain names and upstream servers
-      - { name: home,         domain: pigsty,     endpoint: "10.10.10.10:80" }
-      - { name: grafana,      domain: g.pigsty,   endpoint: "10.10.10.10:3000" }
-      - { name: loki,         domain: l.pigsty,   endpoint: "10.10.10.10:3100" }
-      - { name: prometheus,   domain: p.pigsty,   endpoint: "10.10.10.10:9090" }
-      - { name: alertmanager, domain: a.pigsty,   endpoint: "10.10.10.10:9093" }
-      - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
-      - { name: jupyter,      domain: j.pigsty,   endpoint: "127.0.0.1:8888" } # optional
-
-    nginx_indexes:                    # application nav links on home page
-      - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
-      - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
-      - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
-      - { name: PGLogs   , url : '/logs'        , comment: 'postgres raw csv logs'       }
-      - { name: Schemas  , url : '/schema'      , comment: 'schemaspy summary report'    }
-      - { name: Reports  , url : '/report'      , comment: 'pgbadger summary report'     }
-
-    docs_enabled: true                # setup local document under nginx?
-    pev2_enabled: true                # setup pev2 query visualizer under nginx?
-    pgbadger_enabled: true            # setup pgbadger under nginx?
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -563,7 +564,7 @@ all:
     node_crontab: [ ]                # crontab entries
 
     #-----------------------------------------------------------------
-    # NODE DOCKER
+    # DOCKER
     #-----------------------------------------------------------------
     docker_enabled: false             # enable docker on all nodes? (you can enable them on meta nodes only)
     docker_cgroups_driver: systemd    # docker cgroup fs driver
@@ -571,12 +572,12 @@ all:
     docker_image_cache: /www/pigsty/docker.tar.lz4  # docker images tarball to be loaded if eixsts
 
     #-----------------------------------------------------------------
-    # NODE_CONSUL
+    # CONSUL
     #-----------------------------------------------------------------
     consul_enabled: true              # enable consul nodes?
     consul_name: pigsty               # consul dc name | etcd initial cluster token
     consul_data_dir: /data/consul     # consul data dir (/var/lib/consul by default)
-    consul_clean: true                # if true, running consul will be purged during node init, DANGEROUS
+    consul_clean: false               # if true, running consul will be purged during node init, DANGEROUS
     consul_safeguard: false           # if true, running consul will not be removed, even with node-remove.yml
 
     #-----------------------------------------------------------------
@@ -640,19 +641,19 @@ all:
     #-----------------------------------------------------------------
     # PG_INSTALL
     #-----------------------------------------------------------------
-    pg_dbsu: postgres                # os user for database, postgres by default (unwise to change it)
-    pg_dbsu_uid: 26                  # os dbsu uid and gid, 26 for default postgres users and groups
-    pg_dbsu_sudo: limit              # dbsu sudo privilege: none|limit|all|nopass, limit by default
-    pg_dbsu_home: /var/lib/pgsql     # postgresql home directory
-    pg_dbsu_ssh_exchange: true       # exchange postgres dbsu ssh key among same cluster ?
-    pg_version: 14                   # default postgresql version to be installed
-    pgdg_repo: false                 # add pgdg official repo before install (in case of no local repo available)
-    pg_add_repo: false               # add postgres relate repo before install ?
-    pg_bin_dir: /usr/pgsql/bin       # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
-    pg_packages:                     # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}*     # postgresql kernel packages
-      - postgis32_${pg_version}*     # postgis
-      - citus_${pg_version}*         # citus
+    pg_dbsu: postgres                 # os user for database, postgres by default (unwise to change it)
+    pg_dbsu_uid: 26                   # os dbsu uid and gid, 26 for default postgres users and groups
+    pg_dbsu_sudo: limit               # dbsu sudo privilege: none|limit|all|nopass, limit by default
+    pg_dbsu_home: /var/lib/pgsql      # postgresql home directory
+    pg_dbsu_ssh_exchange: true        # exchange postgres dbsu ssh key among same cluster ?
+    pg_version: 14                    # default postgresql version to be installed
+    pgdg_repo: false                  # add pgdg official repo before install (in case of no local repo available)
+    pg_add_repo: false                # add postgres relate repo before install ?
+    pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
+    pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
+      - postgresql${pg_version}*      # postgresql kernel packages
+      - postgis32_${pg_version}*      # postgis
+      - citus_${pg_version}*          # citus
       - timescaledb-2-postgresql-${pg_version}    # timescaledb
       - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
       - patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd
@@ -669,7 +670,7 @@ all:
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
-    pg_clean: false                   # true will clean running postgres during pgsql init
+    pg_clean: false                   # true will clean running postgres during pgsql init (DANGEROUS)
     pg_safeguard: false               # true will disable pg_clean at all, even for pgsql-remove.yml
     pg_data: /pg/data                 # postgres data directory (soft link)
     pg_fs_main: /data                 # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
@@ -697,8 +698,8 @@ all:
     #-----------------------------------------------------------------
     # PG_PROVISION
     #-----------------------------------------------------------------
-    pg_provision: true               # whether provisioning postgres cluster
-    pg_init: pg-init                 # init script for cluster template
+    pg_provision: true                # whether provisioning postgres cluster
+    pg_init: pg-init                  # init script for cluster template
 
     pg_default_roles:
       - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                            # production read-only role
@@ -710,7 +711,7 @@ all:
       - { name: replicator , replication: true , bypassrls: true , roles: [pg_monitor, dbrole_readonly] , comment: system replicator }                   # replicator
       - { name: dbuser_monitor , roles: [pg_monitor, dbrole_readonly] , comment: system monitor user , parameters: {log_min_duration_statement: 1000 } } # monitor user
       - { name: dbuser_stats , password: DBUser.Stats , roles: [dbrole_offline] , comment: business offline user for offline queries and ETL }           # ETL user
-    pg_default_privileges:           # - privileges - #
+    pg_default_privileges:            # - privileges - #
       - GRANT USAGE                         ON SCHEMAS   TO dbrole_readonly
       - GRANT SELECT                        ON TABLES    TO dbrole_readonly
       - GRANT SELECT                        ON SEQUENCES TO dbrole_readonly
@@ -723,8 +724,8 @@ all:
       - GRANT USAGE, UPDATE                 ON SEQUENCES TO dbrole_readwrite
       - GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin
       - GRANT CREATE                        ON SCHEMAS   TO dbrole_admin
-    pg_default_schemas: [ monitor ]  # default schemas to be created
-    pg_default_extensions:           # default extensions to be created
+    pg_default_schemas: [ monitor ]   # default schemas to be created
+    pg_default_extensions:            # default extensions to be created
       - { name: 'pg_stat_statements', schema: 'monitor' }
       - { name: 'pgstattuple',        schema: 'monitor' }
       - { name: 'pg_qualstats',       schema: 'monitor' }
@@ -742,8 +743,8 @@ all:
       - name: intagg
       - name: intarray
 
-    pg_reload: true                  # reload postgres after hba changes
-    pg_hba_rules:                    # postgres host-based authentication rules
+    pg_reload: true                   # reload postgres after hba changes
+    pg_hba_rules:                     # postgres host-based authentication rules
       - title: allow meta node password access
         role: common
         rules:
@@ -805,41 +806,41 @@ all:
     #-----------------------------------------------------------------
     # PG_SERVICE
     #-----------------------------------------------------------------
-    pg_services:                     # how to expose postgres service in cluster?
-      - name: primary                # service name {{ pg_cluster }}-primary
+    pg_services:                      # how to expose postgres service in cluster?
+      - name: primary                 # service name {{ pg_cluster }}-primary
         src_ip: "*"
         src_port: 5433
-        dst_port: pgbouncer          # 5433 route to pgbouncer
-        check_url: /primary          # primary health check, success when instance is primary
-        selector: "[]"               # select all instance as primary service candidate
+        dst_port: pgbouncer           # 5433 route to pgbouncer
+        check_url: /primary           # primary health check, success when instance is primary
+        selector: "[]"                # select all instance as primary service candidate
 
-      - name: replica                # service name {{ pg_cluster }}-replica
+      - name: replica                 # service name {{ pg_cluster }}-replica
         src_ip: "*"
         src_port: 5434
         dst_port: pgbouncer
-        check_url: /read-only        # read-only health check. (including primary)
-        selector: "[]"               # select all instance as replica service candidate
+        check_url: /read-only         # read-only health check. (including primary)
+        selector: "[]"                # select all instance as replica service candidate
         selector_backup: "[? pg_role == `primary` || pg_role == `offline` ]"
 
-      - name: default                # service's actual name is {{ pg_cluster }}-default
-        src_ip: "*"                  # service bind ip address, * for all, vip for cluster virtual ip address
-        src_port: 5436               # bind port, mandatory
-        dst_port: postgres           # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
-        check_method: http           # health check method: only http is available for now
-        check_port: patroni          # health check port:  patroni|pg_exporter|port_number , patroni by default
-        check_url: /primary          # health check url path, / as default
-        check_code: 200              # health check http code, 200 as default
-        selector: "[]"               # instance selector
-        haproxy:                     # haproxy specific fields
-          maxconn: 3000              # default front-end connection
-          balance: roundrobin        # load balance algorithm (roundrobin by default)
+      - name: default                 # service's actual name is {{ pg_cluster }}-default
+        src_ip: "*"                   # service bind ip address, * for all, vip for cluster virtual ip address
+        src_port: 5436                # bind port, mandatory
+        dst_port: postgres            # target port: postgres|pgbouncer|port_number , pgbouncer(6432) by default
+        check_method: http            # health check method: only http is available for now
+        check_port: patroni           # health check port:  patroni|pg_exporter|port_number , patroni by default
+        check_url: /primary           # health check url path, / as default
+        check_code: 200               # health check http code, 200 as default
+        selector: "[]"                # instance selector
+        haproxy:                      # haproxy specific fields
+          maxconn: 3000               # default front-end connection
+          balance: roundrobin         # load balance algorithm (roundrobin by default)
           default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
-      - name: offline                # service name {{ pg_cluster }}-offline
+      - name: offline                 # service name {{ pg_cluster }}-offline
         src_ip: "*"
         src_port: 5438
         dst_port: postgres
-        check_url: /replica          # offline MUST be a replica
+        check_url: /replica           # offline MUST be a replica
         selector: "[? pg_role == `offline` || pg_offline_query ]"         # instances with pg_role == 'offline' or instance marked with 'pg_offline_query == true'
         selector_backup: "[? pg_role == `replica` && !pg_offline_query]"  # replica are used as backup server in offline service
 

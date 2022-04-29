@@ -208,8 +208,8 @@ pg_extensions:                   # postgresql extensions, `${pg_version} will be
 # PG_BOOTSTRAP
 #-----------------------------------------------------------------
 pg_exists: false                 # (INTERNAL) flag that indicate pg instance existence
-pg_clean: clean          # abort|clean|skip (DANGEROUS!)
-pg_safeguard: false          # set to true to disable pg purge functionality for good (force pg_clean = abort)
+pg_clean: false                  # abort|clean|skip (DANGEROUS!)
+pg_safeguard: false              # set to true to disable pg purge functionality for good (force pg_clean = abort)
 pg_data: /pg/data                # postgres data directory (soft link)
 pg_fs_main: /data                # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
 pg_fs_bkup: /data/backups        # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
