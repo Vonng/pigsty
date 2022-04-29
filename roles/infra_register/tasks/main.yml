@@ -1,39 +1,56 @@
 ---
 #------------------------------------------------------------------------------
-# Register Infra Components
+# register infra service to consul
 #------------------------------------------------------------------------------
-
-
-
-
-#------------------------------------------------------------------------------
-# Register prometheus & alertmanager service (optional)
-#------------------------------------------------------------------------------
-- name: Register prometheus and alertmanager service
+- name: Register infra service to consul
+  tags: register_consul_infra
   when: dcs_registry == 'consul'
+  ignore_errors: true
   block:
-    - name: Copy prometheus service definition
+
+    - name: Register nginx service to consul
+      when: nginx_enabled|bool
+      template: src=svc-nginx.json.j2 dest=/etc/consul.d/svc-nginx.json owner=consul mode=0660
+
+    - name: Register nginx-exporter service to consul
+      when: nginx_enabled|bool
+      template: src=svc-nginx-exporter.json.j2 dest=/etc/consul.d/svc-nginx-exporter.json owner=consul mode=0660
+
+    - name: Register prometheus service to consul
+      when: prometheus_enabled|bool
       template: src=svc-prometheus.json.j2 dest=/etc/consul.d/svc-prometheus.json owner=consul mode=0660
 
-    - name: Copy alertmanager service definition
+    - name: Register alertmanager service to consul
+      when: prometheus_enabled|bool
       template: src=svc-alertmanager.json.j2 dest=/etc/consul.d/svc-alertmanager.json owner=consul mode=0660
 
-    - name: Reload consul to register prometheus
-      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+    - name: Register grafana service to consul
+      when: grafana_enabled|bool
+      template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul mode=0660
 
+    - name: Register loki service to consul
+      when: loki_enabled|bool
+      template: src=svc-loki.json.j2 dest=/etc/consul.d/svc-loki.json owner=consul mode=0660
 
-#--------------------------------------------------------------#
-# Register Grafana Service
-# Only consul|none are currently available
-#--------------------------------------------------------------#
-- name: Register grafana service to consul
-  when: dcs_registry == 'consul'
-  block:
-    - name: Register consul grafana service
-      template: src=svc-grafana.json.j2 dest=/etc/consul.d/svc-grafana.json owner=consul group=admin mode=0660
+    - name: Register dnsmasq service to consul
+      when: nameserver_enabled|bool
+      template: src=svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul mode=0660
+
+    - name: Register docker service to consul
+      when: docker_enabled|bool
+      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
 
     - name: Reload consul
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
+
+#--------------------------------------------------------------#
+# Register infra service to prometheus
+#--------------------------------------------------------------#
+- name: Render infra file-sd targets targets for prometheus
+  tags: register_prometheus_infra
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  template: src=infra.yml.j2 dest=/etc/prometheus/targets/infra/{{ inventory }}.yml owner=prometheus mode=0644
 
 ...

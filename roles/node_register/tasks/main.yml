@@ -22,6 +22,7 @@
 
     - name: Setup nodename according to hostname
       when: nodename is not defined or nodename == ''
+      connection: local
       set_fact:
         nodename: "{{ hostname_result.stdout }}"
 
@@ -35,7 +36,7 @@
         content: |
           # {{ inventory_hostname }}
           - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
-            targets: 
+            targets: {% if not node_exporter_enabled|bool and not docker_enabled|bool %}[ ]{% endif %} 
               {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
           
               {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}

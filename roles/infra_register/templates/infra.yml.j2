@@ -1,0 +1,45 @@
+---
+#------------------------------------------------------------------------------
+# Prometheus (9090)
+#------------------------------------------------------------------------------
+{% if prometheus_enabled|bool %}
+- labels: { ip: {{ inventory_hostname }}, type: prometheus }
+  targets:
+    - {{ inventory_hostname }}:9090
+{% endif %}
+
+#------------------------------------------------------------------------------
+# AlertManager (9093)
+#------------------------------------------------------------------------------
+{% if prometheus_enabled|bool %}
+- labels: { ip: {{ inventory_hostname }}, type: alertmanager }
+  targets:
+    - {{ inventory_hostname }}:9093
+{% endif %}
+
+#------------------------------------------------------------------------------
+# Grafana (3000)
+#------------------------------------------------------------------------------
+{% if grafana_enabled|bool %}
+- labels: { ip: {{ inventory_hostname }}, type: grafana }
+  targets:
+    - {{ inventory_hostname }}:3000
+{% endif %}
+
+#------------------------------------------------------------------------------
+# Loki (3100)
+#------------------------------------------------------------------------------
+{% if loki_enabled|bool %}
+- labels: { ip: {{ inventory_hostname }}, type: loki }
+  targets:
+    - {{ inventory_hostname }}:3100
+{% endif %}
+
+#------------------------------------------------------------------------------
+# Nginx (Exporter @ 9113)
+#------------------------------------------------------------------------------
+{% if nginx_enabled|bool %}
+- labels: { ip: {{ inventory_hostname }}, type: nginx }
+  targets:
+    - {{ inventory_hostname }}:9113
+{% endif %}
