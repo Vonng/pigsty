@@ -1,27 +1,27 @@
 # Docker Applications
 
-Pigsty v1.4.1 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the management node for installing more SaaS services
+Pigsty v1.4.1 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the meta node.
 
-You can use Docker to quickly deploy and launch software applications, and in the container, you can directly access the PostgreSQL/Redis database deployed on the host using the connection string.
+You can use Docker to deploy and launch software applications quickly. You can directly access the PostgreSQL/Redis database deployed on the host in the container using the connection string.
 
-* [PgAdmin4](#PgAdmin4): a GUI tool for managing PostgreSQL database instances
-* [PGWeb](#PGWEB): A tool to automatically generate backend API services based on PG database schema
-* [PostgREST](#PostgREST): A tool to automatically generate back-end API services based on PG database schema
-* [ByteBase](#ByteBase): a GUI tool for making PostgreSQL schema changes
-* [Jupyter Lab](#Jupyter): a battery-included Python lab environment for data analysis and processing
+* [PgAdmin4](#PgAdmin4): A GUI tool for managing PostgreSQL instances.
+* [PGWeb](#PGWEB): A tool automatically generates back-end API services based on PG database schema.
+* [PostgREST](#PostgREST): A tool to automatically generate backend API services based on PG database schema.
+* [ByteBase](#ByteBase): A GUI tool for making PostgreSQL schema changes.
+* [Jupyter Lab](#Jupyter): A battery-included Python lab environment for data analysis and processing.
 
-You can also use Docker to execute some battery-included command tools, such as.
+You can also use Docker to execute some battery-included command tools.
 
-* [SchemaSPY](#SchemaSPY): generates detailed visual reports of database schemas
-* [Pgbadger](#discourse): Generate database log report
+* [SchemaSPY](#SchemaSPY): Generates detailed visual reports of database schemas.
+* [Pgbadger](#discourse): Generate database log report.
 
 You can also use Docker to pull up some battery-included open-source SaaS services.
 
-* [Gitlab](#Gitlab): open source code hosting platform.
-* [Habour](#Habour): open-source mirror repository
-* [Jira](#Jira): open source project management platform.
+* [Gitlab](#Gitlab): open-source code hosting platform.
+* [Habour](#Habour): open-source mirror repo
+* [Jira](#Jira): open-source project management platform.
 * [Confluence](#Confluence): open-source knowledge hosting platform.
-* [Odoo](#Odoo): open source ERP
+* [Odoo](#Odoo): open-source ERP
 * [Mastodon](#Mastodon): PG-based social network
 * [Discourse](#Discourse): open-source forum based on PG and Redis
 
@@ -32,7 +32,7 @@ You can also use Docker to pull up some battery-included open-source SaaS servic
 
 ## Add Upstream to Nginx
 
-Most of the software described in this article provides a web interface to the public, and although you can access it directly via IP: Port, we recommend converging the access portal, using a domain name, and unifying access from the Nginx proxy. Use the following config and commands to register a new service with Nginx.
+Most of the software described in this article provides a web interface to the public. While it can be accessed directly via IP: Port, we recommend using a domain name and unifying access from the Nginx proxy. Use the following configuration and commands to register a new service with Nginx.
 
 ```bash
 # Add a new Nginx service definition
@@ -54,14 +54,14 @@ nginx_upstreams:
 
 ## PgAdmin4
 
-[PGAdmin4](https://www.pgadmin.org/) is the popular PG control tool, use the following command to pull up the PgAdmin4 service on the admin node, default to host `8080` port, username `admin@pigsty.cc`, password: `pigsty`
+[PGAdmin4](https://www.pgadmin.org/) is the popular PG control tool; use the following command to pull up the PgAdmin4 service on the meta node, default to host `8080` port, username `admin@pigsty.cc`, password: `pigsty`.
 
 ```bash
 docker run --init --name pgadmin --restart always --detach --publish 8080:80 \
     -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty dpage/pgadmin4
 ```
 
-Common operation: Copy the server access information to the /tmp/servers.json file and re-import it.
+Copy the server access information to the /tmp/servers.json file and re-import it.
 
 ```bash
 # Export pgadmin4 server list
@@ -85,7 +85,7 @@ docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty
 docker run --init --name pgweb --restart always --detach --publish 8081:8081 sosedoff/pgweb 
 ```
 
-Users need to fill in the database connection string by themselves, for example, the default CMDB: `postgres://dbuser_dba:DBUser.DBA@p1staff.com`.
+Users need to fill in the database connection string, for example, the default CMDB: `postgres://dbuser_dba:DBUser.DBA@p1staff.com`.
 
 
 
@@ -93,7 +93,7 @@ Users need to fill in the database connection string by themselves, for example,
 
 [PostgREST](https://postgrest.org/en/stable/index.html) is a binary component that automatically generates a REST API based on the PostgreSQL database schema.
 
-For example, the following command will pull up postgrest using docker (local port 8082, using the default admin user, exposing the Pigsty CMDB schema)
+The following command will pull up postgrest using docker (local port 8082, using the default admin user, exposing the Pigsty CMDB schema).
 
 ```bash
 docker run --init --name postgrest --restart always --detach --net=host -p 8082:8082 \
@@ -105,7 +105,7 @@ Visiting http://10.10.10.10:8082 will show all the definitions of the auto-gener
 
 `curl http://10.10.10.10:8082/cluster` will anonymously access the data table `pigsty.cluster`.
 
-If you want to add, delete, check and design more fine-grained permission control, please refer to [Tutorial 1 - The Golden Key](https://postgrest.org/en/stable/tutorials/tut1.html) to generate a signed JWT.
+If you want to add, delete, check and design more fine-grained privilege control, please refer to [Tutorial 1 - The Golden Key](https://postgrest.org/en/stable/tutorials/tut1.html) to generate a signed JWT.
 
 
 
@@ -118,14 +118,14 @@ docker run --init --name bytebase --restart always --detach --publish 8083:8083 
     bytebase/bytebase:1.0.2 --data /var/opt/bytebase --host http://bytebase.pigsty --port 8083
 ```
 
-Visit http://10.10.10.10:8083/ to use ByteBase. You need to create the project, environment, instance, and database to start schema changes.
+Visit http://10.10.10.10:8083/ to use ByteBase. To start schema changes, you need to create the project, environment, instance, and database.
 
 
 
 
 ## Jupyter
 
-[Jupyter Lab](https://github.com/jupyter/docker-stacks) is a one-stop data analysis environment. The following command will start a Jupyter Server on port 8084.
+[Jupyter Lab](https://github.com/jupyter/docker-stacks) is a data analysis environment. The following command will start a Jupyter Server on port 8084.
 
 ```bash
 docker run -it --restart always --detach --name jupyter -p 8083:8888 -v "${PWD}":/tmp/notebook jupyter/scipy-notebook
@@ -142,14 +142,14 @@ Visit http://10.10.10.10:8084/ to use JupyterLab, (you need to fill in the auto-
 
 ## SchemaSPY
 
-Generate a database schema report using the following `docker`, using CMDB as an example.
+Generate a database schema report using CMDB as an example. The following `docker`, using.
 
 ```bash
 docker run -v /www/schema/pg-meta/meta/pigsty:/output andrewjones/schemaspy-postgres:latest \
     -host 10.10.10.10 -port 5432 -u dbuser_dba -p DBUser.DBA -db meta -s pigsty
 ```
 
-Then visit http://pigsty/schema/pg-meta/meta/pigsty to access the Schema report
+Then visit http://pigsty/schema/pg-meta/meta/pigsty to access the Schema report.
 
 
 
@@ -181,48 +181,11 @@ sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 
 ## Discourse
 
-Build open source forum Discourse, you need to adjust the config `app.yml`, focusing on the SMTP part of the config.
+Build open source forum Discourse. You need to adjust the config `app.yml`, focusing on the SMTP part of the config.
 
 <details><summary>Sample Discourse config</summary>
-```yaml
-templates:
-  - "templates/web.china.template.yml"
-  - "templates/postgres.template.yml"
-  - "templates/redis.template.yml"
-  - "templates/web.template.yml"
-  - "templates/web.ratelimited.template.yml"
-## Uncomment these two lines if you wish to add Lets Encrypt (https)
-# - "templates/web.ssl.template.yml"
-# - "templates/web.letsencrypt.ssl.template.yml"
-expose:
-  - "80:80"   # http
-  - "443:443" # https
-params:
-  db_default_text_search_config: "pg_catalog.english"
-  db_shared_buffers: "768MB"
-env:
-  LC_ALL: en_US.UTF-8
-  LANG: en_US.UTF-8
-  LANGUAGE: en_US.UTF-8
-  EMBER_CLI_PROD_ASSETS: 1
-  UNICORN_WORKERS: 4
-  DISCOURSE_HOSTNAME: forum.pigsty
-  DISCOURSE_DEVELOPER_EMAILS: 'fengruohang@outlook.com,rh@vonng.com'
-  DISCOURSE_SMTP_ENABLE_START_TLS: false
-  DISCOURSE_SMTP_AUTHENTICATION: login
-  DISCOURSE_SMTP_OPENSSL_VERIFY_MODE: none
-  DISCOURSE_SMTP_ADDRESS: smtpdm.server.address
-  DISCOURSE_SMTP_PORT: 80
-  DISCOURSE_SMTP_USER_NAME: no_reply@mail.pigsty.cc
-  DISCOURSE_SMTP_PASSWORD: "<password>"
-  DISCOURSE_SMTP_DOMAIN: mail.pigsty.cc
-volumes:
-  - volume:
-      host: /var/discourse/shared/standalone
-      guest: /shared
-  - volume:
-      host: /var/discourse/shared/standalone/log/var-log
-      guest: /var/log
+
+
 ```yaml
 templates:
   - "templates/web.china.template.yml"
@@ -284,7 +247,7 @@ Then, just execute the following command and pull up Discourse.
 ```
 
 
-## 
+
 
 ## Mastodon
 

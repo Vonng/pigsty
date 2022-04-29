@@ -1,12 +1,12 @@
 # Install Applications
 
-Pigsty can be used not only for deploying and monitoring PostgreSQL but also for making and distributing data-like **Applications**.
+Pigsty can be used to deploy and monitor PostgreSQL and make and distribute data **Applications**. 
 
 Pigsty provides three sample applications.
 
 * [`pglog`](#PGLOG-CSVLOG-Sample-Analysis), which analyzes PostgreSQL CSV log samples.
 * [`covid`](#COVID), which visualizes WHO COVID-19 data and accesses country outbreak data.
-* [`pglog`](#ISD), NOAA ISD, allows querying weather observation records from 1901 for 30,000 surface weather stations worldwide.#isd)
+* [`pglog`](#ISD), NOAA ISD, allows querying weather observation records from 1901 for 30,000 surface weather stations.
 
 
 
@@ -14,16 +14,16 @@ Pigsty provides three sample applications.
 
 A Pigsty application typically includes at least one or all of the following.
 
-* graphical interface (Grafana Dashboard Definition) placed in the `ui` dir
-* Data definitions (PostgreSQL DDL File), placed in the `sql` directory
-* Data files (various resources, files to download), placed in the `data` dir
-* Logical scripts (executing various types of logic), placed in the `bin` dir
+* A graphical interface (Grafana Dashboard Definition) placed in the `ui` dir.
+* Data definitions (PostgreSQL DDL File), placed in the `sql` dir.
+* Data files (various resources, files to download), placed in the `data` dir.
+* Logical scripts (executing various types of logic), placed in the `bin` dir.
 
-A Pigsty application will provide an installation script in the application root dir: `install` or a shortcut to it. You need to use an [admin-user](d-prepare.md#admin-provisioning) to install the [meta-node](d-prepare.md#meta-node-provisioning). The installation script detects the current environment (gets `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT`, etc. to perform the installation).
+A Pigsty application will provide an installation script in the application root dir: `install` or a shortcut to it. You need to use an [admin user](d-prepare.md#admin-provisioning) to install the [meta node](d-prepare.md#meta-node-provisioning). The installation script detects the current environment (gets `METADB_URL`, `PIGSTY_HOME`, `GRAFANA_ENDPOINT` to perform the installation).
 
-Typically, panels with the `APP` label are included in the App drop-down menu in the Pigsty Grafana home page navigation, and panels with the `APP` and `Overview` labels are included in the home page panel navigation.
+Dashboards with the `APP` label are included in the App drop-down menu in the Pigsty Grafana home page navigation. The home page dashboard navigation includes dashboards with the  `APP` and  `Overview` labels.
 
-You can download the app with the base data for installation from https://github.com/Vonng/pigsty/releases/download/v1.4.1/app.tgz.
+You can download the app with the base data from https://github.com/Vonng/pigsty/releases/download/v1.4.1/app.tgz.
 
 
 
@@ -31,7 +31,7 @@ You can download the app with the base data for installation from https://github
 
 ## COVID
 
-A simpler sample data application: visualize WHO COVID-19 data and access country outbreak data.
+A more straightforward sample data application: visualize WHO COVID-19 data and access country outbreak data.
 
 Public demo: http://demo.pigsty.cc/d/covid-overview
 
@@ -45,7 +45,7 @@ make all2 # Complete installation (will use the local downloaded data directly)
 
 For finer control.
 
-```
+```bash
 make ui # install covid dashboards to grafana
 make sql # Create covid database table definitions into metadb
 make download # Download the latest WHO data
@@ -53,7 +53,7 @@ make load # Load the downloaded WHO data
 make reload # download + load
 ```
 
-Or just use `make all` to set up all stuff for you. If data is already downloaded (e.g get applications via downloading app.tgz), run `make all2` instead to skip the download.
+If data is already downloaded (e.g., get applications via downloading app.tgz), run `make all2` instead to skip the download.
 
 
 
@@ -61,7 +61,7 @@ Or just use `make all` to set up all stuff for you. If data is already downloade
 
 ## ISD
 
-A feature-complete data application that queries 30,000 surface weather stations around the world for weather observations from 1901 onwards.
+A feature-complete data application that queries 30,000 surface weather stations worldwide for weather observations from 1901 onwards.
 
 Public demo: http://demo.pigsty.cc/d/isd-overview
 
@@ -89,19 +89,19 @@ make reload # Download the latest daily summary from NOAA and parse and load it
 
 ## PGLOG CSVLOG Sample Analysis
 
-PGLOG Analysis & PGLOG Session provide introspection about PostgreSQL csvlog sample (via table `pglog.sample` on cmdb)
-* [PGLOG Analysis](http://demo.pigsty.cc/d/pglog-overview): Analysis of csvlog sample on CMDB (focusing on **entire** log sample)
-* [PGLOG Session](http://demo.pigsty.cc/d/pglog-session): Analysis csvlog sample (focusing on the single **session**)
+PGLOG Analysis & PGLOG Session provide introspection about PostgreSQL csvlog sample (via table `pglog.sample` on cmdb).
+* [PGLOG Analysis](http://demo.pigsty.cc/d/pglog-overview): Analysis of csvlog sample on CMDB (focusing on **entire** log sample).
+* [PGLOG Session](http://demo.pigsty.cc/d/pglog-session): Analysis of csvlog sample (focusing on the single **session**).
 
 
-There are some handy alias & func sets on the meta node:
+There are some handy alias & func sets on the meta node.
 
-Load csvlog from stdin into sample table:
+Load csvlog from stdin into sample table.
 ```bash
 alias pglog="psql service=meta -AXtwc 'TRUNCATE pglog.sample; COPY pglog.sample FROM STDIN CSV;'"  # useful alias
 ```
 
-Get log from pgsql node
+Get log from pgsql node.
 
 ```bash
 # default: get pgsql csvlog (localhost @ today) 
@@ -113,7 +113,7 @@ function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
 }
 ```
 
-Combine theme to fetch and load csvlog sample
+Combine theme to fetch and load csvlog sample.
 
 ```bash
 catlog | pglog                       # get local (metadb) today's log

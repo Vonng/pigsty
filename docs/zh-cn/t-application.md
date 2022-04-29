@@ -96,7 +96,9 @@ make load        # 加载下载好的WHO数据
 make reload      # download + load
 ```
 
-Or just use `make all` to setup all stuff for you.If data already download (e.g get applications via downloading app.tgz), run `make all2` instead to skip download.
+如果已经下载了数据（例如，通过下载app.tgz获得应用程序），运行`make all2`代替，以跳过下载。
+
+
 
 
 

@@ -53,7 +53,7 @@ curl http://pigsty-1304147732.cos.accelerate.myqcloud.com/pkg.tgz -o files/pkg.t
 
 ### 上传离线安装包
 
-使用Pigsty沙箱时，下载离线安装至本地`files`目录后，则可以直接使用 Makefile 提供的快捷指令`make copy-pkg`上传离线安装包至**元节点**上。
+使用Pigsty沙箱时，下载离线安装包至本地`files`目录后，则可以直接使用 Makefile 提供的快捷指令`make copy-pkg`上传离线安装包至**元节点**上。
 
 使用 `make upload`，也会将本地的离线安装包（Yum缓存）拷贝至元节点上。
 

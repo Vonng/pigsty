@@ -2,42 +2,104 @@
 
 > Backup & Recovery matters.
 
-Backup is the foundation of DBA's life and one of the most critical tasks in database management. Only physical backups are discussed here. Physical backups can usually be classified into the following four types.
+Failures can be divided into two categories: hardware failures/insufficient resources, and software defects/human errors. Physical replication solves the former; Delayed and cold standby solves the latter.
+
+Pigsty provides complete backup support with battery-included primary-replica physical replication without configuration. It also provides support for delayed backups and cold standby.
+
+* [Physical Replication](#Physical-backup) (Hot/Warm Standby)
+* [Delayed](#Delayed)
+* [Cold Standby](#Cold-Standby)
 
 
 
-## Backup Types
+## Physical Backup
+
+In Pigsty, physical backups are created by specifying roles (`pg_role`) for the database instances. For example, the following configuration declares a HA database cluster with one primary & two replicas.
+
+```bash
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary } # Primary
+    10.10.10.12: { pg_seq: 2, pg_role: replica } # Hot standby
+    10.10.10.13: { pg_seq: 3, pg_role: offline } # Warm standby
+  vars:
+    pg_cluster: pg-test
+```
+
+
 
 ### Hot Standby
 
-It is consistent with the master and takes over when the master fails and is also used to take over online read-only traffic. One of the hot spares that use synchronous replication to keep up with the master in real-time can also be called synchronous backup.
+> `replica` = Hot Standby, which carries read-only traffic and maintains real-time synchronization with the primary, with a few replication delays.
+
+It is consistent with the primary and will take over the work of the primary when it fails, and will also take over online read-only traffic. A hot standby that uses sync replication to keep up with the primary in real-time can also be called a sync backup. Under normal circumstances, the latency of physical replication can be in the range of 1ms-100ms / tens of KB to several MB, depending on the network conditions and load level.
+
+Please refer to [Classic Physical Replication](d-pgsql.md#M-S-Replication).
+
 
 
 ### Warm Standby
 
-Warm Standby: Similar to a hot standby, but does not carry online traffic. Usually, a database cluster needs a delayed standby so that it can recover in time in case of an error (e.g. data deletion by mistake). In this case, the delayed standby cannot serve online queries because its content is not the same as the primary.
+> `offline` = Warm Standby, warm standby, does not carry online traffic. Backup, or for offline/analysis queries only.
 
-### Code Backup
-
-Cold Backup: The cold backup database exists as a static file of the data directory and is a binary backup of the database dir. Easy to make, easy to manage, and easy to put into other AZ to achieve disaster recovery. It is the ultimate insurance for the database.
-
-
-In Pigsty, a hot standby can be created by assigning roles (`pg_role`) to database instances in the cluster for recovery from machine and hardware failures. However, logical errors (mistakenly deleted libraries, mistakenly deleted tables) can only be repaired using cold or warm spares.
-In the case of mistaken deletion of libraries and tables, or catastrophic failure of the whole cluster/house, data backup (cold backup) is the last resort
-
-> Currently, (Pigsty 1.4.1), warm (`offline`), and synchronous (`standby`) backups are not implemented and have the same effect as hot (`replica`) standbys.
+Please refer to [offline deployment](d-pgsql.md#Offline-Replica).
 
 
 
-## Cold backup
+### Sync Standby
 
-In the current version (1.4.1), Pigsty provides a **backup mechanism** but does not set a default **backup policy**. Users should make a **cold backup plan** according to their data reliability requirements, hardware config, and disk capacity.
+> `standby` = Sync Standby. Strict real-time sync with the primary.
 
-A basic backup policy is to do WAL archiving on the master of the cluster (enabled by default and kept for one day) and full backup (daily backup) via crontab on the slave, which allows you to roll back to any state within a day. A more flexible and advanced way of backup is to use a separate instance as an offline delayed slave.
+Use sync commit replica, also called sync standby. Please refer to [sync standby deployment](d-pgsql.md#sync-standby) for details.
 
-Pigsty has a built-in simple backup script: `pg-backup`, which can be executed locally as `dbsu` to create a full physical backup of the current instance in the `/pg/backup` dir.
-The user can specify the backup database URL, backup-dir, file name, encryption method, retention policy for existing backups, etc. with parameters.
 
+
+## Delayed
+
+Delayed is a quick measure of software failure/human error. Changes are received in real-time from the primary using the standard primary-replica stream replication mechanism but are delayed for a specific period (e.g., one hour, a day) before the application is executed. Thus, it is a copy of the historical state of the original primary. When there is a problem like mistaken data deletion, the delay provides a time window to salvage: immediately query the data from the delayed and backfill the original primary.
+
+A delayed can be created using the function [standby cluster](d-pgsql#standby-cluster). For example, now you want to specify a delayed for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. If there is a mis-deletion of data, it can be immediately retrieved from the delayed and poured back into the original cluster.
+
+```bash
+# pg-test is the original database
+pg-test:
+  hosts:
+    10.10.10.11: { pg_seq: 1, pg_role: primary }
+  vars:
+    pg_cluster: pg-test
+    pg_version: 14
+
+# pg-testdelay will be used as a delayed for the pg-test
+pg-testdelay:
+  hosts:
+    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # The actual role is Standby Leader
+  vars:
+    pg_cluster: pg-testdelay
+    pg_version: 14    
+```
+
+After creation, edit the Patroni config file for the delayed cluster using `pg edit-config pg-testdelay` in the meta node and change `standby_cluster.recovery_min_apply_delay` to the delay value you expect.
+
+```bash
+ standby_cluster:
+   create_replica_methods:
+   - basebackup
+   host: 10.10.10.11
+   port: 5432
++  recovery_min_apply_delay: 1h
+```
+
+
+
+## Cold Standby
+
+> Cold backup is the final cover mechanism.
+
+The cold backup database exists as a static file of the data-dir and is a binary backup of the database dir. Cold backups are the last resort in case of accidental deletion of databases or tables, or catastrophic failure of the whole cluster/whole server room.
+
+Pigsty provides a script for making cold backups `pg-backup`, which can be executed as `dbsu` on the database node to create a full physical backup of the current instance and place it in the `/pg/backup` (by default located in [`{{ pg_fs_bkup }}`](v-pgsql.md#pg_fs_bkup )`/backup`).
+
+With parameters, you can specify the backup database URL, backup-dir, file name, encryption method, retention policy for existing backups, etc.
 
 ```bash
 $ pg-backup                 # Execute the backup script without any arguments
@@ -76,21 +138,38 @@ pg_basebackup: base backup completed
 ```
 
 This script will use `pg_basebackup` to initiate a backup from the specified PGURL (default is the local database instance), using a `tar` archive with `lz4` compression and optional `openssl` RC4 stream encryption.
+
 The backup file is placed in the `/pg/backup/` dir by default, and the default file name consists of a prefix, cluster name, and date, e.g., `backup_pg-meta_20210805.tar.lz4`.
-The default backup cleanup policy is to clean up old backup files that are 1200 minutes old (20 hours old) when the latest backup completes.
 
-## Restoring from cold backup
+The default backup cleanup policy is to clean up old backup files 1200 minutes (20 hours old) when the latest backup completes.
 
-To use this backup, you need to set the cluster to maintenance mode (`pt pause`) and stop the data cluster master and empty the dataset cluster dir Then the backup file is unpacked to `/pg/data`.
+
+
+### Restoring from cold backup
+
+To use this backup, you need to set the cluster to maintenance mode (`pt pause`), stop the data cluster primary, and empty the dataset cluster dir. Then the backup file is unpacked to `/pg/data`.
 
 ```bash
+# Find the latest backup file and print the information
 backup_dir="/pg/backup"
 data_dir=/pg/data
+backup_latest=$(ls -t ${backup_dir} | head -n1)
+echo "backup ${backup_latest} will be used"
 
-backup_latest=$(ls -t ${backup_dir} | head -n1)       # find latest backup
-rm -rf /pg/data/*                                     # clean up existing folder (dangerous)
-unlz4 -d -c ${backup_latest} | tar -xC ${data_dir}    # extract backup into data dir
+# Suspend Patroni, shut down the database, and remove the data directory (dangerous)
+pg pause pg-meta
+pg_ctl -D /pg/data stop
+rm -rf /pg/data/*                                     # Emptying the data directory (dangerous)
 
-# optional: if encryption set, unencrypted with openssl & password before extraction
+# Unzip the backup to the database directory
+echo "unlz4 -d -c ${backup_dir}/${backup_latest} | tar -xC ${data_dir}"
+unlz4 -d -c ${backup_dir}/${backup_latest} | tar -xC ${data_dir}    # Unzip to the database directory
+# Optional: If the password is set when encrypting, you need to decrypt it before decompressing it
 openssl enc -rc4 -d -k ${PASSWORD} -in ${backup_latest} | unlz4 -d -c | tar -xC ${data_dir}
+
+# Pull up the database again
+systemctl restart patroni
+
+# Redo other replicas of the cluster
+pg reinit <cluster> # Reset the other instance members of the cluster in turn
 ```
