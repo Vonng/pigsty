@@ -1,6 +1,6 @@
 # Config: REDIS
 
-> [Config](v-config.md) [Redis](v-redis.md) cluster, manipulate [REDIS playbook](p-redis.md) behavior, refer to [Redis Deployment](t-redis.md) for details.
+> [Config](v-config.md) [Redis](v-redis.md) cluster and manipulate [REDIS playbook](p-redis.md) behavior. Refer to [Redis Deployment](t-redis.md) for details.
 
 - [`REDIS_IDENTITY`](#REDIS_IDENTITY): REDIS Identity Params
 
@@ -45,7 +45,7 @@
 | [`redis_instances`](#redis_instances) | **MUST**, node level | Ins Definition | `{ 6001 : {} ,6002 : {}}`  |
 
 
-- [`redis_cluster`](#redis_cluster) identifies the name of the Redis cluster, which is configured at the cluster level and serves as the top-level namespace for cluster resources.
+- [`redis_cluster`](#redis_cluster) identifies the Redis cluster name, configured at the cluster level, and serves as the top-level namespace for cluster resources.
 - [`redis_node`](#redis_node) identifies the serial number of the node in the cluster.
 - [`redis_instances`](#redis_instances) is a JSON object with the Key as the ins port and the Value as a JSON object containing the instance-specific config.
 
@@ -55,7 +55,7 @@
 
 Redis cluster identity, type: `string`, level: C, default value:
 
-Redis cluster identity will be used as a namespace for resources within the cluster and needs to follow specific naming rules: `[a-z][a-z0-9-]*` to be compatible with different constraints on identity identification. It is recommended to use `redis-` as the cluster name prefix.
+Redis cluster identity will be used as a namespace for resources within the cluster and needs to follow specific naming patterns: `[a-z][a-z0-9-]*` to be compatible with different constraints on identity identification. It is recommended to use `redis-` as the cluster name prefix.
 
 **Identity param is required params and cluster-level params**.
 
@@ -66,15 +66,15 @@ Redis cluster identity will be used as a namespace for resources within the clus
 
 Redis node identity, type: `int`, level: I, default value:
 
-Redis node identity, unique within the **cluster**, is used to distinguish and identify different nodes within the cluster, starting with an assignment of 0 or 1.
+Redis node identity, unique in the **cluster**, is used to distinguish and identify different nodes, starting with an assignment of 0 or 1.
 
 
 
 ### `redis_instances`
 
-Redis instances definition on this node, type: `instance[]`, level: I, default value:
+Redis instances definition on this node, type: `instance[]`, level: I, default value.
 
-All Redis ins are deployed on this database node, in JSON K-V object format. the key is the numeric type port number, and the value is the JSON config entry specific to that instance.
+This database node deployed all Redis ins in JSON K-V object format. The key is the numeric type port number, and the value is the JSON config entry specific to that instance.
 
 Sample example:
 
@@ -86,7 +86,7 @@ redis_instances:
     6503: { replica_of: '10.10.10.13 6501' }
 ```
 
-Each Redis ins listens on a unique port on the node, and you can configure separate parameter options for Redis ins (currently only `replica_of` is supported for pre-built master-slave replication).
+Each Redis ins listens on a unique port on the node. You can configure separate parameter options for Redis ins (currently, only `replica_of` is supported for pre-built M-S replication).
 
 **Identity params required params and instance-level params**.
 
@@ -103,9 +103,9 @@ Each Redis ins listens on a unique port on the node, and you can configure separ
 
 ### `redis_install`
 
-Way of installing Redis binaries, type: `enum`, level: C, default value: `"yum"`.
+Way of installing Redis, type: `enum`, level: C, default value: `"yum"`.
 
-When `none` is specified, you will need to complete the Redis installation yourself, for example through the NODES-related params.
+You will need to complete the Redis installation yourself through the NODES-related params when `none` is specified.
 
 
 
@@ -116,12 +116,12 @@ Redis cluster mode, type: `enum`, level: C, default value: `"standalone"`.
 
 Specifies the mode of this Redis cluster, with three optional modes:
 
-* `standalone`: default mode, deploys a series of independent Redis ins, (a common master-slave can be built)
+* `standalone`: Default mode, deploys a series of independent Redis ins.
 * `cluster`: Redis native cluster mode
-* `sentinel`: Redis high availability component: sentinel
+* `sentinel`: Redis HA component: sentinel
 
-When using the `standalone` mode, Pigsty additionally sets up Redis masters and slaves based on the `replica_of` parameter.
-When using `cluster` mode, Pigsty creates a native Redis cluster using all defined instances according to the [`redis_cluster_replicas`](#redis_cluster_replicas) parameter.
+Pigsty also sets up standalone Redis based on the `replica_of` parameter when using the `standalone` mode.
+Pigsty creates a native Redis cluster using all defined instances according to the [`redis_cluster_replicas`](#redis_cluster_replicas) parameter when using `cluster` mode.
 
 
 
@@ -134,9 +134,7 @@ Redis config template, type: `string`, level: C, default value: `"redis.conf"`.
 
 ### `redis_fs_main`
 
-Main data disk for Redis, type: `path`, level: C, default value: `"/data"`.
-
-The main data disk for Redis, default is `/data`.
+Primary data disk for Redis, type: `path`, level: C, default value: `"/data"`.
 
 Pigsty will create the `redis` dir under that dir to store Redis data. For example, `/data/redis`.
 
@@ -147,7 +145,7 @@ See [FHS: Redis](r-fhs.md) for details.
 
 Redis listener address, type: `ip`, level: C, default value: `"0.0.0.0"`.
 
-Redis listener the IP address, or `inventory_hostname` if left blank. The default listener has all local IPv4 addresses.
+Redis listener the IP, or `inventory_hostname` if left blank. The default listener has all local IPv4.
 
 
 
@@ -155,9 +153,9 @@ Redis listener the IP address, or `inventory_hostname` if left blank. The defaul
 
 What to do when Redis exists, type: `enum`, level: C, default value: `"clean"`.
 
-* `abort`: abort the execution of the entire playbook
+* `abort`: Abort the execution of the entire playbook
 * `skip`: Continue execution, so the Redis ins may be started using an RDB file from an existing database.
-* `clean`: wipes the data and starts clean.
+* `clean`: Wipes the data and starts clean.
 
 
 
@@ -171,7 +169,7 @@ If enabled, force set [`redis_exists_action`](#redis_exists_action) = `abort`.
 
 Max memory used by each Redis ins, type: `size`, level: C/I, default value: `"1GB"`
 
-Max memory used by each Redis ins, default is 1GB, it is recommended to configure this parameter at the cluster level to keep the cluster ins config consistent.
+Max memory used by each Redis ins, default is 1GB; it is recommended to configure this parameter at the cluster level to keep the cluster ins config consistent.
 
 
 
@@ -198,7 +196,7 @@ Redis password, type: `string`, level: C, default value: `""`.
 
 `masterauth` & `requirepass` password to use, leave blank to disable password, disabled by default.
 
-Be careful with security, do not place Redis on the public network without password protection.
+!> Be careful with security, do not place Redis on the public network without password protection.
 
 
 
@@ -222,7 +220,7 @@ Enable AOF, type: `bool`, level: C, default value: `false`.
 
 Rename dangerous commands, Type: `object`, Level: C, Default value: `{}`.
 
-JSON dictionary, rename the command represented by Key to the command represented by Value to avoid misuse of dangerous commands.
+JSON dictionary renames the command represented by Key to the command represented by Value to avoid misuse of dangerous commands.
 
 
 
@@ -231,9 +229,7 @@ JSON dictionary, rename the command represented by Key to the command represente
 
 ### `redis_cluster_replicas`
 
-How many replicas per master in Redis cluster, type: `int`, tier: C, default: `1`.
-
-How many replicas per master in the Redis cluster? The default is 1.
+How many replicas per primary in Redis cluster, type: `int`, tier: C, default: `1`.
 
 ```bash
 /bin/redis-cli --cluster create --cluster-yes \

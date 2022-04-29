@@ -1,14 +1,14 @@
 # Metrics
 
->  **Metric** is the core concept of Pigsty's monitoring system.
+>  **Metric** is the core concept of Pigsty's monitor system.
 
 
 
 ## Format
 
-**Metrics** are formally cumulative, atomic logical units of measure that can be updated and statistically aggregated overtime periods.
+**Metrics** are formally cumulative, atomic logical units of measure that can be updated and statistically aggregated over periods.
 
-Metrics typically exist as **time series with dimension labels**. As an example, `pg:ins:qps_realtime` in the Pigsty sandbox refers to the presentation of **real-time QPS** for all instances.
+Metrics typically exist as **time series with dimension labels**. For example, `pg:ins:qps_realtime` in the Pigsty sandbox refers to the presentation of **real-time QPS** for all instances.
 
 ```json
 pg:ins:xact_commit_rate1m{cls="pg-meta", ins="pg-meta-1", ip="10.10.10.10", role="primary"} 0
@@ -40,9 +40,9 @@ pg:ins:qps_realtime{cls="pg-test", ins="pg-test-3", ip="10.10.10.13", role="repl
 
 ## Model
 
-Each **Metric** is a **class** of data that usually corresponds to multiple **time series**. Different time series corresponding to the same metric is distinguished by **dimensions**.
+Each **Metric** **class** of data usually corresponds to multiple **time series**. **Dimensions** distinguish different time series corresponding to the same metric.
 
-Indicator + dimension, which can specifically locate a time series. Each **time series** is an array of (timestamp, fetch) binaries.
+Metrics + dimension, which can precisely locate a time series. Each **time series** is an array of (timestamp, fetch) binaries.
 
 Pigsty uses Prometheus' metrics model, whose logical concept can be represented by the following SQL DDL.
 
@@ -51,10 +51,10 @@ Pigsty uses Prometheus' metrics model, whose logical concept can be represented 
 -- Metrics Table,  Metric:TimeSeries = 1:n
 CREATE TABLE metrics (
     id   INT PRIMARY KEY,         -- Metrics ID
-    name TEXT UNIQUE              -- Metrics Name，[...and other meta data such as type]
+    name TEXT UNIQUE              -- Metrics Name，[...and other metadata such as type]
 );
 
--- Time Series Table, where each time series corresponds to an indicator.
+-- Time Series Table, where each time series corresponds to a metric.
 CREATE TABLE series (
     id        BIGINT PRIMARY KEY,               -- Time Series ID 
     metric_id INTEGER REFERENCES metrics (id),  -- MetricID which the time series belonged, refer metrics(id)
@@ -74,7 +74,7 @@ CREATE TABLE series_data (
 Take `pg:ins:qps` as an example：
 
 ```sql
--- Sample indicator data
+-- Sample metric data
 INSERT INTO metrics VALUES(1, 'pg:ins:qps');  -- It's a metric named pg:ins:qps, type GAUGE
 INSERT INTO series VALUES                     -- The metrics contains 4 time-series, distinguished by dimension labels
 (1001, 1, '{"cls": "pg-meta", "ins": "pg-meta-1", "role": "primary", "other": "..."}'),
@@ -88,7 +88,7 @@ INSERT INTO series_data VALUES                 -- The underneath sampling data p
 (1004, now(), 5001);                           -- instance pg-test-3 qps 5000 at this moment
 ```
 
-* `pg_up` is a metric with 4-time series, which represent the aliveness status of all instance in the sandbox environment.
+* `pg_up` is a metric with 4-time series, representing the aliveness status of all instances in the sandbox.
 * `pg_up{ins": "pg-test-1", ...}` is a time series which represent aliveness of the specific instance `pg-test-1`.
 
 
@@ -97,41 +97,38 @@ INSERT INTO series_data VALUES                 -- The underneath sampling data p
 
 ## Sources
 
-Pigsty has four main sources of monitoring data: **database**, **connection pool**, **operating system**, and **load balancer**. Exposed to the public via the corresponding exporter.
+Pigsty has four primary sources of monitor data: **database**, **connection pool**, **OS**, and **LB**. Exposed to the public via the corresponding exporter.
+
+![](![](./_media/metrics_source.png))
 
 
 Full sources include.
 
-* PostgreSQL's own monitoring metrics
+* PostgreSQL's monitoring metrics
 * Statistical metrics from the PostgreSQL logs
 * PostgreSQL system directory information
 * Metrics from Pgbouncer connection pool median price
 * PgExporter metrics
 * Metrics of the database working node Node
-* Load balancer Haproxy metrics
+* LB Haproxy metrics
 * DCS (Consul) working metrics
-* Monitoring system itself working metrics: Grafana, Prometheus, Nginx
+* Monitor system working metrics: Grafana, Prometheus, Nginx
 * Blackbox probing metrics (TBD)
 
-For a full list of available metrics, please refer to the  [**Reference - Metrics List**](#merics) section.
+Please refer to the [**Reference - Metrics List**](#merics) section for a complete list of available metrics.
 
 
 
 ## Numbers
 
-So, how many metrics does Pigsty contain in total? Here is a pie chart of the percentage of each metric source. We can see that the blue-green-yellow part on the right corresponds to the metrics exposed by the database and database-related components, while the red-orange part on the bottom left corresponds to the machine node-related metrics. The purple part on the top left is the metrics related to loading balancers.
+Among the database metrics, there are about 230 original metrics related to Postgres and about 50 original metrics related to middleware. Pigsty then designs about 350 DB-related derived metrics based on these actual metrics through hierarchical aggregation and precomputation.
 
+Thus, there are 621 monitor metrics for each database cluster and its attachments for each database cluster. There are 281 machine primitive metrics and 83 derived metrics for a total of 364. Together with the 170 metrics for load balancers, Pigsty has close to 1200 classes of metrics.
 
-Among the database metrics, there are about 230 raw metrics related to Postgres itself, and about 50 raw metrics related to middleware, and based on these raw metrics, Pigsty carefully designed about 350 DB-related derived metrics through hierarchical aggregation and precomputation.
+Note that here we identify the difference between metric and time-series.
+We use the term class rather than the individual. This is because a metric may correspond to many time series.
 
-Thus, for each database cluster, there are 621 monitoring metrics purely for the database and its attachments. And there are 281 machine original metrics and 83 derived metrics for a total of 364. Adding the 170 metrics for the load balancer, we have a total of close to 1200 classes of metrics.
-
-Note that here we must distinguish between metric and time-series.
-Here we use the term class rather than the individual. This is because a metric may correspond to multiple time series. For example, if there are 20 tables in a database, then a metric like `pg_table_index_scan` will have 20 corresponding time series.
-
-
-
-As of 2021, Pigsty's metrics coverage is one of the best among all open source/commercial monitoring systems known to the authors, see **Cross-Sectional Comparison**for details.
+As of 2021, Pigsty's metrics coverage is one of the best among all open source/commercial monitor systems known to the authors. See **Cross-Sectional Comparison** for details.
 
 
 
@@ -139,10 +136,10 @@ As of 2021, Pigsty's metrics coverage is one of the best among all open source/c
 
 Pigsty also produces **[Derived Metrics](#special-metric) based on existing metrics**.
 
-For example, metrics can be aggregated at different levels
+For example, metrics can be aggregated at different levels.
 
-| Entity       | Label         | Example                              | Label Keys                      |
-|--------------|---------------|--------------------------------------|---------------------------------|
+| Entity       | Identifier    | Example                              | Label Keys                      |
+| ------------ | ------------- | ------------------------------------ | ------------------------------- |
 | Environment  | **`job`**     | `pgsql`, `redis`, `staging`          | `{job}`                         |
 | Shard        |               | `pg-test-shard\d+`                   | `{job, cls*}`                   |
 | **Cluster**  | **`cls`**     | `pg-meta`, `pg-test`                 | `{job, cls}`                    |
@@ -151,17 +148,13 @@ For example, metrics can be aggregated at different levels
 | Database     | **`datname`** | `test`                               | `{..., datname}`                |
 | Object       |               | `public.pgbench_accounts`            | `{..., datname, <object>}`      |
 
+Take the derived process of TPS metrics as an example.
 
-![](_media/LABELS.svg)
+The original data is the transaction counters captured from Pgbouncer. There are four instances in the cluster and two databases on each instance, so there are eight DB-level TPS metrics for one instance.
 
+The following chart, which is a cross-sectional comparison of QPS for each instance within the entire cluster, uses predefined rules here to first obtain 8 DB-level TPS metrics by deriving the original transaction counters, then aggregating the 8 DB-level time series into four instance-level TPS metrics, and finally aggregating these four instance-level TPS metrics into cluster-level TPS metrics.
 
-From the raw monitoring time-series data to the final chart, there are several processing steps in between.
-
-Here is an example of the derivation process for TPS metrics.
-
-There are four instances in the cluster, and each instance has two databases, so there are a total of 8 DB-level TPS metrics for one instance.
-
-The following chart, on the other hand, is a cross-sectional comparison of QPS for each instance in the entire cluster, so here we use predefined rules to first derive the original transaction counters to obtain 8 DB-level TPS metrics, then aggregate the 8 DB-level time series into 4 instance-level TPS metrics, and finally aggregate these four instance-level TPS metrics into cluster-level TPS metrics at the cluster level.
+![](./_media/LABELS.svg)
 
 
 Pigsty defines a total of 360 classes of derived aggregated metrics, with more to come. The rules for defining derived metrics are described in  [**Reference: Derived-Metrics**](#special-meric).
@@ -170,20 +163,21 @@ Pigsty defines a total of 360 classes of derived aggregated metrics, with more t
 
 ## Special Metric
 
-The catalog is a special indicator
+The **catalog** is a special indicator.
 
+The boundary between Catalog and Metrics distinction is blurred. For example, the number of pages and the number of tuples in a table, Catalog, or Metrics?
 
-The catalog is more similar but not identical to Metrics, with blurred boundaries. In the simplest example, should the number of pages and tuples of a table be counted as Catalog or Metrics?
+The main difference between Catalog and Metrics in practice is that the information in Catalog is infrequently changed, such as the definition of a table. It would be a waste to grab it once every few seconds like Metrics. So this type of information, which is more static, is classified as Catalog.
 
-The main difference between Catalog and Metrics in practice is that the information in Catalog usually doesn't change much, like table definitions and such, and it would obviously be a waste to also grab it like Metrics for example once every few seconds. So we will classify this kind of static information into Catalog.
-
-The catalog is mainly captured by timed tasks (e.g. patrols), not by Prometheus. Some particularly important Catalog information, such as some information in `pg_class`, is also converted to metrics and captured by Prometheus.
+The catalog is mainly captured by timed tasks (e.g., Patrol), not Prometheus. Some essential Catalog information, such as some information in `pg_class`, is also converted to metrics and captured by Prometheus.
 
 Pigsty provides the PGCAT series of monitoring panels to capture and present information directly from the Catalog of the target database.
 
 
 
+
+
 ## Summary
 
-After understanding Pigsty metrics, it is useful to understand how Pigsty's [**alerting**](r-alert.md) system uses these metrics data for practical production purposes.
+After understanding Pigsty metrics, it is helpful to know how Pigsty's [**alert system**](r-alert.md) uses these metrics data for practical production purposes.
 
