@@ -42,6 +42,8 @@
 
 - `pg_seq` 用于在集群内标识实例，通常采用从0或1开始递增的整数，一旦分配不再更改。
 
+#### 其他身份参数
+
 - `pg_shard` 用于标识集群所属的上层 **分片集簇**，只有当集群是水平分片集簇的一员时需要设置。
 
 - `pg_sindex` 用于标识集群的**分片集簇**编号，只有当集群是水平分片集簇的一员时需要设置。
@@ -81,7 +83,7 @@ pg-test4:
 
 ## 单机部署
 
-让我们从最简单的案例开始：
+让我们从最简单的案例开始，在单个节点上部署单实例PostgreSQL。
 
 ```yaml
 pg-test:
@@ -97,13 +99,13 @@ pg-test:
 bin/createpg pg-test
 ```
 
-
+单实例数据库无法应对**硬件故障**，建议在生产使用时，最少使用一主一从的配置。
 
 
 
 ## 主从集群
 
-复制可以极大高数据库系统可靠性，是应对硬件故障的最佳手段。
+复制可以极大高数据库系统可靠性，是应对硬件故障的最佳手段，在生产环境中强烈建议至少使用一主一从的配置。
 
 Pigsty原生支持设置主从复制，例如，声明一个典型的一主一从高可用数据库集群，可以使用：
 
@@ -116,7 +118,46 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-使用 `bin/createpg pg-test`，即可创建出该集群来。如果您已经在第一步 [单机部署](#单机部署)中完成了`10.10.10.11`的部署，那么也可以使用 `bin/createpg 10.10.10.12`，进行集群扩容。
+使用 `bin/createpg pg-test`，即可创建出该集群来。如果您已经在第一步 [单机部署](#单机部署)中完成了`10.10.10.11`的部署，那么也可以使用 `bin/createpg 10.10.10.12`，进行集群扩容，为集群添加一台从库。
+
+如果主库出现故障，或者我们希望将从库提升为新主库，可以使用 `pg` 命令：
+
+```bash
+pg switchover pg-test     # 手工执行Switchover（原主库可用）
+pg switchover pg-test     # 手工执行Failover （原主库不可用）
+```
+
+请注意，自动故障切换需要第三方进行仲裁，在Pigsty中，部署于管理节点上的DCS提供了此仲裁服务。
+
+
+
+
+
+## 三节点标准HA
+
+**如果您的整套环境只有两个节点**，且没有使用外部DCS进行仲裁，则无法进行安全可靠的自动故障切换，当故障发生时，您需要手工介入，人工仲裁。任何真正有意义的高可用方案，在没有特殊硬件（如心跳线等Fencing硬件）支持下，至少需要整个环境中有三个节点。因为高可用所依赖的仲裁者（DCS）本身的高可用至少需要三个节点。
+
+如果您的整套环境中有**三个节点**，则可以使用 [`pigsty-dcs3.yml`](https://github.com/Vonng/pigsty/blob/master/files/conf/pigsty-dcs3.yml) 中的样例，构建一个3元节点 x 3实例PG集群的基础高可用单元。在此部署下， 三个管理节点上部署有Consul Server，任意一个节点故障，整个集群都可以继续正常工作。
+
+在生产环境中，您可以使用此三节点集群作为整个集群的管控核心，管理更多的数据库集群。在已有3节点DCS的仲裁者的情况下，您可以部署大量1主1从的基本高可用PGSQL集群，这些集群可以自动进行故障切换。
+
+```yaml
+children:
+  meta:   # meta nodes are defined in this special group "meta"
+    vars:
+      pg_cluster: pg-meta           # define a cluster pg-meta on 3 meta nodes
+      meta_node: true               # mark this group as meta nodes
+      ansible_group_priority: 99    # overwrite with the highest priority
+    hosts:
+      10.10.10.10: { pg_seq: 1, pg_role: primary }
+      10.10.10.11: { pg_seq: 2, pg_role: replica , nginx_enabled: false }
+      10.10.10.12: { pg_seq: 3, pg_role: replica , nginx_enabled: false, pg_offline_query: true }
+vars:
+  dcs_servers:            # dcs server dict in name:ip format
+    meta-1: 10.10.10.10   # you could use existing dcs cluster
+    meta-2: 10.10.10.11   # host which have their IP listed here will be init as server
+    meta-3: 10.10.10.12   # 3 or 5 dcs nodes are recommended for production environment
+```
 
 
 
@@ -124,11 +165,11 @@ pg-test:
 
 ## 同步从库
 
-正常情况下，PostgreSQL的复制延迟在几十KB/10ms的量级，对于常规业务而言可以近似忽略不计。
+CAP定理指出：可用性与一致性两者相互抵触，用户必须根据自己的需求进行权衡。 高可用是一方面，而另一面则是高一致，Pigsty允许您创建高一致性的集群，确保出现故障切换时数据不丢，乃至于整个集群保持实时同步一致。
 
-重要的是，当主库出现故障时，尚未完成复制的数据会丢失！当您在处理非常关键与精密的业务查询时（例如和钱打交道），复制延迟可能会成为一个问题。此外，或者在主库写入后，立刻向从库查询刚才的写入（read-your-write），也会对复制延迟非常敏感。
+正常情况下，PostgreSQL的复制延迟在几十KB/10ms的量级，对于常规业务而言可以近似忽略不计。重要的是，当主库出现故障时，尚未完成复制的数据会丢失！当您在处理非常关键与精密的业务查询时（例如和钱打交道），复制延迟可能会成为一个问题。此外，或者在主库写入后，立刻向从库查询刚才的写入（read-your-write），也会对复制延迟非常敏感。
 
-为了解决此类问题，需要用到同步从库。 一种简单的配置同步从库的方式是使用 [`pg_conf`](v-pgsql.md#pg_conf) = `crit` 模板，该模板会自动启用同步复制。
+为了解决此类问题，需要用到同步从库。 一种简单的配置同步从库的方式是使用 [`pg_conf`](v-pgsql.md#pg_conf) = `crit` 模板，该模板会自动启用同步复制与校验和，适用于和钱有关的，追求一致性的场景。
 
 ```yaml
 pg-test:
@@ -154,7 +195,24 @@ $ pg edit-config pg-test
 Apply these changes? [y/N]: y
 ```
 
+对于启用同步提交的集群，您可以在参考配置文件，在集群中额外配置 standby 服务，提供与主库完全一致的无延迟读取服务。
 
+```yaml
+- name: standby      
+  src_ip: "*"        
+  src_port: 5435     
+  dst_port: pgbouncer
+  check_method: http 
+  check_port: patroni
+  check_url: /sync   
+  check_code: 200    
+  selector: "[]"     
+  selector_backup: "[? pg_role == `primary`]"
+```
+
+!> 使用同步提交时，强烈建议集群至少有3个实例，否则唯一的从库故障将立即导致主库不可用。
+
+在PG中启用同步提交，默认会有**一个**从库实例被选为同步从库，而其他的实例会仍然会使用异步提交模式，以降低事务延迟，提高性能。如果您需要在整个集群范围内获得更强的一致性，可以使用**法定人数同步提交**。
 
 
 
