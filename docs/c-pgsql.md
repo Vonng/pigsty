@@ -9,7 +9,7 @@
 * [Deploy: PGSQL](d-pgsql.md) ｜[Config: PGSQL](v-pgsql.md)  | [Playbook: PGSQL](p-pgsql.md) ｜ [Custom: PGSQL](v-pgsql-customize.md)
 * [PGSQL Service](c-service.md#Service) and [PGSQL Access](c-service.md#Access)
 * [PGSQL Privilege](c-privilege.md#Privilege) and [PGSQL Authentication](c-privilege.md#Authentication)
-* [PGSQL Users](c-pgdbuser.md#Users) and [PGSQL Database](c-pgdbuser.md#Database)
+* [PGSQL Users](c-pgdbuser.md#Default-Users) and [PGSQL Database](#Cluster)
 
 
 
@@ -137,7 +137,7 @@ Take the test database cluster `pg-test` for a sandbox as an example.
 
 Entities and identities are a conceptual model, and the following describes the implementation in Pigsty.
 
-[`pg_cluster`](v-pgsql.md#pg-cluster)，[`pg_role`](v-pgsql.md#pg-role)， and [`pg_seq`](v-pgsql.md#pg-seq) are **identity parameters** used to generate entity identities.
+[`pg_cluster`](v-pgsql.md#pg_cluster)，[`pg_role`](v-pgsql.md#pg_role)， and [`pg_seq`](v-pgsql.md#pg_seq) are **identity parameters** used to generate entity identities.
 
 In addition to the IP address, these three parameters are the minimum set of parameters necessary to define database clusters.
 
@@ -294,7 +294,6 @@ In a PostgreSQL cluster, instances have different identities: primary, replica, 
 * A service that points to a (`standby`) is called `pg-test-standby`.
 
 Note that **services are not enough to divide pairs of instances**. The same service can point to multiple instances. However, the same instance can also handle requests from different services.
-
 
 
 

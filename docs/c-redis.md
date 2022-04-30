@@ -8,7 +8,7 @@
 
 ### ER Model
 
-The Redis entity concept model is almost identical to [PostgreSQL](c-entity.md) and includes the **Cluster** and **Instance**. Note that Cluster here does not refer to the clusters in Redis' native clusters.
+The Redis entity concept model is almost identical to [PostgreSQL](c-pgsql.md) and includes the **Cluster** and **Instance**. Note that Cluster here does not refer to the clusters in Redis' native clusters.
 
 The core difference is that Redis typically uses multiple singleton instances, with **multiple** Redis instances typically deployed on a single physical/VM to take advantage of multi-core CPUs.
 
@@ -17,7 +17,7 @@ In Pigsty-managed Redis, it is not yet possible to deploy two Redis instances fr
 
 ### Redis Identity
 
-The [**identity parameters**](v-redis.md#identity-parameters) are the information that must be provided when defining a Redis cluster.
+The [**identity parameters**](v-redis.md#redis_identity) are the information that must be provided when defining a Redis cluster.
 
 |                    Name                    |        Attribute        |   Description   |         Example         |
 | :-----------------------------------------: | :----------------: | :------: | :------------------: |

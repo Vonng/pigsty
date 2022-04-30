@@ -1,6 +1,6 @@
 # PGSQL Service & Access
 
-> Defining PostgreSQL [service](Service) and achieving stable, reliable, and HA [access](#access) through LB and connection pooling.
+> Defining PostgreSQL [service](#Service) and achieving stable, reliable, and HA [access](#access) through LB and connection pooling.
 
 The concepts of [**Service**](#Service) and [**Access**](#Access) are proposed for HA PostgreSQL clusters.
 
@@ -298,10 +298,10 @@ Pigsty uses different **ports** to distinguish between [database services](c-ser
 | ---- | --------- | -------------------- | ------------------------------------ |
 | 5432 | postgres | database | Direct access to the current node database |
 | 6432 | pgbouncer | connection pool | Accessing the current node database through a connection pool |
-| 5433 | primary | [service](c-service.md) | Load-balancing and accessing the primary through a **connection pool** |
-| 5434 | replica | [service](c-services.md) | Load-balancing and accessing the primary through a **connection pool** |
-| 5436 | default | [service](c-service.md) | Direct access to the primary via load balancing |
-| 5438 | offline | [service](c-service.md) | Direct access to the offline via load balancing |
+| 5433 | primary | [service](c-service.md#service) | Load-balancing and accessing the primary through a **connection pool** |
+| 5434 | replica | [service](c-service.md#service) | Load-balancing and accessing the primary through a **connection pool** |
+| 5436 | default | [service](c-service.md#service) | Direct access to the primary via load balancing |
+| 5438 | offline | [service](c-service.md#service) | Direct access to the offline via load balancing |
 
 
 ### Host
@@ -584,5 +584,4 @@ Direct database IP access using innovative clients
 * Too inflexible, cumbersome to expand and reduce cluster capacity.
 
 </details>
-
 

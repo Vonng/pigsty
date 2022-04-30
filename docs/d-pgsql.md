@@ -6,7 +6,7 @@
 
 * [Identity Parameters](#Identity): Introduces the identity parameters required to define a standard PostgreSQL HA cluster.
 * [Singleton Deployment](#Singleton): Defines a single instance PostgreSQL cluster.
-* [Primary-Replica Cluster](#M--S-Replication): Defines a standard availability cluster with one primary & one replica.
+* [Primary-Replica Cluster](#M-S-Replication): Defines a standard availability cluster with one primary & one replica.
 * [Sync-Standby](#Sync-standby): Define a highly consistent cluster with sync standby and RPO = 0.
 * [Quorum Commit](#Quorum-Commit): Defines a cluster with higher data consistency: most replicas return commits on the successful side.
 * [Offline Replica](#Offline-replica): Dedicated instances for hosting OLAP analysis, ETL, and interactive personal queries individually.
@@ -28,7 +28,7 @@ The **Core Identity Parameters** are information that must be provided when defi
 |    [`pg_role`](v-pgsql.md#pg_role)    | **MUST**, instance level |  Instance Role  | `primary`, `replica` |
 |     [`pg_seq`](v-pgsql.md#pg_seq)     | **MUST**, instance level | Instance number | `1`, `2`, `3`,`...`  |
 
-The content of the identity parameter follows the [entity naming pattern](c-entity.md). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, the **minimum set of mandatory parameters required** to define the database cluster and core identity parameters **must be explicitly specified**.
+The content of the identity parameter follows the [entity naming pattern](c-pgsql.md). Where [`pg_cluster`](v-pgsql.md#pg_cluster), [`pg_role`](v-pgsql.md#pg_role), and [`pg_seq`](v-pgsql.md#pg_seq) belong to the core identity parameters, the **minimum set of mandatory parameters required** to define the database cluster and core identity parameters **must be explicitly specified**.
 
 - `pg_cluster` identities the name of the cluster configured at the cluster level and serves as the top-level namespace for cluster resources.
 
@@ -224,7 +224,7 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-Use `bin/createpg pg-test` to create the cluster. If you have already completed [singleton deployment](#singleton-deployment) and [primary-replica-cluster](#M-S-Replication), you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline replica to the cluster.
+Use `bin/createpg pg-test` to create the cluster. If you have already completed [singleton deployment](#singleton) and [primary-replica-cluster](#M-S-Replication), you can use `bin/createpg 10.10.10.13` to expand the cluster and add an offline replica to the cluster.
 
 Offline replicas do not host the [`replica`](c-service.md#replica-service) service by default, and the offline instance will only host read-only traffic if all instances in the [`replica`](c-service.md#replica-service) service are unavailable. If you have only one primary & one replica, or only one primary, you can set the [`pg_offline_query`](v-pgsql.md#pg_offline_query) flag for an offline instance that also hosts the [`offline`](c-service.md#offline-service) service to be used as a **quasi-offline instance**.
 
@@ -368,7 +368,7 @@ pg-test:
 
 * `max_prepared_transaction`: Modify to a value greater than `max_connections`, e.g. 800.
 * [`pg_libs`](v-pgsql.md#pg_libs): Must contain `citus` and be placed in the top position.
-* You need to include the `citus` extension plugin in the [business database](c-pgdbuser.md#database) (but you can also manually install it via `CREATE EXTENSION`).
+* You need to include the `citus` extension plugin in the [business database](c-pgsql.md#Cluster) (but you can also manually install it via `CREATE EXTENSION`).
 
 <details><summary>Citus cluster sample config</summary>
 

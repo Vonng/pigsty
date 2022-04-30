@@ -15,9 +15,9 @@ How to prepare the resources required for Pigsty deployment.
 
 ## Node Provisioning
 
-Before deploying Pigsty, the user needs to prepare machine node resources with arbitrary [database nodes](c-arch.md#database-node), including at least one [meta node](c-arch.md#meta-node).
+Before deploying Pigsty, the user needs to prepare machine node resources with arbitrary [database nodes](c-nodes.md#node), including at least one [meta node](c-nodes.md#meta-node).
 
-The [nodes](c-arch.md#database-node) can use any nodes: bare metals, local VMs, cloud VMs, containers, etc...
+The [nodes](c-nodes.md#node) can use any nodes: bare metals, local VMs, cloud VMs, containers, etc...
 only if the following conditions are met:
 
 - [x] Processor architecture: x86_64
@@ -34,7 +34,7 @@ One node is sufficient if you are using Pigsty as a battery-included PostgreSQL 
 
 ## Meta Node Provisioning
 
-Pigsty requires [meta-nodes](c-nodes.md#meta-nodes) as the admin controller of the entire environment and provides [infra](c-infra.md#infrastructure) services.
+Pigsty requires [meta nodes](c-nodes.md#meta-node) as the admin controller of the entire environment and provides [infra](c-infra.md#infrastructure) services.
 
 The minimum number of **meta-nodes** is 1. Pigsty's infra is deployed as **replicas** on multiple meta nodes, except for DCS (Consul/Etcd), which exists as Quorum.
 

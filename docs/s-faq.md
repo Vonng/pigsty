@@ -12,7 +12,7 @@
 
 ### Node Requirement
 
-At least **1Core/2GB** is required from [singleton meta](c-arch.md#singleton-meta) installation. 1C1G works but is not stable.
+At least **1Core/2GB** is required from [singleton meta](c-arch.md#singleton-deploy) installation. 1C1G works but is not stable.
 
 **x86_64** Processor is required. ARM is not supported yet.
 
@@ -98,7 +98,7 @@ The offline software package is extracted to `/www/pigsty` by default. During in
 
 #### Install without offline software packages?
 
-Offline installers contain packages collected and downloaded from various sources and Github URLs. If you trying to install Pigsty without offline software packages. (Which is indicated by `/www/pigsty` & `/www/pigsty/repo_complete` not exists). All these packages will be fetched from the [`repo_upsteram`](v-infra.md#repo_upstream)  directly during installation. 
+Offline installers contain packages collected and downloaded from various sources and Github URLs. If you trying to install Pigsty without offline software packages. (Which is indicated by `/www/pigsty` & `/www/pigsty/repo_complete` not exists). All these packages will be fetched from the [`repo_upsterams`](v-infra.md#repo_upstreams)  directly during installation. 
 
 -----------
 
@@ -175,7 +175,7 @@ Pigsty was designed from the beginning with the need for containerization in the
 
 #### Is it possible to monitor existing PG instances?
 
-For external databases created by non-Pigsty provisioning schemes, you can use [Monitor-Only](d-monly) deployment, please refer to the doc for details.
+For external databases created by non-Pigsty provisioning schemes, you can use [Monly mode](d-monly) deployment, please refer to the doc for details.
 
 If the instance can be managed by Pigsty, you may consider deploying components such as node_exporter, pg_exporter, etc. on the target node in the same manner as a standard deployment.
 
@@ -251,12 +251,12 @@ It will sync vm time with host machine without Internet access for NTP services.
 
 Pigsty has a [safeguard](p-nodes.md#SafeGuard) for dcs service (consul), avoid accidental purge of running consul instances (server or agent).
 
-Pigsty will act according to [`consul_clean`](v-infra.md#consul_clean) if running consul instance is detected:
+Pigsty will act according to [`consul_clean`](v-nodes.md#consul_clean) if running consul instance is detected:
 
 * `abort` will halt the entire playbook immediately
 * `clean` will continue and purge existing dcs & force reset it
 
-And it will be force to `abort` if [`consul_safeguard`](v-infra.md#consul_safeguard) is set to true.
+And it will be force to `abort` if [`consul_safeguard`](v-nodes.md#consul_safeguard) is set to true.
 
 You can change these variables in configuration files or manually overwrite it with extra args:
 

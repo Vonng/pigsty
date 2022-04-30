@@ -81,7 +81,7 @@ If there is such a need, you can set a password for the dbsu in [`pg_default_rol
 
 !> **Be sure to change the passwords of all default users**.
 
-In addition, users can define cluster-specific [business users](c-pgdbuser.md#users) in [`pg_users`](p-pgsql.md#pg_users) in the same way as [`pg_default_roles`](v-pgsql.md#pg_default_roles).
+In addition, users can define cluster-specific [business users](c-pgdbuser.md#Default-users) in [`pg_users`](v-pgsql.md#pg_users) in the same way as [`pg_default_roles`](v-pgsql.md#pg_default_roles).
 
 
 !> It is recommended to remove the `dborle_readony` role from `dbuser_monitor` if there is a higher data security requirement. Some of the monitoring system features will not be available.

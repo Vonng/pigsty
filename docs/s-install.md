@@ -24,7 +24,7 @@ When Pigsty is installed on one single node. It will init pigsty infra with a ba
 
 #### TL; DR
 
-[Prepare](#prepare) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
+[Prepare](d-prepare.md) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # Download Latest Pigsty Source
@@ -60,7 +60,7 @@ Nginx port 80 is the default access endpoint for all Web GUI services. Although 
 
 ----------------
 
-## Cluster Mange
+## Cluster Manage
 
 Pigsty can also be used as a controller & monitoring infrastructure for production-grade large-scale nodes & databases.
 
