@@ -63,8 +63,7 @@
     # in case of maintenance mode
     - name: Force follower postgres shutdown
       become_user: "{{ pg_dbsu }}"
-      shell: |
-        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
+      shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate; /bin/true"
 
 
 #------------------------------------------------------------------------------
@@ -109,11 +108,10 @@
     # in case of maintenance mode
     - name: Force leader postgres shutdown
       become_user: "{{ pg_dbsu }}"
-      shell: |
-        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate
+      shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate; /bin/true"
 
     # when cleanup primary, remove pgsql cluster meta data
     - name: Remove consul metadata about pgsql cluster
-      shell: |
-        consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}
+      shell: "consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}; /bin/true"
+
 ...
