@@ -1,6 +1,6 @@
 # Customize: PGSQL
 
-> The [Patroni template](#Patorni-templates) is used to customize the **specification config** of the PostgreSQL cluster, while the [Postgres template](#Postgres-templates) is used to customize the **content** of the PostgreSQL cluster.
+> The [Patroni template](#Patroni-templates) is used to customize the **specification config** of the PostgreSQL cluster, while the [Postgres template](#Postgres-templates) is used to customize the **content** of the PostgreSQL cluster.
 
 Pigsty provides nearly 100 parameters on [PGSQL](v-pgsql.md) describing the PostgreSQL cluster.
 
@@ -33,7 +33,7 @@ Pigsty provides several predefined initialization templates for initializing the
 |     [`small`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/small.yml)      |  4   |  8GB  | 200GB | 4C8G model OLTP template |
 |     [`medium`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/medium.yml)     |  8   | 16GB  | 500GB | 8C16G model OLTP template |
 |     [`large`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/large.yml)      |  16  | 32GB  |  1TB  |  16C32G model OLTP template  |
-|     [`xlarge`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/xlarge.yml)     |  32  | 64GB  |  2TB  |  32C64G model OLTP template  |
+|     `xlarge`     |  32  | 64GB  |  2TB  |  32C64G model OLTP template  |
 
 
 Specify the path to the template to be used via the [`pg_conf`](v-pgsql.md#pg_conf), or fill in the template name if using a predefined template. If a custom [Patroni config template](v-pgsql.md#pg_conf) is used, the companion [node optimization template](v-nodes.md#node_tune) should also be used for the machine nodes.

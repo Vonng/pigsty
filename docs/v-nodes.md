@@ -3,26 +3,14 @@
 Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-nodes.md) playbook can be executed to configure the node to the corresponding state and incorporate it into the Pigsty monitor system.
 
 - [`NODE_IDENTITY`](#NODE_IDENTITY) : Node identity parameters
-
 - [`NODE_DNS`](#NODE_DNS): Node domain name resolution
-
 - [`NODE_PACKAGE`](#NODE_PACKAGE): Node Repo & Packages
-
-- [`NODE_FEATURES`](#NODE_FEATURES): Node Functionality Features
-
 - [`NODE_TUNE`](#NODE_TUNE): Node features & kernel tuning
-
 - [`NODE_ADMIN`](#NODE_ADMIN): Node admin user & dir
-
 - [`NODE_TIME`](#NODE_TIME): Node time zone, NTP, crontab
-
 - [`CONSUL`](#CONSUL): Node consul agent
-
 - [`DOCKER`](#DOCKER): Node docker daemon 
-
-
 - [`NODE_EXPORTER`](#NODE_EXPORTER): Node metrics exporter
-
 - [`PROMTAIL`](#PROMTAIL): Logger agent
 
 
@@ -38,20 +26,20 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 312 | [`node_dns_method`](#node_dns_method)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?          |
 | 313 | [`node_dns_servers`](#node_dns_servers)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | dynamic DNS servers                |
 | 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | /etc/resolv.conf options           |
-| 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_REPO`](#NODE_REPO)         | enum     | C   | how to use yum repo (local)        |
+| 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_PA`](#NODE_REPO)        | enum     | C   | how to use yum repo (local)        |
 | 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_REPO`](#NODE_REPO)         | bool     | C   | remove existing repo file?         |
 | 322 | [`node_local_repo_url`](#node_local_repo_url)         | [`NODE_REPO`](#NODE_REPO)         | url[]    | C   | local yum repo url                 |
 | 330 | [`node_packages_default`](#node_packages_default)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node   |
 | 331 | [`node_packages`](#node_packages)         | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed         |
 | 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages            |
 | 333 | [`node_packages_meta_pip`](#node_packages_meta_pip)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages            |
-| 340 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable firewall?                  |
-| 341 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable selinux?                   |
-| 342 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable numa?                      |
-| 343 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | disable swap?                      |
-| 344 | [`node_static_network`](#node_static_network)         | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | use static DNS config?             |
-| 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_FEATURES`](#NODE_FEATURES) | bool     | C   | enable disk prefetch?              |
-| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_MODULES`](#NODE_MODULES)   | string[] | C   | kernel modules to be installed     |
+| 340 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable firewall?                  |
+| 341 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable selinux?                   |
+| 342 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable numa?                      |
+| 343 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable swap?                      |
+| 344 | [`node_static_network`](#node_static_network)         | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | use static DNS config?             |
+| 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | enable disk prefetch?              |
+| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_TUNE`](#NODE_TUNE) | string[] | C   | kernel modules to be installed     |
 | 347 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                     |
 | 348 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
 | 350 | [`node_data_dir`](#node_data_dir) | [`NODE_ADMIN`](#NODE_ADMIN) | path | C | default data disk mountpoint |
@@ -261,7 +249,7 @@ The default parsing options added by Pigsty:
 
 
 ----------------
-## `NODE_PACKAGE`
+## `NODE_REPO`
 
 Pigsty configure yum repos & install packages from it.
 
@@ -734,7 +722,7 @@ Host log collection component, used with [Loki](v-infra.md#LOKI) infrastructure 
 
 Enable Protail log collection service at the current node, type: `bool`, level: C, default value: `true`.
 
-When [`promtail`](#promtail) is enabled, Pigsty will generate a config file for Promtail, as defined in the inventory, to grab the following logs and send them to the Loki instance specified by [`loki_endpoint`](#loki_endpoint).
+When [`promtail`](#promtail) is enabled, Pigsty will generate a config file for Promtail, as defined in the inventory, to grab the following logs and send them to the Loki instance specified by [`loki_endpoint`](v-infra.md#loki_endpoint).
 
 * `INFRA`： Infra logs, collected only on meta nodes.
   * `nginx-access`: `/var/log/nginx/access.log`

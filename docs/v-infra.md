@@ -6,7 +6,7 @@
 
 Infra config deals with such issues: localYum repos, machine node base services: DNS, NTP, kernel modules, parameter tuning, admin users, installing packages, DCS Server setup, monitor infra installation, and initialization (Grafana, Prometheus, Alertmanager), global traffic portal Nginx config, etc.
 
-Usually, the infra requires very few modifications, and the main modification is just a text replacement of the meta node IPs, which is done in [`./configure`](v-config.md#configure) automatically. The other occasional change is to the access domain defined in [`nginx_upstream`](nginx_upstream). Other parameters are adjusted as needed.
+Usually, the infra requires very few modifications, and the main modification is just a text replacement of the meta node IPs, which is done in [`./configure`](v-config.md#configure) automatically. The other occasional change is to the access domain defined in [`nginx_upstream`](#nginx_upstream). Other parameters are adjusted as needed.
 
 
 
@@ -20,8 +20,8 @@ Usually, the infra requires very few modifications, and the main modification is
 - [`GRAFANA`](#GRAFANA) : Grafana Visualization Platform
 - [`LOKI`](#LOKI): Loki log collection platform
 - [`DCS`](#DCS): Distributed Configure Storage Meta DB
-- [`JUPYTER`](#JUPYTER):  JupyterLab Data Analysis Env
-- [`PGWEB`](#PGWEB) : PGWeb Web Client Tool  
+- `JUPYTER`:  JupyterLab Data Analysis Env
+- `PGWEB`: PGWeb Web Client Tool  
 
 
 
@@ -565,8 +565,8 @@ To install the monitoring component, type: `enum`, level: G, default value: `"no
 Specify how to install Exporter:
 
 * `none`： No installation, (by default, the Exporter has been previously installed by the [`node.pkgs`](v-nodes.md#node_packages_default) task)
-* `yum`： Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) before deploying Exporter)
-* `binary`： Install using a copy binary (copy [`node_exporter`](#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the meta node, not recommended)
+* `yum`： Install using yum (if yum installation is enabled, run yum to install [`node_exporter`](v-nodes.md#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) before deploying Exporter)
+* `binary`： Install using a copy binary (copy [`node_exporter`](v-nodes.md#node_exporter) and [`pg_exporter`](v-pgsql.md#pg_exporter) binary directly from the meta node, not recommended)
 
 When installing with `yum`, if `exporter_repo_url` is specified (not empty), the installation will first install the REPO file under that URL into `/etc/yum.repos.d`. This feature allows you to install Exporter directly without initializing the node infrastructure.
 It is not recommended for regular users to use `binary` installation. This mode is usually used for emergency troubleshooting and temporary problem fixes.
@@ -598,9 +598,9 @@ The URL PATH for all Exporter externally exposed metrics, which defaults to `/me
 
 Indicator exponents affected by this parameter include:
 
-* [`node_exporter`](#node_exporter)
+* [`node_exporter`](v-nodes.md#node_exporter)
 * [`pg_exporter`](v-pgsql.md#pg_exporter)
-* [`pgbouncer_exporter`](v-pgsql.md#pgbouncer_exporter)
+* [`pgbouncer_port`](v-pgsql.md#pgbouncer_port)
 * [`haproxy`](v-pgsql.md#haproxy_exporter_port)
 * Patroni's Metrics endpoint is currently fixed to `/metrics` and cannot be configured, so it is not affected by this parameter.
 * The Metrics endpoint of the Infra component is fixed to `/metrics` and is not affected by this parameter.
