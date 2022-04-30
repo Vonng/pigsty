@@ -1,5 +1,15 @@
 # Development Log
 
+
+#### 2022-04-30
+
+* Register Infra as common consul service
+* Make consul service discovery great again
+* implement `node_data_dir` which create /data during node init if not exists
+* add pg_probackup to default package list
+* integration test on pigsty-citus
+
+
 #### 2022-04-29
 
 New Vars:
