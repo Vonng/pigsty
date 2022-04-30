@@ -115,7 +115,7 @@ Full sources include.
 * Monitor system working metrics: Grafana, Prometheus, Nginx
 * Blackbox probing metrics (TBD)
 
-Please refer to the [**Reference - Metrics List**](#merics) section for a complete list of available metrics.
+Please refer to the [**Reference - Metrics List**](#metrics) section for a complete list of available metrics.
 
 
 

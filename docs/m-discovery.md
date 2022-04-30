@@ -7,7 +7,7 @@ The basis of service discovery is **identity**. For more identity information, p
 It would help if you also associated **monitor targets** with the identity in the monitor system, and Pigsty provides two implementations.
 
 * [Static File Service Discovery](#static-file-service-discovery): Using an automatically maintained configuration file (default).
-* [Consul service discovery](Consul-service-discovery): Uses automatically maintained Consul service registration information.
+* [Consul service discovery](#Consul-service-discovery): Uses automatically maintained Consul service registration information.
 
 The static file is the default service discovery mechanism. Before v1.0.0, Consul was the default service discovery method, and the discovery mechanism could be configured via parameters.
 
@@ -111,9 +111,9 @@ Each managed Postgres instance includes several capture ports.
 * [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3) for capturing HA components.
 * [HAProxy](https://github.com/Vonng/haproxy-rpm) for capturing LB metrics (built-in support, no separate deployment required). 
 
-![](_media/nodes.svg)
+![](_media/playbook/nodes.svg)
 
-Prometheus on the [meta node](c-arch.md#meta-node) captures these capture ports.
+Prometheus on the [meta node](c-nodes.md#meta-node) captures these capture ports.
 
 In addition, the optional Promtail for collecting Postgres, Patroni, and Pgbouncer logs.
 
