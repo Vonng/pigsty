@@ -38,9 +38,9 @@ Jupyter server listen port, type: `int`, level: G, default value: `8888`.
 
 
 
-When JupyterLab is enabled, Pigsty will run the local Notebook server using the user-specified by the [`jupyter_username`](jupyter_username) parameter.
+When JupyterLab is enabled, Pigsty will run the local Notebook server using the user-specified by the [`jupyter_username`](#jupyter_username) parameter.
 
-In addition, you need to make sure that the config [`node_meta_pip_install`](v-nodes.md#node_meta_pip_install) parameter contains the default value `'jupyterlab'`.
+In addition, you need to make sure that the config [`node_packages_meta_pip`](v-nodes.md#node_packages_meta_pip) parameter contains the default value `'jupyterlab'`.
 
 JupyterLab can be accessed by navigating from the Pigsty home page or through the default domain `lab.pigsty`, and listens on port 8888.
 
