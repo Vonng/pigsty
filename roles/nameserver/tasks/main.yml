@@ -21,10 +21,12 @@
 
     # - launch - #
     - name: Launch meta dnsmasq service
+      when: nameserver_enabled|bool
       systemd: name=dnsmasq state=restarted enabled=yes daemon_reload=yes
 
     # - wait - #
     - name: Wait for meta dnsmasq online
+      when: nameserver_enabled|bool
       wait_for: host=localhost port=53 state=started
 
 ...
