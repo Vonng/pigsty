@@ -2,14 +2,16 @@
 #-----------------------------------------------------------------
 # PG_IDENTITY
 #-----------------------------------------------------------------
-# pg_cluster:                    # <CLUSTER>  <REQUIRED>  : pgsql cluster name
-# pg_shard:                      # <CLUSTER>              : pgsql shard name
-# pg_sindex: 0                   # <CLUSTER>              : pgsql shard index
-# gp_role: master                # <CLUSTER>              : gpsql role, master or segment
-# pg_role: replica               # <INSTANCE> <REQUIRED>  : pg role : primary, replica, offline
-# pg_seq: 0                      # <INSTANCE> <REQUIRED>  : instance seq number
-# pg_instances: {}               # <INSTANCE>             : define multiple pg instances on node, used by monly & gpsql
-# pg_upstream:                   # <INSTANCE>             : replication upstream ip addr
+# pg_cluster:                     # <CLUSTER>  <REQUIRED>  : pgsql cluster name
+# pg_role: replica                # <INSTANCE> <REQUIRED>  : pg role : primary, replica, offline
+# pg_seq: 0                       # <INSTANCE> <REQUIRED>  : instance seq number
+# pg_instances: {}                # <INSTANCE>             : define multiple pg instances on node, used by monly & gpsql
+# pg_upstream:                    # <INSTANCE>             : replication upstream ip addr
+
+# pg_shard:                       # <CLUSTER>              : pgsql shard name
+# pg_sindex: 0                    # <CLUSTER>              : pgsql shard index
+# gp_role: master                 # <CLUSTER>              : gpsql role, master or segment
+
 pg_offline_query: false          # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
 pg_backup: false                 # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
 pg_weight: 100                   # <INSTANCE> [FLAG] default load balance weight (instance level)
@@ -19,10 +21,9 @@ pg_preflight_skip: false         # [FLAG] skip preflight identity check
 #-----------------------------------------------------------------
 # PG_BUSINESS
 #-----------------------------------------------------------------
-# overwrite these variables on cluster level
 pg_users: []                     # business users
 pg_databases: []                 # business databases
-#pg_services_extra: []           # extra services
+pg_services_extra: []            # extra services
 pg_hba_rules_extra: []           # extra hba rules
 pgbouncer_hba_rules_extra: []    # extra pgbouncer hba rules
 
@@ -67,9 +68,8 @@ pg_extensions:                   # postgresql extensions, `${pg_version} will be
 #-----------------------------------------------------------------
 # PG_BOOTSTRAP
 #-----------------------------------------------------------------
-pg_exists: false                 # (INTERNAL) flag that indicate pg instance existence
-pg_clean: false                  # abort|clean|skip (DANGEROUS!)
-pg_safeguard: false              # set to true to disable pg purge functionality for good (force pg_clean = abort)
+pg_safeguard: false               # true will disable pg_clean at all, even for pgsql-remove.yml
+pg_clean: false                   # true will clean running postgres during pgsql init (DANGEROUS)
 pg_data: /pg/data                # postgres data directory (soft link)
 pg_fs_main: /data                # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
 pg_fs_bkup: /data/backups        # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
@@ -188,6 +188,11 @@ pgbouncer_hba_rules:             # pgbouncer host-based authentication rules
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
-dcs_registry: consul              # none | consul | etcd | both
-dcs_type: consul                      # none | consul | etcd
+dcs_registry: consul              # where to register services: none | consul | etcd | both
+dcs_type: consul                  # consul | etcd | both
+
+#-----------------------------------------------------------------
+# INTERNAL FLAG
+#-----------------------------------------------------------------
+pg_exists: false
 ...

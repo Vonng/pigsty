@@ -6,7 +6,6 @@
   tags: node_profile
   copy: src=profile.sh dest=/etc/profile.d/profile.sh mode=755
 
-
 #==============================================================#
 # Stage 2: Setup pam ulimit for node users
 #==============================================================#
@@ -14,9 +13,16 @@
   tags: node_ulimit
   copy: src=limits.conf dest=/etc/security/limits.d/limits.conf mode=0644
 
+#==============================================================#
+# Stage 3: Create data dir if not exists
+#==============================================================#
+- name: Create node data dir if exists
+  tags: node_data_dir
+  shell: |
+    [[ -d {{ node_data_dir }} ]] || mkdir -p {{ node_data_dir }} -m 777
 
 #==============================================================#
-# Stage 3: Create default users/groups
+# Stage 4: Create default users/groups
 #==============================================================#
 - name: Create node users and groups
   tags: node_admin
