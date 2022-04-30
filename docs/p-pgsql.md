@@ -14,7 +14,6 @@
 |  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      | Create a PostgreSQL Business Database |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
 |  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            | Monly mode, with access to existing PostgreSQL instances or RDS |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
 |  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    | Generate PostgreSQL semi-automatic database migration solution (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-|  [`pgsql-audit`](p-pgsql.md#pgsql-audit)            | Generate PostgreSQL Audit Compliance Report (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-audit.yml)      |
 |  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG to deploy a set of MatrixDB clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
 
 
@@ -154,7 +153,7 @@ Daily management can also be used `./pgsql.yml` to modify the state of the clust
 
 Database Destruction: **Remove** existing database cluster or instance, reclaim node: [`pgsql-remove.yml`](https://github.com/Vonng/pigsty/blob/master/pgsql-remove.yml).
 
-The `pgsql-remove.yml` is the reverse of [`pgsql.yml`](p-pgsql.md) and will do the following ：
+The `pgsql-remove.yml` is the reverse of [`pgsql.yml`](#pgsql) and will do the following ：
 
 * Unregister the database instance from the infra（`register`）
 * Stop the LB, service component（`service`）
@@ -204,7 +203,7 @@ To ensure that, the author recommends creating a new database in an existing clu
 
 ### Daily management
 
-Please refer to the section [Database](c-pgdbuser.md#create-databsae) for the creation of the database.
+Please refer to the section [Database](c-pgsql.md#Cluster) for the creation of the database.
 
 ```bash
 # Create a database named test in the pg-test cluster
@@ -228,7 +227,7 @@ bin/createdb <pg_cluster> <dbname>
 
 ### Daily management
 
-Please refer to the section [User](c-pgdbuser.md#create-user) for the creation of business users.
+Please refer to the section [User](c-pgdbuser.md#default-users) for the creation of business users.
 
 ```bash
 # Create a user named test in the pg-test cluster

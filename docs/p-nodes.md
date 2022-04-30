@@ -17,7 +17,7 @@ Once pigsty is installed on the meta node with [`infra.yml`](p-infra.md), You ca
 
 ## `nodes`
 
-The [`nodes.yml`](p-nodes.md) playbook will register nodes to Pigsty.
+The [`nodes.yml`](https://github.com/vonng/pigsty/blob/master/nodes.yml) playbook will register nodes to Pigsty.
 
 This playbook adjusts the target nodes to the state described in the [inventory](v-nodes.md), installs the Consul service, and incorporates it into the Pigsty monitoring system. Nodes can be used for database deployment once provisioning is complete.
 
@@ -174,7 +174,7 @@ Refer to: [Prepare: Admin User](d-prepare.md#Admin-Provisioning) for more detail
 
 ## `nodes-remove`
 
-The [`nodes-remove.yml`](#nodes-remove) playbook is used to remove nodes from Pigsty.
+The [`nodes-remove.yml`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml) playbook is used to remove nodes from Pigsty.
 
 The playbook needs to be executed on **meta nodes**, and targeting nodes need to be removed.
 
