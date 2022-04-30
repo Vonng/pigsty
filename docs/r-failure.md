@@ -26,7 +26,7 @@
 |  ID  |                      Name                      |                           Symptom                            |                           Process                            |
 | :--: | :--------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | SP1  |             Database process abort             |           `ps aux` can't find the postgres process           | Check Postgres, Patroni status<br />Confirm Failover results, or perform Failover manually |
-| SP2  |        Connection pool process aborted         |             `systemctl status pgbouncer` Failure             | [restart service component](r-sop#Case-3-Cluster-Config-Change-Restart) or [reset service component](r-sop#Case-11-Reset-Component) |
+| SP2  |        Connection pool process aborted         |             `systemctl status pgbouncer` Failure             | [restart service component](r-sop#Case-3-Cluster-Config-Change-and-Restart) or [reset service component](r-sop#Case-11-Reset-Component) |
 | SP3  |        Primary Patroni process aborted         |              `systemctl status patroni` Failure              |  As above, enter maintenance mode, reboot or reset Patroni   |
 | SP4  |         Primary Consul process aborted         |              `systemctl status consul` Failure               |   As above, enter maintenance mode, reboot or reset Consul   |
 | S05  |             HAProxy process aborts             |              `systemctl status haproxy` Failure              |              As above, restart or reset Haproxy              |
@@ -52,7 +52,7 @@
 | M06  | Insert data conflicts due to duplicate primary key serial numbers |     violate constratint ...     |           Grow serial number value (e.g. +100000)            |
 | M07  |                Slow query queuing / avalanche                | Large number of slow query logs | Use pg_terminate_backend to periodically clean up slow queries (e.g. every 1 second) |
 | M08  |                 Deadlock queuing / avalanche                 |          Lock stacking          | Use pg_terminate_backend to periodically clean up queries (e.g. every 1 second) |
-| M09  |                      HBA denied access                       |      no HBA entry for xxx       | [Case 6: Cluster HBA rule tuning](r-sop.md#case-6-Cluster-HBA-rule-tuning) |
-| M10  |                     User password error                      |  password auth failure for xxx  | [Case 4: Cluster business user creation](r-sop.md#case-4-Cluster-business-user-creation) |
+| M09  |                      HBA denied access                       |      no HBA entry for xxx       |  [Case 6: APPLY-PGSQL-HBA](r-sop.md#case-6-APPLY-PGSQL-HBA)  |
+| M10  |                     User password error                      |  password auth failure for xxx  | [Case 4: Create OGSQL Biz User](r-sop.md#case-4-Create-pgsql-biz-user) |
 | M11  |                Insufficient access privileges                |     permission denied for x     | Check if the user created the object with the correct admin<br />Refer to [Default Privilege](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L793) to manually fix the object privileges |
 
