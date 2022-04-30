@@ -23,7 +23,7 @@ Pigsty将高可用集群部署，扩容缩容，主从复制，故障切换，�
 
 * Pigsty打包了大规模生产环境所需的基础设施：[Grafana](https://grafana.com/)，[Prometheus](https://prometheus.io/)，[Loki](https://grafana.com/oss/loki/)，[Ansible](https://docs.ansible.com/)，[Consul](https://www.consul.io/)，[Docker](https://www.docker.com/)等， 亦可作为部署监控其他数据库与应用的运行时/PaaS。
 
-* Pigsty集成了数据分析生态的常用工具：[Jupyter](https://jupyter.org/)，[ECharts](https://echarts.apache.org/zh/index.html)，[Grafana](https://grafana.com/)，[PostgREST](https://postgrest.org/)，[Postgres](https://www.postgresql.org/)，可作为[数据分析](#数据分析)环境，或低代码数据可视化应用开发平台。
+* Pigsty集成了数据分析生态的常用工具：[Jupyter](https://jupyter.org/)，[ECharts](https://echarts.apache.org/zh/index.html)，[Grafana](https://grafana.com/)，[PostgREST](https://postgrest.org/)，[Postgres](https://www.postgresql.org/)，可作为[数据分析](#应用广泛生态全)环境，或低代码数据可视化应用开发平台。
 
 [![](../_media/DISTRIBUTION.gif)](c-infra.md#概览)
 
@@ -33,11 +33,11 @@ Pigsty将高可用集群部署，扩容缩容，主从复制，故障切换，�
 
 > Auto-Pilot for Postgres! 自动驾驶！ 从有到优，让用户**用的爽**！
 
-* Pigsty带有一个无可比拟的数据库[监控系统](#终极可观测性)，通过30+精心设计组织的监控面板呈现超1200类指标，从全局概览到单个库内对象一览无余，提供终极的可观测性！
+* Pigsty带有一个无可比拟的数据库[监控系统](#极致入微可观测)，通过30+精心设计组织的监控面板呈现超1200类指标，从全局概览到单个库内对象一览无余，提供终极的可观测性！
 
 * Pigsty提供[高可用](#自动驾驶高可用)的 PostgreSQL 数据库集群，任意成员存活即可正常对外提供服务；各实例幂等，提供类分布式数据库的体验；故障自愈，极大简化运维工作！
 
-* Pigsty支持部署不同种类的数据库集群与实例：经典 [PGSQL](d-pgsql.md) [主从复制集群](d-pgsql.md#主从集群)/[灾备集群](d-pgsql.md#备份集群)，[同步](v-pgsql.md#同步从库)/[延迟](v-pgsql.md#延迟从库)/[离线](v-pgsql.md#离线从库)/[级联实例](v-pgsql.md#级联从库)，[Citus](v-pgsql.md#Citus集群部署)/[Greenplum集群](d-matrixdb.md)，[Redis](d-redis.md) [主从](d-redis.md#redis普通主从实例定义)/[哨兵](d-redis.md#redis-sentinel集群定义)/[原生集群](d-redis.md#redis原生集群定义)。
+* Pigsty支持部署不同种类的数据库集群与实例：经典 [PGSQL](d-pgsql.md) [主从复制集群](d-pgsql.md#主从集群)/[灾备集群](d-pgsql.md#备份集群)，[同步](d-pgsql.md#同步从库)/[延迟](d-pgsql.md#延迟从库)/[离线](d-pgsql.md#离线从库)/[级联实例](d-pgsql.md#级联复制)，[Citus](v-pgsql.md#Citus集群部署)/[Greenplum集群](d-matrixdb.md)，[Redis](d-redis.md) [主从](d-redis.md#redis普通主从实例定义)/[哨兵](d-redis.md#redis-sentinel集群定义)/[原生集群](d-redis.md#redis原生集群定义)。
 
 [![](../_media/ARCH.gif)](c-arch.md)
 
@@ -47,9 +47,9 @@ Pigsty将高可用集群部署，扩容缩容，主从复制，故障切换，�
 
 > HashiCorp for Database! 简单易用！从优到易，让用户**省心**！
 
-* Pigsty秉持 [Infra as Data](#极致的易用性) 的设计理念，用户只需用几行声明式的[配置](v-config.md#配置文件)文件描述自己想要的数据库，即可使用幂等[剧本](p-playbook.md)，一键将其创建。Just like Kubernetes!
+* Pigsty秉持 [Infra as Data](#简单易用门槛低) 的设计理念，用户只需用几行声明式的[配置](v-config.md#配置文件)文件描述自己想要的数据库，即可使用幂等[剧本](p-playbook.md)，一键将其创建。Just like Kubernetes!
 
-* Pigsty向开发者交付[简单易用](#极致的易用性)的数据库工具箱：一键下载[安装](s-install.md#单机安装)，自动[配置](v-config.md#配置过程)；一键部署各类开源数据库，一键迁移备份、扩容缩容，极大拉低数据库管理使用门槛，量产DBA！
+* Pigsty向开发者交付[简单易用](#简单易用门槛低)的数据库工具箱：一键下载[安装](s-install.md#单机安装)，自动[配置](v-config.md#配置过程)；一键部署各类开源数据库，一键迁移备份、扩容缩容，极大拉低数据库管理使用门槛，量产DBA！
 
 * Pigsty能够简化数据库部署与交付、解决环境配置统一的难题：无论是上千套数据库几万核的生产环境，还是本地1C1G的笔记本均可完整运行；基于Vagrant的[本地沙箱](d-sandbox.md)与基于Terraform的[多云部署](d-sandbox.md#多云部署)，云上云下，一键拉起！
 
@@ -59,7 +59,7 @@ Pigsty将高可用集群部署，扩容缩容，主从复制，故障切换，�
 
 ## 开源云数据库PaaS替代方案
 
-> Alternative for RDS! [安全可控](#安全可控)，[降本增效](#降本增效)！从易到廉，给用户**省钱**！
+> Alternative for RDS! [安全可控](#自主可控)，[降本增效](#降本增效)！从易到廉，给用户**省钱**！
 
 * Pigsty相比云厂商RDS，在拥有更低使用⻔槛与更丰富功能的前提下，可节约 50% - 80% 的数据库软硬件成本，初级研发人员即可自主管理成百上千套数据库。
 
