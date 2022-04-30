@@ -3,7 +3,7 @@
 # register infra service to consul
 #------------------------------------------------------------------------------
 - name: Register infra service to consul
-  tags: register_consul_infra
+  tags: [ infra_register, register_consul ]
   when: dcs_registry == 'consul'
   ignore_errors: true
   block:
@@ -36,10 +36,6 @@
       when: nameserver_enabled|bool
       template: src=svc-dnsmasq.json.j2 dest=/etc/consul.d/svc-dnsmasq.json owner=consul mode=0660
 
-    - name: Register docker service to consul
-      when: docker_enabled|bool
-      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
-
     - name: Reload consul
       systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
 
@@ -48,9 +44,10 @@
 # Register infra service to prometheus
 #--------------------------------------------------------------#
 - name: Render infra file-sd targets targets for prometheus
-  tags: register_prometheus_infra
+  tags: [ infra_register, register_prometheus ]
+  ignore_errors: true
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
-  template: src=infra.yml.j2 dest=/etc/prometheus/targets/infra/{{ inventory }}.yml owner=prometheus mode=0644
+  template: src=infra.yml.j2 dest=/etc/prometheus/targets/infra/{{ inventory_hostname}}.yml owner=prometheus mode=0644
 
 ...

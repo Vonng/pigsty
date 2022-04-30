@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   prometheus.yml
 # Ctime     :   2020-04-03
-# Mtime     :   2022-01-22
+# Mtime     :   2022-04-29
 # Desc      :   Prometheus Configuration File
 # Path      :   /etc/prometheus/prometheus.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -80,11 +80,10 @@ scrape_configs:
       format: ['prometheus']
     static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
 
-
   #------------------------------------------------------------------------------
   # job: nodes
-  # node_exporter
-  # labels: [ip]
+  # node_exporter, docker, promtail
+  # labels: [cls, ins, ip, instance]
   # path: targets/pgsql/<ip>.yml
   #------------------------------------------------------------------------------
   - job_name: nodes
@@ -164,6 +163,48 @@ scrape_configs:
         action: replace
         target_label: type
 
+      # relabel meta.address -> ip (unique node ip identifier)
+      - source_labels: [ __meta_consul_address ]
+        action: replace
+        target_label: ip
+
+  - job_name: consul
+    metrics_path: /v1/agent/metrics
+    params:
+      format: ['prometheus']
+    static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+
+  #------------------------------------------------------------------------------
+  # job: nodes
+  # node_exporter, docker, promtail
+  # labels: [cls, ins, ip, instance]
+  # path: targets/pgsql/<ip>.yml
+  #------------------------------------------------------------------------------
+  - job_name: nodes
+    metrics_path: {{ exporter_metrics_path }}
+    consul_sd_configs:
+      - server: 127.0.0.1:8500
+        refresh_interval: {{ prometheus_sd_interval }}
+        tags:
+          - nodes
+          - exporter
+
+    relabel_configs:
+      # relabel meta.cluster -> cls  (unique cluster identifier)
+      - source_labels: [ __meta_consul_service_metadata_cluster ]
+        action: replace
+        target_label: cls
+
+      # relabel meta.instance -> ins  (unique instance identifier prefixed with cls)
+      - source_labels: [ __meta_consul_service_metadata_instance ]
+        action: replace
+        target_label: ins
+
+      # relabel meta.address -> ip    (unique node ip identifier)
+      - source_labels: [ __meta_consul_address ]
+        action: replace
+        target_label: ip
+
 
   #------------------------------------------------------------------------------
   # job: pgsql (database monitoring)
@@ -191,6 +232,10 @@ scrape_configs:
         action: replace
         target_label: ins
 
+      # relabel meta.address -> ip    (unique node ip identifier)
+      - source_labels: [ __meta_consul_address ]
+        action: replace
+        target_label: ip
 
 {% endif %}
 

@@ -1,5 +1,31 @@
 ---
 #------------------------------------------------------------------------------
+# register node service to consul
+#------------------------------------------------------------------------------
+- name: Register infra service to consul
+  tags: [ node_register, register_consul ]
+  when: dcs_registry == 'consul'
+  ignore_errors: true
+  block:
+
+    - name: Register docker service to consul
+      when: docker_enabled|bool
+      template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
+
+    - name: Register node-exporter service to consul
+      when: node_exporter_enabled|bool
+      template: src=svc-node-exporter.json.j2 dest=/etc/consul.d/svc-node-exporter.json owner=consul mode=0660
+
+    - name: Register promtail service to consul
+      when: promtail_enabled|bool
+      template: src=svc-promtail.json.j2 dest=/etc/consul.d/svc-promtail.json owner=consul mode=0660
+
+    # register consul itself into consul is meaningless
+    - name: Reload consul
+      systemd: name=consul state=reloaded enabled=yes daemon_reload=yes
+
+
+#------------------------------------------------------------------------------
 # Register Node to Prometheus
 #------------------------------------------------------------------------------
 # /etc/prometheus/targets/nodes/{{ ip }}.yml
@@ -7,6 +33,7 @@
   tags: [ node_register, register_prometheus ]
   delegate_to: '{{ item }}'
   with_items: '{{ groups["meta"] }}'
+  ignore_errors: true
   copy:
     dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
     content: |
@@ -16,6 +43,7 @@
           {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
       
           {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
-          
+      
+          {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
 ...
