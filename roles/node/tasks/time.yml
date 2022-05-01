@@ -51,4 +51,15 @@
     - name: Launch chronyd service
       when: node_ntp_service == 'chrony'
       systemd: name=chronyd enabled=true state=restarted
+
+
+#--------------------------------------------------------------#
+# 5. Setup Crontab
+#--------------------------------------------------------------#
+- name: Setup node crontab
+  tags: node_cron
+  when: node_crontab|length > 0
+  lineinfile: path=/etc/crontab line="{{ item }}"
+  with_items: "{{ node_crontab }}"
+
 ...

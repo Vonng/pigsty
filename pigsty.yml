@@ -77,12 +77,9 @@ all:
 
       vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
         pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
-
         # all vars below are [OPTIONAL] (overwrite global default)
         pg_version: 14                # pgsql version to be installed (use global version if missing)
-        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
         pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-        patroni_mode: default         # entering patroni pause mode after bootstrap  {default|pause|remove}
         patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
         pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
 
@@ -152,6 +149,10 @@ all:
         vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
         vip_cidrmask: 8                     # cidr network mask length
         vip_interface: eth1                 # interface to add virtual ip
+
+        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
+        node_crontab:
+          - 00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log     # backup @ 1am daily
 
 
     #----------------------------------#
@@ -455,7 +456,7 @@ all:
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm
+      - https://rpmfind.net/linux/remi/enterprise/7/remi/x86_64/redis-6.2.7-1.el7.remi.x86_64.rpm
       - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
 
@@ -617,7 +618,7 @@ all:
       - pool time.pool.aliyun.com iburst
       - server 10.10.10.10 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
-    node_crontab: [ ]                # crontab entries
+    node_crontab: [ ]                # crontab entries in /etc/crontab
 
     #-----------------------------------------------------------------
     # DOCKER
@@ -924,33 +925,33 @@ all:
     #-----------------------------------------------------------------
     # REDIS_IDENTITY
     #-----------------------------------------------------------------
-    #redis_cluster: redis-test       # name of this redis cluster @ cluster level
-    #redis_node: 1                   # redis node identifier, integer sequence @ node level
-    #redis_instances: {}             # redis instances definition of this redis node @ node level
+    #redis_cluster: redis-test        # name of this redis cluster @ cluster level
+    #redis_node: 1                    # redis node identifier, integer sequence @ node level
+    #redis_instances: {}              # redis instances definition of this redis node @ node level
 
     #-----------------------------------------------------------------
     # REDIS_NODE
     #-----------------------------------------------------------------
-    redis_fs_main: /data            # main fs mountpoint for redis data
-    redis_exporter_enabled: true    # install redis exporter on redis nodes?
-    redis_exporter_port: 9121       # default port for redis exporter
-    redis_exporter_options: ''      # default cli args for redis exporter
+    redis_fs_main: /data              # main fs mountpoint for redis data
+    redis_exporter_enabled: true      # install redis exporter on redis nodes?
+    redis_exporter_port: 9121         # default port for redis exporter
+    redis_exporter_options: ''        # default cli args for redis exporter
 
     #-----------------------------------------------------------------
     # REDIS_PROVISION
     #-----------------------------------------------------------------
-    redis_safeguard: false          # force redis_clean = abort if true
-    redis_clean: true               # abort|skip|clean if redis server already exists
-    redis_rmdata: true              # remove redis data when purging redis server?
-    redis_mode: standalone          # standalone,cluster,sentinel
-    redis_conf: redis.conf          # config template path (except sentinel)
-    redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
-    redis_max_memory: 1GB           # max memory used by each redis instance
-    redis_mem_policy: allkeys-lru   # memory eviction policy
-    redis_password: ''              # masterauth & requirepass password, disable by empty string
-    redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
-    redis_aof_enabled: false        # redis aof enabled
-    redis_rename_commands: {}       # rename dangerous commands
-    redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
+    redis_safeguard: false            # force redis_clean = abort if true
+    redis_clean: true                 # abort|skip|clean if redis server already exists
+    redis_rmdata: true                # remove redis data when purging redis server?
+    redis_mode: standalone            # standalone,cluster,sentinel
+    redis_conf: redis.conf            # config template path (except sentinel)
+    redis_bind_address: '0.0.0.0'     # bind address, empty string turns to inventory_hostname
+    redis_max_memory: 1GB             # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru     # memory eviction policy
+    redis_password: ''                # masterauth & requirepass password, disable by empty string
+    redis_rdb_save: ['1200 1']        # redis rdb save directives, disable with empty list
+    redis_aof_enabled: false          # redis aof enabled
+    redis_rename_commands: {}         # rename dangerous commands
+    redis_cluster_replicas: 1         # how many replicas for a master in redis cluster ?
 
 ...

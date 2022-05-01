@@ -1,5 +1,17 @@
 # Development Log
 
+#### 2022-05-02
+
+* add crontab implementation
+
+
+#### 2022-05-01
+
+* Refactor redis.yml & redis-remove.yml
+* Remove role redis, redis-remove, redis-exporter
+* Fix dashboard redis aliveness issue
+* Upgrade to redis v6.2.7
+
 
 #### 2022-04-30
 
