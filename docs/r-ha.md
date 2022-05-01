@@ -6,35 +6,35 @@ Below is a list of 24 typical HA failure scenarios, divided into three categorie
 
 All experiments assume that **HA auto-switchover mode** is enabled, where Patroni should correctly handle Primary and Replica failures.
 
-|                           Number                           | Case Name                                                    |                Auto Mode                |  Manual switch  |
-| :--------------------------------------------------------: | :----------------------------------------------------------- | :-------------------------------------: | :-------------: |
-|                   [A](#Primary-failure)                    | **Primary Node Failures**                                    |                                         |                 |
-|                [1A](#1A-Primary-node-down)                 | Primary Node node down                                       |              **Failover**               |  Manual switch  |
-|        [2A](#2A-primary-postgres-process-shutdown)         | Primary Node Postgres process shutdown (`pg_ctl or kill -9`) |              **Failover**               |  Manual reboot  |
-|         [3A](#3A-primary-patroni-process-shutdown)         | The Primary Node Patroni process is shut down usually (`systemctl stop patroni`) |              **Failover**               |  Manual reboot  |
-| [4A](#4A-primary-node-patroni-process-abnormally-shutdown) | Abnormal shutdown of the Primary Node Patroni process (`kill -9`) |         **Needs confirmation**          |    No effect    |
-|                             5A                             | Primary Node load hit full, false death (watchdog)           |         **Needs confirmation**          |    No effect    |
-|                             6A                             | Primary DCS Agent is not available (`systemctl stop consul`) |      **Cluster Primary demotion**       |    No effect    |
-|                             7A                             | Primary Node network jitter                                  |    **Automatic Failover on timeout**    | Need to observe |
-|                             8A                             | Erroneous deletion of Primary data dir                       |         **Automatic Failover**          |  Manual switch  |
-|           [B](#Replica-node-failure-experiment)            | **Replica bank failure (1/n , n>1)**                         |                                         |                 |
-|                             1B                             | Replica Node down                                            |                No effect                |    No effect    |
-|                             2B                             | Replica Node Postgres process shutdown (`pg_ctl or kill -9`) |                No effect                |    No effect    |
-|                             3B                             | Replica Node process Postgres  Manual Shutdown (`pg_ctl`)    |                No effect                |    No effect    |
-|                             4B                             | Replica Node Patroni process exception Kill (`kill -9`)      |                No effect                |    No effect    |
-|                             5B                             | Replica DCS Agent is not available (`systemctl stop consul`) |                No effect                |    No effect    |
-|                             6B                             | Replica Node Load hit full, false death                      |                 Depends                 |     Depends     |
-|                             7B                             | Replica Node network jitter                                  |                No effect                |    No effect    |
-|                             8B                             | Boosting a Replica node by mistake (`pg_ctl promte`)         |         **Automatic recovery**          | **Split Brain** |
-|                [C](#dcs-failure-experiment)                | **DCS failure**                                              |                                         |                 |
-|                             1C                             | DCS Server is completely unavailable (most nodes are unavailable) | **Downgrade all cluster Primary nodes** |    No effect    |
-|                             2C                             | DCS pass Primary, not Replica (1 Primary & 1 Replica)        |                No effect                |    No effect    |
-|                             3C                             | DCS pass Primary, not Replica (1 Primary n Replica, n>1)     |                No effect                |    No effect    |
-|                             4C                             | DCS pass Replica, not Primary (1 Primary, 1 Replica)         |                No effect                |    No effect    |
-|                             5C                             | DCS pass Replica, not Primary (1 Primary n Replica, n>1)     |         **Automatic Failover**          |    No effect    |
-|                             6C                             | DCS network jitter: simultaneous outages, <br />Primary and Replica nodes recover simultaneously, or the Primary node recovers first |                No effect                |    No effect    |
-|                             7C                             | DCS network jitter: simultaneous outages, <br />Replica nodes recover first, Primary nodes recover later (1 Primary, 1 Replica) |                No effect                |    No effect    |
-|                             8C                             | DCS network jitter: simultaneous interruptions,<br />Replica nodes recover first, Primary nodes recover later (1 Primary n Replica, n>1) |       Automatic Failover over TTL       |    No effect    |
+|                Number                 | Case Name                                                    |                Auto Mode                |  Manual switch  |
+| :-----------------------------------: | :----------------------------------------------------------- | :-------------------------------------: | :-------------: |
+|         [A](#Primary-failure)         | **Primary Node Failures**                                    |                                         |                 |
+|                  1A                   | Primary Node node down                                       |              **Failover**               |  Manual switch  |
+|                  2A                   | Primary Node Postgres process shutdown (`pg_ctl or kill -9`) |              **Failover**               |  Manual reboot  |
+|                  3A                   | The Primary Node Patroni process is shut down usually (`systemctl stop patroni`) |              **Failover**               |  Manual reboot  |
+|                  4A                   | Abnormal shutdown of the Primary Node Patroni process (`kill -9`) |         **Needs confirmation**          |    No effect    |
+|                  5A                   | Primary Node load hit full, false death (watchdog)           |         **Needs confirmation**          |    No effect    |
+|                  6A                   | Primary DCS Agent is not available (`systemctl stop consul`) |      **Cluster Primary demotion**       |    No effect    |
+|                  7A                   | Primary Node network jitter                                  |    **Automatic Failover on timeout**    | Need to observe |
+|                  8A                   | Erroneous deletion of Primary data dir                       |         **Automatic Failover**          |  Manual switch  |
+| [B](#Replica-node-failure-experiment) | **Replica bank failure (1/n , n>1)**                         |                                         |                 |
+|                  1B                   | Replica Node down                                            |                No effect                |    No effect    |
+|                  2B                   | Replica Node Postgres process shutdown (`pg_ctl or kill -9`) |                No effect                |    No effect    |
+|                  3B                   | Replica Node process Postgres  Manual Shutdown (`pg_ctl`)    |                No effect                |    No effect    |
+|                  4B                   | Replica Node Patroni process exception Kill (`kill -9`)      |                No effect                |    No effect    |
+|                  5B                   | Replica DCS Agent is not available (`systemctl stop consul`) |                No effect                |    No effect    |
+|                  6B                   | Replica Node Load hit full, false death                      |                 Depends                 |     Depends     |
+|                  7B                   | Replica Node network jitter                                  |                No effect                |    No effect    |
+|                  8B                   | Boosting a Replica node by mistake (`pg_ctl promte`)         |         **Automatic recovery**          | **Split Brain** |
+|     [C](#dcs-failure-experiment)      | **DCS failure**                                              |                                         |                 |
+|                  1C                   | DCS Server is completely unavailable (most nodes are unavailable) | **Downgrade all cluster Primary nodes** |    No effect    |
+|                  2C                   | DCS pass Primary, not Replica (1 Primary & 1 Replica)        |                No effect                |    No effect    |
+|                  3C                   | DCS pass Primary, not Replica (1 Primary n Replica, n>1)     |                No effect                |    No effect    |
+|                  4C                   | DCS pass Replica, not Primary (1 Primary, 1 Replica)         |                No effect                |    No effect    |
+|                  5C                   | DCS pass Replica, not Primary (1 Primary n Replica, n>1)     |         **Automatic Failover**          |    No effect    |
+|                  6C                   | DCS network jitter: simultaneous outages, <br />Primary and Replica nodes recover simultaneously, or the Primary node recovers first |                No effect                |    No effect    |
+|                  7C                   | DCS network jitter: simultaneous outages, <br />Replica nodes recover first, Primary nodes recover later (1 Primary, 1 Replica) |                No effect                |    No effect    |
+|                  8C                   | DCS network jitter: simultaneous interruptions,<br />Replica nodes recover first, Primary nodes recover later (1 Primary n Replica, n>1) |       Automatic Failover over TTL       |    No effect    |
 
 
 -----------------------

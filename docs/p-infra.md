@@ -8,7 +8,6 @@
 | [`infra-demo`](p-infra.md#infra-demo)       | Special version of `infra`, pull up the 4-node sandbox in one-pass | [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)    |
 | [`infra-remove`](p-infra.md#infra-remove)   | Uninstall pigsty from the meta node. | [`src`](https://github.com/vonng/pigsty/blob/master/infra-remove.yml)  |
 | [`infra-jupyter`](p-infra.md#infra-jupyter) | Install optional JupyterLab on meta node | [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml) |
-| [`infra-pgweb`](p-infra.md#infra-pgweb)     | Install optional PGWeb on meta node | [`src`](https://github.com/vonng/pigsty/blob/master/infra-pgweb.yml)   |
 
 
 

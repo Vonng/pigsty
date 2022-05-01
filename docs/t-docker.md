@@ -18,10 +18,10 @@ You can also use Docker to execute some battery-included command tools.
 You can also use Docker to pull up some battery-included open-source SaaS services.
 
 * [Gitlab](#Gitlab): open-source code hosting platform.
-* [Habour](#Habour): open-source mirror repo
-* [Jira](#Jira): open-source project management platform.
-* [Confluence](#Confluence): open-source knowledge hosting platform.
-* [Odoo](#Odoo): open-source ERP
+* Habour: open-source mirror repo
+* Jira: open-source project management platform.
+* Confluence: open-source knowledge hosting platform.
+* Odoo: open-source ERP
 * [Mastodon](#Mastodon): PG-based social network
 * [Discourse](#Discourse): open-source forum based on PG and Redis
 

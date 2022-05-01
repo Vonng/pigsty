@@ -180,7 +180,7 @@ bin/createpg 10.10.10.13
 
 **Adjusting Roles**
 
-Cluster expansion will result in changes in cluster membership. Please refer to [Case 8: Cluster Role Adjustment](#case-8：PGSQL-role-adjutment) to distribute the traffic to the new instance.
+Cluster expansion will result in changes in cluster membership. Please refer to [Case 8: Cluster Role Adjustment](#case-8-PGSQL-role-adjustment) to distribute the traffic to the new instance.
 
 ### Frequently Asked Questions
 
@@ -188,15 +188,14 @@ Cluster expansion will result in changes in cluster membership. Please refer to 
 
 Pigsty uses a SafeGuard to avoid accidental deletion of running instances; please use the [`pgsql-remove`](p-pgsql.md#pgsql-remove) playbook to complete the instance destruction first and then reuse the node. For an emergency overwrite installation, you can use the following parameters to force the running instance to be erased during the installation (Danger!!!)
 
-* [`pg_exists_action`](v-pgsql.md#pg_exists_action) = clean
-* [`pg_disable_purge`](v-pgsql.md#pg_disable_purge) = false
-* [`dcs_exists_action`](v-pgsql.md#pg_exists_action) = clean
-* [`dcs_disable_purge`](v-pgsql.md#pg_disable_purge) = false
-* [`rm_dcs_servers`](v-pgsql.md#rm_dcs_servers) = true （Required only when removing the DCS Server）
+* [`pg_clean`](v-pgsql.md#pg_clean) = clean
+* [`pg_safeguard`](v-pgsql.md#pg_safeguard) = false
+* [`consul_clean`](v-pgsql.md#pg_clean) = clean
+* [`consul_safeguard`](v-pgsql.md#pg_safeguard) = false
 
 For example: `. /pgsql.yml -l pg-test -e pg_exists_action=clean` will force an override install of the `pg-test` cluster.
 
-
+When the execution of a Consul instance is aborted, you can also take the above parameters to force the running instance to be erased.
 
 
 #### FAQ 2: The database is too extensive, waiting for the replica to come online timeout
@@ -277,7 +276,7 @@ pg list -W # Check the cluster status and confirm that the failed instance does 
 
 ## Case 2: Cluster Destruction and Downsize
 
-Cluster destruction/downsize uses a dedicated playbook [`pgsql-remove`](p-pgsql-remove) that, when used against a cluster, will take the entire cluster destruction.
+Cluster destruction/downsize uses a dedicated playbook [`pgsql-remove`](p-pgsql.md#pgsql-remove) that, when used against a cluster, will take the entire cluster destruction.
 
 When used against a single instance in the cluster, the instance will be removed from the cluster.
 
@@ -307,7 +306,7 @@ Note that removing the cluster primary directly will cause the cluster to Failov
 
 **Adjustment of roles**
 
-Note: Cluster downsizing will result in a change in cluster membership. When downsizing, the health check of this instance is false, and the traffic carried initially by this instance will be immediately transferred to other members. However, you still need to refer to the instructions in Reference [Case-8: Cluster Role Adjustment](#case-8：Cluster-Role-Adjustment) to completely remove this offline instance from the cluster config.
+Note: Cluster downsizing will result in a change in cluster membership. When downsizing, the health check of this instance is false, and the traffic carried initially by this instance will be immediately transferred to other members. However, you still need to refer to the instructions in Reference [Case 8: PGSQL Role Adjustment](#case-8-PGSQL-Role-Adjustment) to completely remove this offline instance from the cluster config.
 
 **Downline Offline Instance**
 
@@ -351,7 +350,7 @@ The ``pending restart`` notation is displayed in the ``pg list <cluster>` with t
 
 ## Case 4: Create PGSQL Biz User
 
-A new [business user](c-pgdbuser.md#user) can be created in an existing database via [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser).
+A new [business user](c-pgdbuser.md#default-users) can be created in an existing database via [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser).
 
 Business users are usually those used by software programs in a production environment, and users who need to access the database through connection pools **must** be managed in this way. Other users can be created and managed using Pigsty or can be maintained and managed.
 
@@ -380,7 +379,7 @@ If the database is configured with an OWNER, create the corresponding OWNER user
 
 ## Case 5: Create PGSQL BIZ DB
 
-A new [business database](c-pgdbuser.md#database) can be created in an existing database cluster by [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb).
+A new [business database](c-pgdbuser.md#default-users) can be created in an existing database cluster by [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb).
 
 A business database refers to a database object that is created and used by a user. If you wish to access this database through a connection pool, it must be created using the playbook provided by Pigsty to maintain the config in the connection pool consistent with PostgreSQL.
 
@@ -463,7 +462,7 @@ HAProxy controls the cluster traffic of PostgreSQL in Pigsty by default, and use
 
 **Controlling traffic using HAProxy Admin UI**
 
-Pigsty's HAProxy provides an Admin UI on port 9101 ([`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port) by default, which can be accessed by default via Pigsty's default domain name suffixed with the instance name (`pg_ cluster-pg_seq`) to access it. The admin UI comes with optional auth options enabled by the parameter ([`haproxy_auth_enabled`](v-pgsql#haproxy_auth_enabled)). Admin interface auth is not enabled by default, and when enabled, it is required to use the username specified by [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) and [`haproxy_admin_password`](v-pgsql.md#haproxy_ admin_password) with the username and password to log in.
+Pigsty's HAProxy provides an Admin UI on port 9101 ([`haproxy_exporter_port`](v-pgsql.md#haproxy_exporter_port) by default, which can be accessed by default via Pigsty's default domain name suffixed with the instance name (`pg_ cluster-pg_seq`) to access it. The admin UI comes with optional auth options enabled by the parameter ([`haproxy_auth_enabled`](v-pgsql#haproxy_auth_enabled)). Admin interface auth is not enabled by default, and when enabled, it is required to use the username specified by [`haproxy_admin_username`](v-pgsql.md#haproxy_admin_username) and [`haproxy_admin_password`](v-pgsql.md#haproxy_admin_password) with the username and password to log in.
 
 Use your browser to access `http://pigsty/<ins>` (the domain name varies by configuration, you can also click there from the PGSQL Cluster Dashboard) to access the LB admin interface on the corresponding instance. [Sample Interface](http://home.pigsty.cc/pg-meta-1/)
 
@@ -535,13 +534,13 @@ It is highly discouraged to configure more than one Offline instance for a clust
 
 The HBA rules that apply to different roles should also be returned when the cluster role changes.
 
-Use the method described in [Case-6: Cluster HBA Rule Adjustment](#case-6：SPPLY-PGSQL-HBA) to adjust the cluster HBA rules
+Use the method described in [Case 6: APPLY PGSQL HBA](#case-6-APPLY-PGSQL-HBA) to adjust the cluster HBA rules
 
 **3. Adjusting the cluster load balancing config**
 
 HAProxy dynamically distributes request traffic based on the health check results returned by Patroni in the cluster, so node failure does not affect external requests. However, users should adjust the cluster load balancing config at the right time (e.g., after waking up in the morning). For example, take the failure out of the cluster config entirely instead of continuing to freeze in the cluster with a health check DOWN status.
 
-Use the method described in [Case-7: Cluster Traffic Control](#case-7：PGSQL-LB-Traffic-control) to tune the cluster load balancing config.
+Use the method described in [Case 7: PGSQL LB Traffic Control](#case-7-PGSQL-LB-Traffic-control) to tune the cluster load balancing config.
 
 **4. Consolidation Operations**
 
@@ -623,7 +622,7 @@ For example, if you want to perform a Failover on the three-node demo cluster `p
 pg failover <cluster>
 ```
 
-Then follow the wizard prompts to execute Failover. After cluster Failover, you should refer to the instructions in [Case 8: Cluster Role Adjustment](#case-8：PGSQL-Role-Adjustment) to fix the cluster role.
+Then follow the wizard prompts to execute Failover. After cluster Failover, you should refer to the instructions in [Case 8: Cluster Role Adjustment](#case-8-PGSQL-Role-Adjustment) to fix the cluster role.
 
 <details>
 <summary>Execute Failover's operation log</summary>

@@ -66,13 +66,13 @@ pg-grafana:
 
 ### Create Cluster
 
-Complete the creation of the database cluster `pg-grafana` with the following command: [`pgsql.yml`](p-pgsql.yml).
+Complete the creation of the database cluster `pg-grafana` with the following command: [`pgsql.yml`](p-pgsql.md).
 
 ```bash
 bin/createpg pg-grafana # Initialize the pg-grafana cluster
 ```
 
-This command calls Ansible Playbook [`pgsql.yml`](p-pgsq.md) to create the database cluster.
+This command calls Ansible Playbook [`pgsql.yml`](p-pgsql.md) to create the database cluster.
 
 ```bash
 . /pgsql.yml -l pg-grafana # The actual equivalent Ansible playbook command executed 
@@ -126,7 +126,7 @@ Complete the creation of the `dbuser_grafana` user with the following command.
 bin/createuser pg-meta dbuser_grafana # Create the `dbuser_grafana` user on the pg-meta cluster
 ```
 
-Calls Ansible Playbook [`pgsql-createuser.yml`](p-pgsql-createuser.md) to create the user
+Calls Ansible Playbook [`pgsql-createuser.yml`](p-pgsql.md#pgsql-createuser) to create the user
 
 ```bash
 . /pgsql-createuser.yml -l pg-meta -e pg_user=dbuser_grafana # Ansible
@@ -220,7 +220,7 @@ Subsequently, restart Grafana.
 systemctl restart grafana-server
 ```
 
-See from the monitor system that the new [`grafana`](http://g.pigsty.cc/d/pgsql-database/pgsql-database?var-cls=pg-meta&var-ins=pg-meta-1&var-datname=grafana&orgId=1) database is already active, then Grafana has started using Postgres as the primary backend database. However, the original Dashboards and Datasources in Grafana have disappeared. You need to re-import [Dashboards](#Manage-Dashboard) and [Postgres Datasources](#Manage-Datasources).
+See from the monitor system that the new [`grafana`](http://demo.pigsty.cc/d/pgsql-alert) database is already active, then Grafana has started using Postgres as the primary backend database. However, the original Dashboards and Datasources in Grafana have disappeared. You need to re-import [Dashboards](#Manage-Dashboard) and [Postgres Datasources](#Manage-Datasources).
 
 
 
@@ -298,7 +298,7 @@ As a reminder, using `grafana.py clean` will clear the target monitor dashboard,
 
 ## Manage DataSources
 
-When creating a new PostgreSQL cluster with [`pgsql.yml`](p-pgsql) or a new business database with [`pgsql-createdb.yml`](p-pgsql.md#p-pgsql-createdb), Pigsty will register the new PostgreSQL data source in Grafana, and you can access the target database instance directly through Grafana using the default admin user. Most of the functionality of the application `pgcat` relies on this.
+When creating a new PostgreSQL cluster with [`pgsql.yml`](p-pgsql) or a new business database with [`pgsql-createdb.yml`](p-pgsql.md#pgsql-createdb), Pigsty will register the new PostgreSQL data source in Grafana, and you can access the target database instance directly through Grafana using the default admin user. Most of the functionality of the application `pgcat` relies on this.
 
 To register a Postgres database, you can use the `register_grafana` task in [`pgsql.yml`](p-pgsql.md).
 

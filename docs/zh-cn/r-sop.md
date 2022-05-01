@@ -236,7 +236,6 @@ Pigsty使用安全保险机制来避免误删运行中的Consul实例，请使�
 
 * [`consul_clean`](v-pgsql.md#pg_clean) = clean
 * [`consul_safeguard`](v-pgsql.md#pg_safeguard) = false
-* [`rm_dcs_servers`](v-pgsql.md#rm_dcs_servers) = true （仅当移除DCS Server时需要）
 
 </details>
 

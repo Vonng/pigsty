@@ -768,7 +768,7 @@ Check [SafeGuard](p-pgsql.md#SafeGuard) for details.
 
 Remove existing pg during node init? level: C/A, default: `false`
 
-This allows the removal of any running pg instance during [`pgsql.yml`](p-pgsql.yml#pgsql), which makes it a true idempotent playbook.
+This allows the removal of any running pg instance during [`pgsql.yml`](#p-pgsql.md), which makes it a true idempotent playbook.
 
 It's a dangerous option so you'd better disable it by default and use it with `-e` CLI args.
 
@@ -888,10 +888,10 @@ Patroni's template, type: `string`, level: C, default value: `"tiny.yml"`
 
 The [Patroni template](v-pgsql-customize.md) was used to pull up the Postgres cluster. Pigsty has 4 pre-built templates:
 
-* [`oltp.yml`](#oltp) Regular OLTP template, default config.
-* [`olap.yml`](#olap) OLAP templates to improve parallelism, optimize for throughput, and optimize for long-running queries.
-* [`crit.yml`](#crit) Core business templates, based on OLTP templates optimized for security, data integrity, using synchronous replication, forced to enable data checksum.
-* [`tiny.yml`](#tiny) Micro templates optimized for low-resource scenarios have demo clusters running in VMs.
+* [`oltp.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/oltp.yml) Regular OLTP template, default config.
+* [`olap.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/olap.yml)OLAP templates to improve parallelism, optimize for throughput, and optimize for long-running queries.
+* [`crit.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/crit.yml) Core business templates, based on OLTP templates optimized for security, data integrity, using synchronous replication, forced to enable data checksum.
+* [`tiny.yml`](https://github.com/Vonng/pigsty/blob/master/roles/postgres/templates/tiny.yml) Micro templates optimized for low-resource scenarios have demo clusters running in VMs.
 
 
 
@@ -993,7 +993,7 @@ Pigsty provides rich customization options, if you want to further customize the
 
 Provision template to pgsql (app template), type: `bool`, level: C, default: `true.`
 
-Provision of the PostgreSQL cluster. Setting to false will skip the tasks defined by [`PG_TEMPLATE`](#PG_TEMPALTE). Note, however, that the creation of the four default dbsu, replication user, admin user, and monitor user is not affected by this.
+Provision of the PostgreSQL cluster. Setting to false will skip the tasks defined by [`pg_provision`](#pg_provision). Note, however, that the creation of the four default dbsu, replication user, admin user, and monitor user is not affected by this.
 
 ### `pg_init`
 
@@ -1004,7 +1004,7 @@ The path to pg-inits Shell script, which defaults to `pg-init`, is copied to `/p
 The default `pg-init` is just a wrapper for the SQL command:
 
 * `/pg/tmp/pg-init-roles.sql`: Default role creation script generated from [`pg_default_roles`](#pg_default_roles).
-* `/pg/tmp/pg-init-template.sql`: SQL commands produced according to [`pg_default_privileges`](#pg_default_privileges), [`pg_default_schemas`](#pg_default_schemas), [`pg_default_extensions`](#pg_ default_extensions). Will be applied to both the default database template `template1` and the default admin `postgres`.
+* `/pg/tmp/pg-init-template.sql`: SQL commands produced according to [`pg_default_privileges`](#pg_default_privileges), [`pg_default_schemas`](#pg_default_schemas), [`pg_default_extensions`](#pg_default_extensions). Will be applied to both the default database template `template1` and the default admin `postgres`.
 
 ```bash
 # system default roles
@@ -1051,7 +1051,7 @@ This parameter defines the [default role](c-privilege.md#default-roles) and [def
 
 
 
-### `pg_default_privilegs`
+### `pg_default_privileges`
 
 List of default privilegs, type: `string[]`, level: G/C, default value:
 
@@ -1162,7 +1162,7 @@ pg_hba_rules:
       - host    all     +dbrole_readonly           127.0.0.1/32        md5
 ```
 
-This parameter is formally identical to [`pg_hba_rules_extra`](#pg_hba_rules_extra), and it is recommended to configure a uniform [`pg_hba_rules`](#pg_hba_rules) globally and use [`pg_hba_rules_extra`](# pg_hba_rules_extra) for extra customization. The rules in both parameters are applied sequentially, with the latter taking higher priority.
+This parameter is formally identical to [`pg_hba_rules_extra`](#pg_hba_rules_extra), and it is recommended to configure a uniform [`pg_hba_rules`](#pg_hba_rules) globally and use [`pg_hba_rules_extra`](#pg_hba_rules_extra) for extra customization. The rules in both parameters are applied sequentially, with the latter taking higher priority.
 
 
 

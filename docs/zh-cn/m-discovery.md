@@ -109,7 +109,7 @@ Pigsty建议使用`static`服务发现，此方式更为简洁，且监控系统
 * 采集高可用组件的 [Patroni](https://patroni.readthedocs.io/en/latest/releases.html?highlight=%2Fmetrics#version-2-1-3)
 * 采集负载均衡器指标的 [HAProxy](https://github.com/Vonng/haproxy-rpm) （内建支持，无需单独部署）
 
-![](../_media/nodes.svg)
+![](../_media/playbook/nodes.svg)
 
 这些采集端口会被[元节点](c-nodes.md#元节点)上的Prometheus所采集。
 此外，可选的Promtail用于收集Postgres，Patroni，Pgbouncer日志，是可选的额外安装组件。

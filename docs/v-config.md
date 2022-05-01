@@ -151,7 +151,7 @@ In Pigsty's [config file](#config-file), **config entry** can appear in three lo
 | **C**luster  | Cluster  | Medium   | Consistency within the same set of **clusters**       | `all.children.<cls>.vars.xxx`        |
 | **I**nstance | Instance | High     | The most granular level of config                     | `all.children.<cls>.hosts.<ins>.xxx` |
 
-Not all config entries are **suitable** for use at all levels. For example, infra params will usually only be defined in the **global** config, params such as database instance labels, roles, load balancing weights, and other params can only be configured at the **instance** level, and some operational options can only be provided using CLI params. For details of config entry, please see the [list of config entry](v-config.md).
+Not all config entries are **suitable** for use at all levels. For example, infra params will usually only be defined in the **global** config, params such as database instance labels, roles, load balancing weights, and other params can only be configured at the **instance** level, and some operational options can only be provided using CLI params. For details of config entry, please see the [list of config entry](#config-entry).
 
 ### Default & Overwrite
 
@@ -178,45 +178,42 @@ Pigsty contains 220 fixed [config entries](#config-entry) divided into four sect
 
 Usually, only the node/database **identity parameter** is mandatory, other params can be modified on demand using the default values.
 
-| Category              | Section                                         | Description                        | Count |
-| --------------------- | ----------------------------------------------- | ---------------------------------- | ----- |
-| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                 | Connection parameters              | 1     |
-| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                       | Local source infra                 | 10    |
-| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                           | Public-Private Key Infra           | 5     |
-| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                     | Nginx Web Server                   | 5     |
-| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)           | DNS Server                         | 1     |
-| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)           | Monitoring Time Series Database    | 7     |
-| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)               | Universal Exporter Config          | 3     |
-| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                 | Grafana Visualization Platform     | 9     |
-| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                       | Loki log collection platform       | 5     |
-| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                         | Distributed Config Storage Meta DB | 8     |
-| [`INFRA`](v-infra.md) | [`JUPYTER`](v-infra.md#JUPYTER)                 | JupyterLab Data Analysis Env       | 3     |
-| [`INFRA`](v-infra.md) | [`PGWEB`](v-infra.md#PGWEB)                     | PGWeb Web Client Tool              | 2     |
-| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | Node identity parameters           | 5     |
-| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | Node Domain Name Resolution        | 5     |
-| [`NODES`](v-nodes.md) | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | Node Software Source               | 3     |
-| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | Node Packages                      | 4     |
-| [`NODES`](v-nodes.md) | [`NODE_FEATURES`](v-nodes.md#NODE_FEATURES)     | Node Functionality Features        | 6     |
-| [`NODES`](v-nodes.md) | [`NODE_MODULES`](v-nodes.md#NODE_MODULES)       | Node Kernel Module                 | 1     |
-| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)             | Node parameter tuning              | 2     |
-| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)           | Node Admin User                    | 6     |
-| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)             | Node time zone and time sync       | 4     |
-| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)     | Node Indicator Exposer             | 3     |
-| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)               | Log collection component           | 5     |
-| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)         | PGSQL Identity Parameters          | 13    |
-| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)         | PGSQL Business Object Definition   | 11    |
-| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)           | PGSQL Installation                 | 11    |
-| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)       | PGSQL Cluster Initialization       | 24    |
-| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)       | PGSQL Cluster Provisioning         | 9     |
-| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)         | PGSQL Indicator Exposer            | 13    |
-| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)           | PGSQL Service Access               | 16    |
-| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | REDIS Identity Parameters          | 3     |
-| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | REDIS Cluster Provisioning         | 14    |
-| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)   | REDIS Indicator Exposer            | 3     |
+| Category              | Section                                                 | Description                        | Count |
+| --------------------- | ------------------------------------------------------- | ---------------------------------- | ----- |
+| [`INFRA`](v-infra.md) | [`CONNECT`](v-infra.md#CONNECT)                         | Connection parameters              | 1     |
+| [`INFRA`](v-infra.md) | [`REPO`](v-infra.md#REPO)                               | Local source infra                 | 10    |
+| [`INFRA`](v-infra.md) | [`CA`](v-infra.md#CA)                                   | Public-Private Key Infra           | 5     |
+| [`INFRA`](v-infra.md) | [`NGINX`](v-infra.md#NGINX)                             | Nginx Web Server                   | 5     |
+| [`INFRA`](v-infra.md) | [`NAMESERVER`](v-infra.md#NAMESERVER)                   | DNS Server                         | 1     |
+| [`INFRA`](v-infra.md) | [`PROMETHEUS`](v-infra.md#PROMETHEUS)                   | Monitoring Time Series Database    | 7     |
+| [`INFRA`](v-infra.md) | [`EXPORTER`](v-infra.md#EXPORTER)                       | Universal Exporter Config          | 3     |
+| [`INFRA`](v-infra.md) | [`GRAFANA`](v-infra.md#GRAFANA)                         | Grafana Visualization Platform     | 9     |
+| [`INFRA`](v-infra.md) | [`LOKI`](v-infra.md#LOKI)                               | Loki log collection platform       | 5     |
+| [`INFRA`](v-infra.md) | [`DCS`](v-infra.md#DCS)                                 | Distributed Config Storage Meta DB | 8     |
+| [`NODES`](v-nodes.md) | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)             | Node identity parameters           | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_DNS`](v-nodes.md#NODE_DNS)                       | Node Domain Name Resolution        | 5     |
+| [`NODES`](v-nodes.md) | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)             | Node Packages                      | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_KERNEL_MODULES`](v-nodes.md#NODE_kernel_MODULES) | Node Kernel Module                 | 1     |
+| [`NODES`](v-nodes.md) | [`NODE_TUNE`](v-nodes.md#NODE_TUNE)                     | Node parameter tuning              | 2     |
+| [`NODES`](v-nodes.md) | [`NODE_ADMIN`](v-nodes.md#NODE_ADMIN)                   | Node Admin User                    | 6     |
+| [`NODES`](v-nodes.md) | [`NODE_TIME`](v-nodes.md#NODE_TIME)                     | Node time zone and time sync       | 4     |
+| [`NODES`](v-nodes.md) | [`NODE_EXPORTER`](v-nodes.md#NODE_EXPORTER)             | Node Indicator Exposer             | 3     |
+| [`NODES`](v-nodes.md) | [`PROMTAIL`](v-nodes.md#PROMTAIL)                       | Log collection component           | 5     |
+| [`PGSQL`](v-pgsql.md) | [`PG_IDENTITY`](v-pgsql.md#PG_IDENTITY)                 | PGSQL Identity Parameters          | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BUSINESS`](v-pgsql.md#PG_BUSINESS)                 | PGSQL Business Object Definition   | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_INSTALL`](v-pgsql.md#PG_INSTALL)                   | PGSQL Installation                 | 11    |
+| [`PGSQL`](v-pgsql.md) | [`PG_BOOTSTRAP`](v-pgsql.md#PG_BOOTSTRAP)               | PGSQL Cluster Initialization       | 24    |
+| [`PGSQL`](v-pgsql.md) | [`PG_PROVISION`](v-pgsql.md#PG_PROVISION)               | PGSQL Cluster Provisioning         | 9     |
+| [`PGSQL`](v-pgsql.md) | [`PG_EXPORTER`](v-pgsql.md#PG_EXPORTER)                 | PGSQL Indicator Exposer            | 13    |
+| [`PGSQL`](v-pgsql.md) | [`PG_SERVICE`](v-pgsql.md#PG_SERVICE)                   | PGSQL Service Access               | 16    |
+| [`REDIS`](v-redis.md) | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)           | REDIS Identity Parameters          | 3     |
+| [`REDIS`](v-redis.md) | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION)         | REDIS Cluster Provisioning         | 14    |
+| [`REDIS`](v-redis.md) | [`REDIS_EXPORTER`](v-redis.md#REDIS_EXPORTER)           | REDIS Indicator Exposer            | 3     |
 
 
 
 <details><summary>List of config entries</summary>
+
 
 | ID   | Name                                                         | Section                                         | Level | Description                                                  |
 | ---- | ------------------------------------------------------------ | ----------------------------------------------- | ----- | ------------------------------------------------------------ |
