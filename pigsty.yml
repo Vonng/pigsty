@@ -197,6 +197,62 @@ all:
               default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
+    #================================================================#
+    #                        REDIS Clusters                          #
+    #================================================================#
+
+    #----------------------------------#
+    # redis sentinel example           #
+    #----------------------------------#
+    redis-meta:
+      hosts:
+        10.10.10.10:
+          nodename: redis-meta-1
+          redis_node: 1
+          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+      vars:
+        redis_cluster: redis-meta
+        redis_mode: sentinel
+        redis_max_memory: 128MB
+
+    #----------------------------------#
+    # redis cluster example            #
+    #----------------------------------#
+    redis-test:
+      hosts:
+        10.10.10.11:
+          nodename: redis-test-1
+          redis_node: 1
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+        10.10.10.12:
+          nodename: redis-test-2
+          redis_node: 2
+          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
+      vars:
+        node_cluster: redis-test            # underlying nodes cluster name
+        redis_cluster: redis-test           # name of this redis 'cluster'
+        redis_mode: cluster                 # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
+        redis_mem_policy: allkeys-lru       # memory eviction policy
+
+    #----------------------------------#
+    # redis standalone example         #
+    #----------------------------------#
+    redis-common:
+      hosts:
+        10.10.10.13:
+          redis_node: 1
+          nodename: redis-common-1
+          redis_instances:
+            6501: {}
+            6502: { replica_of: '10.10.10.13 6501' }
+            6503: { replica_of: '10.10.10.13 6501' }
+      vars:
+        node_cluster: redis-common          # underlying node cluster name
+        redis_cluster: redis-common         # name of this redis 'cluster'
+        redis_mode: standalone              # standalone,cluster,sentinel
+        redis_max_memory: 64MB              # max memory used by each redis instance
+
 
   ####################################################################
   #                             VARS                                 #
@@ -575,7 +631,7 @@ all:
     # CONSUL
     #-----------------------------------------------------------------
     consul_safeguard: false           # if true, running consul will not be removed, even with node-remove.yml
-    consul_clean: false               # if true, running consul will be purged during node init, DANGEROUS
+    consul_clean: true                # if true, running consul will be purged during node init, DANGEROUS
     consul_name: pigsty               # consul dc name | etcd initial cluster token
     consul_data_dir: /data/consul     # consul data dir (/var/lib/consul by default)
 
@@ -670,7 +726,7 @@ all:
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
     pg_safeguard: false               # true will disable pg_clean at all, even for pgsql-remove.yml
-    pg_clean: false                   # true will clean running postgres during pgsql init (DANGEROUS)
+    pg_clean: true                    # true will clean running postgres during pgsql init (DANGEROUS)
     pg_data: /pg/data                 # postgres data directory (soft link)
     pg_fs_main: /data                 # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups         # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
@@ -858,5 +914,43 @@ all:
     # vip_interface: eth0             # virtual ip network interface (l2 only)
     # dns_mode: vip                   # vip|all|selector: how to resolve cluster DNS?
     # dns_selector: '[]'              # if dns_mode == vip, filter instances been resolved
+
+
+    #================================================================#
+    #                         VARS: REDIS                            #
+    #================================================================#
+    # REDIS are not enabled by default
+
+    #-----------------------------------------------------------------
+    # REDIS_IDENTITY
+    #-----------------------------------------------------------------
+    #redis_cluster: redis-test       # name of this redis cluster @ cluster level
+    #redis_node: 1                   # redis node identifier, integer sequence @ node level
+    #redis_instances: {}             # redis instances definition of this redis node @ node level
+
+    #-----------------------------------------------------------------
+    # REDIS_NODE
+    #-----------------------------------------------------------------
+    redis_fs_main: /data            # main fs mountpoint for redis data
+    redis_exporter_enabled: true    # install redis exporter on redis nodes?
+    redis_exporter_port: 9121       # default port for redis exporter
+    redis_exporter_options: ''      # default cli args for redis exporter
+
+    #-----------------------------------------------------------------
+    # REDIS_PROVISION
+    #-----------------------------------------------------------------
+    redis_safeguard: false          # force redis_clean = abort if true
+    redis_clean: true               # abort|skip|clean if redis server already exists
+    redis_rmdata: true              # remove redis data when purging redis server?
+    redis_mode: standalone          # standalone,cluster,sentinel
+    redis_conf: redis.conf          # config template path (except sentinel)
+    redis_bind_address: '0.0.0.0'   # bind address, empty string turns to inventory_hostname
+    redis_max_memory: 1GB           # max memory used by each redis instance
+    redis_mem_policy: allkeys-lru   # memory eviction policy
+    redis_password: ''              # masterauth & requirepass password, disable by empty string
+    redis_rdb_save: ['1200 1']      # redis rdb save directives, disable with empty list
+    redis_aof_enabled: false        # redis aof enabled
+    redis_rename_commands: {}       # rename dangerous commands
+    redis_cluster_replicas: 1       # how many replicas for a master in redis cluster ?
 
 ...

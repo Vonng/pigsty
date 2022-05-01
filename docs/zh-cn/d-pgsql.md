@@ -145,9 +145,9 @@ pg switchover pg-test     # 手工执行Failover （原主库不可用）
 children:
   meta:   # meta nodes are defined in this special group "meta"
     vars:
-      pg_cluster: pg-meta           # define a cluster pg-meta on 3 meta nodes
-      meta_node: true               # mark this group as meta nodes
-      ansible_group_priority: 99    # overwrite with the highest priority
+      pg_cluster: pg-meta        # define a cluster pg-meta on 3 meta nodes
+      meta_node: true            # mark this group as meta nodes
+      ansible_group_priority: 99 # overwrite with the highest priority
     hosts:
       10.10.10.10: { pg_seq: 1, pg_role: primary }
       10.10.10.11: { pg_seq: 2, pg_role: replica , nginx_enabled: false }

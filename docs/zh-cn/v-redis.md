@@ -3,8 +3,8 @@
 > [配置](v-config.md) Redis数据库集群，控制[REDIS剧本](p-redis.md)行为，详情参考[Redis部署与监控教程](t-redis.md)
 
 - [`REDIS_IDENTITY`](#REDIS_IDENTITY) : REDIS身份参数
-- [`REDIS_PROVISION`](#REDIS_PROVISION) : REDIS集群置备
-- [`REDIS_EXPORTER`](#REDIS_EXPORTER) : REDIS指标暴露器
+- [`REDIS_NODE`](#REDIS_NODE) : REDIS节点准备
+- [`REDIS_PROVISION`](#REDIS_PROVISION) : REDIS集群/实例置备
 
 
 | ID  |                        Name                         |                Section                |    Type    | Level | Comment            |
@@ -12,13 +12,16 @@
 | 700 | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | Redis数据库集群名称       |
 | 701 | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | Redis节点序列号         |
 | 702 | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | Redis实例定义          |
-| 720 | [`redis_install`](#redis_install)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | 安装Redis的方式         |
+| 723 | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_NODE`](#REDIS_NODE) | path       | C     | Redis主数据盘挂载点    |
+| 741 | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_NODE`](#REDIS_NODE) | bool       | C     | 是否启用Redis Exporter |
+| 742 | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_NODE`](#REDIS_NODE) | int        | C     | Redis Exporter监听端口 |
+| 743 | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_NODE`](#REDIS_NODE) | string     | C/I   | Redis Exporter命令参数 |
+| 726 | [`redis_safeguard`](#redis_safeguard)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool  | C     | 禁止抹除现存的Redis       |
+| 725 | [`redis_clean`](#redis_clean)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool    | C     | 初始化Redis是否抹除现存实例 |
+| 726 | [`redis_rmdata`](#redis_rmdata)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool  | C     | 清除Redis时是否抹除数据 |
 | 721 | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis集群模式          |
 | 722 | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis配置文件模板        |
-| 723 | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | Redis主数据盘挂载点    |
 | 724 | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | Redis监听地址       |
-| 725 | [`redis_exists_action`](#redis_exists_action)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Redis存在时执行何种操作     |
-| 726 | [`redis_disable_purge`](#redis_disable_purge)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | 禁止抹除现存的Redis       |
 | 727 | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | Redis可用的最大内存       |
 | 728 | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | 内存逐出策略             |
 | 729 | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | Redis密码            |
@@ -26,9 +29,6 @@
 | 731 | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | 是否启用AOF            |
 | 732 | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | 重命名危险命令列表          |
 | 740 | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | 集群每个主库带几个从库        |
-| 741 | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | bool       | C     | 是否启用Redis监控        |
-| 742 | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | int        | C     | Redis Exporter监听端口 |
-| 743 | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | string     | C/I   | Redis Exporter命令参数 |
 
 
 ----------------
@@ -92,18 +92,86 @@ redis_instances:
 
 
 
+
+
+
+
+----------------
+
+## `REDIS_NODE`
+
+
+
+### `redis_fs_main`
+
+Redis使用的主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
+
+Redis使用的主数据盘挂载点，默认为`/data`。
+
+Pigsty会在该目录下创建`redis`目录，用于存放Redis数据。例如`/data/redis`。
+
+详情请参考 [FHS：Redis](r-fhs.md)
+
+
+
+### `redis_exporter_enabled`
+
+是否启用Redis监控, 类型：`bool`，层级：C，默认值为：`true`
+
+Redis Exporter默认启用，在每个Redis节点上部署一个，默认监听9121端口。
+
+
+
+### `redis_exporter_port`
+
+Redis Exporter监听端口, 类型：`int`，层级：C，默认值为：`9121`
+
+注：如果您修改了该默认端口，则需要在Prometheus的相关配置规则文件中一并替换此端口。
+
+
+
+### `redis_exporter_options`
+
+Redis Exporter命令参数, 类型：`string`，层级：C/I，默认值为：`""`
+
+
+
+
+
+
+
 ----------------
 ## `REDIS_PROVISION`
 
 
 
+### `redis_safeguard`
+
+安全保险，禁止清除存在的Redis实例, 类型：`bool`，层级：C/A，默认值为：`false`
+
+如果为`true`，任何情况下，Pigsty剧本都不会移除运行中的PostgreSQL实例，包括 [`redis-remove.yml`](p-redis#pgsql-remove)。
+
+详情请参考 [保护机制](p-redis.md#保护机制)。
 
 
-### `redis_install`
 
-安装Redis的方式, 类型：`enum`，层级：C，默认值为：`"yum"`
+### `redis_clean`
 
-指定为`none`时，您需要自行完成 Redis 安装，例如通过 NODES 相关参数完成。
+是否抹除运行中的Redis实例？类型：`bool`，层级：C/A，默认值为：`false`。
+
+针对 [`redis.yml`](p-redis.md#redis) 剧本的抹除豁免，如果指定该参数为真，那么在 [`redis.yml`](p-redis.md#redis) 剧本执行时，会自动抹除已有的Redis实例
+
+这是一个危险的操作，因此必须显式指定。
+
+当安全保险参数 [`redis_safeguard`](#redis_safeguard) 打开时，本参数无效。
+
+
+
+### `redis_rmdata`
+
+移除Redis实例时是否一并移除数据目录？, 类型：`enum`，层级：A，默认值为：`true`
+
+如果不移除， 之前实例残留的RDB/AOF文件会被自动加载使用。
 
 
 
@@ -132,42 +200,12 @@ Redis配置文件模板, 类型：`string`，层级：C，默认值为：`"redis
 
 
 
-### `redis_fs_main`
-
-Redis使用的主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
-
-Redis使用的主数据盘挂载点，默认为`/data`。
-
-Pigsty会在该目录下创建`redis`目录，用于存放Redis数据。例如`/data/redis`。
-
-详情请参考 [FHS：Redis](r-fhs.md)
-
-
-
 
 ### `redis_bind_address`
 
 Redis监听地址, 类型：`ip`，层级：C，默认值为：`"0.0.0.0"`
 
 Redis监听的IP地址，如果留空则为 `inventory_hostname`。默认监听有本地所有IPv4地址
-
-
-
-### `redis_exists_action`
-
-Redis存在时执行何种操作, 类型：`enum`，层级：C，默认值为：`"clean"`
-
-* `abort`:  中止整个剧本的执行
-* `skip`:  继续执行，因此Redis实例可能会使用现有数据库中的RDB文件启动。
-* `clean`: 抹除数据，清洁启动。
-
-
-
-### `redis_disable_purge`
-
-禁止抹除现存的Redis, 类型：`string`，层级：C，默认值为：`false`
-
-如果启用，强制设置 [`redis_exists_action`](#redis_exists_action) = `abort`
 
 
 
@@ -247,29 +285,3 @@ JSON字典，将Key表示的命令重命名为Value表示的命令，避免误�
 
 
 
-
-----------------
-## `REDIS_EXPORTER`
-
-REDIS指标暴露器相关配置
-
-
-### `redis_exporter_enabled`
-
-是否启用Redis监控, 类型：`bool`，层级：C，默认值为：`true`
-
-Redis Exporter默认启用，在每个Redis节点上部署一个，默认监听9121端口。
-
-
-
-### `redis_exporter_port`
-
-Redis Exporter监听端口, 类型：`int`，层级：C，默认值为：`9121`
-
-注：如果您修改了该默认端口，则需要在Prometheus的相关配置规则文件中一并替换此端口。
-
-
-
-### `redis_exporter_options`
-
-Redis Exporter命令参数, 类型：`string`，层级：C/I，默认值为：`""`

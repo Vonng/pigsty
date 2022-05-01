@@ -12,13 +12,23 @@
 
 ## `redis`
 
-用于在节点上部署Redis实例
+用于在节点上部署Redis集群，节点，实例。
 
 ```bash
 ./redis.yml -l <redis_cluster>
 ```
 
 ![](../_media/playbook/redis.svg)
+
+
+
+
+
+
+
+
+
+
 
 ------------------
 

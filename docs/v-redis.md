@@ -14,13 +14,13 @@
 | 700  | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | redis cluster identity                                       |
 | 701  | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | redis node identity                                          |
 | 702  | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | redis instances definition on this node                      |
-| 720  | [`redis_install`](#redis_install)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Way of install redis binaries                                |
+| 720  | [`redis_install_method`](#redis_install_method)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Way of install redis binaries                                |
 | 721  | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | standalone,cluster,sentinel                                  |
 | 722  | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | which config template will be used                           |
 | 723  | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | main data disk for redis                                     |
 | 724  | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | e.g 0.0.0.0, empty will use inventory_hostname as bind address |
-| 725  | [`redis_exists_action`](#redis_exists_action)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | what to do when redis exists                                 |
-| 726  | [`redis_disable_purge`](#redis_disable_purge)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | set to true to disable purge functionality for good (force redis_exists_action = abort) |
+| 725  | [`redis_clean`](#redis_clean)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | what to do when redis exists                                 |
+| 726  | [`redis_safeguard`](#redis_safeguard)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | set to true to disable purge functionality for good (force redis_clean = abort) |
 | 727  | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | max memory used by each redis instance                       |
 | 728  | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | memory eviction policy                                       |
 | 729  | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | empty password disable password auth (masterauth & requirepass) |
@@ -101,7 +101,7 @@ Each Redis ins listens on a unique port on the node. You can configure separate 
 
 
 
-### `redis_install`
+### `redis_install_method`
 
 Way of installing Redis, type: `enum`, level: C, default value: `"yum"`.
 
@@ -149,7 +149,7 @@ Redis listener the IP, or `inventory_hostname` if left blank. The default listen
 
 
 
-### `redis_exists_action`
+### `redis_clean`
 
 What to do when Redis exists, type: `enum`, level: C, default value: `"clean"`.
 
@@ -159,11 +159,11 @@ What to do when Redis exists, type: `enum`, level: C, default value: `"clean"`.
 
 
 
-### `redis_disable_purge`
+### `redis_safeguard`
 
 Disable erasure of existing Redis, type: `string`, level: C, default value: `false`.
 
-If enabled, force set [`redis_exists_action`](#redis_exists_action) = `abort`.
+If enabled, force set [`redis_clean`](#redis_clean) = `abort`.
 
 ### `redis_max_memory`
 

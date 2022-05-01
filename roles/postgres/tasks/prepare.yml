@@ -26,7 +26,7 @@
 
     - name: Abort due to existing postgres instance
       connection: local
-      when: pg_exists and (pg_safeguard or not pg_clean)
+      when: pg_exists|bool and (pg_safeguard|bool or not pg_clean|bool)
       any_errors_fatal: true
       fail: msg="Abort because pg instance {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is running, use -e pg_clean=true"
 

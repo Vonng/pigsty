@@ -8,6 +8,19 @@
   ignore_errors: true
   block:
 
+    # use hostname as nodename if not provided
+    - name: Fetch hostname from server if no node name is given
+      when: nodename is not defined or nodename == ''
+      shell: echo $HOSTNAME
+      register: hostname_result
+
+    - name: Setup nodename according to hostname
+      when: nodename is not defined or nodename == ''
+      connection: local
+      set_fact:
+        nodename: "{{ hostname_result.stdout }}"
+
+
     - name: Register docker service to consul
       when: docker_enabled|bool
       template: src=svc-docker.json.j2 dest=/etc/consul.d/svc-docker.json owner=consul mode=0660
@@ -31,19 +44,34 @@
 # /etc/prometheus/targets/nodes/{{ ip }}.yml
 - name: Register node exporter as prometheus target
   tags: [ node_register, register_prometheus ]
-  delegate_to: '{{ item }}'
-  with_items: '{{ groups["meta"] }}'
   ignore_errors: true
-  copy:
-    dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
-    content: |
-      # {{ inventory_hostname }}
-      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
-        targets: 
-          {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
-      
-          {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
-      
-          {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
+  block:
+
+    # use hostname as nodename if not provided
+    - name: Fetch hostname from server if no node name is given
+      when: nodename is not defined or nodename == ''
+      shell: echo $HOSTNAME
+      register: hostname_result
+
+    - name: Setup nodename according to hostname
+      when: nodename is not defined or nodename == ''
+      connection: local
+      set_fact:
+        nodename: "{{ hostname_result.stdout }}"
+
+    - name: Register node exporter as prometheus target
+      delegate_to: '{{ item }}'
+      with_items: '{{ groups["meta"] }}'
+      copy:
+        dest: /etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+        content: |
+          # {{ inventory_hostname }}
+          - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
+            targets: 
+              {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
+          
+              {% if docker_enabled|bool %}- {{ inventory_hostname }}:9323{% endif %}
+          
+              {% if promtail_enabled|bool %}- {{ inventory_hostname }}:{{ promtail_port }}{% endif %}
 
 ...

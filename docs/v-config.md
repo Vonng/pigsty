@@ -423,13 +423,13 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 700  | [`redis_cluster`](v-redis.md#redis_cluster)                  | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | C     | Redis Cluster Name                                           |
 | 701  | [`redis_node`](v-redis.md#redis_node)                        | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis Node Serial Number                                     |
 | 702  | [`redis_instances`](v-redis.md#redis_instances)              | [`REDIS_IDENTITY`](v-redis.md#REDIS_IDENTITY)   | I     | Redis Instance Definition                                    |
-| 720  | [`redis_install`](v-redis.md#redis_install)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Installation Method                                    |
+| 720  | [`redis_install_method`](v-redis.md#redis_install_method)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Installation Method                                    |
 | 721  | [`redis_mode`](v-redis.md#redis_mode)                        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Cluster Mode                                           |
 | 722  | [`redis_conf`](v-redis.md#redis_conf)                        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis Config Template                                        |
 | 723  | [`redis_fs_main`](v-redis.md#redis_fs_main)                  | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | PG Instance Role                                             |
 | 724  | [`redis_bind_address`](v-redis.md#redis_bind_address)        | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis listening port                                         |
-| 725  | [`redis_exists_action`](v-redis.md#redis_exists_action)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Actions when Redis exists                                    |
-| 726  | [`redis_disable_purge`](v-redis.md#redis_disable_purge)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Disable wiping of existing Redis                             |
+| 725  | [`redis_clean`](v-redis.md#redis_clean)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Actions when Redis exists                                    |
+| 726  | [`redis_safeguard`](v-redis.md#redis_safeguard)      | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Disable wiping of existing Redis                             |
 | 727  | [`redis_max_memory`](v-redis.md#redis_max_memory)            | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C/I   | Maximum memory available to Redis                            |
 | 728  | [`redis_mem_policy`](v-redis.md#redis_mem_policy)            | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Memory Eviction Policy                                       |
 | 729  | [`redis_password`](v-redis.md#redis_password)                | [`REDIS_PROVISION`](v-redis.md#REDIS_PROVISION) | C     | Redis passwords                                              |

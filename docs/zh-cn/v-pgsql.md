@@ -767,7 +767,7 @@ wal2json_${pg_version}"
 
 ### `pg_safeguard`
 
-安全保险，禁止清除存在的PG实例, 类型：`bool`，层级：C/A，默认值为：`false`
+安全保险，禁止清除存在的PostgreSQL实例, 类型：`bool`，层级：C/A，默认值为：`false`
 
 如果为`true`，任何情况下，Pigsty剧本都不会移除运行中的PostgreSQL实例，包括 [`pgsql-remove.yml`](p-pgsql.md#pgsql-remove)。
 
@@ -777,7 +777,7 @@ wal2json_${pg_version}"
 
 ### `pg_clean`
 
-是否抹除运行中的PG实例？类型：`bool`，层级：C/A，默认值为：`false`。
+是否抹除运行中的PostgreSQL实例？类型：`bool`，层级：C/A，默认值为：`false`。
 
 针对 [`pgsql.yml`](p-pgsql.md#pgsql) 剧本的抹除豁免，如果指定该参数为真，那么在 [`pgsql.yml`](p-pgsql.md#pgsql) 剧本执行时，会自动抹除已有的PostgreSQL实例
 
@@ -789,7 +789,7 @@ wal2json_${pg_version}"
 
 ### `pg_data`
 
-PG数据目录, 类型：`path`，层级：C，默认值为：`"/pg/data"`，不建议更改。
+PostgreSQL数据目录, 类型：`path`，层级：C，默认值为：`"/pg/data"`，不建议更改。
 
 
 
@@ -797,7 +797,7 @@ PG数据目录, 类型：`path`，层级：C，默认值为：`"/pg/data"`，不
 
 ### `pg_fs_main`
 
-PG主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
+PostgreSQL主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
 
 主数据盘目录，默认为`/data`，Pigsty的默认[目录结构](r-fhs)假设系统中存在一个主数据盘挂载点，用于盛放数据库目录与其他状态。
 
@@ -805,7 +805,7 @@ PG主数据盘挂载点, 类型：`path`，层级：C，默认值为：`"/data"`
 
 ### `pg_fs_bkup`
 
-PG备份盘挂载点, 类型：`path`，层级：C，默认值为：`"/data/backups"`
+PostgreSQL备份盘挂载点, 类型：`path`，层级：C，默认值为：`"/data/backups"`
 
 Pigsty的默认[目录结构](r-fhs)假设系统中存在一个备份数据盘挂载点，用于盛放备份与归档数据。备份盘并不是必选项，如果系统中不存在备份盘，用户也可以指定一个主数据盘上的子目录作为备份盘根目录挂载点。
 
@@ -816,8 +816,6 @@ Pigsty的默认[目录结构](r-fhs)假设系统中存在一个备份数据盘�
 占位文件`/pg/dummy`的大小, 类型：`size`，层级：C，默认值为：`"64MiB"`
 
 占位文件是一个预分配的空文件，占据一定量的磁盘空间。当出现磁盘满故障时，移除该占位文件可以紧急释放一些磁盘空间应急使用，生产环境建议使用`4GiB`，`8GiB`。
-
-
 
 
 
@@ -1180,10 +1178,6 @@ pg_hba_rules:
 ```
 
 本参数在形式上与 [`pg_hba_rules_extra`](#pg_hba_rules_extra) 完全一致，建议在全局配置统一的 [`pg_hba_rules`](#pg_hba_rules)，针对特定集群使用 [`pg_hba_rules_extra`](#pg_hba_rules_extra) 进行额外定制。两个参数中的规则都会依次应用，后者优先级更高。
-
-
-
-
 
 
 
