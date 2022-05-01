@@ -1,116 +1,99 @@
----
-#------------------------------------------------------------------------------
-# Install redis
-#------------------------------------------------------------------------------
-# redis_install = none   : redis is already installed somewhere
-# redis_install = yum    : redis is installed via yum
-# redis_install = binary : redis is installed via copy binary (files/bin)
-
-- name: Install redis
-  tags: [ redis_install ]
-  when: redis_install != '' and ( redis_install == 'yum' or redis_install == 'binary' )
-  block:
-
-    # when redis_install = 'yum' (default)
-    - name: Install redis via yum
-      when: redis_install == 'yum'
-      package: name=redis state=present
-
-    # when redis_install = 'binary'
-    # - name: Install redis via binaries
-    #   when: redis_install == 'binary'
-    #   copy: src={{ item.src }} dest={{ item.dest }} owner=root mode=0755
-    #   with_items:
-    #     - { src: bin/redis-server     , dest: /bin/redis-server     }
-    #     - { src: bin/redis-server     , dest: /bin/redis-server     }
-    #     - { src: bin/redis-cli        , dest: /bin/redis-cli        }
-    #     - { src: bin/redis-sentinel   , dest: /bin/redis-sentinel   }
-    #     - { src: bin/redis-check-rdb  , dest: /bin/redis-check-rdb  }
-    #     - { src: bin/redis-check-aof  , dest: /bin/redis-check-aof  }
-    #     - { src: bin/redis-benchmark  , dest: /bin/redis-benchmark  }
-    #     - { src: redis-shutdown , dest: /usr/libexec/redis-shutdown }
-
-- name: Create user redis
-  tags: [ redis_install , redis_user ]
-  user: name=redis home=/home/redis generate_ssh_key=yes
-
-- name: Create redis resource dir
-  tags: [ redis_install , redis_dir ]
-  become: yes
-  block:
-    - name: Make sure fs main dir exists
-      file: path={{ redis_fs_main }} state=directory owner=root mode=0777
-
-    - name: Make sure redis data dir exists
-      file: path={{ item }} state=directory owner=redis mode=0700
-      with_items:
-        - /etc/redis
-        - /var/log/redis/
-        - /var/run/redis/
-        - "{{ redis_fs_main }}/redis"
-
+###############################################################################
+# Setup Redis Instance Resource
+###############################################################################
 
 #------------------------------------------------------------------------------
 # Assert before launch instances
 #------------------------------------------------------------------------------
-- name: Check necessary variables exists
-  tags: redis_ins
-  assert:
-    that:
-      - redis_cluster is defined and redis_cluster != ''
-      - redis_node is defined
-      - redis_instances is defined
-      - redis_instances | type_debug == "dict"
-    fail_msg: variable `redis_cluster|redis_instances` are required for redis deployment
+- name: Check redis instance existance
+  tags: [ redis, redis_precheck ]
+  block:
+    - name: Check redis {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}:{{ port }} exists
+      any_errors_fatal: true
+      command: 'ss -tp state listening sport = :{{ port }}'
+      register: check_redis_port_result
+
+    - name: Set fact whether redis port is open
+      connection: local
+      tags: [ redis_ins , redis_precheck ]
+      set_fact: { redis_exists: "{{ 'redis' in check_redis_port_result.stdout }}" }
+
+    # when any running instance exists, abort play in two cases:
+    # 1. redis_safeguard = true (if safeguard is enabled, redis instance will never be purged!)
+    # 2. redis_clean == 'false' (if redis clean is enabled , redis instance will be purged during init)
+    - name: Abort due to existing redis instance
+      connection: local
+      when: redis_exists|bool and (redis_safeguard|bool or not redis_clean|bool)
+      any_errors_fatal: true
+      fail: msg="Abort because redis instance {{ redis_cluster }}-{{ redis_node }}-{{ port }} is running"
 
 #------------------------------------------------------------------------------
-# Create redis instances
+# Clean [DANGEROUS!]
 #------------------------------------------------------------------------------
-- include_tasks: instance.yml
-  tags: redis_ins
-  vars:
-    port: "{{ item.key }}"
-    conf: "{{ item.value|default({}) }}"
-  with_dict: "{{ redis_instances }}"
-
-
-#------------------------------------------------------------------------------
-# create redis cluster if redis_mode = 'cluster'
-#------------------------------------------------------------------------------
-- name: Join redis cluster
-  when: redis_mode == 'cluster'
-  tags: redis_join
-  delegate_to: '{{ groups["meta"][0] }}'
-  run_once: true
+- name: Clean existing redis instance
+  tags: [ redis, redis_clean ]
   block:
 
-    - name: Fetch redis cluster memberships
-      set_fact:
-        redis_cluster_members={{ hostvars| json_query(redis_cluster_members_query) }}
+    - name: PURGING RUNNING INSTANCE {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+      # connection: local # leave some time for manual intervention
+      when: not redis_safeguard|bool and redis_exists|bool and redis_clean|bool # DANGEROUS
+      debug:
+        msg: "[DANGEROUS] RUNNING REDIS INSTANCE {{ redis_cluster }}-{{ redis_node }}-{{ port }} WILL BE PURGED!"
+
+    - name: SHUTTING DOWN {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+      ignore_errors: true
+      shell: |
+        systemctl stop {{ redis_cluster }}-{{ redis_node }}-{{ port }}.service ;
+        if lsof -t -i tcp:{{ port }}; then
+            kill $(lsof -t -i tcp:{{ port }} );
+        fi ;
+        if lsof -t -i tcp:{{ port }}; then
+            kill -9 $(lsof -t -i tcp:{{ port }} );
+        fi ;
+        # /bin/true
+
+    - name: REMOVING DATADIR {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+      when: redis_rmdata|bool and (not redis_safeguard|bool and redis_exists|bool and redis_clean|bool)
+      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=absent owner=redis mode=0700
+
+
+#------------------------------------------------------------------------------
+# Config
+#------------------------------------------------------------------------------
+# create data dir & config & systemd service
+- name: Create redis resource dir
+  tags: [ redis, redis_config ]
+  become: yes
+  block:
+
+    # data dir @ /data/redis/<port> (default)
+    - name: Create dir for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+      file: path={{ redis_fs_main }}/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }} state=directory owner=redis mode=0700
+
+    # config @ /etc/redis/<port>.conf
+    - name: Render config for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+      template: src={{ config_template }} dest=/etc/redis/{{ redis_cluster }}-{{ redis_node }}-{{ port }}.conf owner=redis mode=0700
       vars:
-        redis_cluster_members_query: "[@.*][0][?redis_cluster=='{{ redis_cluster }}']"
+        upstream: "{{ conf['replica_of']|default(None) }}"
+        config_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.conf{% else %}{{ redis_conf }}{% endif %}"
 
-    - name: Render redis cluster join script
-      copy:
-        dest: /tmp/{{ redis_cluster }}-join.sh
-        mode: 0755
-        owner: root
-        content: |
-          #!/bin/bash
-          /bin/redis-cli --cluster create --cluster-yes \
-          {% for node in redis_cluster_members %}
-          {% for port in node.redis_instances %}
-            {{ node.inventory_hostname }}:{{ port }} \
-          {% endfor %}
-          {% endfor %}
-            --cluster-replicas {{ redis_cluster_replicas|default(1) }}
-
-    - name: Join redis clusters
-      shell: "/tmp/{{ redis_cluster }}-join.sh"
+    # services name examples:  redis-test-1-6379 , redis-sentinel-2-26379
+    - name: Render systemd svc for {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+      template: src={{ service_template }} dest=/usr/lib/systemd/system/{{ svcname }} owner=root mode=644
+      vars:
+        svcname: "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
+        service_template: "{% if redis_mode == 'sentinel' %}redis-sentinel.service{% else %}redis.service{% endif %}"
 
 
+#------------------------------------------------------------------------------
+# launch
+#------------------------------------------------------------------------------
+- name: Launch {{ redis_cluster }}-{{ redis_node }}-{{ port }} @ {{ inventory_hostname }}
+  tags: [ redis, redis_launch ]
+  # systemd: name="{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service" state=restarted enabled=yes daemon_reload=yes
+  shell: |
+    systemctl daemon-reload;
+    systemctl enable "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
+    systemctl restart "{{ redis_cluster }}-{{ redis_node }}-{{ port }}.service"
 
-
-
-...
-
+    
