@@ -237,6 +237,35 @@ scrape_configs:
         action: replace
         target_label: ip
 
+  #------------------------------------------------------------------------------
+  # job: redis (use static file sd in consul sd)
+  # multiple redis targets from redis_exporter @ target nodes
+  # labels: [cls, ip, ins, instance]
+  # path: targets/redis/<redis_node>.yml
+  #------------------------------------------------------------------------------
+  - job_name: redis
+    metrics_path: /scrape
+    file_sd_configs:
+      - refresh_interval: {{ prometheus_sd_interval }}
+        files: [ targets/redis/*.yml ]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        regex: ^redis://(.*):(\d+)$
+        replacement: $1:$2
+        target_label: instance
+      - source_labels: [__param_target]
+        regex: ^redis://(.*):(\d+)$
+        replacement: $1
+        target_label: ip
+      # scrape redis_exporter on target node
+      - source_labels: [__param_target]
+        regex: ^redis://(.*):\d+$
+        replacement: $1:9121
+        target_label: __address__
+
+
 {% endif %}
 
 
