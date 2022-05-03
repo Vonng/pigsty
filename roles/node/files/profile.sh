@@ -57,6 +57,7 @@ alias q="exit"
 alias j="jobs"
 alias k="kubectl"
 alias d="docker"
+alias dc="docker-compose"
 alias h="history"
 function v() {
 	[ $# -eq 0 ] && vi . || vi $@
@@ -64,7 +65,6 @@ function v() {
 
 alias hg="history | grep --color=auto "
 alias py="python"
-alias dk="docker"
 alias cl="clear"
 alias clc="clear"
 alias rf="rm -rf"
