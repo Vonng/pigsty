@@ -74,11 +74,13 @@ scrape_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/infra/*.yml ]
 
+{% if dcs_registry == 'consul' %}
   - job_name: consul
     metrics_path: /v1/agent/metrics
     params:
       format: ['prometheus']
     static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+{% endif %}
 
   #------------------------------------------------------------------------------
   # job: nodes
@@ -168,11 +170,13 @@ scrape_configs:
         action: replace
         target_label: ip
 
+{% if dcs_registry == 'consul' %}
   - job_name: consul
     metrics_path: /v1/agent/metrics
     params:
       format: ['prometheus']
     static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+{% endif %}
 
   #------------------------------------------------------------------------------
   # job: nodes
