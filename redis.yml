@@ -168,33 +168,37 @@
   tags: redis-join
   tasks:
 
-    - name: Fetch redis cluster memberships
-      when: redis_port is not defined
-      connection: local
-      set_fact:
-        redis_cluster_members={{ hostvars| json_query(redis_cluster_members_query) }}
-      vars:
-        redis_cluster_members_query: "[@.*][0][?redis_cluster=='{{ redis_cluster }}']"
+    - name: Join redis cluster
+      when: redis_mode == 'cluster'
+      block:
 
-    - name: Render redis cluster join script
-      when: redis_port is not defined
-      copy:
-        dest: /tmp/{{ redis_cluster }}-join.sh
-        mode: 0755
-        owner: root
-        content: |
-          #!/bin/bash
-          /bin/redis-cli --cluster create --cluster-yes \
-          {% for node in redis_cluster_members %}
-          {% for port in node.redis_instances %}
-            {{ node.inventory_hostname }}:{{ port }} \
-          {% endfor %}
-          {% endfor %}
-            --cluster-replicas {{ redis_cluster_replicas|default(1) }}
+        - name: Fetch redis cluster memberships
+          when: redis_port is not defined
+          connection: local
+          set_fact:
+            redis_cluster_members={{ hostvars| json_query(redis_cluster_members_query) }}
+          vars:
+            redis_cluster_members_query: "[@.*][0][?redis_cluster=='{{ redis_cluster }}']"
 
-    - name: Join redis clusters
-      when: redis_port is not defined
-      run_once: true
-      shell: "/tmp/{{ redis_cluster }}-join.sh"
+        - name: Render redis cluster join script
+          when: redis_port is not defined
+          copy:
+            dest: /tmp/{{ redis_cluster }}-join.sh
+            mode: 0755
+            owner: root
+            content: |
+              #!/bin/bash
+              /bin/redis-cli --cluster create --cluster-yes \
+              {% for node in redis_cluster_members %}
+              {% for port in node.redis_instances %}
+                {{ node.inventory_hostname }}:{{ port }} \
+              {% endfor %}
+              {% endfor %}
+                --cluster-replicas {{ redis_cluster_replicas|default(1) }}
+
+        - name: Join redis clusters
+          ignore_errors: true
+          when: redis_port is not defined
+          shell: "/tmp/{{ redis_cluster }}-join.sh"
 
 ...
