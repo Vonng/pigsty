@@ -1,0 +1,45 @@
+version: "3"
+services:
+
+  #######################################
+  # Kong: The API Gateway
+  #######################################
+  kong:
+    container_name: kong
+    image: kong:latest
+    restart: always
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: 10.10.10.10
+      KONG_PG_USER: dbuser_kong
+      KONG_PG_DATABASE: kong
+      KONG_PG_PASSWORD: DBUser.Kong
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_PROXY_LISTEN_SSL: 0.0.0.0:8443
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    depends_on:
+      - kong-migration
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://kong:8001"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    ports:
+      - "8001:8001"
+      - "8000:8000"
+
+
+  #######################################
+  # Kong database migration
+  #######################################
+  kong-migration: # one time job
+    container_name: kong-migration
+    image: kong:latest
+    command: "kong migrations bootstrap"
+    restart: on-failure
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: 10.10.10.10
+      KONG_PG_USER: dbuser_kong
+      KONG_PG_DATABASE: kong
+      KONG_PG_PASSWORD: DBUser.Kong
