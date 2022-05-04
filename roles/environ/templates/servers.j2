@@ -1,0 +1,20 @@
+{% set servers = hostvars|json_query(servers_query) %}
+{
+    "Servers": {
+{% for server in servers %}
+{% if loop.index|int > 1 %},{% endif %}
+        "{{ loop.index }}": {
+            "Name": "{{ server.pg_cluster }}-{{ server.pg_seq }}",
+            "Group": "{{ server.pg_cluster }}",
+            "Host": "{{ server.pg_host }}",
+            "Port": {{ server.pg_port }},
+            "MaintenanceDB": "postgres",
+            "Username": "{{ server.pg_admin_username }}",
+            "SSLMode": "disable",
+            "PassFile": "/pgpass",
+            "Timeout": 10
+        }
+{% endfor %}
+
+    }
+}
