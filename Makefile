@@ -366,18 +366,20 @@ copy-src:
 	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
 copy-pkg:
 	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
-copy-pkg2:
+copy-matrix:
 	scp dist/${VERSION}/matrix.tgz meta:/tmp/matrix.tgz
 copy-app:
 	scp dist/${VERSION}/app.tgz meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
+copy-docker:
+	scp dist/${VERSION}/docker.tgz meta:/tmp/docker.tgz
 copy-all: copy-src copy-pkg
 
 use-src:
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 use-pkg:
 	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download -m demo'
-use-pkg2:
+use-matrix:
 	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www'
 	scp files/matrix.repo meta:/tmp/matrix.repo
 	ssh meta sudo mv -f /tmp/matrix.repo /www/matrix.repo
