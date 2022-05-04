@@ -60,7 +60,7 @@ If you want to **manage many PostgreSQL clusters**, install the PGSQL module aga
 
 If you want to manage many Redis clusters, install the **REDIS** module on the included nodes in Pigsty management.
 
-Use [`pgsql.yml`](p-pgsql.md#pgsql) to create a HA PostgreSQL cluster, [`redis.yml`](p-redis.md#redis) to develop standalone, native, sentinel Redis clusters, and [`pigsty-matrix.yml `](p-pgsql.md#pgsql-matrix) to deploy the Greenplum/MatrixDB data warehouse.
+Use [`pgsql.yml`](p-pgsql.md#pgsql) to create a HA PostgreSQL cluster, [`redis.yml`](p-redis.md#redis) to develop standalone, native, sentinel Redis clusters, and [`pigsty-matrixdb.yml `](p-pgsql.md#pgsql-matrix) to deploy the Greenplum/MatrixDB data warehouse.
 
 Pigsty will subsequently add new types of database modules on demand: **KAFKA**, **MINIO**, **MONGO**, etc.
 

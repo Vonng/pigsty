@@ -128,7 +128,7 @@ English Document Released!
 #### 2022-03-08
 
 * Greenplum/MatrixDB Support finished!
-  * Simplify `pigsty-matrix.yml` playbook
+  * Simplify `pigsty-matrixdb.yml` playbook
   * Remove role `gp_prepare` & `gp_provision`
   * Remove playbook `gpsql-post.yml`
   * Update default pigsty-mxdb.yml example

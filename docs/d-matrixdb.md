@@ -71,10 +71,10 @@ Deploy MatrixDB in a four-node sandbox. Note. Otherwise, the default will be to 
 ./nodes.yml
 
 # Install MatrixDB on the above node
-./pigsty-matrix.yml
+./pigsty-matrixdb.yml
 ```
 
-Once the installation is complete, you need to complete the next installation through the WEB UI provided by MatrixDB. Open [http://matrix.pigsty](http://matrix.pigsty) or visit http://10.10.10.10:8240 and fill in `pgsql-matrix.yml` with the initial user password output at the end to enter the installation wizard. 
+Once the installation is complete, you need to complete the next installation through the WEB UI provided by MatrixDB. Open [http://mx.pigsty](http://mx.pigsty) or visit http://10.10.10.10:8240 and fill in `pigsty-matrixdb.yml` with the initial user password output at the end to enter the installation wizard. 
 
 Follow the prompts to add the MatrixDB nodes: 10.10.10.11, 10.10.10.12, 10.10.10.13, click Confirm Installation and proceed to the next step.
 

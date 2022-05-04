@@ -154,7 +154,7 @@ Pigsty默认通过**域名**访问所有Web系统，如果您没有DNS服务器�
 
 ```bash
 # pigsty dns records
-10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty matrix.pigsty
+10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty mx.pigsty
 10.10.10.11 node-1   # sandbox node node-1
 10.10.10.12 node-2   # sandbox node node-2
 10.10.10.13 node-3   # sandbox node node-3
@@ -576,7 +576,7 @@ Pigsty默认通过**域名**访问所有Web系统，尽管您可以使用 IP：P
 云端沙箱环境使用的静态DNS记录如下所示，您需要填入元节点的公网IP地址
 
 ```bash
-<public_ip> meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty matrix.pigsty
+<public_ip> meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty mx.pigsty
 ```
 
 在MacOS与Linux中，需要将上述记录写入 `/etc/hosts` （需要sudo权限），在Windows中，则需要您手工添加至：`C:\Windows\System32\drivers\etc\hosts`中。

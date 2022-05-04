@@ -70,10 +70,10 @@ MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参�
 ./nodes.yml
 
 # 在上述节点上安装MatrixDB
-./pigsty-matrix.yml
+./pigsty-matrixdb.yml
 ```
 
-安装完成后，您需要通过MatrixDB 提供的WEB UI完成接下来的安装。打开 [http://matrix.pigsty](http://matrix.pigsty) 或访问 http://10.10.10.10:8240，填入 `pgsql-matrix.yml` 最后输出的初始用户密码进入安装向导。 
+安装完成后，您需要通过MatrixDB 提供的WEB UI完成接下来的安装。打开 [http://mx.pigsty](http://mx.pigsty) 或访问 http://10.10.10.10:8240 ，填入 [`pigsty-matrixdb.yml`](p-pgsql.md#pgsql-matrix) 最后输出的初始用户密码进入安装向导。 
 
 按照提示依次添加MatrixDB的节点：10.10.10.11, 10.10.10.12, 10.10.10.13，点击确认安装并等待完成后，进行下一步。
 

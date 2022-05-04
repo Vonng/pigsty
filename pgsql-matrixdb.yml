@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   pgsql-matrix.yml
+# File      :   pigsty-matrixdb.yml
 # Ctime     :   2022-01-19
 # Mtime     :   2022-03-22
 # Desc      :   init matrixdb with postgres roles
-# Path      :   pgsql-matrix.yml
+# Path      :   pigsty-matrixdb.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
@@ -13,7 +13,7 @@
 # How to create greenplum/matrixdb cluster ?
 #  1. infra.yml         # install pigsty meta node
 #  2. nodes.yml         # init nodes for greenplum
-#  3. pgsql-matrix.yml  # init matrixdb on nodes
+#  3. pigsty-matrixdb.yml  # init matrixdb on nodes
 #  4. finish with install ui @ http://10.10.10.10:8240
 #---------------------------------------------------------------
 
@@ -91,7 +91,7 @@
       shell: /bin/cat /etc/matrixdb/auth.conf | grep -Eo 'Password = "(.*)"' | grep -Eo '"(.*)"'
       register: matrixdb_auth_credential
 
-    - name: 'Visit http://matrix.pigsty with password:'
+    - name: 'Visit http://mx.pigsty with password:'
       when: gp_role == 'master'
       debug: msg={{ matrixdb_auth_credential.stdout | replace('"', '' ) }}
 

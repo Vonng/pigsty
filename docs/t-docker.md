@@ -42,7 +42,7 @@ nginx_upstreams:
   - { name: postgrest,   domain: api.pigsty,         endpoint: "10.10.10.10:8082" }
   - { name: bytebase,    domain: bytebase.pigsty,    endpoint: "10.10.10.10:8083" }
   - { name: jupyter,     domain: lab.pigsty,         endpoint: "10.10.10.10:8084" }
-  - { name: matrixdb,    domain: matrix.pigsty,      endpoint: "10.10.10.10:8420" }
+  - { name: matrixdb,    domain: mx.pigsty,      endpoint: "10.10.10.10:8420" }
   
 ./infra.yml -t nginx_config,nginx_restart    # Regenerate the Nginx config file, and restart it to take effect
 ```

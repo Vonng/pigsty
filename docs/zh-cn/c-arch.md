@@ -60,7 +60,7 @@ Pigsty目前提供四个功能模块：
 
 如果你想部署并监控管理很多Redis集群，也只要在Pigsty托管的节点上加装**REDIS**模块即可。
 
-使用 [`pgsql.yml`](p-pgsql.md#pgsql) 创建高可用的PostgreSQL数据库集群，使用 [`redis.yml`](p-redis.md#redis)创建主从、集群、哨兵模式的Redis集簇，使用 [`pigsty-matrix.yml`](p-pgsql.md#pgsql-matrix) 部署 Greenplum/MatrixDB 数据仓库。
+使用 [`pgsql.yml`](p-pgsql.md#pgsql) 创建高可用的PostgreSQL数据库集群，使用 [`redis.yml`](p-redis.md#redis)创建主从、集群、哨兵模式的Redis集簇，使用 [`pigsty-matrixdb.yml`](p-pgsql.md#pgsql-matrix) 部署 Greenplum/MatrixDB 数据仓库。
 
 Pigsty后续会按需逐步添加新类型的数据库功能模块：**KAFKA**, **MINIO**, **MONGO**等。
 

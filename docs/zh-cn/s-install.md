@@ -50,7 +50,7 @@ Pigsty还可以用作大规模生产环境的集群/数据库管理。您可以�
 ./nodes.yml  -l pg-test      # 初始化集群pg-test包含的三台机器节点（配置节点+纳入监控）
 ./pgsql.yml  -l pg-test      # 初始化高可用PGSQL数据库集群pg-test
 ./redis.yml  -l redis-test   # 初始化Redis集群 redis-test
-./pigsty-matrix.yml -l mx-*  # 初始化MatrixDB集群mx-mdw,mx-sdw
+./pigsty-matrixdb.yml -l mx-*  # 初始化MatrixDB集群mx-mdw,mx-sdw
 ```
 
 
@@ -115,7 +115,7 @@ Pigsty设计了一个标准的，4节点的演示教学环境,称为**沙箱环�
 ./download matrix    # 下载MatrixDB软件包并构建本地源
 ./infra.yml -e no_cmdb=true  # 如果您准备在meta节点上部署 MatrixDB Master，添加no_cmdb选项，否则正常安装即可。   
 ./nodes.yml                  # 配置所有用于安装MatrixDB的节点
-./pigsty-matrix.yml          # 在上述节点上安装MatrixDB
+./pigsty-matrixdb.yml          # 在上述节点上安装MatrixDB
 ```
 
 

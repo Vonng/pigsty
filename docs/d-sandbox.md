@@ -153,7 +153,7 @@ Pigsty accesses all web systems via **domain name** by default. If you do not ha
 
 ```bash
 # pigsty dns records
-10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty matrix.pigsty
+10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty mx.pigsty
 10.10.10.11 node-1   # sandbox node node-1
 10.10.10.12 node-2   # sandbox node node-2
 10.10.10.13 node-3   # sandbox node node-3
@@ -577,7 +577,7 @@ Pigsty accesses all web systems via **domain name** by default and does not reco
 The static DNS records used by the cloud sandbox are shown below, and you need to fill in the public IP of the meta node.
 
 ```bash
-<public_ip> meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty matrix.pigsty
+<public_ip> meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty mx.pigsty
 ```
 
 In macOS and Linux, you need to write the above records to `/etc/hosts` (requires sudo access), and in Windows, you need to add them manually to `C:\Windows\System32\drivers\etc\hosts`.

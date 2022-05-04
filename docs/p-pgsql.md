@@ -14,7 +14,7 @@
 |  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      | Create a PostgreSQL Business Database |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
 |  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            | Monly mode, with access to existing PostgreSQL instances or RDS |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
 |  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    | Generate PostgreSQL semi-automatic database migration solution (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG to deploy a set of MatrixDB clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
+|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG to deploy a set of MatrixDB clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pigsty-matrixdb.yml)     |
 
 
 
@@ -259,7 +259,7 @@ Dedicated playbook for performing monitoring deployments. See [monly deployments
 
 Dedicated playbook for deploying MatrixDB. See [Deploying MatrixDB Cluster](d-matrixdb.md) for details.
 
-![](_media/playbook/pgsql-matrix.svg)
+![](_media/playbook/pigsty-matrixdb.svg)
 
 
 ------------------

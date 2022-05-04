@@ -144,12 +144,12 @@ You can deploy different types of databases & clusters with corresponding playbo
 
 * [`pgsql.yml`](p-pgsql.md#pgsql): Deploy HA PostgreSQL clusters.
 * [`redis.yml`](p-redis.md#redis): Deploy Redis clusters.
-* [`pgsql-matrix.yml`](p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
+* [`pigsty-matrixdb.yml`](p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
 
 ```bash
 ./pgsql.yml         -l pg-test      # init 1-primary & 2-replica pgsql cluster
 ./redis.yml         -l redis-test   # init redis cluster redis-test
-./pigsty-matrix.yml -l mx-*         # init MatrixDB cluster mx-mdw,mx-sdw .....
+./pigsty-matrixdb.yml -l mx-*         # init MatrixDB cluster mx-mdw,mx-sdw .....
 ```
 
 </details>

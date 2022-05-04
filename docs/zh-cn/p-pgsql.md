@@ -13,7 +13,7 @@
 |  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            |        仅监控模式，接入现存PostgreSQL实例或RDS                       |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
 |  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    |        生成PostgreSQL半自动数据库迁移方案（Beta）                     |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
 |  [`pgsql-audit`](p-pgsql.md#pgsql-audit)            |        生成PostgreSQL审计合规报告（Beta）                         |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-audit.yml)      |
-|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          |        复用PG角色部署一套MatrixDB数据仓库集群（Beta）                   |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
+|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          |        复用PG角色部署一套MatrixDB数据仓库集群（Beta）                   |        [`src`](https://github.com/vonng/pigsty/blob/master/pigsty-matrixdb.yml)     |
 
 
 
@@ -253,7 +253,7 @@ bin/createuser <pg_cluster> <username>
 
 用于部署MatrixDB的专用剧本，详情请参考：[部署MatrixDB集群](d-matrixdb.md)
 
-![](../_media/playbook/pgsql-matrix.svg)
+![](../_media/playbook/pigsty-matrixdb.svg)
 
 
 ------------------

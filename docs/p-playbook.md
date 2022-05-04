@@ -26,7 +26,7 @@ Pigsty implements core control functions at the bottom through the [Ansible Play
 |  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      | Creating a PostgreSQL Business Database |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
 |  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            | Monly mode, with access to existing PostgreSQL instances or RDS |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
 |  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    | Generate PostgreSQL semi-automatic database migration solution (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG role to deploy a MatrixDB data warehouse clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-matrix.yml)     |
+|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG role to deploy a MatrixDB data warehouse clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pigsty-matrixdb.yml)     |
 |  [**redis**](p-redis.md#redis)                        | **Deploy a Redis database in cluster/standalone/Sentinel mode** |        [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
 |  [`redis-remove`](p-redis.md#redis-remove)          |        Redis cluster/node destruction        |        [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
 

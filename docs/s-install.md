@@ -72,7 +72,7 @@ You can deploy different types of High available [PostgreSQL](d-pgsql.md) Cluste
 ./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
 ./pgsql.yml  -l pg-test      # init HA PGSQL Cluster pg-test
 ./redis.yml  -l redis-test   # init redis cluster redis-test
-./pigsty-matrix.yml -l mx-*  # init MatrixDB: mx-mdw,mx-sdw
+./pigsty-matrixdb.yml -l mx-*  # init MatrixDB: mx-mdw,mx-sdw
 ```
 
 
@@ -139,5 +139,5 @@ To deploy the open-source time-series data warehouse [MatrixDB](d-matrixdb.md) (
 ./download matrix     # Download the MatrixDB package and build the local source
 ./infra.yml -e no_cmdb=true # If meta node is part of it, add no_cmdb var to skip CMDB creation
 ./nodes.yml           # configure all nodes for MatrixDB installation
-./pigsty-matrix.yml   # Install MatrixDB on those nodes
+./pigsty-matrixdb.yml   # Install MatrixDB on those nodes
 ```
