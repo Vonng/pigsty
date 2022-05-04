@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node default config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-04-29
+# Mtime     :   2022-05-04
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -65,95 +65,39 @@ all:
     #----------------------------------#
     # pgsql cluster: pg-meta (CMDB)    #
     #----------------------------------#
-    # EXAMPLE pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
-    pg-meta:                          # [REQUIRED], ansible group name , pgsql cluster name. should be unique among environment
-      hosts:                          # `<cluster>.hosts` holds instances definition of this cluster
-        10.10.10.10:                  # [REQUIRED]: ip address is the key. values are instance level config entries (dict)
-          pg_seq: 1                   # [REQUIRED], unique identity parameter (+integer) among pg_cluster
-          pg_role: primary            # [REQUIRED], pg_role is mandatory identity parameter, primary|replica|offline
-          pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
-          # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
-          # pg_weight: 100            # load balance weight for this instance
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
+      vars:
+        pg_cluster: pg-meta
+        patroni_watchdog_mode: off
+        pg_databases:
+          - { name: meta, baseline: cmdb.sql , schemas: [ pigsty ]   , extensions: [ { name: adminpack, schema: pg_catalog } ,  { name: postgis, schema: public } , { name: timescaledb } ] ,comment: pigsty meta database }
+          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
+          - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
+          - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
 
-      vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
-        pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
-        # all vars below are [OPTIONAL] (overwrite global default)
-        pg_version: 14                # pgsql version to be installed (use global version if missing)
-        pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-        patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
-        pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
+        pg_users:
+          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
+          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
 
-        # define business database meta , used as CMDB & default database for single-node setup
-        pg_databases:                       # define business databases on this cluster, array of database definition
-          - name: meta                      # required, `name` is the only mandatory field of a database definition
-            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
-            # owner: postgres               # optional, database owner, postgres by default
-            # template: template1           # optional, which template to use, template1 by default
-            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
-            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
-            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
-            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
-            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
-            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
-            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-            # pgbouncer: true               # optional, add this database to pgbouncer database list? true by default
-            comment: pigsty meta database   # optional, comment string for this database
-            connlimit: -1                   # optional, database connection limit, default -1 disable limit
-            schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-            extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
-              - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
-              - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
-              - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
+        pg_hba_rules_extra:
+          - title: allow grafana bytebase kong intranet access
+            role: common
+            rules:
+              - host    kong            dbuser_kong         10.0.0.0/8          md5
+              - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
+              - host    grafana         dbuser_grafana      10.0.0.0/8          md5
 
-          # define an additional database named grafana & prometheus (optional)
-          # - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
-          # - { name: prometheus, owner: dbuser_prometheus , revokeconn: true , comment: prometheus primary database , extensions: [{ name: timescaledb }]}
-
-        # define business users for this cluster
-        pg_users:                           # define business users/roles on this cluster, array of user definition
-          # define admin user for meta database (This user are used for pigsty app deployment by default)
-          - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
-            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
-            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
-            login: true                     # optional, can login, true by default  (new biz ROLE should be false)
-            superuser: false                # optional, is superuser? false by default
-            createdb: false                 # optional, can create database? false by default
-            createrole: false               # optional, can create role? false by default
-            inherit: true                   # optional, can this role use inherited privileges? true by default
-            replication: false              # optional, can this role do replication? false by default
-            bypassrls: false                # optional, can this role bypass row level security? false by default
-            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
-            connlimit: -1                   # optional, user connection limit, default -1 disable limit
-            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
-            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
-            comment: pigsty admin user      # optional, comment string for this user/role
-            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
-            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
-            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
-          - {name: dbuser_view , password: DBUser.Viewer  ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
-          # define additional business users for prometheus & grafana (optional)
-          # - {name: dbuser_grafana    , password: DBUser.Grafana    ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for grafana database }
-          # - {name: dbuser_prometheus , password: DBUser.Prometheus ,pgbouncer: true ,roles: [dbrole_admin], comment: admin user for prometheus database , createrole: true }
-
-        # defining extra HBA rules on this cluster
-        pg_hba_rules_extra:                                 # Extra HBA rules to be installed on this cluster
-          - title: reject grafana non-local access          # required, rule title (used as hba description & comment string)
-            role: common                                    # required, which roles will be applied? ('common' applies to all roles)
-            rules:                                          # required, rule content: array of hba string
-              - local   grafana         dbuser_grafana                          md5
-              - host    grafana         dbuser_grafana      127.0.0.1/32        md5
-              - host    grafana         dbuser_grafana      10.10.10.10/32      md5
-
-        # default l2 vip fro this cluster
-        vip_mode: l2                        # setup a level-2 vip for cluster pg-meta
-        vip_address: 10.10.10.2             # virtual ip address that binds to primary instance of cluster pg-meta
-        vip_cidrmask: 8                     # cidr network mask length
-        vip_interface: eth1                 # interface to add virtual ip
-
-        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
+        vip_mode: l2
+        vip_address: 10.10.10.2
+        vip_cidrmask: 8
+        vip_interface: eth1
         node_crontab:
-          - 00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log     # backup @ 1am daily
-
+          - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
+          - '* * * * * postgres /usr/pgsql/bin/pgbench meta -nv -T15 -c2 2>>/pg/log/bench.log' # some random load
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -198,63 +142,6 @@ all:
               default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
 
 
-    #================================================================#
-    #                        REDIS Clusters                          #
-    #================================================================#
-
-    #----------------------------------#
-    # redis sentinel example           #
-    #----------------------------------#
-    redis-meta:
-      hosts:
-        10.10.10.10:
-          nodename: redis-meta-1
-          redis_node: 1
-          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
-      vars:
-        redis_cluster: redis-meta
-        redis_mode: sentinel
-        redis_max_memory: 128MB
-
-    #----------------------------------#
-    # redis cluster example            #
-    #----------------------------------#
-    redis-test:
-      hosts:
-        10.10.10.11:
-          nodename: redis-test-1
-          redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-        10.10.10.12:
-          nodename: redis-test-2
-          redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-      vars:
-        node_cluster: redis-test            # underlying nodes cluster name
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
-        redis_mem_policy: allkeys-lru       # memory eviction policy
-
-    #----------------------------------#
-    # redis standalone example         #
-    #----------------------------------#
-    redis-common:
-      hosts:
-        10.10.10.13:
-          redis_node: 1
-          nodename: redis-common-1
-          redis_instances:
-            6501: {}
-            6502: { replica_of: '10.10.10.13 6501' }
-            6503: { replica_of: '10.10.10.13 6501' }
-      vars:
-        node_cluster: redis-common          # underlying node cluster name
-        redis_cluster: redis-common         # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
-
-
   ####################################################################
   #                             VARS                                 #
   ####################################################################
@@ -297,21 +184,30 @@ all:
     nginx_home: /www                  # default repo home dir
 
     nginx_upstream:                   # domain names and upstream servers
-      - { name: home,         domain: pigsty,     endpoint: "10.10.10.10:80" }
+      - { name: home,         domain: pigsty,     endpoint: "10.10.10.10:80"   }
       - { name: grafana,      domain: g.pigsty,   endpoint: "10.10.10.10:3000" }
       - { name: loki,         domain: l.pigsty,   endpoint: "10.10.10.10:3100" }
       - { name: prometheus,   domain: p.pigsty,   endpoint: "10.10.10.10:9090" }
       - { name: alertmanager, domain: a.pigsty,   endpoint: "10.10.10.10:9093" }
-      - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500" }
-      - { name: jupyter,      domain: j.pigsty,   endpoint: "127.0.0.1:8888" } # optional
+      - { name: consul,       domain: c.pigsty,   endpoint: "127.0.0.1:8500"   } #== ^ required ==#
+      # - { name: kong,         domain: api.pigsty, endpoint: "127.0.0.1:8880" } #== v optional ==#
+      # - { name: pgadmin,      domain: adm.pigsty, endpoint: "127.0.0.1:8885" }
+      # - { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8886" }
+      # - { name: bytebase,     domain: ddl.pigsty, endpoint: "127.0.0.1:8887" }
+      # - { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
 
     nginx_indexes:                    # application nav links on home page
-      - { name: Explain  , url : '/pev2'        , comment: 'postgres explain visualizer' }
-      - { name: Package  , url : '/pigsty'      , comment: 'local yum repo packages'     }
-      - { name: YumRepo  , url : '/pigsty.repo' , comment: 'local yum repo file'         }
-      - { name: PGLogs   , url : '/logs'        , comment: 'postgres raw csv logs'       }
-      - { name: Schemas  , url : '/schema'      , comment: 'schemaspy summary report'    }
-      - { name: Reports  , url : '/report'      , comment: 'pgbadger summary report'     }
+      # - { name: PgAdmin4      , url : 'http://adm.pigsty'   , comment: 'PgAdmin4 for PostgreSQL'     }
+      # - { name: PGWeb         , url : 'http://cli.pigsty'   , comment: 'PGWEB Browser Client'        }
+      # - { name: ByteBase      , url : 'http://ddl.pigsty'   , comment: 'ByteBase Schema Migrator'    }
+      # - { name: Jupyter       , url : 'http://lab.pigsty'   , comment: 'Jupyter Laboratory'          }
+      # - { name: Kong          , url : 'http://api.pigsty'   , comment: 'Kong API Gateway'            }
+      - { name: Explain       , url : '/pev2'               , comment: 'postgres explain visualizer' }
+      - { name: Package       , url : '/pigsty'             , comment: 'local yum repo packages'     }
+      - { name: YumRepo       , url : '/pigsty.repo'        , comment: 'local yum repo file'         }
+      - { name: PGLogs        , url : '/logs'               , comment: 'postgres raw csv logs'       }
+      - { name: Schemas       , url : '/schema'             , comment: 'schemaspy summary report'    }
+      - { name: Reports       , url : '/report'             , comment: 'pgbadger summary report'     }
 
     #-----------------------------------------------------------------
     # REPO
@@ -584,41 +480,42 @@ all:
     #-----------------------------------------------------------------
     # NODE_TUNE
     #-----------------------------------------------------------------
-    node_disable_firewall: true     # disable firewall
-    node_disable_selinux: true      # disable selinux
-    node_disable_numa: false        # disable numa (node reboot required)
-    node_disable_swap: false        # disable swap, use with caution
-    node_static_network: true       # keep dns resolver settings after reboot
-    node_disk_prefetch: false       # setup disk prefetch on HDD to increase performance
+    node_disable_firewall: true       # disable firewall
+    node_disable_selinux: true        # disable selinux
+    node_disable_numa: false          # disable numa (node reboot required)
+    node_disable_swap: false          # disable swap, use with caution
+    node_static_network: true         # keep dns resolver settings after reboot
+    node_disk_prefetch: false         # setup disk prefetch on HDD to increase performance
     node_kernel_modules: [ softdog, br_netfilter, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
-    node_tune: tiny                 # install and activate tuned profile: none|oltp|olap|crit|tiny
-    node_sysctl_params: { }         # set additional sysctl parameters, k:v format
+    node_tune: tiny                   # install and activate tuned profile: none|oltp|olap|crit|tiny
+    node_sysctl_params: { }           # set additional sysctl parameters, k:v format
 
     #-----------------------------------------------------------------
     # NODE_ADMIN
     #-----------------------------------------------------------------
-    node_data_dir: /data             # main data directory
-    node_admin_enabled: true         # create a default admin user defined by `node_admin_*` ?
-    node_admin_uid: 88               # uid and gid for this admin user
-    node_admin_username: dba         # name of this admin user, dba by default
-    node_admin_ssh_exchange: true    # exchange admin ssh key among each pgsql cluster ?
-    node_admin_pk_current: true      # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pk_list:              # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_data_dir: /data              # main data directory
+    node_admin_enabled: true          # create a default admin user defined by `node_admin_*` ?
+    node_admin_uid: 88                # uid and gid for this admin user
+    node_admin_username: dba          # name of this admin user, dba by default
+    node_admin_ssh_exchange: true     # exchange admin ssh key among each pgsql cluster ?
+    node_admin_pk_current: true       # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
+    node_admin_pk_list:               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
       - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     #-----------------------------------------------------------------
     # NODE_TIME
     #-----------------------------------------------------------------
-    node_timezone: Asia/Hong_Kong    # default node timezone, empty will not change
-    node_ntp_enabled: true           # enable ntp service? false will leave ntp service untouched
-    node_ntp_service: ntp            # ntp service provider: ntp|chrony
-    node_ntp_servers:                # default NTP servers
+    node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
+    node_ntp_enabled: true            # enable ntp service? false will leave ntp service untouched
+    node_ntp_service: ntp             # ntp service provider: ntp|chrony
+    node_ntp_servers:                 # default NTP servers
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
       - server 10.10.10.10 iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
-    node_crontab: [ ]                # crontab entries in /etc/crontab
+    node_crontab_overwrite: true      # true will overwrite /etc/crontab, false will append crontab
+    node_crontab: [ ]                 # crontab entries in /etc/crontab
 
     #-----------------------------------------------------------------
     # DOCKER
@@ -626,7 +523,7 @@ all:
     docker_enabled: false             # enable docker on all nodes? (you can enable them on meta nodes only)
     docker_cgroups_driver: systemd    # docker cgroup fs driver
     docker_registry_mirrors: []       # docker registry mirror
-    docker_image_cache: /www/pigsty/docker.tar.lz4  # docker images tarball to be loaded if exists
+    docker_image_cache: /tmp/docker.tgz # docker images tarball to be loaded if exists
 
     #-----------------------------------------------------------------
     # CONSUL
