@@ -56,13 +56,10 @@ alias p="psql"
 alias q="exit"
 alias j="jobs"
 alias k="kubectl"
-alias d="docker"
-alias dc="docker-compose"
 alias h="history"
 function v() {
 	[ $# -eq 0 ] && vi . || vi $@
 }
-
 alias hg="history | grep --color=auto "
 alias py="python"
 alias cl="clear"
@@ -76,6 +73,11 @@ alias adm="sudo su - admin"
 alias pp="sudo su - postgres"
 alias sc='sudo systemctl'
 alias st="sudo systemctl status "
+
+alias d="docker"
+alias dc="docker-compose"
+alias di="docker images"
+alias dp="docker ps -a"
 
 # patroni command line tools
 function pg() {
