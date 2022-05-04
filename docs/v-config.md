@@ -288,7 +288,7 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 314  | [`node_dns_options`](v-nodes.md#node_dns_options)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | Configure the /etc/resolv.conf                               |
 | 320  | [`node_repo_method`](v-nodes.md#node_repo_method)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | The way nodes use Yum repos                                  |
 | 321  | [`node_repo_remove`](v-nodes.md#node_repo_remove)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | Remove nodes with existing Yum repos                         |
-| 322  | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | URL of the local source                                      |
+| 322  | [`node_repo_local_urls`](v-nodes.md#node_repo_local_urls)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | URL of the local source                                      |
 | 330  | [`node_packages_default`](v-nodes.md#node_packages_default)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Packages for nodes                                           |
 | 331  | [`node_packages`](v-nodes.md#node_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | Extra packages for nodes                                     |
 | 332  | [`node_packages_meta`](v-nodes.md#node_packages_meta)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | Packages for meta nodes                                      |

@@ -28,7 +28,7 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C     | 配置/etc/resolv.conf                 |
 | 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_PACKAGE`](#NODE_PACKAGE)         | enum     | C     | 节点使用Yum源的方式                  |
 | 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_PACKAGE`](#NODE_PACKAGE)         | bool     | C     | 是否移除节点已有Yum源                |
-| 322 | [`node_local_repo_url`](#node_local_repo_url)         | [`NODE_PACKAGE`](#NODE_PACKAGE)         | url[]    | C     | 本地源的URL地址                      |
+| 322 | [`node_repo_local_urls`](#node_repo_local_urls)         | [`NODE_PACKAGE`](#NODE_PACKAGE)         | url[]    | C     | 本地源的URL地址                      |
 | 331 | [`node_packages`](#node_packages)         | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | C     | 节点额外安装的软件列表               |
 | 330 | [`node_packages_default`](#node_packages_default)     | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | C     | 节点安装软件列表                     |
 | 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | G     | 元节点所需的软件列表                 |
@@ -53,7 +53,8 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 361 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C     | 是否配置NTP服务？                    |
 | 362 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C     | NTP服务类型：ntp或chrony             |
 | 363 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C     | NTP服务器列表                        |
-| 364 | [`node_crontab`](#node_crontab)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C     | 主机定时任务列表                        |
+| 364 | [`node_crontab_overwrite`](#node_crontab_overwrite)   | [`NODE_TIME`](#NODE_TIME)         | bool | C/I     | 是否覆盖/etc/crontab |
+| 365 | [`node_crontab`](#node_crontab)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C/I     | 主机定时任务列表          |
 | 370 | [`docker_enabled`](#docker_enabled)            | [`DOCKER`](#DOCKER)        | bool     | C   | dockerd是否启用?                    |
 | 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup驱动               |
 | 372 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker镜像仓库地址    |
@@ -274,7 +275,7 @@ Pigsty会为纳入管理的节点配置Yum源，并安装软件包。
 
 
 
-### `node_local_repo_url`
+### `node_repo_local_urls`
 
 本地源的URL地址, 类型：`url[]`，层级：C，默认值为：
 
@@ -283,7 +284,7 @@ Pigsty会为纳入管理的节点配置Yum源，并安装软件包。
 这里是一个Repo File URL 构成的数组，Pigsty默认会将元节点上的本地Yum源加入机器的源配置中。
 
 ```
-node_local_repo_url:
+node_repo_local_urls:
   - http://yum.pigsty/pigsty.repo
 ```
 
@@ -583,10 +584,24 @@ NTP服务器列表, 类型：`string[]`，层级：C，默认值为：
 
 
 
+### `node_crontab_overwrite`
+
+是否覆盖节点的Crontab, 类型：`bool`，层级：C/I，默认值为`true`。
+
+如果启用，[`node_crontab`](#node_crontab) 中的记录会整体覆盖 `/etc/crontab` 而不是追加写入。
+
+
+
+
 ### `node_crontab`
 
 节点定时任务列表, 类型：`string[]`，层级：C/I，默认值为空数组`[]`。
 
+在此列表的每的一个元素都是一条记录，写入 `/etc/crontab`中，例如：
+
+```bash
+00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log
+```
 
 
 

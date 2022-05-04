@@ -54,7 +54,7 @@ Using `configure -m mxdb` will automatically use this config file as a template.
 ./configure -m mxdb
 ```
 
-This config file [`node_local_repo_url`](v-nodes.md#node_local_repo_url) adds the new Yum repo, and `http://pigsty/matrix.repo` ensures that all nodes access Matrix Repo.
+This config file [`node_repo_local_urls`](v-nodes.md#node_repo_local_urls) adds the new Yum repo, and `http://pigsty/matrix.repo` ensures that all nodes access Matrix Repo.
 
 
 

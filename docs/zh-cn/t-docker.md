@@ -1,6 +1,6 @@
 # 容器指南
 
-Pigsty v1.4.1 带有Docker与Docker Compose部署支持，其中，Docker Daemon将默认在元节点上启用，以供安装更多SaaS服务
+Pigsty v1.5.0 带有Docker与Docker Compose部署支持，其中，Docker Daemon将默认在元节点上启用，以供安装更多SaaS服务
 
 您可以使用Docker，快速部署启动软件应用，在容器中，您可以直接使用连接串访问部署于宿主机上的PostgreSQL/Redis数据库。
 
@@ -27,20 +27,18 @@ Pigsty v1.4.1 带有Docker与Docker Compose部署支持，其中，Docker Daemon
 
 
 
-
 ## 向Nginx添加新服务
 
 本文介绍的大部分软件均对外提供Web界面，尽管您可以直接通过IP:Port的方式访问，但我们依然建议收敛访问入口，使用域名并统一从Nginx代理访问。使用以下配置与命令，向Nginx注册新的服务。
 
 ```bash
-# 添加新的Nginx服务定义
-nginx_upstreams:
-  - { name: pgadmin,     domain: pgadmin.pigsty,     endpoint: "10.10.10.10:8080" }
-  - { name: pgweb,       domain: pgweb.pigsty,       endpoint: "10.10.10.10:8081" }
-  - { name: postgrest,   domain: api.pigsty,         endpoint: "10.10.10.10:8082" }
-  - { name: bytebase,    domain: bytebase.pigsty,    endpoint: "10.10.10.10:8083" }
-  - { name: jupyter,     domain: lab.pigsty,         endpoint: "10.10.10.10:8084" }
-  - { name: matrixdb,    domain: matrix.pigsty,      endpoint: "10.10.10.10:8420" }
+# 添加新的Nginx服务定义至 nginx_upstream
+- { name: kong,         domain: api.pigsty, endpoint: "127.0.0.1:8880" }
+- { name: pgadmin,      domain: adm.pigsty, endpoint: "127.0.0.1:8885" }
+- { name: pgweb,        domain: cli.pigsty, endpoint: "127.0.0.1:8886" }
+- { name: bytebase,     domain: ddl.pigsty, endpoint: "127.0.0.1:8887" }
+- { name: jupyter,      domain: lab.pigsty, endpoint: "127.0.0.1:8888" }
+- { name: matrixdb,    domain: mx.pigsty , endpoint: "10.10.10.10:8420" }
   
 ./infra.yml -t nginx_config,nginx_restart    # 重新生成Nginx配置文件，并重启生效
 ```
@@ -48,22 +46,20 @@ nginx_upstreams:
 
 ## PG管理工具：PgAdmin
 
-[PGAdmin4](https://www.pgadmin.org/)是流行的PG管控工具，使用以下命令，在元节点上拉起PgAdmin4服务，默认为主机`8080`端口，用户名 `admin@pigsty.cc`，密码：`pigsty`
+[PGAdmin4](https://www.pgadmin.org/)是流行的PG管控工具，使用以下命令，在元节点上拉起PgAdmin4服务，默认为主机`8885`端口，用户名 `admin@pigsty.cc`，密码：`pigsty`
 
 ```bash
-docker run --init --name pgadmin --restart always --detach --publish 8080:80 \
-    -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty dpage/pgadmin4
+docker run --init --name pgadmin --restart always --detach --publish 8885:80 \
+    -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty \
+    dpage/pgadmin4
 ```
 
-常用操作：将服务器访问信息复制至 /tmp/servers.json 文件中，并重新导入。
+使用以下命令，将Pigsty默认PG列表拷贝至PGAdmin容器中
 
 ```bash
-# 导出 pgadmin4 服务器列表
-docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --dump-servers /tmp/servers.json
-docker cp pgadmin:/tmp/servers.json /tmp/servers.json
-
-# 从 /tmp/servers.json 文件导入 PGADMIN
-docker cp /tmp/servers.json pgadmin:/tmp/servers.json
+docker cp ~/.servers.json pgadmin:/tmp/servers.json;
+docker cp ~/.pgpass pgadmin:/pgpass;  
+docker exec -u 0 -it pgadmin chown pgadmin /tmp/servers.json /pgpass;
 docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --load-servers /tmp/servers.json
 ```
 
@@ -72,14 +68,14 @@ docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty
 
 ## PGWeb客户端工具
 
-[PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在元节点上拉起PGWEB服务，默认为主机`8081`端口。
+[PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在元节点上拉起PGWEB服务，默认为主机`8886`端口。
 
 ```bash
 # docker stop pgweb; docker rm pgweb
-docker run --init --name pgweb --restart always --detach --publish 8081:8081 sosedoff/pgweb 
+docker run --init --name pgweb --restart always --detach --publish 8886:8081 sosedoff/pgweb 
 ```
 
-用户需要自行填写数据库连接串，例如默认CMDB的：`postgres://dbuser_dba:DBUser.DBA@p1staff.com`。
+用户需要自行填写数据库连接串，例如默认CMDB的：`postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslmode=disable`。
 
 
 
@@ -110,25 +106,29 @@ docker run --init --name postgrest --restart always --detach --net=host -p 8082:
 [ByteBase](https://bytebase.com/)是一个进行数据库模式变更的工具，以下命令将在元节点 8083 端口启动一个ByteBase。
 
 ```bash
-docker run --init --name bytebase --restart always --detach --publish 8083:8083 --volume ~/.bytebase/data:/var/opt/bytebase \
-    bytebase/bytebase:1.0.4 --data /var/opt/bytebase --host http://bytebase.pigsty --port 8083
+mkdir -p /data/bytebase/data;
+docker run --init --name bytebase --restart always --detach --publish 8887:8887 --volume /data/bytebase/data:/var/opt/bytebase \
+    bytebase/bytebase:1.0.4 --data /var/opt/bytebase --host http://ddl.pigsty --port 8887
 ```
 
-访问 http://10.10.10.10:8083/ 即可使用 ByteBase，您需要依次创建项目、环境、实例、数据库，即可开始进行模式变更。
+访问 http://10.10.10.10:8887/ 或  http://ddl.pigsty 即可使用 ByteBase，您需要依次创建项目、环境、实例、数据库，即可开始进行模式变更。
 
 
 
 
 ## 数据分析环境：Jupyter
 
-[Jupyter Lab](https://github.com/jupyter/docker-stacks) 是一站式数据分析环境，下列命令将在 8084 端口启动一个Jupyter Server.
+[Jupyter Lab](https://github.com/jupyter/docker-stacks) 是一站式数据分析环境，下列命令将在 8887 端口启动一个Jupyter Server.
 
 ```bash
-docker run -it --restart always --detach --name jupyter -p 8083:8888 -v "${PWD}":/tmp/notebook jupyter/scipy-notebook
+docker run -it --restart always --detach --name jupyter -p 8888:8888 -v "${PWD}":/tmp/notebook jupyter/scipy-notebook
 docker logs jupyter # 打印日志，获取登陆的Token
 ```
+访问 http://10.10.10.10:8888/ 即可使用 JupyterLab，（需要填入自动生成的Token）。
 
-访问 http://10.10.10.10:8084/ 即可使用 JupyterLab，（需要填入自动生成的Token）. 注意，Pigsty在宿主机上也安装有JupyterLab。
+您也可以使用 [infra-jupyter.yml](p-infra.md#infra-jupyter) 在管理节点裸机上启用Jupyter Notebook。
+
+
 
 
 
@@ -236,11 +236,6 @@ run:
 ```sql
 ./launcher rebuild app
 ```
-
-
-## 样例：开源社交网站：Mastodon
-
-
 
 
 

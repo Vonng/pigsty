@@ -404,11 +404,16 @@ release-pkg: cache
 	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg.tgz
 
 # release
-rp2: release-matrix-pkg
-release-matrix-pkg:
+rp2: release-matrix
+release-matrix:
 	#ssh meta 'sudo cp -r /www/matrix /tmp/matrix; sudo chmod -R a+r /www/matrix'
 	ssh meta sudo tar zcvf /tmp/matrix.tgz -C /www matrix
 	scp meta:/tmp/matrix.tgz dist/${VERSION}/matrix.tgz
+
+rp3: release-docker
+release-docker:
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest bytebase/bytebase:1.0.4 | gzip -9 -c > /tmp/docker.tgz'
+	scp meta:/tmp/docker.tgz dist/${VERSION}/docker.tgz
 
 # publish will publish pigsty packages
 p: release publish

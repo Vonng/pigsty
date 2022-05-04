@@ -53,7 +53,7 @@ MatrixDB / Greenplum 的安装将复用 PGSQL 任务与配置，专属配置参�
 ./configure -m mxdb
 ```
 
-此配置文件中 [`node_local_repo_url`](v-nodes.md#node_local_repo_url)添加了新Yum源地址，`http://pigsty/matrix.repo` 确保所有节点都可以访问Matrix Repo。
+此配置文件中 [`node_repo_local_urls`](v-nodes.md#node_repo_local_urls)添加了新Yum源地址，`http://pigsty/matrix.repo` 确保所有节点都可以访问Matrix Repo。
 
 
 

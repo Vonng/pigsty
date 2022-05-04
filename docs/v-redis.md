@@ -4,33 +4,36 @@
 
 - [`REDIS_IDENTITY`](#REDIS_IDENTITY): REDIS Identity Params
 
+- [`REDIS_NODE`](#REDIS_NODE): REDIS Software, Dir & Exporter
+
 - [`REDIS_PROVISION`](#REDIS_PROVISION): REDIS Server Provisioning
 
-- [`REDIS_EXPORTER`](#REDIS_EXPORTER): REDIS  Exporter
 
 
-| ID   | Name                                                | Section                               | Type       | Level | Comment                                                      |
-| ---- | --------------------------------------------------- | ------------------------------------- | ---------- | ----- | ------------------------------------------------------------ |
-| 700  | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | redis cluster identity                                       |
-| 701  | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | redis node identity                                          |
-| 702  | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | redis instances definition on this node                      |
-| 720  | [`redis_install_method`](#redis_install_method)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | Way of install redis binaries                                |
-| 721  | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | standalone,cluster,sentinel                                  |
-| 722  | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | which config template will be used                           |
-| 723  | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_PROVISION`](#REDIS_PROVISION) | path       | C     | main data disk for redis                                     |
-| 724  | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | e.g 0.0.0.0, empty will use inventory_hostname as bind address |
-| 725  | [`redis_clean`](#redis_clean)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | what to do when redis exists                                 |
-| 726  | [`redis_safeguard`](#redis_safeguard)       | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | set to true to disable purge functionality for good (force redis_clean = abort) |
-| 727  | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | max memory used by each redis instance                       |
-| 728  | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | memory eviction policy                                       |
-| 729  | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | empty password disable password auth (masterauth & requirepass) |
-| 730  | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | RDB save cmd, disable with empty  array                      |
-| 731  | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | enable redis AOF                                             |
-| 732  | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | rename dangerous commands                                    |
-| 740  | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | how much replicas per master in redis cluster ?              |
-| 741  | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | bool       | C     | install redis exporter on redis nodes                        |
-| 742  | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | int        | C     | default port for redis exporter                              |
-| 743  | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_EXPORTER`](#REDIS_EXPORTER)   | string     | C/I   | default cli args for redis exporter                          |
+
+| ID | Name                                                | Section                               | Type       | Level | Comment                                                      |
+| -- |-----------------------------------------------------| ------------------------------------- | ---------- | ----- | ------------------------------------------------------------ |
+| 700 | [`redis_cluster`](#redis_cluster)                   | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | string     | C     | redis cluster identity                                       |
+| 701 | [`redis_node`](#redis_node)                         | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | int        | I     | redis node identity                                          |
+| 702 | [`redis_instances`](#redis_instances)               | [`REDIS_IDENTITY`](#REDIS_IDENTITY)   | instance[] | I     | redis instances definition on this node                      |
+| 710  | [`redis_fs_main`](#redis_fs_main)                   | [`REDIS_NODE`](#REDIS_NODE) | path       | C     | main data disk for redis                                     |
+| 711 | [`redis_exporter_enabled`](#redis_exporter_enabled) | [`REDIS_NODE`](#REDIS_NODE)   | bool       | C     | install redis exporter on redis nodes                        |
+| 712 | [`redis_exporter_port`](#redis_exporter_port)       | [`REDIS_NODE`](#REDIS_NODE)   | int        | C     | default port for redis exporter                              |
+| 713 | [`redis_exporter_options`](#redis_exporter_options) | [`REDIS_NODE`](#REDIS_NODE)   | string     | C/I   | default cli args for redis exporter                          |
+| 720  | [`redis_safeguard`](#redis_safeguard)               | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool     | C     | set to true to disable purge  |
+| 721  | [`redis_clean`](#redis_clean)                       | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | purge existing redis during init |
+| 722  | [`redis_rmdata`](#redis_clean)                       | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | remove redis data dir with it? |
+| 723 | [`redis_mode`](#redis_mode)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | standalone,cluster,sentinel                                  |
+| 724 | [`redis_conf`](#redis_conf)                         | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | which config template will be used                           |
+| 725  | [`redis_bind_address`](#redis_bind_address)         | [`REDIS_PROVISION`](#REDIS_PROVISION) | ip         | C     | e.g 0.0.0.0, empty will use inventory_hostname as bind address |
+| 726  | [`redis_max_memory`](#redis_max_memory)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | size       | C/I   | max memory used by each redis instance                       |
+| 727  | [`redis_mem_policy`](#redis_mem_policy)             | [`REDIS_PROVISION`](#REDIS_PROVISION) | enum       | C     | memory eviction policy                                       |
+| 728  | [`redis_password`](#redis_password)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string     | C     | empty password disable password auth (masterauth & requirepass) |
+| 729  | [`redis_rdb_save`](#redis_rdb_save)                 | [`REDIS_PROVISION`](#REDIS_PROVISION) | string[]   | C     | RDB save cmd, disable with empty  array                      |
+| 730  | [`redis_aof_enabled`](#redis_aof_enabled)           | [`REDIS_PROVISION`](#REDIS_PROVISION) | bool       | C     | enable redis AOF                                             |
+| 731  | [`redis_rename_commands`](#redis_rename_commands)   | [`REDIS_PROVISION`](#REDIS_PROVISION) | object     | C     | rename dangerous commands                                    |
+| 732  | [`redis_cluster_replicas`](#redis_cluster_replicas) | [`REDIS_PROVISION`](#REDIS_PROVISION) | int        | C     | how much replicas per master in redis cluster ?              |
+
 
 
 ----------------
@@ -93,20 +96,60 @@ Each Redis ins listens on a unique port on the node. You can configure separate 
 
 
 
+----------------
+## `REDIS_NODE`
+
+
+
+### `redis_fs_main`
+
+Primary data disk for Redis, type: `path`, level: C, default value: `"/data"`.
+
+Pigsty will create the `redis` dir under that dir to store Redis data. For example, `/data/redis`.
+
+See [FHS: Redis](r-fhs.md) for details.
+
+
+
+
+### `redis_exporter_enabled`
+
+Enable Redis exporter, type: `bool`, level: C, default: `true`.
+
+Redis Exporter is enabled by default, one on each Redis node deployed and listens on port 9121 by default.
+
+
+
+### `redis_exporter_port`
+
+Redis Exporter listens port, type: `int`, tier: C, default value: `9121`.
+
+Note: If you modify this default port, you will need to replace this port along with the relevant config rule file in Prometheus.
+
+
+
+### `redis_exporter_options`
+
+Redis Exporter command parameter, type: `string`, level: C/I, default value: `""`.
+
+
 
 ----------------
 ## `REDIS_PROVISION`
 
 
+### `redis_safeguard`
+
+Disable erasure of existing Redis, type: `string`, level: C, default value: `false`.
+
+if true, [`redis.yml`](p-redis.md#redis) and [`redis-remove.yml`](p-redis.md#redis-remove) will not remove running redis instance
 
 
+### `redis_clean`
 
-### `redis_install_method`
+What to do when Redis exists, type: `bool`, level: C/A, default value: `"false"`.
 
-Way of installing Redis, type: `enum`, level: C, default value: `"yum"`.
-
-You will need to complete the Redis installation yourself through the NODES-related params when `none` is specified.
-
+If true, [`redis.yml`](p-redis.md#redis) will purge existing instance during init.
 
 
 
@@ -132,14 +175,6 @@ Redis config template, type: `string`, level: C, default value: `"redis.conf"`.
 
 
 
-### `redis_fs_main`
-
-Primary data disk for Redis, type: `path`, level: C, default value: `"/data"`.
-
-Pigsty will create the `redis` dir under that dir to store Redis data. For example, `/data/redis`.
-
-See [FHS: Redis](r-fhs.md) for details.
-
 
 ### `redis_bind_address`
 
@@ -147,23 +182,6 @@ Redis listener address, type: `ip`, level: C, default value: `"0.0.0.0"`.
 
 Redis listener the IP, or `inventory_hostname` if left blank. The default listener has all local IPv4.
 
-
-
-### `redis_clean`
-
-What to do when Redis exists, type: `enum`, level: C, default value: `"clean"`.
-
-* `abort`: Abort the execution of the entire playbook
-* `skip`: Continue execution, so the Redis ins may be started using an RDB file from an existing database.
-* `clean`: Wipes the data and starts clean.
-
-
-
-### `redis_safeguard`
-
-Disable erasure of existing Redis, type: `string`, level: C, default value: `false`.
-
-If enabled, force set [`redis_clean`](#redis_clean) = `abort`.
 
 ### `redis_max_memory`
 
@@ -235,35 +253,3 @@ How many replicas per primary in Redis cluster, type: `int`, tier: C, default: `
 /bin/redis-cli --cluster create --cluster-yes \
   --cluster-replicas {{ redis_cluster_replicas|default(1) }}
 ```
-
-
-
-
-
-----------------
-## `REDIS_EXPORTER`
-
-RedisExporter related config.
-
-
-
-
-### `redis_exporter_enabled`
-
-Enable Redis exporter, type: `bool`, level: C, default: `true`.
-
-Redis Exporter is enabled by default, one on each Redis node deployed and listens on port 9121 by default.
-
-
-
-### `redis_exporter_port`
-
-Redis Exporter listens port, type: `int`, tier: C, default value: `9121`.
-
-Note: If you modify this default port, you will need to replace this port along with the relevant config rule file in Prometheus.
-
-
-
-### `redis_exporter_options`
-
-Redis Exporter command parameter, type: `string`, level: C/I, default value: `""`.

@@ -14,62 +14,63 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 - [`PROMTAIL`](#PROMTAIL): Logger agent
 
 
-| ID  | Name                                                  | Section                           |   Type   | Level | Comment                            |
-|-----|-------------------------------------------------------|-----------------------------------|----------|-----|------------------------------------|
-| 300 | [`meta_node`](#meta_node)                             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | mark this node as meta             |
-| 301 | [`nodename`](#nodename)                               | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | I   | node instance identity             |
-| 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C   | node cluster identity              |
-| 303 | [`nodename_overwrite`](#nodename_overwrite)           | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | overwrite hostname with nodename   |
-| 304 | [`nodename_exchange`](#nodename_exchange)             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | exchange static hostname           |
-| 310 | [`node_etc_hosts_default`](#node_etc_hosts_default)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | static DNS records                 |
-| 311 | [`node_etc_hosts`](#node_etc_hosts)       | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I | extra static DNS records           |
-| 312 | [`node_dns_method`](#node_dns_method)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?          |
-| 313 | [`node_dns_servers`](#node_dns_servers)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | dynamic DNS servers                |
-| 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | /etc/resolv.conf options           |
-| 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_PA`](#NODE_REPO)        | enum     | C   | how to use yum repo (local)        |
-| 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_REPO`](#NODE_REPO)         | bool     | C   | remove existing repo file?         |
-| 322 | [`node_local_repo_url`](#node_local_repo_url)         | [`NODE_REPO`](#NODE_REPO)         | url[]    | C   | local yum repo url                 |
-| 330 | [`node_packages_default`](#node_packages_default)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node   |
-| 331 | [`node_packages`](#node_packages)         | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed         |
-| 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages            |
-| 333 | [`node_packages_meta_pip`](#node_packages_meta_pip)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages            |
-| 340 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable firewall?                  |
-| 341 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable selinux?                   |
-| 342 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable numa?                      |
-| 343 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable swap?                      |
-| 344 | [`node_static_network`](#node_static_network)         | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | use static DNS config?             |
-| 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | enable disk prefetch?              |
-| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_TUNE`](#NODE_TUNE) | string[] | C   | kernel modules to be installed     |
-| 347 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                     |
-| 348 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters            |
-| 350 | [`node_data_dir`](#node_data_dir) | [`NODE_ADMIN`](#NODE_ADMIN) | path | C | default data disk mountpoint |
-| 351 | [`node_admin_enabled`](#node_admin_enabled)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                 |
-| 352 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G   | admin user UID                     |
-| 353 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G   | admin user name                    |
-| 354 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange) | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | C   | exchange admin ssh keys?           |
-| 355 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A   | pks to be added to admin           |
-| 356 | [`node_admin_pk_list`](#node_admin_pk_list)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?           |
-| 360 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C   | node timezone                      |
-| 361 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                 |
-| 362 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C   | ntp mode: ntp or chrony?           |
-| 363 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C   | ntp server list                    |
-| 364 | [`node_crontab`](#node_crontab) | [`NODE_TIME`](#NODE_TIME) | string[] | C/I | crontab list of node |
-| 370 | [`docker_enabled`](#docker_enabled)            | [`DOCKER`](#DOCKER)        | bool     | C   | docker enabled?                    |
-| 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup driver               |
-| 372 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker registry mirror location    |
-| 373 | [`docker_image_cache`](#docker_image_cache)     | [`DOCKER`](#DOCKER) | string   | C | docker image cache tarball         |
-| 380 | [`consul_safeguard`](#consul_safeguard)                   | [`CONSUL`](#CONSUL) | bool       | C/A   | avoid consul remove at all |
-| 381 | [`consul_clean`](#consul_clean)                   | [`CONSUL`](#CONSUL) | bool    | C/A   | purge consul during init? |
-| 382 | [`consul_name`](#consul_name)                                     | [`CONSUL`](#CONSUL) | string     | G     | dcs cluster name (dc)|
-| 383 | [`consul_data_dir`](#consul_data_dir)                       | [`CONSUL`](#CONSUL) | string     | G     | consul data dir path|
-| 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?             |
-| 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port          |
-| 392 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I | node_exporter extra cli args       |
-| 400 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C   | promtail enabled ?                 |
-| 401 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A | remove promtail status file ?      |
-| 402 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G   | promtail listen port               |
-| 403 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I | promtail cli args                  |
-| 404 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C   | path to store promtail status file |
+| ID  | Name                                                  | Section                           |   Type   | Level | Comment                                  |
+|-----|-------------------------------------------------------|-----------------------------------|----------|-----|------------------------------------------|
+| 300 | [`meta_node`](#meta_node)                             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | mark this node as meta                   |
+| 301 | [`nodename`](#nodename)                               | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | I   | node instance identity                   |
+| 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C   | node cluster identity                    |
+| 303 | [`nodename_overwrite`](#nodename_overwrite)           | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | overwrite hostname with nodename         |
+| 304 | [`nodename_exchange`](#nodename_exchange)             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | exchange static hostname                 |
+| 310 | [`node_etc_hosts_default`](#node_etc_hosts_default)   | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | static DNS records                       |
+| 311 | [`node_etc_hosts`](#node_etc_hosts)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I | extra static DNS records                 |
+| 312 | [`node_dns_method`](#node_dns_method)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C   | how to setup dns service?                |
+| 313 | [`node_dns_servers`](#node_dns_servers)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | dynamic DNS servers                      |
+| 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C   | /etc/resolv.conf options                 |
+| 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_PA`](#NODE_REPO)        | enum     | C   | how to use yum repo (local)              |
+| 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_REPO`](#NODE_REPO)         | bool     | C   | remove existing repo file?               |
+| 322 | [`node_repo_local_urls`](#node_repo_local_urls)       | [`NODE_REPO`](#NODE_REPO)         | url[]    | C   | local yum repo url list                  |
+| 330 | [`node_packages_default`](#node_packages_default)     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | pkgs to be installed on all node         |
+| 331 | [`node_packages`](#node_packages)                     | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | C   | extra pkgs to be installed               |
+| 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGES`](#NODE_PACKAGES) | string[] | G   | meta node only packages                  |
+| 333 | [`node_packages_meta_pip`](#node_packages_meta_pip)   | [`NODE_PACKAGES`](#NODE_PACKAGES) | string   | G   | meta node pip3 packages                  |
+| 340 | [`node_disable_firewall`](#node_disable_firewall)     | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable firewall?                        |
+| 341 | [`node_disable_selinux`](#node_disable_selinux)       | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable selinux?                         |
+| 342 | [`node_disable_numa`](#node_disable_numa)             | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable numa?                            |
+| 343 | [`node_disable_swap`](#node_disable_swap)             | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | disable swap?                            |
+| 344 | [`node_static_network`](#node_static_network)         | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | use static DNS config?                   |
+| 345 | [`node_disk_prefetch`](#node_disk_prefetch)           | [`NODE_TUNE`](#NODE_TUNE) | bool     | C   | enable disk prefetch?                    |
+| 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_TUNE`](#NODE_TUNE) | string[] | C   | kernel modules to be installed           |
+| 347 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C   | node tune mode                           |
+| 348 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C   | extra kernel parameters                  |
+| 350 | [`node_data_dir`](#node_data_dir)                     | [`NODE_ADMIN`](#NODE_ADMIN) | path | C | default data disk mountpoint             |
+| 351 | [`node_admin_enabled`](#node_admin_enabled)           | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G   | create admin user?                       |
+| 352 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G   | admin user UID                           |
+| 353 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G   | admin user name                          |
+| 354 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange) | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | C   | exchange admin ssh keys?                 |
+| 355 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A   | pks to be added to admin                 |
+| 356 | [`node_admin_pk_list`](#node_admin_pk_list)           | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C   | add current user's pkey?                 |
+| 360 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C   | node timezone                            |
+| 361 | [`node_ntp_enabled`](#node_ntp_enabled)               | [`NODE_TIME`](#NODE_TIME)         | bool     | C   | setup ntp on node?                       |
+| 362 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C   | ntp mode: ntp or chrony?                 |
+| 363 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C   | ntp server list                          |
+| 364 | [`node_crontab_overwrite`](#node_crontab_overwrite)   | [`NODE_TIME`](#NODE_TIME) | string[] | C/I | overwrite instead of append /etc/crontab |
+| 365 | [`node_crontab`](#node_crontab)                       | [`NODE_TIME`](#NODE_TIME) | string[] | C/I | crontab list of node                     |
+| 370 | [`docker_enabled`](#docker_enabled)                   | [`DOCKER`](#DOCKER)        | bool     | C   | docker enabled?                          |
+| 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)     | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup driver                     |
+| 372 | [`docker_registry_mirrors`](#docker_registry_mirrors) | [`DOCKER`](#DOCKER) | string   | C   | docker registry mirror location          |
+| 373 | [`docker_image_cache`](#docker_image_cache)           | [`DOCKER`](#DOCKER) | string   | C | docker image cache tarball               |
+| 380 | [`consul_safeguard`](#consul_safeguard)               | [`CONSUL`](#CONSUL) | bool       | C/A   | avoid consul remove at all               |
+| 381 | [`consul_clean`](#consul_clean)                       | [`CONSUL`](#CONSUL) | bool    | C/A   | purge consul during init?                |
+| 382 | [`consul_name`](#consul_name)                         | [`CONSUL`](#CONSUL) | string     | G     | dcs cluster name (dc)                    |
+| 383 | [`consul_data_dir`](#consul_data_dir)                 | [`CONSUL`](#CONSUL) | string     | G     | consul data dir path                     |
+| 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?                   |
+| 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port                |
+| 392 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I | node_exporter extra cli args             |
+| 400 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C   | promtail enabled ?                       |
+| 401 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A | remove promtail status file ?            |
+| 402 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G   | promtail listen port                     |
+| 403 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I | promtail cli args                        |
+| 404 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C   | path to store promtail status file       |
 
 
 
@@ -278,7 +279,7 @@ If enabled, Pigsty will move repo file in `/etc/yum.repos.d` to backup dir: `/et
 
 
 
-### `node_local_repo_url`
+### `node_repo_local_urls`
 
 URL address of the local repo, type: `url[]`, level: C, default value is `local`.
 
@@ -287,7 +288,7 @@ URL address of the local repo, type: `url[]`, level: C, default value is `local`
 Here is an array of Repo File URLs that Pigsty will add by default to the machine's source config for the local Yum repos on the meta node.
 
 ```
-node_local_repo_url:
+node_repo_local_urls:
   - http://yum.pigsty/pigsty.repo
 ```
 
@@ -592,11 +593,18 @@ It only takes effect if [`node_ntp_enabled`](#node_ntp_enabled) is true.
 
 
 
+### `node_crontab_overwrite`
+
+Overwrite instead of append /etc/crontab, type: `bool`, level: C/I, default value: `true`
+
+if true, records in [`node_crontab`](#node_crontab) will render to`/etc/crontab` instead of appending to it.
+
+
 ### `node_crontab`
 
 Crontab of this node, type: `string[]`, level: C/I, default value: `[]`
 
-
+Each element of the array is a string in `/etc/crontab`.
 
 
 

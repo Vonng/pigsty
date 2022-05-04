@@ -282,7 +282,7 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 314  | [`node_dns_options`](v-nodes.md#node_dns_options)            | [`NODE_DNS`](v-nodes.md#NODE_DNS)               | C     | 配置/etc/resolv.conf                 |
 | 320  | [`node_repo_method`](v-nodes.md#node_repo_method)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 节点使用Yum源的方式                  |
 | 321  | [`node_repo_remove`](v-nodes.md#node_repo_remove)            | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 是否移除节点已有Yum源                |
-| 322  | [`node_local_repo_url`](v-nodes.md#node_local_repo_url)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 本地源的URL地址                      |
+| 322  | [`node_repo_local_urls`](v-nodes.md#node_repo_local_urls)      | [`NODE_REPO`](v-nodes.md#NODE_REPO)             | C     | 本地源的URL地址                      |
 | 330  | [`node_packages_default`](v-nodes.md#node_packages_default)                  | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | 节点安装软件列表                     |
 | 331  | [`node_packages`](v-nodes.md#node_packages)      | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | C     | 节点额外安装的软件列表               |
 | 332  | [`node_packages_meta`](v-nodes.md#node_packages_meta)        | [`NODE_PACKAGES`](v-nodes.md#NODE_PACKAGES)     | G     | 元节点所需的软件列表                 |

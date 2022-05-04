@@ -37,6 +37,7 @@ node_admin_pks -> node_admin_pk_list
 node_dns_hosts -> node_etc_hosts_default
 node_dns_hosts_extra -> node_etc_hosts
 node_dns_server -> node_dns_method
+node_local_repo_url -> node_repo_local_urls
 node_packages -> node_packages_default
 node_extra_packages -> node_packages
 node_packages_meta -> node_packages_meta
