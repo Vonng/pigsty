@@ -1,5 +1,13 @@
 # Development Log
 
+#### 2022-05-04
+
+* Dashboard Overhaul: Infra-Overview
+* Add node_crontab_overwrite implementation
+* Test citus/dcs3/mxdb conf
+* node_local_repo_url -> node_repo_local_urls
+
+
 #### 2022-05-02
 
 * add crontab implementation

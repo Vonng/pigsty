@@ -373,6 +373,8 @@ copy-app:
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
 copy-docker:
 	scp dist/${VERSION}/docker.tgz meta:/tmp/docker.tgz
+load-docker:
+	ssh meta 'cat /tmp/docker.tgz | gzip -d -c - | docker load'
 copy-all: copy-src copy-pkg
 
 use-src:

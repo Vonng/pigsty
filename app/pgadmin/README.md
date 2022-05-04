@@ -40,11 +40,8 @@ services:
 ```
 
 ```bash
-docker run --init --name pgadmin \
-    --restart always --detach \
-    --publish 8885:80 \
-    -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc \
-    -e PGADMIN_DEFAULT_PASSWORD=pigsty \
+docker run --init --name pgadmin --restart always --detach --publish 8885:80 \
+    -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty \
     dpage/pgadmin4
 ```
 
