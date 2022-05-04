@@ -21,13 +21,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Logs Overview",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1651646760203,
+    "iteration": 1651656546528,
     "links": [
         {
             "asDropdown": true,
@@ -63,6 +62,108 @@
             "panels": [],
             "title": "Overview",
             "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 0,
+                                    "text": "DOWN"
+                                },
+                                "1": {
+                                    "color": "#5794f2",
+                                    "index": 1,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 5,
+                "x": 0,
+                "y": 1
+            },
+            "id": 58,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "last"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "name"
+            },
+            "pluginVersion": "8.5.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "grafana_build_info",
+                    "legendFormat": "Grafana {{ version }} @ {{ ip }}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "prometheus_build_info",
+                    "hide": false,
+                    "legendFormat": "Prometheus {{ version }} @ {{ ip }}",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "editorMode": "code",
+                    "expr": "loki_build_info",
+                    "hide": false,
+                    "legendFormat": "Loki {{ version }} @ {{ ip }}",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Version",
+            "type": "stat"
         },
         {
             "datasource": {
@@ -246,9 +347,9 @@
                 ]
             },
             "gridPos": {
-                "h": 6,
-                "w": 19,
-                "x": 0,
+                "h": 4,
+                "w": 14,
+                "x": 5,
                 "y": 1
             },
             "id": 30,
@@ -385,7 +486,7 @@
             },
             "description": "",
             "gridPos": {
-                "h": 13,
+                "h": 10,
                 "w": 5,
                 "x": 19,
                 "y": 1
@@ -403,7 +504,7 @@
                 ]
             },
             "pluginVersion": "8.5.1",
-            "title": "Infra Dashboards",
+            "title": "Dashboards",
             "type": "dashlist"
         },
         {
@@ -411,198 +512,6 @@
                 "type": "prometheus",
                 "uid": "${ds}"
             },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "Alertmanager",
-                            "url": "http://a.pigsty/#/alerts"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
-                                "value": 4
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 2,
-                "x": 0,
-                "y": 7
-            },
-            "id": 38,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.5.1",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"firing\"}) or on() vector(0)",
-                    "interval": "",
-                    "legendFormat": "Firing",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"pending\"})",
-                    "hide": false,
-                    "interval": "",
-                    "legendFormat": "Pending",
-                    "refId": "B"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "AlertInfo ${__field.labels.alertname}",
-                            "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
-                        }
-                    ],
-                    "mappings": [],
-                    "max": 1,
-                    "min": 0,
-                    "noValue": "OK",
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "orange",
-                                "value": 2
-                            },
-                            {
-                                "color": "red",
-                                "value": 3
-                            },
-                            {
-                                "color": "purple",
-                                "value": 4
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 7,
-                "w": 4,
-                "x": 2,
-                "y": 7
-            },
-            "id": 40,
-            "options": {
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "text": {},
-                "textMode": "auto"
-            },
-            "pluginVersion": "8.5.1",
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "count(ALERTS{alertstate=\"firing\"}) by (alertname, severity)",
-                    "interval": "",
-                    "legendFormat": "{{ alertname }}",
-                    "refId": "A"
-                }
-            ],
-            "type": "stat"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -610,26 +519,23 @@
                     },
                     "custom": {
                         "axisLabel": "",
-                        "axisPlacement": "hidden",
-                        "axisSoftMax": 1.2,
-                        "axisSoftMin": 0,
+                        "axisPlacement": "auto",
                         "barAlignment": 0,
                         "drawStyle": "line",
-                        "fillOpacity": 98,
+                        "fillOpacity": 50,
                         "gradientMode": "none",
                         "hideFrom": {
-                            "graph": false,
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
-                        "lineInterpolation": "stepBefore",
+                        "lineInterpolation": "linear",
                         "lineWidth": 0,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
                         },
-                        "showPoints": "never",
+                        "showPoints": "auto",
                         "spanNulls": false,
                         "stacking": {
                             "group": "A",
@@ -639,80 +545,40 @@
                             "mode": "off"
                         }
                     },
-                    "decimals": 0,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "AlertInfo ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
-                            "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
-                        },
-                        {
-                            "targetBlank": true,
-                            "title": "Silence ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
-                            "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
-                        },
-                        {
-                            "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
-                            "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}&viewPanel=78"
-                        }
-                    ],
                     "mappings": [],
-                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
                                 "color": "green",
                                 "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byFrameRefID",
-                            "options": "A"
-                        },
-                        "properties": [
+                            },
                             {
-                                "id": "custom.fillOpacity",
-                                "value": 66
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byType",
-                            "options": "time"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "auto"
+                                "color": "red",
+                                "value": 80
                             }
                         ]
                     }
-                ]
+                },
+                "overrides": []
             },
             "gridPos": {
-                "h": 7,
-                "w": 13,
-                "x": 6,
-                "y": 7
+                "h": 6,
+                "w": 14,
+                "x": 5,
+                "y": 5
             },
-            "id": 34,
+            "id": 48,
             "options": {
                 "legend": {
                     "calcs": [
-                        "last"
+                        "min"
                     ],
                     "displayMode": "table",
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi",
+                    "mode": "single",
                     "sort": "none"
                 }
             },
@@ -720,591 +586,1228 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "${ds}"
+                        "uid": "ds-prometheus"
                     },
-                    "exemplar": false,
-                    "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
-                    "interval": "",
-                    "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
+                    "editorMode": "code",
+                    "expr": "up{job=\"infra\"}",
+                    "legendFormat": "{{ type }} @ {{ ip }}",
+                    "range": true,
                     "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "exemplar": false,
-                    "expr": "0",
-                    "hide": true,
-                    "interval": "",
-                    "legendFormat": "Alert",
-                    "refId": "C"
                 }
             ],
-            "title": "Firing Alerts",
+            "title": "Infra Aliveness",
             "type": "timeseries"
         },
         {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "description": "",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "custom": {
-                        "align": "center",
-                        "displayMode": "color-background",
-                        "inspect": false
-                    },
-                    "decimals": 0,
-                    "links": [],
-                    "mappings": [],
-                    "max": -4,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#e3e3e3e0",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Alert"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width"
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "targetBlank": true,
-                                        "title": "AlertInfo for ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
-                                        "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "State"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 66
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "firing": {
-                                                "color": "light-red",
-                                                "index": 0,
-                                                "text": "Firing\ud83d\udd25"
-                                            },
-                                            "pending": {
-                                                "color": "light-orange",
-                                                "index": 1,
-                                                "text": "Pend\u23f0"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Level"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "color": "red",
-                                                "index": 0,
-                                                "text": "P0"
-                                            },
-                                            "1": {
-                                                "color": "orange",
-                                                "index": 1,
-                                                "text": "P1"
-                                            },
-                                            "2": {
-                                                "color": "yellow",
-                                                "index": 2,
-                                                "text": "P2"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Severity"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 60
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "CRIT": {
-                                                "color": "red",
-                                                "index": 0,
-                                                "text": "Critical \u26a1\ufe0f"
-                                            },
-                                            "INFO": {
-                                                "color": "light-yellow",
-                                                "index": 2,
-                                                "text": "Info \u2139\ufe0f"
-                                            },
-                                            "WARN": {
-                                                "color": "super-light-orange",
-                                                "index": 1,
-                                                "text": "Warning \u26a0\ufe0f"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Category"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 80
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "infra": {
-                                                "color": "orange",
-                                                "index": 2,
-                                                "text": "INFRA"
-                                            },
-                                            "node": {
-                                                "color": "green",
-                                                "index": 1,
-                                                "text": "NODE"
-                                            },
-                                            "pgsql": {
-                                                "color": "light-blue",
-                                                "index": 0,
-                                                "text": "PGSQL"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.displayMode",
-                                "value": "color-background"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Ins"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 98
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Active"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 66
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Severity"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 90
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width"
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Cluster for ${cls}",
-                                        "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Instance"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width"
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Instance for ${__data.fields.Instance}",
-                                        "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Database"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 79
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Database for ${__data.fields.Database} on ${__data.fields.Instance}",
-                                        "url": "/d/pgsql-database?var-ins=${__data.fields.Instance}&var-datname=${__data.fields.Database}"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Silence"
-                        },
-                        "properties": [
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "targetBlank": true,
-                                        "title": "Silence ${__data.fields.Alert} on Cluster ${__data.fields.Cluster}",
-                                        "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "silence"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
-                            },
-                            {
-                                "id": "custom.width",
-                                "value": 70
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Agent"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 126
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "IP"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.width",
-                                "value": 110
-                            },
-                            {
-                                "id": "links",
-                                "value": [
-                                    {
-                                        "title": "PGSQL Nodes: ${__data.fields.IP}",
-                                        "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
+            "collapsed": true,
             "gridPos": {
-                "h": 9,
-                "w": 19,
+                "h": 1,
+                "w": 24,
                 "x": 0,
-                "y": 14
+                "y": 11
             },
-            "id": 36,
-            "options": {
-                "footer": {
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": false,
-                        "displayName": "Level"
-                    }
-                ]
-            },
-            "pluginVersion": "8.5.1",
-            "targets": [
+            "id": 44,
+            "panels": [
                 {
                     "datasource": {
                         "type": "prometheus",
                         "uid": "${ds}"
                     },
-                    "exemplar": false,
-                    "expr": "ALERTS",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "",
-                    "legendFormat": "",
-                    "refId": "A"
-                }
-            ],
-            "title": "Active Alerts",
-            "transformations": [
-                {
-                    "id": "organize",
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "targetBlank": true,
+                                    "title": "Alertmanager",
+                                    "url": "http://a.pigsty/#/alerts"
+                                }
+                            ],
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 1
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 2
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 3
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 4
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 2,
+                        "x": 0,
+                        "y": 2
+                    },
+                    "id": 38,
                     "options": {
-                        "excludeByName": {
-                            "Time": true,
-                            "Value": false,
-                            "__name__": true,
-                            "job": true
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "reduceOptions": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "fields": "",
+                            "values": false
                         },
-                        "indexByName": {
-                            "Time": 11,
-                            "Value": 10,
-                            "__name__": 13,
-                            "alertname": 0,
-                            "alertstate": 1,
-                            "category": 4,
-                            "cls": 5,
-                            "datname": 8,
-                            "ins": 6,
-                            "instance": 9,
-                            "ip": 7,
-                            "job": 12,
-                            "level": 2,
-                            "severity": 3
+                        "text": {},
+                        "textMode": "auto"
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "count(ALERTS{alertstate=\"firing\"}) or on() vector(0)",
+                            "interval": "",
+                            "legendFormat": "Firing",
+                            "refId": "A"
                         },
-                        "renameByName": {
-                            "Value": "Silence",
-                            "Value #A": "Silence",
-                            "alertname": "Alert",
-                            "alertstate": "State",
-                            "category": "Category",
-                            "cls": "Cluster",
-                            "datname": "Database",
-                            "ins": "Instance",
-                            "instance": "Agent",
-                            "ip": "IP",
-                            "job": "",
-                            "level": "Level",
-                            "severity": "Severity"
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "count(ALERTS{alertstate=\"pending\"})",
+                            "hide": false,
+                            "interval": "",
+                            "legendFormat": "Pending",
+                            "refId": "B"
                         }
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "gridPos": {
-                "h": 9,
-                "w": 5,
-                "x": 19,
-                "y": 14
-            },
-            "id": 42,
-            "options": {
-                "alertInstanceLabelFilter": "",
-                "alertName": "",
-                "dashboardAlerts": false,
-                "dashboardTitle": "",
-                "groupBy": [],
-                "groupMode": "default",
-                "maxItems": 20,
-                "showInstances": false,
-                "showOptions": "current",
-                "sortOrder": 1,
-                "stateFilter": {
-                    "alerting": true,
-                    "error": true,
-                    "execution_error": true,
-                    "firing": true,
-                    "inactive": false,
-                    "noData": false,
-                    "no_data": true,
-                    "normal": false,
-                    "ok": true,
-                    "paused": true,
-                    "pending": true
+                    ],
+                    "type": "stat"
                 },
-                "tags": []
-            },
-            "pluginVersion": "8.3.1",
-            "title": "Grafana Alert",
-            "type": "alertlist"
-        },
-        {
-            "collapsed": true,
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 23
-            },
-            "id": 10,
-            "panels": [
                 {
                     "datasource": {
-                        "type": "loki",
-                        "uid": "ds-loki"
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "targetBlank": true,
+                                    "title": "AlertInfo ${__field.labels.alertname}",
+                                    "url": "http://a.pigsty/#/alerts?filter=%7Balertname%3D%22${__field.labels.alertname}%22%7D"
+                                }
+                            ],
+                            "mappings": [],
+                            "max": 1,
+                            "min": 0,
+                            "noValue": "OK",
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "yellow",
+                                        "value": 1
+                                    },
+                                    {
+                                        "color": "orange",
+                                        "value": 2
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 3
+                                    },
+                                    {
+                                        "color": "purple",
+                                        "value": 4
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
                     },
                     "gridPos": {
-                        "h": 10,
-                        "w": 24,
-                        "x": 0,
-                        "y": 24
+                        "h": 7,
+                        "w": 4,
+                        "x": 2,
+                        "y": 2
                     },
-                    "id": 21,
-                    "maxDataPoints": 100,
+                    "id": 40,
                     "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": false,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": true,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "reduceOptions": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {},
+                        "textMode": "auto"
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "count(ALERTS{alertstate=\"firing\"}) by (alertname, severity)",
+                            "interval": "",
+                            "legendFormat": "{{ alertname }}",
+                            "refId": "A"
+                        }
+                    ],
+                    "type": "stat"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "hidden",
+                                "axisSoftMax": 1.2,
+                                "axisSoftMin": 0,
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 98,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "graph": false,
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "stepBefore",
+                                "lineWidth": 0,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "normal"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 0,
+                            "links": [
+                                {
+                                    "targetBlank": true,
+                                    "title": "AlertInfo ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                                    "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                                },
+                                {
+                                    "targetBlank": true,
+                                    "title": "Silence ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                                    "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__field.labels.cls}%22%2C%20alertname%3D%22${__field.labels.alertname}%22%7D"
+                                },
+                                {
+                                    "title": "PGSQL Cluster for ${__field.labels.cls} : Alerts",
+                                    "url": "/d/pgsql-cluster?var-cls=${__field.labels.cls}&viewPanel=78"
+                                }
+                            ],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byFrameRefID",
+                                    "options": "A"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.fillOpacity",
+                                        "value": 66
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byType",
+                                    "options": "time"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.axisPlacement",
+                                        "value": "auto"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 13,
+                        "x": 6,
+                        "y": 2
+                    },
+                    "id": 34,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
                     },
                     "targets": [
                         {
                             "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
+                                "type": "prometheus",
+                                "uid": "${ds}"
                             },
-                            "expr": "{job=\"nodes\"}",
+                            "exemplar": false,
+                            "expr": "sum without (ins,instance,datname) (ALERTS{alertstate=\"firing\"})",
+                            "interval": "",
+                            "legendFormat": "[{{ severity }}] {{alertname}}  @ {{ cls }}",
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "0",
+                            "hide": true,
+                            "interval": "",
+                            "legendFormat": "Alert",
+                            "refId": "C"
+                        }
+                    ],
+                    "title": "Firing Alerts",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "ds-prometheus"
+                    },
+                    "gridPos": {
+                        "h": 16,
+                        "w": 5,
+                        "x": 19,
+                        "y": 2
+                    },
+                    "id": 42,
+                    "options": {
+                        "alertInstanceLabelFilter": "",
+                        "alertName": "",
+                        "dashboardAlerts": false,
+                        "dashboardTitle": "",
+                        "groupBy": [],
+                        "groupMode": "default",
+                        "maxItems": 20,
+                        "showInstances": false,
+                        "showOptions": "current",
+                        "sortOrder": 1,
+                        "stateFilter": {
+                            "alerting": true,
+                            "error": true,
+                            "execution_error": true,
+                            "firing": true,
+                            "inactive": false,
+                            "noData": false,
+                            "no_data": true,
+                            "normal": false,
+                            "ok": true,
+                            "paused": true,
+                            "pending": true
+                        },
+                        "tags": []
+                    },
+                    "pluginVersion": "8.3.1",
+                    "title": "Grafana Alert",
+                    "type": "alertlist"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "custom": {
+                                "align": "center",
+                                "displayMode": "color-background",
+                                "inspect": false
+                            },
+                            "decimals": 0,
+                            "links": [],
+                            "mappings": [],
+                            "max": -4,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#e3e3e3e0",
+                                        "value": null
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Alert"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width"
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "targetBlank": true,
+                                                "title": "AlertInfo for ${__field.labels.alertname} on Cluster ${__field.labels.cls}",
+                                                "url": "http://a.pigsty/#/alerts?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "State"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 66
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "firing": {
+                                                        "color": "light-red",
+                                                        "index": 0,
+                                                        "text": "Firing\ud83d\udd25"
+                                                    },
+                                                    "pending": {
+                                                        "color": "light-orange",
+                                                        "index": 1,
+                                                        "text": "Pend\u23f0"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-background"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Level"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 60
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "color": "red",
+                                                        "index": 0,
+                                                        "text": "P0"
+                                                    },
+                                                    "1": {
+                                                        "color": "orange",
+                                                        "index": 1,
+                                                        "text": "P1"
+                                                    },
+                                                    "2": {
+                                                        "color": "yellow",
+                                                        "index": 2,
+                                                        "text": "P2"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-background"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Severity"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 60
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "CRIT": {
+                                                        "color": "red",
+                                                        "index": 0,
+                                                        "text": "Critical \u26a1\ufe0f"
+                                                    },
+                                                    "INFO": {
+                                                        "color": "light-yellow",
+                                                        "index": 2,
+                                                        "text": "Info \u2139\ufe0f"
+                                                    },
+                                                    "WARN": {
+                                                        "color": "super-light-orange",
+                                                        "index": 1,
+                                                        "text": "Warning \u26a0\ufe0f"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-background"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Category"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 80
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "infra": {
+                                                        "color": "orange",
+                                                        "index": 2,
+                                                        "text": "INFRA"
+                                                    },
+                                                    "node": {
+                                                        "color": "green",
+                                                        "index": 1,
+                                                        "text": "NODE"
+                                                    },
+                                                    "pgsql": {
+                                                        "color": "light-blue",
+                                                        "index": 0,
+                                                        "text": "PGSQL"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.displayMode",
+                                        "value": "color-background"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Ins"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 98
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Active"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 66
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Severity"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 90
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Cluster"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width"
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Cluster for ${cls}",
+                                                "url": "/d/pgsql-cluster?var-cls=${__data.fields.Cluster}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Instance"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width"
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Instance for ${__data.fields.Instance}",
+                                                "url": "/d/pgsql-instance?var-ins=${__data.fields.Instance}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 79
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Database for ${__data.fields.Database} on ${__data.fields.Instance}",
+                                                "url": "/d/pgsql-database?var-ins=${__data.fields.Instance}&var-datname=${__data.fields.Database}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Silence"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "targetBlank": true,
+                                                "title": "Silence ${__data.fields.Alert} on Cluster ${__data.fields.Cluster}",
+                                                "url": "http://a.pigsty/#/silences/new?filter=%7Bcls%3D%22${__data.fields.Cluster}%22%2C%20alertname%3D%22${__data.fields.Alert}%22%7D"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "1": {
+                                                        "index": 0,
+                                                        "text": "silence"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "custom.width",
+                                        "value": 70
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Agent"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 126
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "IP"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.width",
+                                        "value": 110
+                                    },
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Nodes: ${__data.fields.IP}",
+                                                "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 19,
+                        "x": 0,
+                        "y": 9
+                    },
+                    "id": 36,
+                    "options": {
+                        "footer": {
+                            "fields": "",
+                            "reducer": [
+                                "sum"
+                            ],
+                            "show": false
+                        },
+                        "showHeader": true,
+                        "sortBy": [
+                            {
+                                "desc": false,
+                                "displayName": "Level"
+                            }
+                        ]
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "exemplar": false,
+                            "expr": "ALERTS",
+                            "format": "table",
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "",
                             "refId": "A"
                         }
                     ],
-                    "title": "Node Syslog",
-                    "type": "logs"
+                    "title": "Active Alerts",
+                    "transformations": [
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "Time": true,
+                                    "Value": false,
+                                    "__name__": true,
+                                    "job": true
+                                },
+                                "indexByName": {
+                                    "Time": 11,
+                                    "Value": 10,
+                                    "__name__": 13,
+                                    "alertname": 0,
+                                    "alertstate": 1,
+                                    "category": 4,
+                                    "cls": 5,
+                                    "datname": 8,
+                                    "ins": 6,
+                                    "instance": 9,
+                                    "ip": 7,
+                                    "job": 12,
+                                    "level": 2,
+                                    "severity": 3
+                                },
+                                "renameByName": {
+                                    "Value": "Silence",
+                                    "Value #A": "Silence",
+                                    "alertname": "Alert",
+                                    "alertstate": "State",
+                                    "category": "Category",
+                                    "cls": "Cluster",
+                                    "datname": "Database",
+                                    "ins": "Instance",
+                                    "instance": "Agent",
+                                    "ip": "IP",
+                                    "job": "",
+                                    "level": "Level",
+                                    "severity": "Severity"
+                                }
+                            }
+                        }
+                    ],
+                    "type": "table"
                 }
             ],
-            "title": "NODES",
+            "title": "ALERT",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 12
+            },
+            "id": 50,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 30,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 24,
+                        "x": 0,
+                        "y": 3
+                    },
+                    "id": 56,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "hidden",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "single",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "irate(nginx_http_requests_total{}[5m])",
+                            "format": "time_series",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} REQ/s",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Nginx Request Rate",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "Connections (rate5m)",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 1,
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 0,
+                        "y": 9
+                    },
+                    "id": 52,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "irate(nginx_connections_accepted{}[5m])",
+                            "format": "time_series",
+                            "instant": false,
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} Accecpt",
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "irate(nginx_connections_handled{}[5m])",
+                            "format": "time_series",
+                            "instant": false,
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} Handled",
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Nginx Conn Accept/Handle",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "Connections",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 0,
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 12,
+                        "y": 9
+                    },
+                    "id": 54,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "nginx_connections_active{}",
+                            "format": "time_series",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} active",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "nginx_connections_reading{}",
+                            "format": "time_series",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} reading",
+                            "range": true,
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "nginx_connections_waiting{}",
+                            "format": "time_series",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} waiting",
+                            "range": true,
+                            "refId": "C"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "nginx_connections_writing{}",
+                            "format": "time_series",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ ip }} writing",
+                            "range": true,
+                            "refId": "D"
+                        }
+                    ],
+                    "title": "Active Connections",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "NGINX",
             "type": "row"
         },
         {
@@ -1317,115 +1820,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 24
-            },
-            "id": 12,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "loki",
-                        "uid": "ds-loki"
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 24,
-                        "x": 0,
-                        "y": 18
-                    },
-                    "id": 23,
-                    "maxDataPoints": 100,
-                    "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": false,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": true,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
-                    },
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
-                            },
-                            "expr": "{src=\"postgres\"}  |~ \"ERROR\"",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "PostgreSQL Error Logs",
-                    "type": "logs"
-                }
-            ],
-            "title": "PGSQL",
-            "type": "row"
-        },
-        {
-            "collapsed": true,
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 25
-            },
-            "id": 14,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "loki",
-                        "uid": "ds-loki"
-                    },
-                    "gridPos": {
-                        "h": 10,
-                        "w": 24,
-                        "x": 0,
-                        "y": 26
-                    },
-                    "id": 22,
-                    "maxDataPoints": 100,
-                    "options": {
-                        "dedupStrategy": "none",
-                        "enableLogDetails": false,
-                        "prettifyLogMessage": false,
-                        "showCommonLabels": false,
-                        "showLabels": true,
-                        "showTime": true,
-                        "sortOrder": "Descending",
-                        "wrapLogMessage": false
-                    },
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "loki",
-                                "uid": "ds-loki"
-                            },
-                            "expr": "{job=\"redis\"}",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "Redis Log",
-                    "type": "logs"
-                }
-            ],
-            "title": "REDIS",
-            "type": "row"
-        },
-        {
-            "collapsed": true,
-            "datasource": {
-                "type": "prometheus",
-                "uid": "ds-prometheus"
-            },
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 26
+                "y": 13
             },
             "id": 4,
             "panels": [
@@ -1475,7 +1870,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -1578,7 +1974,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 12
+                        "y": 4
                     },
                     "id": 27,
                     "interval": "1s",
@@ -1619,7 +2015,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 17
+                        "y": 9
                     },
                     "id": 2,
                     "maxDataPoints": 100,
@@ -1647,7 +2043,7 @@
                     "type": "logs"
                 }
             ],
-            "title": "Infra - Nginx - Access",
+            "title": "NGINX - ERROR LOG",
             "type": "row"
         },
         {
@@ -1660,7 +2056,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 27
+                "y": 14
             },
             "id": 6,
             "panels": [
@@ -1710,7 +2106,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "red"
+                                        "color": "red",
+                                        "value": null
                                     }
                                 ]
                             },
@@ -1722,7 +2119,7 @@
                         "h": 5,
                         "w": 24,
                         "x": 0,
-                        "y": 28
+                        "y": 5
                     },
                     "id": 28,
                     "interval": "1s",
@@ -1763,7 +2160,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 33
+                        "y": 10
                     },
                     "id": 17,
                     "maxDataPoints": 100,
@@ -1791,7 +2188,7 @@
                     "type": "logs"
                 }
             ],
-            "title": "Infra - Nginx - Error",
+            "title": "NGINX - ERROR LOG",
             "type": "row"
         },
         {
@@ -1804,7 +2201,549 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 28
+                "y": 15
+            },
+            "id": 12,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "ds-loki"
+                    },
+                    "gridPos": {
+                        "h": 10,
+                        "w": 24,
+                        "x": 0,
+                        "y": 6
+                    },
+                    "id": 23,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "dedupStrategy": "none",
+                        "enableLogDetails": false,
+                        "prettifyLogMessage": false,
+                        "showCommonLabels": false,
+                        "showLabels": true,
+                        "showTime": true,
+                        "sortOrder": "Descending",
+                        "wrapLogMessage": false
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "loki",
+                                "uid": "ds-loki"
+                            },
+                            "expr": "{src=\"postgres\"}  |~ \"ERROR\"",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "PostgreSQL Error Logs",
+                    "type": "logs"
+                }
+            ],
+            "title": "PGSQL - ERROR LOG",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 16
+            },
+            "id": 14,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "ds-loki"
+                    },
+                    "gridPos": {
+                        "h": 10,
+                        "w": 24,
+                        "x": 0,
+                        "y": 7
+                    },
+                    "id": 22,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "dedupStrategy": "none",
+                        "enableLogDetails": false,
+                        "prettifyLogMessage": false,
+                        "showCommonLabels": false,
+                        "showLabels": true,
+                        "showTime": true,
+                        "sortOrder": "Descending",
+                        "wrapLogMessage": false
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "loki",
+                                "uid": "ds-loki"
+                            },
+                            "expr": "{job=\"redis\"}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Redis Log",
+                    "type": "logs"
+                }
+            ],
+            "title": "REDIS - ERROR LOG",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 17
+            },
+            "id": 67,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [],
+                            "max": 2.5,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Instance"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Instance : $primary",
+                                                "url": "/d/pgsql-instance?var-ins=$primary"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Service"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Service : $cls-primary",
+                                                "url": "/d/pgsql-service?var-svc=$cls-primary"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Proxy"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Proxy : $primary",
+                                                "url": "/d/pgsql-proxy?var-ins=$primary"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Databases : $cls",
+                                                "url": "/d/pgsql-databases?var-cls=$cls"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 15,
+                        "x": 0,
+                        "y": 8
+                    },
+                    "id": 76,
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "center",
+                        "orientation": "auto",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {
+                            "titleSize": 16,
+                            "valueSize": 14
+                        },
+                        "textMode": "value_and_name"
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "grafana_stat_totals_folder",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "Folders",
+                            "queryType": "measurements",
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "grafana_stat_totals_dashboard",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "Dashboards",
+                            "queryType": "measurements",
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "grafana_stat_total_users",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "Users",
+                            "queryType": "measurements",
+                            "refId": "C"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "grafana_stat_total_orgs",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "Organizations",
+                            "queryType": "measurements",
+                            "refId": "D"
+                        }
+                    ],
+                    "title": "Grafana Stat",
+                    "transformations": [],
+                    "type": "stat"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [],
+                            "max": 2.5,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "blue",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Instance"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Instance : $primary",
+                                                "url": "/d/pgsql-instance?var-ins=$primary"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Service"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Service : $cls-primary",
+                                                "url": "/d/pgsql-service?var-svc=$cls-primary"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Proxy"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Proxy : $primary",
+                                                "url": "/d/pgsql-proxy?var-ins=$primary"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Database"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "links",
+                                        "value": [
+                                            {
+                                                "title": "PGSQL Databases : $cls",
+                                                "url": "/d/pgsql-databases?var-cls=$cls"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 4,
+                        "w": 9,
+                        "x": 15,
+                        "y": 8
+                    },
+                    "id": 77,
+                    "options": {
+                        "colorMode": "background",
+                        "graphMode": "area",
+                        "justifyMode": "center",
+                        "orientation": "auto",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "text": {
+                            "titleSize": 16,
+                            "valueSize": 14
+                        },
+                        "textMode": "value_and_name"
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "${ds}"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "grafana_stat_totals_datasource",
+                            "hide": false,
+                            "instant": true,
+                            "interval": "",
+                            "legendFormat": "{{ plugin_id }}",
+                            "queryType": "measurements",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Data Sources",
+                    "transformations": [],
+                    "type": "stat"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "auto",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 9,
+                        "w": 24,
+                        "x": 0,
+                        "y": 12
+                    },
+                    "id": 69,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "desc"
+                        }
+                    },
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "sum by (method, handler) (rate(grafana_http_request_duration_seconds_count[1m]))",
+                            "legendFormat": "{{ method }} {{ handler }}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Grafana API QPS",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "GRAFANA",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": {
+                "type": "prometheus",
+                "uid": "ds-prometheus"
+            },
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 18
             },
             "id": 8,
             "panels": [
@@ -1817,7 +2756,7 @@
                         "h": 10,
                         "w": 24,
                         "x": 0,
-                        "y": 14
+                        "y": 9
                     },
                     "id": 18,
                     "maxDataPoints": 100,
@@ -1845,7 +2784,805 @@
                     "type": "logs"
                 }
             ],
-            "title": "Infra - Grafana",
+            "title": "GRAFANA LOG",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 19
+            },
+            "id": 62,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "Shows the duration since an agent had last seen the leader. Spikes here may indicate network issues or a leader slowing or becoming unavailable.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "auto",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    }
+                                ]
+                            },
+                            "unit": "ms"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 12,
+                        "x": 0,
+                        "y": 10
+                    },
+                    "id": 46,
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "single",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "consul_raft_leader_lastContact != 0",
+                            "format": "time_series",
+                            "instant": false,
+                            "interval": "",
+                            "legendFormat": "{{ quantile }}%",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Consul Leader Seen",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "This measures the time it takes to commit a new entry to the Raft log on the leader.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "ms"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 12,
+                        "x": 12,
+                        "y": 10
+                    },
+                    "id": 71,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "expr": "consul_raft_commitTime",
+                            "format": "time_series",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{quantile}}%",
+                            "refId": "A",
+                            "step": 10
+                        }
+                    ],
+                    "title": "Commit Time",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "This counts the number of Raft transactions occurring over the interval, which is a general indicator of the write load on the Consul servers.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "ops"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 12,
+                        "x": 0,
+                        "y": 17
+                    },
+                    "id": 73,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "expr": "delta(consul_raft_apply[30s])",
+                            "format": "time_series",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "Transactions",
+                            "refId": "A",
+                            "step": 10
+                        }
+                    ],
+                    "title": "Raft Transactions",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "description": "This measures the time it takes for the leader to write log entries to disk.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "ms"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 7,
+                        "w": 12,
+                        "x": 12,
+                        "y": 17
+                    },
+                    "id": 74,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean"
+                            ],
+                            "displayMode": "table",
+                            "placement": "right"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "expr": "consul_raft_leader_dispatchLog",
+                            "format": "time_series",
+                            "interval": "",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{quantile}}%",
+                            "refId": "A",
+                            "step": 10
+                        }
+                    ],
+                    "title": "Dispatch Log Time",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "CONSUL",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "id": 64,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "Series",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 0,
+                        "y": 11
+                    },
+                    "id": 60,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "prometheus_tsdb_head_series{}",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ip }}",
+                            "range": true,
+                            "refId": "A",
+                            "step": 4
+                        }
+                    ],
+                    "title": "Prometheus Time-Series",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "Series",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 12,
+                        "x": 12,
+                        "y": 11
+                    },
+                    "id": 65,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "editorMode": "code",
+                            "expr": "rate(prometheus_tsdb_head_samples_appended_total{}[5m])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "{{ ip }}",
+                            "range": true,
+                            "refId": "A",
+                            "step": 4
+                        }
+                    ],
+                    "title": "Samples per Seconds",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "PROMETHEUS",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 21
+            },
+            "id": 79,
+            "panels": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 11,
+                        "x": 0,
+                        "y": 12
+                    },
+                    "id": 81,
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "expr": "sum by (tenant) (rate(loki_distributor_lines_received_total[5m]))",
+                            "interval": "",
+                            "legendFormat": "distributor / {{ tenant}}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Loki Lines / s",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": true,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": null
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "Bps"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 13,
+                        "x": 11,
+                        "y": 12
+                    },
+                    "id": 83,
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom"
+                        },
+                        "tooltip": {
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "8.5.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "ds-prometheus"
+                            },
+                            "expr": "sum(rate(loki_distributor_bytes_received_total[5m])) by (tenant)",
+                            "interval": "",
+                            "legendFormat": "distributor / {{tenant}}",
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Loki Bytes / s",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "LOKI",
             "type": "row"
         }
     ],
@@ -1899,5 +3636,6 @@
     "title": "Infra Overview",
     "uid": "infra-overview",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
