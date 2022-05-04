@@ -111,7 +111,7 @@ docker run --init --name postgrest --restart always --detach --net=host -p 8082:
 
 ```bash
 docker run --init --name bytebase --restart always --detach --publish 8083:8083 --volume ~/.bytebase/data:/var/opt/bytebase \
-    bytebase/bytebase:1.0.2 --data /var/opt/bytebase --host http://bytebase.pigsty --port 8083
+    bytebase/bytebase:1.0.4 --data /var/opt/bytebase --host http://bytebase.pigsty --port 8083
 ```
 
 访问 http://10.10.10.10:8083/ 即可使用 ByteBase，您需要依次创建项目、环境、实例、数据库，即可开始进行模式变更。
