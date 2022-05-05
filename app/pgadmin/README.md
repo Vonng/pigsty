@@ -1,74 +1,25 @@
 # PgAdmin4
 
-## TL;DR
-
 ```bash
-cd ~/pigsty/app/pgadmin
-docker-compose up -d
+cd ~/pigsty/app/pgadmin ; docker-compose up -d
 ```
 
 Visit [http://adm.pigsty](http://adm.pigsty) or http://10.10.10.10:8885 with:
 
-* username: `admin@pigsty.cc` 
-* password: `pigsty`
-
-
-Load Pigsty Postgres Instance List:
+username: `admin@pigsty.cc` and password: `pigsty`
 
 ```bash
-docker cp ~/.servers.json pgadmin:/tmp/servers.json;
-docker cp ~/.pgpass pgadmin:/pgpass;  
-docker exec -u 0 -it pgadmin chown pgadmin /tmp/servers.json /pgpass;
-docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --load-servers /tmp/servers.json
+make up         # pull up pgadmin with docker-compose
+make run        # launch pgadmin with docker
+make view       # print pgadmin access point
+make log        # tail -f pgadmin logs
+make info       # introspect pgadmin with jq
+make stop       # stop pgadmin container
+make clean      # remove pgadmin container
+make conf       # provision pgadmin with pigsty pg servers list 
+make dump       # dump servers.json from pgadmin container
+make pull       # pull latest pgadmin image
+make rmi        # remove pgadmin image
+make save       # save pgadmin image to /tmp/pgadmin.tgz
+make load       # load pgadmin image from /tmp
 ```
-
-
-## Script
-
-```yaml
-version: "3"
-services:
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@pigsty.cc
-      PGADMIN_DEFAULT_PASSWORD: pigsty
-    ports:
-      - "8885:80"
-```
-
-```bash
-docker run --init --name pgadmin --restart always --detach --publish 8885:80 \
-    -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty \
-    dpage/pgadmin4
-```
-
-**Remove Container**
-
-```bash
-docker stop pgadmin; docker rm pgadmin  # remove
-docker exec -u 0 -it pgadmin /bin/sh    # introspect
-```
-
-
-## Config Dump/Load 
-
-import `servers.json` from `~/.servers.json` and `./pgpass`
-
-```bash
-docker cp ~/.servers.json pgadmin:/tmp/servers.json ;
-docker cp ~/.pgpass pgadmin:/pgpass ;  
-docker exec -u 0 -it pgadmin chown pgadmin /tmp/servers.json /pgpass
-docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --load-servers /tmp/servers.json
-```
-
-
-export pgadmin `servers.json` to `/tmp`
-
-```bash
-docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --dump-servers /tmp/servers.json
-docker cp pgadmin:/tmp/servers.json /tmp/servers.json
-```
-
