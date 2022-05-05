@@ -1,42 +1,29 @@
 # PGWEB
 
-## TL;DR
 ```bash
 cd ~/pigsty/app/pgweb
 docker-compose up -d
 ```
 
-Visit [http://cli.pigsty](http://cli.pigsty) with:
+Visit [http://cli.pigsty](http://cli.pigsty) or http://10.10.10.10:8886 
 
-Try URL with
+Try connecting with example URLs:
 
 ```bash
 postgres://dbuser_meta:DBUser.Meta@10.10.10.10:5432/meta?sslmode=disable
 postgres://test:test@10.10.10.11:5432/test?sslmode=disable
 ```
 
-
-
-## Scripts
-
-```yaml
-version: "3"
-services:
-  pgweb:
-    container_name: pgweb
-    image: sosedoff/pgweb
-    restart: unless-stopped
-    ports:
-      - "8886:8081"
-```
-
 ```bash
-docker run --init --name pgweb --restart always --detach --publish 8886:8081 sosedoff/pgweb
+make up         # pull up pgweb with docker-compose
+make run        # launch pgweb with docker
+make view       # print pgweb access point
+make log        # tail -f pgweb logs
+make info       # introspect pgweb with jq
+make stop       # stop pgweb container
+make clean      # remove pgweb container
+make pull       # pull latest pgweb image
+make rmi        # remove pgweb image
+make save       # save pgweb image to /tmp/pgweb.tgz
+make load       # load pgweb image from /tmp
 ```
-
-**Remove Container**
-
-```bash
-docker stop pgweb; docker rm pgweb  # remove
-```
-
