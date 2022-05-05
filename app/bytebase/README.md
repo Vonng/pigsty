@@ -2,60 +2,48 @@
 
 Schema Migrator for PostgreSQL
 
-## TL;DR
-
 ```bash
-cd app/bytebase
-docker-compose up -d
+cd app/bytebase; docker-compose up -d
 ```
 
-Visit http://10.10.10.10:8887 or [http://ddl.pigsty](http://ddl.pigsty)
+Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
 
-## Database
 
-By default, following database & user are used:
+```bash
+make up         # pull up bytebase with docker-compose in minimal mode
+make run        # launch bytebase with docker , local data dir and external PostgreSQL
+make view       # print bytebase access point
+make log        # tail -f bytebase logs
+make info       # introspect bytebase with jq
+make stop       # stop bytebase container
+make clean      # remove bytebase container
+make pull       # pull latest bytebase image
+make rmi        # remove bytebase image
+make save       # save bytebase image to /tmp/bytebase.tgz
+make load       # load bytebase image from /tmp
+```
+
+
+
+## Use External PostgreSQL
+
+Bytebase use its internal PostgreSQL database by default, You can use external PostgreSQL for higher durability.
 
 ```yaml
 # postgres://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
-- { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
-- { name: dbuser_bytebase , password: DBUser.Bytebase ,pgbouncer: true , roles: [ dbrole_admin ] , comment: admin user for bytebase database }
+db:   { name: bytebase, owner: dbuser_bytebase, comment: bytebase primary database }
+user: { name: dbuser_bytebase , password: DBUser.Bytebase, roles: [ dbrole_admin ] }
 ```
 
-## Scripts
-
-```yaml
-version: "3"
-services:
-  bytebase:
-    container_name: bytebase
-    image: bytebase/bytebase:1.0.4
-    restart: unless-stopped
-    ports:
-      - "8887:8887"
-    command: |
-      --host http://ddl.pigsty --port 8887 --data /var/opt/bytebase
-```
+if you wish to user an external PostgreSQL, drop monitor extensions and views & pg_repack
 
 ```bash
-mkdir -p /data/bytebase/data;
-docker run --init --name bytebase \
-    --restart always --detach \
-    --publish 8887:8887 \
-    --volume /data/bytebase/data:/var/opt/bytebase \
-    bytebase/bytebase:1.0.4 \
-    --data /var/opt/bytebase \
-    --host http://ddl.pigsty \
-    --port 8887 \
+DROP SCHEMA monitor CASCADE;
+DROP EXTENSION pg_repack;
 ```
 
-```bash
-docker stop bytebase; docker rm bytebase;
-```
-
-## Use Existing PGSQL
-
-if you wish to user an external PostgreSQL, drop extension pg_stat_statements & pg_repack, then add following lines:
+After bytebase initialized, you can create them back with `/pg/tmp/pg-init-template.sql`
 
 ```bash
---pg postgres://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
+psql bytebase < /pg/tmp/pg-init-template.sql
 ```
