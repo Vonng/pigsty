@@ -8,32 +8,27 @@
 
 ## 加载配置
 
-Pigsty CMDB的模式会在`pg-meta`元数据库初始化时自动创建（[`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)），位于`meta`数据库的`pigsty` 模式中。使用`bin/load_conf.py`可以将静态配置文件加载至CMDB中。
+Pigsty CMDB的模式会在`pg-meta`元数据库初始化时自动创建（[`files/cmdb.sql`](https://github.com/Vonng/pigsty/blob/master/files/cmdb.sql)），位于`meta`数据库的`pigsty` 模式中。使用`bin/inventory_load`可以将静态配置文件加载至CMDB中。
 
 !> 必须在元节点完整执行`infra.yml`，安装完毕后，方可使用CMDB
 
 ```bash
-usage: load_conf.py [-h] [-n NAME] [-p PATH] [-d DATA]
+usage: inventory_load [-h] [-p PATH] [-d CMDB_URL]
 
 load config arguments
 
 optional arguments:
   -h, --help            show this help message and exit„
-  -n NAME, --name NAME  config profile name, pgsql by default
   -p PATH, --path PATH  config path, ${PIGSTY_HOME}/pigsty.yml by default
   -d DATA, --data DATA  postgres cmdb pgurl, ${METADB_URL} by default
 ```
 
-默认情况下，不带参数执行该脚本将会把`$PIGSTY_HOME/pigsty.yml`以`pgsql`的名称载入CMDB中。
+默认情况下，不带参数执行该脚本将会把`$PIGSTY_HOME/pigsty.yml`的名称载入默认CMDB中。
 
 ```bash
-bin/load_conf.py
-```
-
-您可以加载多份不同的配置文件，并给它们设置不同的名字。已有的同名配置文件会被覆盖。例如，将默认配置文件`pigsty-demo4.yml`加载至CMDB中并启用：
-
-```bash
-bin/load_conf.py  -n demo4  -p files/conf/pigsty-demo4.yml
+bin/inventory_load
+bin/inventory_load -p files/conf/pigsty-demo.yml
+bin/inventory_load -p files/conf/pigsty-dcs3.yml -d postgresql://dbuser_meta:DBUser.Meta@10.10.10.10:5432/meta
 ```
 
 
@@ -64,73 +59,3 @@ inventory = inventory.sh
 ```
 
 
-
-
-
-## CMDB模式
-
-```bash
-# Tables
-pigsty.config                   # raw config table
-pigsty.global_var               # global config entries
-pigsty.cluster                  # cluster
-pigsty.cluster_var              # cluster config entries
-pigsty.instance                 # instance
-pigsty.instance_var             # instance config entries
-pigsty.node                     # node
-pigsty.job                      # job
-pigsty.setting
-
-# views
-pigsty.inventory            # de-parsed inventory
-pigsty.cluster_config       # merged config for cluster
-pigsty.instance_config      # merged config for instance
-pigsty.cluster_user         # cluster user definition in pg_users
-pigsty.cluster_database     # cluster database definition in pg_databases
-pigsty.cluster_service      # cluster service definition in pg_services & pg_services_extra
-
-# seqs
-pigsty.job_id_seq
-```
-
-Also some built-in functions:
-
-```bash
-pigsty.activate_config
-pigsty.active_config
-pigsty.active_config_name
-pigsty.clean_config
-pigsty.deactivate_config
-pigsty.delete_config
-pigsty.delete_node
-pigsty.dump_config
-pigsty.ins_cls
-pigsty.ins_ip
-pigsty.ins_is_meta
-pigsty.ins_role
-pigsty.ins_seq
-pigsty.ip2ins
-pigsty.job_id
-pigsty.job_id_ts
-pigsty.node_cls 
-pigsty.node_ins
-pigsty.node_is_meta
-pigsty.node_status
-pigsty.parse_config
-pigsty.select_cluster
-pigsty.select_config
-pigsty.select_instance
-pigsty.select_instance
-pigsty.select_node
-pigsty.update_cluster_var
-pigsty.update_cluster_vars
-pigsty.update_global_var
-pigsty.update_global_vars
-pigsty.update_instance_var
-pigsty.update_instance_vars
-pigsty.update_node_status
-pigsty.upsert_clusters
-pigsty.upsert_config
-pigsty.upsert_instance
-pigsty.upsert_node
-```

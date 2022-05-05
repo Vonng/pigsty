@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*- #
+__author__ = 'Vonng (rh@vonng.com)'
+
+from argparse import ArgumentParser
+import os, json, yaml
+
+
+def usage():
+    print("""
+    bin/load_conf [ -p | --path = ${PIGSTY_HOME}/pigsty.yml ]
+                  [ -d | --data = ${METADB_URL} ] 
+    Load config into cmdb pigsty schema     
+    """)
+
+SQL_CLEAN_UP = '''TRUNCATE pigsty.group, pigsty.host, pigsty.group_var, pigsty.host_var, pigsty.global_var;'''
+SQL_INSERT_GLOBAL_VARS = '''INSERT INTO pigsty.global_var (key, value) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, mtime = now();'''
+SQL_INSERT_GROUP_NAMES = '''INSERT INTO pigsty.group (cls) VALUES (%s) ON CONFLICT (cls) DO UPDATE SET mtime = now();'''
+SQL_INSERT_GROUP_VARS = '''INSERT INTO pigsty.group_var (cls, key, value) VALUES (%s, %s, %s) ON CONFLICT (cls, key) DO UPDATE SET value = EXCLUDED.value, mtime = now();'''
+SQL_INSERT_HOST_NAMES = '''INSERT INTO pigsty.host (cls, ip) VALUES (%s ,%s) ON CONFLICT (cls, ip) DO UPDATE SET mtime = now();'''
+SQL_INSERT_HOST_VARS = '''INSERT INTO pigsty.host_var (cls, ip, key, value) VALUES (%s, %s, %s, %s) ON CONFLICT (cls, ip, key) DO UPDATE SET value = EXCLUDED.value, mtime = now();'''
+
+###########################
+# parse arguments
+###########################
+DEFAULT_PGURL = ''
+DEFAULT_CONFIG_PATH = ''
+PIGSTY_HOME = ''
+
+if 'METADB_URL' in os.environ:
+    DEFAULT_PGURL = os.environ['METADB_URL']
+if 'PIGSTY_HOME' in os.environ:
+    PIGSTY_HOME = os.environ['PIGSTY_HOME']
+elif 'HOME' in os.environ:
+    PIGSTY_HOME = os.path.join(os.environ['HOME'], 'pigsty')
+if PIGSTY_HOME != '':
+    DEFAULT_CONFIG_PATH = os.path.join(PIGSTY_HOME, 'pigsty.yml')
+
+parser = ArgumentParser(description="load config arguments")
+parser.add_argument('-n', "--name", default='pgsql', help="config profile name, pgsql by default")
+parser.add_argument('-p', "--path", default=DEFAULT_CONFIG_PATH,
+                    help="config path, ${PIGSTY_HOME}/pigsty.yml by default")
+parser.add_argument('-d', "--data", default=DEFAULT_PGURL, help="postgres cmdb pgurl, ${METADB_URL} by default")
+
+
+###########################
+# parse config
+###########################
+def parse_conf(path):
+    return json.loads(json.dumps(yaml.safe_load(open(path, 'r'))))
+
+
+def use_dynamic_inventory(ansible_cfg):
+    if not os.path.exists(ansible_cfg):
+        raise "%s not exists" % ansible_cfg
+    cmd = """sed -ie 's/inventory.*/inventory = inventory.sh/g' %s""" % ansible_cfg
+    if os.system(cmd) != 0:
+        raise "fail to edit %s" % ansible_cfg
+    os.remove(ansible_cfg + 'e')  # remove sed trash
+
+
+def use_static_inventory(ansible_cfg):
+    if not os.path.exists(ansible_cfg):
+        raise "%s not exists" % ansible_cfg
+    cmd = """sed -ie 's/inventory.*/inventory = pigsty.yml/g' %s""" % ansible_cfg
+    if os.system(cmd) != 0:
+        raise "fail to edit %s" % ansible_cfg
+    os.remove(ansible_cfg + 'e')  # remove sed trash
+
+
+def write_inventory_sh(path):
+    with open(path) as dst:
+        dst.write("#!/bin/bash\npsql service=meta -AXtwc 'SELECT text FROM pigsty.inventory;'")
+    os.chmod(path, 0o755)
+
+
+############################
+# upsert config and activate
+############################
+
+
+def load_conf(conf, pgurl):
+    import psycopg2
+    from psycopg2.extras import Json
+    groups = conf['all']['children']
+    global_vars = [(k, Json(v)) for k, v in conf['all']['vars'].items()]
+    group_names = [(i,) for i in conf['all']['children'].keys()]
+    conn = psycopg2.connect(pgurl)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(SQL_CLEAN_UP)
+            print("[INFO] truncate pigsty schema")
+            cur.executemany(SQL_INSERT_GLOBAL_VARS, global_vars)
+            print("[INFO] load all.vars")
+            cur.executemany(SQL_INSERT_GROUP_NAMES, group_names)
+            for cls, group in groups.items():
+                print("[INFO] load group %s" % cls)
+                group_vars = [(cls, k, Json(v)) for k, v in group['vars'].items()]
+                cur.executemany(SQL_INSERT_GROUP_VARS, group_vars)  # insert group var
+                cur.executemany(SQL_INSERT_HOST_NAMES, [(cls, ip) for ip in group['hosts'].keys()])  # insert host names
+                for ip, vars in group['hosts'].items():
+                    host_vars = [(cls, ip, k, Json(v)) for k, v in vars.items()]
+                    cur.executemany(SQL_INSERT_HOST_VARS, host_vars)  # insert group var
+            conn.commit()
+    except:
+        print("[ERRO] fail to load inventory")
+        conn.rollback()
+        raise
+
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    print("[INFO] load pigsty config from %s into %s" % (args.path, args.data))
+    conf = parse_conf(args.path)
+    load_conf(conf, args.data)

@@ -1,8 +1,8 @@
 -- ######################################################################
 -- # File      :   cmdb.sql
--- # Desc      :   Pigsty CMDB baseline (pg-meta.meta)
+-- # Desc      :   Pigsty CMDB baseline
 -- # Ctime     :   2021-04-21
--- # Mtime     :   2021-07-13
+-- # Mtime     :   2022-05-05
 -- # Copyright (C) 2018-2022 Ruohang Feng
 -- ######################################################################
 
@@ -17,112 +17,57 @@ SET search_path TO pigsty, public;
 --                          type                             --
 --===========================================================--
 CREATE TYPE pigsty.status AS ENUM ('unknown', 'failed', 'available', 'creating', 'deleting');
-CREATE TYPE pigsty.pg_role AS ENUM ('unknown','primary', 'replica', 'offline', 'standby', 'delayed');
-CREATE TYPE pigsty.job_status AS ENUM ('draft', 'ready', 'run', 'done', 'fail');
 COMMENT ON TYPE pigsty.status IS 'entity status';
+
+CREATE TYPE pigsty.pg_role AS ENUM ('unknown','primary', 'replica', 'offline', 'standby', 'delayed', 'common');
 COMMENT ON TYPE pigsty.pg_role IS 'available postgres roles';
+
+CREATE TYPE pigsty.job_status AS ENUM ('draft', 'ready', 'run', 'done', 'fail');
 COMMENT ON TYPE pigsty.job_status IS 'pigsty job status';
-
---===========================================================--
---                          config                           --
---===========================================================--
--- config hold raw config with additional meta data (id, name, ctime)
--- It is intent to use date_trunc('second', epoch) as part of auto-gen config name
--- which imply a constraint that no more than one config can be loaded on same second
-
--- DROP TABLE IF EXISTS config;
-CREATE TABLE IF NOT EXISTS pigsty.config
-(
-    name      VARCHAR(128) PRIMARY KEY,           -- unique config name, specify or auto-gen
-    data      JSON        NOT NULL,               -- unparsed json string
-    is_active BOOLEAN     NOT NULL DEFAULT FALSE, -- is config currently in use, unique on true?
-    ctime     TIMESTAMPTZ NOT NULL default now(), -- ctime
-    mtime     TIMESTAMPTZ NOT NULL DEFAULT now()  -- mtime
-);
-COMMENT ON TABLE pigsty.config IS 'pigsty raw configs';
-COMMENT ON COLUMN pigsty.config.name IS 'unique config file name, use ts as default';
-COMMENT ON COLUMN pigsty.config.data IS 'json format data';
-COMMENT ON COLUMN pigsty.config.ctime IS 'config creation time, unique';
-COMMENT ON COLUMN pigsty.config.mtime IS 'config latest modification time, unique';
-
--- at MOST one config can be activated simultaneously
-CREATE UNIQUE INDEX IF NOT EXISTS config_is_active_key ON config (is_active) WHERE is_active = true;
-
 
 --===========================================================--
 --                         cluster                           --
 --===========================================================--
--- DROP TABLE IF EXISTS cluster CASCADE;
-CREATE TABLE IF NOT EXISTS pigsty.cluster
+-- DROP TABLE IF EXISTS pigsty.group CASCADE;
+CREATE TABLE IF NOT EXISTS pigsty.group
 (
-    cls    TEXT PRIMARY KEY,
-    shard  TEXT,
-    sindex INTEGER CHECK (sindex IS NULL OR sindex >= 0),
+    cls     TEXT PRIMARY KEY,
+    status  Pigsty.Status NOT NULL DEFAULT 'unknown'::status,
+    ctime   TIMESTAMPTZ   NOT NULL DEFAULT now(),
+    mtime   TIMESTAMPTZ   NOT NULL DEFAULT now(),
+    is_meta BOOLEAN GENERATED ALWAYS AS ( cls = 'meta' ) STORED
+);
+COMMENT ON TABLE pigsty.group IS 'pigsty inventory group';
+COMMENT ON COLUMN pigsty.group.cls IS 'group name, primary key, can not change';
+COMMENT ON COLUMN pigsty.group.status IS 'group status: unknown|failed|available|creating|deleting';
+COMMENT ON COLUMN pigsty.group.ctime IS 'group entry creation time';
+COMMENT ON COLUMN pigsty.group.mtime IS 'group modification time';
+COMMENT ON COLUMN pigsty.group.is_meta IS 'is this the meta group?';
+
+
+--===========================================================--
+--                          host                             --
+--===========================================================--
+-- host belongs to group, can be assigned to multiple groups
+
+-- DROP TABLE IF EXISTS pigsty.host CASCADE;
+CREATE TABLE IF NOT EXISTS pigsty.host
+(
+    cls    TEXT        NOT NULL REFERENCES pigsty.group (cls) ON DELETE CASCADE ON UPDATE CASCADE,
+    ip     INET        NOT NULL,
     status status      NOT NULL DEFAULT 'unknown'::status,
     ctime  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    mtime  TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-COMMENT ON TABLE pigsty.cluster IS 'pigsty pgsql clusters from config';
-COMMENT ON COLUMN pigsty.cluster.cls IS 'cluster name, primary key, can not change';
-COMMENT ON COLUMN pigsty.cluster.shard IS 'cluster shard name (if applicable)';
-COMMENT ON COLUMN pigsty.cluster.sindex IS 'cluster shard index (if applicable)';
-COMMENT ON COLUMN pigsty.cluster.status IS 'cluster status: unknown|failed|available|creating|deleting';
-COMMENT ON COLUMN pigsty.cluster.ctime IS 'cluster entry creation time';
-COMMENT ON COLUMN pigsty.cluster.mtime IS 'cluster modification time';
-
-
-
---===========================================================--
---                          node                             --
---===========================================================--
--- node belongs to cluster, have 1:1 relation with pgsql instance
--- it's good to have a 'pg-buffer' cluster to hold all unused nodes
-
--- DROP TABLE IF EXISTS node CASCADE;
-CREATE TABLE IF NOT EXISTS pigsty.node
-(
-    ip      INET PRIMARY KEY,
-    cls     TEXT        NULL REFERENCES pigsty.cluster (cls) ON DELETE SET NULL ON UPDATE CASCADE,
-    is_meta BOOLEAN     NOT NULL DEFAULT FALSE,
-    status  status      NOT NULL DEFAULT 'unknown'::status,
-    ctime   TIMESTAMPTZ NOT NULL DEFAULT now(),
-    mtime   TIMESTAMPTZ NOT NULL DEFAULT now()
+    mtime  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (cls, ip)
 );
 
-COMMENT ON TABLE pigsty.node IS 'pigsty nodes';
-COMMENT ON COLUMN pigsty.node.ip IS 'node primary key: ip address';
-COMMENT ON COLUMN pigsty.node.cls IS 'node must belong to a cluster, e.g pg-buffer ';
-COMMENT ON COLUMN pigsty.node.is_meta IS 'true if node is a meta node';
-COMMENT ON COLUMN pigsty.node.status IS 'node status: unknown|failed|available|creating|deleting';
-COMMENT ON COLUMN pigsty.node.ctime IS 'node entry creation time';
-COMMENT ON COLUMN pigsty.node.mtime IS 'node modification time';
+COMMENT ON TABLE pigsty.host IS 'pigsty hosts';
+COMMENT ON COLUMN pigsty.host.cls IS 'host primary key: cls & ip';
+COMMENT ON COLUMN pigsty.host.ip IS 'host primary key: cls & host ip';
+COMMENT ON COLUMN pigsty.host.status IS 'host status: unknown|failed|available|creating|deleting';
+COMMENT ON COLUMN pigsty.host.ctime IS 'host entry creation time';
+COMMENT ON COLUMN pigsty.host.mtime IS 'host modification time';
 
---===========================================================--
---                        instance                           --
---===========================================================--
--- DROP TABLE IF EXISTS instance CASCADE;
-CREATE TABLE IF NOT EXISTS pigsty.instance
-(
-    ins    TEXT PRIMARY KEY CHECK (ins = cls || '-' || seq::TEXT),
-    ip     INET UNIQUE    NOT NULL REFERENCES pigsty.node (ip) ON DELETE CASCADE ON UPDATE CASCADE,
-    cls    TEXT           NOT NULL REFERENCES pigsty.cluster (cls) ON DELETE CASCADE ON UPDATE CASCADE,
-    seq    INTEGER        NOT NULL CHECK ( seq >= 0 ),
-    role   pigsty.pg_role NOT NULL CHECK (role != 'unknown'::pigsty.pg_role),
-    role_d pigsty.pg_role NOT NULL DEFAULT 'unknown'::pigsty.pg_role CHECK (role_d = ANY ('{unknown,primary,replica}'::pigsty.pg_role[]) ),
-    status status         NOT NULL DEFAULT 'unknown'::status,
-    ctime  TIMESTAMPTZ    NOT NULL DEFAULT now(),
-    mtime  TIMESTAMPTZ    NOT NULL DEFAULT now()
-);
-COMMENT ON TABLE pigsty.instance IS 'pigsty pgsql instance';
-COMMENT ON COLUMN pigsty.instance.ins IS 'instance name, pk, format as $cls-$seq';
-COMMENT ON COLUMN pigsty.instance.ip IS 'ip address, semi-primary key, ref node.ip, unique';
-COMMENT ON COLUMN pigsty.instance.cls IS 'cluster name: ref cluster.cls';
-COMMENT ON COLUMN pigsty.instance.seq IS 'unique sequence among cluster';
-COMMENT ON COLUMN pigsty.instance.role IS 'configured role';
-COMMENT ON COLUMN pigsty.instance.role_d IS 'dynamic detected role: unknown|primary|replica ';
-COMMENT ON COLUMN pigsty.instance.status IS 'instance status: unknown|failed|available|creating|deleting';
-COMMENT ON COLUMN pigsty.instance.ctime IS 'instance entry creation time';
-COMMENT ON COLUMN pigsty.instance.mtime IS 'instance modification time';
 
 
 --===========================================================--
@@ -130,7 +75,7 @@ COMMENT ON COLUMN pigsty.instance.mtime IS 'instance modification time';
 --===========================================================--
 -- hold global var definition (all.vars)
 
--- DROP TABLE IF EXISTS global_var;
+-- DROP TABLE IF EXISTS pigsty.global_var;
 CREATE TABLE IF NOT EXISTS pigsty.global_var
 (
     key   TEXT PRIMARY KEY CHECK (key != ''),
@@ -143,186 +88,45 @@ COMMENT ON COLUMN pigsty.global_var.value IS 'global config entry value';
 COMMENT ON COLUMN pigsty.global_var.mtime IS 'global config entry last modified time';
 
 --===========================================================--
---                      cluster_vars                         --
+--                       group_vars                          --
 --===========================================================--
 -- hold cluster var definition (all.children.<pg_cluster>.vars)
 
--- DROP TABLE IF EXISTS cluster_vars;
-CREATE TABLE IF NOT EXISTS pigsty.cluster_var
+-- DROP TABLE IF EXISTS pigsty.group_var;
+CREATE TABLE IF NOT EXISTS pigsty.group_var
 (
-    cls   TEXT  NOT NULL REFERENCES pigsty.cluster (cls) ON DELETE CASCADE ON UPDATE CASCADE,
+    cls   TEXT  NOT NULL REFERENCES pigsty.group (cls) ON DELETE CASCADE ON UPDATE CASCADE,
     key   TEXT  NOT NULL CHECK (key != ''),
     value JSONB NULL,
     mtime TIMESTAMPTZ DEFAULT now(),
     PRIMARY KEY (cls, key)
 );
-COMMENT ON TABLE pigsty.cluster_var IS 'cluster config entries';
-COMMENT ON COLUMN pigsty.cluster_var.cls IS 'cluster name, ref cluster.cls';
-COMMENT ON COLUMN pigsty.cluster_var.key IS 'cluster config entry name';
-COMMENT ON COLUMN pigsty.cluster_var.value IS 'cluster entry value';
-COMMENT ON COLUMN pigsty.cluster_var.mtime IS 'cluster config entry last modified time';
+COMMENT ON TABLE pigsty.group_var IS 'group config entries';
+COMMENT ON COLUMN pigsty.group_var.cls IS 'group name';
+COMMENT ON COLUMN pigsty.group_var.key IS 'group config entry name';
+COMMENT ON COLUMN pigsty.group_var.value IS 'group entry value';
+COMMENT ON COLUMN pigsty.group_var.mtime IS 'group config entry last modified time';
 
 --===========================================================--
---                       instance_var                        --
+--                        host_var                           --
 --===========================================================--
--- DROP TABLE IF EXISTS instance_var;
-CREATE TABLE IF NOT EXISTS pigsty.instance_var
+-- DROP TABLE IF EXISTS pigsty.host_var;
+CREATE TABLE IF NOT EXISTS pigsty.host_var
 (
-    ins   TEXT  NOT NULL REFERENCES pigsty.instance (ins) ON DELETE CASCADE ON UPDATE CASCADE,
+    cls   TEXT  NOT NULL,
+    ip    INET  NOT NULL,
     key   TEXT  NOT NULL CHECK (key != ''),
     value JSONB NULL,
     mtime TIMESTAMPTZ DEFAULT now(),
-    PRIMARY KEY (ins, key)
+    PRIMARY KEY (cls, ip, key),
+    FOREIGN KEY (cls, ip) REFERENCES pigsty.host (cls, ip) ON DELETE CASCADE ON UPDATE CASCADE
 );
-COMMENT ON TABLE pigsty.instance_var IS 'instance config entries';
-COMMENT ON COLUMN pigsty.instance_var.ins IS 'instance name, ref instance.ins';
-COMMENT ON COLUMN pigsty.instance_var.key IS 'instance config entry name';
-COMMENT ON COLUMN pigsty.instance_var.value IS 'instance entry value';
-COMMENT ON COLUMN pigsty.instance_var.mtime IS 'instance config entry last modified time';
-
-
---===========================================================--
---                      instance_config                      --
---===========================================================--
--- cluster_config contains MERGED vars
--- ( vars = +cluster,  all_vars = +global & +cluster )
-
--- DROP VIEW IF EXISTS instance_config;
-CREATE OR REPLACE VIEW pigsty.instance_config AS
-SELECT c.cls,
-       shard,
-       sindex,
-       i.ins,
-       ip,
-       iv.vars                       AS vars,         -- instance vars
-       cv.vars                       AS cls_vars,     -- cluster vars
-       cv.vars || iv.vars            AS cls_ins_vars, -- cluster + instance vars
-       gv.vars || cv.vars || iv.vars AS all_vars      -- global + cluster + instance vars
-FROM pigsty.cluster c
-         JOIN pigsty.instance i USING (cls)
-         JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.cluster_var GROUP BY cls) cv
-              ON c.cls = cv.cls
-         JOIN (SELECT ins, jsonb_object_agg(key, value) AS vars FROM pigsty.instance_var GROUP BY ins) iv
-              ON i.ins = iv.ins,
-     (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) gv;
-COMMENT ON VIEW pigsty.instance_config IS 'instance config view';
-
-
-
---===========================================================--
---                      cluster_config                       --
---===========================================================--
--- cluster_config contains MERGED vars (+global)
--- DROP VIEW IF EXISTS cluster_config CASCADE;
-CREATE OR REPLACE VIEW pigsty.cluster_config AS
-SELECT c.cls,
-       shard,
-       sindex,
-       hosts,                                                                              -- cluster's members
-       cv.vars                                                                 AS vars,    -- cluster vars
-       jsonb_build_object(c.cls,
-                          jsonb_build_object('hosts', hosts, 'vars', cv.vars)) AS config,  -- raw config: cls:{hosts:{},vars{}}
-       gv.vars || cv.vars                                                      AS all_vars -- global + cluster vars
-FROM pigsty.cluster c
-         JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.cluster_var GROUP BY cls) cv
-              ON c.cls = cv.cls
-         JOIN (SELECT cls, jsonb_object_agg(host(ip), vars) AS hosts FROM pigsty.instance_config GROUP BY cls) cm
-              ON c.cls = cm.cls,
-     (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) gv;
-COMMENT ON VIEW pigsty.cluster_config IS 'cluster config view';
-
-
---===========================================================--
---                        cluster_user                       --
---===========================================================--
--- business user definition in pg_users
-
--- DROP VIEW IF EXISTS cluster_user;
-CREATE OR REPLACE VIEW pigsty.cluster_user AS
-SELECT cls,
-       (u ->> 'name')                 AS name,
-       (u ->> 'password')             AS password,
-       (u ->> 'login')::BOOLEAN       AS login,
-       (u ->> 'superuser') ::BOOLEAN  AS superuser,
-       (u ->> 'createdb')::BOOLEAN    AS createdb,
-       (u ->> 'createrole')::BOOLEAN  AS createrole,
-       (u ->> 'inherit')::BOOLEAN     AS inherit,
-       (u ->> 'replication')::BOOLEAN AS replication,
-       (u ->> 'bypassrls')::BOOLEAN   AS bypassrls,
-       (u ->> 'pgbouncer')::BOOLEAN   AS pgbouncer,
-       (u ->> 'connlimit')::INTEGER   AS connlimit,
-       (u ->> 'expire_in')::INTEGER   AS expire_in,
-       (u ->> 'expire_at')::DATE      AS expire_at,
-       (u ->> 'comment')              AS comment,
-       (u -> 'roles')                 AS roles,
-       (u -> 'parameters')            AS parameters,
-       u                              AS raw
-FROM pigsty.cluster_var cv,
-     jsonb_array_elements(value) AS u
-WHERE cv.key = 'pg_users';
-COMMENT ON VIEW pigsty.cluster_user IS 'pg_users definition from cluster level vars';
-
-
---===========================================================--
---                      cluster_database                     --
---===========================================================--
--- business database definition in pg_databases
-
--- DROP VIEW IF EXISTS cluster_database;
-CREATE OR REPLACE VIEW pigsty.cluster_database AS
-SELECT cls,
-       db ->> 'name'                  AS datname,
-       (db ->> 'owner')               AS owner,
-       (db ->> 'template')            AS template,
-       (db ->> 'encoding')            AS encoding,
-       (db ->> 'locale')              AS locale,
-       (db ->> 'lc_collate')          AS lc_collate,
-       (db ->> 'lc_ctype')            AS lc_ctype,
-       (db ->> 'allowconn')::BOOLEAN  AS allowconn,
-       (db ->> 'revokeconn')::BOOLEAN AS revokeconn,
-       (db ->> 'tablespace')          AS tablespace,
-       (db ->> 'connlimit')           AS connlimit,
-       (db -> 'pgbouncer')::BOOLEAN   AS pgbouncer,
-       (db ->> 'comment')             AS comment,
-       (db -> 'extensions')::JSONB    AS extensions,
-       (db -> 'parameters')::JSONB    AS parameters,
-       db                             AS raw
-FROM pigsty.cluster_var cv,
-     jsonb_array_elements(value) AS db
-WHERE cv.key = 'pg_databases';
-COMMENT ON VIEW pigsty.cluster_database IS 'pg_databases definition from cluster level vars';
-
-
---===========================================================--
---                      cluster_service                      --
---===========================================================--
--- business database definition in pg_databases
-CREATE OR REPLACE VIEW pigsty.cluster_service AS
-SELECT cls,
-       cls || '-' || (value ->> 'name') AS svc,
-       value ->> 'name'                 AS name,
-       value ->> 'src_ip'               AS src_ip,
-       value ->> 'src_port'             AS src_port,
-       value ->> 'dst_port'             AS dst_port,
-       value ->> 'check_url'            AS check_url,
-       value ->> 'selector'             AS selector,
-       value ->> 'selector_backup'      AS selector_backup,
-       value -> 'haproxy'               AS haproxy,
-       value                            AS raw
-FROM (SELECT cls,
-             coalesce(all_vars #> '{pg_services}', '[]'::JSONB) ||
-             coalesce(all_vars #> '{pg_services_extra}', '[]'::JSONB) AS svcs
-      FROM (
-               SELECT c.cls, gv.vars || cv.vars AS all_vars
-               FROM pigsty.cluster c
-                        JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.cluster_var GROUP BY cls) cv
-                             ON c.cls = cv.cls,
-                    (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) gv
-           ) cf) s1,
-     jsonb_array_elements(svcs) s2;
-COMMENT ON VIEW pigsty.cluster_service IS 'services definition from cluster|global level vars';
-
-
+COMMENT ON TABLE pigsty.host_var IS 'host config entries';
+COMMENT ON COLUMN pigsty.host_var.cls IS 'host group name';
+COMMENT ON COLUMN pigsty.host_var.ip IS 'host ip addr';
+COMMENT ON COLUMN pigsty.host_var.key IS 'host config entry name';
+COMMENT ON COLUMN pigsty.host_var.value IS 'host entry value';
+COMMENT ON COLUMN pigsty.host_var.mtime IS 'host config entry last modified time';
 
 --===========================================================--
 --                           job                             --
@@ -375,722 +179,341 @@ COMMENT ON FUNCTION pigsty.job_id_ts(BIGINT) IS 'extract timestamp from job id';
 
 
 
+
 --===========================================================--
---                          config                           --
+--                        pigsty.node                        --
 --===========================================================--
--- API:
--- select_config(name text) jsonb
--- active_config_name() text
--- active_config() jsonb
--- upsert_config(jsonb,text) text
--- delete_config(name text) jsonb
--- clean_config
--- parse_config(jsonb)                    [private]
--- activate_config()
--- deactivate_config()
+CREATE AGGREGATE pigsty.vars_agg(jsonb) (
+    SFUNC = 'jsonb_concat',
+  STYPE = jsonb,
+  INITCOND = '{}'
+);
 
------------------------------------------------
--- select_config(name text) jsonb
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.select_config(_name TEXT);
-CREATE OR REPLACE FUNCTION pigsty.select_config(_name TEXT) RETURNS JSONB AS
-$$
-SELECT data::JSONB
-FROM pigsty.config
-WHERE name = _name
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.select_config(TEXT) IS 'return config data by name';
+DROP VIEW IF EXISTS pigsty.node;
+CREATE OR REPLACE VIEW pigsty.node AS
+SELECT node.ip, groups, m.is_meta, node.vars || coalesce(meta.vars, '{}'::JSONB) AS vars
+FROM (
+         SELECT i.ip, c.cls, is_meta, coalesce(cv.vars, '{}'::JSONB) || coalesce(iv.vars, '{}'::JSONB) AS vars
+         FROM pigsty.group c
+                  LEFT JOIN pigsty.host i ON c.cls = i.cls
+                  LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) cv
+                            ON c.cls = cv.cls
+                  LEFT JOIN (SELECT cls, ip, jsonb_object_agg(key, value) AS vars
+                             FROM pigsty.host_var
+                             GROUP BY cls, ip) iv ON i.cls = iv.cls AND i.ip = iv.ip
+         WHERE is_meta
+     ) meta
+         FULL OUTER JOIN
+     (
+         SELECT i.ip,
+                pigsty.vars_agg(coalesce(coalesce(cv.vars, '{}'::JSONB) || coalesce(iv.vars, '{}'::JSONB), '{}'::JSONB)
+                                ORDER BY c.cls) AS vars
+         FROM pigsty.group c
+                  LEFT JOIN pigsty.host i ON c.cls = i.cls
+                  LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM pigsty.group_var GROUP BY cls) cv
+                            ON c.cls = cv.cls
+                  LEFT JOIN (SELECT cls, ip, jsonb_object_agg(key, value) AS vars
+                             FROM pigsty.host_var
+                             GROUP BY cls, ip) iv ON i.cls = iv.cls AND i.ip = iv.ip
+         WHERE NOT is_meta
+         GROUP BY i.ip
+     ) node ON meta.ip = node.ip
+         LEFT OUTER JOIN
+     (SELECT ip, array_agg(cls) AS groups, array_agg(cls) @> '{meta}' AS is_meta FROM pigsty.host GROUP BY ip) m
+     ON node.ip = m.ip;
 
------------------------------------------------
--- active_config_name() text
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.active_config_name();
-CREATE OR REPLACE FUNCTION pigsty.active_config_name() RETURNS TEXT AS
-$$
-SELECT name
-FROM pigsty.config
-WHERE is_active
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.active_config_name() IS 'return active config name, null if non is active';
-
-
------------------------------------------------
--- active_config() jsonb
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.active_config();
-CREATE OR REPLACE FUNCTION pigsty.active_config() RETURNS JSONB AS
-$$
-SELECT data::JSONB
-FROM pigsty.config
-WHERE is_active
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.active_config() IS 'return activated config data';
+COMMENT ON VIEW pigsty.node IS 'pigsty node and merged hostvars';
 
 
------------------------------------------------
--- upsert_config(jsonb,text) text
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.upsert_config(JSONB, TEXT);
-CREATE OR REPLACE FUNCTION pigsty.upsert_config(_config JSONB, _name TEXT DEFAULT NULL) RETURNS TEXT AS
-$$
-INSERT INTO pigsty.config(name, data, ctime, mtime)
-VALUES ( coalesce(_name, 'config-' || (extract(epoch FROM date_trunc('second', now())))::BIGINT::TEXT)
-       , _config::JSON, date_trunc('second', now()), date_trunc('second', now()))
-ON CONFLICT (name) DO UPDATE SET data  = EXCLUDED.data,
-                                 mtime = EXCLUDED.mtime
-RETURNING name;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.upsert_config(JSONB, TEXT) IS 'upsert config with unique (manual|auto) config name';
--- if name is given, upsert with config name, otherwise use 'config-epoch' as unique config name
 
------------------------------------------------
--- delete_config(name text) jsonb
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.delete_config(TEXT);
-CREATE OR REPLACE FUNCTION pigsty.delete_config(_name TEXT) RETURNS JSONB AS
-$$
-DELETE
-FROM pigsty.config
-WHERE name = _name
-RETURNING data;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.delete_config(TEXT) IS 'delete config by name, return its content';
+--===========================================================--
+--                       pigsty.hostvars                     --
+--===========================================================--
+-- DROP VIEW IF EXISTS pigsty.hostvars;
+CREATE OR REPLACE VIEW pigsty.hostvars AS
+SELECT host(ip) AS ip, groups, is_meta, coalesce(g.vars, '{}') || coalesce(n.vars, '{}') AS vars
+FROM pigsty.node n, (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) g;
+COMMENT ON VIEW pigsty.hostvars IS 'pigsty inventory hostvars';
 
------------------------------------------------
--- clean_config
------------------------------------------------
--- WARNING: TRUNCATE pigsty config RELATED tables!
-DROP FUNCTION IF EXISTS pigsty.clean_config();
-CREATE OR REPLACE FUNCTION pigsty.clean_config() RETURNS VOID AS
-$$
-TRUNCATE pigsty.cluster,pigsty.instance,pigsty.node,pigsty.global_var,pigsty.cluster_var,pigsty.instance_var CASCADE;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.clean_config() IS 'TRUNCATE pigsty config RELATED tables cascade';
+CREATE OR REPLACE VIEW pigsty.node_summary AS
+SELECT ip, groups,
+       (vars ->> 'meta_node'                  )::BOOLEAN AS is_meta,
+       (vars ->> 'nginx_enabled'              )::BOOLEAN AS nginx,
+       (vars ->> 'nameserver_enabled'         )::BOOLEAN AS nameserver,
+       (vars ->> 'prometheus_enabled'         )::BOOLEAN AS prometheus,
+       (vars ->> 'grafana_enabled'            )::BOOLEAN AS grafana,
+       (vars ->> 'loki_enabled'               )::BOOLEAN AS loki,
+       (vars ->> 'docker_enabled'             )::BOOLEAN AS docker,
+       (vars ->> 'node_exporter_enabled'      )::BOOLEAN AS node_exporter,
+       (vars ->> 'promtail_enabled'           )::BOOLEAN AS promtail,
+       (vars ->> 'patroni_enabled'            )::BOOLEAN AS postgres,
+       (vars ->> 'pgbouncer_enabled'          )::BOOLEAN AS pgbouncer,
+       (vars ->> 'pg_exporter_enabled'        )::BOOLEAN AS pg_exporter,
+       (vars ->> 'pgbouncer_exporter_enabled' )::BOOLEAN AS pgb_exporter,
+       (vars ->> 'haproxy_enabled'            )::BOOLEAN AS haproxy,
+       (vars ->> 'redis_exporter_enabled'     )::BOOLEAN AS redis_exporter
+FROM pigsty.hostvars;
 
-
------------------------------------------------
--- parse_config(jsonb) (private API)
------------------------------------------------
--- WARNING: DO NOT USE THIS DIRECTLY (PRIVATE API)
-DROP FUNCTION IF EXISTS pigsty.parse_config(JSONB);
-CREATE OR REPLACE FUNCTION pigsty.parse_config(_data JSONB) RETURNS VOID AS
-$$
-DECLARE
-    _clusters JSONB := _data #> '{all,children}';
-BEGIN
-    -- trunc tables
-    -- TRUNCATE cluster,instance,node,global_var,cluster_var,instance_var CASCADE;
-
-    -- load clusters
-    INSERT INTO pigsty.cluster(cls, shard, sindex) -- abort on conflict
-    SELECT key, value #>> '{vars,pg_shard}' AS shard, (value #>> '{vars,pg_sindex}')::INTEGER AS sindex
-    FROM jsonb_each((_clusters))
-    WHERE key != 'meta';
-
-    -- load nodes
-    INSERT INTO pigsty.node(ip, cls)
-    SELECT key::INET AS ip, cls
-    FROM -- abort on duplicate ip
-         (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.hosts)
-    ON CONFLICT (ip) DO UPDATE SET cls = EXCLUDED.cls;
-
-    -- load meta nodes
-    INSERT INTO pigsty.node(ip)
-    SELECT key::INET AS ip
-    FROM -- set is_meta flag for meta_node
-         (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each((_clusters))
-          WHERE key = 'meta') c, jsonb_each(c.hosts)
-    ON CONFLICT(ip) DO UPDATE SET is_meta = true;
-
-    -- load instances
-    INSERT INTO pigsty.instance(ins, ip, cls, seq, role)
-    SELECT cls || '-' || (value ->> 'pg_seq')    AS ins,
-           key::INET                             AS ip,
-           cls,
-           (value ->> 'pg_seq')::INTEGER         AS seq,
-           (value ->> 'pg_role')::pigsty.pg_role AS role
-    FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.hosts);
-
-    -- load global_var
-    INSERT INTO pigsty.global_var
-    SELECT key, value
-    FROM jsonb_each((SELECT _data #> '{all,vars}'))
-    ON CONFLICT(key) DO UPDATE SET value = EXCLUDED.value;
-
-    -- load cluster_var
-    INSERT INTO pigsty.cluster_var(cls, key, value) -- abort on conflict
-    SELECT cls, key, value
-    FROM (SELECT key AS cls, value -> 'vars' AS vars
-          FROM
-              jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.vars)
-    ON CONFLICT(cls, key) DO UPDATE set value = EXCLUDED.value;
-
-    -- load instance_var
-    INSERT INTO pigsty.instance_var(ins, key, value) -- abort on conflict
-    SELECT ins, key, value
-    FROM (SELECT cls, cls || '-' || (value ->> 'pg_seq') AS ins, value AS vars
-          FROM (SELECT key AS cls, value -> 'hosts' AS hosts
-                FROM
-                    jsonb_each(_clusters)
-                WHERE key != 'meta') c,
-              jsonb_each(c.hosts)) i, jsonb_each(vars)
-    ON CONFLICT(ins, key) DO UPDATE SET value = EXCLUDED.value;
-
-    -- inject meta_node config to instance_var
-    INSERT INTO pigsty.instance_var(ins, key, value)
-    SELECT ins, 'meta_node' AS key, 'true'::JSONB AS value
-    FROM (SELECT ins
-          FROM (SELECT key::INET AS ip
-                FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
-                      FROM jsonb_each(_clusters)
-                      WHERE key = 'meta') c, jsonb_each(c.hosts)) n
-                   JOIN pigsty.instance i ON n.ip = i.ip
-         ) m
-    ON CONFLICT(ins, key) DO UPDATE SET value = excluded.value;
-
-END;
-$$ LANGUAGE PlPGSQL VOLATILE;
-COMMENT ON FUNCTION pigsty.parse_config(JSONB) IS 'parse pigsty config file into tables';
-
-
------------------------------------------------
--- deactivate_config
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.deactivate_config();
-CREATE OR REPLACE FUNCTION pigsty.deactivate_config() RETURNS JSONB AS
-$$
-SELECT pigsty.clean_config();
-UPDATE pigsty.config
-SET is_active = false
-WHERE is_active
-RETURNING data;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.deactivate_config() IS 'deactivate current config';
-
-
---------------------------------
--- activate_config
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.activate_config(TEXT);
-CREATE OR REPLACE FUNCTION pigsty.activate_config(_name TEXT) RETURNS JSONB AS
-$$
-SELECT pigsty.deactivate_config();
-SELECT pigsty.parse_config(pigsty.select_config(_name));
-UPDATE pigsty.config
-SET is_active = true
-WHERE name = _name
-RETURNING data;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.activate_config(TEXT) IS 'activate config by name';
-
--- example: SELECT activate_config('prod');
-
-
---------------------------------
--- dump_config
---------------------------------
--- generate ansible inventory from separated tables
--- depend on instance_config view
-
-DROP FUNCTION IF EXISTS pigsty.dump_config() CASCADE;
-CREATE OR REPLACE FUNCTION pigsty.dump_config() RETURNS JSONB AS
-$$
-SELECT (hostvars.data || allgroup.data || metagroup.data || groups.data) AS data
-FROM (SELECT jsonb_build_object('_meta', jsonb_build_object('hostvars', jsonb_object_agg(host(ip), all_vars))) AS data
-      FROM pigsty.instance_config) hostvars,
-     (SELECT jsonb_build_object('all', jsonb_build_object('children', '["meta"]' || jsonb_agg(cls))) AS data
-      FROM pigsty.cluster) allgroup,
-     (SELECT jsonb_build_object('meta', jsonb_build_object('hosts', jsonb_agg(host(ip)))) AS data
-      FROM pigsty.node
-      WHERE is_meta) metagroup,
+--===========================================================--
+--                     pigsty.inventory                      --
+--===========================================================--
+-- DROP VIEW IF EXISTS pigsty.inventory;
+CREATE OR REPLACE VIEW pigsty.inventory AS
+SELECT a.data || g.data || m.data AS text
+FROM (SELECT jsonb_build_object('all', jsonb_build_object('children', '["meta"]' || jsonb_agg(cls))) AS data
+      FROM pigsty.group) a,
      (SELECT jsonb_object_agg(cls, cc.member) AS data
       FROM (SELECT cls, jsonb_build_object('hosts', jsonb_agg(host(ip))) AS member
-            FROM pigsty.instance i
-            GROUP BY cls) cc) groups;
-$$ LANGUAGE SQL;
-COMMENT ON FUNCTION pigsty.dump_config() IS 'dump ansible inventory config from entity tables';
+            FROM pigsty.host i
+            GROUP BY cls) cc) g,
+     (SELECT jsonb_build_object('_meta', jsonb_build_object('hostvars', jsonb_object_agg(ip, vars))) AS data
+      FROM (SELECT host(ip) AS ip, coalesce(g.vars, '{}') || coalesce(n.vars, '{}') AS vars
+            FROM pigsty.node n,
+                 (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) g) mm) m;
+COMMENT ON VIEW pigsty.inventory IS 'pigsty config inventory in ansible dynamic inventory format';
 
-
---------------------------------
--- view: inventory
---------------------------------
--- return inventory in different format
-CREATE OR REPLACE VIEW pigsty.inventory AS
-SELECT data, data::TEXT as text, jsonb_pretty(data) AS pretty
-FROM (SELECT pigsty.dump_config() AS data) i;
-
+--===========================================================--
+--                    pigsty.group_config                    --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.group_config;
+CREATE OR REPLACE VIEW pigsty.group_config AS
+SELECT cls, gh.hosts, gc.vars
+FROM pigsty.group g
+         LEFT JOIN
+     (SELECT cls, jsonb_object_agg(ip, vars) AS hosts
+      FROM (
+               SELECT coalesce(h.cls, h2.cls) AS cls, coalesce(h.ip, h2.ip) AS ip, coalesce(h.vars, '{}'::JSONB) AS vars
+               FROM (SELECT cls, ip, jsonb_object_agg(key, value) AS vars FROM host_var GROUP BY cls, ip) h
+                        FULL JOIN pigsty.host h2 USING (cls, ip)
+           ) hv
+      GROUP BY cls) gh USING (cls)
+         LEFT JOIN (SELECT cls, jsonb_object_agg(key, value) AS vars FROM group_var GROUP BY cls) gc USING (cls);
 
 
 --===========================================================--
---                         node                              --
+--                    pigsty.pg_cluster                      --
 --===========================================================--
--- API:
+DROP VIEW IF EXISTS pigsty.pg_cluster CASCADE;
+CREATE OR REPLACE VIEW pigsty.pg_cluster AS
+SELECT cls,
+       vars ->> 'pg_cluster'                                                 AS name,
+       hosts,
+       vars,
+       coalesce(vars -> 'pg_databases', '[]'::JSONB)                         AS pg_databases,
+       coalesce(vars -> 'pg_users', '[]'::JSONB)                             AS pg_users,
+       coalesce((gsvc.global || vars) -> 'pg_services', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pg_services_extra', '[]'::JSONB)   AS pg_services,
+       coalesce((gsvc.global || vars) -> 'pg_hba_rules_extra', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB)  AS pg_hba,
+       coalesce((gsvc.global || vars) -> 'pgbouncer_hba_rules_extra', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pgbouncer_hba_rules', '[]'::JSONB) AS pgbouncer_hba
+FROM pigsty.group_config,
+     (SELECT jsonb_object_agg(key, value) AS global
+      FROM global_var
+      WHERE key ~ '^pg_services' or key ~ 'hba_rules') gsvc
+WHERE vars ? 'pg_cluster';
 
--- node_cls(ip inet) (cls text)
--- node_is_meta(ip inet) bool
--- node_status(ip inet) status
--- node_ins(ip text) (ins text)
--- select_node(ip inet) jsonb
--- delete_node(ip inet)
--- upsert_node(ip inet, cls text) inet
--- update_node_status(ip inet, status status) status
-
-
---------------------------------
--- select_node(ip inet) jsonb
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.select_node(INET);
-CREATE OR REPLACE FUNCTION pigsty.select_node(_ip INET) RETURNS JSONB AS
-$$
-SELECT row_to_json(node.*)::JSONB
-FROM pigsty.node
-WHERE ip = _ip
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.select_node(INET) IS 'return node json by ip';
-
--- SELECT select_node('10.189.201.88');
-
---------------------------------
--- node_cls(ip inet) (cls text)
---------------------------------
-CREATE OR REPLACE FUNCTION pigsty.node_cls(_ip INET) RETURNS TEXT AS
-$$
-SELECT cls
-FROM pigsty.node
-WHERE ip = _ip
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.node_cls(INET) IS 'return node belonged cluster according to ip';
--- example: SELECT node_cls('10.10.10.10') -> pg-test
-
---------------------------------
--- node_is_meta(ip inet) bool
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.node_is_meta(INET);
-CREATE OR REPLACE FUNCTION pigsty.node_is_meta(_ip INET) RETURNS BOOLEAN AS
-$$
-SELECT EXISTS(SELECT FROM pigsty.node WHERE is_meta AND ip = _ip);
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.node_is_meta(INET) IS 'check whether an node (ip) is meta node';
-
---------------------------------
--- node_status(ip inet) status
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.node_status(INET);
-CREATE OR REPLACE FUNCTION pigsty.node_status(_ip INET) RETURNS status AS
-$$
-SELECT status
-FROM pigsty.node
-WHERE ip = _ip;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.node_status(INET) IS 'get node status by ip';
-
-
---------------------------------
--- node_ins(ip text) (ins text)
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.node_ins(INET);
-CREATE OR REPLACE FUNCTION pigsty.node_ins(_ip INET) RETURNS TEXT AS
-$$
-SELECT ins
-FROM pigsty.instance
-WHERE ip = _ip
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.node_ins(INET) IS 'return node corresponding pgsql instance according to ip';
-
---------------------------------
--- upsert_node(ip inet, cls text)
---------------------------------
--- insert new node with optional cluster
--- leave is_meta, ctime intact on upsert, reset cluster on non-null cluster, reset node status is cls has changed!
-
-DROP FUNCTION IF EXISTS pigsty.upsert_node(INET, TEXT);
-CREATE OR REPLACE FUNCTION pigsty.upsert_node(_ip INET, _cls TEXT DEFAULT NULL) RETURNS INET AS
-$$
-INSERT INTO pigsty.node(ip, cls)
-VALUES (_ip, _cls)
-ON CONFLICT (ip) DO UPDATE SET cls    = CASE WHEN _cls ISNULL THEN node.cls ELSE excluded.cls END,
-                               status = CASE
-                                            WHEN _cls IS NOT NULL AND _cls != node.cls THEN 'unknown'::status
-                                            ELSE node.status END, -- keep status if cls not changed
-                               mtime  = now()
-RETURNING ip;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.upsert_node(INET, TEXT) IS 'upsert new node (with optional cls)';
-
--- example
--- SELECT upsert_node('10.10.10.10', 'pg-meta');
-
---------------------------------
--- delete_node(ip inet )
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.delete_node(INET);
-CREATE OR REPLACE FUNCTION pigsty.delete_node(_ip INET) RETURNS INET AS
-$$
-DELETE
-FROM pigsty.node
-WHERE ip = _ip
-RETURNING ip;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.delete_node(INET) IS 'delete node by ip';
-
--- example
--- SELECT delete_node('10.10.10.10');
-
------------------------------------------------
--- update_node_status(ip inet, status status) status
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.update_node_status(INET, status);
-CREATE OR REPLACE FUNCTION pigsty.update_node_status(_ip INET, _status status) RETURNS status AS
-$$
-UPDATE pigsty.node
-SET status = _status
-WHERE ip = _ip
-RETURNING status;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_node_status(INET,status) IS 'update node status and return it';
-
--- example:  SELECT update_node_status('10.10.10.10', 'available');
+--===========================================================--
+--                    pigsty.pg_instance                     --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.pg_instance;
+CREATE OR REPLACE VIEW pigsty.pg_instance AS
+SELECT cls,
+       key                                                      AS ip,
+       cls || '-' || (value ->> 'pg_seq')                       AS ins,
+       (value ->> 'pg_seq')::INTEGER                            AS seq,
+       (value ->> 'pg_role')::pigsty.pg_role                    AS role,
+       coalesce((value ->> 'pg_offline_query')::BOOLEAN, false) AS offline_query,
+       coalesce((value ->> 'pg_weight')::INTEGER, 100)          AS weight,
+       (value ->> 'pg_upstream')::INET                          AS upstream,
+       value                                                    AS instance
+FROM pigsty.pg_cluster, jsonb_each(hosts) ORDER BY 1, 4;
 
 
 --===========================================================--
---                        instance var                       --
+--                    pigsty.pg_service                      --
 --===========================================================--
-
------------------------------------------------
--- update_instance_vars(ins text, vars jsonb) jsonb
------------------------------------------------
-
--- overwrite all instance vars
-DROP FUNCTION IF EXISTS pigsty.update_instance_vars(TEXT, JSONB);
-CREATE OR REPLACE FUNCTION pigsty.update_instance_vars(_ins TEXT, _vars JSONB) RETURNS VOID AS
-$$
-DELETE
-FROM pigsty.instance_var
-WHERE ins = _ins; -- delete all instance vars
-INSERT INTO pigsty.instance_var(ins, key, value)
-SELECT _ins, key, value
-FROM jsonb_each(_vars);
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_instance_vars(TEXT, JSONB) IS 'batch overwrite instance config';
-
-
------------------------------------------------
--- update_instance_var(ins text, key text, value jsonb)
------------------------------------------------
-
--- overwrite single instance entry
-DROP FUNCTION IF EXISTS pigsty.update_instance_var(TEXT, TEXT, JSONB);
-CREATE OR REPLACE FUNCTION pigsty.update_instance_var(_ins TEXT, _key TEXT, _value JSONB) RETURNS VOID AS
-$$
-INSERT INTO pigsty.instance_var(ins, key, value)
-VALUES (_ins, _key, _value)
-ON CONFLICT (ins, key) DO UPDATE SET value = EXCLUDED.value,
-                                     mtime = now();
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_instance_var(TEXT, TEXT,JSONB) IS 'upsert single instance config entry';
-
+DROP VIEW IF EXISTS pigsty.pg_service;
+CREATE OR REPLACE VIEW pigsty.pg_service AS
+SELECT cls,
+       cls || '-' || (value ->> 'name') AS svc,
+       value ->> 'name'                 AS name,
+       value ->> 'src_ip'               AS src_ip,
+       value ->> 'src_port'             AS src_port,
+       value ->> 'dst_port'             AS dst_port,
+       value ->> 'check_url'            AS check_url,
+       value ->> 'selector'             AS selector,
+       value ->> 'selector_backup'      AS selector_backup,
+       value -> 'haproxy'               AS haproxy,
+       value                            AS service
+FROM pigsty.pg_cluster, jsonb_array_elements(pg_services) ORDER BY 1 ,3;
 
 
 --===========================================================--
---                      getter                               --
+--                   pigsty.pg_databases                     --
 --===========================================================--
-CREATE OR REPLACE FUNCTION pigsty.ins_ip(_ins TEXT) RETURNS TEXT AS
-$$
-SELECT host(ip)
-FROM pigsty.instance
-WHERE ins = _ins
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-
-CREATE OR REPLACE FUNCTION pigsty.ins_cls(_ins TEXT) RETURNS TEXT AS
-$$
-SELECT cls
-FROM pigsty.instance
-WHERE ins = _ins
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-
-CREATE OR REPLACE FUNCTION pigsty.ins_role(_ins TEXT) RETURNS TEXT AS
-$$
-SELECT role
-FROM pigsty.instance
-WHERE ins = _ins
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-
-CREATE OR REPLACE FUNCTION pigsty.ins_seq(_ins TEXT) RETURNS INTEGER AS
-$$
-SELECT seq
-FROM pigsty.instance
-WHERE ins = _ins
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-
-CREATE OR REPLACE FUNCTION pigsty.ins_is_meta(_ins TEXT) RETURNS BOOLEAN AS
-$$
-SELECT EXISTS(SELECT FROM pigsty.node WHERE is_meta AND ip = (SELECT ip FROM pigsty.instance WHERE ins = _ins));
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.ins_is_meta(TEXT) IS 'check whether an instance name is meta node';
-
--- reverse lookup (lookup ins via ip)
-CREATE OR REPLACE FUNCTION pigsty.ip2ins(_ip INET) RETURNS TEXT AS
-$$
-SELECT ins
-FROM pigsty.instance
-WHERE ip = _ip
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-
+DROP VIEW IF EXISTS pigsty.pg_database;
+CREATE OR REPLACE VIEW pigsty.pg_database AS
+SELECT cls,
+       value ->> 'name'                                      AS datname,
+       value ->> 'owner'                                     AS owner,
+       value ->> 'template'                                  AS template,
+       value ->> 'encoding'                                  AS encoding,
+       value ->> 'locale'                                    AS locale,
+       value ->> 'lc_collate'                                AS lc_collate,
+       value ->> 'lc_ctype'                                  AS lc_ctype,
+       coalesce((value ->> 'allowconn')::BOOLEAN, true)      AS allowconn,
+       coalesce((value ->> 'revokeconn')::BOOLEAN, false)    AS revokeconn,
+       (value ->> 'tablespace')                              AS tablespace,
+       coalesce((value ->> 'connlimit')::INTEGER, -1)        AS connlimit,
+       coalesce((value -> 'pgbouncer')::BOOLEAN, true)       AS pgbouncer,
+       coalesce((value ->> 'comment'), '')                   AS comment,
+       coalesce((value -> 'schemas')::JSONB, '[]'::JSONB)    AS schemas,
+       coalesce((value -> 'extensions')::JSONB, '[]'::JSONB) AS extensions,
+       coalesce((value -> 'parameters')::JSONB, '{}'::JSONB) AS parameters,
+       value                                                 AS database
+FROM pigsty.pg_cluster, jsonb_array_elements(pg_databases);
 
 
 --===========================================================--
---                     instance CRUD                         --
+--                     pigsty.pg_users                       --
 --===========================================================--
-
------------------------------------------------
--- select_instance(ins text)
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.select_instance(TEXT);
-CREATE OR REPLACE FUNCTION pigsty.select_instance(_ins TEXT) RETURNS JSONB AS
-$$
-SELECT row_to_json(i.*)::JSONB
-FROM pigsty.instance i
-WHERE ins = _ins
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION select_instance(TEXT) IS 'return instance json via ins';
--- example: SELECT select_instance('pg-test-1')
-
-
------------------------------------------------
--- select_instance(ip inet)
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.select_instance(INET);
-CREATE OR REPLACE FUNCTION pigsty.select_instance(_ip INET) RETURNS JSONB AS
-$$
-SELECT row_to_json(i.*)::JSONB
-FROM pigsty.instance i
-WHERE ip = _ip
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION select_instance(INET) IS 'return instance json via ip';
-
-
------------------------------------------------
--- upsert_instance(ins text, ip inet, data jsonb)
------------------------------------------------
-DROP FUNCTION IF EXISTS pigsty.upsert_instance(TEXT, INET, JSONB);
-CREATE OR REPLACE FUNCTION pigsty.upsert_instance(_cls TEXT, _ip INET, _data JSONB) RETURNS VOID AS
-$$
-DECLARE
-    _seq  INTEGER        := (_data ->> 'pg_seq')::INTEGER;
-    _role pigsty.pg_role := (_data ->> 'pg_role')::pigsty.pg_role;
-    _ins  TEXT           := _cls || '-' || _seq;
-BEGIN
-    PERFORM pigsty.upsert_node(_ip, _cls); -- make sure node exists
-    INSERT INTO pigsty.instance(ins, ip, cls, seq, role)
-    VALUES (_ins, _ip, _cls, _seq, _role)
-    ON CONFLICT DO UPDATE SET ip    = excluded.ip,
-                              cls   = excluded.cls,
-                              seq   = excluded.seq,
-                              role  = excluded.role,
-                              mtime = now();
-    PERFORM pigsty.update_instance_vars(_ins, _data); -- refresh instance_var
-END
-$$ LANGUAGE PlPGSQL VOLATILE;
-COMMENT ON FUNCTION pigsty.upsert_instance(TEXT, INET, JSONB) IS 'create new instance from cls, ip, vars';
-
+DROP VIEW IF EXISTS pigsty.pg_users;
+CREATE OR REPLACE VIEW pigsty.pg_users AS
+SELECT cls,
+       (u ->> 'name')                                  AS name,
+       (u ->> 'password')                              AS password,
+       starts_with(u ->> 'password', 'md5')            AS is_md5pwd,
+       coalesce((u ->> 'login')::BOOLEAN, true)        AS login,
+       coalesce((u ->> 'superuser') ::BOOLEAN, false)  AS superuser,
+       coalesce((u ->> 'createdb')::BOOLEAN, false)    AS createdb,
+       coalesce((u ->> 'createrole')::BOOLEAN, false)  AS createrole,
+       coalesce((u ->> 'inherit')::BOOLEAN, false)     AS inherit,
+       coalesce((u ->> 'replication')::BOOLEAN, false) AS replication,
+       coalesce((u ->> 'bypassrls')::BOOLEAN, false)   AS bypassrls,
+       coalesce((u ->> 'pgbouncer')::BOOLEAN, false)   AS pgbouncer,
+       coalesce((u ->> 'connlimit')::INTEGER, -1)      AS connlimit,
+       (u ->> 'expire_in')::INTEGER                    AS expire_in,
+       (u ->> 'expire_at')::DATE                       AS expire_at,
+       (u ->> 'comment')                               AS comment,
+       (u -> 'roles')                                  AS roles,
+       (u -> 'parameters')                             AS parameters,
+       u                                               AS user
+FROM pigsty.pg_cluster, jsonb_array_elements(pg_users) AS u;
 
 
 --===========================================================--
---                      cluster var update                   --
+--                     pigsty.pg_hba                         --
 --===========================================================--
-
--- overwrite all cluster config
-DROP FUNCTION IF EXISTS pigsty.update_cluster_vars(TEXT, JSONB);
-CREATE OR REPLACE FUNCTION pigsty.update_cluster_vars(_cls TEXT, _vars JSONB) RETURNS VOID AS
-$$
-DELETE
-FROM pigsty.cluster_var
-WHERE cls = _cls; -- delete all cluster vars
-INSERT INTO pigsty.cluster_var(cls, key, value)
-SELECT _cls, key, value
-FROM jsonb_each(_vars);
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_cluster_vars(TEXT, JSONB) IS 'batch overwrite cluster config';
-
--- overwrite single cluster config entry
-DROP FUNCTION IF EXISTS pigsty.update_cluster_var(TEXT, TEXT, JSONB);
-CREATE OR REPLACE FUNCTION pigsty.update_cluster_var(_cls TEXT, _key TEXT, _value JSONB) RETURNS VOID AS
-$$
-INSERT INTO pigsty.cluster_var(cls, key, value, mtime)
-VALUES (_cls, _key, _value, now())
-ON CONFLICT (cls, key) DO UPDATE SET value = EXCLUDED.value,
-                                     mtime = EXCLUDED.mtime;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_cluster_var(_cls TEXT, key TEXT, value JSONB) IS 'upsert single cluster config entry';
-
+DROP VIEW IF EXISTS pigsty.pg_hba;
+CREATE OR REPLACE VIEW pigsty.pg_hba AS
+SELECT cls,
+       hba ->> 'title'   AS title,
+       (hba ->> 'role')::pigsty.pg_role,
+       (hba -> 'rules') AS rules,
+       hba
+FROM pigsty.pg_cluster, jsonb_array_elements(pg_hba) AS hba;
 
 
 --===========================================================--
---                        cluster crud                        --
+--                  pigsty.pgbouncer_hba                     --
 --===========================================================--
-DROP FUNCTION IF EXISTS pigsty.select_cluster(TEXT);
-CREATE OR REPLACE FUNCTION pigsty.select_cluster(_cls TEXT) RETURNS JSONB AS
-$$
-SELECT row_to_json(cluster.*)::JSONB
-FROM pigsty.cluster
-WHERE cls = _cls
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.select_cluster(TEXT) IS 'return cluster json via cls';
--- example: SELECT select_cluster('pg-meta-tt')
+DROP VIEW IF EXISTS pigsty.pgbouncer_hba;
+CREATE OR REPLACE VIEW pigsty.pgbouncer_hba AS
+SELECT cls,
+       hba ->> 'title'   AS title,
+       (hba ->> 'role')::pigsty.pg_role,
+       (hba -> 'rules') AS rules,
+       hba
+FROM pigsty.pg_cluster,jsonb_array_elements(pgbouncer_hba) AS hba;
 
-
-DROP FUNCTION IF EXISTS pigsty.delete_cluster(TEXT);
-CREATE OR REPLACE FUNCTION pigsty.select_cluster(_cls TEXT) RETURNS JSONB AS
-$$
-SELECT row_to_json(cluster.*)::JSONB
-FROM pigsty.cluster
-WHERE cls = _cls
-LIMIT 1;
-$$ LANGUAGE SQL STABLE;
-COMMENT ON FUNCTION pigsty.select_cluster(TEXT) IS 'return cluster json via cls';
-
-
--- SELECT jsonb_build_object('hosts', jsonb_object_agg(ip, row_to_json(instance.*))) AS ij FROM instance WHERE cls = 'pg-meta-tt' GROUP BY cls;
--- SELECT jsonb_build_object('vars', jsonb_object_agg(key, value)) AS ij FROM cluster_var WHERE cls = 'pg-meta-tt' GROUP BY cls;
-
-DROP FUNCTION IF EXISTS pigsty.upsert_clusters(_data JSONB);
-CREATE OR REPLACE FUNCTION pigsty.upsert_clusters(_data JSONB) RETURNS VOID AS
-$$
-DECLARE
-    _clusters JSONB := _data; -- input is all.children (cluster array)
-BEGIN
-    -- trunc tables
-    -- TRUNCATE cluster,instance,node,global_var,cluster_var,instance_var CASCADE;
-    DELETE
-    FROM pigsty.cluster
-    WHERE cls IN
-          (SELECT key FROM jsonb_each((_clusters)) WHERE key != 'meta');
-
-    -- load clusters
-    INSERT INTO pigsty.cluster(cls, shard, sindex) -- abort on conflict
-    SELECT key, value #>> '{vars,pg_shard}' AS shard, (value #>> '{vars,pg_sindex}')::INTEGER AS sindex
-    FROM jsonb_each((_clusters))
-    WHERE key != 'meta';
-
-    -- load nodes
-    INSERT INTO pigsty.node(ip, cls)
-    SELECT key::INET AS ip, cls
-    FROM -- abort on duplicate ip
-         (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.hosts)
-    ON CONFLICT(ip) DO UPDATE SET cls = EXCLUDED.cls;
-
-    -- load meta nodes
-    INSERT INTO pigsty.node(ip)
-    SELECT key::INET AS ip
-    FROM -- set is_meta flag for meta_node
-         (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each((_clusters))
-          WHERE key = 'meta') c, jsonb_each(c.hosts)
-    ON CONFLICT(ip) DO UPDATE SET cls = EXCLUDED.cls, is_meta = true;
-
-    -- load instances
-    INSERT INTO pigsty.instance(ins, ip, cls, seq, role)
-    SELECT cls || '-' || (value ->> 'pg_seq')    AS ins,
-           key::INET                             AS ip,
-           cls,
-           (value ->> 'pg_seq')::INTEGER         AS seq,
-           (value ->> 'pg_role')::pigsty.pg_role AS role
-    FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
-          FROM jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.hosts);
-
-    -- load cluster_var
-    INSERT INTO pigsty.cluster_var(cls, key, value) -- abort on conflict
-    SELECT cls, key, value
-    FROM (SELECT key AS cls, value -> 'vars' AS vars
-          FROM
-              jsonb_each(_clusters)
-          WHERE key != 'meta') c, jsonb_each(c.vars)
-    ON CONFLICT(cls, key) DO UPDATE set value = EXCLUDED.value;
-
-    -- load instance_var
-    INSERT INTO pigsty.instance_var(ins, key, value) -- abort on conflict
-    SELECT ins, key, value
-    FROM (SELECT cls, cls || '-' || (value ->> 'pg_seq') AS ins, value AS vars
-          FROM (SELECT key AS cls, value -> 'hosts' AS hosts
-                FROM jsonb_each(_clusters)
-                WHERE key != 'meta') c,
-              jsonb_each(c.hosts)) i, jsonb_each(vars)
-    ON CONFLICT(ins, key) DO UPDATE SET value = EXCLUDED.value;
-
-    -- inject meta_node config to instance_var
-    INSERT INTO pigsty.instance_var(ins, key, value)
-    SELECT ins, 'meta_node' AS key, 'true'::JSONB AS value
-    FROM (SELECT ins
-          FROM (SELECT key::INET AS ip
-                FROM (SELECT key AS cls, value #> '{hosts}' AS hosts
-                      FROM jsonb_each(_clusters)
-                      WHERE key = 'meta') c, jsonb_each(c.hosts)) n
-                   JOIN pigsty.instance i ON n.ip = i.ip
-         ) m
-    ON CONFLICT(ins, key) DO UPDATE SET value = excluded.value;
-
-END;
-$$ LANGUAGE PlPGSQL VOLATILE;
-
-COMMENT ON FUNCTION pigsty.upsert_clusters(JSONB) IS 'upsert pgsql clusters all.childrens';
+--===========================================================--
+--                   pigsty.gp_cluster                       --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.gp_cluster CASCADE;
+CREATE OR REPLACE VIEW pigsty.gp_cluster AS
+SELECT cls,
+       vars ->> 'pg_cluster'                                          AS name,
+       vars ->> 'gp_role'                                             AS gp_role,
+       vars ->> 'pg_shard'                                            AS pg_shard,
+       hosts,
+       vars,
+       coalesce((gsvc.global || vars) -> 'pg_hba_rules_extra', '[]'::JSONB) ||
+       coalesce((gsvc.global || vars) -> 'pg_hba_rules', '[]'::JSONB) AS pg_hba
+FROM pigsty.group_config,
+     (SELECT jsonb_object_agg(key, value) AS global
+      FROM global_var
+      WHERE key ~ '^pg_services'
+         or key ~ 'hba_rules') gsvc
+WHERE vars ? 'gp_role';
 
 
 --===========================================================--
---                      global var update                    --
+--                     pigsty.gp_node                        --
 --===========================================================--
--- update_global_vars(vars JSON) will overwrite existing global config
--- update_global_var(key TEXT,value JSON) will upsert single global config entry
+DROP VIEW IF EXISTS pigsty.gp_node CASCADE;
+CREATE OR REPLACE VIEW pigsty.gp_node AS
+SELECT cls,
+       key                                            AS ip,
+       (value ->> 'nodename')                         AS node,
+       coalesce(value -> 'pg_instances', '{}'::JSONB) AS instances
+FROM pigsty.gp_cluster, jsonb_each(hosts)
+ORDER BY 3;
 
---------------------------------
--- update_global_vars(vars jsonb)
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.update_global_vars(JSONB);
-CREATE OR REPLACE FUNCTION pigsty.update_global_vars(_vars JSONB) RETURNS VOID AS
-$$
-DELETE
-FROM pigsty.global_var
-WHERE true; -- use vars will remove all existing config files
-INSERT INTO pigsty.global_var(key, value)
-SELECT key, value
-FROM jsonb_each(_vars);
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_global_vars(JSONB) IS 'batch overwrite global config';
 
---------------------------------
--- update_global_var(key text, value jsonb)
---------------------------------
-DROP FUNCTION IF EXISTS pigsty.update_global_var(TEXT, JSONB);
-CREATE OR REPLACE FUNCTION pigsty.update_global_var(_key TEXT, _value JSONB) RETURNS VOID AS
-$$
-INSERT INTO pigsty.global_var(key, value, mtime)
-VALUES (_key, _value, now())
-ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value,
-                                mtime = EXCLUDED.mtime;
-$$ LANGUAGE SQL VOLATILE;
-COMMENT ON FUNCTION pigsty.update_global_var(TEXT,JSONB) IS 'upsert single global config entry';
+--===========================================================--
+--                   pigsty.gp_instance                      --
+--===========================================================--
+DROP VIEW IF EXISTS pigsty.gp_instance CASCADE;
+CREATE OR REPLACE VIEW pigsty.gp_instance AS
+SELECT (value ->> 'pg_cluster')                         AS cls,
+       (value ->> 'pg_cluster') || (value ->> 'pg_seq') AS ins,
+       ip,node,key::INTEGER AS port,
+       (value ->> 'pg_role')::pigsty.pg_role            AS pg_role,
+       (value ->> 'pg_seq')::INTEGER                    AS pg_seq,
+       (value ->> 'pg_exporter_port')::INTEGER          AS exporter_port,
+       value                                            AS instance
+FROM pigsty.gp_node, jsonb_each(instances)
+ORDER BY cls, node, port;
 
+
+--===========================================================--
+--                   pigsty.redis_cluster                    --
+--===========================================================--
+-- DROP VIEW IF EXISTS pigsty.redis_cluster CASCADE;
+CREATE OR REPLACE VIEW pigsty.redis_cluster AS
+SELECT cls,
+       vars ->> 'redis_cluster'                                              AS name,
+       coalesce((gsvc.global || vars) ->> 'redis_mode', 'standalone')        AS mode,
+       coalesce((gsvc.global || vars) ->> 'redis_conf', 'redis.conf')        AS conf,
+       coalesce((gsvc.global || vars) ->> 'redis_max_memory', '1GB')         AS max_memory,
+       coalesce((gsvc.global || vars) ->> 'redis_mem_policy', 'allkeys-lru') AS mem_policy,
+       (gsvc.global || vars) ->> 'redis_password' AS password,
+       hosts,vars
+FROM pigsty.group_config,
+     (SELECT jsonb_object_agg(key, value) AS global FROM global_var WHERE key ~ '^redis') gsvc
+WHERE vars ? 'redis_cluster';
+
+--===========================================================--
+--                   pigsty.redis_node                    --
+--===========================================================--
+-- DROP VIEW IF EXISTS pigsty.redis_node CASCADE;
+CREATE OR REPLACE VIEW pigsty.redis_node AS
+SELECT name AS cls, r.mode AS mode, key as ip,
+       cls || '-' || (value ->> 'redis_node') AS redis_node,
+       (value ->> 'redis_node')::INTEGER AS node_id,
+       coalesce(value -> 'redis_instances', '{}'::JSONB) AS instances
+FROM pigsty.redis_cluster r, jsonb_each(hosts) ORDER BY 1,4;
+
+--===========================================================--
+--                   pigsty.redis_instance                    --
+--===========================================================--
+-- DROP VIEW IF EXISTS pigsty.redis_instance CASCADE;
+CREATE OR REPLACE VIEW pigsty.redis_instance AS
+SELECT cls, mode, ip , redis_node, node_id , key::INTEGER AS port, redis_node || '-' || key AS ins,
+       value->>'replica_of' AS replica_of, value AS instance
+FROM pigsty.redis_node, jsonb_each(instances)
+ORDER BY cls, node_id, port;
 
 
 --===========================================================--
@@ -1673,250 +1096,3 @@ CREATE TABLE pglog.sample14(backend TEXT, leader_pid INTEGER, query_id   BIGINT)
 COMMENT ON TABLE pglog.sample12 IS 'PostgreSQL 12- CSVLOG sample for Pigsty PGLOG analysis';
 COMMENT ON TABLE pglog.sample13 IS 'PostgreSQL 13 CSVLOG sample for Pigsty PGLOG analysis';
 COMMENT ON TABLE pglog.sample14 IS 'PostgreSQL 14 CSVLOG sample for Pigsty PGLOG analysis';
-
-
---===========================================================--
---                       pigsty setting                      --
---===========================================================--
-DROP TABLE IF EXISTS pigsty.setting CASCADE;
-CREATE TABLE pigsty.setting
-(
-    id            INTEGER PRIMARY KEY,
-    name          VARCHAR(128) NOT NULL,
-    category      VARCHAR(16)  NOT NULL,
-    section       VARCHAR(32)  NOT NULL,
-    type          VARCHAR(16)  NOT NULL DEFAULT 'string'::text NOT NULL,
-    level         VARCHAR(16)  NOT NULL,
-    comment_cn    VARCHAR(512),
-    comment_en    VARCHAR(512),
-    section_desc  VARCHAR(256),
-    default_value JSONB,
-    link_name     TEXT GENERATED ALWAYS AS ('[`'|| name || '`](#' || name || ')') STORED,
-    link_section  TEXT GENERATED ALWAYS AS ('[`'|| section ||'`](#'|| section ||')') STORED,
-    link_category TEXT GENERATED ALWAYS AS ('[`'|| category ||'`](v-'|| lower(category) ||'.md)') STORED,
-    link_namex    TEXT GENERATED ALWAYS AS ('[`' || name || '`](v-'|| lower(category) ||'.md#' || name ||')') STORED,
-    link_sectionx TEXT GENERATED ALWAYS AS ('[`' || section || '`](v-'|| lower(category) ||'.md#' || section ||')') STORED
-);
-
-INSERT INTO pigsty.setting(id,name,category,section,type,level,comment_cn,comment_en,section_desc,default_value) VALUES
-(100, 'proxy_env', 'INFRA', 'CONNECT', 'dict', 'G', '代理服务器配置', 'proxy environment variables', '连接参数', '{"no_proxy": "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com"}'),
-(110, 'nginx_enabled', 'INFRA', 'REPO', 'bool', 'G', '是否启用本地源', 'enable local yum repo', '本地源基础设施', 'true'),
-(111, 'repo_name', 'INFRA', 'REPO', 'string', 'G', '本地源名称', 'local yum repo name', '本地源基础设施', '"pigsty"'),
-(112, 'repo_address', 'INFRA', 'REPO', 'string', 'G', '本地源外部访问地址', 'external access endpoint of repo', '本地源基础设施', '"pigsty"'),
-(113, 'nginx_port', 'INFRA', 'REPO', 'int', 'G', '本地源端口', 'repo listen address (80)', '本地源基础设施', '80'),
-(114, 'nginx_home', 'INFRA', 'REPO', 'path', 'G', '本地源文件根目录', 'repo home dir (/www)', '本地源基础设施', '"/www"'),
-(115, 'repo_rebuild', 'INFRA', 'REPO', 'bool', 'A', '是否重建Yum源', 'rebuild local yum repo?', '本地源基础设施', 'false'),
-(116, 'repo_remove', 'INFRA', 'REPO', 'bool', 'A', '是否移除已有REPO文件', 'remove existing repo file?', '本地源基础设施', 'true'),
-(117, 'repo_upstreams', 'INFRA', 'REPO', 'repo[]', 'G', 'Yum源的上游来源', 'upstream repo definition', '本地源基础设施', '[{"name": "base", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/", "http://mirrors.aliyun.com/centos/$releasever/os/$basearch/", "http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/", "http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/", "http://mirror.centos.org/centos/$releasever/os/$basearch/"], "gpgcheck": false, "description": "CentOS-$releasever - Base"}, {"name": "updates", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/", "http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/", "http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/", "http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/", "http://mirror.centos.org/centos/$releasever/updates/$basearch/"], "gpgcheck": false, "description": "CentOS-$releasever - Updates"}, {"name": "extras", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/", "http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/", "http://mirrors.aliyuncs.com/centos/$releasever/extras/$basearch/", "http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/", "http://mirror.centos.org/centos/$releasever/extras/$basearch/"], "gpgcheck": false, "description": "CentOS-$releasever - Extras"}, {"name": "epel", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch", "http://mirrors.aliyun.com/epel/$releasever/$basearch", "http://download.fedoraproject.org/pub/epel/$releasever/$basearch"], "gpgcheck": false, "description": "CentOS $releasever - epel"}, {"name": "grafana", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm", "https://packages.grafana.com/oss/rpm"], "enabled": true, "gpgcheck": false, "description": "Grafana"}, {"name": "prometheus", "baseurl": "https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch", "gpgcheck": false, "description": "Prometheus and exporters"}, {"name": "pgdg-common", "baseurl": ["http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch", "https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch"], "gpgcheck": false, "description": "PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch"}, {"name": "pgdg13", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/13/redhat/rhel-$releasever-$basearch", "https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-$releasever-$basearch"], "gpgcheck": false, "description": "PostgreSQL 13 for RHEL/CentOS $releasever - $basearch"}, {"name": "pgdg14", "baseurl": ["https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch", "https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch"], "gpgcheck": false, "description": "PostgreSQL 14 for RHEL/CentOS $releasever - $basearch"}, {"name": "timescaledb", "baseurl": ["https://packagecloud.io/timescale/timescaledb/el/7/$basearch"], "gpgcheck": false, "description": "TimescaleDB for RHEL/CentOS $releasever - $basearch"}, {"name": "centos-sclo", "baseurl": ["http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/", "http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/sclo/"], "gpgcheck": false, "description": "CentOS-$releasever - SCLo"}, {"name": "centos-sclo-rh", "baseurl": ["http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/", "http://repo.virtualhosting.hk/centos/$releasever/sclo/$basearch/rh/"], "gpgcheck": false, "description": "CentOS-$releasever - SCLo rh"}, {"name": "nginx", "baseurl": "http://nginx.org/packages/centos/$releasever/$basearch/", "gpgcheck": false, "description": "Nginx Official Yum Repo", "skip_if_unavailable": true}, {"name": "harbottle", "baseurl": "https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/", "gpgcheck": false, "description": "Copr repo for main owned by harbottle", "skip_if_unavailable": true}]'),
-(118, 'repo_packages', 'INFRA', 'REPO', 'string[]', 'G', 'Yum源需下载软件列表', 'packages to be downloaded', '本地源基础设施', '["epel-release nginx wget yum-utils yum createrepo sshpass zip unzip", "ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync", "numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived", "readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*", "readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel", "ed mlocate parted krb5-devel apr apr-util audit", "grafana prometheus2 pushgateway alertmanager consul consul_exporter consul-template etcd dnsmasq", "node_exporter postgres_exporter nginx_exporter blackbox_exporter redis_exporter", "ansible python python-pip python-psycopg2", "python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography", "patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail", "pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL pgadmin4", "postgresql14* postgis32_14* citus_14* pglogical_14* timescaledb-2-postgresql-14 pg_repack_14 wal2json_14", "pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14", "pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14", "mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14", "hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14", "bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14", "repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14", "pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pgagent_14", "pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14", "pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14", "safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14", "clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex"]'),
-(119, 'repo_url_packages', 'INFRA', 'REPO', 'url[]', 'G', '通过URL直接下载的软件', 'pkgs to be downloaded via url', '本地源基础设施', '["https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.1/vip-manager_1.0.1-1_amd64.rpm", "https://github.com/Vonng/pg_exporter/releases/download/v0.4.1/pg_exporter-0.4.1-1.el7.x86_64.rpm", "https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm", "https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/loki-2.4.2-1.el7.x86_64.rpm", "https://github.com/Vonng/loki-rpm/releases/download/v2.4.2/promtail-2.4.2-1.el7.x86_64.rpm", "https://github.com/Vonng/pigsty-pkg/releases/download/postgrest/postgrest-9.0.0-1.el7.x86_64.rpm", "https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm", "https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz", "https://github.com/sosedoff/pgweb/releases/download/v0.11.10/pgweb_linux_amd64.zip", "https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm"]'),
-(120, 'ca_method', 'INFRA', 'CA', 'enum', 'G', 'CA的创建方式', 'ca mode, create,copy,recreate', '公私钥基础设施', '"create"'),
-(121, 'ca_subject', 'INFRA', 'CA', 'string', 'G', '自签名CA主题', 'ca subject', '公私钥基础设施', '"/CN=root-ca"'),
-(122, 'ca_homedir', 'INFRA', 'CA', 'path', 'G', 'CA证书根目录', 'ca cert home dir', '公私钥基础设施', '"/ca"'),
-(123, 'ca_cert', 'INFRA', 'CA', 'string', 'G', 'CA证书', 'ca cert file name', '公私钥基础设施', '"ca.crt"'),
-(124, 'ca_key', 'INFRA', 'CA', 'string', 'G', 'CA私钥名称', 'ca private key name', '公私钥基础设施', '"ca.key"'),
-(130, 'nginx_upstream', 'INFRA', 'NGINX', 'upstream[]', 'G', 'Nginx上游服务器', 'nginx upstream definition', 'NginxWeb服务器', '[{"name": "home", "domain": "pigsty", "endpoint": "10.10.10.10:80"}, {"name": "grafana", "domain": "g.pigsty", "endpoint": "10.10.10.10:3000"}, {"name": "loki", "domain": "l.pigsty", "endpoint": "10.10.10.10:3100"}, {"name": "prometheus", "domain": "p.pigsty", "endpoint": "10.10.10.10:9090"}, {"name": "alertmanager", "domain": "a.pigsty", "endpoint": "10.10.10.10:9093"}, {"name": "consul", "domain": "c.pigsty", "endpoint": "127.0.0.1:8500"}, {"name": "pgweb", "domain": "cli.pigsty", "endpoint": "127.0.0.1:8081"}, {"name": "jupyter", "domain": "lab.pigsty", "endpoint": "127.0.0.1:8888"}]'),
-(131, 'nginx_indexes', 'INFRA', 'NGINX', 'app[]', 'G', '首页导航栏显示的应用列表', 'app list on home page navbar', 'NginxWeb服务器', '[{"url": "/pev2", "name": "Pev2", "comment": "postgres explain visualizer 2"}, {"url": "/logs", "name": "Logs", "comment": "realtime pgbadger log sample"}, {"url": "/report", "name": "Report", "comment": "daily log summary report "}, {"url": "/pigsty", "name": "Pkgs", "comment": "local yum repo packages"}, {"url": "/pigsty.repo", "name": "Repo", "comment": "local yum repo file"}, {"url": "${grafana}/d/isd-overview", "name": "ISD", "comment": "noaa isd data visualization"}, {"url": "${grafana}/d/covid-overview", "name": "Covid", "comment": "covid data visualization"}]'),
-(132, 'docs_enabled', 'INFRA', 'NGINX', 'bool', 'G', '是否启用本地文档', 'enable local docs', 'NginxWeb服务器', 'true'),
-(133, 'pev2_enabled', 'INFRA', 'NGINX', 'bool', 'G', '是否启用PEV2组件', 'enable pev2', 'NginxWeb服务器', 'true'),
-(134, 'pgbadger_enabled', 'INFRA', 'NGINX', 'bool', 'G', '是否启用Pgbadger', 'enable pgbadger', 'NginxWeb服务器', 'true'),
-(140, 'dns_records', 'INFRA', 'NAMESERVER', 'string[]', 'G', '动态DNS解析记录', 'dynamic DNS records', 'DNS服务器', '["10.10.10.2  pg-meta", "10.10.10.3  pg-test", "10.10.10.10 meta-1", "10.10.10.11 node-1", "10.10.10.12 node-2", "10.10.10.13 node-3", "10.10.10.10 pg-meta-1", "10.10.10.11 pg-test-1", "10.10.10.12 pg-test-2", "10.10.10.13 pg-test-3"]'),
-(150, 'prometheus_data_dir', 'INFRA', 'PROMETHEUS', 'path', 'G', 'Prometheus数据库目录', 'prometheus data dir', '监控时序数据库', '"/data/prometheus/data"'),
-(151, 'prometheus_options', 'INFRA', 'PROMETHEUS', 'string', 'G', 'Prometheus命令行参数', 'prometheus cli args', '监控时序数据库', '"--storage.tsdb.retention=15d --enable-feature=promql-negative-offset"'),
-(152, 'prometheus_reload', 'INFRA', 'PROMETHEUS', 'bool', 'A', 'Reload而非Recreate', 'prom reload instead of init', '监控时序数据库', 'false'),
-(153, 'prometheus_sd_method', 'INFRA', 'PROMETHEUS', 'enum', 'G', '服务发现机制：static|consul', 'service discovery method: static|consul', '监控时序数据库', '"static"'),
-(154, 'prometheus_scrape_interval', 'INFRA', 'PROMETHEUS', 'interval', 'G', 'Prom抓取周期', 'prom scrape interval (10s)', '监控时序数据库', '"10s"'),
-(155, 'prometheus_scrape_timeout', 'INFRA', 'PROMETHEUS', 'interval', 'G', 'Prom抓取超时', 'prom scrape timeout (8s)', '监控时序数据库', '"8s"'),
-(156, 'prometheus_sd_interval', 'INFRA', 'PROMETHEUS', 'interval', 'G', 'Prom服务发现刷新周期', 'prom discovery refresh interval', '监控时序数据库', '"10s"'),
-(160, 'exporter_install', 'INFRA', 'EXPORTER', 'enum', 'G', '安装监控组件的方式', 'how to install exporter?', '通用Exporter配置', '"none"'),
-(161, 'exporter_repo_url', 'INFRA', 'EXPORTER', 'string', 'G', '监控组件的YumRepo', 'repo url for yum install', '通用Exporter配置', '""'),
-(162, 'exporter_metrics_path', 'INFRA', 'EXPORTER', 'string', 'G', '监控暴露的URL Path', 'URL path for exporting metrics', '通用Exporter配置', '"/metrics"'),
-(170, 'grafana_endpoint', 'INFRA', 'GRAFANA', 'url', 'G', 'Grafana地址', 'grafana API endpoint', 'Grafana可视化平台', '"http://10.10.10.10:3000"'),
-(171, 'grafana_admin_username', 'INFRA', 'GRAFANA', 'string', 'G', 'Grafana管理员用户名', 'grafana admin username', 'Grafana可视化平台', '"admin"'),
-(172, 'grafana_admin_password', 'INFRA', 'GRAFANA', 'string', 'G', 'Grafana管理员密码', 'grafana admin password', 'Grafana可视化平台', '"pigsty"'),
-(173, 'grafana_database', 'INFRA', 'GRAFANA', 'enum', 'G', 'Grafana后端数据库类型', 'grafana backend database type', 'Grafana可视化平台', '"sqlite3"'),
-(174, 'grafana_pgurl', 'INFRA', 'GRAFANA', 'url', 'G', 'Grafana的PG数据库连接串', 'grafana backend postgres url', 'Grafana可视化平台', '"postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana"'),
-(175, 'grafana_plugin_method', 'INFRA', 'GRAFANA', 'enum', 'G', '如何安装Grafana插件', 'how to install grafana plugins', 'Grafana可视化平台', '"install"'),
-(176, 'grafana_plugin_cache', 'INFRA', 'GRAFANA', 'path', 'G', 'Grafana插件缓存地址', 'grafana plugins cache path', 'Grafana可视化平台', '"/www/pigsty/plugins.tgz"'),
-(177, 'grafana_plugin_list', 'INFRA', 'GRAFANA', 'string[]', 'G', '安装的Grafana插件列表', 'grafana plugins to be installed', 'Grafana可视化平台', '["marcusolsson-csv-datasource", "marcusolsson-json-datasource", "marcusolsson-treemap-panel"]'),
-(178, 'grafana_plugin_git', 'INFRA', 'GRAFANA', 'url[]', 'G', '从Git安装的Grafana插件', 'grafana plugins via git', 'Grafana可视化平台', '["https://github.com/Vonng/vonng-echarts-panel"]'),
-(180, 'loki_endpoint', 'INFRA', 'LOKI', 'url', 'G', '用于接收日志的loki服务endpoint', 'loki endpoint to receive log', 'Loki日志收集平台', '"http://10.10.10.10:3100/loki/api/v1/push"'),
-(181, 'loki_clean', 'INFRA', 'LOKI', 'bool', 'A', '是否在安装Loki时清理数据库目录', 'remove existing loki data?', 'Loki日志收集平台', 'false'),
-(182, 'loki_options', 'INFRA', 'LOKI', 'string', 'G', 'Loki的命令行参数', 'loki cli args', 'Loki日志收集平台', '"-config.file=/etc/loki.yml -config.expand-env=true"'),
-(183, 'loki_data_dir', 'INFRA', 'LOKI', 'string', 'G', 'Loki的数据目录', 'loki data path', 'Loki日志收集平台', '"/data/loki"'),
-(184, 'loki_retention', 'INFRA', 'LOKI', 'interval', 'G', 'Loki日志默认保留天数', 'loki log keeping period', 'Loki日志收集平台', '"15d"'),
-(200, 'dcs_servers', 'INFRA', 'DCS', 'dict', 'G', 'DCS服务器名称:IP列表', 'dcs server dict', '分布式配置存储元数据库', '{"pg-meta-1": "10.10.10.10"}'),
-(201, 'dcs_registry', 'INFRA', 'DCS', 'enum', 'G', '服务注册的位置', 'where to register service?', '分布式配置存储元数据库', '"consul"'),
-(202, 'dcs_type', 'INFRA', 'DCS', 'enum', 'G', '使用的DCS类型', 'which dcs to use (consul/etcd)', '分布式配置存储元数据库', '"consul"'),
-(203, 'consul_name', 'INFRA', 'DCS', 'string', 'G', 'DCS集群名称', 'dcs cluster name (dc)', '分布式配置存储元数据库', '"pigsty"'),
-(204, 'consul_clean', 'INFRA', 'DCS', 'enum', 'C/A', '若DCS实例存在如何处理', 'how to deal with existing dcs', '分布式配置存储元数据库', '"clean"'),
-(205, 'consul_safeguard', 'INFRA', 'DCS', 'bool', 'C/A', '完全禁止清理DCS实例', 'disable dcs purge', '分布式配置存储元数据库', 'false'),
-(206, 'consul_data_dir', 'INFRA', 'DCS', 'string', 'G', 'Consul数据目录', 'consul data dir path', '分布式配置存储元数据库', '"/data/consul"'),
-(207, 'etcd_data_dir', 'INFRA', 'DCS', 'string', 'G', 'Etcd数据目录', 'etcd data dir path', '分布式配置存储元数据库', '"/data/etcd"'),
-(220, 'jupyter_enabled', 'INFRA', 'JUPYTER', 'bool', 'G', '是否启用JupyterLab', 'enable jupyter lab', 'JupyterLab数据分析环境', 'true'),
-(221, 'jupyter_username', 'INFRA', 'JUPYTER', 'bool', 'G', 'Jupyter使用的操作系统用户', 'os user for jupyter lab', 'JupyterLab数据分析环境', '"jupyter"'),
-(222, 'jupyter_password', 'INFRA', 'JUPYTER', 'bool', 'G', 'Jupyter Lab的密码', 'password for jupyter lab', 'JupyterLab数据分析环境', '"pigsty"'),
-(230, 'pgweb_enabled', 'INFRA', 'PGWEB', 'bool', 'G', '是否启用PgWeb', 'enable pgweb', 'PGWeb网页客户端工具', 'true'),
-(231, 'pgweb_username', 'INFRA', 'PGWEB', 'bool', 'G', 'PgWeb使用的操作系统用户', 'os user for pgweb', 'PGWeb网页客户端工具', '"pgweb"'),
-(300, 'meta_node', 'NODES', 'NODE_IDENTITY', 'bool', 'C', '表示此节点为元节点', 'mark this node as meta', '节点身份参数', 'false'),
-(301, 'nodename', 'NODES', 'NODE_IDENTITY', 'string', 'I', '指定节点实例标识', 'node instance identity', '节点身份参数', NULL),
-(302, 'node_cluster', 'NODES', 'NODE_IDENTITY', 'string', 'C', '节点集群名，默认名为nodes', 'node cluster identity', '节点身份参数', '"nodes"'),
-(303, 'nodename_overwrite', 'NODES', 'NODE_IDENTITY', 'bool', 'C', '用Nodename覆盖机器HOSTNAME', 'overwrite hostname with nodename', '节点身份参数', 'true'),
-(304, 'nodename_exchange', 'NODES', 'NODE_IDENTITY', 'bool', 'C', '是否在剧本节点间交换主机名', 'exchange static hostname', '节点身份参数', 'false'),
-(310, 'node_etc_hosts_default', 'NODES', 'NODE_DNS', 'string[]', 'C', '写入机器的静态DNS解析', 'static DNS records', '节点域名解析', '["10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty"]'),
-(311, 'node_etc_hosts', 'NODES', 'NODE_DNS', 'string[]', 'C/I', '同上，用于集群实例层级', 'extra static DNS records', '节点域名解析', '[]'),
-(312, 'node_dns_method', 'NODES', 'NODE_DNS', 'enum', 'C', '如何配置DNS服务器？', 'how to setup dns service?', '节点域名解析', '"add"'),
-(313, 'node_dns_servers', 'NODES', 'NODE_DNS', 'string[]', 'C', '配置动态DNS服务器列表', 'dynamic DNS servers', '节点域名解析', '["10.10.10.10"]'),
-(314, 'node_dns_options', 'NODES', 'NODE_DNS', 'string[]', 'C', '配置/etc/resolv.conf', '/etc/resolv.conf options', '节点域名解析', '["options single-request-reopen timeout:1 rotate", "domain service.consul"]'),
-(320, 'node_repo_method', 'NODES', 'NODE_REPO', 'enum', 'C', '节点使用Yum源的方式', 'how to use yum repo (local)', '节点软件源', '"local"'),
-(321, 'node_repo_remove', 'NODES', 'NODE_REPO', 'bool', 'C', '是否移除节点已有Yum源', 'remove existing repo file?', '节点软件源', 'true'),
-(322, 'node_local_repo_url', 'NODES', 'NODE_REPO', 'url[]', 'C', '本地源的URL地址', 'local yum repo url', '节点软件源', '["http://pigsty/pigsty.repo"]'),
-(330, 'node_packages_default', 'NODES', 'NODE_PACKAGES', 'string[]', 'C', '节点安装软件列表', 'pkgs to be installed on all node', '节点软件包', '["wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal", "numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,pv,jq,perf,ca-certificates", "readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,redis_exporter,consul,etcd,promtail"]'),
-(331, 'node_packages', 'NODES', 'NODE_PACKAGES', 'string[]', 'C', '节点额外安装的软件列表', 'extra pkgs to be installed', '节点软件包', '[]'),
-(332, 'node_packages_meta', 'NODES', 'NODE_PACKAGES', 'string[]', 'G', '元节点所需的软件列表', 'meta node only packages', '节点软件包', '["grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14", "nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh"]'),
-(333, 'node_packages_meta_pip', 'NODES', 'NODE_PACKAGES', 'string', 'G', '元节点上通过pip3安装的软件包', 'meta node pip3 packages', '节点软件包', '"jupyterlab"'),
-(340, 'node_disable_numa', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点NUMA', 'disable numa?', '节点功能特性', 'false'),
-(341, 'node_disable_swap', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点SWAP', 'disable swap?', '节点功能特性', 'false'),
-(342, 'node_disable_firewall', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点防火墙', 'disable firewall?', '节点功能特性', 'true'),
-(343, 'node_disable_selinux', 'NODES', 'NODE_FEATURES', 'bool', 'C', '关闭节点SELINUX', 'disable selinux?', '节点功能特性', 'true'),
-(344, 'node_static_network', 'NODES', 'NODE_FEATURES', 'bool', 'C', '是否使用静态DNS服务器', 'use static DNS config?', '节点功能特性', 'true'),
-(345, 'node_disk_prefetch', 'NODES', 'NODE_FEATURES', 'bool', 'C', '是否启用磁盘预读', 'enable disk prefetch?', '节点功能特性', 'false'),
-(346, 'node_kernel_modules', 'NODES', 'NODE_MODULES', 'string[]', 'C', '启用的内核模块', 'kernel modules to be installed', '节点内核模块', '["softdog", "br_netfilter", "ip_vs", "ip_vs_rr", "ip_vs_rr", "ip_vs_wrr", "ip_vs_sh"]'),
-(350, 'node_tune', 'NODES', 'NODE_TUNE', 'enum', 'C', '节点调优模式', 'node tune mode', '节点参数调优', '"tiny"'),
-(351, 'node_sysctl_params', 'NODES', 'NODE_TUNE', 'dict', 'C', '操作系统内核参数', 'extra kernel parameters', '节点参数调优', '{}'),
-(360, 'node_admin_enabled', 'NODES', 'NODE_ADMIN', 'bool', 'G', '是否创建管理员用户', 'create admin user?', '节点管理员', 'true'),
-(361, 'node_admin_uid', 'NODES', 'NODE_ADMIN', 'int', 'G', '管理员用户UID', 'admin user UID', '节点管理员', '88'),
-(362, 'node_admin_username', 'NODES', 'NODE_ADMIN', 'string', 'G', '管理员用户名', 'admin user name', '节点管理员', '"dba"'),
-(363, 'node_admin_ssh_exchange', 'NODES', 'NODE_ADMIN', 'bool', 'C', '在实例间交换管理员SSH密钥', 'exchange admin ssh keys?', '节点管理员', 'true'),
-(364, 'node_admin_pk_current', 'NODES', 'NODE_ADMIN', 'bool', 'A', '是否将当前用户的公钥加入管理员账户', 'pks to be added to admin', '节点管理员', 'true'),
-(365, 'node_admin_pk_list', 'NODES', 'NODE_ADMIN', 'key[]', 'C', '可登陆管理员的公钥列表', 'add current user''s pkey?', '节点管理员', '["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com"]'),
-(370, 'node_timezone', 'NODES', 'NODE_TIME', 'string', 'C', 'NTP时区设置', 'node timezone', '节点时区与时间同步', '"Asia/Hong_Kong"'),
-(371, 'node_ntp_enabled', 'NODES', 'NODE_TIME', 'bool', 'C', '是否配置NTP服务？', 'setup ntp on node?', '节点时区与时间同步', 'true'),
-(372, 'node_ntp_service', 'NODES', 'NODE_TIME', 'enum', 'C', 'NTP服务类型：ntp或chrony', 'ntp mode: ntp or chrony?', '节点时区与时间同步', '"ntp"'),
-(373, 'node_ntp_servers', 'NODES', 'NODE_TIME', 'string[]', 'C', 'NTP服务器列表', 'ntp server list', '节点时区与时间同步', '["pool cn.pool.ntp.org iburst", "pool pool.ntp.org iburst", "pool time.pool.aliyun.com iburst", "server 10.10.10.10 iburst", "server ntp.tuna.tsinghua.edu.cn iburst"]'),
-(380, 'node_exporter_enabled', 'NODES', 'NODE_EXPORTER', 'bool', 'C', '启用节点指标收集器', 'node_exporter enabled?', '节点指标暴露器', 'true'),
-(381, 'node_exporter_port', 'NODES', 'NODE_EXPORTER', 'int', 'C', '节点指标暴露端口', 'node_exporter listen port', '节点指标暴露器', '9100'),
-(382, 'node_exporter_options', 'NODES', 'NODE_EXPORTER', 'string', 'C/I', '节点指标采集选项', 'node_exporter extra cli args', '节点指标暴露器', '"--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes"'),
-(390, 'promtail_enabled', 'NODES', 'PROMTAIL', 'bool', 'C', '是否启用Promtail日志收集服务', 'promtail enabled ?', '日志收集组件', 'true'),
-(391, 'promtail_clean', 'NODES', 'PROMTAIL', 'bool', 'C/A', '是否在安装promtail时移除已有状态信息', 'remove promtail status file ?', '日志收集组件', 'false'),
-(392, 'promtail_port', 'NODES', 'PROMTAIL', 'int', 'G', 'promtail使用的默认端口', 'promtail listen port', '日志收集组件', '9080'),
-(393, 'promtail_options', 'NODES', 'PROMTAIL', 'string', 'C/I', 'promtail命令行参数', 'promtail cli args', '日志收集组件', '"-config.file=/etc/promtail.yml -config.expand-env=true"'),
-(394, 'promtail_positions', 'NODES', 'PROMTAIL', 'string', 'C', 'promtail状态文件位置', 'path to store promtail status file', '日志收集组件', '"/var/log/positions.yaml"'),
-(500, 'pg_cluster', 'PGSQL', 'PG_IDENTITY', 'string', 'C', 'PG数据库集群名称', 'PG Cluster Name', 'PGSQL数据库身份参数', NULL),
-(501, 'pg_shard', 'PGSQL', 'PG_IDENTITY', 'string', 'C', 'PG集群所属的Shard (保留)', 'PG Shard Name (Reserve)', 'PGSQL数据库身份参数', NULL),
-(502, 'pg_sindex', 'PGSQL', 'PG_IDENTITY', 'int', 'C', 'PG集群的分片号 (保留)', 'PG Shard Index (Reserve)', 'PGSQL数据库身份参数', NULL),
-(503, 'gp_role', 'PGSQL', 'PG_IDENTITY', 'enum', 'C', '当前PG集群在GP中的角色', 'gp role of this pg cluster', 'PGSQL数据库身份参数', NULL),
-(504, 'pg_role', 'PGSQL', 'PG_IDENTITY', 'enum', 'I', 'PG数据库实例角色', 'PG Instance Role', 'PGSQL数据库身份参数', NULL),
-(505, 'pg_seq', 'PGSQL', 'PG_IDENTITY', 'int', 'I', 'PG数据库实例序号', 'PG Instance Sequence', 'PGSQL数据库身份参数', NULL),
-(506, 'pg_instances', 'PGSQL', 'PG_IDENTITY', '{port:ins}', 'I', '当前节点上的所有PG实例', 'pg instance on this node', 'PGSQL数据库身份参数', NULL),
-(507, 'pg_upstream', 'PGSQL', 'PG_IDENTITY', 'string', 'I', '实例的复制上游节点', 'pg upstream IP address', 'PGSQL数据库身份参数', NULL),
-(508, 'pg_offline_query', 'PGSQL', 'PG_IDENTITY', 'bool', 'I', '是否允许离线查询', 'allow offline query?', 'PGSQL数据库身份参数', 'false'),
-(509, 'pg_backup', 'PGSQL', 'PG_IDENTITY', 'bool', 'I', '是否在实例上存储备份', 'make base backup on this ins?', 'PGSQL数据库身份参数', 'false'),
-(510, 'pg_weight', 'PGSQL', 'PG_IDENTITY', 'int', 'I', '实例在负载均衡中的相对权重', 'relative weight in load balancer', 'PGSQL数据库身份参数', '100'),
-(511, 'pg_hostname', 'PGSQL', 'PG_IDENTITY', 'bool', 'C/I', '将PG实例名称设为HOSTNAME', 'set PG ins name as hostname', 'PGSQL数据库身份参数', 'true'),
-(512, 'pg_preflight_skip', 'PGSQL', 'PG_IDENTITY', 'bool', 'C/A', '跳过PG身份参数校验', 'skip preflight param validation', 'PGSQL数据库身份参数', 'false'),
-(520, 'pg_users', 'PGSQL', 'PG_BUSINESS', 'user[]', 'C', '业务用户定义', 'business users definition', 'PGSQL业务对象定义', '[]'),
-(521, 'pg_databases', 'PGSQL', 'PG_BUSINESS', 'database[]', 'C', '业务数据库定义', 'business databases definition', 'PGSQL业务对象定义', '[]'),
-(522, 'pg_services_extra', 'PGSQL', 'PG_BUSINESS', 'service[]', 'C', '集群专有服务定义', 'ad hoc service definition', 'PGSQL业务对象定义', '[]'),
-(523, 'pg_hba_rules_extra', 'PGSQL', 'PG_BUSINESS', 'rule[]', 'C', '集群/实例特定的HBA规则', 'ad hoc HBA rules', 'PGSQL业务对象定义', '[]'),
-(524, 'pgbouncer_hba_rules_extra', 'PGSQL', 'PG_BUSINESS', 'rule[]', 'C', 'Pgbounce特定HBA规则', 'ad hoc pgbouncer HBA rules', 'PGSQL业务对象定义', '[]'),
-(525, 'pg_admin_username', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG管理用户', 'admin user''s name', 'PGSQL业务对象定义', '"dbuser_dba"'),
-(526, 'pg_admin_password', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG管理用户密码', 'admin user''s password', 'PGSQL业务对象定义', '"DBUser.DBA"'),
-(527, 'pg_replication_username', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG复制用户', 'replication user''s name', 'PGSQL业务对象定义', '"replicator"'),
-(528, 'pg_replication_password', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG复制用户的密码', 'replication user''s password', 'PGSQL业务对象定义', '"DBUser.Replicator"'),
-(529, 'pg_monitor_username', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG监控用户', 'monitor user''s name', 'PGSQL业务对象定义', '"dbuser_monitor"'),
-(530, 'pg_monitor_password', 'PGSQL', 'PG_BUSINESS', 'string', 'G', 'PG监控用户密码', 'monitor user''s password', 'PGSQL业务对象定义', '"DBUser.Monitor"'),
-(540, 'pg_dbsu', 'PGSQL', 'PG_INSTALL', 'string', 'C', 'PG操作系统超级用户', 'os dbsu for postgres', 'PGSQL安装', '"postgres"'),
-(541, 'pg_dbsu_uid', 'PGSQL', 'PG_INSTALL', 'int', 'C', '超级用户UID', 'dbsu UID', 'PGSQL安装', '26'),
-(542, 'pg_dbsu_sudo', 'PGSQL', 'PG_INSTALL', 'enum', 'C', '超级用户的Sudo权限', 'sudo priv mode for dbsu', 'PGSQL安装', '"limit"'),
-(543, 'pg_dbsu_home', 'PGSQL', 'PG_INSTALL', 'path', 'C', '超级用户的家目录', 'home dir for dbsu', 'PGSQL安装', '"/var/lib/pgsql"'),
-(544, 'pg_dbsu_ssh_exchange', 'PGSQL', 'PG_INSTALL', 'bool', 'C', '是否交换超级用户密钥', 'exchange dbsu ssh keys?', 'PGSQL安装', 'true'),
-(545, 'pg_version', 'PGSQL', 'PG_INSTALL', 'int', 'C', '安装的数据库大版本', 'major PG version to be installed', 'PGSQL安装', '14'),
-(546, 'pgdg_repo', 'PGSQL', 'PG_INSTALL', 'bool', 'C', '是否添加PG官方源？', 'add official PGDG repo?', 'PGSQL安装', 'false'),
-(547, 'pg_add_repo', 'PGSQL', 'PG_INSTALL', 'bool', 'C', '是否添加PG相关上游源？', 'add extra upstream PG repo?', 'PGSQL安装', 'false'),
-(548, 'pg_bin_dir', 'PGSQL', 'PG_INSTALL', 'path', 'C', 'PG二进制目录', 'PG binary dir', 'PGSQL安装', '"/usr/pgsql/bin"'),
-(549, 'pg_packages', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', '安装的PG软件包列表', 'PG packages to be installed', 'PGSQL安装', '["postgresql${pg_version}*", "postgis32_${pg_version}*", "citus_${pg_version}*", "timescaledb-2-postgresql-${pg_version}", "pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager", "patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd", "python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography"]'),
-(550, 'pg_extensions', 'PGSQL', 'PG_INSTALL', 'string[]', 'C', '安装的PG插件列表', 'PG extension pkgs to be installed', 'PGSQL安装', '["pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}"]'),
-(560, 'pg_clean', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C/A', 'PG存在时如何处理', 'how to deal with existing pg ins', 'PGSQL集群初始化', '"clean"'),
-(561, 'pg_safeguard', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C/A', '禁止清除存在的PG实例', 'disable pg instance purge', 'PGSQL集群初始化', 'false'),
-(562, 'pg_data', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'PG数据目录', 'pg data dir', 'PGSQL集群初始化', '"/pg/data"'),
-(563, 'pg_fs_main', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'PG主数据盘挂载点', 'pg main data disk mountpoint', 'PGSQL集群初始化', '"/data"'),
-(564, 'pg_fs_bkup', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'PG备份盘挂载点', 'pg backup disk mountpoint', 'PGSQL集群初始化', '"/data/backups"'),
-(565, 'pg_dummy_filesize', 'PGSQL', 'PG_BOOTSTRAP', 'size', 'C', '占位文件/pg/dummy的大小', '/pg/dummy file size', 'PGSQL集群初始化', '"64MiB"'),
-(566, 'pg_listen', 'PGSQL', 'PG_BOOTSTRAP', 'ip', 'C', 'PG监听的IP地址', 'pg listen IP address', 'PGSQL集群初始化', '"0.0.0.0"'),
-(567, 'pg_port', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'PG监听的端口', 'pg listen port', 'PGSQL集群初始化', '5432'),
-(568, 'pg_localhost', 'PGSQL', 'PG_BOOTSTRAP', 'ip|path', 'C', 'PG使用的UnixSocket地址', 'pg unix socket path', 'PGSQL集群初始化', '"/var/run/postgresql"'),
-(580, 'patroni_enabled', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', 'Patroni是否启用', 'Is patroni & postgres enabled?', 'PGSQL集群初始化', 'true'),
-(581, 'patroni_mode', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'Patroni配置模式', 'patroni working mode', 'PGSQL集群初始化', '"default"'),
-(582, 'pg_namespace', 'PGSQL', 'PG_BOOTSTRAP', 'path', 'C', 'Patroni使用的DCS命名空间', 'namespace for patroni', 'PGSQL集群初始化', '"/pg"'),
-(583, 'patroni_port', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'Patroni服务端口', 'patroni listen port (8080)', 'PGSQL集群初始化', '8008'),
-(584, 'patroni_watchdog_mode', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'Patroni Watchdog模式', 'patroni watchdog policy', 'PGSQL集群初始化', '"automatic"'),
-(585, 'pg_conf', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'Patroni使用的配置模板', 'patroni template', 'PGSQL集群初始化', '"tiny.yml"'),
-(586, 'pg_libs', 'PGSQL', 'PG_BOOTSTRAP', 'string', 'C', 'PG默认加载的共享库', 'default preload shared libraries', 'PGSQL集群初始化', '"timescaledb, pg_stat_statements, auto_explain"'),
-(587, 'pg_encoding', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG字符集编码', 'character encoding', 'PGSQL集群初始化', '"UTF8"'),
-(588, 'pg_locale', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG使用的本地化规则', 'locale', 'PGSQL集群初始化', '"C"'),
-(589, 'pg_lc_collate', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG使用的本地化排序规则', 'collate rule of locale', 'PGSQL集群初始化', '"C"'),
-(590, 'pg_lc_ctype', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'PG使用的本地化字符集定义', 'ctype of locale', 'PGSQL集群初始化', '"en_US.UTF8"'),
-(591, 'pgbouncer_enabled', 'PGSQL', 'PG_BOOTSTRAP', 'bool', 'C', '是否启用Pgbouncer', 'is pgbouncer enabled', 'PGSQL集群初始化', 'true'),
-(592, 'pgbouncer_port', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'Pgbouncer端口', 'pgbouncer listen port', 'PGSQL集群初始化', '6432'),
-(593, 'pgbouncer_poolmode', 'PGSQL', 'PG_BOOTSTRAP', 'enum', 'C', 'Pgbouncer池化模式', 'pgbouncer pooling mode', 'PGSQL集群初始化', '"transaction"'),
-(594, 'pgbouncer_max_db_conn', 'PGSQL', 'PG_BOOTSTRAP', 'int', 'C', 'Pgbouncer最大单DB连接数', 'max connection per database', 'PGSQL集群初始化', '100'),
-(600, 'pg_provision', 'PGSQL', 'PG_PROVISION', 'bool', 'C', '是否在PG集群中应用模板', 'provision template to pgsql?', 'PGSQL集群模板置备', 'true'),
-(601, 'pg_init', 'PGSQL', 'PG_PROVISION', 'string', 'C', '自定义PG初始化脚本', 'path to postgres init script', 'PGSQL集群模板置备', '"pg-init"'),
-(602, 'pg_default_roles', 'PGSQL', 'PG_PROVISION', 'role[]', 'G/C', '默认创建的角色与用户', 'list or global default roles/users', 'PGSQL集群模板置备', '[{"name": "dbrole_readonly", "login": false, "comment": "role for global read-only access"}, {"name": "dbrole_readwrite", "login": false, "roles": ["dbrole_readonly"], "comment": "role for global read-write access"}, {"name": "dbrole_offline", "login": false, "comment": "role for restricted read-only access (offline instance)"}, {"name": "dbrole_admin", "login": false, "roles": ["pg_monitor", "dbrole_readwrite"], "comment": "role for object creation"}, {"name": "postgres", "comment": "system superuser", "superuser": true}, {"name": "dbuser_dba", "roles": ["dbrole_admin"], "comment": "system admin user", "superuser": true}, {"name": "replicator", "roles": ["pg_monitor", "dbrole_readonly"], "comment": "system replicator", "bypassrls": true, "replication": true}, {"name": "dbuser_monitor", "roles": ["pg_monitor", "dbrole_readonly"], "comment": "system monitor user", "parameters": {"log_min_duration_statement": 1000}}, {"name": "dbuser_stats", "roles": ["dbrole_offline"], "comment": "business offline user for offline queries and ETL", "password": "DBUser.Stats"}]'),
-(603, 'pg_default_privilegs', 'PGSQL', 'PG_PROVISION', 'string[]', 'G/C', '数据库默认权限配置', 'list of default privileges', 'PGSQL集群模板置备', NULL),
-(604, 'pg_default_schemas', 'PGSQL', 'PG_PROVISION', 'string[]', 'G/C', '默认创建的模式', 'list of default schemas', 'PGSQL集群模板置备', '["monitor"]'),
-(605, 'pg_default_extensions', 'PGSQL', 'PG_PROVISION', 'extension[]', 'G/C', '默认安装的扩展', 'list of default extensions', 'PGSQL集群模板置备', '[{"name": "pg_stat_statements", "schema": "monitor"}, {"name": "pgstattuple", "schema": "monitor"}, {"name": "pg_qualstats", "schema": "monitor"}, {"name": "pg_buffercache", "schema": "monitor"}, {"name": "pageinspect", "schema": "monitor"}, {"name": "pg_prewarm", "schema": "monitor"}, {"name": "pg_visibility", "schema": "monitor"}, {"name": "pg_freespacemap", "schema": "monitor"}, {"name": "pg_repack", "schema": "monitor"}, {"name": "postgres_fdw"}, {"name": "file_fdw"}, {"name": "btree_gist"}, {"name": "btree_gin"}, {"name": "pg_trgm"}, {"name": "intagg"}, {"name": "intarray"}]'),
-(606, 'pg_reload', 'PGSQL', 'PG_PROVISION', 'bool', 'A', '是否重载数据库配置（HBA）', 'reload configuration?', 'PGSQL集群模板置备', 'true'),
-(607, 'pg_hba_rules', 'PGSQL', 'PG_PROVISION', 'rule[]', 'G/C', '全局HBA规则', 'global HBA rules', 'PGSQL集群模板置备', '[{"role": "common", "rules": ["host    all     all                         10.10.10.10/32      md5"], "title": "allow meta node password access"}, {"role": "common", "rules": ["host    all     +dbrole_admin               10.0.0.0/8          md5", "host    all     +dbrole_admin               172.16.0.0/12       md5", "host    all     +dbrole_admin               192.168.0.0/16      md5"], "title": "allow intranet admin password access"}, {"role": "common", "rules": ["host    all             all                 10.0.0.0/8          md5", "host    all             all                 172.16.0.0/12       md5", "host    all             all                 192.168.0.0/16      md5"], "title": "allow intranet password access"}, {"role": "common", "rules": ["local   all     +dbrole_readonly                                md5", "host    all     +dbrole_readonly           127.0.0.1/32         md5"], "title": "allow local read/write (local production user via pgbouncer)"}, {"role": "offline", "rules": ["host    all     +dbrole_offline               10.0.0.0/8        md5", "host    all     +dbrole_offline               172.16.0.0/12     md5", "host    all     +dbrole_offline               192.168.0.0/16    md5"], "title": "allow offline query (ETL,SAGA,Interactive) on offline instance"}]'),
-(608, 'pgbouncer_hba_rules', 'PGSQL', 'PG_PROVISION', 'rule[]', 'G/C', 'Pgbouncer全局HBA规则', 'global pgbouncer HBA rules', 'PGSQL集群模板置备', '[{"role": "common", "rules": ["local  all          all                                     md5", "host   all          all                     127.0.0.1/32    md5"], "title": "local password access"}, {"role": "common", "rules": ["host   all          all                     10.0.0.0/8      md5", "host   all          all                     172.16.0.0/12   md5", "host   all          all                     192.168.0.0/16  md5"], "title": "intranet password access"}]'),
-(620, 'pg_exporter_config', 'PGSQL', 'PG_EXPORTER', 'string', 'C', 'PG指标定义文件', 'pg_exporter config path', 'PGSQL指标暴露器', '"pg_exporter.yml"'),
-(621, 'pg_exporter_enabled', 'PGSQL', 'PG_EXPORTER', 'bool', 'C', '启用PG指标收集器', 'pg_exporter enabled ?', 'PGSQL指标暴露器', 'true'),
-(622, 'pg_exporter_port', 'PGSQL', 'PG_EXPORTER', 'int', 'C', 'PG指标暴露端口', 'pg_exporter listen address', 'PGSQL指标暴露器', '9630'),
-(623, 'pg_exporter_params', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', 'PG Exporter额外的URL参数', 'extra params for pg_exporter url', 'PGSQL指标暴露器', '"sslmode=disable"'),
-(624, 'pg_exporter_url', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '采集对象数据库的连接串（覆盖）', 'monitor target pgurl (overwrite)', 'PGSQL指标暴露器', '""'),
-(625, 'pg_exporter_auto_discovery', 'PGSQL', 'PG_EXPORTER', 'bool', 'C/I', '是否自动发现实例中的数据库', 'enable auto-database-discovery?', 'PGSQL指标暴露器', 'true'),
-(626, 'pg_exporter_exclude_database', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '数据库自动发现排除列表', 'excluded list of databases', 'PGSQL指标暴露器', '"template0,template1,postgres"'),
-(627, 'pg_exporter_include_database', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '数据库自动发现囊括列表', 'included list of databases', 'PGSQL指标暴露器', '""'),
-(628, 'pg_exporter_options', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', 'PG Exporter命令行参数', 'cli args for pg_exporter', 'PGSQL指标暴露器', '"--log.level=info --log.format=\"logger:syslog?appname=pg_exporter&local=7\""'),
-(629, 'pgbouncer_exporter_enabled', 'PGSQL', 'PG_EXPORTER', 'bool', 'C', '启用PGB指标收集器', 'pgbouncer_exporter enabled ?', 'PGSQL指标暴露器', 'true'),
-(630, 'pgbouncer_exporter_port', 'PGSQL', 'PG_EXPORTER', 'int', 'C', 'PGB指标暴露端口', 'pgbouncer_exporter listen addr?', 'PGSQL指标暴露器', '9631'),
-(631, 'pgbouncer_exporter_url', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', '采集对象连接池的连接串', 'target pgbouncer url (overwrite)', 'PGSQL指标暴露器', '""'),
-(632, 'pgbouncer_exporter_options', 'PGSQL', 'PG_EXPORTER', 'string', 'C/I', 'PGB Exporter命令行参数', 'cli args for pgbouncer exporter', 'PGSQL指标暴露器', '"--log.level=info --log.format=\"logger:syslog?appname=pgbouncer_exporter&local=7\""'),
-(640, 'pg_services', 'PGSQL', 'PG_SERVICE', 'service[]', 'G/C', '全局通用服务定义', 'global service definition', 'PGSQL服务接入', '[{"name": "primary", "src_ip": "*", "dst_port": "pgbouncer", "selector": "[]", "src_port": 5433, "check_url": "/primary"}, {"name": "replica", "src_ip": "*", "dst_port": "pgbouncer", "selector": "[]", "src_port": 5434, "check_url": "/read-only", "selector_backup": "[? pg_role == `primary` || pg_role == `offline` ]"}, {"name": "default", "src_ip": "*", "haproxy": {"balance": "roundrobin", "maxconn": 3000, "default_server_options": "inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100"}, "dst_port": "postgres", "selector": "[]", "src_port": 5436, "check_url": "/primary", "check_code": 200, "check_port": "patroni", "check_method": "http"}, {"name": "offline", "src_ip": "*", "dst_port": "postgres", "selector": "[? pg_role == `offline` || pg_offline_query ]", "src_port": 5438, "check_url": "/replica", "selector_backup": "[? pg_role == `replica` && !pg_offline_query]"}]'),
-(641, 'haproxy_enabled', 'PGSQL', 'PG_SERVICE', 'bool', 'C/I', '是否启用Haproxy', 'haproxy enabled ?', 'PGSQL服务接入', 'true'),
-(642, 'haproxy_reload', 'PGSQL', 'PG_SERVICE', 'bool', 'A', '是否重载Haproxy配置', 'haproxy reload instead of reset', 'PGSQL服务接入', 'true'),
-(643, 'haproxy_auth_enabled', 'PGSQL', 'PG_SERVICE', 'bool', 'G/C', '是否对Haproxy管理界面启用认证', 'enable auth for haproxy admin ?', 'PGSQL服务接入', 'false'),
-(644, 'haproxy_admin_username', 'PGSQL', 'PG_SERVICE', 'string', 'G', 'HAproxy管理员名称', 'haproxy admin user name', 'PGSQL服务接入', '"admin"'),
-(645, 'haproxy_admin_password', 'PGSQL', 'PG_SERVICE', 'string', 'G', 'HAproxy管理员密码', 'haproxy admin password', 'PGSQL服务接入', '"pigsty"'),
-(646, 'haproxy_exporter_port', 'PGSQL', 'PG_SERVICE', 'int', 'C', 'HAproxy指标暴露器端口', 'haproxy exporter listen port', 'PGSQL服务接入', '9101'),
-(647, 'haproxy_client_timeout', 'PGSQL', 'PG_SERVICE', 'interval', 'C', 'HAproxy客户端超时', 'haproxy client timeout', 'PGSQL服务接入', '"24h"'),
-(648, 'haproxy_server_timeout', 'PGSQL', 'PG_SERVICE', 'interval', 'C', 'HAproxy服务端超时', 'haproxy server timeout', 'PGSQL服务接入', '"24h"'),
-(649, 'vip_mode', 'PGSQL', 'PG_SERVICE', 'enum', 'C', 'VIP模式：none', 'vip working mode', 'PGSQL服务接入', '"none"'),
-(650, 'vip_reload', 'PGSQL', 'PG_SERVICE', 'bool', 'A', '是否重载VIP配置', 'reload vip configuration', 'PGSQL服务接入', 'true'),
-(651, 'vip_address', 'PGSQL', 'PG_SERVICE', 'string', 'C', '集群使用的VIP地址', 'vip address used by cluster', 'PGSQL服务接入', NULL),
-(652, 'vip_cidrmask', 'PGSQL', 'PG_SERVICE', 'int', 'C', 'VIP地址的网络CIDR掩码长度', 'vip network CIDR length', 'PGSQL服务接入', NULL),
-(653, 'vip_interface', 'PGSQL', 'PG_SERVICE', 'string', 'C', 'VIP使用的网卡', 'vip network interface name', 'PGSQL服务接入', NULL),
-(654, 'dns_mode', 'PGSQL', 'PG_SERVICE', 'enum', 'C', 'DNS配置模式', 'cluster DNS mode', 'PGSQL服务接入', NULL),
-(655, 'dns_selector', 'PGSQL', 'PG_SERVICE', 'string', 'C', 'DNS解析对象选择器', 'cluster DNS ins selector', 'PGSQL服务接入', NULL),
-(700, 'redis_cluster', 'REDIS', 'REDIS_IDENTITY', 'string', 'C', 'Redis数据库集群名称', 'redis cluster identity', 'REDIS身份参数', NULL),
-(701, 'redis_node', 'REDIS', 'REDIS_IDENTITY', 'int', 'I', 'Redis节点序列号', 'redis node identity', 'REDIS身份参数', NULL),
-(702, 'redis_instances', 'REDIS', 'REDIS_IDENTITY', 'instance[]', 'I', 'Redis实例定义', 'redis instances definition on this node', 'REDIS身份参数', NULL),
-(720, 'redis_install', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', '安装Redis的方式', 'Way of install redis binaries', 'REDIS集群置备', '"yum"'),
-(721, 'redis_mode', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'Redis集群模式', 'standalone,cluster,sentinel', 'REDIS集群置备', '"standalone"'),
-(722, 'redis_conf', 'REDIS', 'REDIS_PROVISION', 'string', 'C', 'Redis配置文件模板', 'which config template will be used', 'REDIS集群置备', '"redis.conf"'),
-(723, 'redis_fs_main', 'REDIS', 'REDIS_PROVISION', 'path', 'C', 'Redis主数据盘挂载点', 'main data disk for redis', 'REDIS集群置备', '"/data"'),
-(724, 'redis_bind_address', 'REDIS', 'REDIS_PROVISION', 'ip', 'C', 'Redis监听的端口地址', 'e.g 0.0.0.0, empty will use inventory_hostname as bind address', 'REDIS集群置备', '"0.0.0.0"'),
-(725, 'redis_exists_action', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', 'Redis存在时执行何种操作', 'what to do when redis exists', 'REDIS集群置备', '"clean"'),
-(726, 'redis_disable_purge', 'REDIS', 'REDIS_PROVISION', 'string', 'C', '禁止抹除现存的Redis', 'set to true to disable purge functionality for good (force redis_exists_action = abort)', 'REDIS集群置备', 'false'),
-(727, 'redis_max_memory', 'REDIS', 'REDIS_PROVISION', 'size', 'C/I', 'Redis可用的最大内存', 'max memory used by each redis instance', 'REDIS集群置备', '"1GB"'),
-(728, 'redis_mem_policy', 'REDIS', 'REDIS_PROVISION', 'enum', 'C', '内存逐出策略', 'memory eviction policy', 'REDIS集群置备', '"allkeys-lru"'),
-(729, 'redis_password', 'REDIS', 'REDIS_PROVISION', 'string', 'C', 'Redis密码', 'empty password disable password auth (masterauth & requirepass)', 'REDIS集群置备', '""'),
-(730, 'redis_rdb_save', 'REDIS', 'REDIS_PROVISION', 'string[]', 'C', 'RDB保存指令', 'redis RDB save directives, empty list disable it', 'REDIS集群置备', '["1200 1"]'),
-(731, 'redis_aof_enabled', 'REDIS', 'REDIS_PROVISION', 'bool', 'C', '是否启用AOF', 'enable redis AOF', 'REDIS集群置备', 'false'),
-(732, 'redis_rename_commands', 'REDIS', 'REDIS_PROVISION', 'object', 'C', '重命名危险命令列表', 'rename dangerous commands', 'REDIS集群置备', '{}'),
-(740, 'redis_cluster_replicas', 'REDIS', 'REDIS_PROVISION', 'int', 'C', '集群每个主库带几个从库', 'how much replicas per master in redis cluster ?', 'REDIS集群置备', '1'),
-(741, 'redis_exporter_enabled', 'REDIS', 'REDIS_EXPORTER', 'bool', 'C', '是否启用Redis监控', 'install redis exporter on redis nodes', 'REDIS指标暴露器', 'true'),
-(742, 'redis_exporter_port', 'REDIS', 'REDIS_EXPORTER', 'int', 'C', 'Redis Exporter监听端口', 'default port for redis exporter', 'REDIS指标暴露器', '9121'),
-(743, 'redis_exporter_options', 'REDIS', 'REDIS_EXPORTER', 'string', 'C/I', 'Redis Exporter命令参数', 'default cli args for redis exporter', 'REDIS指标暴露器', '""');
-
