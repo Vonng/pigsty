@@ -154,7 +154,7 @@ Pigsty离线软件包基于CentOS 7.8操作系统制作，如果您使用的不�
 
 !> 检测环境，生成配置，启用离线软件包（可选），安装基本工具Ansible。
 
-当您下载完 Pigsty 源码包，解压并进入其中后，需要先执行 `./configure` 完成环境[配置过程](v-config#配置过程)。
+当您下载完 Pigsty 源码包，解压并进入其中后，需要先执行 `./configure` 完成环境[配置过程](v-config.md#配置过程)。
 
 Pigsty会检测当前环境是否满足安装要求，并根据当前机器环境生成推荐配置文件 `pigsty.yml`。在`files/conf/`目录中，有一系列名为`pigsty-*.yml`的配置文件，可以作为不同场景下的配置参考模板，通过`-m`指定。
 
@@ -184,7 +184,7 @@ Pigsty有且仅有一个[配置文件](v-config.md#配置文件)： [`pigsty.yml
 
 ### 用户需要修改什么配置吗？
 
-!> 单机部署通常啥配置也不用改，会自动调整，绝大多数参数都有合适都默认值。
+!> 单机部署通常啥配置也不用改，会自动调整，绝大多数参数都有合适的默认值。
 
 Pigsty提供了220+配置参数，您可以定制整个基础设施/平台/数据库的方方面面。通常在单机安装的情况下，不需要对配置文件进行任何调整即可直接使用。但仍然有个别参数，如果有需要，可以提前调整：
 
@@ -366,7 +366,7 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 
 !> Pigsty提供了一套完整的PaaS环境，详情请参考[**系统架构：基础设施**](c-infra.md#基础设施)
 
-[![](../_media/ARCH.gif)](c-infra.md#基础设施)
+![](../_media/ARCH.gif)
 
 Ansible/Pigsty CLI用于发起管理与部署；元节点上的PostgreSQL作为CMDB；Consul Server作为元数据库用于高可用；NTPD与DNS提供时间与域名解析基础服务；Docker作为无状态应用部署底座；Prometheus用于监控指标时序数据收集，Loki用于日志收集；Grafana用于监控/可视化展示，AlertManager用于汇总告警；YumRepo用于提供本地软件源；Nginx对外收拢所有WebUI类服务访问入口。
 
@@ -391,7 +391,7 @@ DCS Server与元节点并没有对应关系：在默认情况下，Pigsty会在�
 
 ## NODES
 
-### Abort because consul instance already exists
+### 因consul实例已存在而中止机器节点
 
 !> Pigsty提供了DCS误删保护机制，配置`consul_clean = true` 可以硬干。
 
@@ -412,7 +412,7 @@ Pigsty也提供了相应的[保护机制](p-nodes.md#保护机制) 参数： [`c
 
 ## PGSQL
 
-### Abort because postgres instance already exists
+### 因consul实例已存在而中止PGSQL实例
 
 !> Pigsty提供了数据库误删保护机制，配置`pg_clean = true` 可以硬干。
 
