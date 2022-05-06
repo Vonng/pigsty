@@ -52,23 +52,21 @@ nginx_upstreams:
 
 ## PgAdmin4
 
-[PGAdmin4](https://www.pgadmin.org/) is the popular PG control tool; use the following command to pull up the PgAdmin4 service on the meta node, default to host `8080` port, username `admin@pigsty.cc`, password: `pigsty`.
+[PGAdmin4](https://www.pgadmin.org/) is the popular PG control tool; use the following command to pull up the PgAdmin4 service on the meta node, default to host `8885` port, username `admin@pigsty.cc`, password: `pigsty`.
 
 ```bash
-docker run --init --name pgadmin --restart always --detach --publish 8080:80 \
-    -e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty dpage/pgadmin4
+cd ~/pigsty/app/pgadmin ; make up
+# docker-compose up -d , which is
+docker run --init --name pgadmin --restart always --detach --publish 8885:80 \
+	-e PGADMIN_DEFAULT_EMAIL=admin@pigsty.cc -e PGADMIN_DEFAULT_PASSWORD=pigsty \
+	dpage/pgadmin4
 ```
 
 Copy the server access information to the /tmp/servers.json file and re-import it.
 
 ```bash
-# Export pgadmin4 server list
-docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --dump-servers /tmp/servers.json
-docker cp pgadmin:/tmp/servers.json /tmp/servers.json
-
-# Import PGADMIN from /tmp/servers.json file
-docker cp /tmp/servers.json pgadmin:/tmp/servers.json
-docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty.cc --load-servers /tmp/servers.json
+make conf       # provision pgadmin with pigsty pg servers list 
+make dump       # dump servers.json from pgadmin container
 ```
 
 
@@ -79,11 +77,13 @@ docker exec -it pgadmin /venv/bin/python3 /pgadmin4/setup.py --user admin@pigsty
 [PGWeb](https://github.com/sosedoff/pgweb) is a browser-based PG client tool. Use the following command to pull up the PGWEB service on the meta node, defaulting to the host `8081` port.
 
 ```bash
-# docker stop pgweb; docker rm pgweb
-docker run --init --name pgweb --restart always --detach --publish 8081:8081 sosedoff/pgweb 
+cd ~/pigsty/app/pgweb ; docker-compose up -d
+docker run --init --name pgweb --restart always --detach --publish 8886:8081 sosedoff/pgweb
 ```
 
-Users need to fill in the database connection string, for example, the default CMDB: `postgres://dbuser_dba:DBUser.DBA@p1staff.com`.
+Users need to fill in the database connection string, for example, the default CMDB: 
+
+`postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslmode=disable`.
 
 
 
@@ -94,14 +94,15 @@ Users need to fill in the database connection string, for example, the default C
 The following command will pull up postgrest using docker (local port 8082, using the default admin user, exposing the Pigsty CMDB schema).
 
 ```bash
-docker run --init --name postgrest --restart always --detach --net=host -p 8082:8082 \
-  -e PGRST_DB_URI="postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta" -e PGRST_DB_SCHEMA="pigsty" -e PGRST_DB_ANON_ROLE="dbuser_dba" -e PGRST_SERVER_PORT=8082 -e PGRST_JWT_SECRET=haha \
-  postgrest/postgrest
+cd ~/pigsty/app/postgrest ; docker-compose up -d
+docker run --init --name postgrest --restart always --detach --publish 8884:8081 postgrest/postgrest
 ```
 
-Visiting http://10.10.10.10:8082 will show all the definitions of the auto-generated APIs, which can be automatically generated in the [Swagger Editor](https://editor.swagger.io).
+http://home.pigsty.cc:8883/ shows the available API that exposed by PostgREST
 
-`curl http://10.10.10.10:8082/cluster` will anonymously access the data table `pigsty.cluster`.
+Visiting http://10.10.10.10:8884 will show all the definitions of the auto-generated APIs, which can be automatically generated in the [Swagger Editor](https://editor.swagger.io).
+
+`curl http://10.10.10.10:8884/pg_cluster` will anonymously access the data table `pigsty.pg_cluster`.
 
 If you want to add, delete, check and design more fine-grained privilege control, please refer to [Tutorial 1 - The Golden Key](https://postgrest.org/en/stable/tutorials/tut1.html) to generate a signed JWT.
 
@@ -109,14 +110,22 @@ If you want to add, delete, check and design more fine-grained privilege control
 
 ## ByteBase
 
-[ByteBase](https://bytebase.com/) is a tool for making database schema changes. The following command will start a ByteBase on meta node port 8083.
+[ByteBase](https://bytebase.com/) is a tool for making database schema changes. The following command will start a ByteBase on meta node port 8887.
 
 ```bash
-docker run --init --name bytebase --restart always --detach --publish 8083:8083 --volume ~/.bytebase/data:/var/opt/bytebase \
-    bytebase/bytebase:1.0.2 --data /var/opt/bytebase --host http://bytebase.pigsty --port 8083
+cd app/bytebase; docker-compose up -d
+docker run --init --name bytebase \
+        --restart always --detach \
+        --publish 8887:8887 \
+        --volume /data/bytebase/data:/var/opt/bytebase \
+        bytebase/bytebase:1.0.4 \
+        --data /var/opt/bytebase \
+        --host http://ddl.pigsty \
+        --port 8887 \
+        --pg postgres://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
 ```
 
-Visit http://10.10.10.10:8083/ to use ByteBase. To start schema changes, you need to create the project, environment, instance, and database.
+Visit http://10.10.10.10:8887/ to use ByteBase. To start schema changes, you need to create the project, environment, instance, and database.
 
 
 
@@ -130,7 +139,7 @@ docker run -it --restart always --detach --name jupyter -p 8083:8888 -v "${PWD}"
 docker logs jupyter # Print logs and get Token of login
 ```
 
-Visit http://10.10.10.10:8084/ to use JupyterLab, (you need to fill in the auto-generated Token). Note that Pigsty also has JupyterLab installed on the host.
+Visit http://10.10.10.10:8888/ to use JupyterLab, (you need to fill in the auto-generated Token). Note that Pigsty also has JupyterLab installed on the host.
 
 
 

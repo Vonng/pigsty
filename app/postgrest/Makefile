@@ -3,7 +3,7 @@ up:
 	docker-compose up -d
 
 run:
-	docker run --init --name postgrest --restart always --detach --publish 8886:8081 postgrest/postgrest
+	docker run --init --name postgrest --restart always --detach --publish 8884:8081 postgrest/postgrest
 
 ui:
 	docker run --init --name pgweb --name swagger -p 8882:8080 -e API_URL=http://10.10.10.10:8884 swaggerapi/swagger-ui

@@ -43,6 +43,97 @@ nginx_upstreams:
 ```
 
 
+
+
+
+## PGADMIN
+
+PgAdmin4 是一个实用的PostgreSQL管理工具，执行以下命令可在管理节点拉起 pgadmin服务：
+
+```bash
+cd ~/pigsty/app/pgadmin ; docker-compose up -d
+```
+
+默认分配 8885 端口，使用域名： http://adm.pigsty 访问， Demo：http://adm.pigsty.cc。
+
+默认用户名：`admin@pigsty.cc`，密码：`pigsty`。
+
+
+
+## PGWeb客户端工具
+
+[PGWeb](https://github.com/sosedoff/pgweb)是一款基于浏览器的PG客户端工具，使用以下命令，在元节点上拉起PGWEB服务，默认为主机`8886`端口。可使用域名： http://cli.pigsty 访问，公开Demo：http://cli.pigsty.cc。
+
+```bash
+# docker stop pgweb; docker rm pgweb
+docker run --init --name pgweb --restart always --detach --publish 8886:8081 sosedoff/pgweb
+```
+
+用户需要自行填写数据库连接串，例如默认CMDB的连接串：
+
+`postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta?sslmode=disable`
+
+
+
+## ByteBase
+
+[ByteBase](https://bytebase.com/)是一个进行数据库模式变更的工具，以下命令将在元节点 8887 端口启动一个ByteBase。
+
+```
+mkdir -p /data/bytebase/data;
+docker run --init --name bytebase --restart always --detach --publish 8887:8887 --volume /data/bytebase/data:/var/opt/bytebase \
+    bytebase/bytebase:1.0.4 --data /var/opt/bytebase --host http://ddl.pigsty --port 8887
+```
+
+访问 http://10.10.10.10:8887/ 或 [http://ddl.pigsty](http://ddl.pigsty/) 即可使用 ByteBase，您需要依次创建项目、环境、实例、数据库，即可开始进行模式变更。 公开Demo地址： http://ddl.pigsty.cc
+
+
+
+## PostgREST
+
+[PostgREST](https://postgrest.org/en/stable/index.html)是一个自动根据 PostgreSQL 数据库模式生成 REST API的二进制组件。
+
+例如，以下命令将使用docker拉起 postgrest （本地 8884 端口，使用默认管理员用户，暴露Pigsty CMDB模式）
+
+```bash
+docker run --init --name postgrest --restart always --detach --publish 8884:8081 postgrest/postgrest
+```
+
+访问 [http://10.10.10.10:8884](http://10.10.10.10:8884/) 会展示所有自动生成API的定义，并自动使用 [Swagger Editor](http://home.pigsty.cc:8883) 暴露API文档。
+
+如果您想要进行增删改查，设计更精细的权限控制，请参考 [Tutorial 1 - The Golden Key](https://postgrest.org/en/stable/tutorials/tut1.html)，生成一个签名JWT。
+
+
+
+## 数据分析环境：Jupyter
+
+[Jupyter Lab](https://github.com/jupyter/docker-stacks) 是一站式数据分析环境，下列命令将在 8887 端口启动一个Jupyter Server.
+
+```
+docker run -it --restart always --detach --name jupyter -p 8888:8888 -v "${PWD}":/tmp/notebook jupyter/scipy-notebook
+docker logs jupyter # 打印日志，获取登陆的Token
+```
+
+访问 http://10.10.10.10:8888/ 即可使用 JupyterLab，（需要填入自动生成的Token）。
+
+您也可以使用 [infra-jupyter.yml](https://github.com/Vonng/pigsty/blob/feef4bd293fa3e4b7cc55c59ea39aa43ad0e1ee9/docs/zh-cn/p-infra.md#infra-jupyter) 在管理节点裸机上启用Jupyter Notebook。
+
+
+
+## 样例：数据库模式报表SchemaSPY
+
+使用以下`docker`生成数据库模式报表，以CMDB为例：
+
+```bash
+docker run -v /www/schema/pg-meta/meta/pigsty:/output andrewjones/schemaspy-postgres:latest -host 10.10.10.10 -port 5432 -u dbuser_dba -p DBUser.DBA -db meta -s pigsty
+```
+
+然后访问 http://pigsty/schema/pg-meta/meta/pigsty 即可访问Schema报表
+
+
+
+
+
 ## 样例：开源代码仓库：Gitlab
 
 请参考[Gitlab Docker部署文档](https://docs.gitlab.com/ee/install/docker.html) 完成Docker部署。

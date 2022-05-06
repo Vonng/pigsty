@@ -366,7 +366,7 @@ Pigsty在设计之初就考虑到容器化云化的需求，这体现在其配�
 
 !> Pigsty提供了一套完整的PaaS环境，详情请参考[**系统架构：基础设施**](c-infra.md#基础设施)
 
-![](../_media/ARCH.gif)
+[![](../_media/ARCH.gif)](c-infra.md#基础设施)
 
 Ansible/Pigsty CLI用于发起管理与部署；元节点上的PostgreSQL作为CMDB；Consul Server作为元数据库用于高可用；NTPD与DNS提供时间与域名解析基础服务；Docker作为无状态应用部署底座；Prometheus用于监控指标时序数据收集，Loki用于日志收集；Grafana用于监控/可视化展示，AlertManager用于汇总告警；YumRepo用于提供本地软件源；Nginx对外收拢所有WebUI类服务访问入口。
 
@@ -391,7 +391,7 @@ DCS Server与元节点并没有对应关系：在默认情况下，Pigsty会在�
 
 ## NODES
 
-### 因consul实例已存在而中止机器节点
+### Abort because consul instance already exists
 
 !> Pigsty提供了DCS误删保护机制，配置`consul_clean = true` 可以硬干。
 
@@ -412,7 +412,7 @@ Pigsty也提供了相应的[保护机制](p-nodes.md#保护机制) 参数： [`c
 
 ## PGSQL
 
-### 因consul实例已存在而中止PGSQL实例
+### Abort because postgres instance already exists
 
 !> Pigsty提供了数据库误删保护机制，配置`pg_clean = true` 可以硬干。
 

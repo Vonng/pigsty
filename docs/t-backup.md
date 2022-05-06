@@ -2,17 +2,19 @@
 
 > Backup & Recovery matters.
 
-Failures can be divided into two categories: hardware failures/insufficient resources, and software defects/human errors. Physical replication solves the former; Delayed and cold standby solves the latter.
+Failures can be divided into two categories: hardware/resource failures and software/human errors.
 
-Pigsty provides complete backup support with battery-included primary-replica physical replication without configuration. It also provides support for delayed backups and cold standby.
+Replication aims for the former, while delayed replica & cold backups aim for the latter.
 
-* [Physical Replication](#Physical-backup) (Hot/Warm Standby)
-* [Delayed](#Delayed)
+Pigsty has complete support for backups. There is battery-included physical replication that can be configured by simply declaring replica & delayed roles. And handy cold backup scripts for cold backup.
+
+* [Physical Replica](#Physical-Replica) (Hot/Warm Standby)
+* [Delayed Replica](#Delayed)
 * [Cold Standby](#Cold-Standby)
 
 
 
-## Physical Backup
+## Physical Replica
 
 In Pigsty, physical backups are created by specifying roles (`pg_role`) for the database instances. For example, the following configuration declares a HA database cluster with one primary & two replicas.
 
@@ -26,8 +28,6 @@ pg-test:
     pg_cluster: pg-test
 ```
 
-
-
 ### Hot Standby
 
 > `replica` = Hot Standby, which carries read-only traffic and maintains real-time synchronization with the primary, with a few replication delays.
@@ -36,15 +36,11 @@ It is consistent with the primary and will take over the work of the primary whe
 
 Please refer to [Classic Physical Replication](d-pgsql.md#M-S-Replication).
 
-
-
 ### Warm Standby
 
 > `offline` = Warm Standby, warm standby, does not carry online traffic. Backup, or for offline/analysis queries only.
 
 Please refer to [offline deployment](d-pgsql.md#Offline-Replica).
-
-
 
 ### Sync Standby
 
@@ -54,11 +50,11 @@ Use sync commit replica, also called sync standby. Please refer to [sync standby
 
 
 
-## Delayed
+## Delayed Replica
 
 Delayed is a quick measure of software failure/human error. Changes are received in real-time from the primary using the standard primary-replica stream replication mechanism but are delayed for a specific period (e.g., one hour, a day) before the application is executed. Thus, it is a copy of the historical state of the original primary. When there is a problem like mistaken data deletion, the delay provides a time window to salvage: immediately query the data from the delayed and backfill the original primary.
 
-A delayed can be created using the function [standby cluster](d-pgsql#standby-cluster). For example, now you want to specify a delayed for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. If there is a mis-deletion of data, it can be immediately retrieved from the delayed and poured back into the original cluster.
+A delayed replica can be created using the function [standby cluster](d-pgsql#standby-cluster). For example, now you want to specify a delayed replica for the `pg-test` cluster: `pg-testdelay`, which is the state of `pg-test` 1 hour ago. If there is a mis-deletion of data, it can be immediately retrieved from the delayed and poured back into the original cluster.
 
 ```bash
 # pg-test is the original database
@@ -91,9 +87,9 @@ After creation, edit the Patroni config file for the delayed cluster using `pg e
 
 
 
-## Cold Standby
+## Cold Backup
 
-> Cold backup is the final cover mechanism.
+> Cold backup is the final safeguard for your data assets.
 
 The cold backup database exists as a static file of the data-dir and is a binary backup of the database dir. Cold backups are the last resort in case of accidental deletion of databases or tables, or catastrophic failure of the whole cluster/whole server room.
 
@@ -173,3 +169,6 @@ systemctl restart patroni
 # Redo other replicas of the cluster
 pg reinit <cluster> # Reset the other instance members of the cluster in turn
 ```
+
+There are other handy tools can be used for manage backups: pg_backrest & pg_probackup.
+

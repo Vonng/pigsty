@@ -1,8 +1,7 @@
 # PGWEB
 
 ```bash
-cd ~/pigsty/app/pgweb
-docker-compose up -d
+cd ~/pigsty/app/pgweb ; docker-compose up -d
 ```
 
 Visit [http://cli.pigsty](http://cli.pigsty) or http://10.10.10.10:8886 
