@@ -1,5 +1,10 @@
 # Development Log
 
+#### 2022-05-05
+
+* New CMDB Design
+* Now cmdb works for redis & gpsql
+
 #### 2022-05-04
 
 * Dashboard Overhaul: Infra-Overview

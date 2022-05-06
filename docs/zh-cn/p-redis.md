@@ -14,10 +14,21 @@
 
 用于在节点上部署Redis集群，节点，实例。
 
-```bash
-./redis.yml -l <redis_cluster>
-```
 
+```bash
+# init all redis instances on group <cluster>
+ ./redis.yml -l <cluster>    # create redis cluster
+
+# init redis node (package,dir,exporter)
+ ./redis.yml -l 10.10.10.10    # create redis cluster
+
+# init all redis instances specific node
+ ./redis.yml -l 10.10.10.10    # create redis cluster
+
+# init one specific instance 10.10.10.11:6501
+ ./redis.yml -l 10.10.10.11 -e redis_port=6501 -t redis
+
+```
 ![](../_media/playbook/redis.svg)
 
 
@@ -37,9 +48,16 @@
 用于从节点上移除所有Redis实例
 
 ```bash
-./redis-remove.yml -l <redis_cluster>
-./redis-remove.yml -l <redis_node>
+# Remove cluster `redis-test`
+redis-remove.yml -l redis-test
+
+# Remove all instance on redis node 10.10.10.13
+redis-remove.yml -l 10.10.10.13
+
+# Remove one specific instance 10.10.10.13:6501
+redis-remove.yml -l 10.10.10.13 -e redis_port=6501
 ```
+
 
 ![](../_media/playbook/redis-remove.svg)
 

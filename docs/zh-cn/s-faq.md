@@ -14,9 +14,6 @@
 * [NODES](#NODES)
 * [PGSQL](#PGSQL)
 
-[TOC]
-
-
 
 ---------------------------------
 
@@ -396,19 +393,17 @@ DCS Server与元节点并没有对应关系：在默认情况下，Pigsty会在�
 
 ### Abort because consul instance already exists
 
-!> Pigsty提供了DCS误删保护机制，配置`consul_clean = clean` 可以硬干。
+!> Pigsty提供了DCS误删保护机制，配置`consul_clean = true` 可以硬干。
 
-Pigsty在执行数据库&基础设施初始化时，为了避免误删运行中的DCS实例(Consul Agent/Server)，提供了[保护机制](p-nodes.md#保护机制)。当Pigsty发现Consul已经在运行时，会根据参数 [`consul_clean`](v-infra.md#consul_clean) 来采取不同的行为： `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此配置。
+当目标节点的Consul服务已经存在时，[`nodes.yml`](p-nodes.md#nodes) 会根据 [`consul_clean`](v-nodes.md#consul_clean) 参数采取行动，如果为真，那么在初始化过程中现有的Consul会被抹除。
 
-此外若参数 [`consul_safeguard`](v-infra.md#consul_safeguard) 为真，则 `consul_clean` 将会强制配置为 `abort`，提供了双重保险。
+Pigsty也提供了相应的[保护机制](p-nodes.md#保护机制) 参数： [`consul_safeguard`](v-nodes.md#consul_safeguard)
 
 您可以在配置文件 `pigsty.yml` 中修改这些参数，也可以直接在执行剧本时，通过额外参数机制指定：
 
 ```bash
-./nodes.yml -e consul_clean=clean
+./nodes.yml -e consul_clean=true
 ```
-
-
 
 
 
@@ -419,16 +414,16 @@ Pigsty在执行数据库&基础设施初始化时，为了避免误删运行中�
 
 ### Abort because postgres instance already exists
 
-!> Pigsty提供了数据库误删保护机制，配置`pg_clean = clean` 可以硬干。
+!> Pigsty提供了数据库误删保护机制，配置`pg_clean = true` 可以硬干。
 
-在执行数据库&基础设施初始化时，为了避免误删Postgres实例，提供了[保护机制](p-pgsql.md#保护机制)。当Pigsty发现目标节点上已经有正在运行的Postgres实例，会根据参数 [`pg_clean`](v-pgsql.md#pg_clean) 来采取不同的行为： `abort` 意味着整个剧本的执行会立即中止。 `clean` 则会强制关停删除现有实例，请谨慎使用此参数。
+当目标节点的PostgreSQL服务已经存在时，[`pgsql.yml`](p-pgsql.md#pgsql) 会根据 [`pg_clean`](v-pgsql.md#pgsql_clean) 参数采取行动，如果为真，那么在初始化过程中现有的PostgreSQL实例会被抹除。
 
-此外，若参数 [`pg_safeguard`](v-pgsql.md#pg_safeguard) 为真，则 [`pg_clean`](v-pgsql.md#pg_clean) 将会强制配置为 `abort`，以免误删数据库实例。
+Pigsty也提供了相应的[保护机制](p-pgsql.md#保护机制) 参数： [`pg_safeguard`](v-pgsql.md#pgsql_safeguard)
 
 您可以在配置文件 `pigsty.yml` 中修改这些参数，也可以直接在执行剧本时，通过额外参数机制指定：
 
 ```bash
-./pgsql.yml -e pg_clean=clean
+./pgsql.yml -e pg_clean=true
 ```
 
 
