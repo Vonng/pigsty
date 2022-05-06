@@ -41,21 +41,24 @@
   - [Metrics](m-metric.md)
   - [Alerting](r-alert.md)
 
-- Reference
-  - [Standard Operation Procedure](r-sop.md)
-  - [File Structure Hierarchy](r-fhs.md)
-  - [PGSQL HA Cases](r-ha.md)
-  - [Common Failures](r-failure.md)
+- Application
+
+  - [Pigsty Applications](t-application.md)
+  - [Docker Applications](t-docker.md)
+  - [Upgrade Grafana DB](t-grafana-upgrade.md)
+  - [Jupyter Lab](t-jupyter.md)
 
 - Tutorial
   - [Backup & Restore](t-backup.md)
   - [Offline Installation](t-offline.md)
   - [CMDB Inventory](t-cmdb.md)
-  - [Upgrade Grafana DB](t-grafana-upgrade.md)
-  - [Jupyter Lab Deploy](t-jupyter.md)
   - [PGSQL Migration](t-migration.md)
-  - [Pigsty Applications](t-application.md)
-  - [Docker Applications](t-docker.md)
+
+- Reference
+  - [SOP: Standard Operation Procedure](r-sop.md)
+  - [File Structure Hierarchy](r-fhs.md)
+  - [PGSQL HA Cases](r-ha.md)
+  - [Common Failures](r-failure.md)
 
 - [Community](community.md)
 - [Roadmap](roadmap.md)

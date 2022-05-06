@@ -1,6 +1,6 @@
 # Docker Applications
 
-Pigsty v1.4.1 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the meta node.
+Pigsty v1.5.0 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the meta node.
 
 You can use Docker to deploy and launch software applications quickly. You can directly access the PostgreSQL/Redis database deployed on the host in the container using the connection string.
 
@@ -35,21 +35,19 @@ You can also use Docker to pull up some battery-included open-source SaaS servic
 Most of the software described in this article provides a web interface to the public. While it can be accessed directly via IP: Port, we recommend using a domain name and unifying access from the Nginx proxy. Use the following configuration and commands to register a new service with Nginx.
 
 ```bash
-# Add a new Nginx service definition
+# Add new Nginx services definition
 nginx_upstreams:
-  - { name: pgadmin,     domain: pgadmin.pigsty,     endpoint: "10.10.10.10:8080" }
-  - { name: pgweb,       domain: pgweb.pigsty,       endpoint: "10.10.10.10:8081" }
-  - { name: postgrest,   domain: api.pigsty,         endpoint: "10.10.10.10:8082" }
-  - { name: bytebase,    domain: bytebase.pigsty,    endpoint: "10.10.10.10:8083" }
-  - { name: jupyter,     domain: lab.pigsty,         endpoint: "10.10.10.10:8084" }
-  - { name: matrixdb,    domain: mx.pigsty,      endpoint: "10.10.10.10:8420" }
+  - { name: kong         , domain: api.pigsty , endpoint: "127.0.0.1:8880"   } #== v optional ==#
+  - { name: pgadmin      , domain: adm.pigsty , endpoint: "127.0.0.1:8885"   }
+  - { name: pgweb        , domain: cli.pigsty , endpoint: "127.0.0.1:8886"   }
+  - { name: bytebase     , domain: ddl.pigsty , endpoint: "127.0.0.1:8887"   }
+  - { name: jupyter      , domain: lab.pigsty , endpoint: "127.0.0.1:8888"   }
   
-./infra.yml -t nginx_config,nginx_restart    # Regenerate the Nginx config file, and restart it to take effect
+./infra.yml -t nginx_config,nginx_restart    # refresh nginx conf, and restart to apply
 ```
 
 
 --------------------
-
 
 
 ## PgAdmin4

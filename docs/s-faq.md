@@ -41,8 +41,8 @@ Pigsty use semantic version number: `<major>. <minor>. <release>`. A **major** v
 Pigsty [source](d-prepare.md#pigsty-source-code) package: `pigsty.tgz` can be obtained from the following location.
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v1.4.1/pigsty.tgz   # Github Release 
-http://download.pigsty.cc/v1.4.1/pigsty.tgz                           # CDN
+https://github.com/Vonng/pigsty/releases/download/v1.5.0/pigsty.tgz   # Github Release 
+http://download.pigsty.cc/v1.5.0/pigsty.tgz                           # CDN
 ```
 
 * [Github Release](https://github.com/Vonng/pigsty/releases) contains the authoritative releases. While CDN is especially for mainland China GFW.
@@ -59,8 +59,8 @@ Please use a specific version release rather than the master branch.
 You can download [offline software package](d-prepare.md#Pigsty-Offline-Package) via `curl` and put it to `/tmp/pkg.tgz`. Or ship it to prod env with scp/sftp.
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.4.1/pkg.tgz -o /tmp/pkg.tgz
-curl http://download.pigsty.cc/v1.4.1/pkg.tgz -o /tmp/pkg.tgz       
+curl https://github.com/Vonng/pigsty/releases/download/v1.5.0/pkg.tgz -o /tmp/pkg.tgz
+curl http://download.pigsty.cc/v1.5.0/pkg.tgz -o /tmp/pkg.tgz       
 ```
 
 During [`configure`](v-config.md#configure) procedure, if `/tmp/pkg.tgz` not exist, it will ask whether to download it. 'Y' will download from Github.

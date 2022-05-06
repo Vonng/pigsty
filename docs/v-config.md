@@ -63,7 +63,7 @@ The most important part of the config template is to replace the placeholder IP 
 
 ```bash
 $ ./configure
-configure pigsty v1.4.1 begin
+configure pigsty v1.5.0 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.8.2003 , perfect

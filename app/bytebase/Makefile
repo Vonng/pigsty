@@ -1,7 +1,7 @@
 default: up view
 
 # minimal setup with internal pg & dir
-up:
+up: view
 	docker-compose up -d
 
 # run with local data dir & external pg
@@ -17,6 +17,9 @@ run: pg
         --port 8887 \
         --pg postgres://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
 
+view:
+	@echo "visit http://ddl.pigsty  or  http://10.10.10.10:8887"
+
 log:
 	docker logs -f bytebase
 
@@ -28,9 +31,6 @@ pg:
 	@echo "pg_users:     { name: dbuser_bytebase , password: DBUser.Bytebase, roles: [ dbrole_admin ] }"
 	@echo "pg_databases: { name: bytebase, owner: dbuser_bytebase, comment: bytebase primary database }"
 	@echo "bin/createuser pg-meta dbuser_bytebase ; bin/createdb pg-meta bytebase"
-
-view:
-	@echo "visit http://ddl.pigsty  or  http://10.10.10.10:8887"
 
 stop:
 	docker stop bytebase;
