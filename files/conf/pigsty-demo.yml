@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-05-04
+# Mtime     :   2022-05-05
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -97,7 +97,7 @@ all:
         vip_interface: eth1
         node_crontab:
           - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
-          - '* * * * * postgres /usr/pgsql/bin/pgbench meta -nv -T15 -c2 2>>/pg/log/bench.log' # some random load
+          - '* * * * * postgres /usr/pgsql/bin/pgbench meta -nv -T10 -c2 2>>/pg/log/bench.log' # random load
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -157,7 +157,7 @@ all:
       vars:
         redis_cluster: redis-meta
         redis_mode: sentinel
-        redis_max_memory: 128MB
+        redis_max_memory: 64MB
 
     #----------------------------------#
     # redis cluster example            #
@@ -175,7 +175,7 @@ all:
         node_cluster: redis-test            # underlying nodes cluster name
         redis_cluster: redis-test           # name of this redis 'cluster'
         redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
+        redis_max_memory: 32MB              # max memory used by each redis instance
         redis_mem_policy: allkeys-lru       # memory eviction policy
 
     #----------------------------------#
