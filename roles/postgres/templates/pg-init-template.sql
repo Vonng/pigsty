@@ -56,6 +56,27 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 
 
 
+
+--==================================================================--
+--                          Backup Privileges                       --
+--==================================================================--
+-- grant backup privileges to replication user
+GRANT USAGE ON SCHEMA pg_catalog TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.current_setting(text) TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.set_config(text, text, boolean) TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_is_in_recovery() TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_start_backup(text, boolean, boolean) TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_stop_backup(boolean, boolean) TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_create_restore_point(text) TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_switch_wal() TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_last_wal_replay_lsn() TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.txid_current() TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.txid_current_snapshot() TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.txid_snapshot_xmax(txid_snapshot) TO "{{ pg_replication_username }}";
+GRANT EXECUTE ON FUNCTION pg_catalog.pg_control_checkpoint() TO "{{ pg_replication_username }}";
+
+
+
 --==================================================================--
 --                            Monitor Schema                        --
 --==================================================================--
