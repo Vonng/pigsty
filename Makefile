@@ -414,7 +414,7 @@ release-matrix:
 
 rp3: release-docker
 release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest bytebase/bytebase:1.0.4 | gzip -9 -c > /tmp/docker.tgz'
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui bytebase/bytebase:1.0.4 | gzip -9 -c > /tmp/docker.tgz'
 	scp meta:/tmp/docker.tgz dist/${VERSION}/docker.tgz
 
 # publish will publish pigsty packages

@@ -1,45 +1,40 @@
 # PostgREST
 
-
-## TL;DR
-```bash
-cd ~/pigsty/app/pgweb
-docker-compose up -d
-```
-
-Check http://10.10.10.10:8884 for list of available apis
-
-
-## Scripts
-
-```yaml
-version: "3"
-services:
-  postgrest:
-    container_name: postgrest
-    image: postgrest/postgrest
-    restart: always
-    environment:
-      PGRST_DB_URI: postgres://dbuser_dba:DBUser.DBA@10.10.10.10:5432/meta
-      PGRST_DB_SCHEMA: pigsty
-      PGRST_DB_ANON_ROLE: dbuser_dba
-      PGRST_SERVER_PORT: 8884
-      PGRST_JWT_SECRET: some-random-secret
-    ports:
-      - "8884:8884"
-```
-
-**Manual Launch**
+This is an example of creating pigsty cmdb API with PostgREST
 
 ```bash
-docker run --init --name postgrest --restart always --detach --net=host -p 8082:8082 \
-  -e PGRST_DB_URI="postgres://dbuser_dba:DBUser.DBA@10.10.10.10/meta" -e PGRST_DB_SCHEMA="pigsty" -e PGRST_DB_ANON_ROLE="dbuser_dba" -e PGRST_SERVER_PORT=8082 -e PGRST_JWT_SECRET=haha \
-  postgrest/postgrest
+cd ~/pigsty/app/postgrest ; docker-compose up -d
 ```
 
-**Remove Container**
+http://10.10.10.10:8884 is the default endpoint for PostgREST
+
+http://10.10.10.10:8883 is the default api docs for PostgREST
+
 
 ```bash
-docker stop postgrest; docker rm postgrest
+make up         # pull up postgrest with docker-compose
+make run        # launch postgrest with docker
+make ui         # run swagger ui container
+make view       # print postgrest access point
+make log        # tail -f postgrest logs
+make info       # introspect postgrest with jq
+make stop       # stop postgrest container
+make clean      # remove postgrest container
+make rmui       # remove swagger ui container
+make pull       # pull latest postgrest image
+make rmi        # remove postgrest image
+make save       # save postgrest image to /tmp/postgrest.tgz
+make load       # load postgrest image from /tmp
 ```
 
+
+## Swagger UI
+
+Launch a swagger OpenAPI UI and visualize PostgREST API on 8883 with: 
+
+```bash
+docker run --init --name postgrest --name swagger -p 8883:8080 -e API_URL=http://10.10.10.10:8884 swaggerapi/swagger-ui
+# docker run -d -e API_URL=http://10.10.10.10:8884 -p 8883:8080 swaggerapi/swagger-editor # swagger editor
+```
+
+Check [http://10.10.10.10:8883/](http://10.10.10.10:8883/)
