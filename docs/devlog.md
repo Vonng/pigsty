@@ -1,5 +1,32 @@
 # Development Log
 
+
+#### 2022-05-13
+
+* pg_exporter metrics & dashboard calibration
+
+
+#### 2022-05-12
+
+* upgrade bytebase to v1.0.5
+
+
+#### 2022-05-09
+
+* v1.5.0-alpha.1 released
+* repo upstream calibration
+* build docker.tgz image cache and add to download script
+
+
+#### 2022-05-07
+
+* grant backup related permissions to `pg_replication_username`
+* add pg_probackup to default packages
+
+#### 2022-05-06
+
+* Docker application calibration
+
 #### 2022-05-05
 
 * New CMDB Design
