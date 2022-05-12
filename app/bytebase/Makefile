@@ -11,7 +11,7 @@ run: pg
         --restart always --detach \
         --publish 8887:8887 \
         --volume /data/bytebase/data:/var/opt/bytebase \
-        bytebase/bytebase:1.0.4 \
+        bytebase/bytebase:1.0.5 \
         --data /var/opt/bytebase \
         --host http://ddl.pigsty \
         --port 8887 \

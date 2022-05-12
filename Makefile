@@ -386,7 +386,6 @@ use-matrix:
 	scp files/matrix.repo meta:/tmp/matrix.repo
 	ssh meta sudo mv -f /tmp/matrix.repo /www/matrix.repo
 use-all: use-src use-pkg
-use-matrix: copy-pkg2 use-pkg2
 
 ###############################################################
 
@@ -414,7 +413,7 @@ release-matrix:
 
 rp3: release-docker
 release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui bytebase/bytebase:1.0.4 | gzip -9 -c > /tmp/docker.tgz'
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.0.5 vonng/pg_exporter | gzip -9 -c > /tmp/docker.tgz'
 	scp meta:/tmp/docker.tgz dist/${VERSION}/docker.tgz
 
 # publish will publish pigsty packages
@@ -467,7 +466,7 @@ docs:
         st status suspend resume s sync s4 sync4 ss \
         ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc dashboard-init dashboard-dump dashboard-clean \
-        copy copy2 copy-src copy-pkg copy-pkg2 copy-app copy-all use-src use-pkg use-pkg2 use-all  \
-        r releast rp release-pkg rp2 release-matrix-pkg p publish cache \
+        copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all \
+        r releast rp release-pkg rp2 release-matrix-rp3 release-docker pkg p publish cache \
         svg doc d docs
 ###############################################################

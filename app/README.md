@@ -20,7 +20,9 @@ docker pull dpage/pgadmin4           # latest # 341MB
 docker pull sosedoff/pgweb           # latest # 192MB
 docker pull postgrest/postgrest      # latest # 16.3MB
 docker pull swaggerapi/swagger-ui    # latest # 77MB
-docker pull bytebase/bytebase:1.0.4  # 1.0.4  # 78.1MB
+docker pull bytebase/bytebase:1.0.5  # 1.0.5  # 78.1MB
+docker pull minio/minio              # latest
+docker pull Vonng/pg_exporter        # pg_exporter
 ```
 
 
@@ -28,7 +30,7 @@ docker pull bytebase/bytebase:1.0.4  # 1.0.4  # 78.1MB
 
 ```bash
 # make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui bytebase/bytebase:1.0.4 | gzip -9 -c > /tmp/docker.tgz
+docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio:minio bytebase/bytebase:1.0.5 | gzip -9 -c > /tmp/docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 
