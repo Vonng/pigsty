@@ -1,6 +1,6 @@
 # 容器指南
 
-Pigsty v1.5.0 带有Docker与Docker Compose部署支持，其中，Docker Daemon将默认在元节点上启用，以供安装更多SaaS服务
+Pigsty v1.5.0-beta 带有Docker与Docker Compose部署支持，其中，Docker Daemon将默认在元节点上启用，以供安装更多SaaS服务
 
 您可以使用Docker，快速部署启动软件应用，在容器中，您可以直接使用连接串访问部署于宿主机上的PostgreSQL/Redis数据库。
 

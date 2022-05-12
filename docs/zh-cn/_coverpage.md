@@ -1,6 +1,6 @@
 ![logo](../_media/icon.svg)
 
-# Pigsty <small>1.4.1</small>
+# Pigsty <small>1.5.0-beta</small>
 
 > <b>开箱即用的开源数据库发行版</b>
 

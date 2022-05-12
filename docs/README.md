@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc)
+> Latest Version: [1.5.0-beta](https://github.com/Vonng/pigsty/releases/tag/v1.5.0-beta)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [EN Docs](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 
@@ -23,6 +23,55 @@ Pigsty is a handy [toolbox](s-feature.md#developer-toolbox) for developers. It t
 Pigsty is a [secure](s-feature.md#Safty-and-Thrifty) & [thrifty](s-feature.md#Safty-and-Thrifty) alternative to [Cloud RDS](s-feature.md#Open-Source-RDS)/PaaS. It can empower a single DEV/DBA to manage hundreds of databases clusters, with all data under your own control. It can [save](s-feature.md#Safty-and-Thrifty) 50% - 80% cost compared to cloud RDS using ECS or on-premise deployment. And the software itself is completely [open-source](https://github.com/Vonng/Capslock/blob/master/LICENSE) & free!
 
 Check [FEATURES](s-feature.md) for more detail.
+
+
+<details><summary>Distribution</summary>
+
+[![Distribution](docs/_media/DISTRIBUTION.gif)](docs/c-infra.md#Overview)
+
+</details>
+
+<details><summary>Observability</summary>
+
+[![Observability](docs/_media/overview-monitor.jpg)](http://demo.pigsty.cc)
+
+</details>
+
+<details><summary>High Availability</summary>
+
+[![High Availability](docs/_media/HA-PGSQL.svg)](docs/c-pgsql.md#High-Availability)
+
+</details>
+
+<details><summary>Architecture</summary>
+
+[![Architecture](docs/_media/ARCH.gif)](docs/c-arch.md)
+
+</details>
+
+<details><summary>Sandbox</summary>
+
+[![Sandbox](docs/_media/SANDBOX.gif)](docs/d-sandbox.md)
+
+</details>
+
+<details><summary>Provisioning</summary>
+
+[![Provisioning](docs/_media/PROVISION.gif)](docs/d-deploy.md)
+
+</details>
+
+<details><summary>User Interface</summary>
+
+[![User Interface](docs/_media/interface.jpg)](docs/s-install.md)
+
+</details>
+
+<details><summary>Application</summary>
+
+[![Application](docs/_media/overview-covid.jpg)](docs/t-application.md)
+
+</details>
 
 
 
@@ -49,8 +98,8 @@ Check [Installation](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0/pigsty.tgz | gzip -d | tar -xC
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pkg.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pigsty.tgz | gzip -d | tar -xC
 ```
 
 </details>

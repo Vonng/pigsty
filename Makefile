@@ -8,7 +8,7 @@
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.5.0-alpha.1
+VERSION?=v1.5.0-beta
 
 # target cluster (meta by default)
 CLS?=meta
