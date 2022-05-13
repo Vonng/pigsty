@@ -377,17 +377,18 @@ pg edit-config pg-test2  # 移除 standby_cluster 配置定义并应用
 pg-test:
   hosts:
     10.10.10.11: { pg_seq: 1, pg_role: primary }
+    10.10.10.12: { pg_seq: 2, pg_role: primary }
   vars:
     pg_cluster: pg-test
-    pg_version: 14
+    pg_users: [ { name: test , password: test , pgbouncer: true , roles: [ dbrole_admin ] , comment: test user } ]
+    pg_databases: [ { name: test , extensions: [ { name: postgis, schema: public } ] } ]
 
 # pg-testdelay 将作为 pg-test 库的延时从库
 pg-testdelay:
   hosts:
-    10.10.10.12: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # 实际角色为 Standby Leader
+    10.10.10.13: { pg_seq: 1, pg_role: primary , pg_upstream: 10.10.10.11 } # 实际角色为 Standby Leader
   vars:
     pg_cluster: pg-testdelay
-    pg_version: 14          
 ```
 
 创建完毕后，在元节点使用 `pg edit-config pg-testdelay`编辑延时集群的Patroni配置文件，修改 `standby_cluster.recovery_min_apply_delay` 为你期待的值，例如`1h`，应用即可。

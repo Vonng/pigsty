@@ -105,12 +105,11 @@ Check [Quick Start](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pigsty.tgz | gzip -d | tar -xC
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pigsty.tgz | gzip -d | tar -xC ~
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pkg.tgz -o /tmp/pkg.tgz # optional
 ```
 
 </details>
-
 
 <details><summary>Mange More Nodes</summary>
 You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after installing the meta node with [`infra.yml`](p-infra.md#infra).
