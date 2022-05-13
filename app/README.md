@@ -30,7 +30,7 @@ docker pull Vonng/pg_exporter        # pg_exporter
 
 ```bash
 # make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio:minio bytebase/bytebase:1.0.5 | gzip -9 -c > /tmp/docker.tgz
+docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio:minio bytebase/bytebase:1.0.5 vonng/pg_exporter | gzip -9 -c > /tmp/docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 
