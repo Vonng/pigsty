@@ -21,13 +21,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PGSQL Query Dashboard",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1651669957356,
+    "iteration": 1652410405443,
     "links": [
         {
             "asDropdown": true,
@@ -97,6 +96,19 @@
     "liveNow": false,
     "panels": [
         {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 375,
+            "panels": [],
+            "title": "Overview",
+            "type": "row"
+        },
+        {
             "datasource": {
                 "type": "prometheus",
                 "uid": "${ds}"
@@ -130,7 +142,7 @@
                 "h": 2,
                 "w": 4,
                 "x": 0,
-                "y": 0
+                "y": 1
             },
             "id": 373,
             "options": {
@@ -148,7 +160,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.5.1",
+            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "exemplar": false,
@@ -213,7 +225,7 @@
                 "h": 2,
                 "w": 4,
                 "x": 4,
-                "y": 0
+                "y": 1
             },
             "id": 357,
             "options": {
@@ -231,7 +243,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.5.1",
+            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "exemplar": false,
@@ -294,7 +306,7 @@
                 "h": 2,
                 "w": 4,
                 "x": 8,
-                "y": 0
+                "y": 1
             },
             "id": 359,
             "options": {
@@ -312,7 +324,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.5.1",
+            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "exemplar": false,
@@ -377,7 +389,7 @@
                 "h": 2,
                 "w": 12,
                 "x": 12,
-                "y": 0
+                "y": 1
             },
             "id": 361,
             "options": {
@@ -395,7 +407,7 @@
                 "text": {},
                 "textMode": "name"
             },
-            "pluginVersion": "8.5.1",
+            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "exemplar": false,
@@ -498,26 +510,26 @@
                                         },
                                         {
                                             "color": "yellow",
-                                            "value": 1
+                                            "value": 0.001
                                         },
                                         {
                                             "color": "orange",
-                                            "value": 2
+                                            "value": 0.002
                                         },
                                         {
                                             "color": "red",
-                                            "value": 4
+                                            "value": 0.004
                                         },
                                         {
                                             "color": "purple",
-                                            "value": 8
+                                            "value": 0.008
                                         }
                                     ]
                                 }
                             },
                             {
                                 "id": "unit",
-                                "value": "ms"
+                                "value": "s"
                             },
                             {
                                 "id": "custom.width",
@@ -625,7 +637,7 @@
                             },
                             {
                                 "id": "unit",
-                                "value": "ms"
+                                "value": "s"
                             }
                         ]
                     },
@@ -691,7 +703,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 2
+                "y": 3
             },
             "id": 365,
             "options": {
@@ -710,7 +722,7 @@
                     }
                 ]
             },
-            "pluginVersion": "8.5.1",
+            "pluginVersion": "8.5.2",
             "targets": [
                 {
                     "datasource": {
@@ -846,7 +858,7 @@
                         }
                     ],
                     "mappings": [],
-                    "unit": "short"
+                    "unit": "s"
                 },
                 "overrides": []
             },
@@ -854,15 +866,18 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 2
+                "y": 3
             },
             "id": 362,
             "options": {
                 "legend": {
                     "displayMode": "table",
                     "placement": "right",
+                    "sortBy": "Percent",
+                    "sortDesc": true,
                     "values": [
-                        "percent"
+                        "percent",
+                        "value"
                     ]
                 },
                 "pieType": "pie",
@@ -881,15 +896,19 @@
             "pluginVersion": "8.0.4",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": ""${ds}""
+                    },
                     "exemplar": false,
-                    "expr": "rate(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
+                    "expr": "increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
                     "instant": true,
                     "interval": "",
                     "legendFormat": "{{ query }}",
                     "refId": "A"
                 }
             ],
-            "title": "Statement Time Spent 1h",
+            "title": "Query Exec Time (1h)",
             "type": "piechart"
         },
         {
@@ -986,7 +1005,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 9
+                "y": 10
             },
             "id": 369,
             "options": {
@@ -1105,7 +1124,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 9
+                "y": 10
             },
             "id": 371,
             "options": {
@@ -1114,7 +1133,9 @@
                         "max"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "right",
+                    "sortBy": "Max",
+                    "sortDesc": true
                 },
                 "tooltip": {
                     "mode": "multi",
@@ -1154,7 +1175,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 16
+                "y": 17
             },
             "id": 291,
             "panels": [],
@@ -1290,7 +1311,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 0,
-                "y": 17
+                "y": 18
             },
             "id": 353,
             "options": {
@@ -1468,7 +1489,7 @@
                 "h": 10,
                 "w": 12,
                 "x": 12,
-                "y": 17
+                "y": 18
             },
             "id": 355,
             "options": {
@@ -1610,7 +1631,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 0,
-                "y": 27
+                "y": 28
             },
             "id": 324,
             "options": {
@@ -1728,7 +1749,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 12,
-                "y": 27
+                "y": 28
             },
             "id": 325,
             "options": {
@@ -1949,7 +1970,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 0,
-                "y": 32
+                "y": 33
             },
             "id": 285,
             "options": {
@@ -2202,7 +2223,7 @@
                 "h": 16,
                 "w": 12,
                 "x": 12,
-                "y": 32
+                "y": 33
             },
             "id": 326,
             "options": {
@@ -2309,7 +2330,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -2391,7 +2413,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 48
+                "y": 49
             },
             "id": 334,
             "options": {
@@ -2406,7 +2428,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0-beta2",
@@ -2486,7 +2509,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -2568,7 +2592,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 48
+                "y": 49
             },
             "id": 332,
             "options": {
@@ -2583,7 +2607,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0-beta2",
@@ -2663,7 +2688,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -2745,7 +2771,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 55
+                "y": 56
             },
             "id": 336,
             "options": {
@@ -2760,7 +2786,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0-beta2",
@@ -2840,7 +2867,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
@@ -2922,7 +2950,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 55
+                "y": 56
             },
             "id": 337,
             "options": {
@@ -2937,7 +2965,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0-beta2",
@@ -3017,11 +3046,12 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
-                    "unit": "ms"
+                    "unit": "s"
                 },
                 "overrides": [
                     {
@@ -3099,7 +3129,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 62
+                "y": 63
             },
             "id": 338,
             "options": {
@@ -3114,7 +3144,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0-beta2",
@@ -3194,11 +3225,12 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             }
                         ]
                     },
-                    "unit": "ms"
+                    "unit": "s"
                 },
                 "overrides": [
                     {
@@ -3276,7 +3308,7 @@
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 62
+                "y": 63
             },
             "id": 333,
             "options": {
@@ -3291,7 +3323,8 @@
                     "placement": "right"
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "8.0.0-beta2",
@@ -3325,900 +3358,6 @@
             ],
             "title": "IO Time Spent",
             "type": "timeseries"
-        },
-        {
-            "collapsed": true,
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${ds}"
-            },
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 69
-            },
-            "id": 289,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "custom": {
-                                "align": "auto",
-                                "displayMode": "auto",
-                                "filterable": false
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    }
-                                ]
-                            },
-                            "unit": "none"
-                        },
-                        "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Query"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "links",
-                                        "value": [
-                                            {
-                                                "title": "PGSQL Query ${__data.fields.Query}",
-                                                "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${datname}&var-query=${__data.fields.Query}"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "string"
-                                    },
-                                    {
-                                        "id": "custom.align",
-                                        "value": "auto"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "RT"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.displayMode",
-                                        "value": "color-text"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "green"
-                                                },
-                                                {
-                                                    "color": "yellow",
-                                                    "value": 1
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 2
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 4
-                                                },
-                                                {
-                                                    "color": "purple",
-                                                    "value": 8
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "ms"
-                                    },
-                                    {
-                                        "id": "custom.width",
-                                        "value": 100
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "match": "null+nan",
-                                                    "result": {
-                                                        "color": "gray",
-                                                        "index": 0,
-                                                        "text": "N/A"
-                                                    }
-                                                },
-                                                "type": "special"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Call"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 100
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "short"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                },
-                                                {
-                                                    "color": "super-light-green",
-                                                    "value": 1000
-                                                },
-                                                {
-                                                    "color": "yellow",
-                                                    "value": 1000000
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 1000000000
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 1000000000000
-                                                },
-                                                {
-                                                    "color": "purple",
-                                                    "value": 1000000000000000
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "match": "null+nan",
-                                                    "result": {
-                                                        "color": "gray",
-                                                        "index": 0,
-                                                        "text": "N/A"
-                                                    }
-                                                },
-                                                "type": "special"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "id": "custom.displayMode",
-                                        "value": "color-text"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Time"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 90
-                                    },
-                                    {
-                                        "id": "decimals",
-                                        "value": 1
-                                    },
-                                    {
-                                        "id": "unit",
-                                        "value": "ms"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "QPS"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 100
-                                    },
-                                    {
-                                        "id": "custom.displayMode",
-                                        "value": "color-text"
-                                    },
-                                    {
-                                        "id": "thresholds",
-                                        "value": {
-                                            "mode": "absolute",
-                                            "steps": [
-                                                {
-                                                    "color": "blue"
-                                                },
-                                                {
-                                                    "color": "super-light-green",
-                                                    "value": 0.1
-                                                },
-                                                {
-                                                    "color": "green",
-                                                    "value": 1
-                                                },
-                                                {
-                                                    "color": "#EAB839",
-                                                    "value": 4
-                                                },
-                                                {
-                                                    "color": "orange",
-                                                    "value": 16
-                                                },
-                                                {
-                                                    "color": "red",
-                                                    "value": 64
-                                                },
-                                                {
-                                                    "color": "purple",
-                                                    "value": 256
-                                                },
-                                                {
-                                                    "color": "text",
-                                                    "value": 1024
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    "gridPos": {
-                        "h": 14,
-                        "w": 12,
-                        "x": 0,
-                        "y": 63
-                    },
-                    "id": 317,
-                    "options": {
-                        "showHeader": true,
-                        "sortBy": [
-                            {
-                                "desc": true,
-                                "displayName": "QPS"
-                            }
-                        ]
-                    },
-                    "pluginVersion": "8.0.4",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "max by (query) (pg_query_calls{ins=\"$ins\", datname=\"$datname\"}) > 0",
-                            "format": "table",
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "{{ query }}",
-                            "refId": "A"
-                        },
-                        {
-                            "exemplar": false,
-                            "expr": "max by (query) (pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"})  > 0",
-                            "format": "table",
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "{{ query }}",
-                            "refId": "B"
-                        },
-                        {
-                            "exemplar": false,
-                            "expr": "max by (query)(increase(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[15m]) / increase(pg_query_calls{ins=\"$ins\", datname=\"$datname\"}[15m]))",
-                            "format": "table",
-                            "hide": false,
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "{{ query }}",
-                            "refId": "C"
-                        },
-                        {
-                            "exemplar": false,
-                            "expr": "sum by (query) (rate(pg_query_calls{ins=\"$ins\", datname=\"$datname\"}[15m]))",
-                            "format": "table",
-                            "hide": false,
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "{{ query }}",
-                            "refId": "D"
-                        }
-                    ],
-                    "title": "Database Statementes",
-                    "transformations": [
-                        {
-                            "id": "seriesToColumns",
-                            "options": {
-                                "byField": "query"
-                            }
-                        },
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time": true,
-                                    "Time 1": true,
-                                    "Time 2": true,
-                                    "Time 3": true,
-                                    "Time 4": true,
-                                    "Time 5": true,
-                                    "Time 6": true,
-                                    "Time 7": true,
-                                    "Time 8": true,
-                                    "datname": false,
-                                    "ins": true
-                                },
-                                "indexByName": {
-                                    "Time 1": 5,
-                                    "Time 2": 6,
-                                    "Time 3": 7,
-                                    "Time 4": 8,
-                                    "Value #A": 1,
-                                    "Value #B": 2,
-                                    "Value #C": 3,
-                                    "Value #D": 4,
-                                    "query": 0
-                                },
-                                "renameByName": {
-                                    "Time 1": "RT (rate1m)",
-                                    "Value #A": "Call",
-                                    "Value #B": "Time",
-                                    "Value #C": "RT",
-                                    "Value #D": "QPS",
-                                    "Value #E": "Time 1h",
-                                    "Value #F": "Max",
-                                    "Value #G": "Call (rate1h)",
-                                    "Value #H": "Time (rate1h)",
-                                    "datname": "Database",
-                                    "ins": "",
-                                    "query": "Query"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "description": "Time spent on executing statements  during last 1 hour",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "palette-classic"
-                            },
-                            "custom": {
-                                "hideFrom": {
-                                    "legend": false,
-                                    "tooltip": false,
-                                    "viz": false
-                                }
-                            },
-                            "links": [
-                                {
-                                    "title": "PGSQL Query ${__field.labels.query}",
-                                    "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                                }
-                            ],
-                            "mappings": [],
-                            "unit": "short"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 7,
-                        "w": 12,
-                        "x": 12,
-                        "y": 63
-                    },
-                    "id": 340,
-                    "options": {
-                        "legend": {
-                            "displayMode": "table",
-                            "placement": "right",
-                            "values": [
-                                "percent"
-                            ]
-                        },
-                        "pieType": "pie",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "",
-                            "values": false
-                        },
-                        "tooltip": {
-                            "mode": "single"
-                        }
-                    },
-                    "pluginVersion": "8.0.4",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "rate(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1h])",
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "{{ query }}",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "Statement Time Spent 1h",
-                    "type": "piechart"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "description": "number of statement call in last 1 hour",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "palette-classic"
-                            },
-                            "custom": {
-                                "hideFrom": {
-                                    "legend": false,
-                                    "tooltip": false,
-                                    "viz": false
-                                }
-                            },
-                            "links": [
-                                {
-                                    "title": "PGSQL Query ${__field.labels.query}",
-                                    "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                                }
-                            ],
-                            "mappings": [],
-                            "unit": "none"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 7,
-                        "w": 12,
-                        "x": 12,
-                        "y": 70
-                    },
-                    "id": 342,
-                    "options": {
-                        "legend": {
-                            "displayMode": "table",
-                            "placement": "right",
-                            "values": [
-                                "percent",
-                                "value"
-                            ]
-                        },
-                        "pieType": "pie",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "",
-                            "values": false
-                        },
-                        "tooltip": {
-                            "mode": "single"
-                        }
-                    },
-                    "pluginVersion": "8.0.4",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "increase(pg_query_calls{ins=\"$ins\"}[1h])",
-                            "instant": true,
-                            "interval": "",
-                            "legendFormat": "{{ query }}",
-                            "refId": "A"
-                        }
-                    ],
-                    "title": "Statement Call 1h",
-                    "type": "piechart"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "palette-classic"
-                            },
-                            "custom": {
-                                "axisLabel": "",
-                                "axisPlacement": "auto",
-                                "barAlignment": 0,
-                                "drawStyle": "line",
-                                "fillOpacity": 0,
-                                "gradientMode": "none",
-                                "hideFrom": {
-                                    "legend": false,
-                                    "tooltip": false,
-                                    "viz": false
-                                },
-                                "lineInterpolation": "linear",
-                                "lineWidth": 1,
-                                "pointSize": 5,
-                                "scaleDistribution": {
-                                    "type": "linear"
-                                },
-                                "showPoints": "never",
-                                "spanNulls": false,
-                                "stacking": {
-                                    "group": "A",
-                                    "mode": "none"
-                                },
-                                "thresholdsStyle": {
-                                    "mode": "off"
-                                }
-                            },
-                            "links": [
-                                {
-                                    "title": "PGSQL Query ${__field.labels.query}",
-                                    "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                                }
-                            ],
-                            "mappings": [],
-                            "min": 0,
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    }
-                                ]
-                            },
-                            "unit": "ops"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 7,
-                        "w": 12,
-                        "x": 0,
-                        "y": 77
-                    },
-                    "id": 345,
-                    "options": {
-                        "legend": {
-                            "calcs": [
-                                "max"
-                            ],
-                            "displayMode": "table",
-                            "placement": "right"
-                        },
-                        "tooltip": {
-                            "mode": "multi"
-                        }
-                    },
-                    "pluginVersion": "8.0.0",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\"}",
-                            "interval": "",
-                            "intervalFactor": 2,
-                            "legendFormat": "{{ query }}",
-                            "refId": "B"
-                        }
-                    ],
-                    "title": "Query Call",
-                    "type": "timeseries"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "palette-classic"
-                            },
-                            "custom": {
-                                "axisLabel": "",
-                                "axisPlacement": "auto",
-                                "barAlignment": 0,
-                                "drawStyle": "line",
-                                "fillOpacity": 0,
-                                "gradientMode": "none",
-                                "hideFrom": {
-                                    "legend": false,
-                                    "tooltip": false,
-                                    "viz": false
-                                },
-                                "lineInterpolation": "linear",
-                                "lineWidth": 1,
-                                "pointSize": 3,
-                                "scaleDistribution": {
-                                    "type": "linear"
-                                },
-                                "showPoints": "always",
-                                "spanNulls": false,
-                                "stacking": {
-                                    "group": "A",
-                                    "mode": "none"
-                                },
-                                "thresholdsStyle": {
-                                    "mode": "off"
-                                }
-                            },
-                            "links": [
-                                {
-                                    "title": "PGSQL Query ${__field.labels.query}",
-                                    "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                                }
-                            ],
-                            "mappings": [],
-                            "min": 0,
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    }
-                                ]
-                            },
-                            "unit": "s"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 7,
-                        "w": 12,
-                        "x": 12,
-                        "y": 77
-                    },
-                    "id": 348,
-                    "options": {
-                        "legend": {
-                            "calcs": [
-                                "max"
-                            ],
-                            "displayMode": "table",
-                            "placement": "right"
-                        },
-                        "tooltip": {
-                            "mode": "multi"
-                        }
-                    },
-                    "pluginVersion": "8.0.0",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "pg:query:rt_1m{ins=\"$ins\", datname=\"$datname\"}",
-                            "interval": "",
-                            "intervalFactor": 2,
-                            "legendFormat": "{{ query }}",
-                            "refId": "B"
-                        }
-                    ],
-                    "title": "Statement RT",
-                    "type": "timeseries"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "palette-classic"
-                            },
-                            "custom": {
-                                "axisLabel": "",
-                                "axisPlacement": "auto",
-                                "barAlignment": 0,
-                                "drawStyle": "line",
-                                "fillOpacity": 50,
-                                "gradientMode": "none",
-                                "hideFrom": {
-                                    "legend": false,
-                                    "tooltip": false,
-                                    "viz": false
-                                },
-                                "lineInterpolation": "linear",
-                                "lineWidth": 0,
-                                "pointSize": 5,
-                                "scaleDistribution": {
-                                    "type": "linear"
-                                },
-                                "showPoints": "never",
-                                "spanNulls": false,
-                                "stacking": {
-                                    "group": "A",
-                                    "mode": "normal"
-                                },
-                                "thresholdsStyle": {
-                                    "mode": "off"
-                                }
-                            },
-                            "links": [
-                                {
-                                    "title": "PGSQL Query ${__field.labels.query}",
-                                    "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                                }
-                            ],
-                            "mappings": [],
-                            "min": 0,
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    }
-                                ]
-                            },
-                            "unit": "none"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 7,
-                        "w": 12,
-                        "x": 0,
-                        "y": 84
-                    },
-                    "id": 346,
-                    "options": {
-                        "legend": {
-                            "calcs": [
-                                "mean"
-                            ],
-                            "displayMode": "table",
-                            "placement": "right"
-                        },
-                        "tooltip": {
-                            "mode": "multi"
-                        }
-                    },
-                    "pluginVersion": "8.0.0",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "pg:query:call_rate1m{ins=\"$ins\", datname=\"$datname\"}",
-                            "interval": "",
-                            "intervalFactor": 2,
-                            "legendFormat": "{{ query }}",
-                            "refId": "B"
-                        }
-                    ],
-                    "title": "Query Call (Stacked)",
-                    "type": "timeseries"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${ds}"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "palette-classic"
-                            },
-                            "custom": {
-                                "axisLabel": "",
-                                "axisPlacement": "auto",
-                                "barAlignment": 0,
-                                "drawStyle": "line",
-                                "fillOpacity": 40,
-                                "gradientMode": "none",
-                                "hideFrom": {
-                                    "legend": false,
-                                    "tooltip": false,
-                                    "viz": false
-                                },
-                                "lineInterpolation": "linear",
-                                "lineWidth": 0,
-                                "pointSize": 5,
-                                "scaleDistribution": {
-                                    "type": "linear"
-                                },
-                                "showPoints": "never",
-                                "spanNulls": false,
-                                "stacking": {
-                                    "group": "A",
-                                    "mode": "normal"
-                                },
-                                "thresholdsStyle": {
-                                    "mode": "off"
-                                }
-                            },
-                            "links": [
-                                {
-                                    "title": "PGSQL Query for ${__field.labels.query}",
-                                    "url": "/d/pgsql-query?var-ins=${ins}&var-cls=${cls}&var-datname=${__field.labels.datname}&var-query=${__field.labels.query}"
-                                }
-                            ],
-                            "mappings": [],
-                            "min": 0,
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
-                                    }
-                                ]
-                            },
-                            "unit": "ms"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 7,
-                        "w": 12,
-                        "x": 12,
-                        "y": 84
-                    },
-                    "id": 351,
-                    "options": {
-                        "legend": {
-                            "calcs": [
-                                "max"
-                            ],
-                            "displayMode": "table",
-                            "placement": "right"
-                        },
-                        "tooltip": {
-                            "mode": "multi"
-                        }
-                    },
-                    "pluginVersion": "8.0.0",
-                    "targets": [
-                        {
-                            "exemplar": false,
-                            "expr": "rate(pg_query_exec_time{ins=\"$ins\", datname=\"$datname\"}[1m])",
-                            "interval": "",
-                            "intervalFactor": 2,
-                            "legendFormat": "{{ query }}",
-                            "refId": "B"
-                        }
-                    ],
-                    "title": "Statement Time Spent rate1m",
-                    "type": "timeseries"
-                }
-            ],
-            "title": "Overview",
-            "type": "row"
         }
     ],
     "refresh": false,
@@ -4442,5 +3581,6 @@
     "title": "PGSQL Query",
     "uid": "pgsql-query",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
