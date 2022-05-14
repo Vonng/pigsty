@@ -168,10 +168,13 @@
   tags: redis-join
   tasks:
 
-    - name: Join redis cluster
-      when: redis_mode == 'cluster'
-      block:
+    - name: Skip for non redis native cluster
+      when: redis_port is defined or redis_mode != 'cluster'
+      meta: end_host
 
+    - name: Execute redis cluster join
+      run_once: true
+      block:
         - name: Fetch redis cluster memberships
           when: redis_port is not defined
           connection: local
@@ -198,6 +201,7 @@
 
         - name: Join redis clusters
           ignore_errors: true
+          run_once: true
           when: redis_port is not defined
           shell: "/tmp/{{ redis_cluster }}-join.sh"
 
