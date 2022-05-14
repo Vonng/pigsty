@@ -19,7 +19,7 @@
         consul_exists: "{{ 'consul' in check_consul_port_result.stdout }}"
 
     #--------------------------------------------------------------------------
-    # skip or abort if dcs already exists
+    # abort if consul already exists
     #--------------------------------------------------------------------------
     # when any running instance exists, abort play in two cases:
     # 1. consul_safeguard = true          (global flag to prevent accidentally purge)
@@ -48,20 +48,30 @@
         msg: "[DANGEROUS] RUNNING CONSUL INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
 
     - name: Stop any running consul instance
-      script: stop_consul.sh
-
-    - name: Remove existing consul dir
-      file: path={{ item }} state=absent
-      with_items:
-        - /etc/consul.d
-        - "{{ consul_data_dir }}"
-
-    - name: Recreate consul dir
-      file: path={{ item }} state=directory owner=consul group=consul mode=0775
-      with_items:
-        - /etc/consul.d
-        - "{{ consul_data_dir }}"
-
+      ignore_errors: yes
+      shell: |
+        # try graceful shutdown first
+        if ps -u consul -o command | grep -q 'consul agent' ; then
+            /usr/bin/consul leave
+            systemctl stop consul
+        fi
+        
+        # kill if still exists
+        if ps -u consul -o command | grep -q 'consul agent' ; then
+            sleep 2
+            ps -u consul -o pid:1,command | grep 'consul agent' | awk '{print $1}' | xargs kill
+        fi
+        
+        # kill -9 if not killed 
+        if ps -u consul -o command | grep -q 'consul agent' ; then
+            sleep 5
+            ps -u consul -o pid:1,command | grep 'consul agent' | awk '{print $1}' | xargs kill -9
+        fi
+        
+        # guaranteed success
+        rm -rf /etc/consul.d
+        rm -rf "{{ consul_data_dir }}"
+        exit 0
 
 
 #------------------------------------------------------------------------------
@@ -75,10 +85,15 @@
 #------------------------------------------------------------------------------
 # Config consul
 #------------------------------------------------------------------------------
-- name: Determine dcs node name
+- name: Config consul
   tags: consul_config
   block:
 
+    - name: Create consul dir
+      file: path={{ item }} state=directory owner=consul group=consul mode=0775
+      with_items:
+        - /etc/consul.d
+        - "{{ consul_data_dir }}"
 
     #------------------------------------------------------------------------------
     # acquire nodename
