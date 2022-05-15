@@ -24,27 +24,33 @@ hosting-type: basic
 
 
 # dcs
-dcs-type: {{ dcs_type|default('consul') }}
+dcs-type: {{ pg_dcs_type|default('consul') }}
 
 # a list that contains all DCS endpoints to which vip-manager could talk.
 dcs-endpoints:
+{% if pg_dcs_type == 'consul' %}
   - http://127.0.0.1:8500        # consul
-  # - http://127.0.0.1:2379      # etcd
+{% endif %}
+{% if pg_dcs_type == 'etcd' %}
+{% for k,v in dcs_servers.items() %}
+  - http://{{ v }}:2379
+{% endfor %}
+{% endif %}
 
 
-  # A single list-item is also fine.
-  # consul will always only use the first entry from this list.
-  # For consul, you'll obviously need to change the port to 8500. Unless you're using a different one. Maybe you're a rebel and are running consul on port 2379? Just to confuse people? Why would you do that? Oh, I get it.
+# A single list-item is also fine.
+# consul will always only use the first entry from this list.
+# For consul, you'll obviously need to change the port to 8500. Unless you're using a different one. Maybe you're a rebel and are running consul on port 2379? Just to confuse people? Why would you do that? Oh, I get it.
 
 
 # etcd specific
-etcd-user: "patroni"
-etcd-password: "Julian's secret password"
+# etcd-user: "patroni"
+# etcd-password: "Julian's secret password"
 # when etcd-ca-file is specified, TLS connections to the etcd endpoints will be used.
-etcd-ca-file: "/path/to/etcd/trusted/ca/file"
+# etcd-ca-file: "/path/to/etcd/trusted/ca/file"
 # when etcd-cert-file and etcd-key-file are specified, we will authenticate at the etcd endpoints using this certificate and key.
-etcd-cert-file: "/path/to/etcd/client/cert/file"
-etcd-key-file: "/path/to/etcd/client/key/file"
+# etcd-cert-file: "/path/to/etcd/client/cert/file"
+# etcd-key-file: "/path/to/etcd/client/key/file"
 
 # consul specific
 # don't worry about parameter with a prefix that doesn't match the endpoint_type. You can write anything there, I won't even look at it.
