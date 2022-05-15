@@ -1,0 +1,9 @@
+name: {{ dcs_nodename }}
+data-dir: {{ etcd_data_dir }}
+initial-advertise-peer-urls: http://{{ inventory_hostname }}:2380
+listen-peer-urls: http://{{ inventory_hostname }}:2380
+listen-client-urls: "http://{{ inventory_hostname }}:2379,http://127.0.0.1:2379"
+advertise-client-urls: http://{{ inventory_hostname }}:2379
+initial-cluster: "{% for k,v in dcs_servers.items() %}{% if loop.index|int > 1 %},{% endif %}{{ k }}=http://{{ v }}:2380{% endfor %}"
+initial-cluster-token: "{{ dcs_name }}"
+initial-cluster-state: "new"

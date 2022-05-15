@@ -1,0 +1,135 @@
+---
+#------------------------------------------------------------------------------
+# Check etcd
+#------------------------------------------------------------------------------
+- name: Check existing etcd
+  tags: etcd_check
+  block:
+    #--------------------------------------------------------------------------
+    # check etcd exists
+    #--------------------------------------------------------------------------
+    - name: Check for existing etcd
+      command: 'ss -tp state listening sport = :2379'
+      register: check_etcd_port_result
+
+    - name: Etcd exists flag fact set
+      connection: local
+      set_fact:
+        etcd_exists: "{{ 'etcd' in check_etcd_port_result.stdout }}"
+
+    #--------------------------------------------------------------------------
+    # abort if etcd already exists
+    #--------------------------------------------------------------------------
+    # when any running etcd instance exists, abort play in two cases:
+    # 1. dcs_safeguard = true          (global flag to prevent accidentally purge)
+    # 2. dcs_clean = true
+    - name: Abort due to etcd exists
+      connection: local
+      any_errors_fatal: true
+      when: etcd_exists and (dcs_safeguard or not dcs_clean)
+      fail: msg="Abort because etcd instance already exists, use dcs_clean=true"
+
+
+#------------------------------------------------------------------------------
+# Clean etcd
+#------------------------------------------------------------------------------
+- name: Clean existing etcd
+  tags: etcd_clean
+  block:
+    #--------------------------------------------------------------------------
+    # purge dcs
+    #--------------------------------------------------------------------------
+    # dangerous: (it will remove etcd data!)
+    - name: Clean existing etcd instance
+      # connection: local, leave a chance for human intervention
+      when: not dcs_safeguard and etcd_exists and dcs_clean # DANGEROUS!
+      debug:
+        msg: "[DANGEROUS] RUNNING etcd INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
+
+    - name: Stop any running etcd instance
+      ignore_errors: yes
+      shell: |
+        # try graceful shutdown first
+        if ps -u etcd -o command | grep -q 'etcd' ; then
+            /usr/bin/etcd leave
+            systemctl stop etcd
+        fi
+        
+        # kill if still exists
+        if ps -u etcd -o command | grep -q 'etcd' ; then
+            sleep 2
+            ps -u etcd -o pid:1,command | grep 'etcd' | awk '{print $1}' | xargs kill
+        fi
+        
+        # kill -9 if not killed 
+        if ps -u etcd -o command | grep -q 'etcd' ; then
+            sleep 5
+            ps -u etcd -o pid:1,command | grep 'etcd' | awk '{print $1}' | xargs kill -9
+        fi
+        
+        # guaranteed success
+        rm -rf /etc/etcd
+        rm -rf "{{ etcd_data_dir }}"
+        exit 0
+
+
+#------------------------------------------------------------------------------
+# Launch etcd server
+#------------------------------------------------------------------------------
+- name: Setup etcd server
+  tags: etcd_config
+  when: inventory_hostname in dcs_servers.values()
+  block:
+
+    - name: Create etcd dir
+      file: path={{ item }} state=directory owner=etcd group=etcd mode=0775
+      with_items:
+        - /etc/etcd
+        - "{{ etcd_data_dir }}"
+
+    #------------------------------------------------------------------------------
+    # acquire dcs_nodename
+    #------------------------------------------------------------------------------
+    - name: Get dcs server key as dcs nodename
+      connection: local
+      when: inventory_hostname in dcs_servers.values()
+      set_fact:
+        dcs_nodename: "{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}"
+
+    # config etcd
+    - name: Copy etcd server service unit
+      template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
+
+    # only server need config
+    - name: Copy /etc/etcd.d/etcd.conf
+      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf mode=0644 owner=etcd
+
+
+- name: Launch etcd server
+  tags: [ etcd_server , etcd_launch ]
+  when: inventory_hostname in dcs_servers.values()
+  any_errors_fatal: true
+  block:
+    # launch etcd
+    - name: Launch etcd server service
+      systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
+
+    # wait etcd online
+    - name: Wait for etcd server online
+      wait_for: host=127.0.0.1 port=2379 state=started timeout=10
+
+
+#------------------------------------------------------------------------------
+# Write etcd endpoints env & cert files to all nodes
+#------------------------------------------------------------------------------
+# write etcd endpoint to all nodes
+- name: Write etcd endpoint env profile
+  tags: [ etcd_client, etcdctl ]
+  copy:
+    dest: /etc/profile.d/etcd.sh
+    mode: 0755
+    content: |
+      export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if loop.index|int > 1 %},{% endif %}http://{{ v }}:2379{% endfor %}"
+      alias e="etcdctl"
+
+...

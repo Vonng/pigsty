@@ -1,0 +1,16 @@
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+#WorkingDirectory={{ etcd_data_dir }}
+User=etcd
+ExecStart=/usr/bin/etcd --config-file /etc/etcd/etcd.conf
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
