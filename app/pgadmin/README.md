@@ -1,5 +1,14 @@
 # PgAdmin4
 
+## TL;DR
+
+```bash
+cd ~/pigsty/app/pgadmin
+make up
+make conf view
+```
+
+
 ```bash
 cd ~/pigsty/app/pgadmin ; docker-compose up -d
 ```

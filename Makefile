@@ -1,14 +1,14 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2019-04-13
-# Mtime     :   2022-04-28
+# Mtime     :   2022-05-15
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.5.0-beta
+VERSION?=v1.5.0-rc
 
 # target cluster (meta by default)
 CLS?=meta
@@ -386,6 +386,11 @@ use-matrix:
 	scp files/matrix.repo meta:/tmp/matrix.repo
 	ssh meta sudo mv -f /tmp/matrix.repo /www/matrix.repo
 use-all: use-src use-pkg
+
+# load config into cmdb
+cmdb:
+	bin/inventory_load
+	bin/inventory_cmdb
 
 ###############################################################
 

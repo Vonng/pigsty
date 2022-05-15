@@ -14,6 +14,7 @@ You can run ton's of software based on pigsty database & docker runtime.
 
 ```bash
 docker pull kong                     # latest # 139MB
+docker pull minio/minio              # latest # 227MB
 docker pull alpine                   # latest # 5.57MB
 docker pull registry                 # latest # 24.2MB
 docker pull dpage/pgadmin4           # latest # 341MB
@@ -21,8 +22,7 @@ docker pull sosedoff/pgweb           # latest # 192MB
 docker pull postgrest/postgrest      # latest # 16.3MB
 docker pull swaggerapi/swagger-ui    # latest # 77MB
 docker pull bytebase/bytebase:1.0.5  # 1.0.5  # 78.1MB
-docker pull minio/minio              # latest
-docker pull Vonng/pg_exporter        # pg_exporter
+docker pull vonng/pg_exporter        # latest # 7.64B
 ```
 
 

@@ -1,6 +1,20 @@
 # Development Log
 
 
+#### 2022-05-15
+
+* new role: etcd
+* monitoring for etcd
+* Make etcd a viable option for ha PG DCS
+* Infra Dashboards rework
+* fix nodes/infra/pgsql config docs
+* Update docker containers, pgadmin4 to 6.9
+
+#### 2022-05-14
+
+* fix redis join issue
+* optimize consul role implementation
+
 #### 2022-05-13
 
 * pg_exporter metrics & dashboard calibration

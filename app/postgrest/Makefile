@@ -9,7 +9,8 @@ ui:
 	docker run --init --name pgweb --name swagger -p 8882:8080 -e API_URL=http://10.10.10.10:8884 swaggerapi/swagger-ui
 
 view:
-	@echo "visit http://10.10.10.10:8884"
+	@echo "visit http://10.10.10.10:8884 for API Spec"
+	@echo "visit http://10.10.10.10:8883 for API Docs"
 
 log:
 	docker logs -f postgrest

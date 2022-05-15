@@ -3,16 +3,17 @@
 ## Highlights
 
 * Complete Docker Support
-* New CMDB schema compatible with redis & greenplum
-* Infra self-monitoring
-* Monitoring for consul, docker, promtail
+* Infra Dashboards: Nginx, Grafana, ETCD/Consul, Prometheus,...
+* Monitoring for consul, docker, promtail, etcd...
+* New CMDB compatible with redis & greenplum
+* Docker Applications: bytebase pgadmin4 pgweb postgrest kong minio,...
 * Consul Service Discovery now works again
 * Customize Meta Nodes with infra components
 * Redis playbook now support working on single instance
 * Add node crontab variables and default backup tasks
 * Complete translation of EN docs
 * Simplified purge & safeguard options for consul, pgsql and redis
-* ETCD as DCS (beta)
+* ETCD is a viable DCS option now for HA Postgres
 
 
 ## New Features

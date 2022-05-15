@@ -10,6 +10,7 @@ Usage: **Run this on meta node with admin user**
 ```bash
 make            # if local-data available
 make all        # if local-data not available, download from internet
+makd reload     # download and load latest data from WHO 
 ```
 
 Subtasks:
