@@ -112,6 +112,13 @@
 
     # when cleanup primary, remove pgsql cluster meta data
     - name: Remove consul metadata about pgsql cluster
-      shell: "consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}; /bin/true"
+      when: pg_dcs_type == 'consul'
+      shell: |
+        consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }} ; /bin/true
 
+    - name: Remove etcd metadata about pgsql cluster
+      when: pg_dcs_type == 'etcd'
+      shell: |
+        ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}"
+        etcdctl rm -r {{ pg_namespace }}/{{ pg_cluster }} ; /bin/true
 ...

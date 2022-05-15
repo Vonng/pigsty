@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2020-12-22
+# Mtime     :   2022-05-15
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (small)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
@@ -35,6 +35,7 @@ log:
 #------------------------------------------------------------------------------
 # dcs
 #------------------------------------------------------------------------------
+{% if pg_dcs_type == 'consul' %}
 consul:
   host: 127.0.0.1:8500
   consistency: default         # default|consistent|stale
@@ -42,7 +43,11 @@ consul:
   service_check_interval: 15s
   service_tags:
     - {{ pg_cluster }}
-
+{% endif %}
+{% if pg_dcs_type == 'etcd' %}
+etcd:
+  hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
+{% endif %}
 
 #------------------------------------------------------------------------------
 # api

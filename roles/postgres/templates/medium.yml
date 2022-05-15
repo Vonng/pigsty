@@ -34,6 +34,7 @@ log:
 #------------------------------------------------------------------------------
 # dcs
 #------------------------------------------------------------------------------
+{% if pg_dcs_type == 'consul' %}
 consul:
   host: 127.0.0.1:8500
   consistency: default         # default|consistent|stale
@@ -41,7 +42,11 @@ consul:
   service_check_interval: 15s
   service_tags:
     - {{ pg_cluster }}
-
+{% endif %}
+{% if pg_dcs_type == 'etcd' %}
+etcd:
+  hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
+{% endif %}
 
 #------------------------------------------------------------------------------
 # api
