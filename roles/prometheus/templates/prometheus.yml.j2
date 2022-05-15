@@ -74,12 +74,21 @@ scrape_configs:
       - refresh_interval: {{ prometheus_sd_interval }}
         files: [ targets/infra/*.yml ]
 
-{% if dcs_registry == 'consul' %}
+{% if consul_enabled|bool %}
   - job_name: consul
     metrics_path: /v1/agent/metrics
     params:
       format: ['prometheus']
     static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+{% endif %}
+
+{% if etcd_enabled|bool and dcs_servers|length > 0 %}
+  - job_name: etcd
+    metrics_path: /metrics
+    static_configs:
+{% for name,ip in dcs_servers.items() %}
+      - { targets: [ {{ ip }}:2379 ] , labels: { ip: {{ ip }}, ins: {{ name }}, type: etcd , job: infra } }
+{% endfor %}
 {% endif %}
 
   #------------------------------------------------------------------------------
@@ -170,12 +179,21 @@ scrape_configs:
         action: replace
         target_label: ip
 
-{% if dcs_registry == 'consul' %}
+{% if consul_enabled|bool %}
   - job_name: consul
     metrics_path: /v1/agent/metrics
     params:
       format: ['prometheus']
     static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+{% endif %}
+
+{% if etcd_enabled|bool and dcs_servers|length > 0 %}
+  - job_name: etcd
+    metrics_path: /metrics
+    static_configs:
+{% for name,ip in dcs_servers.items() %}
+      - { targets: [ {{ ip }}:2379 ] , labels: { ip: {{ ip }}, ins: {{ name }}, type: etcd , job: infra } }
+{% endfor %}
 {% endif %}
 
   #------------------------------------------------------------------------------
