@@ -15,105 +15,106 @@ The params on the PostgreSQL are divided into seven main sections：
 - [`PG_SERVICE`](#PG_SERVICE): Expose the PostgreSQL service, install the LB HAProxy, enable VIP, and configure DNS.
 
 
-| ID  |                              Name                               |             Section             |    Type     | Level |              Comment              |
+| ID  |                              Name                               |             Section             |    Type     | Level | Comment                            |
 |-----|-----------------------------------------------------------------|---------------------------------|-------------|-------|------------------------------------|
-| 500 | [`pg_cluster`](#pg_cluster)                                     | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Cluster Name|
-| 501 | [`pg_shard`](#pg_shard)                                         | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Shard Name (Reserve)|
-| 502 | [`pg_sindex`](#pg_sindex)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | C     | PG Shard Index (Reserve)|
-| 503 | [`gp_role`](#gp_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | C     | gp role of this PG cluster |
-| 504 | [`pg_role`](#pg_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | I     | PG Instance Role|
-| 505 | [`pg_seq`](#pg_seq)                                             | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | PG Instance Sequence|
-| 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | PG instance on this node |
-| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | PG upstream IP |
-| 508 | [`pg_offline_query`](#pg_offline_query)                         | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | allow offline query?|
-| 509 | [`pg_backup`](#pg_backup)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | make base backup on this ins?|
-| 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | relative weight in LB |
-| 511 | [`pg_hostname`](#pg_hostname)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/I   | set PG ins name as hostname|
-| 512 | [`pg_preflight_skip`](#pg_preflight_skip)                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/A   | skip preflight param validation|
-| 520 | [`pg_users`](#pg_users)                                         | [`PG_BUSINESS`](#PG_BUSINESS)   | user[]      | C     | business users definition|
-| 521 | [`pg_databases`](#pg_databases)                                 | [`PG_BUSINESS`](#PG_BUSINESS)   | database[]  | C     | business databases definition|
-| 522 | [`pg_services_extra`](#pg_services_extra)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | service[]   | C     | ad hoc service definition|
-| 523 | [`pg_hba_rules_extra`](#pg_hba_rules_extra)                     | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | ad hoc HBA rules|
-| 524 | [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra)       | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | ad hoc pgbouncer HBA rules|
-| 525 | [`pg_admin_username`](#pg_admin_username)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | admin user's name|
-| 526 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | admin user's password|
-| 527 | [`pg_replication_username`](#pg_replication_username)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | replication user's name|
-| 528 | [`pg_replication_password`](#pg_replication_password)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | replication user's password|
-| 529 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | monitor user's name|
-| 530 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | monitor user's password|
-| 540 | [`pg_dbsu`](#pg_dbsu)                                           | [`PG_INSTALL`](#PG_INSTALL)     | string      | C     | os dbsu for postgres|
-| 541 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | dbsu UID|
-| 542 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PG_INSTALL`](#PG_INSTALL)     | enum        | C     | sudo priv mode for dbsu|
-| 543 | [`pg_dbsu_home`](#pg_dbsu_home)                                 | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | home dir for dbsu|
-| 544 | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)                 | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | exchange dbsu ssh keys?|
-| 545 | [`pg_version`](#pg_version)                                     | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | major PG version to be installed|
-| 546 | [`pgdg_repo`](#pgdg_repo)                                       | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | add official PGDG repo?|
-| 547 | [`pg_add_repo`](#pg_add_repo)                                   | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | add extra upstream PG repo?|
-| 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG binary dir|
-| 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG packages to be installed|
-| 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG extension pkgs to be installed|
-| 560 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge|
-| 561 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool     | C/A   | purge existing pgsql during init |
-| 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg data dir|
-| 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg main data disk mountpoint|
-| 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg backup disk mountpoint|
-| 565 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | size        | C     | /pg/dummy file size|
-| 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | pg listen IP |
-| 567 | [`pg_port`](#pg_port)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pg listen port|
-| 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | pg's UnixSocket address |
-| 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Is patroni & postgres enabled?|
-| 581 | [`patroni_mode`](#patroni_mode)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni working mode|
-| 582 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | namespace for patroni|
-| 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | patroni listen port (8080)|
-| 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni watchdog policy|
-| 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | patroni template|
-| 586 | [`pg_libs`](#pg_libs)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database |
-| 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | character encoding|
-| 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | locale|
-| 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | collate rule of locale|
-| 590 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | ctype of locale|
-| 591 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | is pgbouncer enabled|
-| 592 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pgbouncer listen port|
-| 593 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | pgbouncer pooling mode|
-| 594 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | max connection per database|
-| 600 | [`pg_provision`](#pg_provision)                                 | [`PG_PROVISION`](#PG_PROVISION) | bool        | C     | provision template to pgsql?|
-| 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | path to postgres init script|
-| 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | list or global default roles/users|
-| 603 | [`pg_default_privilegs`](#pg_default_privilegs)                 | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default privileges|
-| 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default modes |
-| 605 | [`pg_default_extensions`](#pg_default_extensions)               | [`PG_PROVISION`](#PG_PROVISION) | extension[] | G/C   | list of default extensions|
-| 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | reload config? |
-| 607 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global HBA rules|
-| 608 | [`pgbouncer_hba_rules`](#pgbouncer_hba_rules)                   | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global pgbouncer HBA rules|
-| 620 | [`pg_exporter_config`](#pg_exporter_config)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C     | pg_exporter config path|
-| 621 | [`pg_exporter_enabled`](#pg_exporter_enabled)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | pg_exporter enabled ?|
-| 622 | [`pg_exporter_port`](#pg_exporter_port)                         | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | pg_exporter listen address|
-| 623 | [`pg_exporter_params`](#pg_exporter_params)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | extra params for pg_exporter url|
-| 624 | [`pg_exporter_url`](#pg_exporter_url)                           | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | monitor target pgurl (overwrite)|
-| 625 | [`pg_exporter_auto_discovery`](#pg_exporter_auto_discovery)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C/I   | enable auto-database-discovery?|
-| 626 | [`pg_exporter_exclude_database`](#pg_exporter_exclude_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | excluded list of databases|
-| 627 | [`pg_exporter_include_database`](#pg_exporter_include_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | included list of databases|
-| 628 | [`pg_exporter_options`](#pg_exporter_options)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | cli args for pg_exporter|
-| 629 | [`pgbouncer_exporter_enabled`](#pgbouncer_exporter_enabled)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | pgbouncer_exporter enabled ?|
-| 630 | [`pgbouncer_exporter_port`](#pgbouncer_exporter_port)           | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | pgbouncer_exporter listen addr?|
-| 631 | [`pgbouncer_exporter_url`](#pgbouncer_exporter_url)             | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | target pgbouncer url (overwrite)|
-| 632 | [`pgbouncer_exporter_options`](#pgbouncer_exporter_options)     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | cli args for pgbouncer exporter|
-| 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | global service definition|
-| 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | haproxy enabled ?|
-| 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | haproxy reload instead of reset|
-| 643 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | enable auth for haproxy admin ?|
-| 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin user name|
-| 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin password|
-| 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | haproxy exporter listen port|
-| 647 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | haproxy client timeout|
-| 648 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | haproxy server timeout|
-| 649 | [`vip_mode`](#vip_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | vip working mode|
-| 650 | [`vip_reload`](#vip_reload)                                     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | reload vip configuration|
-| 651 | [`vip_address`](#vip_address)                                   | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | vip address used by cluster|
-| 652 | [`vip_cidrmask`](#vip_cidrmask)                                 | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | vip network CIDR length|
-| 653 | [`vip_interface`](#vip_interface)                               | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | vip network interface name|
-| 654 | [`dns_mode`](#dns_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | cluster DNS mode|
-| 655 | [`dns_selector`](#dns_selector)                                 | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | cluster DNS ins selector|
+| 500 | [`pg_cluster`](#pg_cluster)                                     | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Cluster Name                    |
+| 501 | [`pg_shard`](#pg_shard)                                         | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Shard Name (Reserve)            |
+| 502 | [`pg_sindex`](#pg_sindex)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | C     | PG Shard Index (Reserve)           |
+| 503 | [`gp_role`](#gp_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | C     | gp role of this PG cluster         |
+| 504 | [`pg_role`](#pg_role)                                           | [`PG_IDENTITY`](#PG_IDENTITY)   | enum        | I     | PG Instance Role                   |
+| 505 | [`pg_seq`](#pg_seq)                                             | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | PG Instance Sequence               |
+| 506 | [`pg_instances`](#pg_instances)                                 | [`PG_IDENTITY`](#PG_IDENTITY)   | {port:ins}  | I     | PG instance on this node           |
+| 507 | [`pg_upstream`](#pg_upstream)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | I     | PG upstream IP                     |
+| 508 | [`pg_offline_query`](#pg_offline_query)                         | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | allow offline query?               |
+| 509 | [`pg_backup`](#pg_backup)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | I     | make base backup on this ins?      |
+| 510 | [`pg_weight`](#pg_weight)                                       | [`PG_IDENTITY`](#PG_IDENTITY)   | int         | I     | relative weight in LB              |
+| 511 | [`pg_hostname`](#pg_hostname)                                   | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/I   | set PG ins name as hostname        |
+| 512 | [`pg_preflight_skip`](#pg_preflight_skip)                       | [`PG_IDENTITY`](#PG_IDENTITY)   | bool        | C/A   | skip preflight param validation    |
+| 520 | [`pg_users`](#pg_users)                                         | [`PG_BUSINESS`](#PG_BUSINESS)   | user[]      | C     | business users definition          |
+| 521 | [`pg_databases`](#pg_databases)                                 | [`PG_BUSINESS`](#PG_BUSINESS)   | database[]  | C     | business databases definition      |
+| 522 | [`pg_services_extra`](#pg_services_extra)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | service[]   | C     | ad hoc service definition          |
+| 523 | [`pg_hba_rules_extra`](#pg_hba_rules_extra)                     | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | ad hoc HBA rules                   |
+| 524 | [`pgbouncer_hba_rules_extra`](#pgbouncer_hba_rules_extra)       | [`PG_BUSINESS`](#PG_BUSINESS)   | rule[]      | C     | ad hoc pgbouncer HBA rules         |
+| 525 | [`pg_admin_username`](#pg_admin_username)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | admin user's name                  |
+| 526 | [`pg_admin_password`](#pg_admin_password)                       | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | admin user's password              |
+| 527 | [`pg_replication_username`](#pg_replication_username)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | replication user's name            |
+| 528 | [`pg_replication_password`](#pg_replication_password)           | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | replication user's password        |
+| 529 | [`pg_monitor_username`](#pg_monitor_username)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | monitor user's name                |
+| 530 | [`pg_monitor_password`](#pg_monitor_password)                   | [`PG_BUSINESS`](#PG_BUSINESS)   | string      | G     | monitor user's password            |
+| 540 | [`pg_dbsu`](#pg_dbsu)                                           | [`PG_INSTALL`](#PG_INSTALL)     | string      | C     | os dbsu for postgres               |
+| 541 | [`pg_dbsu_uid`](#pg_dbsu_uid)                                   | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | dbsu UID                           |
+| 542 | [`pg_dbsu_sudo`](#pg_dbsu_sudo)                                 | [`PG_INSTALL`](#PG_INSTALL)     | enum        | C     | sudo priv mode for dbsu            |
+| 543 | [`pg_dbsu_home`](#pg_dbsu_home)                                 | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | home dir for dbsu                  |
+| 544 | [`pg_dbsu_ssh_exchange`](#pg_dbsu_ssh_exchange)                 | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | exchange dbsu ssh keys?            |
+| 545 | [`pg_version`](#pg_version)                                     | [`PG_INSTALL`](#PG_INSTALL)     | int         | C     | major PG version to be installed   |
+| 546 | [`pgdg_repo`](#pgdg_repo)                                       | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | add official PGDG repo?            |
+| 547 | [`pg_add_repo`](#pg_add_repo)                                   | [`PG_INSTALL`](#PG_INSTALL)     | bool        | C     | add extra upstream PG repo?        |
+| 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG binary dir                      |
+| 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG packages to be installed        |
+| 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG extension pkgs to be installed  |
+| 560 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge          |
+| 561 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool     | C/A   | purge existing pgsql during init   |
+| 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg data dir                        |
+| 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg main data disk mountpoint       |
+| 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg backup disk mountpoint          |
+| 565 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | size        | C     | /pg/dummy file size                |
+| 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | pg listen IP                       |
+| 567 | [`pg_port`](#pg_port)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pg listen port                     |
+| 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | pg's UnixSocket address            |
+| 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Is patroni & postgres enabled?     |
+| 581 | [`patroni_mode`](#patroni_mode)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni working mode               |
+| 582 | [`pg_dcs_type`](#pg_dcs_type)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)               | enum       | G     | dcs to be used consul/etcd       |
+| 583 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | namespace for patroni              |
+| 584 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | patroni listen port (8080)         |
+| 585 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni watchdog policy            |
+| 586 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | patroni template                   |
+| 587 | [`pg_libs`](#pg_libs)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database    |
+| 588 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | character encoding                 |
+| 589 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | locale                             |
+| 590 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | collate rule of locale             |
+| 591 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | ctype of locale                    |
+| 592 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | is pgbouncer enabled               |
+| 593 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pgbouncer listen port              |
+| 594 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | pgbouncer pooling mode             |
+| 595 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | max connection per database        |
+| 600 | [`pg_provision`](#pg_provision)                                 | [`PG_PROVISION`](#PG_PROVISION) | bool        | C     | provision template to pgsql?       |
+| 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | path to postgres init script       |
+| 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | list or global default roles/users |
+| 603 | [`pg_default_privilegs`](#pg_default_privilegs)                 | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default privileges         |
+| 604 | [`pg_default_schemas`](#pg_default_schemas)                     | [`PG_PROVISION`](#PG_PROVISION) | string[]    | G/C   | list of default modes              |
+| 605 | [`pg_default_extensions`](#pg_default_extensions)               | [`PG_PROVISION`](#PG_PROVISION) | extension[] | G/C   | list of default extensions         |
+| 606 | [`pg_reload`](#pg_reload)                                       | [`PG_PROVISION`](#PG_PROVISION) | bool        | A     | reload config?                     |
+| 607 | [`pg_hba_rules`](#pg_hba_rules)                                 | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global HBA rules                   |
+| 608 | [`pgbouncer_hba_rules`](#pgbouncer_hba_rules)                   | [`PG_PROVISION`](#PG_PROVISION) | rule[]      | G/C   | global pgbouncer HBA rules         |
+| 620 | [`pg_exporter_config`](#pg_exporter_config)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C     | pg_exporter config path            |
+| 621 | [`pg_exporter_enabled`](#pg_exporter_enabled)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | pg_exporter enabled ?              |
+| 622 | [`pg_exporter_port`](#pg_exporter_port)                         | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | pg_exporter listen address         |
+| 623 | [`pg_exporter_params`](#pg_exporter_params)                     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | extra params for pg_exporter url   |
+| 624 | [`pg_exporter_url`](#pg_exporter_url)                           | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | monitor target pgurl (overwrite)   |
+| 625 | [`pg_exporter_auto_discovery`](#pg_exporter_auto_discovery)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C/I   | enable auto-database-discovery?    |
+| 626 | [`pg_exporter_exclude_database`](#pg_exporter_exclude_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | excluded list of databases         |
+| 627 | [`pg_exporter_include_database`](#pg_exporter_include_database) | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | included list of databases         |
+| 628 | [`pg_exporter_options`](#pg_exporter_options)                   | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | cli args for pg_exporter           |
+| 629 | [`pgbouncer_exporter_enabled`](#pgbouncer_exporter_enabled)     | [`PG_EXPORTER`](#PG_EXPORTER)   | bool        | C     | pgbouncer_exporter enabled ?       |
+| 630 | [`pgbouncer_exporter_port`](#pgbouncer_exporter_port)           | [`PG_EXPORTER`](#PG_EXPORTER)   | int         | C     | pgbouncer_exporter listen addr?    |
+| 631 | [`pgbouncer_exporter_url`](#pgbouncer_exporter_url)             | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | target pgbouncer url (overwrite)   |
+| 632 | [`pgbouncer_exporter_options`](#pgbouncer_exporter_options)     | [`PG_EXPORTER`](#PG_EXPORTER)   | string      | C/I   | cli args for pgbouncer exporter    |
+| 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | global service definition          |
+| 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | haproxy enabled ?                  |
+| 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | haproxy reload instead of reset    |
+| 643 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | enable auth for haproxy admin ?    |
+| 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin user name            |
+| 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin password             |
+| 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | haproxy exporter listen port       |
+| 647 | [`haproxy_client_timeout`](#haproxy_client_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | haproxy client timeout             |
+| 648 | [`haproxy_server_timeout`](#haproxy_server_timeout)             | [`PG_SERVICE`](#PG_SERVICE)     | interval    | C     | haproxy server timeout             |
+| 649 | [`vip_mode`](#vip_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | vip working mode                   |
+| 650 | [`vip_reload`](#vip_reload)                                     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | reload vip configuration           |
+| 651 | [`vip_address`](#vip_address)                                   | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | vip address used by cluster        |
+| 652 | [`vip_cidrmask`](#vip_cidrmask)                                 | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | vip network CIDR length            |
+| 653 | [`vip_interface`](#vip_interface)                               | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | vip network interface name         |
+| 654 | [`dns_mode`](#dns_mode)                                         | [`PG_SERVICE`](#PG_SERVICE)     | enum        | C     | cluster DNS mode                   |
+| 655 | [`dns_selector`](#dns_selector)                                 | [`PG_SERVICE`](#PG_SERVICE)     | string      | C     | cluster DNS ins selector           |
 
 
 
@@ -838,15 +839,27 @@ The Unix socket dir holds the Unix socket files for PostgreSQL and Pgbouncer, wh
 
 Enabled Patroni, type: `bool`, level: C, default value: `true`.
 
-If false, Pigsty will skip the process of Patroni pulling up with Postgres directly. This option is used when accessing an existing ins.
+If disable, Pigsty will skip pulling up patroni. This option is used when setting up extra staff for an existing ins.
+
+
 
 ### `patroni_mode`
 
-Patroni working mode, type: `enum`, level: C, default value: `"default"`.
+Patroni work mode, type: `enum`, level: C, default value: `"default"`.
 
 * `default`: Enable Patroni to enter HA auto-switching mode.
 * `pause`: Enable Patroni to automatically enter maintenance mode after completing initialization (no automatic M-S S switching).
 * `remove`: Initialize the cluster with Patroni and remove Patroni after initialization.
+
+
+
+### `pg_dcs_type`
+
+Which type of DCS to be used, type: `enum`, hierarchy: G, default value: `"consul"`.
+
+There are two available options: `consul` and `etcd`.
+
+[`consul_enabled`](v-infra.md#consul_enabled) or [`etcd_enabled`](v-infra.md#etcd_enabled) should be true if default internal DCS are used.
 
 
 

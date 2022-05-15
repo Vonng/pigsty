@@ -379,9 +379,9 @@ There is no correspondence between DCS Server and the meta node: by default, Pig
 
 !> Pigsty provides a DCS misdeletion protection mechanism, configuring `dcs_clean = true`.
 
-When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-nodes.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
+When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-infra.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
 
-Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-nodes.md#dcs_safeguard).
+Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-infra.md#dcs_safeguard).
 
 These parameters can be modified in the config file `pigsty.yml` or specified at playbook execution time with the extra parameter mechanism.
 
@@ -402,9 +402,9 @@ These parameters can be modified in the config file `pigsty.yml` or specified at
 
 !> Pigsty provides a DCS misdeletion protection mechanism, configuring `dcs_clean = true`.
 
-When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-nodes.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
+When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-infra.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
 
-Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-nodes.md#dcs_safeguard).
+Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-infra.md#dcs_safeguard).
 
 These parameters can be modified in the config file `pigsty.yml` or can be specified at playbook execution time with the extra parameter mechanism.
 

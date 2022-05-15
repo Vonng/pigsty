@@ -90,7 +90,7 @@ And `*_safeguard` are boolean flags to avoid purging running instance when execu
 - `grafana_git_plugin_git` -> `grafana_plugin_git`
 - `haproxy_admin_auth_enabled` -> `haproxy_auth_enabled`
 - `pg_shared_libraries` -> `pg_libs`
-- `dcs_type` -> `patroni_dcs`
+- `dcs_type` -> `pg_dcs_type`
 
 
 ```bash

@@ -45,19 +45,18 @@
   * 创建节点管理员并配置SSH
   * 配置节点时区
   * 配置节点NTP服务
-* 在节点上初始化DCS服务：Consul
+* 在节点上初始化DCS服务：Consul 与 ETCD
   * 抹除现有Consul
   * 初始化当前节点的 Consul Agent或Server 服务
 * 初始化节点监控组件并纳入Pigsty
   * 在节点上安装 Node Exporter
   * 将 Node Exporter 注册至元节点上的 Prometheus 中。
 
-
-
+  
 !>  **对于已有数据库运行的节点执行该剧本需要谨慎，使用不当存在误触发短暂数据库不可用的风险，因为初始化节点会抹除DCS Agent**。
 
 节点置备会配置节点的DCS服务（Consul Agent），因此在对运行有PostgreSQL数据库的节点运行此剧本时，请小心！
-[`dcs_clean`](v-nodes.md#dcs_clean) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
+[`dcs_clean`](v-infra.md#dcs_clean) 参数提供了避免误删的选项作为保险，允许以在初始化过程中，当检测到已有运行中DCS时自动中止或跳过高危操作，避免最坏情况发生。
 
 !> 尽管如此，在**使用完整的`nodes.yml`剧本或其中关于`dcs|consul`的部分时，请再三检查`--tags|-t` 与 `--limit|-l` 参数是否正确。确保自己在正确的目标上执行正确的任务。**
 
@@ -67,8 +66,8 @@
 
 Pigsty提供**保护机制**，避免误删运行中的Consul实例，包括了两个相关参数：
 
-* [`dcs_safeguard`](v-nodes.md#dcs_safeguard)：默认关闭，只要打开，在任意情况下该数据库实例不会被清理。
-* [`dcs_clean`](v-nodes.md#dcs_clean)：默认关闭，当打开时，初始化节点/[`nodes.yml`](#nodes) 会抹除掉现有Consul实例（有可能影响PG主库写入）
+* [`dcs_safeguard`](v-infra.md#dcs_safeguard)：默认关闭，只要打开，在任意情况下该数据库实例不会被清理。
+* [`dcs_clean`](v-infra.md#dcs_clean)：默认关闭，当打开时，初始化节点/[`nodes.yml`](#nodes) 会抹除掉现有Consul实例（有可能影响PG主库写入）
 
 当遇到现存实例时，[`nodes.yml`](#nodes) 剧本会有以下行为表现：
 

@@ -8,7 +8,6 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 - [`NODE_TUNE`](#NODE_TUNE) : 节点功能特性与参数调优
 - [`NODE_ADMIN`](#NODE_ADMIN) : 节点管理员
 - [`NODE_TIME`](#NODE_TIME) : 节点时区/NTP/定时任务
-- [`CONSUL`](#CONSUL)：节点Consul Agent服务
 - [`DOCKER`](#DOCKER) : 节点Docker管理
 - [`NODE_EXPORTER`](#NODE_EXPORTER) : 节点指标暴露器
 - [`PROMTAIL`](#PROMTAIL) : 节点日志收集组件
@@ -21,15 +20,15 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C     | 节点集群名，默认名为nodes            |
 | 303 | [`nodename_overwrite`](#nodename_overwrite)           | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C     | 用Nodename覆盖机器HOSTNAME           |
 | 304 | [`nodename_exchange`](#nodename_exchange)             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C     | 是否在剧本节点间交换主机名           |
-| 310 | [`node_etc_hosts`](#node_etc_hosts)       | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I   | 同上，用于集群实例层级               |
-| 311 | [`node_etc_hosts_default`](#node_etc_hosts_default)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C     | 写入机器的静态DNS解析                |
+| 310 | [`node_etc_hosts`](#node_etc_hosts)                   | [`NODE_DNS`](#NODE_DNS)           | string[] | C/I   | 同上，用于集群实例层级               |
+| 311 | [`node_etc_hosts_default`](#node_etc_hosts_default)   | [`NODE_DNS`](#NODE_DNS)           | string[] | C     | 写入机器的静态DNS解析                |
 | 312 | [`node_dns_method`](#node_dns_method)                 | [`NODE_DNS`](#NODE_DNS)           | enum     | C     | 如何配置DNS服务器？                  |
 | 313 | [`node_dns_servers`](#node_dns_servers)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C     | 配置动态DNS服务器列表                |
 | 314 | [`node_dns_options`](#node_dns_options)               | [`NODE_DNS`](#NODE_DNS)           | string[] | C     | 配置/etc/resolv.conf                 |
 | 320 | [`node_repo_method`](#node_repo_method)               | [`NODE_PACKAGE`](#NODE_PACKAGE)         | enum     | C     | 节点使用Yum源的方式                  |
 | 321 | [`node_repo_remove`](#node_repo_remove)               | [`NODE_PACKAGE`](#NODE_PACKAGE)         | bool     | C     | 是否移除节点已有Yum源                |
-| 322 | [`node_repo_local_urls`](#node_repo_local_urls)         | [`NODE_PACKAGE`](#NODE_PACKAGE)         | url[]    | C     | 本地源的URL地址                      |
-| 331 | [`node_packages`](#node_packages)         | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | C     | 节点额外安装的软件列表               |
+| 322 | [`node_repo_local_urls`](#node_repo_local_urls)       | [`NODE_PACKAGE`](#NODE_PACKAGE)         | url[]    | C     | 本地源的URL地址                      |
+| 331 | [`node_packages`](#node_packages)                     | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | C     | 节点额外安装的软件列表               |
 | 330 | [`node_packages_default`](#node_packages_default)     | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | C     | 节点安装软件列表                     |
 | 332 | [`node_packages_meta`](#node_packages_meta)           | [`NODE_PACKAGE`](#NODE_PACKAGE) | string[] | G     | 元节点所需的软件列表                 |
 | 333 | [`node_packages_meta_pip`](#node_packages_meta_pip)     | [`NODE_PACKAGE`](#NODE_PACKAGE) | string   | G     | 元节点上通过pip3安装的软件包         |
@@ -42,35 +41,31 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 346 | [`node_kernel_modules`](#node_kernel_modules)         | [`NODE_TUNE`](#NODE_FEATURE)   | string[] | C     | 启用的内核模块                       |
 | 347 | [`node_tune`](#node_tune)                             | [`NODE_TUNE`](#NODE_TUNE)         | enum     | C     | 节点调优模式                         |
 | 348 | [`node_sysctl_params`](#node_sysctl_params)           | [`NODE_TUNE`](#NODE_TUNE)         | dict     | C     | 操作系统内核参数                     |
-| 350 | [`node_data_dir`](#node_data_dir)             | [`NODE_ADMIN`](#NODE_ADMIN)       | path     | G     | 节点的数据盘挂载路径 |
-| 351 | [`node_admin_enabled`](#node_admin_enabled)               | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G     | 是否创建管理员用户                   |
+| 350 | [`node_data_dir`](#node_data_dir)                     | [`NODE_ADMIN`](#NODE_ADMIN)       | path     | G     | 节点的数据盘挂载路径 |
+| 351 | [`node_admin_enabled`](#node_admin_enabled)           | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | G     | 是否创建管理员用户                   |
 | 352 | [`node_admin_uid`](#node_admin_uid)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | int      | G     | 管理员用户UID                        |
 | 353 | [`node_admin_username`](#node_admin_username)         | [`NODE_ADMIN`](#NODE_ADMIN)       | string   | G     | 管理员用户名                         |
 | 354 | [`node_admin_ssh_exchange`](#node_admin_ssh_exchange) | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | C     | 在实例间交换管理员SSH密钥            |
 | 355 | [`node_admin_pk_current`](#node_admin_pk_current)     | [`NODE_ADMIN`](#NODE_ADMIN)       | bool     | A     | 是否将当前用户的公钥加入管理员账户   |
-| 356 | [`node_admin_pk_list`](#node_admin_pk_list)                   | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C     | 可登陆管理员的公钥列表               |
+| 356 | [`node_admin_pk_list`](#node_admin_pk_list)           | [`NODE_ADMIN`](#NODE_ADMIN)       | key[]    | C     | 可登陆管理员的公钥列表               |
 | 360 | [`node_timezone`](#node_timezone)                     | [`NODE_TIME`](#NODE_TIME)         | string   | C     | NTP时区设置                          |
-| 361 | [`node_ntp_enabled`](#node_ntp_enabled)                 | [`NODE_TIME`](#NODE_TIME)         | bool     | C     | 是否配置NTP服务？                    |
+| 361 | [`node_ntp_enabled`](#node_ntp_enabled)               | [`NODE_TIME`](#NODE_TIME)         | bool     | C     | 是否配置NTP服务？                    |
 | 362 | [`node_ntp_service`](#node_ntp_service)               | [`NODE_TIME`](#NODE_TIME)         | enum     | C     | NTP服务类型：ntp或chrony             |
 | 363 | [`node_ntp_servers`](#node_ntp_servers)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C     | NTP服务器列表                        |
 | 364 | [`node_crontab_overwrite`](#node_crontab_overwrite)   | [`NODE_TIME`](#NODE_TIME)         | bool | C/I     | 是否覆盖/etc/crontab |
-| 365 | [`node_crontab`](#node_crontab)               | [`NODE_TIME`](#NODE_TIME)         | string[] | C/I     | 主机定时任务列表          |
-| 370 | [`docker_enabled`](#docker_enabled)            | [`DOCKER`](#DOCKER)        | bool     | C   | dockerd是否启用?                    |
-| 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup驱动               |
-| 372 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker镜像仓库地址    |
-| 373 | [`docker_image_cache`](#docker_image_cache)     | [`DOCKER`](#DOCKER) | string   | C | docker镜像缓存包地址       |
-| 380 | [`dcs_safeguard`](#dcs_safeguard)                   | [`CONSUL`](#CONSUL)  | bool       | C/A   | 完全禁止清理Consul实例      |
-| 381 | [`dcs_clean`](#dcs_clean)                   | [`CONSUL`](#CONSUL)   | bool    | C/A   | 初始化时清除现存Consul实例 |
-| 382 | [`dcs_name`](#dcs_name)                                     | [`CONSUL`](#CONSUL)   | string     | G     | DCS集群名称                    |
-| 383 | [`consul_data_dir`](#consul_data_dir)                       | [`CONSUL`](#CONSUL)   | string     | G     | Consul数据目录                 |
-| 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C     | 启用节点指标收集器                   |
-| 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C     | 节点指标暴露端口                     |
-| 392 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I   | 节点指标采集选项                     |
-| 400 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C     | 是否启用Promtail日志收集服务         |
-| 401 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A   | 是否在安装promtail时移除已有状态信息 |
-| 402 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G     | promtail使用的默认端口               |
-| 403 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I   | promtail命令行参数                   |
-| 404 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C     | promtail状态文件位置                 |
+| 365 | [`node_crontab`](#node_crontab)                       | [`NODE_TIME`](#NODE_TIME)         | string[] | C/I     | 主机定时任务列表          |
+| 370 | [`docker_enabled`](#docker_enabled)                   | [`DOCKER`](#DOCKER)        | bool     | C   | dockerd是否启用?                    |
+| 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)     | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup驱动               |
+| 372 | [`docker_registry_mirrors`](#docker_registry_mirrors) | [`DOCKER`](#DOCKER) | string   | C   | docker镜像仓库地址    |
+| 373 | [`docker_image_cache`](#docker_image_cache)           | [`DOCKER`](#DOCKER) | string   | C | docker镜像缓存包地址       |
+| 380 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C     | 启用节点指标收集器                   |
+| 381 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C     | 节点指标暴露端口                     |
+| 382 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I   | 节点指标采集选项                     |
+| 390 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C     | 是否启用Promtail日志收集服务         |
+| 391 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A   | 是否在安装promtail时移除已有状态信息 |
+| 392 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G     | promtail使用的默认端口               |
+| 393 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I   | promtail命令行参数                   |
+| 394 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C     | promtail状态文件位置                 |
 
 
 
@@ -228,8 +223,6 @@ node_dns_servers: # dynamic nameserver in /etc/resolv.conf
 
 
 
-
-
 ### `node_dns_options`
 
 如果 [`node_dns_method`](#node_dns_method) 配置为`add`或`overwrite`，则本配置项中的记录会被追加或覆盖至`/etc/resolv.conf`中。具体格式请参考Linux文档关于`/etc/resolv.conf`的说明
@@ -369,8 +362,6 @@ node_packages_meta:                           # packages for meta nodes only
 
 
 
-
-
 ### `node_disable_numa`
 
 关闭节点NUMA, 类型：`bool`，层级：C，默认值为：`false`
@@ -378,7 +369,6 @@ node_packages_meta:                           # packages for meta nodes only
 布尔标记，是否关闭NUMA，默认不关闭。注意，关闭NUMA需要重启机器后方可生效！
 
 如果您不清楚如何绑核，在生产环境使用数据库时建议关闭NUMA。
-
 
 
 
@@ -641,60 +631,6 @@ Docker使用的镜像仓库地址，类型：`string[]`，层级：`C`，默认�
 本地的Docker镜像离线缓存包，类型：`path`，层级：`C`，默认为：`/www/pigsty/docker.tar.lz4`
 
 如果存在时，配置Docker时会自动加载至本地Docker中。
-
-
-
-
-
-## `CONSUL`
-
-Consul用于服务网格，健康监测，传递共识，代理DCS Server访问。
-
-
-
-
-### `dcs_safeguard`
-
-安全保险，禁止清除存在的Consul实例，类型：`bool`，层级：C/A，默认值为：`false`
-
-如果为`true`，任何情况下，Pigsty剧本都不会移除运行中的Consul实例，包括 [`nodes-remove.yml`](p-nodes.md#nodes-remove)。
-
-详情请参考 [保护机制](p-nodes.md#保护机制)。
-
-
-
-### `dcs_clean`
-
-是否在初始化时抹除现存Consul实例？类型：`bool`，层级：C/A，默认值为：`false`。
-
-针对 [`nodes.yml`](p-nodes.md#nodes) 剧本的抹除豁免，如果指定该参数为真，那么在 [`nodes.yml`](p-nodes.md#nodes) 剧本执行时，会自动抹除已有的Consul实例。
-
-只有当该参数启用时，`nodes.yml` 才是一个真正幂等的剧本。
-
-这是一个危险的操作，因此必须显式指定。
-
-!>  安全保险参数 [`dcs_safeguard`](#dcs_safeguard) 打开时，本参数无效。
-
-
-
-
-
-### `dcs_name`
-
-DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
-
-在Consul中代表数据中心名称，在Etcd中没有意义。
-
-
-
-
-
-### `consul_data_dir`
-
-Consul数据目录, 类型：`string`，层级：G，默认值为：`"/data/consul"`
-
-
-
 
 
 

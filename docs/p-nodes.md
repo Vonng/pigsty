@@ -59,7 +59,7 @@ This playbook will run the following tasks:
 
 !> **Be careful when running this playbook on provisioned nodes. It may lead to the database being temporarily unavailable because of the removal of the consul service.** 
 
-The [`dcs_clean`](v-nodes.md#dcs_clean) provides a [SafeGuard](#SafeGuard) to avoid accidental purge. When existing Consul Instance is detected during playbook execution. It will take action about it.
+The [`dcs_clean`](v-infra.md#dcs_clean) provides a [SafeGuard](#SafeGuard) to avoid accidental purge. When existing Consul Instance is detected during playbook execution. It will take action about it.
 
 !> When using the complete `nodes.yml` playbook or just the section on `dcs|consul`, please double-check that the `-tags|-t` and `-limit|-l` is correct. Make sure you are running the right tasks on the correct targets. 
 
@@ -69,8 +69,8 @@ The [`dcs_clean`](v-nodes.md#dcs_clean) provides a [SafeGuard](#SafeGuard) to av
 
 Pigsty provides a SafeGuard to avoid purging running consul instances with fat fingers. There are two parameters.
 
-* [`dcs_safeguard`](v-nodes.md#dcs_safeguard): Disabled by default, if enabled, running consul will not be purged by any circumstance.
-* [`dcs_clean`](v-nodes.md#dcs_clean): disabled by default, [`nodes.yml`](#nodes) will purge running consul during node init.
+* [`dcs_safeguard`](v-infra.md#dcs_safeguard): Disabled by default, if enabled, running consul will not be purged by any circumstance.
+* [`dcs_clean`](v-infra.md#dcs_clean): disabled by default, [`nodes.yml`](#nodes) will purge running consul during node init.
 
 When running consul exists, [`nodes.yml`](#nodes) will act as:
 

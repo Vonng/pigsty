@@ -8,14 +8,13 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 - [`NODE_TUNE`](#NODE_TUNE): Node features & kernel tuning
 - [`NODE_ADMIN`](#NODE_ADMIN): Node admin user & dir
 - [`NODE_TIME`](#NODE_TIME): Node time zone, NTP, crontab
-- [`CONSUL`](#CONSUL): Node consul agent
 - [`DOCKER`](#DOCKER): Node docker daemon 
 - [`NODE_EXPORTER`](#NODE_EXPORTER): Node metrics exporter
 - [`PROMTAIL`](#PROMTAIL): Logger agent
 
 
-| ID  | Name                                                  | Section                           |   Type   | Level | Comment                                  |
-|-----|-------------------------------------------------------|-----------------------------------|----------|-----|------------------------------------------|
+| ID | Name                                                  | Section                           |   Type   | Level | Comment                                  |
+|--|-------------------------------------------------------|-----------------------------------|----------|-----|------------------------------------------|
 | 300 | [`meta_node`](#meta_node)                             | [`NODE_IDENTITY`](#NODE_IDENTITY) | bool     | C   | mark this node as meta                   |
 | 301 | [`nodename`](#nodename)                               | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | I   | node instance identity                   |
 | 302 | [`node_cluster`](#node_cluster)                       | [`NODE_IDENTITY`](#NODE_IDENTITY) | string   | C   | node cluster identity                    |
@@ -59,18 +58,14 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)     | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup driver                     |
 | 372 | [`docker_registry_mirrors`](#docker_registry_mirrors) | [`DOCKER`](#DOCKER) | string   | C   | docker registry mirror location          |
 | 373 | [`docker_image_cache`](#docker_image_cache)           | [`DOCKER`](#DOCKER) | string   | C | docker image cache tarball               |
-| 380 | [`dcs_safeguard`](#dcs_safeguard)               | [`CONSUL`](#CONSUL) | bool       | C/A   | avoid consul remove at all               |
-| 381 | [`dcs_clean`](#dcs_clean)                       | [`CONSUL`](#CONSUL) | bool    | C/A   | purge consul during init?                |
-| 382 | [`dcs_name`](#dcs_name)                         | [`CONSUL`](#CONSUL) | string     | G     | dcs cluster name (dc)                    |
-| 383 | [`consul_data_dir`](#consul_data_dir)                 | [`CONSUL`](#CONSUL) | string     | G     | consul data dir path                     |
-| 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?                   |
-| 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port                |
-| 392 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I | node_exporter extra cli args             |
-| 400 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C   | promtail enabled ?                       |
-| 401 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A | remove promtail status file ?            |
-| 402 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G   | promtail listen port                     |
-| 403 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I | promtail cli args                        |
-| 404 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C   | path to store promtail status file       |
+| 380 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?                   |
+| 381 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port                |
+| 382 | [`node_exporter_options`](#node_exporter_options)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | string   | C/I | node_exporter extra cli args             |
+| 390 | [`promtail_enabled`](#promtail_enabled)               | [`PROMTAIL`](#PROMTAIL)           | bool     | C   | promtail enabled ?                       |
+| 391 | [`promtail_clean`](#promtail_clean)                   | [`PROMTAIL`](#PROMTAIL)           | bool     | C/A | remove promtail status file ?            |
+| 392 | [`promtail_port`](#promtail_port)                     | [`PROMTAIL`](#PROMTAIL)           | int      | G   | promtail listen port                     |
+| 393 | [`promtail_options`](#promtail_options)               | [`PROMTAIL`](#PROMTAIL)           | string   | C/I | promtail cli args                        |
+| 394 | [`promtail_positions`](#promtail_positions)           | [`PROMTAIL`](#PROMTAIL)           | string   | C   | path to store promtail status file       |
 
 
 
@@ -641,52 +636,6 @@ Docker registry mirror list, type: `string[]`, level：`C`, default value: `[]`.
 Local image cache, type: `string`, level: C, default value: `"/var/pigsty/docker.tar.lz4"`.
 
 The local image cache will be loaded into docker when the target path exists.
-
-
-
-
-
-----------------
-
-## `Consul`
-
-Consul is used for service mesh, traffic control, health check, service registry, service discovery & consensus.
-
-
-
-
-### `dcs_safeguard`
-
-Assure that any running consul instance will not be purged by any [`nodes`](p-nodes.md) playbook., level: C/A, default: `false`
-
-Check [SafeGuard](p-nodes.md#SafeGuard) for details.
-
-
-
-### `dcs_clean`
-
-Remove existing consul during node init? level: C/A, default: `false`
-
-This allows the removal of any running consul instance during [`nodes.yml`](p-nodes.yml#nodes), which makes it a true idempotent playbook.
-
-It's a dangerous option so you'd better disable it by default and use it with `-e` CLI args.
-
-!> This parameter not working when [`dcs_safeguard`](#dcs_safeguard) is set to `true`
-
-
-
-### `dcs_name`
-
-DCS cluster name, type: `string`, level: G, default value: `"pigsty"`.
-
-Represents the data center name in Consul, which has no meaning in Etcd.
-
-
-
-### `consul_data_dir`
-
-Consul data directory, type: `string`, level: G, default value: `"/data/consul"`.
-
 
 
 

@@ -9,7 +9,6 @@
 通常来说，基础设施部分需要修改的内容很少，通常涉及到的主要修改只是对元节点的IP地址进行文本替换，这一步会在[`./configure`](v-config.md#配置过程)过程中自动完成，另一处偶尔需要改动的地方是 [`nginx_upstream`](nginx_upstream)中定义的访问域名。其他参数很少需要调整，按需即可。
 
 
-
 - [`CONNECT`](#CONNECT) : 连接参数
 - [`CA`](#CA) : 公私钥基础设施
 - [`NGINX`](#NGINX) : Nginx Web服务器
@@ -20,65 +19,71 @@
 - [`GRAFANA`](#GRAFANA) : Grafana可视化平台
 - [`LOKI`](#LOKI) : Loki日志收集平台
 - [`DCS`](#DCS) : 分布式配置存储元数据库（Consul Server/ETCD）
-
-
+- [`CONSUL`](#CONSUL) : DCS实现：Consul
+- [`ETCD`](#ETCD) : DCS实现：ETCD
 
 ## 参数概览
 
 部署于元节点上的 [**基础设施**](c-infra.md#基础设施) 由下列配置项所描述。
 
-| ID  |                            Name                             |           Section           |    Type    | Level |            Comment             |
-|-----|-------------------------------------------------------------|-----------------------------|------------|-------|--------------------------------|
-| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置                 |
-| 110 | [`ca_method`](#ca_method)                                   | [`CA`](#CA)                 | enum       | G     | CA的创建方式                   |
-| 111 | [`ca_subject`](#ca_subject)                                 | [`CA`](#CA)                 | string     | G     | 自签名CA主题                   |
-| 112 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | CA证书根目录                   |
-| 113 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书                         |
-| 114 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称                     |
-| 120 | [`nginx_enabled`](#nginx_enabled)                             | [`NGINX`](#NGINX) | bool       | C/I   | 是否启用本地源                 |
-| 121 | [`nginx_port`](#nginx_port)                                   | [`NGINX`](#NGINX) | int        | G     | Nginx端口                |
-| 122 | [`nginx_home`](#nginx_home)                                   | [`NGINX`](#NGINX) | path       | G     | Nginx文件根目录          |
-| 123 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器                |
-| 124 | [`nginx_indexes`](#nginx_indexes)                                     | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表       |
-| 130 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称                     |
-| 131 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址             |
-| 132 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源                  |
-| 133 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件           |
-| 134 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源                |
-| 135 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | Yum源需下载软件列表            |
-| 136 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | 通过URL直接下载的软件          |
-| 140 | [`nameserver_enabled`](#nameserver_enabled) | [`NAMESERVER`](#NAMESERVER) | bool | C/I | 是否在元节点上启用DNSMASQ |
-| 141 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | 动态DNS解析记录                |
-| 151 | [`prometheus_enabled`](#prometheus_enabled) | [`PROMETHEUS`](#PROMETHEUS) | bool | C/I | 是否在元节点上启用Prometheus |
-| 152 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | Prometheus数据库目录           |
-| 153 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | Prometheus命令行参数           |
-| 154 | [`prometheus_reload`](#prometheus_reload)                   | [`PROMETHEUS`](#PROMETHEUS) | bool       | A     | Reload而非Recreate             |
-| 155 | [`prometheus_sd_method`](#prometheus_sd_method)             | [`PROMETHEUS`](#PROMETHEUS) | enum       | G     | 服务发现机制：static|
-| 156 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取周期                   |
-| 157 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取超时                   |
-| 158 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom服务发现刷新周期           |
-| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | 安装监控组件的方式             |
-| 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控组件的YumRepo              |
-| 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控暴露的URL Path             |
-| 170 | [`grafana_enabled`](#grafana_enabled) | [`GRAFANA`](#GRAFANA) | bool | C/I | 是否在元节点上启用Grafana |
-| 171 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana地址                    |
-| 172 | [`grafana_admin_username`](#grafana_admin_username)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员用户名            |
-| 173 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员密码              |
-| 174 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | Grafana后端数据库类型          |
-| 175 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana的PG数据库连接串        |
-| 176 | [`grafana_plugin_method`](#grafana_plugin_method)                         | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件            |
-| 177 | [`grafana_plugin_cache`](#grafana_plugin_cache)                           | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址            |
-| 178 | [`grafana_plugin_list`](#grafana_plugin_list)                       | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表          |
-| 179 | [`grafana_plugin_git`](#grafana_plugin_git)               | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件         |
-| 180 | [`loki_enabled`](#loki_enabled) | [`LOKI`](#LOKI)             | bool | C/I  | 是否在元节点上启用Loki |
-| 181 | [`loki_endpoint`](#loki_endpoint) | [`LOKI`](#LOKI) | url | G | 用于接收日志的loki服务端点 |
-| 182 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | 是否在安装Loki时清理数据库目录 |
-| 183 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | Loki的命令行参数               |
-| 184 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录                 |
-| 185 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数           |
-| 200 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 |
-| 201 | [`pg_dcs_type`](#pg_dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  |
-| 202 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           |
+| ID  | Name                                                        | Section                     | Type       | Level | Comment           |
+|-----|-------------------------------------------------------------|-----------------------------|------------|-------|-------------------|
+| 100 | [`proxy_env`](#proxy_env)                                   | [`CONNECT`](#CONNECT)       | dict       | G     | 代理服务器配置           |
+| 110 | [`ca_method`](#ca_method)                                   | [`CA`](#CA)                 | enum       | G     | CA的创建方式           |
+| 111 | [`ca_subject`](#ca_subject)                                 | [`CA`](#CA)                 | string     | G     | 自签名CA主题           |
+| 112 | [`ca_homedir`](#ca_homedir)                                 | [`CA`](#CA)                 | path       | G     | CA证书根目录           |
+| 113 | [`ca_cert`](#ca_cert)                                       | [`CA`](#CA)                 | string     | G     | CA证书              |
+| 114 | [`ca_key`](#ca_key)                                         | [`CA`](#CA)                 | string     | G     | CA私钥名称            |
+| 120 | [`nginx_enabled`](#nginx_enabled)                           | [`NGINX`](#NGINX)           | bool       | C/I   | 是否启用本地源           |
+| 121 | [`nginx_port`](#nginx_port)                                 | [`NGINX`](#NGINX)           | int        | G     | Nginx端口           |
+| 122 | [`nginx_home`](#nginx_home)                                 | [`NGINX`](#NGINX)           | path       | G     | Nginx文件根目录        |
+| 123 | [`nginx_upstream`](#nginx_upstream)                         | [`NGINX`](#NGINX)           | upstream[] | G     | Nginx上游服务器        |
+| 124 | [`nginx_indexes`](#nginx_indexes)                           | [`NGINX`](#NGINX)           | app[]      | G     | 首页导航栏显示的应用列表      |
+| 130 | [`repo_name`](#repo_name)                                   | [`REPO`](#REPO)             | string     | G     | 本地源名称             |
+| 131 | [`repo_address`](#repo_address)                             | [`REPO`](#REPO)             | string     | G     | 本地源外部访问地址         |
+| 132 | [`repo_rebuild`](#repo_rebuild)                             | [`REPO`](#REPO)             | bool       | A     | 是否重建Yum源          |
+| 133 | [`repo_remove`](#repo_remove)                               | [`REPO`](#REPO)             | bool       | A     | 是否移除已有REPO文件      |
+| 134 | [`repo_upstreams`](#repo_upstreams)                         | [`REPO`](#REPO)             | repo[]     | G     | Yum源的上游来源         |
+| 135 | [`repo_packages`](#repo_packages)                           | [`REPO`](#REPO)             | string[]   | G     | Yum源需下载软件列表       |
+| 136 | [`repo_url_packages`](#repo_url_packages)                   | [`REPO`](#REPO)             | url[]      | G     | 通过URL直接下载的软件      |
+| 140 | [`nameserver_enabled`](#nameserver_enabled)                 | [`NAMESERVER`](#NAMESERVER) | bool       | C/I | 是否在元节点上启用DNSMASQ  |
+| 141 | [`dns_records`](#dns_records)                               | [`NAMESERVER`](#NAMESERVER) | string[]   | G     | 动态DNS解析记录         |
+| 150 | [`prometheus_enabled`](#prometheus_enabled)                 | [`PROMETHEUS`](#PROMETHEUS) | bool       | C/I | 是否在元节点上启用Prometheus |
+| 151 | [`prometheus_data_dir`](#prometheus_data_dir)               | [`PROMETHEUS`](#PROMETHEUS) | path       | G     | Prometheus数据库目录   |
+| 152 | [`prometheus_options`](#prometheus_options)                 | [`PROMETHEUS`](#PROMETHEUS) | string     | G     | Prometheus命令行参数   |
+| 153 | [`prometheus_reload`](#prometheus_reload)                   | [`PROMETHEUS`](#PROMETHEUS) | bool       | A     | Reload而非Recreate  |
+| 154 | [`prometheus_sd_method`](#prometheus_sd_method)             | [`PROMETHEUS`](#PROMETHEUS) | enum       | G     | 服务发现机制：static     |
+| 155 | [`prometheus_scrape_interval`](#prometheus_scrape_interval) | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取周期          |
+| 156 | [`prometheus_scrape_timeout`](#prometheus_scrape_timeout)   | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom抓取超时          |
+| 157 | [`prometheus_sd_interval`](#prometheus_sd_interval)         | [`PROMETHEUS`](#PROMETHEUS) | interval   | G     | Prom服务发现刷新周期      |
+| 160 | [`exporter_install`](#exporter_install)                     | [`EXPORTER`](#EXPORTER)     | enum       | G     | 安装监控组件的方式         |
+| 161 | [`exporter_repo_url`](#exporter_repo_url)                   | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控组件的YumRepo      |
+| 162 | [`exporter_metrics_path`](#exporter_metrics_path)           | [`EXPORTER`](#EXPORTER)     | string     | G     | 监控暴露的URL Path     |
+| 170 | [`grafana_enabled`](#grafana_enabled)                       | [`GRAFANA`](#GRAFANA)       | bool       | C/I | 是否在元节点上启用Grafana  |
+| 171 | [`grafana_endpoint`](#grafana_endpoint)                     | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana地址         |
+| 172 | [`grafana_admin_username`](#grafana_admin_username)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员用户名     |
+| 173 | [`grafana_admin_password`](#grafana_admin_password)         | [`GRAFANA`](#GRAFANA)       | string     | G     | Grafana管理员密码      |
+| 174 | [`grafana_database`](#grafana_database)                     | [`GRAFANA`](#GRAFANA)       | enum       | G     | Grafana后端数据库类型    |
+| 175 | [`grafana_pgurl`](#grafana_pgurl)                           | [`GRAFANA`](#GRAFANA)       | url        | G     | Grafana的PG数据库连接串  |
+| 176 | [`grafana_plugin_method`](#grafana_plugin_method)           | [`GRAFANA`](#GRAFANA)       | enum       | G     | 如何安装Grafana插件     |
+| 177 | [`grafana_plugin_cache`](#grafana_plugin_cache)             | [`GRAFANA`](#GRAFANA)       | path       | G     | Grafana插件缓存地址     |
+| 178 | [`grafana_plugin_list`](#grafana_plugin_list)               | [`GRAFANA`](#GRAFANA)       | string[]   | G     | 安装的Grafana插件列表    |
+| 179 | [`grafana_plugin_git`](#grafana_plugin_git)                 | [`GRAFANA`](#GRAFANA)       | url[]      | G     | 从Git安装的Grafana插件  |
+| 180 | [`loki_enabled`](#loki_enabled)                             | [`LOKI`](#LOKI)             | bool       | C/I  | 是否在元节点上启用Loki     |
+| 181 | [`loki_endpoint`](#loki_endpoint)                           | [`LOKI`](#LOKI)             | url        | G | 用于接收日志的loki服务端点   |
+| 182 | [`loki_clean`](#loki_clean)                                 | [`LOKI`](#LOKI)             | bool       | A     | 在初始化Loki时清理数据  |
+| 183 | [`loki_options`](#loki_options)                             | [`LOKI`](#LOKI)             | string     | G     | Loki的命令行参数        |
+| 184 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录         |
+| 185 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数      |
+| 190 | [`dcs_name`](#dcs_name)                                     | [`DCS`](#DCS)               | string   | G     | DCS服务名称           |
+| 191 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict     | G     | DCS服务器地址字典        |
+| 192 | [`dcs_registry`](#dcs_registry)                             | [`DCS`](#DCS)               | enum     | G     | 服务注册的位置           |
+| 193 | [`dcs_safeguard`](#dcs_safeguard)                           | [`DCS`](#DCS)               | bool     | C/A   | 完全禁止清理DCS实例       |
+| 194 | [`dcs_clean`](#dcs_clean)                                   | [`DCS`](#DCS)               | bool     | C/A   | 初始化时清除现存DCS实例     |
+| 195 | [`consul_enabled`](#consul_enabled)                         | [`CONSUL`](#CONSUL)         | bool     | G     | 是否全局启用Consul      |
+| 196 | [`consul_data_dir`](#consul_data_dir)                       | [`CONSUL`](#CONSUL)         | string   | G     | Consul数据目录        |
+| 197 | [`etcd_enabled`](#etcd_enabled)                             | [`ETCD`](#ETCD)             | bool     | G     | 是否全局启用ETCD        |
+| 198 | [`etcd_data_dir`](#etcd_data_dir)                           | [`ETCD`](#ETCD)             | string   | G     | ETCD数据目录          |
 
 
 
@@ -134,11 +139,6 @@ proxy_env: # global proxy env when downloading packages
 > - ansible_ssh_private_key_file :    SSH私钥路径
 >
 > - ansible_ssh_common_args :   SSH通用参数
->
-
-
-
-
 
 
 
@@ -161,13 +161,9 @@ CA的创建方式, 类型：`enum`，层级：G，默认值为：`"create"`
 * `create`：创建新的公私钥用于CA
 * `copy`：拷贝现有的CA公私钥用于构建CA
 
-
-
 ### `ca_subject`
 
 自签名CA主题, 类型：`string`，层级：G，默认值为：`"/CN=root-ca"`
-
-
 
 
 
@@ -177,13 +173,9 @@ CA证书根目录, 类型：`path`，层级：G，默认值为：`"/ca"`
 
 
 
-
-
 ### `ca_cert`
 
-CA证书, 类型：`string`，层级：G，默认值为：`"ca.crt"`
-
-
+CA证书名称, 类型：`string`，层级：G，默认值为：`"ca.crt"`
 
 
 
@@ -195,15 +187,11 @@ CA私钥名称, 类型：`string`，层级：G，默认值为：`"ca.key"`
 
 
 
-
-
-
-
 ----------------
 
 ## `NGINX`
 
-Pigsty通过元节点上的Nginx对外暴露所有Web类服务，如首页，Grafana，Prometheus，AlertManager，Consul，以及可选的PGWeb与Jupyter Lab。此外，本地软件源，本地文档，与其他本地WEB工具如Pev2，Pgbouncer也由Nginx对外提供服务。
+Pigsty通过元节点上的Nginx对外暴露所有Web类服务，如首页，Grafana，Prometheus，AlertManager，Consul，以及可选的PGWeb与Jupyter Lab。此外，本地软件源，本地文档，与其他本地WEB工具如Pev2，Pgbadger也由Nginx对外提供服务。
 
 您可以绕过Nginx直接通过端口访问元节点上的部分服务，但部分服务出于安全性原因不宜对外暴露，只能通过Nginx代理访问。Nginx通过域名区分不同的服务，因此，如果您为各个服务配置的域名在当前环境中无法解析，则需要您自行在`/etc/hosts`中配置后使用。
 
@@ -216,8 +204,6 @@ Pigsty通过元节点上的Nginx对外暴露所有Web类服务，如首页，Gra
 是否在元节点上启用Nginx Server？
 
 设置为`false`则会在当前节点跳过设置Nginx与构建本地源的过程。当您有多个元节点时，可以在备用元节点上设置此参数为`false`。
-
-
 
 
 
@@ -363,38 +349,33 @@ Yum源的上游来源, 类型：`repo[]`，层级：
 Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
 
 ```yaml
-- epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
-- ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
-- numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
-- readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
-- readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel       # --- deps:devel -- #
-- ed mlocate parted krb5-devel apr apr-util audit                                                                 # --- deps:gpsql -- #
-- grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq                # -----  meta ----- #
-- node_exporter postgres_exporter nginx_exporter blackbox_exporter redis_exporter                                 # ---- exporter --- #
-- ansible python python-pip python-psycopg2                                                                       # - ansible & py3 - #
-- python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
-- patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail                           # -- pgsql common - #
-- pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL
-- postgresql14* postgis32_14* citus_14* pglogical_14* timescaledb-2-postgresql-14 pg_repack_14 wal2json_14        # -- pg14 packages -#
-- pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14
-- pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
-- mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14
-- hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14
-- bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14
-- repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14
-- pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pgagent_14
-- pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
-- pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
-- safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
-- clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
-- docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
+epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
+ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
+numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
+readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
+readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel       # --- deps:devel -- #
+grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq          # -----  meta ----- #
+node_exporter nginx_exporter blackbox_exporter redis_exporter                                                   # ---- exporter --- #
+ansible python python-pip python-psycopg2                                                                       # - ansible & py3 - #
+python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
+patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail                           # -- pgsql common - #
+pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL
+postgresql14* postgis32_14* citus_14* pglogical_14* timescaledb-2-postgresql-14 pg_repack_14 wal2json_14        # -- pg14 packages -#
+pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 pg_probackup-std-14
+pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
+mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14
+hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14
+bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14
+repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14
+pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pgagent_14
+pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
+pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
+safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
+clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
+docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
 ```
 
 每一行都是一组由空格分割的软件包名称，在这里指定的软件会通过`repotrack`进行下载。
-
-
-
-
 
 
 
@@ -413,14 +394,14 @@ Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
 * `redis`：**可选**，当安装Redis时为必选
 
 ```yaml
-- https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/loki-2.5.0.x86_64.rpm
-- https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/promtail-2.5.0.x86_64.rpm
-- https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
-- https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
-- https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
-- https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.6-1.el7.remi.x86_64.rpm
-- https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
-- https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
+https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/loki-2.5.0.x86_64.rpm
+https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/promtail-2.5.0.x86_64.rpm
+https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
+https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
+https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
+https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
+https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
+https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
 ```
 
 
@@ -800,7 +781,7 @@ Loki日志默认保留天数, 类型：`interval`，层级：G，默认值为：
 
 Distributed Configuration Store (DCS) 是一种分布式，高可用的元数据库。Pigsty使用DCS来实现数据库高可用，服务发现等功能也通过DCS实现。
 
-Pigsty目前仅支持使用Consul作为DCS，后续会添加ETCD作为DCS的选项。通过 [`pg_dcs_type`](#pg_dcs_type) 指明使用的DCS种类，通过 [`dcs_registry`](#dcs_registry) 指明服务注册的位置。
+Pigsty目前支持使用Consul与ETCD作为DCS。通过 [`pg_dcs_type`](v-pgsql.md#pg_dcs_type) 指明高可用PG使用的DCS种类，通过 [`dcs_registry`](#dcs_registry) 指明服务注册的位置。
 
 Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。DCS本身的可用性，通过多副本实现。例如，3节点的Consul集群最多允许1个节点故障，5节点的Consul集群则可以允许两个节点故障，在大规模生产环境中，建议使用至少3个DCS Server。
 Pigsty使用的DCS服务器通过参数 [`dcs_servers`](#dcs_servers) 指定，您可以使用外部的现有DCS服务器集群。也可以使用Pigsty本身管理的节点部署DCS Servers。
@@ -848,4 +829,55 @@ dcs_servers:
 使用的DCS类型, 类型：`enum`，层级：G，默认值为：`"consul"`
 
 有两种选项：`consul` 与 `etcd` ，但ETCD尚未正式支持。
+
+
+
+## `CONSUL`
+
+Consul用于服务网格，健康监测，传递共识，代理DCS Server访问。
+
+
+
+
+### `dcs_safeguard`
+
+安全保险，禁止清除存在的Consul实例，类型：`bool`，层级：C/A，默认值为：`false`
+
+如果为`true`，任何情况下，Pigsty剧本都不会移除运行中的Consul实例，包括 [`nodes-remove.yml`](p-nodes.md#nodes-remove)。
+
+详情请参考 [保护机制](p-nodes.md#保护机制)。
+
+
+
+### `dcs_clean`
+
+是否在初始化时抹除现存Consul实例？类型：`bool`，层级：C/A，默认值为：`false`。
+
+针对 [`nodes.yml`](p-nodes.md#nodes) 剧本的抹除豁免，如果指定该参数为真，那么在 [`nodes.yml`](p-nodes.md#nodes) 剧本执行时，会自动抹除已有的Consul实例。
+
+只有当该参数启用时，`nodes.yml` 才是一个真正幂等的剧本。
+
+这是一个危险的操作，因此必须显式指定。
+
+!>  安全保险参数 [`dcs_safeguard`](#dcs_safeguard) 打开时，本参数无效。
+
+
+
+
+
+### `dcs_name`
+
+DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
+
+在Consul中代表数据中心名称，在Etcd中没有意义。
+
+
+
+
+
+### `consul_data_dir`
+
+Consul数据目录, 类型：`string`，层级：G，默认值为：`"/data/consul"`
+
+
 
