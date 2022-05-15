@@ -377,16 +377,16 @@ There is no correspondence between DCS Server and the meta node: by default, Pig
 
 ### Abort because consul instance already exists
 
-!> Pigsty provides a DCS misdeletion protection mechanism, configuring `consul_clean = true`.
+!> Pigsty provides a DCS misdeletion protection mechanism, configuring `dcs_clean = true`.
 
-When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`consul_clean`](v-nodes.md#consul_clean) parameter, and if true, the existing Consul will be erased during initialization.
+When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-nodes.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
 
-Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`consul_safeguard`](v-nodes.md#consul_safeguard).
+Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-nodes.md#dcs_safeguard).
 
 These parameters can be modified in the config file `pigsty.yml` or specified at playbook execution time with the extra parameter mechanism.
 
 ```bash
-./nodes.yml -e consul_clean=clean
+./nodes.yml -e dcs_clean=clean
 ```
 
 
@@ -400,11 +400,11 @@ These parameters can be modified in the config file `pigsty.yml` or specified at
 
 ### Abort because Postgres instance already exists
 
-!> Pigsty provides a DCS misdeletion protection mechanism, configuring `consul_clean = true`.
+!> Pigsty provides a DCS misdeletion protection mechanism, configuring `dcs_clean = true`.
 
-When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`consul_clean`](v-nodes.md#consul_clean) parameter, and if true, the existing Consul will be erased during initialization.
+When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-nodes.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
 
-Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`consul_safeguard`](v-nodes.md#consul_safeguard).
+Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-nodes.md#dcs_safeguard).
 
 These parameters can be modified in the config file `pigsty.yml` or can be specified at playbook execution time with the extra parameter mechanism.
 

@@ -83,9 +83,9 @@ node_extra_packages -> node_packages
 node_packages_meta -> node_packages_meta
 node_meta_pip_install -> node_packages_meta_pip
 node_sysctl_params -> node_tune_params
-dcs_name -> consul_name
-dcs_exists_action -> consul_clean
-dcs_disable_purge -> consul_safeguard
+dcs_name -> dcs_name
+dcs_exists_action -> dcs_clean
+dcs_disable_purge -> dcs_safeguard
 app_list -> nginx_indexes
 grafana_plugin -> grafana_plugin_method
 grafana_cache -> grafana_plugin_cache

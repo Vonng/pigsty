@@ -12,6 +12,7 @@
 * Add node crontab variables and default backup tasks
 * Complete translation of EN docs
 * Simplified purge & safeguard options for consul, pgsql and redis
+* ETCD as DCS (beta)
 
 
 ## New Features
@@ -53,6 +54,8 @@ New software / application based on docker:
 * `grafana_enabled`: enable grafana on this meta node?
 * `loki_enabled`: enable loki on this meta node?
 * `docker_enable`: enable docker on this node?
+* `consul_enable`: enable consul server/agent?
+* `etcd_enable`: enable etcd server/clients?
 
 
 **Reforge**
@@ -61,10 +64,10 @@ Now `*_clean` are boolean flags to clean up existing instance during init.
 
 And `*_safeguard` are boolean flags to avoid purging running instance when executing any playbook.
 
-- `dcs_exists_action` -> `consul_clean`
-- `dcs_disable_purge` -> `consul_safeguard`
 - `pg_exists_action` -> `pg_clean`
 - `pg_disable_purge` -> `pg_safeguard`
+- `dcs_exists_action` -> `dcs_clean`
+- `dcs_disable_purge` -> `dcs_safeguard`
 
 **Rename**
 
@@ -80,7 +83,6 @@ And `*_safeguard` are boolean flags to avoid purging running instance when execu
 - `node_packages_meta` -> `node_packages_meta`
 - `node_meta_pip_install` -> `node_packages_meta_pip`
 - `node_sysctl_params` -> `node_tune_params`
-- `dcs_name` -> `consul_name`
 - `app_list` -> `nginx_indexes`
 - `grafana_plugin` -> `grafana_plugin_method`
 - `grafana_cache` -> `grafana_plugin_cache`
@@ -88,7 +90,7 @@ And `*_safeguard` are boolean flags to avoid purging running instance when execu
 - `grafana_git_plugin_git` -> `grafana_plugin_git`
 - `haproxy_admin_auth_enabled` -> `haproxy_auth_enabled`
 - `pg_shared_libraries` -> `pg_libs`
-
+- `dcs_type` -> `patroni_dcs`
 
 
 ```bash

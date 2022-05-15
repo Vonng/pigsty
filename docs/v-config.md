@@ -265,10 +265,10 @@ Usually, only the node/database **identity parameter** is mandatory, other param
 | 184  | [`loki_retention`](v-infra.md#loki_retention)                | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki log default retention days                              |
 | 200  | [`dcs_servers`](v-infra.md#dcs_servers)                      | [`DCS`](v-infra.md#DCS)                         | G     | DCS server name:IP list                                      |
 | 201  | [`dcs_registry`](v-infra.md#dcs_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | Service Registration Location                                |
-| 202  | [`dcs_type`](v-infra.md#dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Type                                                     |
-| 203  | [`consul_name`](v-infra.md#consul_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
-| 204  | [`consul_clean`](v-infra.md#consul_clean)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
-| 205  | [`consul_safeguard`](v-infra.md#consul_safeguard)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
+| 202  | [`pg_dcs_type`](v-infra.md#pg_dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Type                                                     |
+| 203  | [`dcs_name`](v-infra.md#dcs_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS Cluster Name                                             |
+| 204  | [`dcs_clean`](v-infra.md#dcs_clean)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Action when DCS instance exists                              |
+| 205  | [`dcs_safeguard`](v-infra.md#dcs_safeguard)          | [`DCS`](v-infra.md#DCS)                         | C/A   | Prohibit cleaning of DCS instances                           |
 | 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul Data Catalog                                          |
 | 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd Data Catalog                                            |
 | 220  | [`jupyter_enabled`](v-infra.md#jupyter_enabled)              | [`JUPYTER`](v-infra.md#JUPYTER)                 | G     | Enable JupyterLab                                            |

@@ -190,8 +190,8 @@ Pigsty uses a SafeGuard to avoid accidental deletion of running instances; pleas
 
 * [`pg_clean`](v-pgsql.md#pg_clean) = clean
 * [`pg_safeguard`](v-pgsql.md#pg_safeguard) = false
-* [`consul_clean`](v-pgsql.md#pg_clean) = clean
-* [`consul_safeguard`](v-pgsql.md#pg_safeguard) = false
+* [`dcs_clean`](v-pgsql.md#pg_clean) = clean
+* [`dcs_safeguard`](v-pgsql.md#pg_safeguard) = false
 
 For example: `. /pgsql.yml -l pg-test -e pg_exists_action=clean` will force an override install of the `pg-test` cluster.
 
@@ -717,7 +717,7 @@ In addition, you can reset specific components on the database node using the fo
 # The more commonly used, safe reset command, re-install monitoring and re-registration will not affect the service
 . /pgsql.yml -l pg-test -t=monitor  # Redeploy monitoring
 . /pgsql.yml -l pg-test -t=register # Re-register the service to the infrastructure (Nginx, Prometheus, Grafana, CMDB...)
-. /nodes.yml -l pg-test -t=consul -e consul_clean=clean # Reset DCS Agent in maintenance mode
+. /nodes.yml -l pg-test -t=consul -e dcs_clean=clean # Reset DCS Agent in maintenance mode
 =======
 # The more commonly used, safe reset command, re-install monitor and re-registration will not affect the service
 . /pgsql.yml -l pg-test -t=monitor  # Redeploy monitor
@@ -780,7 +780,7 @@ First, create the new DCS cluster, then edit the inventory [``dcs_servers``](v-i
 
 ```bash
 # Force reset the Consul Agent on the target cluster (since HA is in maintenance mode and will not affect the new database cluster)
-. /nodes.yml -l pg-test -t consul -e consul_clean=clean
+. /nodes.yml -l pg-test -t consul -e dcs_clean=clean
 
 ```
 

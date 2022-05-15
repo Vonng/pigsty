@@ -59,7 +59,7 @@ This playbook will run the following tasks:
 
 !> **Be careful when running this playbook on provisioned nodes. It may lead to the database being temporarily unavailable because of the removal of the consul service.** 
 
-The [`consul_clean`](v-nodes.md#consul_clean) provides a [SafeGuard](#SafeGuard) to avoid accidental purge. When existing Consul Instance is detected during playbook execution. It will take action about it.
+The [`dcs_clean`](v-nodes.md#dcs_clean) provides a [SafeGuard](#SafeGuard) to avoid accidental purge. When existing Consul Instance is detected during playbook execution. It will take action about it.
 
 !> When using the complete `nodes.yml` playbook or just the section on `dcs|consul`, please double-check that the `-tags|-t` and `-limit|-l` is correct. Make sure you are running the right tasks on the correct targets. 
 
@@ -69,22 +69,22 @@ The [`consul_clean`](v-nodes.md#consul_clean) provides a [SafeGuard](#SafeGuard)
 
 Pigsty provides a SafeGuard to avoid purging running consul instances with fat fingers. There are two parameters.
 
-* [`consul_safeguard`](v-nodes.md#consul_safeguard): Disabled by default, if enabled, running consul will not be purged by any circumstance.
-* [`consul_clean`](v-nodes.md#consul_clean): disabled by default, [`nodes.yml`](#nodes) will purge running consul during node init.
+* [`dcs_safeguard`](v-nodes.md#dcs_safeguard): Disabled by default, if enabled, running consul will not be purged by any circumstance.
+* [`dcs_clean`](v-nodes.md#dcs_clean): disabled by default, [`nodes.yml`](#nodes) will purge running consul during node init.
 
 When running consul exists, [`nodes.yml`](#nodes) will act as:
 
-| `consul_safeguard` / `pg_clean` | `consul_clean=true` | `consul_clean=false` |
+| `dcs_safeguard` / `pg_clean` | `dcs_clean=true` | `dcs_clean=false` |
 | :-----------------------------: | :-----------------: | :------------------: |
-|     `consul_safeguard=true`     |        ABORT        |        ABORT         |
-|    `consul_safeguard=false`     |      **PURGE**      |        ABORT         |
+|     `dcs_safeguard=true`     |        ABORT        |        ABORT         |
+|    `dcs_safeguard=false`     |      **PURGE**      |        ABORT         |
 
 When running consul exists,  [`nodes-remove.yml`](#nodes-remove) will act as:
 
-| `consul_safeguard` / `pg_clean` | `consul_clean=true` | `consul_clean=false` |
+| `dcs_safeguard` / `pg_clean` | `dcs_clean=true` | `dcs_clean=false` |
 | :-----------------------------: | :-----------------: | :------------------: |
-|     `consul_safeguard=true`     |        ABORT        |        ABORT         |
-|    `consul_safeguard=false`     |      **PURGE**      |      **PURGE**       |
+|     `dcs_safeguard=true`     |        ABORT        |        ABORT         |
+|    `dcs_safeguard=false`     |      **PURGE**      |      **PURGE**       |
 
 
 
@@ -125,7 +125,7 @@ Common tasks are listed below:
 ./nodes.yml --tags=node_ntp        # Configure NTP service
 ./nodes.yml --tags=docker          # Configure dockerd daemon
 ./nodes.yml --tags=consul          # Configure consul agent/server
-./nodes.yml --tags=consul -e consul_clean=clean   # Force consul reinit
+./nodes.yml --tags=consul -e dcs_clean=clean   # Force consul reinit
 
 ./nodes.yml --tags=node_exporter   # Configure node_exporter on the node and register it
 ./nodes.yml --tags=node_register   # Registering node monitoring to a meta node

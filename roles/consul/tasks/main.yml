@@ -22,20 +22,20 @@
     # abort if consul already exists
     #--------------------------------------------------------------------------
     # when any running instance exists, abort play in two cases:
-    # 1. consul_safeguard = true          (global flag to prevent accidentally purge)
-    # 2. consul_clean = true
+    # 1. dcs_safeguard = true          (global flag to prevent accidentally purge)
+    # 2. dcs_clean = true
     - name: Abort due to existing consul instance
       connection: local
       any_errors_fatal: true
-      when: consul_exists and (consul_safeguard or not consul_clean)
-      fail: msg="Abort because consul instance {{ inventory_hostname }} is running, use consul_clean=true"
+      when: consul_exists and (dcs_safeguard or not dcs_clean)
+      fail: msg="Abort because consul instance {{ inventory_hostname }} is running, use dcs_clean=true"
 
 
 #------------------------------------------------------------------------------
 # Clean consul
 #------------------------------------------------------------------------------
 - name: Clean existing consul
-  tags: consul_clean
+  tags: dcs_clean
   block:
     #--------------------------------------------------------------------------
     # purge dcs
@@ -43,7 +43,7 @@
     # dangerous: (it will remove consul data!)
     - name: Clean existing consul instance
       # connection: local, leave a chance for human intervention
-      when: not consul_safeguard and consul_exists and consul_clean # DANGEROUS!
+      when: not dcs_safeguard and consul_exists and dcs_clean # DANGEROUS!
       debug:
         msg: "[DANGEROUS] RUNNING CONSUL INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
 
@@ -126,7 +126,7 @@
         group: consul
         content: |
           {
-            "datacenter": "{{ consul_name }}",
+            "datacenter": "{{ dcs_name }}",
             "node_name": "{{ nodename }}",
             "bind_addr": "{{ inventory_hostname }}",
             "retry_join": {{ dcs_servers.values()|list|to_json }},

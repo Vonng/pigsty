@@ -4,6 +4,7 @@
 #------------------------------------------------------------------------------
 - name: Check existing etcd
   tags: etcd_check
+  when: inventory_hostname in dcs_servers.values()
   block:
     #--------------------------------------------------------------------------
     # check etcd exists
@@ -35,6 +36,7 @@
 #------------------------------------------------------------------------------
 - name: Clean existing etcd
   tags: etcd_clean
+  when: inventory_hostname in dcs_servers.values()
   block:
     #--------------------------------------------------------------------------
     # purge dcs
@@ -129,7 +131,7 @@
     dest: /etc/profile.d/etcd.sh
     mode: 0755
     content: |
-      export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if loop.index|int > 1 %},{% endif %}http://{{ v }}:2379{% endfor %}"
+      export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}"
       alias e="etcdctl"
 
 ...

@@ -77,7 +77,7 @@
 | 184 | [`loki_data_dir`](#loki_data_dir)                           | [`LOKI`](#LOKI)             | string     | G     | Loki的数据目录                 |
 | 185 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | Loki日志默认保留天数           |
 | 200 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | 服务注册的位置                 |
-| 201 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  |
+| 201 | [`pg_dcs_type`](#pg_dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | 使用的DCS类型                  |
 | 202 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | DCS服务器名称:IP列表           |
 
 
@@ -800,7 +800,7 @@ Loki日志默认保留天数, 类型：`interval`，层级：G，默认值为：
 
 Distributed Configuration Store (DCS) 是一种分布式，高可用的元数据库。Pigsty使用DCS来实现数据库高可用，服务发现等功能也通过DCS实现。
 
-Pigsty目前仅支持使用Consul作为DCS，后续会添加ETCD作为DCS的选项。通过 [`dcs_type`](#dcs_type) 指明使用的DCS种类，通过 [`dcs_registry`](#dcs_registry) 指明服务注册的位置。
+Pigsty目前仅支持使用Consul作为DCS，后续会添加ETCD作为DCS的选项。通过 [`pg_dcs_type`](#pg_dcs_type) 指明使用的DCS种类，通过 [`dcs_registry`](#dcs_registry) 指明服务注册的位置。
 
 Consul服务的可用性对于数据库高可用至关重要，因此在生产环境摆弄DCS服务时，需要特别小心。DCS本身的可用性，通过多副本实现。例如，3节点的Consul集群最多允许1个节点故障，5节点的Consul集群则可以允许两个节点故障，在大规模生产环境中，建议使用至少3个DCS Server。
 Pigsty使用的DCS服务器通过参数 [`dcs_servers`](#dcs_servers) 指定，您可以使用外部的现有DCS服务器集群。也可以使用Pigsty本身管理的节点部署DCS Servers。
@@ -843,7 +843,7 @@ dcs_servers:
 
 
 
-### `dcs_type`
+### `pg_dcs_type`
 
 使用的DCS类型, 类型：`enum`，层级：G，默认值为：`"consul"`
 

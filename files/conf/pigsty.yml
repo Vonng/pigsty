@@ -50,7 +50,7 @@ all:
         grafana_enabled:     true     # setup grafana
         loki_enabled:        true     # setup loki
         docker_enabled:      true     # setup docker
-        consul_safeguard:    false    # protect dcs server from fat fingers
+        dcs_safeguard:    false    # protect dcs server from fat fingers
 
       hosts:                          # add nodes to group 'meta'
         10.10.10.10: { }
@@ -513,15 +513,26 @@ all:
     #-----------------------------------------------------------------
     # DCS
     #-----------------------------------------------------------------
-    dcs_registry: consul              # where to register services: none | consul | etcd | both
-    dcs_type: consul                  # consul | etcd | both
+    dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
-      pg-meta-1: 10.10.10.10          # using existing external dcs cluster is recommended for HA
-      # pg-meta-2: 10.10.10.11        # node with ip in dcs_servers will be initialized as dcs servers
-      # pg-meta-3: 10.10.10.12        # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      meta: 10.10.10.10               # using existing external dcs cluster is recommended for HA
+      # meta-2: 10.10.10.11           # node with ip in dcs_servers will be initialized as dcs servers
+      # meta-3: 10.10.10.12           # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+    dcs_registry: consul              # where to register services: none | consul | etcd | both
+    dcs_safeguard: false              # if true, running dcs will NOT be removed
+    dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
 
+    #-----------------------------------------------------------------
+    # CONSUL
+    #-----------------------------------------------------------------
+    consul_enabled: true              # enable consul server/agent by default?
+    consul_data_dir: /data/consul     # consul data dir (/data/consul by default)
 
-
+    #-----------------------------------------------------------------
+    # ETCD
+    #-----------------------------------------------------------------
+    etcd_enabled: true                # enable etcd server by default?
+    etcd_data_dir: /data/etcd         # etcd data dir (/data/etcd by default)
 
 
     #================================================================#
@@ -617,14 +628,6 @@ all:
     docker_cgroups_driver: systemd    # docker cgroup fs driver
     docker_registry_mirrors: []       # docker registry mirror
     docker_image_cache: /tmp/docker.tgz # docker images tarball to be loaded if exists
-
-    #-----------------------------------------------------------------
-    # CONSUL
-    #-----------------------------------------------------------------
-    consul_safeguard: false           # if true, running consul will not be removed, even with node-remove.yml
-    consul_clean: true                # if true, running consul will be purged during node init, DANGEROUS
-    consul_name: pigsty               # consul dc name | etcd initial cluster token
-    consul_data_dir: /data/consul     # consul data dir (/data/consul by default)
 
     #-----------------------------------------------------------------
     # NODE_EXPORTER
@@ -727,6 +730,7 @@ all:
     pg_localhost: /var/run/postgresql # localhost unix socket dir for connection
     patroni_enabled: true             # if not enabled, no postgres cluster will be created
     patroni_mode: default             # pause|default|remove
+    pg_dcs_type: consul               # which dcs to use: consul or etcd or raft
     pg_namespace: /pg                 # top level key namespace in dcs
     patroni_port: 8008                # default patroni port
     patroni_watchdog_mode: automatic  # watchdog mode: off|automatic|required

@@ -59,9 +59,9 @@ Pigsty provides host provisioning and monitoring functions. The [`nodes.yml`](p-
 | 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)     | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup driver                     |
 | 372 | [`docker_registry_mirrors`](#docker_registry_mirrors) | [`DOCKER`](#DOCKER) | string   | C   | docker registry mirror location          |
 | 373 | [`docker_image_cache`](#docker_image_cache)           | [`DOCKER`](#DOCKER) | string   | C | docker image cache tarball               |
-| 380 | [`consul_safeguard`](#consul_safeguard)               | [`CONSUL`](#CONSUL) | bool       | C/A   | avoid consul remove at all               |
-| 381 | [`consul_clean`](#consul_clean)                       | [`CONSUL`](#CONSUL) | bool    | C/A   | purge consul during init?                |
-| 382 | [`consul_name`](#consul_name)                         | [`CONSUL`](#CONSUL) | string     | G     | dcs cluster name (dc)                    |
+| 380 | [`dcs_safeguard`](#dcs_safeguard)               | [`CONSUL`](#CONSUL) | bool       | C/A   | avoid consul remove at all               |
+| 381 | [`dcs_clean`](#dcs_clean)                       | [`CONSUL`](#CONSUL) | bool    | C/A   | purge consul during init?                |
+| 382 | [`dcs_name`](#dcs_name)                         | [`CONSUL`](#CONSUL) | string     | G     | dcs cluster name (dc)                    |
 | 383 | [`consul_data_dir`](#consul_data_dir)                 | [`CONSUL`](#CONSUL) | string     | G     | consul data dir path                     |
 | 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C   | node_exporter enabled?                   |
 | 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C   | node_exporter listen port                |
@@ -655,7 +655,7 @@ Consul is used for service mesh, traffic control, health check, service registry
 
 
 
-### `consul_safeguard`
+### `dcs_safeguard`
 
 Assure that any running consul instance will not be purged by any [`nodes`](p-nodes.md) playbook., level: C/A, default: `false`
 
@@ -663,7 +663,7 @@ Check [SafeGuard](p-nodes.md#SafeGuard) for details.
 
 
 
-### `consul_clean`
+### `dcs_clean`
 
 Remove existing consul during node init? level: C/A, default: `false`
 
@@ -671,11 +671,11 @@ This allows the removal of any running consul instance during [`nodes.yml`](p-no
 
 It's a dangerous option so you'd better disable it by default and use it with `-e` CLI args.
 
-!> This parameter not working when [`consul_safeguard`](#consul_safeguard) is set to `true`
+!> This parameter not working when [`dcs_safeguard`](#dcs_safeguard) is set to `true`
 
 
 
-### `consul_name`
+### `dcs_name`
 
 DCS cluster name, type: `string`, level: G, default value: `"pigsty"`.
 

@@ -59,9 +59,9 @@ Pigsty提供了完整的主机置备与监控功能，执行 [`nodes.yml`](p-nod
 | 371 | [`docker_cgroups_driver`](#docker_cgroups_driver)           | [`DOCKER`](#DOCKER) | int      | C   | docker cgroup驱动               |
 | 372 | [`docker_registry_mirrors`](#docker_registry_mirrors)     | [`DOCKER`](#DOCKER) | string   | C   | docker镜像仓库地址    |
 | 373 | [`docker_image_cache`](#docker_image_cache)     | [`DOCKER`](#DOCKER) | string   | C | docker镜像缓存包地址       |
-| 380 | [`consul_safeguard`](#consul_safeguard)                   | [`CONSUL`](#CONSUL)  | bool       | C/A   | 完全禁止清理Consul实例      |
-| 381 | [`consul_clean`](#consul_clean)                   | [`CONSUL`](#CONSUL)   | bool    | C/A   | 初始化时清除现存Consul实例 |
-| 382 | [`consul_name`](#consul_name)                                     | [`CONSUL`](#CONSUL)   | string     | G     | DCS集群名称                    |
+| 380 | [`dcs_safeguard`](#dcs_safeguard)                   | [`CONSUL`](#CONSUL)  | bool       | C/A   | 完全禁止清理Consul实例      |
+| 381 | [`dcs_clean`](#dcs_clean)                   | [`CONSUL`](#CONSUL)   | bool    | C/A   | 初始化时清除现存Consul实例 |
+| 382 | [`dcs_name`](#dcs_name)                                     | [`CONSUL`](#CONSUL)   | string     | G     | DCS集群名称                    |
 | 383 | [`consul_data_dir`](#consul_data_dir)                       | [`CONSUL`](#CONSUL)   | string     | G     | Consul数据目录                 |
 | 390 | [`node_exporter_enabled`](#node_exporter_enabled)     | [`NODE_EXPORTER`](#NODE_EXPORTER) | bool     | C     | 启用节点指标收集器                   |
 | 391 | [`node_exporter_port`](#node_exporter_port)           | [`NODE_EXPORTER`](#NODE_EXPORTER) | int      | C     | 节点指标暴露端口                     |
@@ -653,7 +653,7 @@ Consul用于服务网格，健康监测，传递共识，代理DCS Server访问�
 
 
 
-### `consul_safeguard`
+### `dcs_safeguard`
 
 安全保险，禁止清除存在的Consul实例，类型：`bool`，层级：C/A，默认值为：`false`
 
@@ -663,7 +663,7 @@ Consul用于服务网格，健康监测，传递共识，代理DCS Server访问�
 
 
 
-### `consul_clean`
+### `dcs_clean`
 
 是否在初始化时抹除现存Consul实例？类型：`bool`，层级：C/A，默认值为：`false`。
 
@@ -673,13 +673,13 @@ Consul用于服务网格，健康监测，传递共识，代理DCS Server访问�
 
 这是一个危险的操作，因此必须显式指定。
 
-!>  安全保险参数 [`consul_safeguard`](#consul_safeguard) 打开时，本参数无效。
+!>  安全保险参数 [`dcs_safeguard`](#dcs_safeguard) 打开时，本参数无效。
 
 
 
 
 
-### `consul_name`
+### `dcs_name`
 
 DCS集群名称, 类型：`string`，层级：G，默认值为：`"pigsty"`
 

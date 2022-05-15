@@ -264,10 +264,10 @@ Pigsty包含了220个固定[配置项](#配置项清单)，分为四个部分：
 | 184  | [`loki_retention`](v-infra.md#loki_retention)                | [`LOKI`](v-infra.md#LOKI)                       | G     | Loki日志默认保留天数                 |
 | 200  | [`dcs_servers`](v-infra.md#dcs_servers)                      | [`DCS`](v-infra.md#DCS)                         | G     | DCS服务器名称:IP列表                 |
 | 201  | [`dcs_registry`](v-infra.md#dcs_registry)            | [`DCS`](v-infra.md#DCS)                         | G     | 服务注册的位置                       |
-| 202  | [`dcs_type`](v-infra.md#dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | 使用的DCS类型                        |
-| 203  | [`consul_name`](v-infra.md#consul_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS集群名称                          |
-| 204  | [`consul_clean`](v-infra.md#consul_clean)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 若DCS实例存在如何处理                |
-| 205  | [`consul_safeguard`](v-infra.md#consul_safeguard)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 完全禁止清理DCS实例                  |
+| 202  | [`pg_dcs_type`](v-infra.md#pg_dcs_type)                            | [`DCS`](v-infra.md#DCS)                         | G     | 使用的DCS类型                        |
+| 203  | [`dcs_name`](v-infra.md#dcs_name)                            | [`DCS`](v-infra.md#DCS)                         | G     | DCS集群名称                          |
+| 204  | [`dcs_clean`](v-infra.md#dcs_clean)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 若DCS实例存在如何处理                |
+| 205  | [`dcs_safeguard`](v-infra.md#dcs_safeguard)          | [`DCS`](v-infra.md#DCS)                         | C/A   | 完全禁止清理DCS实例                  |
 | 206  | [`consul_data_dir`](v-infra.md#consul_data_dir)              | [`DCS`](v-infra.md#DCS)                         | G     | Consul数据目录                       |
 | 207  | [`etcd_data_dir`](v-infra.md#etcd_data_dir)                  | [`DCS`](v-infra.md#DCS)                         | G     | Etcd数据目录                         |
 | 300  | [`meta_node`](v-nodes.md#meta_node)                          | [`NODE_IDENTITY`](v-nodes.md#NODE_IDENTITY)     | C     | 表示此节点为元节点                   |

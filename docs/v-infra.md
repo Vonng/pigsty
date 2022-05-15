@@ -79,7 +79,7 @@ The following config entries describe the [**infra**](c-arch.md#infrastructure) 
 | 184 | [`loki_retention`](#loki_retention)                         | [`LOKI`](#LOKI)             | interval   | G     | loki log keeping period|
 | 200 | [`dcs_servers`](#dcs_servers)                               | [`DCS`](#DCS)               | dict       | G     | dcs server dict|
 | 201 | [`dcs_registry`](#dcs_registry)                     | [`DCS`](#DCS)               | enum       | G     | Registration Services |
-| 202 | [`dcs_type`](#dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | dcs to use (consul/etcd) |
+| 202 | [`pg_dcs_type`](#pg_dcs_type)                                     | [`DCS`](#DCS)               | enum       | G     | dcs to use (consul/etcd) |
 
 
 
@@ -780,7 +780,7 @@ Loki log default retention days, type: `interval`, level: G, default value: `"15
 
 Distributed Configuration Store (DCS) is a distributed, highly available meta-database that Pigsty uses to achieve high database availability, service discovery, and other functions.
 
-Pigsty currently only supports using Consul as DCS, and will add the option to use ETCD as DCS later. Specify the type of DCS used by [`dcs_type`](#dcs_type) and the location of the service registration by [`dcs_registry`](#dcs_registry).
+Pigsty currently only supports using Consul as DCS, and will add the option to use ETCD as DCS later. Specify the type of DCS used by [`pg_dcs_type`](#pg_dcs_type) and the location of the service registration by [`dcs_registry`](#dcs_registry).
 
 The availability of the Consul service is critical for high database availability, so special care needs to be taken when using the DCS service in a production env. Availability of DCS itself is achieved through multiple copies. For example, a 3-node Consul cluster allows up to one node to fail, while a 5-node Consul cluster allows two nodes to fail. In a large-scale production env, it is recommended to use at least three DCS Servers.
 The DCS servers used by Pigsty are specified by the parameter [`dcs_servers`](#dcs_servers), either by using an existing external DCS server cluster or by deploying DCS Servers using nodes managed by Pigsty itself.
@@ -821,7 +821,7 @@ Location of the service registration, type: `enum`, level: G, default value: `"c
 
 
 
-### `dcs_type`
+### `pg_dcs_type`
 
 DCS type used, type: `enum`, hierarchy: G, default value: `"consul"`.
 

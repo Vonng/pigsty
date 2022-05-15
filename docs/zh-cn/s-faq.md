@@ -393,16 +393,16 @@ DCS Server与元节点并没有对应关系：在默认情况下，Pigsty会在�
 
 ### Abort because consul instance already exists
 
-!> Pigsty提供了DCS误删保护机制，配置`consul_clean = true` 可以硬干。
+!> Pigsty提供了DCS误删保护机制，配置`dcs_clean = true` 可以硬干。
 
-当目标节点的Consul服务已经存在时，[`nodes.yml`](p-nodes.md#nodes) 会根据 [`consul_clean`](v-nodes.md#consul_clean) 参数采取行动，如果为真，那么在初始化过程中现有的Consul会被抹除。
+当目标节点的Consul服务已经存在时，[`nodes.yml`](p-nodes.md#nodes) 会根据 [`dcs_clean`](v-nodes.md#dcs_clean) 参数采取行动，如果为真，那么在初始化过程中现有的Consul会被抹除。
 
-Pigsty也提供了相应的[保护机制](p-nodes.md#保护机制) 参数： [`consul_safeguard`](v-nodes.md#consul_safeguard)
+Pigsty也提供了相应的[保护机制](p-nodes.md#保护机制) 参数： [`dcs_safeguard`](v-nodes.md#dcs_safeguard)
 
 您可以在配置文件 `pigsty.yml` 中修改这些参数，也可以直接在执行剧本时，通过额外参数机制指定：
 
 ```bash
-./nodes.yml -e consul_clean=true
+./nodes.yml -e dcs_clean=true
 ```
 
 
