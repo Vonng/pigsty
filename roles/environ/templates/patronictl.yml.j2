@@ -2,11 +2,16 @@
 namespace: {{ pg_namespace }}/          # namespace
 
 # - dcs - #
-{% if dcs_type == 'consul' %}
+{% if pg_dcs_type == 'consul' %}
 consul:
   host: 127.0.0.1:8500
   consistency: default         # default|consistent|stale
 {% endif %}
+{% if pg_dcs_type == 'etcd' %}
+etcd:
+  hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
+{% endif %}
+
 
 # - ctl - #
 ctl:
