@@ -97,7 +97,7 @@
 #---------------------------------------------------------------
 # Remove DCS:Consul
 #---------------------------------------------------------------
-# force remove with ./nodes-remove.yml -t consul -e consul_safeguard=false
+# force remove with ./nodes-remove.yml -t consul -e dcs_safeguard=false
 - name: DCS Remove
   become: yes
   hosts: all
@@ -105,21 +105,20 @@
   tags: dcs
   tasks:
 
+    - name: Abort due to dcs_safeguard enabled
+      connection: local
+      when: dcs_safeguard|bool
+      any_errors_fatal: true
+      fail: msg="Abort due to dcs_safeguard for {{ inventory_hostname }} is enabled, use -e dcs_safeguard=false to override"
+
     #------------------------------------------------------------------------------
     # Remove Consul
     #------------------------------------------------------------------------------
-    - name: Remove DCS Consul
+    - name: Remove Consul
       tags: consul
-      when: dcs_registry == 'consul'
+      when: consul_enabled|bool
       become: yes
       block:
-
-        - name: Abort due to consul_safeguard enabled
-          connection: local
-          when: consul_safeguard|bool
-          any_errors_fatal: true
-          fail: msg="Abort due to consul_safeguard for {{ inventory_hostname }} is enabled, use -e consul_safeguard=false to override"
-
         - name: Consul leave cluster
           ignore_errors: yes
           command: consul leave
@@ -134,6 +133,27 @@
           with_items:
             - /etc/consul.d
             - "{{ consul_data_dir }}"
+
+    #------------------------------------------------------------------------------
+    # Remove Etcd
+    #------------------------------------------------------------------------------
+    - name: Remove Etcd
+      tags: consul
+      when: etcd_enabled|bool
+      become: yes
+      block:
+        - name: Stop and disable etcd
+          ignore_errors: yes
+          systemd: name=etcd state=stopped enabled=no daemon_reload=yes
+
+        - name: Remove etcd config and data
+          ignore_errors: yes
+          file: path={{ item }} state=absent
+          with_items:
+            - /etc/consul.d
+            - "{{ etcd_data_dir }}"
+
+
 
 
 ...
