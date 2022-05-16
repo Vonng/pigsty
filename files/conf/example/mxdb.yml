@@ -1,3 +1,7 @@
+#================================================================#
+#                        GPSQL Clusters                          #
+#================================================================#
+
 #----------------------------------#
 # cluster: mx-mdw (gp master)
 #----------------------------------#
@@ -6,25 +10,18 @@ mx-mdw:
     10.10.10.10: { pg_seq: 1, pg_role: primary , nodename: mx-mdw-1 }
   vars:
     gp_role: master          # this cluster is used as greenplum master
+    pg_shard: mx             # pgsql sharding name & gpsql deployment name
     pg_cluster: mx-mdw       # this master cluster name is mx-mdw
-    pg_databases: [ { name: matrixmgr , extensions: [ { name: matrixdbts } ] } ]
-    pg_users: [ { name: meta , password: DBUser.Meta , pgbouncer: true } ]
+    pg_databases:
+      - { name: matrixmgr , extensions: [ { name: matrixdbts } ] }
+      - { name: meta }
+    pg_users:
+      - { name: meta , password: DBUser.Meta , pgbouncer: true }
+      - { name: dbuser_monitor , password: DBUser.Monitor , roles: [ dbrole_readonly ], superuser: true }
 
-    pg_dbsu: mxadmin              # matrixdb dbsu
-    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
-    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
-    node_name_exchange: true      # exchange node names among cluster
-    patroni_enabled: false        # do not pull up normal postgres with patroni
-    pgbouncer_enabled: true       # enable pgbouncer for greenplum master
-    pg_provision: false           # provision postgres template & database & user
-    haproxy_enabled: false        # disable haproxy monitor on greenplum
+    pgbouncer_enabled: true                # enable pgbouncer for greenplum master
+    pgbouncer_exporter_enabled: false      # enable pgbouncer_exporter for greenplum master
     pg_exporter_params: 'host=127.0.0.1&sslmode=disable'  # use 127.0.0.1 as local monitor host
-    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-    pg_extensions: [ ]
-    node_repo_local_urls:          # local repo url (if method=local, make sure firewall is configured or disabled)
-      - http://pigsty/pigsty.repo
-      - http://pigsty/matrix.repo
 
 #----------------------------------#
 # cluster: mx-sdw (gp master)
@@ -47,27 +44,9 @@ mx-sdw:
         6000: { pg_cluster: mx-seg3, pg_seq: 1, pg_role: primary , pg_exporter_port: 9633 }
         6001: { pg_cluster: mx-seg1, pg_seq: 2, pg_role: replica , pg_exporter_port: 9634 }
   vars:
-    gp_cluster: mx                 # greenplum cluster name
-    pg_cluster: mx-sdw
     gp_role: segment               # these are nodes for gp segments
-    node_cluster: mx-sdw           # node cluster name of sdw nodes
-
-    pg_preflight_skip: true       # skip preflight check
-    pg_dbsu: mxadmin              # matrixdb dbsu
-    pg_dbsu_uid: 1226             # matrixdb dbsu uid & gid
-    pg_dbsu_home: /home/mxadmin   # matrixdb dbsu homedir
-    node_name_exchange: true      # exchange node names among cluster
-    patroni_enabled: false        # do not pull up normal postgres with patroni
-    pgbouncer_enabled: false      # enable pgbouncer for greenplum master
-    pgbouncer_exporter_enabled: false      # enable pgbouncer for greenplum master
-    pg_provision: false           # provision postgres template & database & user
-    haproxy_enabled: false        # disable haproxy monitor on greenplum
-    pg_localhost: /tmp                                                    # connect to segments via /tmp unix socket
+    pg_shard: mx                   # pgsql sharding name & gpsql deployment name
+    pg_cluster: mx-sdw             # these segment clusters name is mx-sdw
+    pg_preflight_skip: true        # skip preflight check (since pg_seq & pg_role & pg_cluster not exists)
     pg_exporter_config: pg_exporter_basic.yml                             # use basic config to avoid segment server crash
     pg_exporter_params: 'options=-c%20gp_role%3Dutility&sslmode=disable'  # use gp_role = utility to connect to segments
-    pg_exporter_exclude_database: 'template0,template1,postgres,matrixmgr' # optional, comma separated list of database that WILL NOT be monitored when auto-discovery enabled
-    pg_packages: [ 'matrixdb postgresql${pg_version}* pgbouncer pg_exporter node_exporter consul pgbadger pg_activity' ]
-    pg_extensions: [ ]
-    node_repo_local_urls: # local repo url (if method=local, make sure firewall is configured or disabled)
-      - http://pigsty/pigsty.repo
-      - http://pigsty/matrix.repo
