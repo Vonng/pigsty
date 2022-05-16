@@ -15,7 +15,7 @@ The params on the PostgreSQL are divided into seven main sections：
 - [`PG_SERVICE`](#PG_SERVICE): Expose the PostgreSQL service, install the LB HAProxy, enable VIP, and configure DNS.
 
 
-| ID  |                              Name                               |             Section             |    Type     | Level | Comment                            |
+| ID  | Name                                                            |             Section             | Type        | Level | Comment                            |
 |-----|-----------------------------------------------------------------|---------------------------------|-------------|-------|------------------------------------|
 | 500 | [`pg_cluster`](#pg_cluster)                                     | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Cluster Name                    |
 | 501 | [`pg_shard`](#pg_shard)                                         | [`PG_IDENTITY`](#PG_IDENTITY)   | string      | C     | PG Shard Name (Reserve)            |
@@ -52,31 +52,33 @@ The params on the PostgreSQL are divided into seven main sections：
 | 548 | [`pg_bin_dir`](#pg_bin_dir)                                     | [`PG_INSTALL`](#PG_INSTALL)     | path        | C     | PG binary dir                      |
 | 549 | [`pg_packages`](#pg_packages)                                   | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG packages to be installed        |
 | 550 | [`pg_extensions`](#pg_extensions)                               | [`PG_INSTALL`](#PG_INSTALL)     | string[]    | C     | PG extension pkgs to be installed  |
-| 560 | [`pg_safeguard`](#pg_safeguard)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge          |
-| 561 | [`pg_clean`](#pg_clean)                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool     | C/A   | purge existing pgsql during init   |
+| 560 | [`pg_safeguard`](#pg_safeguard)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | disable pg instance purge          |
+| 561 | [`pg_clean`](#pg_clean)                                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C/A   | purge existing pgsql during init   |
 | 562 | [`pg_data`](#pg_data)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg data dir                        |
 | 563 | [`pg_fs_main`](#pg_fs_main)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg main data disk mountpoint       |
 | 564 | [`pg_fs_bkup`](#pg_fs_bkup)                                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | pg backup disk mountpoint          |
 | 565 | [`pg_dummy_filesize`](#pg_dummy_filesize)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | size        | C     | /pg/dummy file size                |
 | 566 | [`pg_listen`](#pg_listen)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | C     | pg listen IP                       |
 | 567 | [`pg_port`](#pg_port)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pg listen port                     |
-| 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | pg's UnixSocket address            |
+| 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip          | path  | pg's UnixSocket address            |
 | 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Is patroni & postgres enabled?     |
 | 581 | [`patroni_mode`](#patroni_mode)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni working mode               |
-| 582 | [`pg_dcs_type`](#pg_dcs_type)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)               | enum       | G     | dcs to be used consul/etcd       |
+| 582 | [`pg_dcs_type`](#pg_dcs_type)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | G     | dcs to be used consul/etcd         |
 | 583 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | namespace for patroni              |
 | 584 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | patroni listen port (8080)         |
 | 585 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | patroni watchdog policy            |
 | 586 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | patroni template                   |
-| 587 | [`pg_libs`](#pg_libs)                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database    |
-| 588 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | character encoding                 |
-| 589 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | locale                             |
-| 590 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | collate rule of locale             |
-| 591 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | ctype of locale                    |
-| 592 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | is pgbouncer enabled               |
-| 593 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pgbouncer listen port              |
-| 594 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | pgbouncer pooling mode             |
-| 595 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | max connection per database        |
+| 587 | [`pg_libs`](#pg_libs)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | default preload shared database    |
+| 588 | [`pg_delay`](#pg_delay)                                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | interval    | I     | apply delay for standby leader     |
+| 589 | [`pg_checksum`](#pg_checksum)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | enable data checksum               |
+| 590 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | character encoding                 |
+| 591 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | locale                             |
+| 592 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | collate rule of locale             |
+| 593 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | ctype of locale                    |
+| 594 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | is pgbouncer enabled               |
+| 595 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | pgbouncer listen port              |
+| 596 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | pgbouncer pooling mode             |
+| 597 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | max connection per database        |
 | 600 | [`pg_provision`](#pg_provision)                                 | [`PG_PROVISION`](#PG_PROVISION) | bool        | C     | provision template to pgsql?       |
 | 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | path to postgres init script       |
 | 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | list or global default roles/users |
@@ -102,7 +104,7 @@ The params on the PostgreSQL are divided into seven main sections：
 | 640 | [`pg_services`](#pg_services)                                   | [`PG_SERVICE`](#PG_SERVICE)     | service[]   | G/C   | global service definition          |
 | 641 | [`haproxy_enabled`](#haproxy_enabled)                           | [`PG_SERVICE`](#PG_SERVICE)     | bool        | C/I   | haproxy enabled ?                  |
 | 642 | [`haproxy_reload`](#haproxy_reload)                             | [`PG_SERVICE`](#PG_SERVICE)     | bool        | A     | haproxy reload instead of reset    |
-| 643 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)     | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | enable auth for haproxy admin ?    |
+| 643 | [`haproxy_auth_enabled`](#haproxy_auth_enabled)                 | [`PG_SERVICE`](#PG_SERVICE)     | bool        | G/C   | enable auth for haproxy admin ?    |
 | 644 | [`haproxy_admin_username`](#haproxy_admin_username)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin user name            |
 | 645 | [`haproxy_admin_password`](#haproxy_admin_password)             | [`PG_SERVICE`](#PG_SERVICE)     | string      | G     | haproxy admin password             |
 | 646 | [`haproxy_exporter_port`](#haproxy_exporter_port)               | [`PG_SERVICE`](#PG_SERVICE)     | int         | C     | haproxy exporter listen port       |
@@ -917,6 +919,21 @@ Fill in the string of the `shared_preload_libraries` parameter in the Patroni te
 
 If Citus support is enabled by default, you need to modify this parameter by adding `citus` to the first position: `citus, timescaledb, pg_stat_statements, auto_explain`.
 
+
+
+### `pg_delay`
+
+Apply delay for delayed standby cluster, type: `interval`, level: I, default: `0`
+
+Specify a recovery min apply delay for [Delayed Replica](d-pgsql.md#延迟从库), can only be set on standby cluster initialization.
+
+
+
+### `pg_checksum`
+
+Enable data checksums? , type: `bool`, class: C , default: `"false"`
+
+Data checksum is enforced when using `crit` template.
 
 
 

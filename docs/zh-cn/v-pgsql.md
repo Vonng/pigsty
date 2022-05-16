@@ -63,20 +63,22 @@ Pigsty中，关于PostgreSQL数据库的参数分为7个主要章节：
 | 568 | [`pg_localhost`](#pg_localhost)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | ip|path     | PG使用的UnixSocket地址   |
 | 580 | [`patroni_enabled`](#patroni_enabled)                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | Patroni是否启用         |
 | 581 | [`patroni_mode`](#patroni_mode)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni配置模式         |
-| 201 | [`pg_dcs_type`](#pg_dcs_type)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)  | enum       | G     | PG使用的DCS类型          |
-| 582 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | Patroni使用的DCS命名空间   |
-| 583 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Patroni服务端口         |
-| 584 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni Watchdog模式  |
-| 585 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | Patroni使用的配置模板      |
-| 586 | [`pg_libs`](#pg_libs)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | PG默认加载的共享库          |
-| 587 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG字符集编码             |
-| 588 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化规则          |
-| 589 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化排序规则        |
-| 590 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化字符集定义       |
-| 591 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | 是否启用Pgbouncer       |
-| 592 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer端口         |
-| 593 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Pgbouncer池化模式       |
-| 594 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer最大单DB连接数   |
+| 582 | [`pg_dcs_type`](#pg_dcs_type)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP)  | enum       | G     | PG使用的DCS类型          |
+| 583 | [`pg_namespace`](#pg_namespace)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | path        | C     | Patroni使用的DCS命名空间   |
+| 584 | [`patroni_port`](#patroni_port)                                 | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Patroni服务端口         |
+| 585 | [`patroni_watchdog_mode`](#patroni_watchdog_mode)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Patroni Watchdog模式  |
+| 586 | [`pg_conf`](#pg_conf)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | Patroni使用的配置模板      |
+| 587 | [`pg_libs`](#pg_libs)                                           | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | string      | C     | PG默认加载的共享库          |
+| 588 | [`pg_delay`](#pg_delay)                                         | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | interval    | I     | 应用复制延迟至备份集群主库       |
+| 589 | [`pg_checksum`](#pg_checksum)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | 启用数据校验和             |
+| 590 | [`pg_encoding`](#pg_encoding)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG字符集编码             |
+| 591 | [`pg_locale`](#pg_locale)                                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化规则          |
+| 592 | [`pg_lc_collate`](#pg_lc_collate)                               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化排序规则        |
+| 593 | [`pg_lc_ctype`](#pg_lc_ctype)                                   | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | PG使用的本地化字符集定义       |
+| 594 | [`pgbouncer_enabled`](#pgbouncer_enabled)                       | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | bool        | C     | 是否启用Pgbouncer       |
+| 595 | [`pgbouncer_port`](#pgbouncer_port)                             | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer端口         |
+| 596 | [`pgbouncer_poolmode`](#pgbouncer_poolmode)                     | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | enum        | C     | Pgbouncer池化模式       |
+| 597 | [`pgbouncer_max_db_conn`](#pgbouncer_max_db_conn)               | [`PG_BOOTSTRAP`](#PG_BOOTSTRAP) | int         | C     | Pgbouncer最大单DB连接数   |
 | 600 | [`pg_provision`](#pg_provision)                                 | [`PG_PROVISION`](#PG_PROVISION) | bool        | C     | 是否在PG集群中应用模板        |
 | 601 | [`pg_init`](#pg_init)                                           | [`PG_PROVISION`](#PG_PROVISION) | string      | C     | 自定义PG初始化脚本          |
 | 602 | [`pg_default_roles`](#pg_default_roles)                         | [`PG_PROVISION`](#PG_PROVISION) | role[]      | G/C   | 默认创建的角色与用户          |
@@ -922,6 +924,21 @@ PG默认加载的共享库, 类型：`string`，层级：C，默认值为：`"ti
 
 如果您希望默认启用Citus支持，则需要修改该参数，将 `citus` 添加至首位：`citus, timescaledb, pg_stat_statements, auto_explain`
 
+
+
+### `pg_delay`
+
+搭建延时从库集群时的延迟时长，类型：`interval`，层级：I，默认值为：`0`
+
+为[延迟从库](d-pgsql.md#延迟从库)指定一个具体的延迟时长，只可在Standby Cluster初始化时指定。
+
+
+
+### `pg_checksum`
+
+是否启用数据校验和, 类型：`bool`，层级：C，默认值为：`"false"`
+
+当使用核心库模板 `crit` 时，数据校验和无法配置，强制打开，其他情况请按需启用。
 
 
 

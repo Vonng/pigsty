@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2022-05-15
+# Mtime     :   2022-05-17
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (small)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
@@ -48,6 +48,7 @@ consul:
 etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% endif %}
+
 
 #------------------------------------------------------------------------------
 # api
@@ -107,7 +108,9 @@ bootstrap:
 
   # default bootstrap method: initdb
   initdb:
-  # - data-checksums
+{% if pg_checksum != '' and pg_checksum|bool %}
+    - data-checksums
+{% endif %}
 {% if pg_encoding != '' %}
     - encoding: {{ pg_encoding }}
 {% endif %}
@@ -120,7 +123,6 @@ bootstrap:
 {% if pg_lc_ctype != '' %}
     - lc-ctype: {{ pg_lc_ctype }}
 {% endif %}
-
 
   #----------------------------------------------------------------------------
   # bootstrap users
@@ -163,7 +165,10 @@ bootstrap:
     standby_cluster:
       host: {{ pg_upstream }}
       port: {{ pg_port }}
-      # primary_slot_name: patroni     # must be create manually on upstream server, if specified
+{% if pg_delay is defined and pg_delay != '' and pg_delay != 0 %}
+      recovery_min_apply_delay: {{ pg_delay }}
+{% endif %}
+      # primary_slot_name: patroni     # must be created manually on upstream server, if specified
       create_replica_methods:
         - basebackup
 {% endif %}
@@ -424,6 +429,5 @@ postgresql:
   #   - local   replication     postgres                                ident
   #   - local   replication     all                                     md5
   #   - host    replication     all            0.0.0.0/0                md5
-
 
 ...

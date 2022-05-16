@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2020-12-22
+# Mtime     :   2022-05-17
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (tiny)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
@@ -108,7 +108,9 @@ bootstrap:
 
   # default bootstrap method: initdb
   initdb:
-  # - data-checksums
+{% if pg_checksum != '' and pg_checksum|bool %}
+    - data-checksums
+{% endif %}
 {% if pg_encoding != '' %}
     - encoding: {{ pg_encoding }}
 {% endif %}
@@ -163,7 +165,10 @@ bootstrap:
     standby_cluster:
       host: {{ pg_upstream }}
       port: {{ pg_port }}
-      # primary_slot_name: patroni     # must be create manually on upstream server, if specified
+{% if pg_delay is defined and pg_delay != '' and pg_delay != 0 %}
+      recovery_min_apply_delay: {{ pg_delay }}
+{% endif %}
+      # primary_slot_name: patroni     # must be created manually on upstream server, if specified
       create_replica_methods:
         - basebackup
 {% endif %}
@@ -273,8 +278,8 @@ bootstrap:
         wal_receiver_status_interval: 1s        # send replies at least this often
         hot_standby_feedback: on                # send info from standby to prevent query conflicts
         wal_receiver_timeout: 60s               # time that receiver waits for
-        # max_logical_replication_workers: 8      # 4 -> 8, 6 sync worker + 1~2 apply worker
-        # max_sync_workers_per_subscription: 6    # 2 -> 6, 6 sync worker
+        # max_logical_replication_workers: 8      # default 4, 6 sync worker + 1~2 apply worker
+        # max_sync_workers_per_subscription: 6    # default 2, 6 sync worker
 
         #----------------------------------------------------------------------
         # QUERY TUNING

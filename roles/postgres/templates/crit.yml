@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2022-05-15
+# Mtime     :   2022-05-17
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (crit)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
@@ -34,7 +34,6 @@ log:
   dateformat: '%Y-%m-%d %H:%M:%S %z'    #  IMPORTANT: discard milli timestamp
   format: '%(asctime)s %(levelname)s: %(message)s'
 
-
 #------------------------------------------------------------------------------
 # dcs
 #------------------------------------------------------------------------------
@@ -52,6 +51,7 @@ etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% endif %}
 
+
 #------------------------------------------------------------------------------
 # api
 #------------------------------------------------------------------------------
@@ -64,6 +64,7 @@ restapi:
     verify_client: none                 # none|optional|required
     username: {{ pg_monitor_username }}
     password: '{{ pg_monitor_password }}'
+
 
 #------------------------------------------------------------------------------
 # ctl
@@ -123,7 +124,6 @@ bootstrap:
     - lc-ctype: {{ pg_lc_ctype }}
 {% endif %}
 
-
   #----------------------------------------------------------------------------
   # bootstrap users
   #---------------------------------------------------------------------------
@@ -149,7 +149,7 @@ bootstrap:
 
 
   #----------------------------------------------------------------------------
-  # template
+  # customization
   #---------------------------------------------------------------------------
   # post_init: /pg/bin/pg-init
 
@@ -167,7 +167,10 @@ bootstrap:
     standby_cluster:
       host: {{ pg_upstream }}
       port: {{ pg_port }}
-      # primary_slot_name: patroni     # must be create manually on upstream server, if specified
+{% if pg_delay is defined and pg_delay != '' and pg_delay != 0 %}
+      recovery_min_apply_delay: {{ pg_delay }}
+{% endif %}
+      # primary_slot_name: patroni     # must be created manually on upstream server, if specified
       create_replica_methods:
         - basebackup
 {% endif %}
@@ -428,4 +431,5 @@ postgresql:
   #   - local   replication     postgres                                ident
   #   - local   replication     all                                     md5
   #   - host    replication     all            0.0.0.0/0                md5
+
 ...
