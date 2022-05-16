@@ -41,8 +41,8 @@ And a Nginx is serving & proxy all WebUI services @ port `80`.
 <details><summary>Download Directly via Curl</summary>
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pigsty.tgz -o /tmp/pigsty.tgz
-curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pkg.tgz    -o /tmp/pkg.tgz  
+curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pigsty.tgz -o /tmp/pigsty.tgz
+curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pkg.tgz    -o /tmp/pkg.tgz  
 ```
 
 </details>

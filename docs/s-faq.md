@@ -83,8 +83,8 @@ Executing the above command will automatically download the latest stable versio
 
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pigsty.tgz   # Github Release 
-http://download.pigsty.cc/v1.5.0-beta/pigsty.tgz                           # China CDN
+https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pigsty.tgz   # Github Release 
+http://download.pigsty.cc/v1.5.0-rc/pigsty.tgz                           # China CDN
 https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Yun
 ```
 
@@ -122,8 +122,8 @@ Pigsty's [offline package](d-prepare.md#Pigsty-offline-package) `pkg.tgz` packs 
 In [`. /configure`](v-config.md#configure), if the offline package `/tmp/pkg.tgz` does not exist, the wizard will prompt the user to download it, "Y" will automatically download it from Github or CDN; "N ", the download will be skipped. You can also download the offline package manually from the following location and place it in `/tmp/pkg.tgz`. Then, it will be used automatically when installing.
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-beta/pkg.tgz -o /tmp/pkg.tgz
-curl http://download.pigsty.cc/v1.5.0-beta/pkg.tgz -o /tmp/pkg.tgz         # China CDN
+curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pkg.tgz -o /tmp/pkg.tgz
+curl http://download.pigsty.cc/v1.5.0-rc/pkg.tgz -o /tmp/pkg.tgz         # China CDN
 https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Yun
 ```
 
