@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node citus config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-05-15
+# Mtime     :   2022-05-17
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -101,7 +101,8 @@ all:
   ####################################################################
   #                             VARS                                 #
   ####################################################################
-  vars:                              # global variables
+  vars:                               # global variables
+    version: v1.5.0-rc                # pigsty version string
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -126,11 +127,11 @@ all:
     #-----------------------------------------------------------------
     # CA
     #-----------------------------------------------------------------
-    ca_method: create                # create|copy|recreate
-    ca_subject: "/CN=root-ca"        # self-signed CA subject
-    ca_homedir: /ca                  # ca cert directory
-    ca_cert: ca.crt                  # ca public key/cert
-    ca_key: ca.key                   # ca private key
+    ca_method: create                 # create|copy|recreate
+    ca_subject: "/CN=root-ca"         # self-signed CA subject
+    ca_homedir: /ca                   # ca cert directory
+    ca_cert: ca.crt                   # ca public key/cert
+    ca_key: ca.key                    # ca private key
 
     #-----------------------------------------------------------------
     # NGINX
@@ -153,27 +154,27 @@ all:
       #- { name: jupyter      , domain: lab.pigsty , endpoint: "127.0.0.1:8888"   }
 
     nginx_indexes:                    # application nav links on home page
-      - { name: Explain  , url : '/pev2'                          , comment: 'postgres explain visualizer' }
-      - { name: Package  , url : '/pigsty'                        , comment: 'local yum repo packages'     }
-      - { name: YumRepo  , url : '/pigsty.repo'                   , comment: 'local yum repo file'         }
-      - { name: PGLogs   , url : '/logs'                          , comment: 'postgres raw csv logs'       }
-      - { name: Schemas  , url : '/schema'                        , comment: 'schemaspy summary report'    }
-      - { name: Reports  , url : '/report'                        , comment: 'pgbadger summary report'     }
-      #- { name: PgAdmin4 , url : 'http://adm.pigsty'              , comment: 'PgAdmin4 for PostgreSQL'     }
-      #- { name: PGWeb    , url : 'http://cli.pigsty'              , comment: 'PGWEB Browser Client'        }
-      #- { name: ByteBase , url : 'http://ddl.pigsty'              , comment: 'ByteBase Schema Migrator'    }
-      #- { name: Jupyter  , url : 'http://lab.pigsty'              , comment: 'Jupyter Laboratory'          }
-      #- { name: Kong     , url : 'http://api.pigsty'              , comment: 'Kong API Gateway'            }
+      - { name: Explain  , url : '/pev2'              , comment: 'postgres explain visualizer' }
+      - { name: Package  , url : '/pigsty'            , comment: 'local yum repo packages'     }
+      - { name: YumRepo  , url : '/pigsty.repo'       , comment: 'local yum repo file'         }
+      - { name: PGLogs   , url : '/logs'              , comment: 'postgres raw csv logs'       }
+      - { name: Schemas  , url : '/schema'            , comment: 'schemaspy summary report'    }
+      - { name: Reports  , url : '/report'            , comment: 'pgbadger summary report'     }
+      #- { name: PgAdmin4 , url : 'http://adm.pigsty' , comment: 'PgAdmin4 for PostgreSQL'     }
+      #- { name: PGWeb    , url : 'http://cli.pigsty' , comment: 'PGWEB Browser Client'        }
+      #- { name: ByteBase , url : 'http://ddl.pigsty' , comment: 'ByteBase Schema Migrator'    }
+      #- { name: Jupyter  , url : 'http://lab.pigsty' , comment: 'Jupyter Laboratory'          }
+      #- { name: Kong     , url : 'http://api.pigsty' , comment: 'Kong API Gateway'            }
 
 
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
-    repo_name: pigsty                # repo name, pigsty by default
-    repo_address: pigsty             # external address to this repo (ip:port or url)
-    repo_rebuild: false              # force re-download packages
-    repo_remove: true                # remove existing upstream repo
-    repo_upstreams:                  # where to download packages?
+    repo_name: pigsty                 # repo name, pigsty by default
+    repo_address: pigsty              # external address to this repo (ip:port or url)
+    repo_rebuild: false               # force re-download packages
+    repo_remove: true                 # remove existing upstream repo
+    repo_upstreams:                   # where to download packages?
       - name: base
         description: CentOS-$releasever - Base
         gpgcheck: no
@@ -203,7 +204,7 @@ all:
           - http://mirrors.aliyun.com/epel/$releasever/$basearch
           - http://download.fedoraproject.org/pub/epel/$releasever/$basearch
       - name: grafana
-        description: Grafana
+        description: Grafana Official Yum Repo
         enabled: yes
         gpgcheck: no
         baseurl:
@@ -245,17 +246,17 @@ all:
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-      - name: harbottle              # for latest consul & kubernetes
+      - name: harbottle               # for latest consul & kubernetes
         description: Copr repo for main owned by harbottle
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-      - name: pg_probackup              # for pg_probackup
+      - name: pg_probackup            # for pg_probackup
         description: PG_PROBACKUP Centos packages for PostgresPro Standard and Enterprise - $basearch
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://repo.postgrespro.ru/pg_probackup-forks/rpm/latest/centos-$releasever-$basearch
-      - name: docker-ce              # for latest docker
+      - name: docker-ce               # for latest docker
         description: Docker CE Stable - $basearch
         skip_if_unavailable: true
         gpgcheck: no
@@ -263,7 +264,7 @@ all:
           - https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
           - https://download.docker.com/linux/centos/$releasever/$basearch/stable
 
-    repo_packages:                   # which packages to be included                                                    #  what to download #
+    repo_packages:                    # which packages to be included                                                    #  what to download #
       - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
@@ -289,7 +290,7 @@ all:
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
       - docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
 
-    repo_url_packages:               # extra packages from url
+    repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/loki-2.5.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/promtail-2.5.0.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
@@ -306,29 +307,29 @@ all:
     dns_records:                      # dynamic dns record resolved by dnsmasq
       - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
       - 10.10.10.3  pg-test           # sandbox vip for pg-test
-      - 10.10.10.10 meta-1          # sandbox node meta-1
-      - 10.10.10.11 node-1          # sandbox node node-1
-      - 10.10.10.12 node-2          # sandbox node node-2
-      - 10.10.10.13 node-3          # sandbox node node-3
+      - 10.10.10.10 meta-1            # sandbox node meta-1
+      - 10.10.10.11 node-1            # sandbox node node-1
+      - 10.10.10.12 node-2            # sandbox node node-2
+      - 10.10.10.13 node-3            # sandbox node node-3
 
     #-----------------------------------------------------------------
     # PROMETHEUS
     #-----------------------------------------------------------------
-    prometheus_enabled: true        # setup prometheus
+    prometheus_enabled: true          # setup prometheus
     prometheus_data_dir: /data/prometheus/data
     prometheus_options: '--storage.tsdb.retention=15d'
-    prometheus_reload: false        # reload prometheus instead of recreate it?
-    prometheus_sd_method: static    # service discovery method: static|consul
-    prometheus_sd_interval: 5s      # service discovery refresh interval
-    prometheus_scrape_interval: 10s # global scrape & evaluation interval
-    prometheus_scrape_timeout: 8s   # scrape timeout
+    prometheus_reload: false          # reload prometheus instead of recreate it?
+    prometheus_sd_method: static      # service discovery method: static|consul
+    prometheus_sd_interval: 5s        # service discovery refresh interval
+    prometheus_scrape_interval: 10s   # global scrape & evaluation interval
+    prometheus_scrape_timeout: 8s     # scrape timeout
 
     #-----------------------------------------------------------------
     # EXPORTER
     #-----------------------------------------------------------------
-    exporter_install: none           # none|yum|binary, none by default
-    exporter_repo_url: ''            # if set, repo will be added to /etc/yum.repos.d/
-    exporter_metrics_path: /metrics  # default metric path for pg related exporter
+    exporter_install: none            # none|yum|binary, none by default
+    exporter_repo_url: ''             # if set, repo will be added to /etc/yum.repos.d/
+    exporter_metrics_path: /metrics   # default metric path for pg related exporter
 
     #-----------------------------------------------------------------
     # GRAFANA
@@ -490,16 +491,16 @@ all:
     #-----------------------------------------------------------------
     # NODE_EXPORTER
     #-----------------------------------------------------------------
-    node_exporter_enabled: true      # setup node_exporter on instance
-    node_exporter_port: 9100         # default port for node exporter
+    node_exporter_enabled: true       # setup node_exporter on instance
+    node_exporter_port: 9100          # default port for node exporter
     node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
 
     #-----------------------------------------------------------------
     # PROMTAIL
     #-----------------------------------------------------------------
-    promtail_enabled: true           # enable promtail logging collector?
-    promtail_clean: false            # remove promtail status file? false by default
-    promtail_port: 9080              # default listen address for promtail
+    promtail_enabled: true            # enable promtail logging collector?
+    promtail_clean: false             # remove promtail status file? false by default
+    promtail_port: 9080               # default listen address for promtail
     promtail_options: '-config.file=/etc/promtail.yml -config.expand-env=true'
     promtail_positions: /var/log/positions.yaml   # position status for promtail
 
@@ -521,20 +522,20 @@ all:
     # pg_sindex: 0                    # <CLUSTER>              : pgsql shard index
     # gp_role: master                 # <CLUSTER>              : gpsql role, master or segment
 
-    pg_offline_query: false          # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
-    pg_backup: false                 # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
-    pg_weight: 100                   # <INSTANCE> [FLAG] default load balance weight (instance level)
-    pg_hostname: true                # [FLAG] reuse postgres identity name as node identity?
-    pg_preflight_skip: false         # [FLAG] skip preflight identity check
+    pg_offline_query: false           # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
+    pg_backup: false                  # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
+    pg_weight: 100                    # <INSTANCE> [FLAG] default load balance weight (instance level)
+    pg_hostname: true                 # [FLAG] reuse postgres identity name as node identity?
+    pg_preflight_skip: false          # [FLAG] skip preflight identity check
 
     #-----------------------------------------------------------------
     # PG_BUSINESS
     #-----------------------------------------------------------------
     # overwrite these variables on <CLUSTER> level
-    pg_users: []                     # business users
-    pg_databases: []                 # business databases
-    pg_services_extra: []            # extra services
-    pg_hba_rules_extra:              # extra hba rules
+    pg_users: []                      # business users
+    pg_databases: []                  # business databases
+    pg_services_extra: []             # extra services
+    pg_hba_rules_extra:               # extra hba rules
       # AD HOC FOR CITUS CLUSTER
       - title: Allow unrestricted access to nodes in the local network. The following ranges
         role: common
@@ -546,7 +547,7 @@ all:
         rules:
           - host    all             all             127.0.0.1/32            trust
           - host    all             all             ::1/128                 trust
-    pgbouncer_hba_rules_extra: []    # extra pgbouncer hba rules
+    pgbouncer_hba_rules_extra: []     # extra pgbouncer hba rules
 
     # WARNING: change these in production environment!
     pg_admin_username: dbuser_dba
@@ -694,7 +695,7 @@ all:
           - host    all     +dbrole_offline               172.16.0.0/12     md5
           - host    all     +dbrole_offline               192.168.0.0/16    md5
 
-    pgbouncer_hba_rules:             # pgbouncer host-based authentication rules
+    pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:

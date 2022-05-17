@@ -110,7 +110,8 @@ all:
   ####################################################################
   #                             VARS                                 #
   ####################################################################
-  vars:                              # global variables
+  vars:                               # global variables
+    version: v1.5.0-rc                # pigsty version string
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -135,11 +136,11 @@ all:
     #-----------------------------------------------------------------
     # CA
     #-----------------------------------------------------------------
-    ca_method: create                # create|copy|recreate
-    ca_subject: "/CN=root-ca"        # self-signed CA subject
-    ca_homedir: /ca                  # ca cert directory
-    ca_cert: ca.crt                  # ca public key/cert
-    ca_key: ca.key                   # ca private key
+    ca_method: create                 # create|copy|recreate
+    ca_subject: "/CN=root-ca"         # self-signed CA subject
+    ca_homedir: /ca                   # ca cert directory
+    ca_cert: ca.crt                   # ca public key/cert
+    ca_key: ca.key                    # ca private key
 
     #-----------------------------------------------------------------
     # NGINX
@@ -171,11 +172,11 @@ all:
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
-    repo_name: pigsty                # repo name, pigsty by default
-    repo_address: pigsty             # external address to this repo (ip:port or url)
-    repo_rebuild: false              # force re-download packages
-    repo_remove: true                # remove existing upstream repo
-    repo_upstreams:                  # where to download packages?
+    repo_name: pigsty                 # repo name, pigsty by default
+    repo_address: pigsty              # external address to this repo (ip:port or url)
+    repo_rebuild: false               # force re-download packages
+    repo_remove: true                 # remove existing upstream repo
+    repo_upstreams:                   # where to download packages?
       - name: base
         description: CentOS-$releasever - Base
         gpgcheck: no
@@ -247,17 +248,17 @@ all:
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-      - name: harbottle              # for latest consul & kubernetes
+      - name: harbottle               # for latest consul & kubernetes
         description: Copr repo for main owned by harbottle
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-      - name: pg_probackup              # for pg_probackup
+      - name: pg_probackup            # for pg_probackup
         description: PG_PROBACKUP Centos packages for PostgresPro Standard and Enterprise - $basearch
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://repo.postgrespro.ru/pg_probackup-forks/rpm/latest/centos-$releasever-$basearch
-      - name: docker-ce              # for latest docker
+      - name: docker-ce               # for latest docker
         description: Docker CE Stable - $basearch
         skip_if_unavailable: true
         gpgcheck: no
@@ -265,12 +266,11 @@ all:
           - https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
           - https://download.docker.com/linux/centos/$releasever/$basearch/stable
 
-    repo_packages:                   # which packages to be included                                                    #  what to download #
+    repo_packages:                    # which packages to be included                                                    #  what to download #
       - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
-      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
-      - ed mlocate parted krb5-devel apr apr-util audit                                                                 # --- deps:gpsql -- #
+      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #                                                          # --- deps:gpsql -- #
       - readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel       # --- deps:devel -- #
       - grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq          # -----  meta ----- #
       - node_exporter nginx_exporter blackbox_exporter redis_exporter                                                   # ---- exporter --- #
@@ -291,9 +291,9 @@ all:
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
       - docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
-      - parquet-libs-3.0.0 arrow-libs-3.0.0
+      - ed mlocate parted krb5-devel apr apr-util audit parquet-libs-3.0.0 arrow-libs-3.0.0
 
-    repo_url_packages:               # extra packages from url
+    repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/loki-2.5.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/promtail-2.5.0.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
@@ -320,21 +320,21 @@ all:
     #-----------------------------------------------------------------
     # PROMETHEUS
     #-----------------------------------------------------------------
-    prometheus_enabled: true        # setup prometheus
+    prometheus_enabled: true          # setup prometheus
     prometheus_data_dir: /data/prometheus/data
     prometheus_options: '--storage.tsdb.retention=15d'
-    prometheus_reload: false        # reload prometheus instead of recreate it?
-    prometheus_sd_method: static    # service discovery method: static|consul
-    prometheus_sd_interval: 5s      # service discovery refresh interval
-    prometheus_scrape_interval: 10s # global scrape & evaluation interval
-    prometheus_scrape_timeout: 8s   # scrape timeout
+    prometheus_reload: false          # reload prometheus instead of recreate it?
+    prometheus_sd_method: static      # service discovery method: static|consul
+    prometheus_sd_interval: 5s        # service discovery refresh interval
+    prometheus_scrape_interval: 10s   # global scrape & evaluation interval
+    prometheus_scrape_timeout: 8s     # scrape timeout
 
     #-----------------------------------------------------------------
     # EXPORTER
     #-----------------------------------------------------------------
-    exporter_install: none           # none|yum|binary, none by default
-    exporter_repo_url: ''            # if set, repo will be added to /etc/yum.repos.d/
-    exporter_metrics_path: /metrics  # default metric path for pg related exporter
+    exporter_install: none            # none|yum|binary, none by default
+    exporter_repo_url: ''             # if set, repo will be added to /etc/yum.repos.d/
+    exporter_metrics_path: /metrics   # default metric path for pg related exporter
 
     #-----------------------------------------------------------------
     # GRAFANA
@@ -489,16 +489,16 @@ all:
     #-----------------------------------------------------------------
     # NODE_EXPORTER
     #-----------------------------------------------------------------
-    node_exporter_enabled: true      # setup node_exporter on instance
-    node_exporter_port: 9100         # default port for node exporter
+    node_exporter_enabled: true       # setup node_exporter on instance
+    node_exporter_port: 9100          # default port for node exporter
     node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
 
     #-----------------------------------------------------------------
     # PROMTAIL
     #-----------------------------------------------------------------
-    promtail_enabled: true           # enable promtail logging collector?
-    promtail_clean: false            # remove promtail status file? false by default
-    promtail_port: 9080              # default listen address for promtail
+    promtail_enabled: true            # enable promtail logging collector?
+    promtail_clean: false             # remove promtail status file? false by default
+    promtail_port: 9080               # default listen address for promtail
     promtail_options: '-config.file=/etc/promtail.yml -config.expand-env=true'
     promtail_positions: /var/log/positions.yaml   # position status for promtail
 
@@ -520,21 +520,21 @@ all:
     # pg_sindex: 0                    # <CLUSTER>              : pgsql shard index
     # gp_role: master                 # <CLUSTER>              : gpsql role, master or segment
 
-    pg_offline_query: false          # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
-    pg_backup: false                 # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
-    pg_weight: 100                   # <INSTANCE> [FLAG] default load balance weight (instance level)
-    pg_hostname: true                # [FLAG] reuse postgres identity name as node identity?
-    pg_preflight_skip: false         # [FLAG] skip preflight identity check
+    pg_offline_query: false           # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
+    pg_backup: false                  # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
+    pg_weight: 100                    # <INSTANCE> [FLAG] default load balance weight (instance level)
+    pg_hostname: true                 # [FLAG] reuse postgres identity name as node identity?
+    pg_preflight_skip: false          # [FLAG] skip preflight identity check
 
     #-----------------------------------------------------------------
     # PG_BUSINESS
     #-----------------------------------------------------------------
     # overwrite these variables on <CLUSTER> level
-    pg_users: []                     # business users
-    pg_databases: []                 # business databases
-    pg_services_extra: []            # extra services
-    pg_hba_rules_extra: []           # extra hba rules
-    pgbouncer_hba_rules_extra: []    # extra pgbouncer hba rules
+    pg_users: []                      # business users
+    pg_databases: []                  # business databases
+    pg_services_extra: []             # extra services
+    pg_hba_rules_extra: []            # extra hba rules
+    pgbouncer_hba_rules_extra: []     # extra pgbouncer hba rules
 
     # WARNING: change these in production environment!
     pg_admin_username: mxadmin
@@ -682,7 +682,7 @@ all:
           - host    all     +dbrole_offline               172.16.0.0/12     md5
           - host    all     +dbrole_offline               192.168.0.0/16    md5
 
-    pgbouncer_hba_rules:             # pgbouncer host-based authentication rules
+    pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
