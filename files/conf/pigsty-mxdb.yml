@@ -155,19 +155,28 @@ all:
       - { name: loki         , domain: l.pigsty   , endpoint: "10.10.10.10:3100" }
       - { name: prometheus   , domain: p.pigsty   , endpoint: "10.10.10.10:9090" }
       - { name: alertmanager , domain: a.pigsty   , endpoint: "10.10.10.10:9093" }
-      - { name: consul       , domain: c.pigsty   , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
-      - { name: jupyter      , domain: lab.pigsty , endpoint: "127.0.0.1:8888"   }
+      - { name: consul       , domain: c.pigsty   , endpoint: "127.0.0.1:8500"   }
       - { name: matrixdb     , domain: mx.pigsty  , endpoint: "127.0.0.1:8240"   } #== ^ required ==#
+      #- { name: postgrest    , domain: api.pigsty , endpoint: "127.0.0.1:8884"   } #== v optional ==#
+      #- { name: pgadmin      , domain: adm.pigsty , endpoint: "127.0.0.1:8885"   }
+      #- { name: pgweb        , domain: cli.pigsty , endpoint: "127.0.0.1:8886"   }
+      #- { name: bytebase     , domain: ddl.pigsty , endpoint: "127.0.0.1:8887"   }
+      #- { name: minio        , domain: s3.pigsty  , endpoint: "127.0.0.1:9000"   }
+      #- { name: jupyter      , domain: lab.pigsty , endpoint: "127.0.0.1:8888"   }
 
     nginx_indexes:                    # application nav links on home page
-      - { name: MatrixDB , url : 'http://mx.pigsty'               , comment: 'MatrixDB Installer'          }
-      - { name: Jupyter  , url : 'http://lab.pigsty'              , comment: 'Jupyter Laboratory'          }
-      - { name: Explain  , url : '/pev2'                          , comment: 'postgres explain visualizer' }
-      - { name: Package  , url : '/pigsty'                        , comment: 'local yum repo packages'     }
-      - { name: YumRepo  , url : '/pigsty.repo'                   , comment: 'local yum repo file'         }
-      - { name: PGLogs   , url : '/logs'                          , comment: 'postgres raw csv logs'       }
-      - { name: Schemas  , url : '/schema'                        , comment: 'schemaspy summary report'    }
-      - { name: Reports  , url : '/report'                        , comment: 'pgbadger summary report'     }
+      - { name: MatrixDB   , url : 'http://mx.pigsty'               , comment: 'MatrixDB Installer'          }
+      - { name: Explain    , url : '/pev2'                          , comment: 'postgres explain visualizer' }
+      - { name: Package    , url : '/pigsty'                        , comment: 'local yum repo packages'     }
+      - { name: PG Logs    , url : '/logs'                          , comment: 'postgres raw csv logs'       }
+      - { name: Schemas    , url : '/schema'                        , comment: 'schemaspy summary report'    }
+      - { name: Reports    , url : '/report'                        , comment: 'pgbadger summary report'     }
+      #- { name: PgAdmin4   , url : 'http://adm.pigsty'              , comment: 'PgAdmin4 for PostgreSQL'     }
+      #- { name: PGWeb      , url : 'http://cli.pigsty'              , comment: 'PGWEB Browser Client'        }
+      #- { name: ByteBase   , url : 'http://ddl.pigsty'              , comment: 'ByteBase Schema Migrator'    }
+      #- { name: PostgREST  , url : 'http://api.pigsty'              , comment: 'Kong API Gateway'            }
+      #- { name: Minio      , url : 'http://s3.pigsty'               , comment: 'Minio Object Storage'        }
+
 
     #-----------------------------------------------------------------
     # REPO
@@ -206,7 +215,7 @@ all:
           - http://mirrors.aliyun.com/epel/$releasever/$basearch
           - http://download.fedoraproject.org/pub/epel/$releasever/$basearch
       - name: grafana
-        description: Grafana
+        description: Grafana Official Yum Repo
         enabled: yes
         gpgcheck: no
         baseurl:
@@ -270,7 +279,7 @@ all:
       - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
-      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #                                                          # --- deps:gpsql -- #
+      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
       - readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel       # --- deps:devel -- #
       - grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq          # -----  meta ----- #
       - node_exporter nginx_exporter blackbox_exporter redis_exporter                                                   # ---- exporter --- #
@@ -291,7 +300,7 @@ all:
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
       - docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
-      - ed mlocate parted krb5-devel apr apr-util audit parquet-libs-3.0.0 arrow-libs-3.0.0
+      - ed mlocate parted krb5-devel apr apr-util audit parquet-libs-3.0.0 arrow-libs-3.0.0                             # --- deps:gpsql -- #
 
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/loki-2.5.0.x86_64.rpm

@@ -97,10 +97,20 @@ all:
         vip_interface: eth1
         node_crontab:
           - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
-          - '00 00 * * * postgres /usr/pgsql/bin/pgbench meta -is 20'
-          - '* * * * * postgres /usr/pgsql/bin/pgbench meta -nv -T15 -c2 2>>/pg/log/bench.log' # some random load
+          - '00 00 * * * root bash -c "cd /root/pigsty && make ri >> /tmp/bench.log"'
+          - '00 00 * * * root bash -c "cd /root/pigsty && make test-ri >> /tmp/bench.log"'
+          - '* * * * * root /usr/pgsql/bin/pgbench -nv -P1 -c4 --rate=32 -T20 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta 2>>/tmp/bench.log'
+          - '* * * * * root /usr/pgsql/bin/pgbench -nv -P1 -c4 --rate=16 -T30 postgres://test:test@pg-test:5433/test 2>>/tmp/bench.log'
+          - '* * * * * root /usr/pgsql/bin/pgbench --select-only -nv -P1 -c4 --rate=128 -T40 postgres://test:test@pg-test:5434/test 2>>/tmp/bench.log'
           - |
             * * * * * root bash -c "cat /pg/data/log/postgresql-*.csv | psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
+          - '00 01 * * * root /root/pigsty/bin/schemaspy 10.10.10.10 meta pigsty 2>> /tmp/schemaspy.log'
+          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.10 2>> /tmp/pgbadger.log'
+          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.11 2>> /tmp/pgbadger.log'
+          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.12 2>> /tmp/pgbadger.log'
+          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.13 2>> /tmp/pgbadger.log'
+          - '00 01 * * * root bash -c "cd /root/app/covid && make reload 2>> /tmp/covid.log"'
+
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -249,8 +259,9 @@ all:
       - { name: pgadmin      , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885"   }
       - { name: pgweb        , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886"   }
       - { name: bytebase     , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887"   }
-      - { name: jupyter      , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888"   }
       - { name: minio        , domain: s3.pigsty.cc   , endpoint: "127.0.0.1:9000"   }
+      - { name: jupyter      , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888"   }
+
 
     nginx_indexes:                    # application nav links on home page
       - { name: PgAdmin4    , url : 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
@@ -260,16 +271,15 @@ all:
       - { name: PostgREST   , url : 'http://api.pigsty.cc'           , comment: 'Kong API Gateway'            }
       - { name: Minio       , url : 'http://s3.pigsty.cc'            , comment: 'Minio Object Storage'        }
       - { name: Explain     , url : '/pev2'                          , comment: 'postgres explain visualizer' }
-      - { name: Log Reports , url : '/report'                        , comment: 'pgbadger summary report'     }
       - { name: Pigsty Pkg  , url : '/pigsty'                        , comment: 'pigsty repo packages'        }
       - { name: Matrix Pkg  , url : '/matrix'                        , comment: 'matrixdb repo packages'      }
       - { name: Repo File   , url : '/pigsty.repo'                   , comment: 'local yum repo file'         }
-      - { name: Log         , url : '/logs'                          , comment: 'postgres raw csv logs'       }
+      - { name: PG Logs     , url : '/logs'                          , comment: 'postgres raw csv logs'       }
       - { name: Schemas     , url : '/schema'                        , comment: 'schemaspy summary report'    }
+      - { name: Reports     , url : '/report'                        , comment: 'pgbadger summary report'     }
       - { name: CMDB        , url : '${grafana}/d/cmdb-overview'     , comment: 'Pigsty CMDB Overview'        }
       - { name: ISD         , url : '${grafana}/d/isd-overview'      , comment: 'noaa isd data visualization' }
       - { name: Covid       , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
-      - { name: Worktime    , url : '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
       - { name: DBTrend     , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
 
     #-----------------------------------------------------------------
@@ -410,8 +420,8 @@ all:
     #-----------------------------------------------------------------
     nameserver_enabled: false         # setup dnsmasq
     dns_records:                      # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test           # sandbox vip for pg-test
+      - 10.10.10.10 pg-meta           # sandbox vip for pg-meta
+      - 10.10.10.11 pg-test           # sandbox vip for pg-test
       - 10.10.10.10 pg-meta-1         # sandbox instance pg-meta-1
       - 10.10.10.11 pg-test-1         # sandbox instance node-1
       - 10.10.10.12 pg-test-2         # sandbox instance node-2
