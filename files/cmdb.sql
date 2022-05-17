@@ -235,24 +235,29 @@ SELECT host(ip) AS ip, groups, is_meta, coalesce(g.vars, '{}') || coalesce(n.var
 FROM pigsty.node n, (SELECT jsonb_object_agg(key, value) AS vars FROM pigsty.global_var) g;
 COMMENT ON VIEW pigsty.hostvars IS 'pigsty inventory hostvars';
 
+-- DROP VIEW IF EXISTS pigsty.node_summary;
 CREATE OR REPLACE VIEW pigsty.node_summary AS
-SELECT ip, groups,
-       (vars ->> 'meta_node'                  )::BOOLEAN AS is_meta,
-       (vars ->> 'nginx_enabled'              )::BOOLEAN AS nginx,
-       (vars ->> 'nameserver_enabled'         )::BOOLEAN AS nameserver,
-       (vars ->> 'prometheus_enabled'         )::BOOLEAN AS prometheus,
-       (vars ->> 'grafana_enabled'            )::BOOLEAN AS grafana,
-       (vars ->> 'loki_enabled'               )::BOOLEAN AS loki,
-       (vars ->> 'docker_enabled'             )::BOOLEAN AS docker,
-       (vars ->> 'node_exporter_enabled'      )::BOOLEAN AS node_exporter,
-       (vars ->> 'promtail_enabled'           )::BOOLEAN AS promtail,
-       (vars ->> 'patroni_enabled'            )::BOOLEAN AS postgres,
-       (vars ->> 'pgbouncer_enabled'          )::BOOLEAN AS pgbouncer,
-       (vars ->> 'pg_exporter_enabled'        )::BOOLEAN AS pg_exporter,
-       (vars ->> 'pgbouncer_exporter_enabled' )::BOOLEAN AS pgb_exporter,
-       (vars ->> 'haproxy_enabled'            )::BOOLEAN AS haproxy,
-       (vars ->> 'redis_exporter_enabled'     )::BOOLEAN AS redis_exporter
+SELECT hostvars.ip,
+       hostvars.groups,
+       coalesce((hostvars.vars ->> 'meta_node'::text)::boolean                  , FALSE ) AS is_meta,
+       coalesce((hostvars.vars ->> 'nginx_enabled'::text)::boolean              , TRUE ) AS nginx,
+       coalesce((hostvars.vars ->> 'nameserver_enabled'::text)::boolean         , FALSE ) AS nameserver,
+       coalesce((hostvars.vars ->> 'prometheus_enabled'::text)::boolean         , TRUE ) AS prometheus,
+       coalesce((hostvars.vars ->> 'grafana_enabled'::text)::boolean            , TRUE ) AS grafana,
+       coalesce((hostvars.vars ->> 'loki_enabled'::text)::boolean               , TRUE ) AS loki,
+       coalesce((hostvars.vars ->> 'etcd_enabled'::text)::boolean               , TRUE ) AS etcd,
+       coalesce((hostvars.vars ->> 'consul_enabled'::text)::boolean             , TRUE ) AS consul,
+       coalesce((hostvars.vars ->> 'docker_enabled'::text)::boolean             , FALSE ) AS docker,
+       coalesce((hostvars.vars ->> 'node_exporter_enabled'::text)::boolean      , TRUE ) AS node_exporter,
+       coalesce((hostvars.vars ->> 'promtail_enabled'::text)::boolean           , TRUE ) AS promtail,
+       coalesce((hostvars.vars ->> 'patroni_enabled'::text)::boolean            , TRUE ) AS postgres,
+       coalesce((hostvars.vars ->> 'pgbouncer_enabled'::text)::boolean          , TRUE ) AS pgbouncer,
+       coalesce((hostvars.vars ->> 'pg_exporter_enabled'::text)::boolean        , TRUE ) AS pg_exporter,
+       coalesce((hostvars.vars ->> 'pgbouncer_exporter_enabled'::text)::boolean , TRUE ) AS pgb_exporter,
+       coalesce((hostvars.vars ->> 'haproxy_enabled'::text)::boolean            , TRUE ) AS haproxy,
+       coalesce((hostvars.vars ->> 'redis_exporter_enabled'::text)::boolean     , TRUE ) AS redis_exporter
 FROM pigsty.hostvars;
+
 
 --===========================================================--
 --                     pigsty.inventory                      --
