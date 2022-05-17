@@ -486,7 +486,7 @@
             "type": "table"
         },
         {
-            "collapsed": true,
+            "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -494,679 +494,955 @@
                 "y": 6
             },
             "id": 191,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "ds-meta"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "links": [
-                                {
-                                    "title": "Nginx Overview",
-                                    "url": "/d/nginx-overview"
-                                }
-                            ],
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "consul": {
-                                            "color": "purple",
-                                            "index": 0,
-                                            "text": "Consul"
-                                        },
-                                        "etcd": {
-                                            "color": "light-blue",
-                                            "index": 1,
-                                            "text": "ETCD"
-                                        },
-                                        "none": {
-                                            "color": "red",
-                                            "index": 3,
-                                            "text": "NONE"
-                                        },
-                                        "raft": {
-                                            "color": "orange",
-                                            "index": 2,
-                                            "text": "RAFT"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
-                                    }
-                                ]
-                            },
-                            "unit": "string"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 13,
-                        "w": 5,
-                        "x": 0,
-                        "y": 2
-                    },
-                    "id": 178,
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "horizontal",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "/^value$/",
-                            "values": true
-                        },
-                        "textMode": "value_and_name"
-                    },
-                    "pluginVersion": "8.5.2",
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "postgres",
-                                "uid": "ds-meta"
-                            },
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT  key, to_json(value) #>> '{}' AS value FROM pigsty.global_var WHERE key\n    in ('nginx_port', 'repo_address', 'nginx_home', 'repo_name');",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "title": "Nginx / Repo Address",
-                    "transformations": [
-                        {
-                            "id": "convertFieldType",
-                            "options": {}
-                        }
-                    ],
-                    "type": "stat"
-                },
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "ds-meta"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "displayMode": "auto",
-                                "inspect": false
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Name"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 140
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Domain"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "links",
-                                        "value": [
-                                            {
-                                                "title": "http://${__data.fields.Name} : http://${__data.fields.Domain}",
-                                                "url": "http://${__data.fields.Domain}"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Endpoint"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 140
-                                    },
-                                    {
-                                        "id": "links",
-                                        "value": [
-                                            {
-                                                "title": "${__data.fields.Name} : http://${__data.fields.Endpoint}",
-                                                "url": "http://${__data.fields.Endpoint}"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    "gridPos": {
-                        "h": 13,
-                        "w": 7,
-                        "x": 5,
-                        "y": 2
-                    },
-                    "id": 179,
-                    "options": {
-                        "footer": {
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true,
-                        "sortBy": []
-                    },
-                    "pluginVersion": "8.5.2",
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "postgres",
-                                "uid": "ds-meta"
-                            },
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT d ->> 'name'     AS name,\n       (d ->> 'domain') AS domain,\n       d ->> 'endpoint' AS endpoint\nFROM pigsty.global_var v,\n     jsonb_array_elements(v.value) d\nWHERE v.key = 'nginx_upstream';",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "title": "Nginx Upstream",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {
-                                    "domain": 2,
-                                    "endpoint": 1,
-                                    "name": 0
-                                },
-                                "renameByName": {
-                                    "domain": "Domain",
-                                    "endpoint": "Endpoint",
-                                    "key": "Name",
-                                    "name": "Name",
-                                    "value": "IP"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
-                },
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "ds-meta"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "left",
-                                "displayMode": "auto",
-                                "inspect": false
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Name"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 140
-                                    },
-                                    {
-                                        "id": "custom.align",
-                                        "value": "center"
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "URL"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "links",
-                                        "value": [
-                                            {
-                                                "title": "${__data.fields.Name} : ${__data.fields.URL}",
-                                                "url": "${__data.fields.URL}"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    "gridPos": {
-                        "h": 13,
-                        "w": 12,
-                        "x": 12,
-                        "y": 2
-                    },
-                    "id": 180,
-                    "options": {
-                        "footer": {
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true,
-                        "sortBy": []
-                    },
-                    "pluginVersion": "8.5.2",
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "postgres",
-                                "uid": "ds-meta"
-                            },
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "WITH nginx AS (\n    SELECT d ->> 'name'     AS name,\n           d ->> 'domain'   AS domain,\n           d ->> 'endpoint' AS endpoint\n    FROM pigsty.global_var v,\n         jsonb_array_elements(v.value) d\n    WHERE v.key = 'nginx_upstream'),\n     nginx_indexes AS (\n         SELECT d ->> 'name'    AS name,\n                d ->> 'url'     AS domain,\n                d ->> 'comment' AS comment\n         FROM pigsty.global_var v,\n              jsonb_array_elements(v.value) d\n         WHERE v.key = 'nginx_indexes')\nSELECT name,\n       comment,\n       case\n           when starts_with(domain, '/') THEN (SELECT 'http://' || domain FROM nginx WHERE name = 'home' LIMIT 1) ||\n                                              domain\n           ELSE replace(domain, '${grafana}', (SELECT 'http://' || domain FROM nginx WHERE name = 'grafana' LIMIT 1))\n           END AS url\nFROM nginx_indexes\n;",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "title": "Nginx Index",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {
-                                    "domain": 2,
-                                    "endpoint": 1,
-                                    "name": 0
-                                },
-                                "renameByName": {
-                                    "comment": "Desc",
-                                    "domain": "Domain",
-                                    "endpoint": "Endpoint",
-                                    "key": "Name",
-                                    "name": "Name",
-                                    "url": "URL",
-                                    "value": "IP"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
-                }
-            ],
+            "panels": [],
             "title": "Nginx",
             "type": "row"
         },
         {
-            "collapsed": true,
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "Nginx Overview",
+                            "url": "/d/nginx-overview"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "consul": {
+                                    "color": "purple",
+                                    "index": 0,
+                                    "text": "Consul"
+                                },
+                                "etcd": {
+                                    "color": "light-blue",
+                                    "index": 1,
+                                    "text": "ETCD"
+                                },
+                                "none": {
+                                    "color": "red",
+                                    "index": 3,
+                                    "text": "NONE"
+                                },
+                                "raft": {
+                                    "color": "orange",
+                                    "index": 2,
+                                    "text": "RAFT"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
             "gridPos": {
-                "h": 1,
-                "w": 24,
+                "h": 13,
+                "w": 5,
                 "x": 0,
                 "y": 7
             },
-            "id": 202,
-            "panels": [
-                {
-                    "datasource": {
-                        "type": "postgres",
-                        "uid": "ds-meta"
-                    },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "links": [
-                                {
-                                    "title": "DCS Overview",
-                                    "url": "/d/dcs-overview"
-                                }
-                            ],
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "consul": {
-                                            "color": "purple",
-                                            "index": 0,
-                                            "text": "Consul"
-                                        },
-                                        "etcd": {
-                                            "color": "light-blue",
-                                            "index": 1,
-                                            "text": "ETCD"
-                                        },
-                                        "none": {
-                                            "color": "red",
-                                            "index": 3,
-                                            "text": "NONE"
-                                        },
-                                        "raft": {
-                                            "color": "orange",
-                                            "index": 2,
-                                            "text": "RAFT"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
-                                    }
-                                ]
-                            },
-                            "unit": "string"
-                        },
-                        "overrides": []
-                    },
-                    "gridPos": {
-                        "h": 5,
-                        "w": 5,
-                        "x": 0,
-                        "y": 8
-                    },
-                    "id": 192,
-                    "options": {
-                        "colorMode": "background",
-                        "graphMode": "area",
-                        "justifyMode": "auto",
-                        "orientation": "auto",
-                        "reduceOptions": {
-                            "calcs": [
-                                "lastNotNull"
-                            ],
-                            "fields": "/^DCS Type$/",
-                            "values": false
-                        },
-                        "textMode": "auto"
-                    },
-                    "pluginVersion": "8.5.2",
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "postgres",
-                                "uid": "ds-meta"
-                            },
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT  to_json(value) #>> '{}' AS \"DCS Type\" FROM pigsty.global_var WHERE key = 'pg_dcs_type';",
-                            "refId": "A",
-                            "select": [
-                                [
-                                    {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
-                                    }
-                                ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
+            "id": 178,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
                     ],
-                    "title": "DCS Type",
-                    "type": "stat"
+                    "fields": "/^value$/",
+                    "values": true
                 },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
                 {
                     "datasource": {
                         "type": "postgres",
                         "uid": "ds-meta"
                     },
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "displayMode": "auto",
-                                "inspect": false
-                            },
-                            "mappings": [],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "green"
-                                    },
-                                    {
-                                        "color": "red",
-                                        "value": 80
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT  key, to_json(value) #>> '{}' AS value FROM pigsty.global_var WHERE key\n    in ('nginx_port', 'repo_address', 'nginx_home', 'repo_name');",
+                    "refId": "A",
+                    "select": [
+                        [
                             {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "IP"
-                                },
-                                "properties": [
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Nginx / Repo Address",
+            "transformations": [
+                {
+                    "id": "convertFieldType",
+                    "options": {}
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Domain"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
                                     {
-                                        "id": "custom.width",
-                                        "value": 140
-                                    },
-                                    {
-                                        "id": "links",
-                                        "value": [
-                                            {
-                                                "title": "Nodes Instance : ${__data.fields.IP}",
-                                                "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
-                                            }
-                                        ]
+                                        "title": "http://${__data.fields.Name} : http://${__data.fields.Domain}",
+                                        "url": "http://${__data.fields.Domain}"
                                     }
                                 ]
                             }
                         ]
                     },
-                    "gridPos": {
-                        "h": 5,
-                        "w": 5,
-                        "x": 5,
-                        "y": 8
-                    },
-                    "id": 203,
-                    "options": {
-                        "footer": {
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Endpoint"
                         },
-                        "showHeader": true,
-                        "sortBy": []
-                    },
-                    "pluginVersion": "8.5.2",
-                    "targets": [
-                        {
-                            "datasource": {
-                                "type": "postgres",
-                                "uid": "ds-meta"
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
                             },
-                            "format": "table",
-                            "group": [],
-                            "metricColumn": "none",
-                            "rawQuery": true,
-                            "rawSql": "SELECT d.key, d.value FROM pigsty.global_var v, jsonb_each_text(v.value) d WHERE v.key = 'dcs_servers'",
-                            "refId": "A",
-                            "select": [
-                                [
+                            {
+                                "id": "links",
+                                "value": [
                                     {
-                                        "params": [
-                                            "value"
-                                        ],
-                                        "type": "column"
+                                        "title": "${__data.fields.Name} : http://${__data.fields.Endpoint}",
+                                        "url": "http://${__data.fields.Endpoint}"
                                     }
                                 ]
-                            ],
-                            "timeColumn": "time",
-                            "where": [
-                                {
-                                    "name": "$__timeFilter",
-                                    "params": [],
-                                    "type": "macro"
-                                }
-                            ]
-                        }
-                    ],
-                    "title": "DCS Servers",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {},
-                                "indexByName": {},
-                                "renameByName": {
-                                    "key": "Name",
-                                    "value": "IP"
-                                }
                             }
-                        }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 7,
+                "x": 5,
+                "y": 7
+            },
+            "id": 179,
+            "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
                     ],
-                    "type": "table"
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT d ->> 'name'     AS name,\n       (d ->> 'domain') AS domain,\n       d ->> 'endpoint' AS endpoint\nFROM pigsty.global_var v,\n     jsonb_array_elements(v.value) d\nWHERE v.key = 'nginx_upstream';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
                 }
             ],
+            "title": "Nginx Upstream",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "domain": 2,
+                            "endpoint": 1,
+                            "name": 0
+                        },
+                        "renameByName": {
+                            "domain": "Domain",
+                            "endpoint": "Endpoint",
+                            "key": "Name",
+                            "name": "Name",
+                            "value": "IP"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "left",
+                        "displayMode": "auto",
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "URL"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "${__data.fields.Name} : ${__data.fields.URL}",
+                                        "url": "${__data.fields.URL}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 13,
+                "w": 12,
+                "x": 12,
+                "y": 7
+            },
+            "id": 180,
+            "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "WITH nginx AS (\n    SELECT d ->> 'name'     AS name,\n           d ->> 'domain'   AS domain,\n           d ->> 'endpoint' AS endpoint\n    FROM pigsty.global_var v,\n         jsonb_array_elements(v.value) d\n    WHERE v.key = 'nginx_upstream'),\n     nginx_indexes AS (\n         SELECT d ->> 'name'    AS name,\n                d ->> 'url'     AS domain,\n                d ->> 'comment' AS comment\n         FROM pigsty.global_var v,\n              jsonb_array_elements(v.value) d\n         WHERE v.key = 'nginx_indexes')\nSELECT name,\n       comment,\n       case\n           when starts_with(domain, '/') THEN (SELECT 'http://' || domain FROM nginx WHERE name = 'home' LIMIT 1) ||\n                                              domain\n           ELSE replace(domain, '${grafana}', (SELECT 'http://' || domain FROM nginx WHERE name = 'grafana' LIMIT 1))\n           END AS url\nFROM nginx_indexes\n;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Nginx Index",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "domain": 2,
+                            "endpoint": 1,
+                            "name": 0
+                        },
+                        "renameByName": {
+                            "comment": "Desc",
+                            "domain": "Domain",
+                            "endpoint": "Endpoint",
+                            "key": "Name",
+                            "name": "Name",
+                            "url": "URL",
+                            "value": "IP"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "id": 202,
+            "panels": [],
             "title": "DCS",
             "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 5,
+                "x": 0,
+                "y": 21
+            },
+            "id": 206,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^value$/",
+                    "values": true
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT  key, to_json(value) #>> '{}' AS value FROM pigsty.global_var WHERE key\n    in ('consul_enabled', 'etcd_enabled');",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "convertFieldType",
+                    "options": {}
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 5,
+                "x": 5,
+                "y": 21
+            },
+            "id": 205,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^value$/",
+                    "values": true
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT  key, to_json(value) #>> '{}' AS value FROM pigsty.global_var WHERE key\n    in ('dcs_name', 'dcs_registry');",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "convertFieldType",
+                    "options": {}
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 5,
+                "x": 10,
+                "y": 21
+            },
+            "id": 207,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^value$/",
+                    "values": true
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT  key, to_json(value) #>> '{}' AS value FROM pigsty.global_var WHERE key\n    in ('dcs_safeguard', 'dcs_clean');",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "convertFieldType",
+                    "options": {}
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [
+                        {
+                            "title": "DCS Overview",
+                            "url": "/d/dcs-overview"
+                        }
+                    ],
+                    "mappings": [
+                        {
+                            "options": {
+                                "consul": {
+                                    "color": "purple",
+                                    "index": 0,
+                                    "text": "Consul"
+                                },
+                                "etcd": {
+                                    "color": "light-blue",
+                                    "index": 1,
+                                    "text": "ETCD"
+                                },
+                                "none": {
+                                    "color": "red",
+                                    "index": 3,
+                                    "text": "NONE"
+                                },
+                                "raft": {
+                                    "color": "orange",
+                                    "index": 2,
+                                    "text": "RAFT"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 4,
+                "x": 15,
+                "y": 21
+            },
+            "id": 209,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^DCS Type$/",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT  to_json(value) #>> '{}' AS \"DCS Type\" FROM pigsty.global_var WHERE key = 'pg_dcs_type';",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "PG DCS Type",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "displayMode": "auto",
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "IP"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 140
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "Nodes Instance : ${__data.fields.IP}",
+                                        "url": "/d/nodes-instance?var-id=${__data.fields.IP}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 5,
+                "x": 19,
+                "y": 21
+            },
+            "id": 203,
+            "options": {
+                "footer": {
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
+                    "format": "table",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT d.key, d.value FROM pigsty.global_var v, jsonb_each_text(v.value) d WHERE v.key = 'dcs_servers'",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "DCS Servers",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "key": "Name",
+                            "value": "IP"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
         },
         {
             "collapsed": true,
@@ -1174,7 +1450,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 8
+                "y": 28
             },
             "id": 182,
             "panels": [
@@ -1194,7 +1470,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1210,7 +1487,7 @@
                         "h": 4,
                         "w": 4,
                         "x": 0,
-                        "y": 3
+                        "y": 29
                     },
                     "id": 193,
                     "options": {
@@ -1284,7 +1561,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1300,7 +1578,7 @@
                         "h": 4,
                         "w": 20,
                         "x": 4,
-                        "y": 3
+                        "y": 29
                     },
                     "id": 194,
                     "options": {
@@ -1379,7 +1657,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1428,7 +1707,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 0,
-                        "y": 7
+                        "y": 33
                     },
                     "id": 183,
                     "options": {
@@ -1520,7 +1799,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1569,7 +1849,7 @@
                         "h": 15,
                         "w": 12,
                         "x": 12,
-                        "y": 7
+                        "y": 33
                     },
                     "id": 184,
                     "options": {
@@ -1662,7 +1942,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1711,7 +1992,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 22
+                        "y": 48
                     },
                     "id": 189,
                     "options": {
@@ -1804,7 +2085,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1853,7 +2135,7 @@
                         "h": 4,
                         "w": 12,
                         "x": 12,
-                        "y": 22
+                        "y": 48
                     },
                     "id": 187,
                     "options": {
@@ -1946,7 +2228,8 @@
                                 "mode": "absolute",
                                 "steps": [
                                     {
-                                        "color": "green"
+                                        "color": "green",
+                                        "value": null
                                     },
                                     {
                                         "color": "red",
@@ -1995,7 +2278,7 @@
                         "h": 4,
                         "w": 12,
                         "x": 12,
-                        "y": 26
+                        "y": 52
                     },
                     "id": 188,
                     "options": {
@@ -2078,7 +2361,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 9
+                "y": 29
             },
             "id": 186,
             "panels": [
@@ -2130,7 +2413,7 @@
                         "h": 4,
                         "w": 4,
                         "x": 0,
-                        "y": 4
+                        "y": 30
                     },
                     "id": 195,
                     "options": {
@@ -2251,7 +2534,7 @@
                         "h": 8,
                         "w": 7,
                         "x": 4,
-                        "y": 4
+                        "y": 30
                     },
                     "id": 197,
                     "options": {
@@ -2393,7 +2676,7 @@
                         "h": 8,
                         "w": 7,
                         "x": 11,
-                        "y": 4
+                        "y": 30
                     },
                     "id": 200,
                     "options": {
@@ -2535,7 +2818,7 @@
                         "h": 8,
                         "w": 6,
                         "x": 18,
-                        "y": 4
+                        "y": 30
                     },
                     "id": 199,
                     "options": {
@@ -2661,7 +2944,7 @@
                         "h": 4,
                         "w": 4,
                         "x": 0,
-                        "y": 8
+                        "y": 34
                     },
                     "id": 198,
                     "options": {
@@ -2723,7 +3006,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 10
+                "y": 30
             },
             "id": 160,
             "panels": [
@@ -2891,7 +3174,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 11
+                "y": 31
             },
             "id": 171,
             "panels": [
@@ -3165,7 +3448,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 12
+                "y": 32
             },
             "id": 169,
             "panels": [
@@ -3410,7 +3693,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 13
+                "y": 33
             },
             "id": 173,
             "panels": [
