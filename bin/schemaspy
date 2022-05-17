@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+#==============================================================#
+# File      :   bin/schemaspy
+# Ctime     :   2022-05-17
+# Mtime     :   2022-05-17
+# Desc      :   generate schema report
+# Usage     :   schemaspy
+# Note      :   view from http://pigsty/schema
+# Path      :   bin/schemaspy
+# Depend    :   ssh, docker: andrewjones/schemaspy-postgres:latest
+# Copyright (C) 2018-2022 Ruohang Feng
+#==============================================================#
+
+NODE=${1-'10.10.10.10'}
+DATABASE=${2-'meta'}
+SCHEMA=${3-'public'}
+OUTPUT_DIR="/www/schema/${DATABASE}/${SCHEMA}"
+
+echo "generate report from NODE=${NODE} DB=${DATABASE} SCHEMA=${SCHEMA} to ${OUTPUT_DIR}"
+# docker pull andrewjones/schemaspy-postgres:latest
+docker run --name schemaspy --rm -v ${OUTPUT_DIR}:/output \
+	andrewjones/schemaspy-postgres:latest \
+	-host ${NODE} -port 5432 \
+	-u dbuser_dba -p DBUser.DBA \
+	-db ${DATABASE} -s ${SCHEMA}
