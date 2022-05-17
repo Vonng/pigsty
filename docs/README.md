@@ -1,6 +1,6 @@
 # Pigsty
 
-## Pigsty v1.5.0 Documentation
+## Pigsty v1.5.0-rc Documentation
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 

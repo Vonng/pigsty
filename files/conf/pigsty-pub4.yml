@@ -97,6 +97,7 @@ all:
         vip_interface: eth1
         node_crontab:
           - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
+          - '00 00 * * * postgres /usr/pgsql/bin/pgbench meta -is 20'
           - '* * * * * postgres /usr/pgsql/bin/pgbench meta -nv -T15 -c2 2>>/pg/log/bench.log' # some random load
           - |
             * * * * * root bash -c "cat /pg/data/log/postgresql-*.csv | psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
@@ -244,28 +245,32 @@ all:
       - { name: prometheus   , domain: p.pigsty.cc    , endpoint: "10.10.10.10:9090" }  # pigsty prometheus (9090)
       - { name: alertmanager , domain: a.pigsty.cc    , endpoint: "10.10.10.10:9093" }  # pigsty alertmanager (9093)
       - { name: consul       , domain: c.pigsty.cc    , endpoint: "127.0.0.1:8500"   }  # pigsty consul UI (8500) (domain required)
-      - { name: kong         , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8880"   }  #== optional ==#
+      - { name: postgrest    , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884"   }  #== optional ==#
       - { name: pgadmin      , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885"   }
       - { name: pgweb        , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886"   }
       - { name: bytebase     , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887"   }
       - { name: jupyter      , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888"   }
+      - { name: minio        , domain: s3.pigsty.cc   , endpoint: "127.0.0.1:9000"   }
 
     nginx_indexes:                    # application nav links on home page
-      - { name: PgAdmin4 , url : 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
-      - { name: PGWeb    , url : 'http://cli.pigsty.cc'           , comment: 'PGWEB Browser Client'        }
-      - { name: ByteBase , url : 'http://ddl.pigsty.cc'           , comment: 'ByteBase Schema Migrator'    }
-      - { name: Jupyter  , url : 'http://lab.pigsty.cc'           , comment: 'Jupyter Laboratory'          }
-      - { name: Kong     , url : 'http://api.pigsty.cc'           , comment: 'Kong API Gateway'            }
-      - { name: Explain  , url : '/pev2'                          , comment: 'postgres explain visualizer' }
-      - { name: Package  , url : '/pigsty'                        , comment: 'local yum repo packages'     }
-      - { name: YumRepo  , url : '/pigsty.repo'                   , comment: 'local yum repo file'         }
-      - { name: PGLogs   , url : '/logs'                          , comment: 'postgres raw csv logs'       }
-      - { name: Schemas  , url : '/schema'                        , comment: 'schemaspy summary report'    }
-      - { name: Reports  , url : '/report'                        , comment: 'pgbadger summary report'     }
-      - { name: ISD      , url : '${grafana}/d/isd-overview'      , comment: 'noaa isd data visualization' }
-      - { name: Covid    , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
-      - { name: Worktime , url : '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
-      - { name: DBTrend  , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
+      - { name: PgAdmin4    , url : 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
+      - { name: PGWeb       , url : 'http://cli.pigsty.cc'           , comment: 'PGWEB Browser Client'        }
+      - { name: ByteBase    , url : 'http://ddl.pigsty.cc'           , comment: 'ByteBase Schema Migrator'    }
+      - { name: Jupyter     , url : 'http://lab.pigsty.cc'           , comment: 'Jupyter Laboratory'          }
+      - { name: PostgREST   , url : 'http://api.pigsty.cc'           , comment: 'Kong API Gateway'            }
+      - { name: Minio       , url : 'http://s3.pigsty.cc'            , comment: 'Minio Object Storage'        }
+      - { name: Explain     , url : '/pev2'                          , comment: 'postgres explain visualizer' }
+      - { name: Log Reports , url : '/report'                        , comment: 'pgbadger summary report'     }
+      - { name: Pigsty Pkg  , url : '/pigsty'                        , comment: 'pigsty repo packages'        }
+      - { name: Matrix Pkg  , url : '/matrix'                        , comment: 'matrixdb repo packages'      }
+      - { name: Repo File   , url : '/pigsty.repo'                   , comment: 'local yum repo file'         }
+      - { name: Log         , url : '/logs'                          , comment: 'postgres raw csv logs'       }
+      - { name: Schemas     , url : '/schema'                        , comment: 'schemaspy summary report'    }
+      - { name: CMDB        , url : '${grafana}/d/cmdb-overview'     , comment: 'Pigsty CMDB Overview'        }
+      - { name: ISD         , url : '${grafana}/d/isd-overview'      , comment: 'noaa isd data visualization' }
+      - { name: Covid       , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
+      - { name: Worktime    , url : '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
+      - { name: DBTrend     , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
 
     #-----------------------------------------------------------------
     # REPO
@@ -395,7 +400,7 @@ all:
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/promtail-2.5.0.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/haproxy/haproxy-2.5.5-1.el7.x86_64.rpm
+      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.5.7/haproxy-2.5.7-1.el7.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
       - https://github.com/dalibo/pev2/releases/download/v0.24.0/pev2.tar.gz
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
@@ -467,8 +472,8 @@ all:
     dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
-       meta-2: 10.10.10.11            # node with ip in dcs_servers will be initialized as dcs servers
-       meta-3: 10.10.10.12            # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      meta-2: 10.10.10.11             # node with ip in dcs_servers will be initialized as dcs servers
+      meta-3: 10.10.10.12             # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
     dcs_safeguard: false              # if true, running dcs will NOT be removed
     dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS

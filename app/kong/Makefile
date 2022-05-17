@@ -5,9 +5,6 @@ up:
 ui:
 	docker run --init --name pgweb --name swagger -p 8882:8080 -e API_URL=http://10.10.10.10:8884 swaggerapi/swagger-ui
 
-view:
-	@echo "visit http://10.10.10.10:8884"
-
 log:
 	docker logs -f kong
 

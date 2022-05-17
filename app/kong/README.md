@@ -10,7 +10,6 @@ cd app/kong ; docker-compose up -d
 ```bash
 make up         # pull up kong with docker-compose
 make ui         # run swagger ui container
-make view       # print kong access point
 make log        # tail -f kong logs
 make info       # introspect kong with jq
 make stop       # stop kong container

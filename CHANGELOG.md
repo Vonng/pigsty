@@ -2,32 +2,52 @@
 
 ## Highlights
 
-* Complete Docker Support
-* Infra Dashboards: Nginx, Grafana, ETCD/Consul, Prometheus,...
-* Monitoring for consul, docker, promtail, etcd...
-* New CMDB compatible with redis & greenplum
-* Docker Applications: bytebase pgadmin4 pgweb postgrest kong minio,...
-* Consul Service Discovery now works again
-* Customize Meta Nodes with infra components
-* Redis playbook now support working on single instance
-* Add node crontab variables and default backup tasks
-* Complete translation of EN docs
-* Simplified purge & safeguard options for consul, pgsql and redis
-* ETCD is a viable DCS option now for HA Postgres
+* Complete Docker Support, enable on meta nodes by default with lot's of software templates.
+  * bytebase pgadmin4 pgweb postgrest kong minio,...
+* Infra Self Monitoring: Nginx, ETCD, Consul, Grafana, Prometheus, Loki, etc...
+* New CMDB design compatible with redis & greenplum, visualize with CMDB Overview
+* Service Discovery : Consul SD now works again for prometheus targets management
+* Redis playbook now works on single instance with `redis_port` option.
+* Better cold backup support: crontab for backup, delayed standby with `pg_delay`
+* Use ETCD as DCS, alternative to Consul
 
 
-## New Features
+## Monitoring
 
-New software / application based on docker:
-* bytebase : DDL Schema Migrator
-* pgadmin4 : Web Admin UI for PostgreSQL 
-* pgweb : Web Console for PostgreSQL
-* postgrest : Auto generated REST API for PostgreSQL
-* kong : API Gateway which use PostgreSQL as backend storage
-* swagger openapi : API Specification Generator
+**Dashboards**
+
+* CMDB Overview: Visualize CMDB Inventory
+* DCS Overview: Show consul & etcd metrics
+* Nginx Overview: Visualize nginx metrics & access/error logs
+* Grafana Overview: Grafana self Monitoring
+* Prometheus Overview：Prometheus self Monitoring
+* INFRA Dashboard & Home Dashboard Reforge
+
+**Architecture**
+
+* Infra monitoring targets now have a separated target dir `targets/infra`
+* Consul SD is available for prometheus
+* etcd , consul , patroni, docker metrics
+* Now infra targets are managed by role `infra_register`
+* Upgrade pg_exporter to v0.5.0 with `scale` and `default` support
+  * `pg_bgwriter`, `pg_wal`, `pg_query`, `pg_db`, `pgbouncer_stat` now use seconds instead of ms and µs
+  * `pg_table` counters now have default value 0 instead of NaN
+  * `pg_class` is replaced by `pg_table` and `pg_index`
+  * `pg_table_size` is now enabled with 300s ttl 
+
+## Provisioning
+
+* New optional package `docker.tgz` contains: Pgadmin, Pgweb, Postgrest, ByteBase, Kong, Minio, etc.
+* New Role `etcd` to deploy & monitor etcd dcs service
+* Specify which type of DCS to use with `pg_dcs_type` (`etcd` now available)
+* Add `pg_checksum` option to enable data checksum
+* Add `pg_delay` option to setup delayed standby leaders 
+* Add `node_crontab` and `node_crontab_overwrite` to create routine jobs such as cold backup
+* Add a series of `*_enable` options to control  components
+* Loki and Promtail are now installed using the RPM package made by `frpm`.
 
 
-## Software Upgrade
+**Software Updates**
 
 * Upgrade PostgreSQL to 14.3
 * Upgrade Redis to 6.2.7
@@ -35,12 +55,25 @@ New software / application based on docker:
 * Upgrade Consul to 1.12.0
 * Upgrade vip-manager to v1.0.2
 * Upgrade Grafana to v8.5.2
+* Upgrade HAproxy to 2.5.7 without rsyslog dependency
 * Upgrade Loki & Promtail to v2.5.0 with RPM packages
+* New packages: `pg_probackup`
+
+New software / application based on docker:
+* bytebase : DDL Schema Migrator
+* pgadmin4 : Web Admin UI for PostgreSQL
+* pgweb : Web Console for PostgreSQL
+* postgrest : Auto generated REST API for PostgreSQL
+* kong : API Gateway which use PostgreSQL as backend storage
+* swagger openapi : API Specification Generator
+* Minio : S3-compatible object storage
+
 
 ## Bug Fix
 
 * Fix loki & promtail `/etc/default` config file name issue
 * Now `node_data_dir (/data)` is created before consul init if not exists
+* Fix haproxy silence `/var/log/messages` with inappropriate rsyslog dependency
 
 
 ## API Change
@@ -57,7 +90,8 @@ New software / application based on docker:
 * `docker_enable`: enable docker on this node?
 * `consul_enable`: enable consul server/agent?
 * `etcd_enable`: enable etcd server/clients?
-
+* `pg_checksum`: enable pg cluster data-checksum?
+* `pg_delay`: recovery min apply delay for standby leader
 
 **Reforge**
 
@@ -92,15 +126,6 @@ And `*_safeguard` are boolean flags to avoid purging running instance when execu
 - `haproxy_admin_auth_enabled` -> `haproxy_auth_enabled`
 - `pg_shared_libraries` -> `pg_libs`
 - `dcs_type` -> `pg_dcs_type`
-
-
-```bash
-MD5 (app.tgz) = 86f875061d50784b32ec2e6340c92fdc
-MD5 (docker.tgz) = f6a5cbf9c906156235dbe7e505fab154
-MD5 (matrix.tgz) = 3d063437c482d94bd7e35df1a08bbc84
-MD5 (pigsty.tgz) = 88bf5c54093d2470c1dc226f4eeb7e34
-MD5 (pkg.tgz) = ee4e447ba12c7fed34d4dfab62afbc6e
-```
 
 
 
