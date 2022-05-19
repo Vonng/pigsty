@@ -38,10 +38,6 @@ stop:
 clean:
 	docker stop bytebase; docker rm -f bytebase
 
-dump:
-	docker exec -it bytebase /venv/bin/python3 /bytebase4/setup.py --user admin@pigsty.cc --dump-servers /tmp/servers.json
-	docker cp bytebase:/tmp/servers.json /tmp/servers.json
-
 pull:
 	docker pull bytebase/bytebase4
 

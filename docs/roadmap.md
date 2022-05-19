@@ -5,7 +5,7 @@
 ## History
 
 |    Time    | Description                                           | Release                                                                                             |
-| :--------: |-------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+|:----------:|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | 2019-05-15 | POC                                                   | [fa2ade31](https://github.com/Vonng/pg/commit/fa2ade31f8e81093eeba9d966c20120054f0646b) (v0.0.1)    |
 | 2020-04-30 | First Commit                                          | [dd64677](https://github.com/Vonng/pigsty/commit/dd646775624ddb33aef7884f4f030682bdc371f8) (v0.0.2) |
 | 2020-06-20 | Validation on Testing Environment                     | [v0.1.0](https://github.com/Vonng/pigsty/commit/1cf2ea5ee91db071de00ec805032928ff582453b)           |
@@ -24,9 +24,9 @@
 | 2021-07-26 | v1 GA, Monitoring System Overhaul                     | [v1.0.0](https://github.com/Vonng/pigsty/releases/tag/v1.0.0)                                       |
 | 2021-10-12 | HomePage, JupyterLab, Pgweb, Pev2 & Pgbadger          | [v1.1.0](https://github.com/Vonng/pigsty/releases/tag/v1.1.0)                                       |
 | 2021-11-03 | Upgrade default Postgres to 14, monitoring existing pg | [v1.2.0](https://github.com/Vonng/pigsty/releases/tag/v1.2.0)                                       |
-| 2021-11-31 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                                       |
-| 2021-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                                       |
-| 2021-04-20 | Bug fix & Full translation of English documents.      | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                                       |
+| 2021-11-30 | PGCAT Overhaul & PGSQL Enhancement & Redis Support Beta | [v1.3.0](https://github.com/Vonng/pigsty/releases/tag/v1.3.0)                                       |
+| 2022-03-31 | MatrixDB Support, Separated INFRA, NODES, PGSQL, REDIS | [v1.4.0](https://github.com/Vonng/pigsty/releases/tag/v1.4.0)                                       |
+| 2022-04-20 | Bug fix & Full translation of English documents.      | [v1.4.1](https://github.com/Vonng/pigsty/releases/tag/v1.4.1)                                       |
 | 2022-05-31 | Docker Applications                                   | [v1.5.0-rc](https://github.com/Vonng/pigsty/releases/tag/v1.5.0-rc)                                       |
 
 

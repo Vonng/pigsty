@@ -1,0 +1,27 @@
+version: "3"
+
+volumes:
+  gitea:
+    external: false
+
+services:
+  server:
+    image: gitea/gitea:1.16.8
+    container_name: gitea
+    restart: always
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: 10.10.10.10:5432
+      DB_NAME: meta
+      DB_USER: dbuser_meta
+      DB_PASSWD: DBUser.Meta
+      USER_UID: 1000
+      USER_GID: 1000
+      HTTP_PORT: 8889
+    volumes:
+      - gitea:/var/lib/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8889:8889"   # web
+      - "222:2222"    # ssh
