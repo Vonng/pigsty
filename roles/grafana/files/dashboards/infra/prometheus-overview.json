@@ -21,13 +21,12 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "Pigsty Prometheus Overview",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1652750529179,
+    "iteration": 1653025048664,
     "links": [
         {
             "asDropdown": true,
@@ -374,19 +373,11 @@
                             },
                             {
                                 "color": "green",
-                                "value": 10000
-                            },
-                            {
-                                "color": "orange",
-                                "value": 2000000
-                            },
-                            {
-                                "color": "#EAB839",
-                                "value": 2000010
+                                "value": 1
                             }
                         ]
                     },
-                    "unit": "none"
+                    "unit": "s"
                 },
                 "overrides": []
             },
@@ -396,7 +387,7 @@
                 "x": 9,
                 "y": 1
             },
-            "id": 121,
+            "id": 147,
             "links": [],
             "maxDataPoints": 100,
             "options": {
@@ -421,10 +412,10 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "expr": "sum(prometheus_sd_discovered_targets{instance=\"$ins\"})",
+                    "expr": "time() - process_start_time_seconds{type=\"prometheus\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
-                    "legendFormat": "Targets",
+                    "legendFormat": "Uptime",
                     "range": true,
                     "refId": "B",
                     "step": 40
@@ -1682,19 +1673,19 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 16,
+                "h": 4,
                 "w": 5,
                 "x": 0,
                 "y": 28
             },
-            "id": 108,
+            "id": 121,
             "links": [],
             "maxDataPoints": 100,
             "options": {
                 "colorMode": "background",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "horizontal",
+                "orientation": "auto",
                 "reduceOptions": {
                     "calcs": [
                         "lastNotNull"
@@ -1712,18 +1703,15 @@
                         "uid": "${ds}"
                     },
                     "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "prometheus_sd_discovered_targets{instance=\"$ins\", config!=\"config-0\"}",
+                    "expr": "sum(prometheus_sd_discovered_targets{instance=\"$ins\"})",
                     "format": "time_series",
-                    "instant": true,
                     "intervalFactor": 2,
-                    "legendFormat": "{{ config }}",
-                    "range": false,
+                    "legendFormat": "Targets",
+                    "range": true,
                     "refId": "B",
                     "step": 40
                 }
             ],
-            "title": "Targets",
             "type": "stat"
         },
         {
@@ -1819,6 +1807,98 @@
             ],
             "title": "Scrape Duration",
             "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${ds}"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null",
+                                "result": {
+                                    "text": "N/A"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 10000
+                            },
+                            {
+                                "color": "orange",
+                                "value": 2000000
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 2000010
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 5,
+                "x": 0,
+                "y": 32
+            },
+            "id": 108,
+            "links": [],
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.5.2",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${ds}"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "prometheus_sd_discovered_targets{instance=\"$ins\", config!=\"config-0\"}",
+                    "format": "time_series",
+                    "instant": true,
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ config }}",
+                    "range": false,
+                    "refId": "B",
+                    "step": 40
+                }
+            ],
+            "title": "Targets",
+            "type": "stat"
         },
         {
             "datasource": {
@@ -2532,5 +2612,6 @@
     "title": "Prometheus Overview",
     "uid": "prometheus-overview",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }
