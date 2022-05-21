@@ -8,6 +8,7 @@ Pigsty v1.5.0 带有Docker与Docker Compose部署支持，其中，Docker Daemon
 * [PGWeb](#PGWeb客户端工具)：一个自动根据PG数据库模式生成后端API服务的工具
 * [PostgREST](#自动后端API：PostgREST)：一个自动根据PG数据库模式生成后端API服务的工具
 * [ByteBase](#模式迁移工具：ByteBase) ： 一个用于进行PostgreSQL模式变更的GUI工具
+* [Gitea](#Gitea)：Gitea私有Git托管服务
 * [Jupyter Lab](#数据分析环境：Jupyter)：一个开箱即用的数据分析与处理Python实验环境
 
 您也可以使用Docker执行一些随用随抛的命令工具，例如：
@@ -33,17 +34,33 @@ Pigsty v1.5.0 带有Docker与Docker Compose部署支持，其中，Docker Daemon
 
 ```bash
 nginx_upstreams:
-  - { name: kong         , domain: api.pigsty , endpoint: "127.0.0.1:8880"   } #== v optional ==#
-  - { name: pgadmin      , domain: adm.pigsty , endpoint: "127.0.0.1:8885"   }
-  - { name: pgweb        , domain: cli.pigsty , endpoint: "127.0.0.1:8886"   }
-  - { name: bytebase     , domain: ddl.pigsty , endpoint: "127.0.0.1:8887"   }
-  - { name: jupyter      , domain: lab.pigsty , endpoint: "127.0.0.1:8888"   }
+ - { name: postgrest , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884" }
+ - { name: pgadmin   , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885" }
+ - { name: pgweb     , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886" }
+ - { name: bytebase  , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887" }
+ - { name: jupyter   , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888" }
+ - { name: gitea     , domain: git.pigsty.cc  , endpoint: "127.0.0.1:8889" }
+ - { name: minio     , domain: sss.pigsty.cc  , endpoint: "127.0.0.1:9000" }
 
 ./infra.yml -t nginx_config,nginx_restart    # 重新生成Nginx配置文件，并重启生效
 ```
 
+**Pull Image**
 
-
+```bash
+docker pull kong                     # latest # 139MB
+docker pull minio/minio              # latest # 227MB
+docker pull alpine                   # latest # 5.57MB
+docker pull registry                 # latest # 24.2MB
+docker pull dpage/pgadmin4           # latest # 341MB
+docker pull sosedoff/pgweb           # latest # 192MB
+docker pull postgrest/postgrest      # latest # 16.3MB
+docker pull swaggerapi/swagger-ui    # latest # 77MB
+docker pull bytebase/bytebase:1.0.5  # 1.0.5  # 78.1MB
+docker pull vonng/pg_exporter        # latest # 7.64B
+docker pull gitea/gitea              # latest # 256MB
+docker pull andrewjones/schemaspy-postgres # latest
+```
 
 
 ## PGADMIN

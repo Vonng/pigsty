@@ -75,6 +75,7 @@ all:
           - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
           - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
           - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
+          - { name: gitea,      owner: dbuser_gitea      , revokeconn: true , comment: gitea meta database }
 
         pg_users:
           - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
@@ -82,6 +83,7 @@ all:
           - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
           - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
           - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
+          - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service    }
 
         pg_hba_rules_extra:
           - title: allow grafana bytebase kong intranet access
@@ -255,32 +257,31 @@ all:
       - { name: prometheus   , domain: p.pigsty.cc    , endpoint: "10.10.10.10:9090" }  # pigsty prometheus (9090)
       - { name: alertmanager , domain: a.pigsty.cc    , endpoint: "10.10.10.10:9093" }  # pigsty alertmanager (9093)
       - { name: consul       , domain: c.pigsty.cc    , endpoint: "127.0.0.1:8500"   }  # pigsty consul UI (8500) (domain required)
-      - { name: postgrest    , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884"   }  #== optional ==#
+      - { name: postgrest    , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
       - { name: pgadmin      , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885"   }
       - { name: pgweb        , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886"   }
       - { name: bytebase     , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887"   }
-      - { name: minio        , domain: s3.pigsty.cc   , endpoint: "127.0.0.1:9000"   }
       - { name: jupyter      , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888"   }
-
+      - { name: gitea        , domain: git.pigsty.cc  , endpoint: "127.0.0.1:8889"   }
+      - { name: minio        , domain: sss.pigsty.cc  , endpoint: "127.0.0.1:9000"   }
 
     nginx_indexes:                    # application nav links on home page
-      - { name: PgAdmin4    , url : 'http://adm.pigsty.cc'           , comment: 'PgAdmin4 for PostgreSQL'     }
-      - { name: PGWeb       , url : 'http://cli.pigsty.cc'           , comment: 'PGWEB Browser Client'        }
-      - { name: ByteBase    , url : 'http://ddl.pigsty.cc'           , comment: 'ByteBase Schema Migrator'    }
-      - { name: Jupyter     , url : 'http://lab.pigsty.cc'           , comment: 'Jupyter Laboratory'          }
-      - { name: PostgREST   , url : 'http://api.pigsty.cc'           , comment: 'Kong API Gateway'            }
-      - { name: Minio       , url : 'http://s3.pigsty.cc'            , comment: 'Minio Object Storage'        }
-      - { name: Explain     , url : '/pev2'                          , comment: 'postgres explain visualizer' }
-      - { name: Pigsty Pkg  , url : '/pigsty'                        , comment: 'pigsty repo packages'        }
-      - { name: Matrix Pkg  , url : '/matrix'                        , comment: 'matrixdb repo packages'      }
-      - { name: Repo File   , url : '/pigsty.repo'                   , comment: 'local yum repo file'         }
-      - { name: PG Logs     , url : '/logs'                          , comment: 'postgres raw csv logs'       }
-      - { name: Schemas     , url : '/schema'                        , comment: 'schemaspy summary report'    }
-      - { name: Reports     , url : '/report'                        , comment: 'pgbadger summary report'     }
-      - { name: CMDB        , url : '${grafana}/d/cmdb-overview'     , comment: 'Pigsty CMDB Overview'        }
-      - { name: ISD         , url : '${grafana}/d/isd-overview'      , comment: 'noaa isd data visualization' }
-      - { name: Covid       , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
-      - { name: DBTrend     , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
+      - { name: PgAdmin4   , url : 'http://adm.pigsty'              , comment: 'PgAdmin4 for PostgreSQL'     }
+      - { name: PGWeb      , url : 'http://cli.pigsty'              , comment: 'PGWEB Browser Client'        }
+      - { name: ByteBase   , url : 'http://ddl.pigsty'              , comment: 'ByteBase Schema Migrator'    }
+      - { name: PostgREST  , url : 'http://api.pigsty'              , comment: 'Kong API Gateway'            }
+      - { name: Gitea      , url : 'http://git.pigsty'              , comment: 'Minio Object Storage'        }
+      - { name: Minio      , url : 'http://sss.pigsty'              , comment: 'Minio Object Storage'        }
+      - { name: Explain    , url : '/pev2'                          , comment: 'postgres explain visualizer' }
+      - { name: Package    , url : '/pigsty'                        , comment: 'local yum repo packages'     }
+      - { name: Matrix Pkg , url : '/matrix'                        , comment: 'matrixdb repo packages'      }
+      - { name: PG Logs    , url : '/logs'                          , comment: 'postgres raw csv logs'       }
+      - { name: Schemas    , url : '/schema'                        , comment: 'schemaspy summary report'    }
+      - { name: Reports    , url : '/report'                        , comment: 'pgbadger summary report'     }
+      - { name: ISD        , url : '${grafana}/d/isd-overview'      , comment: 'noaa isd data visualization' }
+      - { name: Covid      , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
+      - { name: Worktime   , url : '${grafana}/d/worktime-overview' , comment: 'worktime query'              }
+      - { name: DBTrend    , url : '${grafana}/d/dbeng-trending'    , comment: 'DB Engine Trending Graph'    }
 
     #-----------------------------------------------------------------
     # REPO
@@ -519,7 +520,8 @@ all:
     # NODE_DNS
     #-----------------------------------------------------------------
     node_etc_hosts_default:           # static dns records in /etc/hosts
-      - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty cli.pigsty lab.pigsty api.pigsty
+      - 10.10.10.10 meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty
+      - 10.10.10.10 api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty
     node_etc_hosts: []                # extra static dns records in /etc/hosts
 
     node_dns_method: add              # add (default) | none (skip) | overwrite (remove old settings)
