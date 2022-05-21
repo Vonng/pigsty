@@ -1,6 +1,6 @@
 ![logo](_media/icon.svg)
 
-# Pigsty <small>1.5.0-rc</small>
+# Pigsty <small>v1.5.0</small>
 
 > <b>Battery-Included Open-Source Database Distribution</b>
 

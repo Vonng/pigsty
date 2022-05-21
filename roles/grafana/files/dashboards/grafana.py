@@ -26,7 +26,7 @@ UPSTREAM_ALERTMANAGER = os.environ.get("NGINX_UPSTREAM_ALERTMANAGER", PLACEHOLDE
 # replace all url according to environment
 def host_replace(s):
     if UPSTREAM_HOME != PLACEHOLDER_HOME:
-        s = s.replace('://' + PLACEHOLDER_HOME, '://' + UPSTREAM_HOME)
+        s = s.replace('://' + PLACEHOLDER_HOME + '/', '://' + UPSTREAM_HOME + '/')
     if UPSTREAM_GRAFANA != PLACEHOLDER_GRAFANA:
         s = s.replace('://' + PLACEHOLDER_GRAFANA, '://' + UPSTREAM_GRAFANA)
     if UPSTREAM_CONSUL != PLACEHOLDER_CONSUL:
