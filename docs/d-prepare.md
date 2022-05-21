@@ -110,8 +110,8 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty sourc
 You can also download the source tarball in other ways.
 
 ```bash
-# https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pigsty.tgz   # Github Release 
-# http://download.pigsty.cc/v1.5.0-rc/pigsty.tgz                           # China CDN
+# https://github.com/Vonng/pigsty/releases/download/v1.5.0/pigsty.tgz   # Github Release 
+# http://download.pigsty.cc/v1.5.0/pigsty.tgz                           # China CDN
 # https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Cloud Download
 # git clone https://github.com/Vonng/pigsty                             # Get the latest code Master branch (not recommended)
 ```
@@ -134,8 +134,8 @@ The official offline package is made based on CentOS 7.8.2003 OS. Please refer t
 You can download the offline package in advance on the meta node where Pigsty is to be installed (just on a meta node to `/tmp/pkg.tgz`).
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pkg.tgz -o /tmp/pkg.tgz   # Github Release，Most authoritative  
-curl http://download.pigsty.cc/v1.5.0-rc/pkg.tgz -o /tmp/pkg.tgz                      # Download with CDN in China
+curl https://github.com/Vonng/pigsty/releases/download/v1.5.0/pkg.tgz -o /tmp/pkg.tgz   # Github Release，Most authoritative  
+curl http://download.pigsty.cc/v1.5.0/pkg.tgz -o /tmp/pkg.tgz                      # Download with CDN in China
 ```
 
 Also, the [`download`](https://github.com/Vonng/pigsty/bl/master/download) script in the root of the pigsty project can be used to download offline packages.

@@ -23,7 +23,7 @@ Pigsty提供了几个样例应用：
 
 通常，带有`APP`标签的面板会被列入Pigsty Grafana首页导航中App下拉菜单中，带有`APP`和`Overview`标签的面板则会列入首页面板导航中。
 
-您可以从 https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/app.tgz 下载带有基础数据的应用进行安装。
+您可以从 https://github.com/Vonng/pigsty/releases/download/v1.5.0/app.tgz 下载带有基础数据的应用进行安装。
 
 
 

@@ -1,4 +1,4 @@
-# v1.5.0-rc
+# v1.5.0
 
 ## Highlights
 

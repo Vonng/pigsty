@@ -86,8 +86,8 @@ make start   # 使用Vagrant拉起单个meta节点  (start4则为4个节点)
 执行以上命令，可自动下载最新稳定版本 `pigsty.tgz` ，并解压至 `~/pigsty`目录。您也可以从下列位置手工下载特定版本的Pigsty[源码包](d-prepare.md#Pigsty源代码)，如果您需要在无互联网的环境中安装，可以提前下载并通过 scp/sftp 等方式上传至生产服务器。
 
 ```bash
-https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pigsty.tgz   # Github Release 
-http://download.pigsty.cc/v1.5.0-rc/pigsty.tgz                           # 中国大陆用加速CDN
+https://github.com/Vonng/pigsty/releases/download/v1.5.0/pigsty.tgz   # Github Release 
+http://download.pigsty.cc/v1.5.0/pigsty.tgz                           # 中国大陆用加速CDN
 https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # 百度云网盘下载
 ```
 
@@ -123,8 +123,8 @@ Pigsty的[离线软件包](d-prepare.md#Pigsty离线软件包) `pkg.tgz` 打包�
 在 [`./configure`](v-config.md#配置过程) 过程中，如果离线安装包`/tmp/pkg.tgz`不存在，向导会提示用户下载，回答“Y”即可自动从Github或CDN下载；回答“N”则会跳过下载。您也可以从下列位置手工下载离线软件包，并放置于 `/tmp/pkg.tgz`，则安装时会自动使用。
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.5.0-rc/pkg.tgz -o /tmp/pkg.tgz
-curl http://download.pigsty.cc/v1.5.0-rc/pkg.tgz -o /tmp/pkg.tgz         # China CDN
+curl https://github.com/Vonng/pigsty/releases/download/v1.5.0/pkg.tgz -o /tmp/pkg.tgz
+curl http://download.pigsty.cc/v1.5.0/pkg.tgz -o /tmp/pkg.tgz         # China CDN
 https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Yun
 ```
 
