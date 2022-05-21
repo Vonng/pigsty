@@ -5,7 +5,7 @@ up: view
 	docker-compose up -d
 
 view:
-	@echo "visit http://ddl.pigsty  or  http://10.10.10.10:8887"
+	@echo "visit http://git.pigsty  or  http://10.10.10.10:8889"
 
 log:
 	docker logs -f gitea

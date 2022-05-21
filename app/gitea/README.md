@@ -1,12 +1,12 @@
 # gitea
 
-Schema Migrator for PostgreSQL
+Lightweight Git Services
 
 ```bash
 cd app/gitea; docker-compose up -d
 ```
 
-Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
+Visit [http://git.pigsty](http://git.pigsty) or http://10.10.10.10:8889
 
 
 ```bash
@@ -22,8 +22,6 @@ make rmi     # remove gitea image
 make save    # save gitea image to /tmp/gitea.tgz
 make load    # load gitea image from /tmp
 ```
-
-
 
 ## Use External PostgreSQL
 
