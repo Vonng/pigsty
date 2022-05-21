@@ -3,14 +3,28 @@
 You can run ton's of software based on pigsty database & docker runtime.
 
 
-## PG Auxiliary
+## Built-in Application
 
 * [PgAdmin4](pgadmin/) : Postgres Admin UI
 * [PgWeb](pgweb/) : Postgres WEBConsole
 * [ByteBase](bytebase/) : DDL Migration
 * [PostgREST](postgrest/) : Auto-PG REST API
 * [Kong](kong/) : The API Gateway
+* [Gitea](gitea/) : Git hosting services 
 
+**Access Point**
+
+```yaml
+{ name: postgrest , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884" }
+{ name: pgadmin   , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885" }
+{ name: pgweb     , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886" }
+{ name: bytebase  , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887" }
+{ name: jupyter   , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888" }
+{ name: gitea     , domain: git.pigsty.cc  , endpoint: "127.0.0.1:8889" }
+{ name: minio     , domain: sss.pigsty.cc  , endpoint: "127.0.0.1:9000" }
+```
+
+**Pull Image**
 
 ```bash
 docker pull kong                     # latest # 139MB
@@ -23,14 +37,15 @@ docker pull postgrest/postgrest      # latest # 16.3MB
 docker pull swaggerapi/swagger-ui    # latest # 77MB
 docker pull bytebase/bytebase:1.0.5  # 1.0.5  # 78.1MB
 docker pull vonng/pg_exporter        # latest # 7.64B
+docker pull gitea/gitea              # latest # 256MB
+docker pull andrewjones/schemaspy-postgres # latest
 ```
 
-
-**Make Cache for PG Basics**
+**Make Cache**
 
 ```bash
 # make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio:minio bytebase/bytebase:1.0.5 vonng/pg_exporter | gzip -9 -c > /tmp/docker.tgz
+docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.0.5 vonng/pg_exporter gitea/gitea | gzip -9 -c > /tmp/docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 
@@ -50,7 +65,6 @@ There are lots of software using PostgreSQL / Redis.
 * Mastodon : Social Network
 * Discourse : Community
 
-
 ```bash
 docker pull odoo                                        # latest   # 1.49GB
 docker pull quay.io/keycloak/keycloak:18.0.0            # 18.0.0   # 562MB
@@ -68,8 +82,6 @@ docker pull grafana/grafana-oss                         # latest   # 286MB
 docker save odoo quay.io/keycloak/keycloak tootsuite/mastodon cptactionhank/atlassian-confluence cptactionhank/atlassian-jira-software jupyter/scipy-notebook gitlab/gitlab-ee grafana/grafana-oss | gzip -c - > software.tar.lz4
 cat software.tar.lz4 | gzip -d -c - | docker load  
 ```
-
-
 
 
 ## Visualization App

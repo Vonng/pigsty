@@ -15,7 +15,7 @@ info:
 
 # prepare external pg
 pg:
-	@echo "pg_users:     { name: dbuser_gitea , password: DBUser.gitea, roles: [ dbrole_admin ] }"
+	@echo "pg_users:     { name: dbuser_gitea , password: DBUser.Gitea, roles: [ dbrole_admin ] }"
 	@echo "pg_databases: { name: gitea, owner: dbuser_gitea, comment: gitea primary database }"
 	@echo "bin/createuser pg-meta dbuser_gitea ; bin/createdb pg-meta gitea"
 
@@ -26,15 +26,15 @@ clean:
 	docker stop gitea; docker rm -f gitea
 
 pull:
-	docker pull gitea/gitea4
+	docker pull gitea/gitea
 
 rmi:
-	docker rmi gitea/gitea4
+	docker rmi gitea/gitea
 
 save:
-	docker save gitea/gitea4 | lz4 -c > /tmp/gitea.tlz
+	docker save gitea/gitea | lz4 -c > /tmp/gitea.tlz
 
 load:
 	cat /tmp/gitea.tlz | lz4 -d -c - | docker load
 
-.PHONY: default up run view log info stop clean conf dump pull rmi save load
+.PHONY: default up run view log info stop clean pull rmi save load

@@ -1,6 +1,17 @@
 # Development Log
 
 
+#### 2022-05-21
+
+* Grafana Logo Customize
+* Nginx Log Rework
+
+#### 2022-05-20
+
+* Prometheus Overview polish
+* Grafana Overview polish
+* DCS Overview polish
+
 #### 2022-05-15
 
 * new role: etcd

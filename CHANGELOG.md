@@ -45,7 +45,7 @@
 * Add `node_crontab` and `node_crontab_overwrite` to create routine jobs such as cold backup
 * Add a series of `*_enable` options to control  components
 * Loki and Promtail are now installed using the RPM package made by `frpm`.
-
+* Allow customize monitoring logo
 
 **Software Updates**
 
@@ -67,7 +67,7 @@ New software / application based on docker:
 * kong : API Gateway which use PostgreSQL as backend storage
 * swagger openapi : API Specification Generator
 * Minio : S3-compatible object storage
-
+* Gitea : Private local git service
 
 ## Bug Fix
 
