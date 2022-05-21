@@ -1,7 +1,7 @@
 #==============================================================#
 # File      :   promtail.yml
 # Ctime     :   2021-04-03
-# Mtime     :   2022-03-19
+# Mtime     :   2022-05-21
 # Desc      :   Promtail logging collector agent
 # Path      :   /etc/promtail.yml
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -59,28 +59,36 @@ scrape_configs:
   ################################################################
   # collect nginx & grafana logs on meta nodes
 
-  - job_name: infra
+{% if nginx_enabled|bool %}
+  - job_name: nginx
     static_configs:
       - targets:
           - localhost
         labels:
-          src: nginx-access
+          src: nginx
           job: infra
-          __path__: /var/log/nginx/access.log
-
+          __path__: /var/log/nginx/*.log
       - targets:
           - localhost
         labels:
           src: nginx-error
           job: infra
-          __path__: /var/log/nginx/error.log
+          __path__: /var/log/nginx-error.log
 
-      - targets:
-          - localhost
-        labels:
-          src: grafana
-          job: infra
-          __path__: /var/log/grafana/grafana.log
+    pipeline_stages:
+      - match:
+          selector: '{src="nginx"}'
+          stages:
+            - regex:
+                # logline example: 127.0.0.1 - - [21/Apr/2020:13:59:45 +0000] "GET /?foo=bar HTTP/1.1" 200 612 "http://example.com/lekkebot.html" "curl/7.58.0"
+                expression: '^(?P<host>[\w\.]+) - (?P<user>[^ ]*) \[(?P<timestamp>.*)\] "(?P<method>[^ ]*) (?P<request_url>[^ ]*) (?P<request_http_protocol>[^ ]*)" (?P<status>[\d]+) (?P<bytes_out>[\d]+) "(?P<http_referer>[^"]*)" "(?P<user_agent>[^"]*)"?'
+            - labels:
+                host:
+                method:
+                request_url:
+                status:
+                user_agent:
+{% endif %}
 
 {% endif %}
 
