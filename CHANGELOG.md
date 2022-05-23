@@ -10,7 +10,7 @@
 * Redis playbook now works on single instance with `redis_port` option.
 * Better cold backup support: crontab for backup, delayed standby with `pg_delay`
 * Use ETCD as DCS, alternative to Consul
-
+* Nginx Log Enhancement
 
 ## Monitoring
 
@@ -92,6 +92,7 @@ New software / application based on docker:
 * `etcd_enable`: enable etcd server/clients?
 * `pg_checksum`: enable pg cluster data-checksum?
 * `pg_delay`: recovery min apply delay for standby leader
+* `grafana_customize_logo`: customize grafana icon
 
 **Reforge**
 
@@ -115,7 +116,6 @@ And `*_safeguard` are boolean flags to avoid purging running instance when execu
 - `node_local_repo_url` -> `node_repo_local_urls`
 - `node_packages` -> `node_packages_default`
 - `node_extra_packages` -> `node_packages`
-- `node_packages_meta` -> `node_packages_meta`
 - `node_meta_pip_install` -> `node_packages_meta_pip`
 - `node_sysctl_params` -> `node_tune_params`
 - `app_list` -> `nginx_indexes`
