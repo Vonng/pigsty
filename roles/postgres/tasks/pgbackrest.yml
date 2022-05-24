@@ -1,0 +1,93 @@
+---
+#------------------------------------------------------------------------------
+# Check pgbackrest installed
+#------------------------------------------------------------------------------
+- name: Check pgbackrest is installed
+  tags: pgbackrest_check
+  shell: "[[ -f /bin/pgbackrest ]]"
+
+
+#------------------------------------------------------------------------------
+# Cleanup existing pgbackrest
+#------------------------------------------------------------------------------
+- name: Clean existing pgbackrest
+  tags: pgbackrest_clean
+  when: pgbackrest_clean|bool
+  block:
+    - name: Stop existing pgbackrest service
+      ignore_errors: true
+      systemd: name=pgbackrest state=stopped enabled=no daemon_reload=yes
+
+    - name: Remove existing pgbackrest dirs
+      file: path={{ item }} state=absent
+      with_items:
+        - "{{ pg_fs_bkup }}/pgbackrest"
+        - "{{ pgbackrest_spool_dir }}"
+        - "{{ pgbackrest_log_dir }}"
+
+
+#------------------------------------------------------------------------------
+# Install pgbackrest
+#------------------------------------------------------------------------------
+- name: Install pgbackrest via yum
+  tags: pgbackrest_install
+  package: name={{ item }} state=present
+  with_items:
+    - pgbackrest
+    - nagios-plugins-pgbackrest
+
+- name: Copy check_pgbackrest to /pg/bin
+  tags: pgbackrest_install
+  copy: src=/usr/lib64/nagios/plugins/check_pgbackrest dest=/pg/bin/check_pgbackrest owner={{ pg_dbsu }} group=postgres mode=0755
+
+
+#------------------------------------------------------------------------------
+# Config pgbackrest
+#------------------------------------------------------------------------------
+- name: Config pgbackrest
+  tags: pgbackrest_config
+  block:
+    - name: Make sure pgbackrest dir exists
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+      with_items:
+        - "{{ pg_fs_bkup }}/pgbackrest"
+        - "{{ pgbackrest_spool_dir }}"
+        - "{{ pgbackrest_log_dir }}"
+
+    - name: Copy /etc/pgbackrest.conf
+      tags: pgbackrest_conf
+      template: src=pgbackrest.conf.j2 dest=/etc/pgbackrest.conf owner={{ pg_dbsu }} group=postgres mode=0640
+
+
+#------------------------------------------------------------------------------
+# Launch pgbackrest
+#------------------------------------------------------------------------------
+- name: Launch pgbackrest server
+  when: pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined
+  tags: pgbackrest_launch
+  block:
+    - name: Copy pgbackrest systemd service
+      template: src=pgbackrest.service.j2 dest=/etc/systemd/system/pgbackrest.service owner=root mode=0644
+
+    - name: Launch pgbackrest service
+      systemd: name=pgbackrest state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pgbackrest service online
+      wait_for: host=127.0.0.1 port={{ pgbackrest_tls_port }} state=started timeout=10
+
+    - name: Check pgbackrest service is ready
+      become_user: "{{ pg_dbsu }}"
+      command: /usr/bin/pgbackrest server-ping
+
+
+#------------------------------------------------------------------------------
+# Create pgbackrest stanza
+#------------------------------------------------------------------------------
+- name: Create pgbackrest stanza
+  tags: pgbackrest_launch
+  become_user: "{{ pg_dbsu }}"
+  block:
+    - name: Create pgbackrest stanza
+      when: meta_node|bool
+      shell: /usr/bin/pgbackrest --stanza={{ pgbackrest_stanza }} stanza-create
+...

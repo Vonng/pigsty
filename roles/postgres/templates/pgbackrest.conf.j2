@@ -1,0 +1,115 @@
+[global]
+# Repo
+{% if meta_node|bool %}
+repo1-type={{ pgbackrest_type }}
+{% if pgbackrest_type == 's3' %}
+repo1-path=/repo
+repo1-s3-endpoint={{ pgbackrest_s3_endpoint }}
+repo1-storage-port={{ pgbackrest_s3_port }}
+repo1-s3-uri-style=path
+repo1-s3-bucket={{ pgbackrest_s3_bucket }}
+repo1-s3-verify-tls=n
+repo1-s3-key={{ pgbackrest_s3_key }}
+repo1-s3-key-secret={{ pgbackrest_s3_secret }}
+repo1-s3-region={{ pgbackrest_s3_region }}
+{% else %}
+repo1-path={{ pg_fs_bkup }}/pgbackrest
+{% endif %}
+repo1-cipher-type={{ pgbackrest_cipher_type }}
+repo1-cipher-pass={{ pgbackrest_cipher_pass }}
+repo1-retention-full-type={{ pgbackrest_retention_type }}
+repo1-retention-full={{ pgbackrest_retention_full }}
+repo1-retention-diff={{ pgbackrest_retention_diff }}
+{% else %}
+repo1-host=meta
+repo1-host-user={{ pg_dbsu }}
+repo1-host-type={{ pgbackrest_protocol }}
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+repo1-host-cert-file={{ ca_homedir }}/{{ cert_file }}.crt
+repo1-host-key-file={{ ca_homedir }}/{{ cert_file }}.key
+repo1-host-ca-file={{ ca_homedir }}/{{ ca_file }}.crt
+{% endif %}
+{% endif %}
+
+# General
+log-level-console=info
+log-level-file=debug
+compress-type=lz4
+{% if meta_node|bool %}
+process-max=4
+{% if pgbackrest_from_standby|bool %}
+backup-standby=y
+{% endif %}
+start-fast=y
+expire-auto=y
+{% else %}
+spool-path={{ pgbackrest_spool_dir }}
+{% if pgbackrest_archive_async|bool %}
+archive-async=y
+{% endif %}
+{% endif %}
+
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+# TLS
+tls-server-address=*
+tls-server-port={{ pgbackrest_tls_port }}
+tls-server-ca-file={{ ca_homedir }}/{{ ca_file }}.crt
+{% if meta_node|bool %}
+tls-server-cert-file={{ ca_homedir }}/{{ pg_cluster }}.crt
+tls-server-key-file={{ ca_homedir }}/{{ pg_cluster }}.key
+tls-server-auth={{ pg_cluster_name }}-1={{ pgbackrest_stanza }}
+tls-server-auth={{ pg_cluster_name }}-2={{ pgbackrest_stanza }}
+tls-server-auth={{ pg_cluster_name }}-3={{ pgbackrest_stanza }}
+{% else %}
+tls-server-cert-file={{ ca_homedir }}/{{ cert_file }}.crt
+tls-server-key-file={{ ca_homedir }}/{{ cert_file }}.key
+tls-server-auth=meta={{ pgbackrest_stanza }}
+{% endif %}
+{% endif %}
+
+{% if not meta_node|bool %}
+[global:archive-get]
+process-max=2
+
+[global:archive-push]
+process-max=4
+
+[global:restore]
+process-max=8
+link-all=y
+delta=y
+{% endif %}
+
+[{{ pgbackrest_stanza }}]
+{% if meta_node|bool %}
+pg1-host={{ pg_cluster_name }}-1
+pg1-port={{ pg_port }}
+pg1-path={{ pg_data }}
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+pg1-host-type=tls
+pg1-host-cert-file={{ ca_homedir }}/{{ pg_cluster }}.crt
+pg1-host-key-file={{ ca_homedir }}/{{ pg_cluster }}.key
+pg1-host-ca-file={{ ca_homedir }}/{{ ca_file }}.crt
+{% endif %}
+pg2-host={{ pg_cluster_name }}-2
+pg2-path={{ pg_data }}
+pg2-port={{ pg_port }}
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+pg2-host-type=tls
+pg2-host-cert-file={{ ca_homedir }}/{{ pg_cluster }}.crt
+pg2-host-key-file={{ ca_homedir }}/{{ pg_cluster }}.key
+pg2-host-ca-file={{ ca_homedir }}/{{ ca_file }}.crt
+{% endif %}
+pg3-host={{ pg_cluster_name }}-3
+pg3-port={{ pg_port }}
+pg3-path={{ pg_data }}
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+pg3-host-type=tls
+pg3-host-cert-file={{ ca_homedir }}/{{ pg_cluster }}.crt
+pg3-host-key-file={{ ca_homedir }}/{{ pg_cluster }}.key
+pg3-host-ca-file={{ ca_homedir }}/{{ ca_file }}.crt
+{% endif %}
+{% else %}
+pg1-path={{ pg_data }}
+pg1-port={{ pg_port }}
+{% endif %}

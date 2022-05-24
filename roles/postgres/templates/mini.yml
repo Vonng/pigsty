@@ -265,7 +265,12 @@ bootstrap:
         checkpoint_timeout: 30min               # checkpoint 5min -> 30min
         checkpoint_completion_target: 0.95      # 0.5 -> 0.95
         archive_mode: on
+{% if not meta_node|bool and (pgbackrest_enabled|bool and pgbackrest_stanza is defined) %}
+        archive_command: 'pgbackrest --stanza={{ pgbackrest_stanza }} archive-push %p'
+{% else %}
         archive_command: 'wal_dir=/pg/arcwal; [[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d); /bin/mkdir -p ${wal_dir}/$(date +%Y%m%d) && /usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4'
+{% endif %}
+        archive_timeout: 300                    # 5 min timeout for archiving
 
         #----------------------------------------------------------------------
         # REPLICATION
