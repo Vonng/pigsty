@@ -15,12 +15,7 @@
   tags: [ node_ntp, ntp_config ]
   when: node_ntp_enabled|bool
   block:
-    - name: Install ntp package
-      when: node_ntp_service == 'ntp'
-      package: name=ntp state=present
-
     - name: Install chrony package
-      when: node_ntp_service == 'chrony'
       package: name=chrony state=present
 
 #--------------------------------------------------------------#
@@ -31,9 +26,6 @@
   tags: [ node_ntp, ntp_config ]
   when: node_ntp_enabled|bool
   block:
-    - name: Copy the ntp.conf file
-      template: src=ntp.conf.j2 dest=/etc/ntp.conf
-
     - name: Copy the chrony.conf template
       template: src=chrony.conf.j2 dest=/etc/chrony.conf
 
@@ -44,12 +36,7 @@
   tags: [ node_ntp, ntp_launch ]
   when: node_ntp_enabled|bool
   block:
-    - name: Launch ntpd service
-      when: node_ntp_service == 'ntp'
-      systemd: name=ntpd enabled=true state=restarted
-
     - name: Launch chronyd service
-      when: node_ntp_service == 'chrony'
       systemd: name=chronyd enabled=true state=restarted
 
 
