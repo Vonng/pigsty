@@ -1,0 +1,97 @@
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+PATH=$PATH:/usr/pgsql/bin:/pg/bin; export PATH
+
+# User specific aliases and functions
+##########################################################
+#                         admin                          #
+##########################################################
+# - patroni - #
+function pt() {
+    if [ ! -r /pg/bin/patroni.yml ]; then
+        echo "error: patroni ctl config not found"
+        return 1
+    else
+        patronictl -c /pg/bin/patroni.yml "$@"
+    fi
+}
+function pt-log() {
+    if [ ! -r /pg/bin/patroni.yml ]; then
+        echo "error: patroni ctl config not found"
+        return 1
+    else
+    local logpath=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
+    tail -f $logpath/patroni.log
+    fi
+}
+alias pt-up='sudo systemctl start patroni'
+alias pt-down='sudo systemctl stop patroni'
+alias pt-status='sudo systemctl status patroni'
+alias pt-reload='sudo systemctl reload patroni'
+alias pt-restart='sudo systemctl restart patroni'
+alias pt-watch='pt list -eW'
+
+# - postgres - #
+function pg-log() {
+    if [ ! -r /pg/data/postgresql.conf ]; then
+        echo "error: postgres conf not found"
+        return 1
+    else
+    local logpath=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+    tail -f $logpath/postgresql-$(date '+%Y-%m-%d').csv
+    fi
+}
+alias pg-start='pg_ctl -D /pg/data start'
+alias pg-stop='pg_ctl -D /pg/data stop'
+alias pg-ps='ps aux | grep postgres'
+alias pg-conf="less /pg/data/postgresql.conf"
+alias pg-hba="less /pg/data/pg_hba.conf"
+
+# - pgbouncer - #
+alias pgb='psql -p6432 -dpgbouncer'
+alias pgb-status='sudo systemctl status pgbouncer'
+alias pgb-ps='ps aux | grep pgbouncer'
+alias pgb-up='sudo systemctl start pgbouncer'
+alias pgb-down='sudo systemctl stop pgbouncer'
+alias pgb-restart='sudo systemctl restart pgbouncer'
+alias pgb-reload='sudo systemctl reload pgbouncer'
+alias pgb-new='/usr/bin/pgbouncer -d -R /etc/pgbouncer/pgbouncer.ini'
+alias pgb-stats='psql -p6432 -dpgbouncer -xc "SHOW STATS;"'
+alias pgb-pools='psql -p6432 -dpgbouncer -xc "SHOW POOLS;"'
+alias pgb-conf="cat /etc/pgbouncer/pgbouncer.ini"
+alias pgb-hba="cat /etc/pgbouncer/pgb_hba.conf"
+alias pgb-user="cat /etc/pgbouncer/userlist.txt"
+alias pgb-db="cat /etc/pgbouncer/database.txt"
+
+# - consul - #
+alias c-nodes="consul catalog nodes -detailed"
+alias c-services="consul catalog services --tags"
+alias c-status="sudo systemctl status consul"
+alias c-members="consul members"
+
+##########################################################
+# pgsql info
+##########################################################
+alias pg-db="oid2name | grep -v postgres | grep -v template"
+alias pg-reco="psql -qAXtwc \"SELECT CASE pg_is_in_recovery() WHEN TRUE THEN 'replica' ELSE 'primary' END\";"
+alias pg-repl='psql -qAXtwc "TABLE pg_stat_replication;"'
+alias pg-recv='psql -qAXtwc "TABLE pg_stat_wal_receiver;"'
+alias pg-ts='psql -qAXtwc "SELECT CURRENT_TIMESTAMP;"'
+alias pg-reloadconf='psql -qAXtwc "SELECT pg_reload_conf();"'
+
+##########################################################
+# exporter info
+##########################################################
+alias node-mt="curl -sL localhost:9100/metrics | grep -v '#' | grep node_"
+alias pg-mt="curl -sL localhost:9630/metrics | grep -v '#' | grep pg_"
+alias pgb-mt="curl -sL localhost:9631/metrics | grep -v '#' | grep pg_"
+
+##########################################################
+# misc
+##########################################################
+alias now='date +"DATE: %Y-%m-%d  TIME: %H:%M:%S  EPOCH: %s"'
+alias today='date +"%Y%m%d"'
