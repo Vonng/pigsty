@@ -102,8 +102,10 @@
         - /pg
         - "{{ pg_fs_main }}/postgres"
         - "{{ pg_fs_bkup }}/postgres"
+        - "{{ pg_log_dir }}"
+        - "{{ patroni_log_dir }}"
+        - "{{ pgbouncer_log_dir }}"
         - /etc/pgbouncer
-        - /var/log/pgbouncer
         - /var/run/pgbouncer
 
 
@@ -118,18 +120,18 @@
 #   cluster-version is the default parent folder for pgdata (e.g pg-test-12)
 #------------------------------------------------------------------------------
 # default variable:
-#     pg_fs_main = /export           fast ssd
-#     pg_fs_bkup = /var/backups      cheap hdd
+#     pg_fs_main = /data             fast ssd
+#     pg_fs_bkup = /backup           cheap hdd
 #
-#     /pg      -> /export/postgres/pg-test-12
-#     /pg/data -> /export/postgres/pg-test-12/data
+#     /pg      -> "{{ pg_fs_main }}/postgres/{{ pg_cluster }}"
+#     /pg/data -> "{{ pg_fs_main }}/postgres/{{ pg_cluster }}/data"
 #------------------------------------------------------------------------------
 - name: Create postgresql directories
   tags: pg_dir
   become: yes
   block:
     - name: Make sure main and backup dir exists
-      file: path={{ item }} state=directory owner=root mode=0777
+      file: path={{ item }} state=directory owner=root group=root mode=0755
       with_items:
         - "{{ pg_fs_main }}"
         - "{{ pg_fs_bkup }}"
@@ -139,6 +141,7 @@
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
       with_items:
         - "{{ pg_fs_main }}/postgres"
+        - "{{ pg_fs_bkup }}/postgres"
         - "{{ pg_cluster_dir }}"
         - "{{ pg_cluster_dir }}/bin"
         - "{{ pg_cluster_dir }}/log"
@@ -148,17 +151,18 @@
         - "{{ pg_cluster_dir }}/meta"
         - "{{ pg_cluster_dir }}/stat"
         - "{{ pg_cluster_dir }}/change"
-        - "{{ pg_backup_dir }}/postgres"
         - "{{ pg_backup_dir }}/arcwal"
         - "{{ pg_backup_dir }}/backup"
         - "{{ pg_backup_dir }}/remote"
+        - "{{ pg_log_dir }}"
 
-    - name: Create pgbouncer directory structure
+    - name: Create pgbouncer & patroni directory structure
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
       with_items:
         - /etc/pgbouncer
-        - /var/log/pgbouncer
         - /var/run/pgbouncer
+        - "{{ pgbouncer_log_dir }}"
+        - "{{ patroni_log_dir }}"
 
     - name: Create links from pgbkup to pgroot
       file:
