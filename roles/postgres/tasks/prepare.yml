@@ -102,8 +102,10 @@
         - /pg
         - "{{ pg_fs_main }}/postgres"
         - "{{ pg_fs_bkup }}/postgres"
+        - "{{ pg_log_dir }}"
+        - "{{ patroni_log_dir }}"
+        - "{{ pgbouncer_log_dir }}"
         - /etc/pgbouncer
-        - /var/log/pgbouncer
         - /var/run/pgbouncer
 
 
@@ -152,13 +154,15 @@
         - "{{ pg_backup_dir }}/arcwal"
         - "{{ pg_backup_dir }}/backup"
         - "{{ pg_backup_dir }}/remote"
+        - "{{ pg_log_dir }}"
 
-    - name: Create pgbouncer directory structure
+    - name: Create pgbouncer & patroni directory structure
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
       with_items:
         - /etc/pgbouncer
-        - /var/log/pgbouncer
         - /var/run/pgbouncer
+        - "{{ pgbouncer_log_dir }}"
+        - "{{ patroni_log_dir }}"
 
     - name: Create links from pgbkup to pgroot
       file:

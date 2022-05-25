@@ -14,6 +14,7 @@ set -uo pipefail
 
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
+LOGPATH=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
 
 #==============================================================#
 #                             Usage                            #
@@ -61,19 +62,19 @@ function usage() {
 function on_role_change_handler() {
 	local role=$1
 	local cluster=$2
-	local detect_role=$(pg-role)
-	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}][role_change@${cluster}] new_role=${role} detect_role=${detect_role} \033[0m\n" >>/pg/log/callback.log
+	local detect_role=$(/pg/bin/pg-role)
+	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}][role_change@${cluster}] new_role=${role} detect_role=${detect_role} \033[0m\n" >>$LOGPATH/callback.log
 
     # perform a checkpoint after failover
-    printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] CHECKPOINT \033[0m\n" >>/pg/log/callback.log
+    printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] CHECKPOINT \033[0m\n" >>$LOGPATH/callback.log
 	psql -Atqwc 'CHECKPOINT;CHECKPOINT;'
 
     # register new role to consul /pg/bin/pg-register $(/pg/bin/pg-role)
-	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Register role=${role} \033[0m\n" >>/pg/log/callback.log
-	/pg/bin/pg-register ${role} >> /pg/log/callback.log
+	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Register role=${role} \033[0m\n" >>$LOGPATH/callback.log
+	/pg/bin/pg-register ${role} >> $LOGPATH/callback.log
 
     # reload to take effect
-	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Reload consul \033[0m\n" >>/pg/log/callback.log
+	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Reload consul \033[0m\n" >>$LOGPATH/callback.log
     consul reload
 }
 
@@ -111,7 +112,7 @@ function main() {
 	esac
 
 	# log event and call handler
-	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}][event=${event}}] [cluster=${cluster}] [role=${role}]\033[0m\n" >>/pg/log/callback.log
+	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}][event=${event}}] [cluster=${cluster}] [role=${role}]\033[0m\n" >>$LOGPATH/callback.log
 	case ${event} in
 	on_stop)
 		on_stop_handler ${role} ${cluster}

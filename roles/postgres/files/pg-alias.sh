@@ -11,12 +11,35 @@ alias pg-reload='sudo systemctl reload patroni'
 alias pg-restart='sudo systemctl restart patroni'
 alias pg-ps='ps aux | grep postgres'
 alias pg-d="cd /pg/data"
-alias pg-l="cd /pg/data/log"
+function pg-l() {
+    if [ ! -r /pg/data/postgresql.conf ]; then
+        echo "error: postgres conf not found"
+        return 1
+    else
+    local logpath=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+    cd $logpath
+    fi
+}
 alias pg-c="less /pg/data/postgresql.conf"
 alias pg-h="less /pg/data/pg_hba.conf"
-alias pg-plog='tail -f /pg/log/patroni.log'
-alias pg-tlog='tail -f /pg/data/log/*.csv'
-alias pg-log='less /pg/data/log/postgresql-$(date +%a).csv'
+function pt-log() {
+    if [ ! -r /pg/bin/patroni.yml ]; then
+        echo "error: patroni ctl config not found"
+        return 1
+    else
+    local logpath=$(grep -A2 'log:' /pg/bin/patroni.yml | head -n3 | awk '/dir:/ {print $2}')
+    tail -f $logpath/patroni.log
+    fi
+}
+function pg-log() {
+    if [ ! -r /pg/data/postgresql.conf ]; then
+        echo "error: postgres conf not found"
+        return 1
+    else
+    local logpath=$(grep 'log_directory' /pg/data/postgresql.conf | awk '{print $3}' | tr -d "'")
+    tail -f $logpath/postgresql-$(date '+%Y-%m-%d').csv
+    fi
+}
 
 # - pgbouncer - #
 alias pgb='psql -p6432 -dpgbouncer'
