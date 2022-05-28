@@ -154,15 +154,12 @@
         - "{{ pg_backup_dir }}/arcwal"
         - "{{ pg_backup_dir }}/backup"
         - "{{ pg_backup_dir }}/remote"
-        - "{{ pg_log_dir }}"
 
     - name: Create pgbouncer & patroni directory structure
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
       with_items:
         - /etc/pgbouncer
         - /var/run/pgbouncer
-        - "{{ pgbouncer_log_dir }}"
-        - "{{ patroni_log_dir }}"
 
     - name: Create links from pgbkup to pgroot
       file:
@@ -179,6 +176,16 @@
         src: "{{ pg_cluster_dir }}"
         dest: /pg
         state: link
+
+    - name: Create postgres log dir if not in data dir
+      when: not ( pg_log_dir.startswith(pg_data) )
+      file: path={{ pg_log_dir }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+
+    - name: Create pgbouncer patroni log dir
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+      with_items:
+        - "{{ pgbouncer_log_dir }}"
+        - "{{ patroni_log_dir }}"
 
     # dummy file could be removed in case of disk-full
     # which cushion against immediate failure
