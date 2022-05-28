@@ -703,6 +703,7 @@ all:
     pgdg_repo: false                  # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                # add postgres relate repo before install ?
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
+    pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*      # postgresql kernel packages
       - postgis32_${pg_version}*      # postgis
@@ -723,33 +724,35 @@ all:
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
-    pg_safeguard: false               # true will disable pg_clean at all, even for pgsql-remove.yml
-    pg_clean: true                    # true will clean running postgres during pgsql init (DANGEROUS)
-    pg_data: /pg/data                 # postgres data directory (soft link)
-    pg_fs_main: /data                 # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
-    pg_fs_bkup: /data/backups         # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
-    pg_dummy_filesize: 64MiB          # /pg/dummy hold some disk space for emergency use
-    pg_listen: '0.0.0.0'              # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
-    pg_port: 5432                     # postgres port, 5432 by default
-    pg_localhost: /var/run/postgresql # localhost unix socket dir for connection
-    patroni_enabled: true             # if not enabled, no postgres cluster will be created
-    patroni_mode: default             # pause|default|remove
-    pg_dcs_type: consul               # which dcs to use: consul or etcd or raft
-    pg_namespace: /pg                 # top level key namespace in dcs
-    patroni_port: 8008                # default patroni port
-    patroni_watchdog_mode: automatic  # watchdog mode: off|automatic|required
-    pg_conf: tiny.yml                 # pgsql template:  {oltp|olap|crit|tiny}.yml
+    pg_safeguard: false                   # true will disable pg_clean at all, even for pgsql-remove.yml
+    pg_clean: true                        # true will clean running postgres during pgsql init (DANGEROUS)
+    pg_data: /pg/data                     # postgres data directory (soft link)
+    pg_fs_main: /data                     # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
+    pg_fs_bkup: /data/backups             # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
+    pg_dummy_filesize: 64MiB              # /pg/dummy hold some disk space for emergency use
+    pg_listen: '0.0.0.0'                  # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
+    pg_port: 5432                         # postgres port, 5432 by default
+    pg_localhost: /var/run/postgresql     # localhost unix socket dir for connection
+    patroni_enabled: true                 # if not enabled, no postgres cluster will be created
+    patroni_mode: default                 # pause|default|remove
+    pg_dcs_type: consul                   # which dcs to use: consul or etcd or raft
+    pg_namespace: /pg                     # top level key namespace in dcs
+    patroni_port: 8008                    # default patroni port
+    patroni_log_dir: /pg/log              # patroni log dir, default is /pg/log
+    patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
+    pg_conf: tiny.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
-    pg_delay: 0                       # apply delay for standby cluster leader
-    pg_checksum: false                # enable data checksum by default
-    pg_encoding: UTF8                 # database cluster encoding, UTF8 by default
-    pg_locale: C                      # database cluster local, C by default
-    pg_lc_collate: C                  # database cluster collate, C by default
-    pg_lc_ctype: en_US.UTF8           # database character type, en_US.UTF8 by default (for i18n full-text search)
-    pgbouncer_enabled: true           # if not enabled, pgbouncer will not be created
-    pgbouncer_port: 6432              # pgbouncer port, 6432 by default
-    pgbouncer_poolmode: transaction   # pooling mode: session|transaction|statement, transaction pooling by default
-    pgbouncer_max_db_conn: 100        # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
+    pg_delay: 0                           # apply delay for standby cluster leader
+    pg_checksum: false                    # enable data checksum by default
+    pg_encoding: UTF8                     # database cluster encoding, UTF8 by default
+    pg_locale: C                          # database cluster local, C by default
+    pg_lc_collate: C                      # database cluster collate, C by default
+    pg_lc_ctype: en_US.UTF8               # database character type, en_US.UTF8 by default (for i18n full-text search)
+    pgbouncer_enabled: true               # if not enabled, pgbouncer will not be created
+    pgbouncer_port: 6432                  # pgbouncer port, 6432 by default
+    pgbouncer_log_dir: /var/log/pgbouncer # pgbouncer log dir, default is /var/log/pgbouncer
+    pgbouncer_poolmode: transaction       # pooling mode: session|transaction|statement, transaction pooling by default
+    pgbouncer_max_db_conn: 100            # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
 
     #-----------------------------------------------------------------
     # PG_PROVISION
