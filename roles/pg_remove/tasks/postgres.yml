@@ -110,15 +110,33 @@
       become_user: "{{ pg_dbsu }}"
       shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate; /bin/true"
 
-    # when cleanup primary, remove pgsql cluster meta data
-    - name: Remove consul metadata about pgsql cluster
-      when: pg_dcs_type == 'consul'
-      shell: |
-        consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }} ; /bin/true
+    # when cleanup primary, remove dcs metadata
+    - name: Remove dcs postgres metadata
+      ignore_errors: true
+      when: pg_role == 'primary'
+      block:
 
-    - name: Remove etcd metadata about pgsql cluster
-      when: pg_dcs_type == 'etcd'
-      shell: |
-        ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}"
-        etcdctl rm -r {{ pg_namespace }}/{{ pg_cluster }} ; /bin/true
+        - name: Remove postgres metadata in consul
+          when: pg_dcs_type == 'consul'
+          shell: |
+            {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+            export CONSUL_HTTP_SSL=true
+            export CONSUL_HTTP_ADDR=https://127.0.0.1:8501
+            export CONSUL_CACERT={{ cert_homedir }}/{{ ca_file }}.crt
+            {% else %}
+            export CONSUL_HTTP_ADDR=http://127.0.0.1:8500
+            {% endif %}
+            consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
+
+        - name: Remove postgres metadata in etcd
+          when: pg_dcs_type == 'etcd'
+          shell: |
+            {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+            export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
+            export ETCDCTL_CA_FILE="{{ cert_homedir }}/{{ ca_file }}.crt"
+            {% else %}
+            export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
+            {% endif %}
+            etcdctl rm -r {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
+
 ...
