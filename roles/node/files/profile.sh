@@ -94,11 +94,12 @@ function pg() {
 
 alias ntpsync="sudo ntpdate pool.ntp.org"
 
-# consul alias
+# dcs alias
 alias cnode="consul catalog nodes -detailed"
 alias csvc="consul catalog services --tags"
 alias cst="systemctl status consul"
 alias cm="consul members"
+alias e="etcdctl"
 #--------------------------------------------------------------#
 # ls corlor
 [ ls --color ] >/dev/null 2>&1 && colorflag="--color" || colorflag="-G"
