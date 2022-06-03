@@ -24,17 +24,24 @@ hosting-type: basic
 
 
 # dcs
-dcs-type: {{ pg_dcs_type|default('consul') }}
+dcs-type: {{ pg_dcs_type }}
 
 # a list that contains all DCS endpoints to which vip-manager could talk.
 dcs-endpoints:
 {% if pg_dcs_type == 'consul' %}
-  - http://127.0.0.1:8500        # consul
+  - http://127.0.0.1:8500
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+{% for k,v in dcs_servers.items() %}
+  - https://{{ v }}:2379
+{% endfor %}
+{% else %}
 {% for k,v in dcs_servers.items() %}
   - http://{{ v }}:2379
 {% endfor %}
+etcd-ca-file: "{{ cert_homedir }}/{{ ca_file }}.crt"
+{% endif %}
 {% endif %}
 
 
