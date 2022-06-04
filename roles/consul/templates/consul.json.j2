@@ -1,0 +1,45 @@
+{
+  "datacenter": "{{ dcs_name }}",
+  "node_name": "{{ nodename }}",
+  "bind_addr": "{{ inventory_hostname }}",
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+  "ports": {
+    "http": 8500,
+    "https": 8501
+  },
+  "tls": {
+    "defaults": {
+      "tls_min_version": "TLSv1_2",
+      "verify_outgoing": true,
+      "verify_incoming": false,
+      "ca_file": "{{ cert_homedir }}/{{ ca_file }}.crt",
+      "cert_file": "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt",
+      "key_file": "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
+    },
+{% if inventory_hostname in dcs_servers.values() %}
+    "internal_rpc": {
+      "verify_incoming": true,
+      "verify_server_hostname": true
+    }
+  },
+  "auto_encrypt": {
+    "allow_tls": true
+{% else %}
+    "internal_rpc": {
+      "verify_server_hostname": true
+    }
+  },
+  "auto_encrypt": {
+    "tls": true
+{% endif %}
+  },
+{% endif %}
+  "retry_join": {{ dcs_servers.values()|list|to_json }},
+  "data_dir": "{{ consul_data_dir }}",
+  "log_level": "INFO",
+  "enable_local_script_checks": true,
+  "telemetry": {
+    "prometheus_retention_time": "15m",
+    "disable_hostname": true
+  }
+}

@@ -10,17 +10,31 @@ local   all             all                                    md5
 
 # allow local/intranet replication with password
 local   replication     {{ pg_replication_username }}                              md5
+{% if pg_sslmode != 'disable' %}
+hostssl replication     {{ pg_replication_username }}         127.0.0.1/32         md5
+hostssl all             {{ pg_replication_username }}         10.0.0.0/8           md5
+hostssl all             {{ pg_replication_username }}         172.16.0.0/12        md5
+hostssl all             {{ pg_replication_username }}         192.168.0.0/16       md5
+hostssl replication     {{ pg_replication_username }}         10.0.0.0/8           md5
+hostssl replication     {{ pg_replication_username }}         172.16.0.0/12        md5
+hostssl replication     {{ pg_replication_username }}         192.168.0.0/16       md5
+{% else %}
 host    replication     {{ pg_replication_username }}         127.0.0.1/32         md5
-host    all             {{ pg_replication_username }}         10.0.0.0/8           md5
-host    all             {{ pg_replication_username }}         172.16.0.0/12        md5
-host    all             {{ pg_replication_username }}         192.168.0.0/16       md5
+host    postgres        {{ pg_replication_username }}         10.0.0.0/8           md5
+host    postgres        {{ pg_replication_username }}         172.16.0.0/12        md5
+host    postgres        {{ pg_replication_username }}         192.168.0.0/16       md5
 host    replication     {{ pg_replication_username }}         10.0.0.0/8           md5
 host    replication     {{ pg_replication_username }}         172.16.0.0/12        md5
 host    replication     {{ pg_replication_username }}         192.168.0.0/16       md5
+{% endif %}
 
 # allow local role monitor with password
 local   all             {{ pg_monitor_username }}                          md5
+{% if pg_sslmode != 'disable' %}
+hostssl all             {{ pg_monitor_username }}      127.0.0.1/32        md5
+{% else %}
 host    all             {{ pg_monitor_username }}      127.0.0.1/32        md5
+{% endif %}
 
 #==============================================================#
 # Extra HBA

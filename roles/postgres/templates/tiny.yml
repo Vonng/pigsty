@@ -6,7 +6,7 @@
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (tiny)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
-# Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
+# Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
 # Note      :   Tiny Database Cluster Template (tiny:1C:1G:40GB)
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -37,18 +37,27 @@ log:
 #------------------------------------------------------------------------------
 {% if pg_dcs_type == 'consul' %}
 consul:
-  host: 127.0.0.1:8500
   consistency: default         # default|consistent|stale
   register_service: true
   service_check_interval: 15s
   service_tags:
     - {{ pg_cluster }}
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+  host: 127.0.0.1:8501
+  scheme: https
+  cacert: {{ cert_homedir }}/{{ ca_file }}.crt
+{% else %}
+  host: 127.0.0.1:8500
+{% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
 etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+  protocol: https
+  cacert: {{ cert_homedir }}/{{ ca_file }}.crt
 {% endif %}
-
+{% endif %}
 
 #------------------------------------------------------------------------------
 # api
@@ -63,16 +72,19 @@ restapi:
     username: {{ pg_monitor_username }}
     password: '{{ pg_monitor_password }}'
 
-
 #------------------------------------------------------------------------------
 # ctl
 #------------------------------------------------------------------------------
 ctl:
   optional:
+{% if patroni_ssl_enabled is defined and patroni_ssl_enabled|bool %}
+    insecure: false
+    cacert: '{{ cert_homedir }}/{{ ca_file }}.crt'
+    certfile: '{{ cert_homedir }}/{{ pg_instance }}.crt'
+    keyfile: '{{ cert_homedir }}/{{ pg_instance }}.key'
+{% else %}
     insecure: true
-    # cacert: '/path/to/ca/cert'
-    # certfile: '/path/to/cert/file'
-    # keyfile: '/path/to/key/file'
+{% endif %}
 
 #------------------------------------------------------------------------------
 # tags
@@ -233,6 +245,12 @@ bootstrap:
         # max_replication_slots: 16             # 10 -> 16
         wal_keep_size: 1GB                      # keep at least 1GB WAL
         password_encryption: md5                # use traditional md5 auth
+{% if pg_sslmode != 'disable' %}
+        ssl: on
+        ssl_cert_file: '{{ cert_homedir }}/{{ pg_cluster }}.crt'
+        ssl_key_file: '{{ cert_homedir }}/{{ pg_cluster }}.key'
+        ssl_ca_file: '{{ cert_homedir }}/{{ ca_file }}.crt'
+{% endif %}
 
         #----------------------------------------------------------------------
         # RESOURCE USAGE (except WAL)

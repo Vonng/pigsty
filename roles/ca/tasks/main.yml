@@ -3,39 +3,240 @@
 # check ca exists
 #--------------------------------------------------------------------------
 # create repo directory and check cache existence
-- name: Create local ca directory
+- name: Create local cert directory
   tags: ca_dir
-  file: path="{{ ca_homedir }}" state=directory mode=0700
+  file: path="{{ cert_homedir }}" state=directory owner=root group=dcs mode=0755
 
 # if ca_method == copy
 - name: Copy ca cert from local files
   tags: ca_copy
   when: ca_method == 'copy'
-  copy: src={{ item }} dest={{ ca_homedir }}/{{ item }} mode=0600
+  copy: src={{ item }} dest={{ cert_homedir }}/{{ item }} owner=root group=dcs mode=0644
   with_items:
-    - "{{ ca_key }}"
-    - "{{ ca_cert }}"
+    - "{{ ca_file }}.crt"
+    - "{{ ca_file }}.key"
 
+# if ca key exists or explicitly require a new CA
+- name: Check CA exists on tmp
+  tags: ca_check
+  block:
+    - name: Check if ca cert exists
+      stat:
+        path: "{{ cert_homedir }}/{{ ca_file }}.crt"
+      register: ca_crt_exists
+
+    - name: Check if ca key exists
+      stat:
+        path: "{{ cert_homedir }}/{{ ca_file }}.key"
+      register: ca_key_exists
 
 #--------------------------------------------------------------------------
 # create or reuse ca
 #--------------------------------------------------------------------------
-# if ca_method = create, create a self-signed ca key-cert pair if not exists
-# if ca_method = recreate, force recreate a self-signed ca key-cert pair even key-cert already exists
-- name: Check ca key cert exists
+# if ca_method = create, create a self-signed ca keypair if not exists
+# if ca_method = recreate, force recreate a self-signed ca keypair even if already exists
+- name: Create CA certificate
   tags: ca_create
-  when: ca_method == 'create' or ca_method == 'recreate'
-  stat: path={{ ca_homedir }}/{{ ca_key }}
-  register: ca_key_exists
-
-# if ca key not exists or explicitly require a new CA
-- name: Download local repo packages
-  tags: ca_create
-  when: not ca_key_exists.stat.exists or ca_method == 'recreate'
+  when: not (ca_crt_exists.stat.exists and ca_key_exists.stat.exists) or ca_method == 'recreate'
   block:
-    # download from upstream repo
-    - name: Create self-signed CA key-cert
-      command:
-        cmd: openssl req -new -x509 -days 3650 -nodes -out "{{ ca_cert }}" -keyout "{{ ca_key }}" -subj "{{ ca_subject }}"
-        chdir: "{{ ca_homedir }}"
+    - name: Remove existing ca folders
+      file: path="{{ cert_homedir }}" state=absent
+
+    - name: Create certs directory
+      file: path="{{ cert_homedir }}" state=directory owner=root group=dcs mode=0755
+
+    - name: Generate CA private key
+      when: meta_node|bool and pg_role == 'primary'
+      openssl_privatekey:
+        path: "{{ cert_homedir }}/{{ ca_file }}.key"
+        owner: root
+        group: dcs
+        mode: 0644
+
+    - name: Generate CA signing request
+      when: meta_node|bool and pg_role == 'primary'
+      openssl_csr:
+        path: "{{ cert_homedir }}/{{ ca_file }}.csr"
+        privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
+        common_name: "{{ ca_cn }}"
+        use_common_name_for_san: false
+        basic_constraints:
+          - 'CA:TRUE'
+        basic_constraints_critical: yes
+        key_usage:
+          - keyCertSign
+        key_usage_critical: true
+
+    - name: Generate self-signed CA from CSR
+      when: meta_node|bool and pg_role == 'primary'
+      openssl_certificate:
+        path: "{{ cert_homedir }}/{{ ca_file }}.crt"
+        csr_path: "{{ cert_homedir }}/{{ ca_file }}.csr"
+        privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
+        provider: selfsigned
+        selfsigned_not_after: "+{{ ca_validity }}"
+        owner: root
+        group: dcs
+        mode: 0644
+
+
+#--------------------------------------------------------------------------
+# create certs
+#--------------------------------------------------------------------------
+# this cert will be rotated to all meta nodes and can be used for securing meta services
+- name: Create meta certificate for services
+  tags: crt_create
+  when: meta_node|bool and pg_role == 'primary'
+  connection: local
+  delegate_to: localhost
+  block:
+    - name: Generate shared meta private key on primary meta node
+      openssl_privatekey:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}.key"
+        owner: root
+        group: dcs
+        mode: 0644
+
+    - name: Generate shared meta CSR on primary meta node
+      openssl_csr:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}.csr"
+        privatekey_path: "{{ cert_homedir }}/{{ pg_cluster }}.key"
+        common_name: "{{ pg_cluster }}"
+        subject_alt_name: 'DNS:meta'
+
+    - name: Sign shared meta CSR with CA key on primary meta node
+      openssl_certificate:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}.crt"
+        csr_path: "{{ cert_homedir }}/{{ pg_cluster }}.csr"
+        ownca_path: "{{ cert_homedir }}/{{ ca_file }}.crt"
+        ownca_privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        owner: root
+        group: dcs
+        mode: 0644
+
+# this cert will be rotated to all pg cluster nodes and can be used for securing pg service
+- name: Create pg cluster certificate
+  tags: crt_create
+  when: not meta_node|bool and pg_role == 'primary'
+  connection: local
+  delegate_to: localhost
+  block:
+    - name: Generate pg cluster private key on primary pg node
+      openssl_privatekey:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}.key"
+        owner: root
+        group: dcs
+        mode: 0644
+
+    - name: Generate pg cluster CSR on primary pg node
+      openssl_csr:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}.csr"
+        privatekey_path: "{{ cert_homedir }}/{{ pg_cluster }}.key"
+        common_name: "{{ pg_cluster }}"
+        use_common_name_for_san: false
+
+    - name: Sign pg cluster CSR with CA key on primary pg node
+      openssl_certificate:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}.crt"
+        csr_path: "{{ cert_homedir }}/{{ pg_cluster }}.csr"
+        ownca_path: "{{ cert_homedir }}/{{ ca_file }}.crt"
+        ownca_privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        owner: root
+        group: dcs
+        mode: 0644
+
+# this cert will be rotated to all infra nodes and can be used for securing infra services (i.e.: consul, etcd..)
+- name: Create nodes certificate
+  connection: local
+  delegate_to: localhost
+  tags: crt_create
+  block:
+    - name: Generate nodes private key
+      openssl_privatekey:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
+        owner: root
+        group: dcs
+        mode: 0644
+
+    - name: Generate nodes signin request
+      openssl_csr:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.csr"
+        privatekey_path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
+        common_name: "{{ pg_cluster }}-{{ pg_seq }}"
+        subject_alt_name: "DNS:localhost,DNS:server.{{ dcs_name }}.consul,IP:127.0.0.1,IP:{{ inventory_hostname }}"
+
+    - name: Sign CSRs with CA on primary meta node
+      openssl_certificate:
+        path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt"
+        csr_path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.csr"
+        ownca_path: "{{ cert_homedir }}/{{ ca_file }}.crt"
+        ownca_privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        owner: root
+        group: dcs
+        mode: 0644
+
+#--------------------------------------------------------------------------
+# copy certs
+#--------------------------------------------------------------------------
+- name: Copy ca certificate on all nodes
+  tags: ca_copy
+  copy: src="{{ cert_homedir }}/{{ ca_file }}.crt" dest="{{ cert_homedir }}/{{ ca_file }}.crt" owner=root group=dcs mode=0644
+
+- name: Copy meta services certificate
+  tags: ca_copy
+  when: meta_node|bool
+  block:
+    - name: Copy shared meta private key on meta nodes
+      copy: src="{{ cert_homedir }}/{{ pg_cluster }}.key" dest="{{ cert_homedir }}/{{ pg_cluster }}.key" owner=root group=dcs mode=0640
+
+    - name: Copy shared meta certificate on meta nodes
+      copy: src="{{ cert_homedir }}/{{ pg_cluster }}.crt" dest="{{ cert_homedir }}/{{ pg_cluster }}.crt" owner=root group=dcs mode=0640
+
+- name: Copy pg cluster certificate
+  tags: ca_copy
+  when: not meta_node|bool
+  block:
+    - name: Copy pg cluster private key on pg nodes
+      copy: src="{{ cert_homedir }}/{{ pg_cluster }}.key" dest="{{ cert_homedir }}/{{ pg_cluster }}.key" owner=root group=dcs mode=0640
+
+    - name: Copy pg cluster certificate on pg nodes
+      copy: src="{{ cert_homedir }}/{{ pg_cluster }}.crt" dest="{{ cert_homedir }}/{{ pg_cluster }}.crt" owner=root group=dcs mode=0640
+
+
+- name: Copy node certificates
+  tags: ca_copy
+  block:
+    - name: Copy node private key
+      tags: ca_copy
+      copy: src="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key" dest="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key" owner=root group=dcs mode=0640
+
+    - name: Copy node certificate
+      tags: ca_copy
+      copy: src="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt" owner=root group=dcs mode=0640
+
+
+#--------------------------------------------------------------------------
+# cleanup % fix permissions
+#--------------------------------------------------------------------------
+- name: Cleanup unnecessary files & fix certs perms
+  tags: crt_cleanup
+  when: meta_node|bool and pg_role == 'primary'
+  block:
+    - name: Cleanup unnecessary files
+      file: path={{ item }} state=absent
+      with_fileglob:
+        - "{{ cert_homedir }}/*.csr"
+
+    - name: Fix certs permissions
+      file: path={{ item }} mode=0640
+      with_fileglob:
+        - "{{ cert_homedir }}/*.crt"
+        - "{{ cert_homedir }}/*.key"
+
 ...

@@ -2,19 +2,39 @@
 # Default HBA
 #==============================================================#
 # local dbsu quick access
-local  pgbouncer postgres                                       peer
+local     pgbouncer    postgres                                    peer
 
 # local all password access (for biz user test)
-local   all     all                                             md5
-host    all     all                         127.0.0.1/32        md5
+local     all          all                                         scram-sha-256
+{% if pg_sslmode != 'disable' %}
+hostssl   all          all                         127.0.0.1/32    scram-sha-256
 
 # monitor user intranet access to pgbouncer stats
-host   pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      md5
-host   all          {{ pg_monitor_username }}   0.0.0.0/0       reject
+hostssl   pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      scram-sha-256
+hostssl   pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   scram-sha-256
+hostssl   pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  scram-sha-256
+hostssl   all          {{ pg_monitor_username }}   0.0.0.0/0       reject
 
 # admin user have intranet access to pgbouncer admin
-host   pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      md5
-host   all          {{ pg_admin_username }}     0.0.0.0/0       reject
+hostssl   pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      scram-sha-256
+hostssl   pgbouncer    {{ pg_admin_username }}     172.16.0.0/12   scram-sha-256
+hostssl   pgbouncer    {{ pg_admin_username }}     192.168.0.0/16  scram-sha-256
+hostssl   all          {{ pg_admin_username }}     0.0.0.0/0       reject
+{% else %}
+host      all          all                         127.0.0.1/32    scram-sha-256
+
+# monitor user intranet access to pgbouncer stats
+host      pgbouncer    {{ pg_monitor_username }}   10.0.0.0/8      scram-sha-256
+host      pgbouncer    {{ pg_monitor_username }}   172.16.0.0/12   scram-sha-256
+host      pgbouncer    {{ pg_monitor_username }}   192.168.0.0/16  scram-sha-256
+host      all          {{ pg_monitor_username }}   0.0.0.0/0       reject
+
+# admin user have intranet access to pgbouncer admin
+host      pgbouncer    {{ pg_admin_username }}     10.0.0.0/8      scram-sha-256
+host      pgbouncer    {{ pg_admin_username }}     172.16.0.0/12   scram-sha-256
+host      pgbouncer    {{ pg_admin_username }}     192.168.0.0/16  scram-sha-256
+host      all          {{ pg_admin_username }}     0.0.0.0/0       reject
+{% endif %}
 
 #==============================================================#
 # Common HBA

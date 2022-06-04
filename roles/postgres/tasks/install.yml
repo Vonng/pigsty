@@ -11,11 +11,10 @@
       group: name=postgres gid={{ pg_dbsu_uid }}
 
     - name: Make sure dcs group exists
-      group: name={{ item }}
-      with_items: [consul, etcd]
+      group: name=dcs
 
     - name: Create dbsu {{ pg_dbsu }}
-      user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=consul,etcd generate_ssh_key=yes
+      user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=dcs generate_ssh_key=yes
 
     # - dbsu privilege - #
     - name: Grant dbsu nopass sudo

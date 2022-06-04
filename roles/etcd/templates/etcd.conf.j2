@@ -1,9 +1,25 @@
 name: {{ dcs_nodename }}
 data-dir: {{ etcd_data_dir }}
+initial-cluster-token: "{{ dcs_name }}"
+initial-cluster-state: "new"
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+initial-advertise-peer-urls: https://{{ inventory_hostname }}:2380
+listen-peer-urls: https://{{ inventory_hostname }}:2380
+listen-client-urls: "https://{{ inventory_hostname }}:2379,https://127.0.0.1:2379"
+advertise-client-urls: https://{{ inventory_hostname }}:2379
+initial-cluster: "{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ k }}=https://{{ v }}:2380{% endfor %}"
+client-transport-security:
+  cert-file: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt"
+  key-file: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
+  trusted-ca-file: "{{ cert_homedir }}/{{ ca_file }}.crt"
+peer-transport-security:
+  cert-file: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt"
+  key-file: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
+  trusted-ca-file: "{{ cert_homedir }}/{{ ca_file }}.crt"
+{% else %}
 initial-advertise-peer-urls: http://{{ inventory_hostname }}:2380
 listen-peer-urls: http://{{ inventory_hostname }}:2380
 listen-client-urls: "http://{{ inventory_hostname }}:2379,http://127.0.0.1:2379"
 advertise-client-urls: http://{{ inventory_hostname }}:2379
 initial-cluster: "{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ k }}=http://{{ v }}:2380{% endfor %}"
-initial-cluster-token: "{{ dcs_name }}"
-initial-cluster-state: "new"
+{% endif %}

@@ -70,28 +70,30 @@
         fi
         
         # guaranteed success
-        rm -rf /etc/etcd
+        rm -rf /etc/etcd.d
         rm -rf "{{ etcd_data_dir }}"
+        rm -f /etc/profile.d/etcd.sh
         exit 0
 
 
 #------------------------------------------------------------------------------
-# Launch etcd server
+# Config etcd server
 #------------------------------------------------------------------------------
 - name: Setup etcd server
   tags: etcd_config
   when: inventory_hostname in dcs_servers.values()
   block:
 
+    - name: Add etcd user to dcs group
+      user: name=etcd groups=dcs append=yes
+
     - name: Create etcd dir
       file: path={{ item }} state=directory owner=etcd group=etcd mode=0775
       with_items:
-        - /etc/etcd
+        - /etc/etcd.d
         - "{{ etcd_data_dir }}"
 
-    #------------------------------------------------------------------------------
     # acquire dcs_nodename
-    #------------------------------------------------------------------------------
     - name: Get dcs server key as dcs nodename
       connection: local
       when: inventory_hostname in dcs_servers.values()
@@ -104,9 +106,12 @@
 
     # only server need config
     - name: Copy /etc/etcd.d/etcd.conf
-      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf mode=0644 owner=etcd
+      template: src=etcd.conf.j2 dest=/etc/etcd.d/etcd.conf owner=etcd mode=0644
 
 
+#------------------------------------------------------------------------------
+# Launch etcd server
+#------------------------------------------------------------------------------
 - name: Launch etcd server
   tags: [ etcd_server , etcd_launch ]
   when: inventory_hostname in dcs_servers.values()
@@ -129,9 +134,13 @@
   tags: [ etcd_client, etcdctl ]
   copy:
     dest: /etc/profile.d/etcd.sh
-    mode: 0755
+    mode: 0644
     content: |
+      {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+      export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
+      export ETCDCTL_CA_FILE="{{ cert_homedir }}/{{ ca_file }}.crt"
+      {% else %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
-      alias e="etcdctl"
+      {% endif %}
 
 ...
