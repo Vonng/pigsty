@@ -8,7 +8,7 @@
 
 > 最新版本: [v1.5.0](https://github.com/Vonng/pigsty/releases/tag/v1.5.0)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开Demo](http://home.pigsty.cc)
 >
-> 文档地址: [英文文档](https://pigsty.cc/) | [中文文档](https://pigsty.cc/#/zh-cn/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
+> 文档地址: [英文文档](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 
 
 
