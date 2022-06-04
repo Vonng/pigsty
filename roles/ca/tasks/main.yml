@@ -33,13 +33,22 @@
 #--------------------------------------------------------------------------
 # create or reuse ca
 #--------------------------------------------------------------------------
+# if ca_method = create and keypair exists, allow temporarily world access
+- name: Allow temporarily ca access
+  tags: ca_reuse
+  when: (ca_crt_exists.stat.exists and ca_key_exists.stat.exists) and ca_method == 'create'
+  file: path={{ item }} mode=0644
+  with_items:
+    - "{{ cert_homedir }}/{{ ca_file }}.crt"
+    - "{{ cert_homedir }}/{{ ca_file }}.key"
+
 # if ca_method = create, create a self-signed ca keypair if not exists
 # if ca_method = recreate, force recreate a self-signed ca keypair even if already exists
 - name: Create CA certificate
   tags: ca_create
   when: not (ca_crt_exists.stat.exists and ca_key_exists.stat.exists) or ca_method == 'recreate'
   block:
-    - name: Remove existing ca folders
+    - name: Remove existing cert dir
       file: path="{{ cert_homedir }}" state=absent
 
     - name: Create certs directory
