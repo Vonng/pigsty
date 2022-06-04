@@ -71,6 +71,7 @@
         # guaranteed success
         rm -rf /etc/consul.d
         rm -rf "{{ consul_data_dir }}"
+        rm -rf /etc/systemd/system/consul.service.d
         exit 0
 
 
@@ -88,6 +89,9 @@
 - name: Config consul
   tags: consul_config
   block:
+
+    - name: Add consul user to dcs group
+      user: name=consul groups=dcs append=yes
 
     - name: Create consul dir
       file: path={{ item }} state=directory owner=consul group=consul mode=0775
@@ -119,25 +123,7 @@
 
     # "disable_hostname": true is optional
     - name: Render consul main conf /etc/consul.d/consul.json
-      copy:
-        dest: /etc/consul.d/consul.json
-        mode: 0644
-        owner: consul
-        group: consul
-        content: |
-          {
-            "datacenter": "{{ dcs_name }}",
-            "node_name": "{{ nodename }}",
-            "bind_addr": "{{ inventory_hostname }}",
-            "retry_join": {{ dcs_servers.values()|list|to_json }},
-            "data_dir": "{{ consul_data_dir }}",
-            "log_level": "INFO",
-            "enable_local_script_checks": true,
-            "telemetry": {
-              "prometheus_retention_time": "15m",
-              "disable_hostname": true
-            }
-          }
+      template: src=consul.json.j2 dest=/etc/consul.d/consul.json owner=consul group=consul mode=0644
 
     - name: Render consul node meta /etc/consul.d/consul-meta.json
       copy:
@@ -197,6 +183,31 @@
     - name: Copy consul systemd service
       copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
 
+    #------------------------------------------------------------------------------
+    # render consul service drop-in
+    #------------------------------------------------------------------------------
+    - name: Render consul service drop-in on /etc/systemd/system/consul.service.d/
+      when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
+      block:
+
+        - name: Create consul.service.d directory
+          file: path=/etc/systemd/system/consul.service.d state=directory
+
+        - name: Copy consul.service drop-in
+          copy:
+            dest: /etc/systemd/system/consul.service.d/override.conf
+            owner: root
+            mode: 0644
+            content: |
+              [Service]
+              {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+              Environment="CONSUL_HTTP_SSL=true"
+              Environment="CONSUL_HTTP_ADDR=https://127.0.0.1:8501"
+              Environment="CONSUL_CACERT={{ cert_homedir }}/{{ ca_file }}.crt"
+              {% else %}
+              Environment="CONSUL_HTTP_ADDR=http://127.0.0.1:8500"
+              {% endif %}
+
 
 #------------------------------------------------------------------------------
 # Launch consul server first
@@ -231,5 +242,25 @@
     # wait consul online
     - name: Wait for consul agent online
       wait_for: host=127.0.0.1 port=8500 state=started timeout=30
+
+
+#------------------------------------------------------------------------------
+# Write consul env & cert files to all nodes
+#------------------------------------------------------------------------------
+# write consul env & cert to all nodes
+- name: Write consul env profile
+  tags: consul_client
+  when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
+  copy:
+    dest: /etc/profile.d/consul.sh
+    mode: 0644
+    content: |
+      {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+      export CONSUL_HTTP_SSL=true
+      export CONSUL_HTTP_ADDR=https://127.0.0.1:8501
+      export CONSUL_CACERT={{ cert_homedir }}/{{ ca_file }}.crt
+      {% else %}
+      export CONSUL_HTTP_ADDR=http://127.0.0.1:8500
+      {% endif %}
 
 ...
