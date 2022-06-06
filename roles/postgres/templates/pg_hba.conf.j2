@@ -6,34 +6,34 @@ local   all             postgres                               ident
 local   replication     postgres                               ident
 
 # allow local user password access
-local   all             all                                    md5
+local   all             all                                    {{ pg_pwd_enc }}
 
 # allow local/intranet replication with password
-local   replication     {{ pg_replication_username }}                              md5
+local   replication     {{ pg_replication_username }}                              {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
-hostssl replication     {{ pg_replication_username }}         127.0.0.1/32         md5
-hostssl postgres        {{ pg_replication_username }}         10.0.0.0/8           md5
-hostssl postgres        {{ pg_replication_username }}         172.16.0.0/12        md5
-hostssl postgres        {{ pg_replication_username }}         192.168.0.0/16       md5
-hostssl replication     {{ pg_replication_username }}         10.0.0.0/8           md5
-hostssl replication     {{ pg_replication_username }}         172.16.0.0/12        md5
-hostssl replication     {{ pg_replication_username }}         192.168.0.0/16       md5
+hostssl replication     {{ pg_replication_username }}         127.0.0.1/32         {{ pg_pwd_enc }}
+hostssl postgres        {{ pg_replication_username }}         10.0.0.0/8           {{ pg_pwd_enc }}
+hostssl postgres        {{ pg_replication_username }}         172.16.0.0/12        {{ pg_pwd_enc }}
+hostssl postgres        {{ pg_replication_username }}         192.168.0.0/16       {{ pg_pwd_enc }}
+hostssl replication     {{ pg_replication_username }}         10.0.0.0/8           {{ pg_pwd_enc }}
+hostssl replication     {{ pg_replication_username }}         172.16.0.0/12        {{ pg_pwd_enc }}
+hostssl replication     {{ pg_replication_username }}         192.168.0.0/16       {{ pg_pwd_enc }}
 {% else %}
-host    replication     {{ pg_replication_username }}         127.0.0.1/32         md5
-host    postgres        {{ pg_replication_username }}         10.0.0.0/8           md5
-host    postgres        {{ pg_replication_username }}         172.16.0.0/12        md5
-host    postgres        {{ pg_replication_username }}         192.168.0.0/16       md5
-host    replication     {{ pg_replication_username }}         10.0.0.0/8           md5
-host    replication     {{ pg_replication_username }}         172.16.0.0/12        md5
-host    replication     {{ pg_replication_username }}         192.168.0.0/16       md5
+host    replication     {{ pg_replication_username }}         127.0.0.1/32         {{ pg_pwd_enc }}
+host    postgres        {{ pg_replication_username }}         10.0.0.0/8           {{ pg_pwd_enc }}
+host    postgres        {{ pg_replication_username }}         172.16.0.0/12        {{ pg_pwd_enc }}
+host    postgres        {{ pg_replication_username }}         192.168.0.0/16       {{ pg_pwd_enc }}
+host    replication     {{ pg_replication_username }}         10.0.0.0/8           {{ pg_pwd_enc }}
+host    replication     {{ pg_replication_username }}         172.16.0.0/12        {{ pg_pwd_enc }}
+host    replication     {{ pg_replication_username }}         192.168.0.0/16       {{ pg_pwd_enc }}
 {% endif %}
 
 # allow local role monitor with password
-local   all             {{ pg_monitor_username }}                          md5
+local   all             {{ pg_monitor_username }}                          {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
-hostssl all             {{ pg_monitor_username }}      127.0.0.1/32        md5
+hostssl all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg_pwd_enc }}
 {% else %}
-host    all             {{ pg_monitor_username }}      127.0.0.1/32        md5
+host    all             {{ pg_monitor_username }}      127.0.0.1/32        {{ pg_pwd_enc }}
 {% endif %}
 
 #==============================================================#

@@ -97,7 +97,7 @@ GRANT "{{ role }}" TO "{{ user.name }}";
 
 {% if 'pgbouncer' in user and user.pgbouncer|bool == true %}
 -- User '{{ user.name }}' will be added to /etc/pgbouncer/userlist.txt via
--- /pg/bin/pgbouncer-create-user '{{ user.name }}' '{% if 'password' in user %}{{ user.password }}{% else %}auto{% endif %}'
+-- /pg/bin/pgbouncer-create-user '{{ user.name }}' 'AUTO'
 {% else %}
 -- User '{{ user.name }}' will NOT be added to /etc/pgbouncer/userlist.txt
 {% endif %}

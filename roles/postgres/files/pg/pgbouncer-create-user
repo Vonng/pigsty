@@ -49,32 +49,34 @@ function pgbouncer-create-user() {
         echo "use nil md5pwd: ${entry}"
         ;;
     AUTO | auto | "") # fetch db password
-        entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', usename, '\" \"', passwd, '\"') FROM pg_shadow WHERE usename = '${username}'" 2>/dev/null)
+        entry=$(psql -AXtwq -U postgres -d postgres -c "SELECT concat('\"', rolname, '\" \"', rolpassword, '\"') FROM pg_authid WHERE rolname = '${username}'" 2>/dev/null)
         if [[ ! -z ${entry} ]]; then
-            echo "md5pwd fetched via postgres: ${entry}"
+            echo "pwd fetched via postgres: ${entry}"
         else        # recursive and try other method
             if [[ -z ${password} ]]; then             # error: user not found
                 echo "ERROR: empty password is given and user ${username} not found"
                 exit 1
-            elif [[ ${password} == md5* ]] && [[ ${#password} == 35 ]]; then
-                entry="\"${username}\" \"${password}\""
-                echo "fallback on given md5pwd: ${entry}"
-            else
-                local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
-                entry="\"${username}\" \"${md5_mon_pass}\""
-                echo "fallback on calc md5pwd: ${entry}"
             fi
         fi
         ;;
     *)
-        if [[ ${password} == md5* ]] && [[ ${#password} == 35 ]]; then # just use the md5password
+        pwdenc=$(psql -AXtwq -U postgres -d postgres -c "SHOW password_encryption;" 2>/dev/null)
+        case $pwdenc in
+        md5)
+            if [[ ${password} == md5* ]] && [[ ${#password} == 35 ]]; then # just use the md5password
+                entry="\"${username}\" \"${password}\""
+                echo "md5pwd given: ${entry}"
+            else
+                local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
+                entry="\"${username}\" \"${md5_mon_pass}\""
+                echo "md5pwd calculated: ${entry}"
+            fi
+            ;;
+        scram-sha-256)
             entry="\"${username}\" \"${password}\""
-            echo "md5pwd given: ${entry}"
-        else
-            local md5_mon_pass="md5$(echo -n "${password}${username}" | md5sum | awk '{print $1}')"
-            entry="\"${username}\" \"${md5_mon_pass}\""
-            echo "md5pwd calculated: ${entry}"
-        fi
+            echo "SCRAM pwd cannot be calculated, using plain-text instead"
+            ;;
+        esac
         ;;
     esac
 
@@ -82,7 +84,7 @@ function pgbouncer-create-user() {
     if grep -q ${username} ${userlist}; then
         sed -i "/^\"${username}\"[[:blank:]]*.*$/d" ${userlist}
     fi
-    # write "username" "md5password" to userlist
+    # write "username" "password" to userlist
     echo "${entry}" >> ${userlist}
 }
 

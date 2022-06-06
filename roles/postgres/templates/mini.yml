@@ -6,7 +6,7 @@
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (small)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
-# Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance}}.yml
+# Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
 # Note      :   Mini Database Cluster Template (mini:2C:4G:100GB)
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2022 Ruohang Feng
@@ -151,11 +151,11 @@ bootstrap:
   # will be overwritten later
   pg_hba:
     - local   all             postgres                                ident
-    - local   all             all                                     md5
-    - host    all             all            0.0.0.0/0                md5
+    - local   all             all                                     {{ pg_pwd_enc }}
+    - host    all             all            0.0.0.0/0                {{ pg_pwd_enc }}
     - local   replication     postgres                                ident
-    - local   replication     all                                     md5
-    - host    replication     all            0.0.0.0/0                md5
+    - local   replication     all                                     {{ pg_pwd_enc }}
+    - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
 
 
   #----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ bootstrap:
         # max_wal_senders: 24                   # 10 -> 24
         # max_replication_slots: 16             # 10 -> 16
         wal_keep_size: 1GB                      # keep at least 1GB WAL
-        password_encryption: md5                # use traditional md5 auth
+        password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
         ssl_cert_file: '{{ cert_homedir }}/{{ pg_cluster }}.crt'
@@ -442,10 +442,10 @@ postgresql:
   #----------------------------------------------------------------------------
   # pg_hba:
   #   - local   all             postgres                                ident
-  #   - local   all             all                                     md5
-  #   - host    all             all            0.0.0.0/0                md5
+  #   - local   all             all                                     {{ pg_pwd_enc }}
+  #   - host    all             all            0.0.0.0/0                {{ pg_pwd_enc }}
   #   - local   replication     postgres                                ident
-  #   - local   replication     all                                     md5
-  #   - host    replication     all            0.0.0.0/0                md5
+  #   - local   replication     all                                     {{ pg_pwd_enc }}
+  #   - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
 
 ...

@@ -114,8 +114,7 @@ all:
         pg_users:                           # define business users/roles on this cluster, array of user definition
           # define admin user for meta database (This user are used for pigsty app deployment by default)
           - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
-            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
-            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
+            password: DBUser.Meta           # optional, plain text password
             login: true                     # optional, can login, true by default  (new biz ROLE should be false)
             superuser: false                # optional, is superuser? false by default
             createdb: false                 # optional, can create database? false by default
@@ -748,6 +747,7 @@ all:
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
     pg_checksum: false                    # enable data checksum by default
+    pg_pwd_enc: md5                       # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: disable                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
     pg_encoding: UTF8                     # database cluster encoding, UTF8 by default
     pg_locale: C                          # database cluster local, C by default
