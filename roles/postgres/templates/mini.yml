@@ -256,8 +256,14 @@ bootstrap:
         # RESOURCE USAGE (except WAL)
         #----------------------------------------------------------------------
         # memory: shared_buffers and maintenance_work_mem will be dynamically set
-        shared_buffers: {{ pg_shared_buffers }}
-        maintenance_work_mem: {{ pg_maintenance_work_mem }}
+{% if mem_size_gb|int >= 4 %}
+{% set pg_shared_buffers = ([(mem_size_gb|int / 4) , 32] | min)|int %}
+        shared_buffers: {{ pg_shared_buffers }}GB
+        maintenance_work_mem: {{ ([(pg_shared_buffers|int * 64) , 2048] | min)|int }}MB
+{% else %}
+        shared_buffers: 256MB
+        maintenance_work_mem: 64MB
+{% endif %}
         work_mem: 8MB                           # default 4MB -> 8MB
         huge_pages: try                         # try huge pages
         temp_file_limit: 40GB                   # 0 -> 40GB (according to your disk)

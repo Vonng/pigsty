@@ -10,33 +10,42 @@
     #------------------------------------------------------------------------------
     # calculate parameters
     #------------------------------------------------------------------------------
-    - name: Get config parameter page count
-      command: getconf _PHYS_PAGES
-      register: node_page_count  # half mem in pages
+    - name: Gather machine specs
+      block:
+      - name: Get cpu count
+        shell: grep -c '^processor' /proc/cpuinfo
+        register: cpu_count
 
-    - name: Get config parameter page size
-      shell: getconf PAGE_SIZE
-      register: node_page_size  # half mem in bytes
+      - name: Get config parameter page count
+        shell: getconf _PHYS_PAGES
+        register: node_page_count  # half mem in pages
 
-    - name: Tune shared buffer and work mem
+      - name: Get config parameter page size
+        shell: getconf PAGE_SIZE
+        register: node_page_size  # half mem in bytes
+
+    - name: Calculate cpu count
       connection: local
-      set_fact: # max shared-buffer 32GB | max maintainance work mem 8GB
-        pg_shared_buffers_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 4) , 34359738368] | min)|int }}"
-        pg_maintenance_work_mem_bytes: "{{ ([((node_page_count.stdout|int) * (node_page_size.stdout|int) / 16) , 8589934592] | min)|int }}"
-
-    - name: Hanlde small size mem occasion
-      connection: local
-      when: pg_shared_buffers_bytes|int < 1073741824  # < 1GB
       set_fact:
-        pg_shared_buffers: "256MB"
-        pg_maintenance_work_mem: "64MB"
+        cpu_core_number: "{{ cpu_count.stdout|int }}"
+    - debug:
+        msg: "Node {{ pg_cluster }}-{{ pg_seq }} has {{ cpu_core_number }} CPUs"
 
-    - name: Calculate postgres mem params
+    - name: Calculate dirty memory size
       connection: local
-      when: pg_shared_buffers_bytes|int >= 1073741824  # >= 1GB
       set_fact:
-        pg_shared_buffers: "{{ (pg_shared_buffers_bytes|int / 1073741824)|round(0)|int }}GB"
-        pg_maintenance_work_mem: "{{ (pg_maintenance_work_mem_bytes|int / 1048576)|round(0)|int }}MB"
+        mem_size_dirty: "{{ (node_page_count.stdout|int * node_page_size.stdout|int)|int }}"
+
+    - name: Round dirty mem size to the nearest multiple of 1GB
+      shell: "echo {{ mem_size_dirty|int }} | jq -R 'tonumber/1073741824+.5|floor*1073741824'"
+      register: mem_size_bytes
+
+    - name: Render total machine memory
+      connection: local
+      set_fact:
+        mem_size_gb: "{{ (mem_size_bytes.stdout|int / 1073741824)|int }}"
+    - debug:
+        msg: "Node {{ pg_instance }} has {{ mem_size_gb }} GBs of RAM"
 
     #------------------------------------------------------------------------------
     # render config files
