@@ -72,6 +72,7 @@
         rm -rf /etc/consul.d
         rm -rf "{{ consul_data_dir }}"
         rm -rf /etc/systemd/system/consul.service.d
+        rm -f /etc/profile.d/consul.sh
         exit 0
 
 
@@ -83,7 +84,7 @@
   block:
 
     - name: Add consul user to dcs group
-      user: name=consul groups=dcs append=yes
+      user: name=consul home=/var/lib/consul groups=dcs append=yes
 
     - name: Create consul dir
       file: path={{ item }} state=directory owner=consul group=consul mode=0775
