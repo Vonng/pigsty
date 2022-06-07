@@ -70,7 +70,7 @@
         fi
         
         # guaranteed success
-        rm -rf /etc/etcd.d
+        rm -rf /etc/etcd
         rm -rf "{{ etcd_data_dir }}"
         rm -f /etc/profile.d/etcd.sh
         exit 0
@@ -90,7 +90,7 @@
     - name: Create etcd dir
       file: path={{ item }} state=directory owner=etcd group=etcd mode=0775
       with_items:
-        - /etc/etcd.d
+        - /etc/etcd
         - "{{ etcd_data_dir }}"
 
     # acquire dcs_nodename
@@ -105,8 +105,8 @@
       template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
 
     # only server need config
-    - name: Copy /etc/etcd.d/etcd.conf
-      template: src=etcd.conf.j2 dest=/etc/etcd.d/etcd.conf owner=etcd mode=0644
+    - name: Copy /etc/etcd/etcd.conf
+      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
 
 
 #------------------------------------------------------------------------------
@@ -138,7 +138,6 @@
     content: |
       {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
-      export ETCDCTL_CA_FILE="{{ cert_homedir }}/{{ ca_file }}.crt"
       {% else %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
       {% endif %}
