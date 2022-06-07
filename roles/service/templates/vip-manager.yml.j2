@@ -29,7 +29,11 @@ dcs-type: {{ pg_dcs_type }}
 # a list that contains all DCS endpoints to which vip-manager could talk.
 dcs-endpoints:
 {% if pg_dcs_type == 'consul' %}
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+  - https://127.0.0.1:8500
+{% else %}
   - http://127.0.0.1:8500
+{% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}

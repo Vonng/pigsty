@@ -30,6 +30,7 @@
         path: "{{ cert_homedir }}/{{ ca_file }}.key"
       register: ca_key_exists
 
+
 #--------------------------------------------------------------------------
 # create or reuse ca
 #--------------------------------------------------------------------------
@@ -190,6 +191,7 @@
         group: dcs
         mode: 0644
 
+
 #--------------------------------------------------------------------------
 # copy certs
 #--------------------------------------------------------------------------
@@ -217,17 +219,23 @@
     - name: Copy pg cluster certificate on pg nodes
       copy: src="{{ cert_homedir }}/{{ pg_cluster }}.crt" dest="{{ cert_homedir }}/{{ pg_cluster }}.crt" owner=root group=dcs mode=0640
 
-
 - name: Copy node certificates
   tags: ca_copy
   block:
     - name: Copy node private key
-      tags: ca_copy
       copy: src="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key" dest="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key" owner=root group=dcs mode=0640
 
     - name: Copy node certificate
-      tags: ca_copy
       copy: src="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt" owner=root group=dcs mode=0640
+
+- name: Trust CA certificate at OS level
+  tags: ca_trust
+  block:
+    - name: Copy ca certificate into pki anchors path
+      copy: src="{{ cert_homedir }}/{{ ca_file }}.crt" dest="/etc/pki/ca-trust/source/anchors/{{ ca_file }}.crt" owner=root group=root mode=0644
+
+    - name: update trusted ca repo
+      shell: /bin/update-ca-trust
 
 
 #--------------------------------------------------------------------------

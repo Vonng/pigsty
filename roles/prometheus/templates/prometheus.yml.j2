@@ -79,14 +79,12 @@ scrape_configs:
     metrics_path: /v1/agent/metrics
     params:
       format: ['prometheus']
+    static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-    static_configs: [ { targets: [ 127.0.0.1:8501 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
     scheme: https
     tls_config:
       ca_file: {{ cert_homedir }}/{{ ca_file }}.crt
       insecure_skip_verify: true
-{% else %}
-    static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
 {% endif %}
 {% endif %}
 

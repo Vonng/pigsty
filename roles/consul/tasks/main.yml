@@ -202,10 +202,6 @@
               [Service]
               {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
               Environment="CONSUL_HTTP_SSL=true"
-              Environment="CONSUL_HTTP_ADDR=https://127.0.0.1:8501"
-              Environment="CONSUL_CACERT={{ cert_homedir }}/{{ ca_file }}.crt"
-              {% else %}
-              Environment="CONSUL_HTTP_ADDR=http://127.0.0.1:8500"
               {% endif %}
 
 
@@ -255,12 +251,6 @@
     dest: /etc/profile.d/consul.sh
     mode: 0644
     content: |
-      {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
       export CONSUL_HTTP_SSL=true
-      export CONSUL_HTTP_ADDR=https://127.0.0.1:8501
-      export CONSUL_CACERT={{ cert_homedir }}/{{ ca_file }}.crt
-      {% else %}
-      export CONSUL_HTTP_ADDR=http://127.0.0.1:8500
-      {% endif %}
 
 ...
