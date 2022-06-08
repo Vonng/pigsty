@@ -41,7 +41,7 @@
   become: yes
   block:
 
-    - name: CLEAN RUNNING POSTGRESQL INSTANCE <DANGEROUSE!>
+    - name: CLEAN RUNNING POSTGRESQL INSTANCE <DANGEROUS!>
       # connection: local # leave some time for manual intervention
       when: not pg_safeguard and pg_exists and pg_clean  # DANGEROUS!
       debug:
@@ -166,7 +166,7 @@
         - "{{ pg_backup_dir }}/backup"
         - "{{ pg_backup_dir }}/remote"
 
-    - name: Create pgbouncer & patroni directory structure
+    - name: Create pgbouncer directory structure
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
       with_items:
         - /etc/pgbouncer
@@ -192,7 +192,7 @@
       when: not ( pg_log_dir.startswith(pg_data) )
       file: path={{ pg_log_dir }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
 
-    - name: Create pgbouncer patroni log dir
+    - name: Create pgbouncer & patroni log dir
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
       with_items:
         - "{{ pgbouncer_log_dir }}"
