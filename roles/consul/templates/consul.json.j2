@@ -16,23 +16,19 @@
       "cert_file": "/var/lib/consul/{{ pg_cluster }}-{{ pg_seq }}.crt",
       "key_file": "/var/lib/consul/{{ pg_cluster }}-{{ pg_seq }}.key"
     },
-{% if inventory_hostname in dcs_servers.values() %}
     "internal_rpc": {
-      "verify_incoming": true,
       "verify_server_hostname": true
     }
   },
+{% if inventory_hostname in dcs_servers.values() %}
   "auto_encrypt": {
     "allow_tls": true
-{% else %}
-    "internal_rpc": {
-      "verify_server_hostname": true
-    }
   },
+{% else %}
   "auto_encrypt": {
     "tls": true
-{% endif %}
   },
+{% endif %}
 {% endif %}
   "retry_join": {{ dcs_servers.values()|list|to_json }},
   "data_dir": "{{ consul_data_dir }}",
