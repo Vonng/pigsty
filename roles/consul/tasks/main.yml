@@ -70,6 +70,7 @@
         
         # guaranteed success
         rm -rf /etc/consul.d
+        rm -rf /var/lib/consul/*
         rm -rf "{{ consul_data_dir }}"
         rm -rf /etc/systemd/system/consul.service.d
         rm -f /etc/profile.d/consul.sh
@@ -83,14 +84,23 @@
   tags: consul_config
   block:
 
+    - name: Create consul dir
+      file: path={{ item }} state=directory owner=consul group=consul mode=0750
+      with_items:
+        - /etc/consul.d
+        - /var/lib/consul
+        - "{{ consul_data_dir }}"
+
     - name: Add consul user to dcs group
       user: name=consul home=/var/lib/consul groups=dcs append=yes
 
-    - name: Create consul dir
-      file: path={{ item }} state=directory owner=consul group=consul mode=0775
+    - name: Copy ssl certificates
+      when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
+      copy: src="{{ cert_homedir }}/{{ item }}" dest="/var/lib/consul/{{ item }}" owner=consul group=consul mode=0600
       with_items:
-        - /etc/consul.d
-        - "{{ consul_data_dir }}"
+        - "{{ pg_cluster }}-{{ pg_seq }}.crt"
+        - "{{ pg_cluster }}-{{ pg_seq }}.key"
+        - "{{ ca_file }}.crt"
 
     #------------------------------------------------------------------------------
     # acquire nodename
@@ -197,6 +207,20 @@
 
 
 #------------------------------------------------------------------------------
+# Write consul env & cert files to all nodes
+#------------------------------------------------------------------------------
+# write consul env & cert to all nodes
+- name: Write consul env profile
+  tags: consul_client
+  when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
+  copy:
+    dest: /etc/profile.d/consul.sh
+    mode: 0644
+    content: |
+      export CONSUL_HTTP_SSL=true
+
+
+#------------------------------------------------------------------------------
 # Launch consul server first
 #------------------------------------------------------------------------------
 - name: Setup consul server
@@ -229,19 +253,5 @@
     # wait consul online
     - name: Wait for consul agent online
       wait_for: host=127.0.0.1 port=8500 state=started timeout=30
-
-
-#------------------------------------------------------------------------------
-# Write consul env & cert files to all nodes
-#------------------------------------------------------------------------------
-# write consul env & cert to all nodes
-- name: Write consul env profile
-  tags: consul_client
-  when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
-  copy:
-    dest: /etc/profile.d/consul.sh
-    mode: 0644
-    content: |
-      export CONSUL_HTTP_SSL=true
 
 ...
