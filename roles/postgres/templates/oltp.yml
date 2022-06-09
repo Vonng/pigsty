@@ -47,7 +47,7 @@ consul:
     - {{ pg_cluster }}
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   scheme: https
-  cacert: {{ cert_homedir }}/{{ ca_file }}.crt
+  cacert: /pg/certs/root.crt
 {% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
@@ -55,7 +55,7 @@ etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
-  cacert: {{ cert_homedir }}/{{ ca_file }}.crt
+  cacert: /pg/certs/root.crt
 {% endif %}
 {% endif %}
 
@@ -79,9 +79,9 @@ ctl:
   optional:
 {% if patroni_ssl_enabled is defined and patroni_ssl_enabled|bool %}
     insecure: false
-    cacert: '{{ cert_homedir }}/{{ ca_file }}.crt'
-    certfile: '{{ cert_homedir }}/{{ pg_instance }}.crt'
-    keyfile: '{{ cert_homedir }}/{{ pg_instance }}.key'
+    cacert: '/pg/certs/root.crt'
+    certfile: '/pg/certs/server.crt'
+    keyfile: '/pg/certs/server.key'
 {% else %}
     insecure: true
 {% endif %}
@@ -247,9 +247,9 @@ bootstrap:
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
-        ssl_cert_file: '{{ cert_homedir }}/{{ pg_cluster }}.crt'
-        ssl_key_file: '{{ cert_homedir }}/{{ pg_cluster }}.key'
-        ssl_ca_file: '{{ cert_homedir }}/{{ ca_file }}.crt'
+        ssl_cert_file: '/pg/certs/server.crt'
+        ssl_key_file: '/pg/certs/server.key'
+        ssl_ca_file: '/pg/certs/root.crt'
 {% endif %}
 
         #----------------------------------------------------------------------
