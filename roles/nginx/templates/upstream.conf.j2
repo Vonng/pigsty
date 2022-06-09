@@ -8,7 +8,11 @@ server {
     access_log /var/log/nginx/{{ item.name }}.log;
 
     location / {
+{% if item.name == 'consul' and dcs_ssl_enabled|bool %}
+        proxy_pass https://{{ item.name }}/;
+{% else %}
         proxy_pass http://{{ item.name }}/;
+{% endif %}
         proxy_set_header Host $host;
         proxy_set_header X-Real-Scheme $scheme;
         proxy_set_header X-Real-IP $remote_addr;
