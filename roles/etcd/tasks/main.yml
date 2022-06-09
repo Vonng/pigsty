@@ -71,6 +71,7 @@
         
         # guaranteed success
         rm -rf /etc/etcd
+        rm -rf /var/lib/etcd/*
         rm -rf "{{ etcd_data_dir }}"
         rm -f /etc/profile.d/etcd.sh
         exit 0
@@ -84,14 +85,23 @@
   when: inventory_hostname in dcs_servers.values()
   block:
 
+    - name: Create etcd dir
+      file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
+      with_items:
+        - /etc/etcd
+        - /var/lib/etcd
+        - "{{ etcd_data_dir }}"
+
     - name: Add etcd user to dcs group
       user: name=etcd home=/var/lib/etcd groups=dcs append=yes
 
-    - name: Create etcd dir
-      file: path={{ item }} state=directory owner=etcd group=etcd mode=0775
+    - name: Copy ssl certificates
+      when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
+      copy: src="{{ cert_homedir }}/{{ item }}" dest="/var/lib/etcd/{{ item }}" owner=etcd group=etcd mode=0600
       with_items:
-        - /etc/etcd
-        - "{{ etcd_data_dir }}"
+        - "{{ pg_cluster }}-{{ pg_seq }}.crt"
+        - "{{ pg_cluster }}-{{ pg_seq }}.key"
+        - "{{ ca_file }}.crt"
 
     # acquire dcs_nodename
     - name: Get dcs server key as dcs nodename
@@ -110,23 +120,6 @@
 
 
 #------------------------------------------------------------------------------
-# Launch etcd server
-#------------------------------------------------------------------------------
-- name: Launch etcd server
-  tags: [ etcd_server , etcd_launch ]
-  when: inventory_hostname in dcs_servers.values()
-  any_errors_fatal: true
-  block:
-    # launch etcd
-    - name: Launch etcd server service
-      systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
-
-    # wait etcd online
-    - name: Wait for etcd server online
-      wait_for: host=127.0.0.1 port=2379 state=started timeout=10
-
-
-#------------------------------------------------------------------------------
 # Write etcd endpoints env & cert files to all nodes
 #------------------------------------------------------------------------------
 # write etcd endpoint to all nodes
@@ -141,5 +134,22 @@
       {% else %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
       {% endif %}
+
+
+#------------------------------------------------------------------------------
+# Launch etcd server
+#------------------------------------------------------------------------------
+- name: Launch etcd server
+  tags: [ etcd_server , etcd_launch ]
+  when: inventory_hostname in dcs_servers.values()
+  any_errors_fatal: true
+  block:
+    # launch etcd
+    - name: Launch etcd server service
+      systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
+
+    # wait etcd online
+    - name: Wait for etcd server online
+      wait_for: host=127.0.0.1 port=2379 state=started timeout=10
 
 ...
