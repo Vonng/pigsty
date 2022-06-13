@@ -140,6 +140,30 @@ CREATE EXTENSION IF NOT EXISTS "{{ extension.name }}"{% if 'schema' in extension
 {% if 'pgbouncer' not in database or database.pgbouncer|bool == true %}
 -- Database '{{ database.name }}' will be added to /etc/pgbouncer/database.txt via
 -- /pg/bin/pgbouncer-create-db '{{ database.name }}'
+
+-- foreach database created on pgb, add the function to retrieve
+-- user passwords from pg_authid when auth_query is set to 'true'
+-- The user designated for this purpose is {{ pg_monitor_username }}
+{% if pgbouncer_auth_query is defined and pgbouncer_auth_query|bool %}
+CREATE SCHEMA IF NOT EXISTS pgbouncer AUTHORIZATION {{ pg_monitor_username }};
+
+CREATE OR REPLACE FUNCTION pgbouncer.get_auth(p_username TEXT)
+RETURNS TABLE(username TEXT, password TEXT) AS
+$$
+BEGIN
+    RAISE WARNING 'PgBouncer auth request: %', p_username;
+
+    RETURN QUERY
+    SELECT rolname::TEXT, rolpassword::TEXT
+      FROM pg_authid
+      WHERE NOT rolsuper
+        AND rolname = p_username;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+REVOKE ALL ON FUNCTION pgbouncer.get_auth(p_username TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(p_username TEXT) TO {{ pg_monitor_username }};
+{% endif %}
 {% else %}
 -- Database '{{ database.name }}' will NOT be added to /etc/pgbouncer/database.txt
 {% endif %}

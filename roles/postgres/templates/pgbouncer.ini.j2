@@ -12,12 +12,18 @@ listen_port                 = {{ pgbouncer_port }}
 auth_type                   = hba
 auth_file                   = /etc/pgbouncer/userlist.txt
 auth_hba_file               = /etc/pgbouncer/pgb_hba.conf
+{% if pgbouncer_auth_query|bool %}
+auth_user                   = {{ pg_monitor_username }}
+auth_query                  = SELECT username, password FROM pgbouncer.get_auth($1)
+admin_users                 = {{ pg_dbsu }}
+{% else %}
+admin_users                 = {{ pg_dbsu }}, {{ pg_admin_username }}
+{% endif %}
+stats_users                 = {{ pg_dbsu }}, {{ pg_monitor_username }}
+server_reset_query          =
 pidfile                     = /var/run/postgresql/pgbouncer.pid
 logfile                     = {{ pgbouncer_log_dir }}/pgbouncer.log
 unix_socket_dir             = /var/run/postgresql
-admin_users                 = {{ pg_dbsu }}, {{ pg_admin_username }}
-stats_users                 = {{ pg_dbsu }}, {{ pg_monitor_username }}
-server_reset_query          =
 application_name_add_host   = 1
 max_client_conn             = 20000
 default_pool_size           = 64

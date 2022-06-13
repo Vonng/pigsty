@@ -52,13 +52,19 @@
         - database.txt
         - userlist.txt
 
-    # retrieve default user passwords from pg_authid table (AUTO mode)
+    # retrieve default user passwords in AUTO mode (when auth_query is not enabled)
     - name: Add default users to pgbouncer
       become_user: "{{ pg_dbsu }}"
       shell: |
         /pg/bin/pgbouncer-create-user "{{ pg_dbsu }}" NULL
+        {% if not pgbouncer_auth_query|bool %}
         /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" AUTO
         /pg/bin/pgbouncer-create-user "{{ pg_admin_username }}" AUTO
+        {% elif pg_pwd_enc == 'scram-sha-256' %}
+        /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" "{{ pg_monitor_password }}"
+        {% else %}
+        /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" AUTO
+        {% endif %}
 
     - name: Init pgbouncer business database list
       tags: pgbouncer_db
@@ -69,10 +75,10 @@
         database: "{{ item }}"
       with_items: "{{ pg_databases }}"
 
-    # retrieve bizuser passwords from pg_authid table (AUTO mode)
+    # retrieve biz user password in AUTO mode (not when auth_query is enabled)
     - name: Init pgbouncer business user list
       tags: pgbouncer_user
-      when: user.pgbouncer is defined and user.pgbouncer|bool
+      when: user.pgbouncer is defined and user.pgbouncer|bool and not pgbouncer_auth_query|bool
       ignore_errors: true
       become_user: "{{ pg_dbsu }}"
       shell: /pg/bin/pgbouncer-create-user '{{ user.name }}' 'AUTO'
