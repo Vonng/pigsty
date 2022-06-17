@@ -315,6 +315,8 @@ To register a Postgres database, you can use the `register_grafana` task in [`pg
 
 ## Update Grafana Database
 
+> Obsolete
+
 You can directly change the backend data source used by Grafana by modifying the Pigsty config file. Edit the [`grafana_database`](v-infra.md#grafana_database) and [`grafana_pgurl`](v-infra.md#grafana_pgurl) parameters in `pigsty.yml` and change them.
 
 ```yaml
