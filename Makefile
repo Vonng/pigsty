@@ -8,7 +8,7 @@
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.5.0
+VERSION?=v1.5.1
 
 # target cluster (meta by default)
 CLS?=meta
@@ -418,7 +418,7 @@ release-matrix:
 
 rp3: release-docker
 release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.0.5 vonng/pg_exporter gitea/gitea | gzip -9 -c > /tmp/docker.tgz'
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.1.1  ghcr.io/ferretdb/ferretdb | gzip -9 -c > /tmp/docker.tgz'
 	scp meta:/tmp/docker.tgz dist/${VERSION}/docker.tgz
 
 # publish will publish pigsty packages

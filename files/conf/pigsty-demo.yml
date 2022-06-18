@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/#/v-config
 # Ctime     :   2020-05-22
-# Mtime     :   2022-05-22
+# Mtime     :   2022-06-18
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -199,7 +199,7 @@ all:
   #                             VARS                                 #
   ####################################################################
   vars:                               # global variables
-    version: v1.5.0                # pigsty version string
+    version: v1.5.1                # pigsty version string
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -238,19 +238,20 @@ all:
     nginx_home: /www                  # default repo home dir
 
     nginx_upstream:                   # domain names and upstream servers
-      - { name: home         , domain: pigsty     , endpoint: "10.10.10.10:80"   }
-      - { name: grafana      , domain: g.pigsty   , endpoint: "10.10.10.10:3000" }
-      - { name: loki         , domain: l.pigsty   , endpoint: "10.10.10.10:3100" }
-      - { name: prometheus   , domain: p.pigsty   , endpoint: "10.10.10.10:9090" }
-      - { name: alertmanager , domain: a.pigsty   , endpoint: "10.10.10.10:9093" }
-      - { name: consul       , domain: c.pigsty   , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
-      - { name: postgrest    , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
-      - { name: pgadmin      , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885"   }
-      - { name: pgweb        , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886"   }
-      - { name: bytebase     , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887"   }
-      - { name: jupyter      , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888"   }
-      - { name: gitea        , domain: git.pigsty.cc  , endpoint: "127.0.0.1:8889"   }
-      - { name: minio        , domain: sss.pigsty.cc  , endpoint: "127.0.0.1:9000"   }
+      - { name: home         , domain: pigsty      , endpoint: "10.10.10.10:80"   }
+      - { name: grafana      , domain: g.pigsty    , endpoint: "10.10.10.10:3000" }
+      - { name: loki         , domain: l.pigsty    , endpoint: "10.10.10.10:3100" }
+      - { name: prometheus   , domain: p.pigsty    , endpoint: "10.10.10.10:9090" }
+      - { name: alertmanager , domain: a.pigsty    , endpoint: "10.10.10.10:9093" }
+      - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
+      - { name: postgrest    , domain: api.pigsty  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
+      - { name: pgadmin      , domain: adm.pigsty  , endpoint: "127.0.0.1:8885"   }
+      - { name: pgweb        , domain: cli.pigsty  , endpoint: "127.0.0.1:8886"   }
+      - { name: bytebase     , domain: ddl.pigsty  , endpoint: "127.0.0.1:8887"   }
+      - { name: jupyter      , domain: lab.pigsty  , endpoint: "127.0.0.1:8888"   }
+      - { name: gitea        , domain: git.pigsty  , endpoint: "127.0.0.1:8889"   }
+      - { name: minio        , domain: sss.pigsty  , endpoint: "127.0.0.1:9000"   }
+      - { name: wiki         , domain: wiki.pigsty , endpoint: "127.0.0.1:9002"   }
 
     nginx_indexes:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'              , comment: 'PgAdmin4 for PostgreSQL'     }
@@ -258,6 +259,7 @@ all:
       - { name: ByteBase   , url : 'http://ddl.pigsty'              , comment: 'ByteBase Schema Migrator'    }
       - { name: PostgREST  , url : 'http://api.pigsty'              , comment: 'Kong API Gateway'            }
       - { name: Gitea      , url : 'http://git.pigsty'              , comment: 'Minio Object Storage'        }
+      - { name: Wiki       , url : 'http://git.pigsty'              , comment: 'Minio Object Storage'        }
       - { name: Minio      , url : 'http://sss.pigsty'              , comment: 'Minio Object Storage'        }
       - { name: Explain    , url : '/pev2'                          , comment: 'postgres explain visualizer' }
       - { name: Package    , url : '/pigsty'                        , comment: 'local yum repo packages'     }
@@ -274,11 +276,11 @@ all:
     #-----------------------------------------------------------------
     # REPO
     #-----------------------------------------------------------------
-    repo_name: pigsty                # repo name, pigsty by default
-    repo_address: pigsty             # external address to this repo (ip:port or url)
-    repo_rebuild: false              # force re-download packages
-    repo_remove: true                # remove existing upstream repo
-    repo_upstreams:                  # where to download packages?
+    repo_name: pigsty                 # repo name, pigsty by default
+    repo_address: pigsty              # external address to this repo (ip:port or url)
+    repo_rebuild: false               # force re-download packages
+    repo_remove: true                 # remove existing upstream repo
+    repo_upstreams:                   # where to download packages?
       - name: base
         description: CentOS-$releasever - Base
         gpgcheck: no
@@ -308,7 +310,7 @@ all:
           - http://mirrors.aliyun.com/epel/$releasever/$basearch
           - http://download.fedoraproject.org/pub/epel/$releasever/$basearch
       - name: grafana
-        description: Grafana
+        description: Grafana Official Yum Repo
         enabled: yes
         gpgcheck: no
         baseurl:
@@ -350,17 +352,17 @@ all:
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-      - name: harbottle              # for latest consul & kubernetes
+      - name: harbottle               # for latest consul & kubernetes
         description: Copr repo for main owned by harbottle
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-      - name: pg_probackup              # for pg_probackup
+      - name: pg_probackup            # for pg_probackup
         description: PG_PROBACKUP Centos packages for PostgresPro Standard and Enterprise - $basearch
         skip_if_unavailable: true
         gpgcheck: no
         baseurl: https://repo.postgrespro.ru/pg_probackup-forks/rpm/latest/centos-$releasever-$basearch
-      - name: docker-ce              # for latest docker
+      - name: docker-ce               # for latest docker
         description: Docker CE Stable - $basearch
         skip_if_unavailable: true
         gpgcheck: no
@@ -368,7 +370,7 @@ all:
           - https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
           - https://download.docker.com/linux/centos/$releasever/$basearch/stable
 
-    repo_packages:                   # which packages to be included                                                    #  what to download #
+    repo_packages:                    # which packages to be included                                                    #  what to download #
       - epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
       - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
@@ -384,17 +386,17 @@ all:
       - pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 pg_probackup-std-14
       - pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
       - mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14
-      - hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14
+      - hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14 multicorn2_14 pg_ivm_14
       - bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14
       - repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14
-      - pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pgagent_14
+      - pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pg_readonly_14 pgagent_14
       - pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
       - pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
       - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
       - docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
 
-    repo_url_packages:               # extra packages from url
+    repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/loki-2.5.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.5.0/promtail-2.5.0.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
@@ -419,21 +421,21 @@ all:
     #-----------------------------------------------------------------
     # PROMETHEUS
     #-----------------------------------------------------------------
-    prometheus_enabled: true        # setup prometheus
+    prometheus_enabled: true          # setup prometheus
     prometheus_data_dir: /data/prometheus/data
     prometheus_options: '--storage.tsdb.retention=15d'
-    prometheus_reload: false        # reload prometheus instead of recreate it?
-    prometheus_sd_method: static    # service discovery method: static|consul
-    prometheus_sd_interval: 5s      # service discovery refresh interval
-    prometheus_scrape_interval: 10s # global scrape & evaluation interval
-    prometheus_scrape_timeout: 8s   # scrape timeout
+    prometheus_reload: false          # reload prometheus instead of recreate it?
+    prometheus_sd_method: static      # service discovery method: static|consul
+    prometheus_sd_interval: 5s        # service discovery refresh interval
+    prometheus_scrape_interval: 10s   # global scrape & evaluation interval
+    prometheus_scrape_timeout: 8s     # scrape timeout
 
     #-----------------------------------------------------------------
     # EXPORTER
     #-----------------------------------------------------------------
-    exporter_install: none           # none|yum|binary, none by default
-    exporter_repo_url: ''            # if set, repo will be added to /etc/yum.repos.d/
-    exporter_metrics_path: /metrics  # default metric path for pg related exporter
+    exporter_install: none            # none|yum|binary, none by default
+    exporter_repo_url: ''             # if set, repo will be added to /etc/yum.repos.d/
+    exporter_metrics_path: /metrics   # default metric path for pg related exporter
 
     #-----------------------------------------------------------------
     # GRAFANA
@@ -442,9 +444,6 @@ all:
     grafana_endpoint: http://10.10.10.10:3000     # grafana endpoint url
     grafana_admin_username: admin     # default grafana admin username
     grafana_admin_password: pigsty    # default grafana admin password
-    grafana_database: sqlite3         # default grafana database type: sqlite3|postgres
-    grafana_pgurl: postgres://dbuser_grafana:DBUser.Grafana@meta:5436/grafana
-
     grafana_plugin_method: install    # none|install|always, none will skip plugin install
     grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
     grafana_plugin_list:              # plugins that will be downloaded via grafana-cli
@@ -588,16 +587,16 @@ all:
     #-----------------------------------------------------------------
     # NODE_EXPORTER
     #-----------------------------------------------------------------
-    node_exporter_enabled: true      # setup node_exporter on instance
-    node_exporter_port: 9100         # default port for node exporter
+    node_exporter_enabled: true       # setup node_exporter on instance
+    node_exporter_port: 9100          # default port for node exporter
     node_exporter_options: '--no-collector.softnet --no-collector.nvme --collector.ntp --collector.tcpstat --collector.processes'
 
     #-----------------------------------------------------------------
     # PROMTAIL
     #-----------------------------------------------------------------
-    promtail_enabled: true           # enable promtail logging collector?
-    promtail_clean: false            # remove promtail status file? false by default
-    promtail_port: 9080              # default listen address for promtail
+    promtail_enabled: true            # enable promtail logging collector?
+    promtail_clean: false             # remove promtail status file? false by default
+    promtail_port: 9080               # default listen address for promtail
     promtail_options: '-config.file=/etc/promtail.yml -config.expand-env=true'
     promtail_positions: /var/log/positions.yaml   # position status for promtail
 
@@ -619,21 +618,21 @@ all:
     # pg_sindex: 0                    # <CLUSTER>              : pgsql shard index
     # gp_role: master                 # <CLUSTER>              : gpsql role, master or segment
 
-    pg_offline_query: false          # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
-    pg_backup: false                 # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
-    pg_weight: 100                   # <INSTANCE> [FLAG] default load balance weight (instance level)
-    pg_hostname: true                # [FLAG] reuse postgres identity name as node identity?
-    pg_preflight_skip: false         # [FLAG] skip preflight identity check
+    pg_offline_query: false           # <INSTANCE> [FLAG] set to true to enable offline query on this instance (instance level)
+    pg_backup: false                  # <INSTANCE> [FLAG] store base backup on this node (instance level, reserved)
+    pg_weight: 100                    # <INSTANCE> [FLAG] default load balance weight (instance level)
+    pg_hostname: true                 # [FLAG] reuse postgres identity name as node identity?
+    pg_preflight_skip: false          # [FLAG] skip preflight identity check
 
     #-----------------------------------------------------------------
     # PG_BUSINESS
     #-----------------------------------------------------------------
     # overwrite these variables on <CLUSTER> level
-    pg_users: []                     # business users
-    pg_databases: []                 # business databases
-    pg_services_extra: []            # extra services
-    pg_hba_rules_extra: []           # extra hba rules
-    pgbouncer_hba_rules_extra: []    # extra pgbouncer hba rules
+    pg_users: []                      # business users
+    pg_databases: []                  # business databases
+    pg_services_extra: []             # extra services
+    pg_hba_rules_extra: []            # extra hba rules
+    pgbouncer_hba_rules_extra: []     # extra pgbouncer hba rules
 
     # WARNING: change these in production environment!
     pg_admin_username: dbuser_dba

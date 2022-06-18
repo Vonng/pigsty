@@ -1,5 +1,12 @@
 # Development Log
 
+#### 2022-06-18
+
+* 1.5.1 for PostgreSQL 14.4
+* Upgrade haproxy to 2.6.0
+* repotrack i686 issus on el7
+* New apps: wiki.js ferretDB
+
 
 #### 2022-05-21
 

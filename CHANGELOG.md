@@ -1,3 +1,40 @@
+# v1.5.1
+
+## Highlights
+
+WARNING: `CREATE INDEX|REINDEX CONCURRENTLY` PostgreSQL 14.0 - 14.3 may lead to index data corruption!
+
+Please upgrade postgres to 14.4 ASAP.
+
+### Software Upgrade
+
+* upgrade postgres to 14.4
+* Upgrade haproxy to 2.6.0
+* Upgrade grafana to 9.0.0
+* Upgrade prometheus 2.36.0
+* Upgrade patroni to 2.1.4
+
+### Bug fix:
+
+* Fix typo in `pgsql-migration.yml`
+* remove pid file in haproxy config
+* remove i686 packages when using repotrack under el7
+
+
+
+### API Changes
+
+* Mark `grafana_database` and `grafana_pgurl` as obsolete
+
+### New Apps
+ 
+* wiki.js : Local wiki with Postgres
+* FerretDB : MongoDB API over Postgres 
+
+
+
+
+
 # v1.5.0
 
 ## Highlights
