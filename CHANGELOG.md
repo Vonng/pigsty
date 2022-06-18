@@ -19,8 +19,8 @@ Please upgrade postgres to 14.4 ASAP.
 * Fix typo in `pgsql-migration.yml`
 * remove pid file in haproxy config
 * remove i686 packages when using repotrack under el7
-
-
+* Fix redis service systemctl enabled issue
+* Fix patroni systemctl service enabled=no by default issue
 
 ### API Changes
 
