@@ -26,7 +26,7 @@ Check [**FEATURES**](docs/s-feature.md) for detail.
 * [**High-Availability**](docs/s-feature.md#High-Availability): Auto-Pilot Postgres with idempotent instances & services, self-healing from failures!
 * [**Ultimate Observability**](docs/s-feature.md#Ultimate-Observability): Unparalleled monitoring system based on modern open-source best-practice!!
 * [**Easy to Use**](docs/s-feature.md#Handy-Toolbox): Setup everything in minutes without Internet access, scale/backup/migration with one click!
-* [**Database as Code**](#Database-as-Code): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus in minutes!
+* [**Database as Code**](docs/s-feature.md#Database-as-Code): Describe & Create: Primary/Replica/Standby/Delayed/Offline/Cascade/Citus in minutes!
 * [**Ubiquitous Deploy**](docs/s-feature.md#Ubiquitous-Deployment): Prod env or 1C1G VM sandbox, solve IaaS provisioning with vagrant / terraform!
 * [**Versatile Scenario**](docs/s-feature.md#Versatile-Scenario):  Databases management or host monitoring. Supporting SaaS or developing data apps.
 * [**Safety & Thrifty**](docs/s-feature.md#Safty-and-Thrifty): 50% - 80% cost saving versus Cloud RDS. Proven in real-world, large-scale env.
