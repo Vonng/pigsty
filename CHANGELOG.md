@@ -8,11 +8,14 @@ Please upgrade postgres to 14.4 ASAP.
 
 ### Software Upgrade
 
-* upgrade postgres to 14.4
-* Upgrade haproxy to 2.6.0
-* Upgrade grafana to 9.0.0
+* upgrade postgres to 14.4 (important bug fix)
+* upgrade citus to 11.0-2 (with enterprise features)
+* upgrade timescaledb to 2.7 (more continuous aggregates) 
+* Upgrade patroni to 2.1.4 (new sync health-check)
+* Upgrade haproxy to 2.6.0 (cli, reload, ssl,...)
+* Upgrade grafana to 9.0.0 (new ui)
 * Upgrade prometheus 2.36.0
-* Upgrade patroni to 2.1.4
+
 
 ### Bug fix:
 
@@ -21,10 +24,12 @@ Please upgrade postgres to 14.4 ASAP.
 * remove i686 packages when using repotrack under el7
 * Fix redis service systemctl enabled issue
 * Fix patroni systemctl service enabled=no by default issue
+* stop vip-manager when purging existing postgres
 
 ### API Changes
 
 * Mark `grafana_database` and `grafana_pgurl` as obsolete
+* Add some new etcd & pgsql alias (optional)
 
 ### New Apps
  

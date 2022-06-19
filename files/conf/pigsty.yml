@@ -155,7 +155,7 @@ all:
     # pgsql cluster: pg-test (3 nodes) #
     #----------------------------------#
     # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
-    pg-test:                                # define the new 3-node cluster pg-test
+    pg-test:                          # define the new 3-node cluster pg-test
       hosts:
         10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
         10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
@@ -299,6 +299,7 @@ all:
       - { name: pgweb        , domain: cli.pigsty , endpoint: "127.0.0.1:8886"   }
       - { name: bytebase     , domain: ddl.pigsty , endpoint: "127.0.0.1:8887"   }
       - { name: jupyter      , domain: lab.pigsty , endpoint: "127.0.0.1:8888"   }
+      - { name: gitea        , domain: git.pigsty , endpoint: "127.0.0.1:8889"   }
       - { name: minio        , domain: sss.pigsty , endpoint: "127.0.0.1:9000"   }
 
     nginx_indexes:                    # application nav links on home page
@@ -306,6 +307,7 @@ all:
       - { name: PGWeb      , url : 'http://cli.pigsty'              , comment: 'PGWEB Browser Client'        }
       - { name: ByteBase   , url : 'http://ddl.pigsty'              , comment: 'ByteBase Schema Migrator'    }
       - { name: PostgREST  , url : 'http://api.pigsty'              , comment: 'Kong API Gateway'            }
+      - { name: Gitea      , url : 'http://git.pigsty'              , comment: 'Minio Object Storage'        }
       - { name: Minio      , url : 'http://sss.pigsty'              , comment: 'Minio Object Storage'        }
       - { name: Explain    , url : '/pev2'                          , comment: 'postgres explain visualizer' }
       - { name: Package    , url : '/pigsty'                        , comment: 'local yum repo packages'     }
@@ -379,8 +381,11 @@ all:
       - name: timescaledb
         description: TimescaleDB for RHEL/CentOS $releasever - $basearch
         gpgcheck: no
-        baseurl:
-          - https://packagecloud.io/timescale/timescaledb/el/7/$basearch
+        baseurl: https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch
+      - name: citus
+        description: Citus Community
+        gpgcheck: no
+        baseurl: https://repos.citusdata.com/community/el/$releasever/$basearch
       - name: centos-sclo
         description: CentOS-$releasever - SCLo
         gpgcheck: no
@@ -426,7 +431,7 @@ all:
       - python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
       - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail                           # -- pgsql common - #
       - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL
-      - postgresql14* postgis32_14* citus_14* pglogical_14* timescaledb-2-postgresql-14 pg_repack_14 wal2json_14        # -- pg14 packages -#
+      - postgresql14* postgis32_14* pglogical_14* citus110_14 timescaledb-2-postgresql-14 pg_repack_14 wal2json_14        # -- pg14 packages -#
       - pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 pg_probackup-std-14
       - pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
       - mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14
@@ -700,16 +705,14 @@ all:
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*      # postgresql kernel packages
-      - postgis32_${pg_version}*      # postgis
-      - citus_${pg_version}*          # citus
-      - timescaledb-2-postgresql-${pg_version}    # timescaledb
+      - postgis32_${pg_version}* citus110_${pg_version} timescaledb-2-postgresql-${pg_version}
       - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
       - patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd
       - python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
     pg_extensions:                   # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
     # - ogr_fdw${pg_version} mysql_fdw_${pg_version} redis_fdw_${pg_version} mongo_fdw${pg_version} hdfs_fdw_${pg_version}
-    # - count_distinct${version}  ddlx_${version}  geoip${version}  orafce${version}
+    # - count_distinct${version}  ddlx_${version}  geoip${version}  orafce${version}  pg_ivm_${version}  multicorm2_${version}
     # - hypopg_${version}  ip4r${version}  jsquery_${version}  logerrors_${version}  periods_${version}  pg_auto_failover_${version}  pg_catcheck${version}
     # - pg_fkpart${version}  pg_jobmon${version}  pg_partman${version}  pg_prioritize_${version}  pg_track_settings${version}  pgaudit15_${version}
     # - pgcryptokey${version}  pgexportdoc${version}  pgimportdoc${version}  pgmemcache-${version}  pgmp${version}  pgq-${version}  pgquarrel pgrouting_${version}

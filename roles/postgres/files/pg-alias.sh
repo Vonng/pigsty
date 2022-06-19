@@ -44,13 +44,15 @@ alias pg-r="psql -qAXtwc \"SELECT CASE pg_is_in_recovery() WHEN TRUE THEN 'repli
 alias pg-repl='psql -qAXtwc "TABLE pg_stat_replication;"'
 alias pg-recv='psql -qAXtwc "TABLE pg_stat_wal_receiver;"'
 alias pg-md=" sed 's/+/|/g' | sed 's/^/|/' | sed 's/$/|/' |  grep -v rows | grep -v '||'"
+alias pg-ts='psql -qAXtwc "SELECT CURRENT_TIMESTAMP;"'
+alias pg-rc='psql -qAXtwc "SELECT pg_reload_conf();"'
 
 ##########################################################
 # exporter info
 ##########################################################
 alias node-mt="curl -sL localhost:9100/metrics | grep -v '#' | grep node_"
 alias pg-mt="curl -sL localhost:9630/metrics | grep -v '#' | grep pg_"
-alias pg-mt="curl -sL localhost:9631/metrics | grep -v '#' | grep pg_"
+alias pgb-mt="curl -sL localhost:9631/metrics | grep -v '#' | grep pgbouncer_"
 
 ##########################################################
 # misc
