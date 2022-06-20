@@ -1,3 +1,18 @@
+# v1.6.1-a1
+
+## Highlights
+
+Security Enhancement (Thanks to [@alemacci](https://github.com/Vonng/pigsty/commits?author=alemacci))
+
+* Pgbouncer Auth Query
+* SSL for etcd/consul
+* SSL for postgres/pgbouncer/pg_exporter
+* Adaptive configuration template
+* scram-sha-256 auth for postgres
+* configurable log dir for patroni & postgres & pgbouncer
+
+
+
 # v1.5.0
 
 ## Highlights
