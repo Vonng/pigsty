@@ -10,34 +10,42 @@ You can run ton's of software based on pigsty database & docker runtime.
 * [ByteBase](bytebase/) : DDL Migration
 * [PostgREST](postgrest/) : Auto-PG REST API
 * [Kong](kong/) : The API Gateway
-* [Gitea](gitea/) : Git hosting services 
+* [Gitea](gitea/) : Git hosting services
+* [Wiki](wiki/) : Local wiki service
+* [minio](minio/) : Simple storage service
+* [FerretDB](ferretdb/) : MongoDB API over Postgres
+
 
 **Access Point**
 
 ```yaml
-{ name: postgrest , domain: api.pigsty.cc  , endpoint: "127.0.0.1:8884" }
-{ name: pgadmin   , domain: adm.pigsty.cc  , endpoint: "127.0.0.1:8885" }
-{ name: pgweb     , domain: cli.pigsty.cc  , endpoint: "127.0.0.1:8886" }
-{ name: bytebase  , domain: ddl.pigsty.cc  , endpoint: "127.0.0.1:8887" }
-{ name: jupyter   , domain: lab.pigsty.cc  , endpoint: "127.0.0.1:8888" }
-{ name: gitea     , domain: git.pigsty.cc  , endpoint: "127.0.0.1:8889" }
-{ name: minio     , domain: sss.pigsty.cc  , endpoint: "127.0.0.1:9000" }
+{ name: postgrest , domain: api.pigsty  , endpoint: "127.0.0.1:8884" }
+{ name: pgadmin   , domain: adm.pigsty  , endpoint: "127.0.0.1:8885" }
+{ name: pgweb     , domain: cli.pigsty  , endpoint: "127.0.0.1:8886" }
+{ name: bytebase  , domain: ddl.pigsty  , endpoint: "127.0.0.1:8887" }
+{ name: jupyter   , domain: lab.pigsty  , endpoint: "127.0.0.1:8888" }
+{ name: gitea     , domain: git.pigsty  , endpoint: "127.0.0.1:8889" }
+{ name: minio     , domain: sss.pigsty  , endpoint: "127.0.0.1:9000" }
+{ name: wiki      , domain: wiki.pigsty , endpoint: "127.0.0.1:9002" }
 ```
 
 **Pull Image**
 
 ```bash
-docker pull kong                     # latest # 139MB
-docker pull minio/minio              # latest # 227MB
-docker pull alpine                   # latest # 5.57MB
-docker pull registry                 # latest # 24.2MB
-docker pull dpage/pgadmin4           # latest # 341MB
-docker pull sosedoff/pgweb           # latest # 192MB
-docker pull postgrest/postgrest      # latest # 16.3MB
-docker pull swaggerapi/swagger-ui    # latest # 77MB
-docker pull bytebase/bytebase:1.0.5  # 1.0.5  # 78.1MB
-docker pull vonng/pg_exporter        # latest # 7.64B
+docker pull kong                      # latest # 139MB
+docker pull minio/minio               # latest # 227MB
+docker pull alpine                    # latest # 5.57MB
+docker pull registry                  # latest # 24.2MB
+docker pull dpage/pgadmin4            # latest # 341MB
+docker pull sosedoff/pgweb            # latest # 192MB
+docker pull vonng/pg_exporter         # latest # 7.64B
+docker pull postgrest/postgrest       # latest # 16.3MB
+docker pull swaggerapi/swagger-ui     # latest # 77MB
+docker pull bytebase/bytebase:1.1.1   # 1.1.1  # 78.1MB
+docker pull ghcr.io/ferretdb/ferretdb # latest # 18.1MB
+
 docker pull gitea/gitea              # latest # 256MB
+docker pull requarks/wiki:2          # 2 444 MB
 docker pull andrewjones/schemaspy-postgres # latest
 ```
 
@@ -45,7 +53,7 @@ docker pull andrewjones/schemaspy-postgres # latest
 
 ```bash
 # make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.0.5 vonng/pg_exporter gitea/gitea | gzip -9 -c > /tmp/docker.tgz
+docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest minio/minio bytebase/bytebase:1.1.1  ghcr.io/ferretdb/ferretdb | gzip -9 -c > /tmp/docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 
