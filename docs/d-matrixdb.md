@@ -28,13 +28,13 @@ MatrixDB is logically divided into two parts, Master and Segments, composed of P
 
 The RPM pkgs for MatrixDB & Greenplum are not part of the standard Pigsty deployment and will not be placed in the default `pkg.tgz`.
 
-The RPM pkgs for MatrixDB & Greenplum and their complete dependencies will be packaged as a separate offline pkg [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.5.0/matrix.tgz).
+The RPM pkgs for MatrixDB & Greenplum and their complete dependencies will be packaged as a separate offline pkg [`matrix.tgz`](https://github.com/Vonng/pigsty/releases/download/v1.5.1/matrix.tgz).
 
 You can add new `matrix` sources to the Pigsty meta node.
 
 ```bash
-# Download Address（Github）：https://github.com/Vonng/pigsty/releases/download/v1.5.0/matrix.tgz
-# Download Address（China CDN）：http://download.pigsty.cc/v1.5.0/matrix.tgz
+# Download Address（Github）：https://github.com/Vonng/pigsty/releases/download/v1.5.1/matrix.tgz
+# Download Address（China CDN）：http://download.pigsty.cc/v1.5.1/matrix.tgz
 # Download the script on the meta node, under the pigsty dir, directly using the download matrix to download and unzip
 ./download matrix
 ```

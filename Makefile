@@ -1,14 +1,14 @@
 #==============================================================#
 # File      :   Makefile
 # Ctime     :   2019-04-13
-# Mtime     :   2022-05-15
+# Mtime     :   2022-06-20
 # Desc      :   Makefile shortcuts
 # Path      :   Makefile
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.5.0
+VERSION?=v1.6.0-a1
 
 # target cluster (meta by default)
 CLS?=meta
