@@ -21,6 +21,7 @@
   tags: repo_dir
   file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
 
+
 #--------------------------------------------------------------#
 # 2. Upstream repo
 #--------------------------------------------------------------#
@@ -84,37 +85,58 @@
 #--------------------------------------------------------------#
 # 4. Bootstrap
 #--------------------------------------------------------------#
-- name: Disable default modules on EL8/9
-  when: os_major_build|int >= 8
+- name: Install bootstrap packages
+  connection: local
   tags: repo_boot
-  shell: dnf module disable -y php nginx postgresql; /bin/true
+  block:
 
-# this usually takes 1~2 minutes according to your network condition
-- name: Remake yum/dnf cache
-  environment: "{{ proxy_env }}"
-  shell: |
-    {% if os_major_build|int >= 8 %}
-    dnf clean all; dnf makecache; /bin/true
-    {% else %}
-    yum clean all; yum makecache; /bin/true
-    {% endif %}
+    # IT'S DONE IN ROLE `environ`
+    # # get el major release: 7, 8, 9
+    # - name: Gather OS Name
+    #   shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
+    #   register: osname
+    # - set_fact:
+    #     os_name: "{{ osname.stdout }}"
+    # - name: Gather OS Major Version
+    #   shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
+    #   register: osmajorbuild
+    # - set_fact:
+    #     os_major_build: "{{ osmajorbuild.stdout }}"
+    # - debug:
+    #     msg: "OS detected: {{ os_name }} {{ os_major_build }}"
 
-# those packages are already installed during configure
-# just make sure them exists
-- name: Install repo bootstrap packages for EL7
-  when: os_major_build|int == 7
-  tags: repo_boot
-  yum:
-    name: "yum-utils,createrepo_c,nginx,wget,sshpass"
-    state: latest
+    - name: Disable default modules on EL8/9
+      when: os_major_build|int >= 8
+      shell: dnf module disable -y php nginx postgresql; /bin/true
 
-- name: Install repo bootstrap packages for EL8/9
-  when: os_major_build|int >= 8
-  tags: repo_boot
-  yum:
-    name: "dnf-utils,createrepo_c,modulemd-tools,nginx,wget,sshpass"
-    state: latest
+    # this usually takes 1~2 minutes according to your network condition
+    - name: Remake yum/dnf cache
+      environment: "{{ proxy_env }}"
+      shell: |
+        {% if os_major_build|int >= 8 %}
+        dnf clean all; dnf makecache; /bin/true
+        {% else %}
+        yum clean all; yum makecache; /bin/true
+        {% endif %}
 
+    # those packages are already installed during configure
+    # just make sure them exists
+    - name: Install repo bootstrap packages for EL7
+      when: os_major_build|int == 7
+      yum:
+        name: "yum-utils,createrepo_c,nginx,wget,sshpass"
+        state: latest
+
+    - name: Install repo bootstrap packages for EL8/9
+      when: os_major_build|int >= 8
+      yum:
+        name: "dnf-utils,createrepo_c,modulemd-tools,nginx,wget,sshpass"
+        state: latest
+
+
+#--------------------------------------------------------------#
+# 5. Launch Nginx
+#--------------------------------------------------------------#
 # launch nginx server for yum repo
 - name: Bootstrap repo nginx server
   tags: repo_nginx
@@ -141,7 +163,7 @@
 
 
 #--------------------------------------------------------------#
-# 5. Download
+# 6. Download
 #--------------------------------------------------------------#
 # if repo cache flag file missing, or force rebuild repo, then download repo packages
 - name: Download local repo packages
@@ -158,6 +180,7 @@
           {% if os_major_build|int >= 8 %}
           repotrack --arch x86_64,noarch {{ item }}
           {% else %}
+          yum install --downloadonly --downloaddir={{ nginx_home }}/{{ repo_name }} {{ item }}
           repotrack {{ item }}
           {% endif %}
         chdir: "{{ nginx_home }}/{{ repo_name }}"
