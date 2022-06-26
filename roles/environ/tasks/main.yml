@@ -1,27 +1,5 @@
 ---
 #--------------------------------------------------------------#
-# Gather RHEL build & version
-#--------------------------------------------------------------#
-- name: Gather RHEL build & version
-  connection: local
-  tags: environ_os
-  block:
-    - name: Gather OS Name
-      shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
-      register: osname
-    - set_fact:
-        os_name: "{{ osname.stdout }}"
-
-    - name: Gather OS Major Version
-      shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
-      register: osmajorbuild
-    - set_fact:
-        os_major_build: "{{ osmajorbuild.stdout }}"
-    - debug:
-        msg: "OS detected: {{ os_name }} {{ os_major_build }}"
-
-
-#--------------------------------------------------------------#
 # Create Directories
 #--------------------------------------------------------------#
 - name: Create pigsty directories
