@@ -349,7 +349,7 @@ Yum源的上游来源, 类型：`repo[]`，层级：
 Yum源需下载软件列表, 类型：`string[]`，层级：G，默认值为：
 
 ```yaml
-epel-release nginx wget yum-utils yum createrepo sshpass zip unzip                                              # ----  boot   ---- #
+epel-release nginx wget yum-utils yum createrepo_c sshpass zip unzip                                              # ----  boot   ---- #
 ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
 numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
 readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
