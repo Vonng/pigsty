@@ -1,0 +1,115 @@
+{% if os_version|int >= 8 %}
+[ol{{ os_version }}_appstream]
+name=Oracle Linux $releasever Application Stream ($basearch)
+baseurl=https://yum$ociregion.$ocidomain/repo/OracleLinux/OL$releasever/appstream/$basearch/
+gpgcheck=0
+
+[ol{{ os_version }}_baseos_latest]
+name=Oracle Linux $releasever BaseOS Latest ($basearch)
+baseurl=https://yum$ociregion.$ocidomain/repo/OracleLinux/OL$releasever/baseos/latest/$basearch/
+gpgcheck=0
+
+[ol{{ os_version }}_codeready_builder]
+name=Oracle Linux $releasever CodeReady Builder ($basearch)
+baseurl=https://yum$ociregion.$ocidomain/repo/OracleLinux/OL$releasever/codeready/builder/$basearch/
+gpgcheck=0
+
+[ol{{ os_version }}_developer_EPEL]
+name=Oracle Linux $releasever EPEL Packages for Development ($basearch)
+baseurl=https://yum$ociregion.$ocidomain/repo/OracleLinux/OL$releasever/developer/EPEL/$basearch/
+gpgcheck=0
+
+[ol{{ os_version }}_developer_EPEL_modular]
+name=Oracle Linux $releasever EPEL Modular Packages for Development ($basearch)
+baseurl=https://yum$ociregion.$ocidomain/repo/OracleLinux/OL$releasever/developer/EPEL/modular/$basearch/
+gpgcheck=0
+
+[ol{{ os_version }}_UEKR6]
+name=Latest Unbreakable Enterprise Kernel Release 6 for Oracle Linux $releasever ($basearch)
+baseurl=https://yum$ociregion.$ocidomain/repo/OracleLinux/OL$releasever/UEKR6/$basearch/
+gpgcheck=0
+{% endif %}
+
+[grafana]
+name=Grafana Official Yum Repo
+{% if repo_region == 'default' or repo_region == 'europe' %}
+baseurl=https://packages.grafana.com/oss/rpm
+{% elif repo_region == 'china' %}
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
+{% endif %}
+gpgcheck=0
+
+[prometheus]
+name=Prometheus and exporters
+baseurl=https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
+gpgcheck=0
+
+{% if repo_region == 'default' or repo_region == 'europe' %}
+[pgdg-common]
+name=PostgreSQL common RPMs for RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
+gpgcheck=0
+
+[pgdg{{ pg_version }}]
+name=PostgreSQL {{ pg_version }} for RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/{{ pg_version }}/redhat/rhel-$releasever-$basearch
+gpgcheck=0
+
+[pgdg-rhel{{ os_version }}-extras]
+name=Extra packages to support some RPMs in the PostgreSQL RPM repo RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch
+gpgcheck=0
+{% elif repo_region == 'china' %}
+[pgdg-common]
+name=PostgreSQL common RPMs for RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch
+gpgcheck=0
+
+[pgdg{{ pg_version }}]
+name=PostgreSQL {{ pg_version }} for RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/{{ pg_version }}/redhat/rhel-$releasever-$basearch
+gpgcheck=0
+
+[pgdg-rhel{{ os_version }}-extras]
+name=Extra packages to support some RPMs in the PostgreSQL RPM repo RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch
+gpgcheck=0
+{% endif %}
+
+[timescaledb]
+name=TimescaleDB for RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch
+gpgcheck=0
+
+[citus]
+name=Citus Community
+baseurl=https://repos.citusdata.com/community/el/$releasever/$basearch
+gpgcheck=0
+
+[nginx]
+name=Nginx Repo
+baseurl=https://nginx.org/packages/centos/$releasever/$basearch/
+skip_if_unavailable=True
+gpgcheck=0
+
+[harbottle]
+name=Copr repo for main owned by harbottle
+baseurl=https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
+skip_if_unavailable=True
+gpgcheck=0
+
+[pg_probackup]
+name=PG_PROBACKUP Packages for {{ os_name }} $releasever - $basearch
+baseurl=https://repo.postgrespro.ru/pg_probackup/rpm/latest/centos-$releasever-$basearch
+skip_if_unavailable=True
+gpgcheck=0
+
+[docker-ce]
+name=Docker CE Stable - $basearch
+{% if repo_region == 'default' or repo_region == 'europe' %}
+baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/stable
+{% elif repo_region == 'china' %}
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
+{% endif %}
+skip_if_unavailable=True
+gpgcheck=0

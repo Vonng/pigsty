@@ -89,30 +89,36 @@
   tags: repo_boot
   block:
 
-    # IT'S DONE IN ROLE `environ`
-    # # get el major release: 7, 8, 9
-    # - name: Gather OS Name
-    #   shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
-    #   register: osname
-    # - set_fact:
-    #     os_name: "{{ osname.stdout }}"
-    # - name: Gather OS Major Version
-    #   shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
-    #   register: osmajorbuild
-    # - set_fact:
-    #     os_major_build: "{{ osmajorbuild.stdout }}"
-    # - debug:
-    #     msg: "OS detected: {{ os_name }} {{ os_major_build }}"
+    # get el major release: 7, 8, 9
+    - name: Gather OS Spacs
+      when: os_autodetect is defined and os_autodetect|bool
+      block:
+
+        - name: Gather OS Name
+          shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
+          register: osname
+        - set_fact:
+            os_name: "{{ osname.stdout }}"
+
+        - name: Gather OS Version
+          shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
+          register: osversion
+        - set_fact:
+            os_version: "{{ osversion.stdout }}"
+
+    - name: Print OS info
+      debug:
+        msg: "OS: {{ os_name }} {{ os_version }}"
 
     - name: Disable default modules on EL8/9
-      when: os_major_build|int >= 8
+      when: os_version|int >= 8
       shell: dnf module disable -y php nginx postgresql; /bin/true
 
     # this usually takes 1~2 minutes according to your network condition
     - name: Remake yum/dnf cache
       environment: "{{ proxy_env }}"
       shell: |
-        {% if os_major_build|int >= 8 %}
+        {% if os_version|int >= 8 %}
         dnf clean all; dnf makecache; /bin/true
         {% else %}
         yum clean all; yum makecache; /bin/true
@@ -121,13 +127,13 @@
     # those packages are already installed during configure
     # just make sure them exists
     - name: Install repo bootstrap packages for EL7
-      when: os_major_build|int == 7
+      when: os_version|int == 7
       yum:
         name: "yum-utils,createrepo_c,nginx,wget,sshpass"
         state: latest
 
     - name: Install repo bootstrap packages for EL8/9
-      when: os_major_build|int >= 8
+      when: os_version|int >= 8
       yum:
         name: "dnf-utils,createrepo_c,modulemd-tools,nginx,wget,sshpass"
         state: latest
@@ -176,7 +182,7 @@
       environment: "{{ proxy_env }}"
       shell:
         cmd: |
-          {% if os_major_build|int >= 8 %}
+          {% if os_version|int >= 8 %}
           repotrack --arch x86_64,noarch {{ item }}
           {% else %}
           yum install --downloadonly --downloaddir={{ nginx_home }}/{{ repo_name }} {{ item }}
@@ -189,7 +195,7 @@
     - name: Download web url packages
       tags: repo_pkg_url
       environment: "{{ proxy_env }}"
-      get_url: dest={{ nginx_home }}/{{ repo_name }}/{{ item | basename }} url={{ item }}
+      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\\$\\{os_version\\}', (lookup('vars', 'os_version')|string)) }}
       with_items: "{{ repo_url_packages }}"
 
     # create local yum repo
@@ -197,11 +203,9 @@
       tags: repo_create
       shell:
         cmd: |
-          {% if os_major_build|int == 7 %}
           rm -f *.i686.rpm   # remove i686 packages
-          {% endif %}
           createrepo_c {{ nginx_home }}/{{ repo_name }}
-          {% if os_major_build|int >= 8 %}
+          {% if os_version|int >= 8 %}
           repo2module -s stable . modules.yaml
           modifyrepo_c --mdtype=modules modules.yaml repodata/
           {% endif %}
