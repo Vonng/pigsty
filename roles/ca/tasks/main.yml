@@ -1,184 +1,36 @@
 ---
 #--------------------------------------------------------------------------
-# check ca exists
+# Make Sure Self-Signed Root CA Exists on All Meta Nodes
+#   ca_method (create|copy|recreate)
+#     * none     : skip ca creation at all
+#     * copy     : copy ca.{key,crt} from local files directly
+#     * create   : create ca.{key|crt} if not exist on meta
+#     * recreate : force recreate ca key & file on meta
 #--------------------------------------------------------------------------
-# create repo directory and check cache existence
-- name: Create cert directory
+
+#------------------------------------------------------------------------------
+# CA Dir
+#------------------------------------------------------------------------------
+- name: Make sure certs dir exists on primary meta node
   tags: ca_dir
-  file: path="{{ cert_homedir }}" state=directory mode=0755
+  file: path="/etc/pigsty/ca" state=directory mode=0755
 
-# if ca_method == copy
-- name: Copy ca cert from local files
-  tags: ca_copy
-  when: ca_method == 'copy'
-  copy: src={{ item }} dest={{ cert_homedir }}/{{ item }} owner=root group=root mode=0644
+#------------------------------------------------------------------------------
+# CA Create (on primary meta node)
+#------------------------------------------------------------------------------
+# create ca cert on meta nodes and copy to local when ca_method = (create,recreate)
+# and it's user's responsibility to make sure ca exists under local files dir when ca_method = copy
+- import_tasks: create.yml
+  when: meta_ip == inventory_hostname and ca_method != 'none' and ca_method != 'copy'
+
+#------------------------------------------------------------------------------
+# CA Dist (to all meta nodes)
+#------------------------------------------------------------------------------
+- name: Dist ca key/cert to all meta nodes
+  copy: src="files/{{ item }}" dest="/etc/pigsty/ca/{{ item }}" owner=root mode=0644
+  tags: ca_dist
+  when: ca_method != 'none' and meta_node|bool
   with_items:
-    - "{{ ca_file }}.crt"
-    - "{{ ca_file }}.key"
-
-# if ca key exists or explicitly require a new CA
-- name: Check CA exists on tmp
-  tags: ca_check
-  block:
-    - name: Check if ca cert exists
-      stat:
-        path: "{{ cert_homedir }}/{{ ca_file }}.crt"
-      register: ca_crt_exists
-
-    - name: Check if ca key exists
-      stat:
-        path: "{{ cert_homedir }}/{{ ca_file }}.key"
-      register: ca_key_exists
-
-
-#--------------------------------------------------------------------------
-# create or reuse ca
-#--------------------------------------------------------------------------
-# if ca_method = create and keypair exists, allow temporarily world access
-- name: Allow temporarily ca access
-  tags: ca_reuse
-  when: (ca_crt_exists.stat.exists and ca_key_exists.stat.exists) and ca_method == 'create'
-  file: path={{ item }} mode=0644
-  with_items:
-    - "{{ cert_homedir }}/{{ ca_file }}.crt"
-    - "{{ cert_homedir }}/{{ ca_file }}.key"
-
-# if ca_method = create, create a self-signed ca keypair if not exists
-# if ca_method = recreate, force recreate a self-signed ca keypair even if already exists
-- name: Create CA certificate
-  tags: ca_create
-  when: not (ca_crt_exists.stat.exists and ca_key_exists.stat.exists) or ca_method == 'recreate'
-  block:
-    - name: Remove existing cert dir
-      file: path="{{ cert_homedir }}" state=absent
-
-    - name: Create certs directory
-      file: path="{{ cert_homedir }}" state=directory mode=0755
-
-    - name: Generate CA private key
-      when: meta_node|bool and pg_role == 'primary'
-      openssl_privatekey:
-        path: "{{ cert_homedir }}/{{ ca_file }}.key"
-        mode: 0644
-
-    - name: Generate CA signing request
-      when: meta_node|bool and pg_role == 'primary'
-      openssl_csr:
-        path: "{{ cert_homedir }}/{{ ca_file }}.csr"
-        privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
-        common_name: "{{ ca_cn }}"
-        use_common_name_for_san: false
-        basic_constraints:
-          - 'CA:TRUE'
-        basic_constraints_critical: yes
-        key_usage:
-          - keyCertSign
-        key_usage_critical: true
-
-    - name: Generate self-signed CA from CSR
-      when: meta_node|bool and pg_role == 'primary'
-      openssl_certificate:
-        path: "{{ cert_homedir }}/{{ ca_file }}.crt"
-        csr_path: "{{ cert_homedir }}/{{ ca_file }}.csr"
-        privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
-        provider: selfsigned
-        selfsigned_not_after: "+{{ ca_validity }}"
-        mode: 0644
-
-
-#--------------------------------------------------------------------------
-# create certs
-#--------------------------------------------------------------------------
-# these certs can be used for securing meta services on meta nodes
-- name: Create meta certificates
-  tags: crt_create
-  when: meta_node|bool and pg_role == 'primary'
-  connection: local
-  delegate_to: localhost
-  block:
-    - name: Generate shared meta private key
-      openssl_privatekey:
-        path: "{{ cert_homedir }}/{{ pg_cluster }}.key"
-        mode: 0644
-
-    - name: Generate shared meta CSR
-      openssl_csr:
-        path: "{{ cert_homedir }}/{{ pg_cluster }}.csr"
-        privatekey_path: "{{ cert_homedir }}/{{ pg_cluster }}.key"
-        common_name: "{{ pg_cluster }}"
-        subject_alt_name: "DNS:meta"
-
-    - name: Sign shared meta CSR with CA key
-      openssl_certificate:
-        path: "{{ cert_homedir }}/{{ pg_cluster }}.crt"
-        csr_path: "{{ cert_homedir }}/{{ pg_cluster }}.csr"
-        ownca_path: "{{ cert_homedir }}/{{ ca_file }}.crt"
-        ownca_privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
-        provider: ownca
-        selfsigned_not_after: "+{{ cert_validity }}"
-        mode: 0644
-
-# this cert will be rotated to all nodes and can be used for securing infra services
-- name: Create nodes certificate
-  tags: crt_create
-  connection: local
-  delegate_to: localhost
-  block:
-    - name: Generate nodes private key
-      openssl_privatekey:
-        path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
-        mode: 0644
-
-    - name: Generate nodes signin request
-      openssl_csr:
-        path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.csr"
-        privatekey_path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.key"
-        common_name: "{{ pg_cluster }}-{{ pg_seq }}"
-        subject_alt_name: "DNS:localhost,DNS:server.{{ dcs_name }}.consul,IP:127.0.0.1,IP:{{ inventory_hostname }}"
-
-    - name: Sign nodes CSRs with CA key
-      openssl_certificate:
-        path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.crt"
-        csr_path: "{{ cert_homedir }}/{{ pg_cluster }}-{{ pg_seq }}.csr"
-        ownca_path: "{{ cert_homedir }}/{{ ca_file }}.crt"
-        ownca_privatekey_path: "{{ cert_homedir }}/{{ ca_file }}.key"
-        provider: ownca
-        selfsigned_not_after: "+{{ cert_validity }}"
-        mode: 0644
-
-
-#--------------------------------------------------------------------------
-# copy certs
-#--------------------------------------------------------------------------
-- name: Copy ca certificate on all nodes
-  tags: ca_copy
-  copy: src="{{ cert_homedir }}/{{ ca_file }}.crt" dest="{{ cert_homedir }}/{{ ca_file }}.crt"
-
-- name: Copy ca private key on all meta nodes
-  tags: ca_copy
-  when: meta_node|bool
-  copy: src="{{ cert_homedir }}/{{ ca_file }}.key" dest="{{ cert_homedir }}/{{ ca_file }}.key"
-
-- name: Trust CA certificate at OS level
-  tags: ca_trust
-  block:
-    - name: Copy ca certificate into pki anchors path
-      copy: src="{{ cert_homedir }}/{{ ca_file }}.crt" dest="/etc/pki/ca-trust/source/anchors/{{ ca_file }}.crt" owner=root group=root mode=0644
-
-    - name: update trusted ca repo
-      shell: /bin/update-ca-trust
-
-
-#--------------------------------------------------------------------------
-# cleanup
-#--------------------------------------------------------------------------
-- name: Cleanup unnecessary files
-  tags: crt_cleanup
-  when: meta_node|bool and pg_role == 'primary'
-  block:
-    - name: Cleanup unnecessary files
-      file: path={{ item }} state=absent
-      with_fileglob:
-        - "{{ cert_homedir }}/*.csr"
-
+    - ca.key
+    - ca.crt
 ...

@@ -1,0 +1,76 @@
+---
+# only primary meta node ( inventory_hostname == meta_ip ) is allowed to execute this tasks
+
+#------------------------------------------------------------------------------
+# Check CA
+#------------------------------------------------------------------------------
+- name: Check ca existence on meta nodes
+  tags: ca_check
+  block:
+    - name: Check if ca cert exists
+      stat: path="/etc/pigsty/ca/ca.crt"
+      register: ca_crt_exists
+    - name: Check if ca key exists
+      stat: path="/etc/pigsty/ca/ca.key"
+      register: ca_key_exists
+    - name: Check CA create necessity
+      connection: local
+      set_fact:
+        ca_exists: "{{ ca_crt_exists.stat.exists and ca_key_exists.stat.exists }}"
+    - debug:
+        msg: "ca exists = {{ ca_exists }}, ca method = {{ ca_method }}"
+
+
+#------------------------------------------------------------------------------
+# Create CA
+#------------------------------------------------------------------------------
+# if ca_method = create : generate ca if not exists
+# if ca_method = recreate : always generate ca
+- name: Create Self-Signed CA
+  tags: ca_create
+  when: (not ca_exists|bool and ca_method == 'create') or ca_method == 'recreate'
+  block:
+
+    # generate ca private key
+    - name: Generate CA private key
+      openssl_privatekey: path="/etc/pigsty/ca/ca.key" mode=0644
+
+    # generate ca self-signing csr
+    - name: Generate CA signing request
+      openssl_csr:
+        path: "/etc/pigsty/ca/ca.csr"
+        privatekey_path: "/etc/pigsty/ca/ca.key"
+        common_name: "{{ ca_cn }}"
+        use_common_name_for_san: false
+        basic_constraints: [ 'CA:TRUE' ]
+        basic_constraints_critical: yes
+        key_usage: [ keyCertSign ]
+        key_usage_critical: true
+
+    # approve csr and get self-signed ca cert
+    - name: Generate CA Cert
+      openssl_certificate:
+        path: "/etc/pigsty/ca/ca.crt"
+        csr_path: "/etc/pigsty/ca/ca.csr"
+        privatekey_path: "/etc/pigsty/ca/ca.key"
+        provider: selfsigned
+        selfsigned_not_after: "+{{ ca_validity }}"
+        mode: 0644
+
+    # remove unnecessary csr file
+    - name: Cleanup CA CSR
+      file: path="/etc/pigsty/ca/ca.csr" state=absent
+
+
+#------------------------------------------------------------------------------
+# Fetch ca to local files dir
+#------------------------------------------------------------------------------
+# fetch primary meta
+- name: Fetch CA key/cert to local
+  tags: ca_fetch
+  fetch: src="/etc/pigsty/ca/{{ item }}" dest="files/{{ item }}" flat=yes
+  with_items:
+    - ca.key
+    - ca.crt
+
+...
