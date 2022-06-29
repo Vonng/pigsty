@@ -21,6 +21,27 @@
   tags: repo_dir
   file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
 
+# get el major release: 7, 8, 9
+- name: Gather OS Spacs
+  when: os_autodetect is defined and os_autodetect|bool
+  block:
+
+    - name: Gather OS Name
+      shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
+      register: osname
+    - set_fact:
+        os_name: "{{ osname.stdout }}"
+
+    - name: Gather OS Version
+      shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
+      register: osversion
+    - set_fact:
+        os_version: "{{ osversion.stdout }}"
+
+- name: Print OS info
+  debug:
+    msg: "OS: {{ os_name }} {{ os_version }}"
+
 
 #--------------------------------------------------------------#
 # 2. Upstream repo
@@ -42,6 +63,14 @@
     - name: Add required upstream repos
       yum_repository: "{{ item }}"
       with_items: "{{ repo_upstreams }}"
+
+    # - name: Add required upstream repos from template
+    #   template: src={{ item.src }} dest={{ item.dest }} mode=0644
+    #   with_items:
+    #     - { src: "{{ os_name|lower }}.repo.j2",  dest: "/etc/yum.repos.d/{{ os_name|lower }}.repo" }
+    #     - { src: epel.repo.j2 ,  dest: /etc/yum.repos.d/epel.repo  }
+    #     - { src: pgdg.repo.j2 ,  dest: /etc/yum.repos.d/pgdg.repo  }
+    #     - { src: tools.repo.j2,  dest: /etc/yum.repos.d/tools.repo }
 
 
 #--------------------------------------------------------------#
@@ -89,31 +118,6 @@
   tags: repo_boot
   block:
 
-    # get el major release: 7, 8, 9
-    - name: Gather OS Spacs
-      when: os_autodetect is defined and os_autodetect|bool
-      block:
-
-        - name: Gather OS Name
-          shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
-          register: osname
-        - set_fact:
-            os_name: "{{ osname.stdout }}"
-
-        - name: Gather OS Version
-          shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
-          register: osversion
-        - set_fact:
-            os_version: "{{ osversion.stdout }}"
-
-    - name: Print OS info
-      debug:
-        msg: "OS: {{ os_name }} {{ os_version }}"
-
-    - name: Disable default modules on EL8/9
-      when: os_version|int >= 8
-      shell: dnf module disable -y php nginx postgresql; /bin/true
-
     # this usually takes 1~2 minutes according to your network condition
     - name: Remake yum/dnf cache
       environment: "{{ proxy_env }}"
@@ -123,6 +127,10 @@
         {% else %}
         yum clean all; yum makecache; /bin/true
         {% endif %}
+
+    - name: Disable default modules on EL8/9
+      when: os_version|int >= 8
+      shell: dnf module disable -y php nginx postgresql; /bin/true
 
     # those packages are already installed during configure
     # just make sure them exists

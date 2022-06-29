@@ -1,0 +1,57 @@
+[grafana]
+name=Grafana Official Yum Repo
+{% if repo_region == 'default' or repo_region == 'europe' %}
+baseurl=https://packages.grafana.com/oss/rpm
+{% elif repo_region == 'china' %}
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
+{% endif %}
+gpgcheck=0
+
+[prometheus]
+name=Prometheus and exporters
+baseurl=https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
+gpgcheck=0
+
+[timescaledb]
+name=TimescaleDB for RHEL / {{ os_name }} $releasever - $basearch
+baseurl=https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch
+gpgcheck=0
+
+[citus]
+name=Citus Community
+baseurl=https://repos.citusdata.com/community/el/$releasever/$basearch
+gpgcheck=0
+
+[nginx]
+name=Nginx Repo
+baseurl=https://nginx.org/packages/centos/$releasever/$basearch/
+skip_if_unavailable=True
+gpgcheck=0
+
+[harbottle]
+name=Copr repo for main owned by harbottle
+baseurl=https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
+skip_if_unavailable=True
+gpgcheck=0
+
+[pg_probackup]
+name=PG_PROBACKUP Packages for {{ os_name }} $releasever - $basearch
+{% if os_name == 'Oracle' %}
+baseurl=https://repo.postgrespro.ru/pg_probackup/rpm/latest/oraclelinux-$releasever-$basearch
+{% else %}
+baseurl=https://repo.postgrespro.ru/pg_probackup/rpm/latest/centos-$releasever-$basearch
+{% endif %}
+skip_if_unavailable=True
+gpgcheck=0
+
+[docker-ce]
+name=Docker CE Stable - $basearch
+{% if repo_region == 'default' %}
+baseurl=https://download.docker.com/linux/centos/$releasever/$basearch/stable
+{% elif repo_region == 'europe' %}
+baseurl=https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable
+{% elif repo_region == 'china' %}
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
+{% endif %}
+skip_if_unavailable=True
+gpgcheck=0
