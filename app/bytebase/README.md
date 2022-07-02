@@ -3,7 +3,7 @@
 Schema Migrator for PostgreSQL
 
 ```bash
-cd app/bytebase; docker-compose up -d
+cd app/bytebase; make up
 ```
 
 Visit [http://ddl.pigsty](http://ddl.pigsty) or http://10.10.10.10:8887
@@ -24,7 +24,6 @@ make load       # load bytebase image from /tmp
 ```
 
 
-
 ## Use External PostgreSQL
 
 Bytebase use its internal PostgreSQL database by default, You can use external PostgreSQL for higher durability.
@@ -35,15 +34,7 @@ db:   { name: bytebase, owner: dbuser_bytebase, comment: bytebase primary databa
 user: { name: dbuser_bytebase , password: DBUser.Bytebase, roles: [ dbrole_admin ] }
 ```
 
-if you wish to user an external PostgreSQL, drop monitor extensions and views & pg_repack
-
 ```bash
-DROP SCHEMA monitor CASCADE;
-DROP EXTENSION pg_repack;
-```
-
-After bytebase initialized, you can create them back with `/pg/tmp/pg-init-template.sql`
-
-```bash
-psql bytebase < /pg/tmp/pg-init-template.sql
+bin/createuser dbuser_bytebase
+bin/createdb   bytebase
 ```
