@@ -289,7 +289,7 @@ GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly;
 GRANT USAGE                         ON SCHEMAS   TO dbrole_offline;
 GRANT SELECT                        ON TABLES    TO dbrole_offline;
 GRANT SELECT                        ON SEQUENCES TO dbrole_offline;
-GRANT EXECUTE                       ON FUNCTIONS TO dbrole_readonly;
+GRANT EXECUTE                       ON FUNCTIONS TO dbrole_offline;
 GRANT INSERT, UPDATE, DELETE        ON TABLES    TO dbrole_readwrite;
 GRANT USAGE,  UPDATE                ON SEQUENCES TO dbrole_readwrite;
 GRANT TRUNCATE, REFERENCES, TRIGGER ON TABLES    TO dbrole_admin;
