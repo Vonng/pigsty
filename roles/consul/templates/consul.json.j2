@@ -1,6 +1,6 @@
 {
   "datacenter": "{{ dcs_name }}",
-  "node_name": "{{ nodename }}",
+  "node_name": "{{ dcs_nodename }}",
   "bind_addr": "{{ inventory_hostname }}",
 {% if dcs_ssl_enabled|bool %}
   "ports": {
@@ -12,23 +12,21 @@
       "tls_min_version": "TLSv1_2",
       "verify_outgoing": true,
       "verify_incoming": false,
-      "ca_file": "/var/lib/consul/{{ ca_file }}.crt",
-      "cert_file": "/var/lib/consul/{{ pg_cluster }}-{{ pg_seq }}.crt",
-      "key_file": "/var/lib/consul/{{ pg_cluster }}-{{ pg_seq }}.key"
+      "ca_file": "/etc/pki/ca-trust/source/anchors/ca.crt",
+      "cert_file": "/etc/consul.d/cert/{{ dcs_nodename }}.crt",
+      "key_file": "/etc/consul.d/cert/{{ dcs_nodename }}.key"
     },
     "internal_rpc": {
       "verify_server_hostname": true
     }
   },
+  "auto_encrypt": {
 {% if inventory_hostname in dcs_servers.values() %}
-  "auto_encrypt": {
     "allow_tls": true
-  },
 {% else %}
-  "auto_encrypt": {
     "tls": true
-  },
 {% endif %}
+  },
 {% endif %}
   "retry_join": {{ dcs_servers.values()|list|to_json }},
   "data_dir": "{{ consul_data_dir }}",

@@ -1,0 +1,36 @@
+---
+#------------------------------------------------------------------------------
+# Launch consul server first
+#------------------------------------------------------------------------------
+- name: Setup consul server
+  tags: consul_server
+  when: inventory_hostname in dcs_servers.values()
+  throttle: 1                                 # setup server one by one
+  block:
+
+    # launch consul server
+    - name: Launch consul server service
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    # wait consul online
+    - name: Wait for consul server online
+      wait_for: host=127.0.0.1 port=8500 state=started timeout=30
+
+
+#------------------------------------------------------------------------------
+# Launch consul agent
+#------------------------------------------------------------------------------
+- name: Setup consul agent
+  tags: consul_agent
+  when: inventory_hostname not in dcs_servers.values()
+  block:
+
+    # launch consul agent
+    - name: Launch consul agent service
+      systemd: name=consul state=restarted enabled=yes daemon_reload=yes
+
+    # wait consul agent online
+    - name: Wait for consul agent online
+      wait_for: host=127.0.0.1 port=8500 state=started timeout=30
+
+...

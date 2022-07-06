@@ -1,0 +1,189 @@
+---
+#------------------------------------------------------------------------------
+# Consul Identity
+#------------------------------------------------------------------------------
+- name: Get consul identity
+  tags: consul_id
+  block:
+
+    #------------------------------------------------------------------------------
+    # acquire nodename if not provided
+    #------------------------------------------------------------------------------
+    # Fetch nodename if not provided
+    - name: Fetch hostname from server if no node name is given
+      when: nodename is not defined or nodename == ''
+      shell: echo $HOSTNAME
+      register: hostname_result
+    - name: Setup nodename according to hostname
+      when: nodename is not defined or nodename == ''
+      connection: local
+      set_fact:
+        nodename: "{{ hostname_result.stdout }}"
+
+    #------------------------------------------------------------------------------
+    # acquire dcs_nodename
+    #------------------------------------------------------------------------------
+    # FOR CONSUL SERVER, use dcs_servers.key as Identity (OVERWRITE COMMON NODENAME)
+    - name: Get dcs server key as dcs nodename
+      connection: local
+      set_fact:
+        dcs_nodename: "{% if inventory_hostname in dcs_servers.values() %}{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}{% else %}{{ nodename }}{% endif %}"
+
+
+#------------------------------------------------------------------------------
+# Consul Config
+#------------------------------------------------------------------------------
+- name: Config consul
+  tags: consul_conf
+  block:
+
+    #------------------------------------------------------------------------------
+    # render main config
+    #------------------------------------------------------------------------------
+    # remove hcl format config
+    - name: Make sure consul hcl absent
+      file: path=/etc/consul.d/consul.hcl state=absent
+
+    # "disable_hostname": true is optional
+    - name: Render consul main conf /etc/consul.d/consul.json
+      template: src=consul.json.j2 dest=/etc/consul.d/consul.json owner=consul group=consul mode=0644
+
+    - name: Render consul node meta /etc/consul.d/consul-meta.json
+      copy:
+        dest: /etc/consul.d/consul-meta.json
+        owner: consul
+        mode: 0644
+        content: |
+          {
+            "node_meta": {
+              "cluster": "{{ node_cluster|default('nodes') }}",
+              "instance": "{{ nodename }}"
+            }
+          }
+
+    #------------------------------------------------------------------------------
+    # render server config on DCS SERVERs
+    #------------------------------------------------------------------------------
+    # determine quorum for server
+    - name: Get consul bootstrap expect quroum
+      when: inventory_hostname in dcs_servers.values()
+      connection: local
+      set_fact: consul_bootstrap_expect={{ ((dcs_servers.values() | length / 2)|round(0, 'floor') + 1)|int }}
+
+    - name: Render consul server /etc/consul.d/consul-server.json
+      when: inventory_hostname in dcs_servers.values()
+      copy:
+        dest: /etc/consul.d/consul-server.json
+        mode: 0644
+        owner: consul
+        group: consul
+        content: |
+          {
+            "server": true,
+            "bootstrap_expect": {{ consul_bootstrap_expect|default(1) }}
+          }
+
+    #------------------------------------------------------------------------------
+    # render ui config on META NODEs
+    #------------------------------------------------------------------------------
+    - name: Render consul ui conf /etc/consul.d/consul-server.json
+      when: meta_node|bool
+      copy:
+        dest: /etc/consul.d/consul-ui.json
+        mode: 0644
+        owner: consul
+        group: consul
+        content: |
+          {
+            "ui_config": {
+              "enabled": true
+            }
+          }
+
+
+#------------------------------------------------------------------------------
+# Consul Systemd Service
+#------------------------------------------------------------------------------
+
+    #------------------------------------------------------------------------------
+    # copy systemd service
+    #------------------------------------------------------------------------------
+    - name: Copy consul systemd service
+      copy: src=consul.service dest=/usr/lib/systemd/system/consul.service
+
+    #------------------------------------------------------------------------------
+    # render consul service drop-in
+    #------------------------------------------------------------------------------
+    - name: Render consul service drop-in on /etc/systemd/system/consul.service.d/
+      when: dcs_ssl_enabled|bool
+      block:
+
+        - name: Create consul.service.d directory
+          file: path=/etc/systemd/system/consul.service.d state=directory
+
+        - name: Copy consul.service drop-in
+          copy:
+            dest: /etc/systemd/system/consul.service.d/override.conf
+            owner: root
+            mode: 0644
+            content: |
+              [Service]
+              Environment="CONSUL_HTTP_SSL=true"
+
+
+
+#------------------------------------------------------------------------------
+# Config consul cert
+#------------------------------------------------------------------------------
+- name: Generate consul cert for servers
+  tags: consul_cert
+  when: dcs_ssl_enabled|bool # and inventory_hostname in dcs_servers.values()
+  delegate_to: "{{ meta_ip }}"
+  block:
+
+    - name: Generate consul private key
+      openssl_privatekey:
+        path: "/etc/pigsty/ca/{{ dcs_nodename }}.key"
+        mode: 0644
+
+    - name: Generate consul server csr
+      openssl_csr:
+        path: "/etc/pigsty/ca/{{ dcs_nodename }}.csr"
+        privatekey_path: "/etc/pigsty/ca/{{ dcs_nodename }}.key"
+        common_name: "server.{{ dcs_name }}.consul"
+        subject_alt_name: 'DNS:{{ dcs_nodename }},DNS:{{ nodename }},DNS:{{ inventory_hostname }},DNS:localhost,DNS:127.0.0.1'
+
+    - name: Sign consul server crt
+      openssl_certificate:
+        path: "/etc/pigsty/ca/{{ dcs_nodename }}.crt"
+        csr_path: "/etc/pigsty/ca/{{ dcs_nodename }}.csr"
+        ownca_path: /etc/pigsty/ca/ca.crt
+        ownca_privatekey_path: /etc/pigsty/ca/ca.key
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        mode: 0644
+
+    # TODO: if consul cert exists? what do we do? always recreate now
+    - name: Fetch consul certs to local
+      tags: consul_cert_fetch
+      fetch: src="/etc/pigsty/ca/{{ item }}" dest="files/cert/{{ item }}" flat=yes
+      with_items:
+        - "{{ dcs_nodename }}.key"
+        - "{{ dcs_nodename }}.crt"
+
+
+- name: Copy consul cert
+  tags: consul_cert
+  when: dcs_ssl_enabled|bool  # and inventory_hostname in dcs_servers.values()
+  block:
+
+    - name: Create consul.service.d directory
+      file: path=/etc/consul.d/cert owner=consul group=consul state=directory
+
+    - name: Copy ssl certificates
+      copy: src="files/cert/{{ item }}" dest="/etc/consul.d/cert/{{ item }}" owner=consul group=consul mode=0600
+      with_items:
+        - "{{ dcs_nodename }}.key"
+        - "{{ dcs_nodename }}.crt"
+        # - ca.crt
+...
