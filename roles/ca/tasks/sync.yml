@@ -1,0 +1,21 @@
+---
+# fetch primary meta
+- name: Sync CA key/cert to local
+  block:
+
+    - name: Fetch ca files from primary meta node
+      when: meta_ip == inventory_hostname
+      delegate_to: localhost
+      become: no
+      synchronize:
+        mode: pull
+        src: "/etc/pigsty/ca/"
+        dest: "files/cert/"
+
+    - name: Snyc ca files to all meta nodes
+      when: meta_node|bool and meta_ip != inventory_hostname
+      synchronize:
+        mode: push
+        src: "files/cert/"
+        dest: "/etc/pigsty/ca/"
+...

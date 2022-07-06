@@ -9,28 +9,26 @@
 #--------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
-# CA Dir
-#------------------------------------------------------------------------------
-- name: Make sure certs dir exists on primary meta node
-  tags: ca_dir
-  file: path="/etc/pigsty/ca" state=directory mode=0755
-
-#------------------------------------------------------------------------------
 # CA Create (on primary meta node)
 #------------------------------------------------------------------------------
-# create ca cert on meta nodes and copy to local when ca_method = (create,recreate)
-# and it's user's responsibility to make sure ca exists under local files dir when ca_method = copy
+# create ca cert on meta nodes and copy to local files/cert dir when ca_method = (create,recreate)
+# when ca_method = copy : it's user's responsibility to make sure ca exists under files/cert dir
+# available tags for ca_create: ca_check, ca_gen, ca_fetch
 - import_tasks: create.yml
+  tags: ca_create
   when: meta_ip == inventory_hostname and ca_method != 'none' and ca_method != 'copy'
 
 #------------------------------------------------------------------------------
-# CA Dist (to all meta nodes)
+# CA Sync (from primary meta node to local files, and to other meta nodes)
 #------------------------------------------------------------------------------
-- name: Dist ca key/cert to all meta nodes
-  copy: src="files/{{ item }}" dest="/etc/pigsty/ca/{{ item }}" owner=root mode=0644
-  tags: ca_dist
-  when: ca_method != 'none' and meta_node|bool
-  with_items:
-    - ca.key
-    - ca.crt
+- import_tasks: sync.yml
+  tags: ca_sync
+  when: meta_node|bool and ca_method != 'none'
+
+#------------------------------------------------------------------------------
+# CA Copy
+#------------------------------------------------------------------------------
+- import_tasks: copy.yml
+  tags: ca_copy
+
 ...

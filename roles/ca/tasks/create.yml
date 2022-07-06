@@ -27,9 +27,12 @@
 # if ca_method = create : generate ca if not exists
 # if ca_method = recreate : always generate ca
 - name: Create Self-Signed CA
-  tags: ca_create
+  tags: ca_gen
   when: (not ca_exists|bool and ca_method == 'create') or ca_method == 'recreate'
   block:
+
+    - name: Create ca dir primary meta node
+      file: path="/etc/pigsty/ca" state=directory mode=0755
 
     # generate ca private key
     - name: Generate CA private key
@@ -61,16 +64,5 @@
     - name: Cleanup CA CSR
       file: path="/etc/pigsty/ca/ca.csr" state=absent
 
-
-#------------------------------------------------------------------------------
-# Fetch ca to local files dir
-#------------------------------------------------------------------------------
-# fetch primary meta
-- name: Fetch CA key/cert to local
-  tags: ca_fetch
-  fetch: src="/etc/pigsty/ca/{{ item }}" dest="files/{{ item }}" flat=yes
-  with_items:
-    - ca.key
-    - ca.crt
 
 ...
