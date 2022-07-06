@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   infra.yml
-# Ctime     :   2021-01-19
-# Mtime     :   2022-04-28
-# Desc      :   init infrastructure on pigsty meta nodes
-# Path      :   infra.yml
+# File      :   infra-pgsql.yml
+# Ctime     :   2022-07-06
+# Mtime     :   2022-07-06
+# Desc      :   init infra & pgsql on meta nodes
+# Path      :   infra-psql.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
@@ -59,7 +59,7 @@
   roles:
 
     - role: node            # init meta node itself
-      tags: node
+      tags: [ node , node-init ]
 
     - role: ca              # init ca-infra & dist to nodes
       tags: ca
@@ -135,4 +135,33 @@
     - role: node_register
       tags: node-register
 
+#---------------------------------------------------------------
+# init cmdb(s) on meta nodes
+#---------------------------------------------------------------
+- name: Meta PGSQL Init     # init pgsql cmdb on meta nodes
+  become: yes
+  hosts: meta
+  gather_facts: no
+  tags: [ infra-cmdb, pgsql-init ]
+  vars:
+    no_cmdb: false          # command line args (-e no_cmdb=true)
+  roles:
+
+    - role: postgres        # init postgres pgbouncer patroni
+      when: not no_cmdb|bool
+      tags: postgres
+
+    - role: service         # init service , haproxy , vip
+      when: not no_cmdb|bool
+      tags: service
+
+    - role: pg_exporter     # init monitor exporters
+      when: not no_cmdb|bool
+      tags: pg-exporter
+
+    - role: pg_register     # register cluster/instance to infra
+      when: not no_cmdb|bool
+      tags: pg-register
+
+#---------------------------------------------------------------
 ...
