@@ -6,37 +6,36 @@
   become: yes
   tags: pg_dbsu
   block:
-    # - dbsu users and groups - #
+
+    # - dbsu user and group - #
     - name: Create os group postgres
       group: name=postgres gid={{ pg_dbsu_uid }}
 
-    - name: Make sure dcs group exists
-      group: name=dcs
-
     - name: Create dbsu {{ pg_dbsu }}
-      user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=dcs generate_ssh_key=yes
+      user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=postgres generate_ssh_key=yes
 
     # - dbsu privilege - #
-    - name: Grant dbsu nopass sudo
-      when: pg_dbsu_sudo == 'nopass'
+    # nopass : no password required to execute all sudo command! DANGEROUS!
+    # all    : require password to execute all sudo command! NOT RECOMMENDED!
+    # limit  : only allow sudo command with limited privilege! DEFAULT MODE!
+    - name: Grant dbsu sudo privilege
+      tags: pg_dbsu_sudo
       copy:
-        content: "postgres ALL=(ALL) NOPASSWD: ALL"
         dest: /etc/sudoers.d/postgres
         mode: 0440
-
-    - name: Grant dbsu all sudo
-      when: pg_dbsu_sudo == 'all'
-      copy:
-        content: "postgres ALL=(ALL) ALL"
-        dest: /etc/sudoers.d/postgres
-        mode: 0440
-
-    - name: Grant dbsu limited sudo
-      when: pg_dbsu_sudo == 'limit'
-      copy:
-        src: postgres.sudoer
-        dest: /etc/sudoers.d/postgres
-        mode: 0440
+        content: |
+          {% if pg_dbsu_sudo == 'nopass' %}postgres ALL=(ALL) NOPASSWD: ALL{% endif %}
+          {% if pg_dbsu_sudo == 'all' %}postgres ALL=(ALL) ALL{% endif %}
+          {% if pg_dbsu_sudo == 'limit' %}
+          {% for svc in ['postgres', 'pgbouncer', 'patroni', 'pg_exporter', 'pgbouncer_exporter', 'haproxy', 'vip-manager', 'consul'] %}
+          %postgres ALL=NOPASSWD: /bin/systemctl stop {{ svc }}
+          %postgres ALL=NOPASSWD: /bin/systemctl start {{ svc }}
+          %postgres ALL=NOPASSWD: /bin/systemctl status {{ svc }}
+          %postgres ALL=NOPASSWD: /bin/systemctl reload {{ svc }}
+          %postgres ALL=NOPASSWD: /bin/systemctl restart {{ svc }}
+          
+          {% endfor %}
+          {% endif %}
 
     # - watchdog owner - #
     - name: Config watchdog onwer to dbsu
@@ -76,21 +75,21 @@
   become: yes
   tags: pg_install
   block:
+
     # - official repo - #
     - name: Install offical pgdg yum repo
-      when: pgdg_repo
+      when: pgdg_repo|bool
       yum: name="https://yum.postgresql.org/{{ pg_version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
-      with_items: "{{ pg_packages }}"
 
     # install postgres basic packages
     - name: Install pg packages
-      # environment: "{{ node_proxy_env | default({}) }}"
+      # environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_packages }}"
 
     # install postgres extensions
     - name: Install pg extensions
-      # environment: "{{ node_proxy_env | default({}) }}"
+      # environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_extensions }}"
 
@@ -98,7 +97,7 @@
     #==============================================================#
     # Stage 5: Enable current version                              #
     #==============================================================#
-    # centos default directory
+    # TODO: remove pg_bin_dir if exists? maybe too risky!
     - name: Link /usr/pgsql to current version
       file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_bin_dir | dirname }} state=link
 
