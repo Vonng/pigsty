@@ -1,155 +1,47 @@
 ---
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04#step-13-copying-private-keys-and-certificates
+
 #------------------------------------------------------------------------------
-# Check etcd
+# 1. Prepare ETCD Env: Check & Cleanup & Dir & User
 #------------------------------------------------------------------------------
-- name: Check existing etcd
-  tags: etcd_check
+# tasks: etcd_check , etcd_clean, etcd_user, etcd_dir, etcd_alias
+# abort if dcs_safeguard set to ture and etcd is running
+- import_tasks: prepare.yml
+  tags: etcd_prepare
   when: inventory_hostname in dcs_servers.values()
-  block:
-    #--------------------------------------------------------------------------
-    # check etcd exists
-    #--------------------------------------------------------------------------
-    - name: Check for existing etcd
-      command: 'ss -tp state listening sport = :2379'
-      register: check_etcd_port_result
-
-    - name: Etcd exists flag fact set
-      connection: local
-      set_fact:
-        etcd_exists: "{{ 'etcd' in check_etcd_port_result.stdout }}"
-
-    #--------------------------------------------------------------------------
-    # abort if etcd already exists
-    #--------------------------------------------------------------------------
-    # when any running etcd instance exists, abort play in two cases:
-    # 1. dcs_safeguard = true          (global flag to prevent accidentally purge)
-    # 2. dcs_clean = true
-    - name: Abort due to etcd exists
-      connection: local
-      any_errors_fatal: true
-      when: etcd_exists and (dcs_safeguard or not dcs_clean)
-      fail: msg="Abort because etcd instance already exists, use dcs_clean=true"
-
 
 #------------------------------------------------------------------------------
-# Clean etcd
+# 2. Config ETCD
 #------------------------------------------------------------------------------
-- name: Clean existing etcd
-  tags: etcd_clean
-  when: inventory_hostname in dcs_servers.values()
-  block:
-    #--------------------------------------------------------------------------
-    # purge dcs
-    #--------------------------------------------------------------------------
-    # dangerous: (it will remove etcd data!)
-    - name: Clean existing etcd instance
-      # connection: local, leave a chance for human intervention
-      when: not dcs_safeguard and etcd_exists and dcs_clean # DANGEROUS!
-      debug:
-        msg: "[DANGEROUS] RUNNING etcd INSTANCE {{ inventory_hostname }} WILL BE PURGED!"
-
-    - name: Stop any running etcd instance
-      ignore_errors: yes
-      shell: |
-        # try graceful shutdown first
-        if ps -u etcd -o command | grep -q 'etcd' ; then
-            /usr/bin/etcd leave
-            systemctl stop etcd
-        fi
-        
-        # kill if still exists
-        if ps -u etcd -o command | grep -q 'etcd' ; then
-            sleep 2
-            ps -u etcd -o pid:1,command | grep 'etcd' | awk '{print $1}' | xargs kill
-        fi
-        
-        # kill -9 if not killed 
-        if ps -u etcd -o command | grep -q 'etcd' ; then
-            sleep 5
-            ps -u etcd -o pid:1,command | grep 'etcd' | awk '{print $1}' | xargs kill -9
-        fi
-        
-        # guaranteed success
-        rm -rf /etc/etcd
-        rm -rf /var/lib/etcd/*
-        rm -rf "{{ etcd_data_dir }}"
-        rm -f /etc/profile.d/etcd.sh
-        exit 0
-
-
-#------------------------------------------------------------------------------
-# Config etcd server
-#------------------------------------------------------------------------------
-- name: Setup etcd server
+- import_tasks: config.yml
   tags: etcd_config
+  vars:
+    dcs_nodename: "{% if inventory_hostname in dcs_servers.values() %}{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}{% else %}{{ nodename }}{% endif %}"
   when: inventory_hostname in dcs_servers.values()
-  block:
 
-    - name: Create etcd dir
-      file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
-      with_items:
-        - /etc/etcd
-        - /var/lib/etcd
-        - "{{ etcd_data_dir }}"
-
-    - name: Add etcd user to dcs group
-      user: name=etcd home=/var/lib/etcd groups=dcs append=yes
-
-    - name: Copy ssl certificates
-      when: dcs_ssl_enabled is defined and dcs_ssl_enabled|bool
-      copy: src="{{ cert_homedir }}/{{ item }}" dest="/var/lib/etcd/{{ item }}" owner=etcd group=etcd mode=0600
-      with_items:
-        - "{{ pg_cluster }}-{{ pg_seq }}.crt"
-        - "{{ pg_cluster }}-{{ pg_seq }}.key"
-        - "{{ ca_file }}.crt"
-
-    # acquire dcs_nodename
-    - name: Get dcs server key as dcs nodename
-      connection: local
-      when: inventory_hostname in dcs_servers.values()
-      set_fact:
-        dcs_nodename: "{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}"
-
-    # config etcd
-    - name: Copy etcd server service unit
-      template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
-
-    # only server need config
-    - name: Copy /etc/etcd/etcd.conf
-      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
+#------------------------------------------------------------------------------
+# 3. Launch Etcd Server
+#------------------------------------------------------------------------------
+- import_tasks: launch.yml
+  tags: etcd_launch
+  when: inventory_hostname in dcs_servers.values()
 
 
 #------------------------------------------------------------------------------
-# Write etcd endpoints env & cert files to all nodes
+# ETCD Client (will be executed on all nodes)
 #------------------------------------------------------------------------------
 # write etcd endpoint to all nodes
-- name: Write etcd endpoint env profile
-  tags: [ etcd_client, etcdctl ]
+- name: Write etcd client config
+  tags: etcd_client
   copy:
     dest: /etc/profile.d/etcd.sh
     mode: 0644
     content: |
+      export ETCDCTL_API=3
       {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
       {% else %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
       {% endif %}
-
-
-#------------------------------------------------------------------------------
-# Launch etcd server
-#------------------------------------------------------------------------------
-- name: Launch etcd server
-  tags: [ etcd_server , etcd_launch ]
-  when: inventory_hostname in dcs_servers.values()
-  any_errors_fatal: true
-  block:
-    # launch etcd
-    - name: Launch etcd server service
-      systemd: name=etcd state=restarted enabled=yes daemon_reload=yes
-
-    # wait etcd online
-    - name: Wait for etcd server online
-      wait_for: host=127.0.0.1 port=2379 state=started timeout=10
 
 ...

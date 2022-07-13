@@ -1,0 +1,92 @@
+---
+# WARNING: you have to run
+
+#------------------------------------------------------------------------------
+# Get etcd dcs_nodename
+#------------------------------------------------------------------------------
+#- name: Get dcs_servers key as dcs_nodename
+#  tags: etcd_id
+#  connection: local
+#  set_fact:
+#    dcs_nodename: "{% if inventory_hostname in dcs_servers.values() %}{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}{% else %}{{ nodename }}{% endif %}"
+
+#------------------------------------------------------------------------------
+# Config etcd cert
+#------------------------------------------------------------------------------
+- name: Generate etcd cert for servers
+  tags: etcd_cert
+  when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
+  delegate_to: "{{ meta_ip }}"
+  block:
+
+    - name: Generate etcd private key
+      openssl_privatekey:
+        path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.key"
+        mode: 0644
+
+    - name: Generate etcd server csr
+      openssl_csr:
+        path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.csr"
+        privatekey_path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.key"
+        common_name: "{{ dcs_nodename }}"
+        subject_alt_name:
+          - DNS:localhost
+          - "DNS:{{ dcs_nodename }}"
+          - IP:127.0.0.1
+          - "IP:{{ inventory_hostname }}"
+
+    - name: Sign etcd server crt
+      openssl_certificate:
+        path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.crt"
+        csr_path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.csr"
+        ownca_path: /etc/pigsty/ca/ca.crt
+        ownca_privatekey_path: /etc/pigsty/ca/ca.key
+        provider: ownca
+        selfsigned_not_after: "+{{ cert_validity }}"
+        mode: 0644
+
+    - name: Fetch etcd certs to local
+      tags: etcd_cert_fetch
+      fetch: src="/etc/pigsty/ca/{{ item }}" dest="files/cert/{{ item }}" flat=yes
+      with_items:
+        - "etcd-{{ dcs_nodename }}.key"
+        - "etcd-{{ dcs_nodename }}.crt"
+
+
+#------------------------------------------------------------------------------
+# Copy etcd certs
+#------------------------------------------------------------------------------
+- name: Setup etcd server
+  tags: etcd_cert
+  when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
+  block:
+
+    - name: Copy etcd ca certificates
+      when: dcs_ssl_enabled|bool
+      copy: src="files/cert/ca.crt" dest="/var/lib/etcd/ca.crt" owner=etcd group=etcd mode=0600
+
+    # copy etcd ssl certs if dcs_ssl_enabled
+    - name: Copy etcd ssl certificates
+      when: dcs_ssl_enabled|bool
+      copy: src="files/cert/{{ item }}" dest="/var/lib/etcd/{{ item }}" owner=etcd group=etcd mode=0600
+      with_items:
+        - "etcd-{{ dcs_nodename }}.crt"
+        - "etcd-{{ dcs_nodename }}.key"
+
+#------------------------------------------------------------------------------
+# Config etcd server
+#------------------------------------------------------------------------------
+- name: Setup etcd server
+  tags: etcd_config
+  when: inventory_hostname in dcs_servers.values()
+  block:
+
+    # config etcd
+    - name: Copy etcd server service unit
+      template: src=etcd.service.j2 dest=/usr/lib/systemd/system/etcd.service
+
+    # only server need config
+    - name: Copy /etc/etcd/etcd.conf
+      template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf owner=etcd mode=0644
+
+...
