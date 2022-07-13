@@ -41,23 +41,27 @@
     # generate ca self-signing csr
     - name: Generate CA signing request
       openssl_csr:
-        path: "/etc/pigsty/ca/ca.csr"
-        privatekey_path: "/etc/pigsty/ca/ca.key"
-        common_name: "{{ ca_cn }}"
-        use_common_name_for_san: false
-        basic_constraints: [ 'CA:TRUE' ]
+        path: /etc/pigsty/ca/ca.csr
+        privatekey_path: /etc/pigsty/ca/ca.key
+        common_name: pigsty-ca
+        organization_name: Pigsty CA
+        basic_constraints:
+          - CA:TRUE
+          - pathlen:1
         basic_constraints_critical: yes
-        key_usage: [ keyCertSign ]
-        key_usage_critical: true
+        key_usage: [ keyCertSign, cRLSign, digitalSignature ]
+        # force: false                      # force recreate csr
+        # key_usage_critical: true
+        # use_common_name_for_san: false
 
     # approve csr and get self-signed ca cert
     - name: Generate CA Cert
       openssl_certificate:
-        path: "/etc/pigsty/ca/ca.crt"
-        csr_path: "/etc/pigsty/ca/ca.csr"
-        privatekey_path: "/etc/pigsty/ca/ca.key"
+        path: /etc/pigsty/ca/ca.crt
+        csr_path: /etc/pigsty/ca/ca.csr
+        privatekey_path: /etc/pigsty/ca/ca.key
         provider: selfsigned
-        selfsigned_not_after: "+{{ ca_validity }}"
+        selfsigned_not_after: +36500d
         mode: 0644
 
     # remove unnecessary csr file
