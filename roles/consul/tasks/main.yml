@@ -7,12 +7,17 @@
 - import_tasks: prepare.yml
   tags: consul_prepare
 
+# deliver consul ca to all nodes
+- name: Copy consul ca certificates
+  tags: consul_ca
+  when: ca_method != 'none'
+  copy: src="files/cert/ca.crt" dest="/var/lib/consul/ca.crt" owner=consul group=consul mode=0600
+
 #------------------------------------------------------------------------------
 # Config Consul
 #------------------------------------------------------------------------------
 - import_tasks: config.yml
   tags: consul_config
-
 
 #------------------------------------------------------------------------------
 # Launch Consul
