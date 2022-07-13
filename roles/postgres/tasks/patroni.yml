@@ -58,12 +58,6 @@
         group: postgres
         mode: 0755
 
-    # use default patroni mode template if no user config is provided
-    - name: use predefined patroni template
-      when: pg_conf is not defined or pg_conf == ''
-      set_fact:
-        pg_conf: "patroni-{{ pg_mode }}.yml"
-
     - name: Render default /pg/conf/patroni.yml
       template:
         src: "{{ pg_conf }}"
