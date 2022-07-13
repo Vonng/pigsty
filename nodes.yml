@@ -32,28 +32,39 @@
 # nodename : optional, used as node identity, default to existing name
 # node_cluster : optional, used as node identity, default to `nodes`
 #
-#  nodename -> ins  ,  node_cluster  -> cls
+#  cls: node_cluster (explicit) > pg_cluster (when pg_hostname) > 'nodes'
+#  ins: nodename (explicit) > pg_instance (when pg_hostname) > node.hostname
 #
 # you can overwrite node identity with pgsql identity on 1:1 deployment
 # with option `pg_hostname: true`
+#
+#
+# 1. node identity can be specified by nodename or node_cluster explicitly (override all)
+# 2. if node identity is not specified and pg_hostname is set, it will use pg's instance identity if applicable
+# 3. otherwise, node_cluster will fall back to `nodes` and nodename will fall back to node's current hostname
 #---------------------------------------------------------------
 - name: Node Identity
   hosts: all
   gather_facts: no
   tags: [ always, node-id ]
-  connection: local
   tasks:
 
-    # overwrite nodes identity with pgsql identity if pg_hostname is true
-    - name: Overwrite node_cluster
-      when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
-      set_fact: { node_cluster: "{{ pg_cluster }}" }  # use pg_cluster as non-trivial node_cluster name
+    # get node hostname and use it as nodename if missing and can not be inferred
+    - name: Fill nodename with hostname
+      when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
+      block:
+        - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
+        - { name: Fill nodename with hostname, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" } }
 
-    - name: Overwrite nodename
-      when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
-      set_fact: { nodename: "{{ pg_cluster }}-{{ pg_seq }}" }
+    - name: Calculate node identity
+      connection: local
+      set_fact:
+        node_cluster: "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster }}{% endif %}"
+        nodename: "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
 
-    - debug: { msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}" }
+    - name: Print node identity
+      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }}" }
+
 
 #---------------------------------------------------------------
 # Node Init
@@ -68,6 +79,10 @@
     # prepare node for pigsty
     - role: node
       tags: node
+
+    - role: ca
+      tags: ca
+
 
 #---------------------------------------------------------------
 # Node Docker

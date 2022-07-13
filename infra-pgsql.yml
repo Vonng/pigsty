@@ -20,16 +20,22 @@
   connection: local
   tasks:
 
-    # overwrite nodes identity with pgsql identity if pg_hostname is true
-    - name: Overwrite node_cluster
-      when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
-      set_fact: { node_cluster: "{{ pg_cluster }}" }  # use pg_cluster as non-trivial node_cluster name
+    # get node hostname and use it as nodename if missing and can not be inferred
+    - name: Fill nodename with hostname
+      when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
+      block:
+        - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
+        - { name: Fill nodename with hostname, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" } }
 
-    - name: Overwrite nodename
-      when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
-      set_fact: { nodename: "{{ pg_cluster }}-{{ pg_seq }}" }
+    - name: Calculate node identity
+      connection: local
+      set_fact:
+        node_cluster: "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster }}{% endif %}"
+        nodename: "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
 
-    - debug: { msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}" }
+    - name: Print node identity
+      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }}" }
+
 
 #---------------------------------------------------------------
 # bootstrap meta node with local yum repo
@@ -138,6 +144,45 @@
 #---------------------------------------------------------------
 # init cmdb(s) on meta nodes
 #---------------------------------------------------------------
+- name: PGSQL Identity
+  hosts: meta
+  gather_facts: no
+  tags: [ always, pg-id ]
+  connection: local
+  become: no
+  tasks:
+
+    # fetch cluster inventory variable from hostvars of corresponding cluster
+    - name: Gather pgsql basic facts
+      set_fact:
+        pg_meta={{ hostvars| json_query(cluster_query) }}
+        pg_instance={{ pg_cluster }}-{{ pg_seq }}
+        pg_service={{ pg_cluster }}-{{ pg_role }}
+      vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
+
+    # calculate basic cluster facts from pg_meta
+    - name: Build pgsql basic facts
+      set_fact:
+        pg_is_primary={{ pg_role == 'primary' }}
+        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
+        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
+        pg_cluster_primary_list={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
+        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
+        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1 }}
+        pg_cluster_primary={{ (pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort)[0] }}
+        pg_cluster_primary_id={{ (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort)[0] }}
+
+    # print instance pre-flight check summary
+    - name: Show pgsql identity summary
+      debug:
+        msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
+          {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
+          [{{ pg_role }}]  {{ pg_instance }} @ {{ inventory_hostname }} , 
+          {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}
+          {% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_cluster }}-{{ pg_cluster_primary_id }} -> {{ pg_instance }}{% endif %}{% endif %}
+          , PGURL = postgres://{{ inventory_hostname }}:{{ pg_port }}/postgres"
+
+
 - name: Meta PGSQL Init     # init pgsql cmdb on meta nodes
   become: yes
   hosts: meta

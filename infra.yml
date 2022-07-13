@@ -20,16 +20,22 @@
   connection: local
   tasks:
 
-    # overwrite nodes identity with pgsql identity if pg_hostname is true
-    - name: Overwrite node_cluster
-      when: (pg_hostname is defined and pg_hostname|bool) and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') and (pg_cluster is defined and pg_cluster != '')
-      set_fact: { node_cluster: "{{ pg_cluster }}" }  # use pg_cluster as non-trivial node_cluster name
+    # get node hostname and use it as nodename if missing and can not be inferred
+    - name: Fill nodename with hostname
+      when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
+      block:
+        - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
+        - { name: Fill nodename with hostname, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" } }
 
-    - name: Overwrite nodename
-      when: (pg_hostname is defined and pg_hostname|bool) and (nodename is not defined or nodename == '') and (pg_cluster is defined and pg_cluster != '' and pg_seq is defined)
-      set_fact: { nodename: "{{ pg_cluster }}-{{ pg_seq }}" }
+    - name: Calculate node identity
+      connection: local
+      set_fact:
+        node_cluster: "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster }}{% endif %}"
+        nodename: "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
 
-    - debug: { msg: "ins={{ nodename|default('NULL') }} cls={{ node_cluster|default('NULL') }}" }
+    - name: Print node identity
+      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }}" }
+
 
 #---------------------------------------------------------------
 # bootstrap meta node with local yum repo
