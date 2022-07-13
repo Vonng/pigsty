@@ -45,7 +45,7 @@ consul:
     - {{ pg_cluster }}
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   scheme: https
-  cacert: /pg/certs/root.crt
+  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
 {% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
@@ -53,7 +53,7 @@ etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
-  cacert: /pg/certs/root.crt
+  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
 {% endif %}
 {% endif %}
 
@@ -77,7 +77,7 @@ ctl:
   optional:
 {% if patroni_ssl_enabled is defined and patroni_ssl_enabled|bool %}
     insecure: false
-    cacert: '/pg/certs/root.crt'
+    cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
     certfile: '/pg/certs/server.crt'
     keyfile: '/pg/certs/server.key'
 {% else %}
@@ -263,7 +263,7 @@ bootstrap:
         ssl: on
         ssl_cert_file: '/pg/certs/server.crt'
         ssl_key_file: '/pg/certs/server.key'
-        ssl_ca_file: '/pg/certs/root.crt'
+        ssl_ca_file: '/etc/pki/ca-trust/source/anchors/ca.crt'
 {% endif %}
 
         #----------------------------------------------------------------------
