@@ -2,15 +2,29 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2022-05-17
-# Desc      :   patroni cluster definition for {{ pg_cluster }} (tiny)
+# Mtime     :   2022-07-14
+# Desc      :   adaptive configuration for patroni
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
-# Note      :   Tiny Database Cluster Template (tiny:1C:1G:40GB)
+# Note      :   Adaptive Database Cluster Template
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
+
+
+#==============================================================#
+# Adaptive Template for OTLP Workload                          #
+#==============================================================#
+# Input: cpu mem disk storage_type(hdd|ssd)
+#  NODE CPU = {{
+
+
+
+
+
+
+
 
 
 ---
@@ -28,7 +42,7 @@ log:
   level: INFO                           #  NOTEST|DEBUG|INFO|WARNING|ERROR|CRITICAL
   dir: {{ patroni_log_dir }}            #  patroni log dir
   file_size: 33554432                   #  32MB log triggers log rotation
-  file_num: 20                          #  keep at most 30x32MB = 1GB log
+  file_num: 10                          #  keep at most 30x32MB = 1GB log
   dateformat: '%Y-%m-%d %H:%M:%S %z'    #  IMPORTANT: discard milli timestamp
   format: '%(asctime)s %(levelname)s: %(message)s'
 
@@ -49,7 +63,7 @@ consul:
 {% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
-etcd3:
+etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
@@ -231,17 +245,33 @@ bootstrap:
         #----------------------------------------------------------------------
         # IMPORTANT PARAMETERS
         #----------------------------------------------------------------------
-        max_connections: 100                    # default 100
-        superuser_reserved_connections: 10      # reserve 10 connection for su
-        max_locks_per_transaction: 64           # default 64
+{% if not meta_node|bool %}
+        max_connections: {{ pg_maxconn }}
+        superuser_reserved_connections: 10
+{% else %}
+        max_connections: 100
+        superuser_reserved_connections: 3
+{% endif %}
+{% if mem_size_gb|int < 8 %}
+        max_locks_per_transaction: 64
+{% elif mem_size_gb|int >= 8 and mem_size_gb|int < 16 %}
+        max_locks_per_transaction: 128
+{% elif mem_size_gb|int >= 16 %}
+        max_locks_per_transaction: 256
+{% elif mem_size_gb|int >= 32 %}
+        max_locks_per_transaction: 512
+{% endif %}
+{% if 'citus' in pg_libs %}
+        max_prepared_transactions: {{ pg_maxconn }}
+{% else %}
         max_prepared_transactions: 0            # 0 disable 2PC
+{% endif %}
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 8                 # keep default 8 (set to cpu core)
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
-        # max_wal_senders: 24                   # 10 -> 24
-        # max_replication_slots: 16             # 10 -> 16
-        wal_keep_size: 1GB                      # keep at least 1GB WAL
+        max_wal_senders: 24                     # 10 -> 24
+        max_replication_slots: 16               # 10 -> 16
+        wal_keep_size: 8GB                      # keep at least 8GB WAL
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
@@ -253,26 +283,45 @@ bootstrap:
         #----------------------------------------------------------------------
         # RESOURCE USAGE (except WAL)
         #----------------------------------------------------------------------
-        # memory: shared_buffers and maintenance_work_mem will be dynamically set
 {% if mem_size_gb|int >= 4 %}
 {% set pg_shared_buffers = ([(mem_size_gb|int / 4) , 32] | min)|int %}
         shared_buffers: {{ pg_shared_buffers }}GB
+        effective_cache_size: {{ ([(mem_size_gb|int - pg_shared_buffers|int) , 320] | min)|int }}GB
         maintenance_work_mem: {{ ([(pg_shared_buffers|int * 64) , 2048] | min)|int }}MB
+{% if not meta_node|bool %}
+{% set pg_work_mem = (pg_shared_buffers|int * 1024 / pg_maxconn|int)|round|int %}
+{% if pg_work_mem >= 2 %}
+        work_mem: {{ ([((pg_work_mem|int / 2)|round|int * 2) , 64] | min) }}MB
+{% else %}
+        work_mem: 1MB
+{% endif %}
+{% else %}
+        work_mem: 4MB
+{% endif %}
 {% else %}
         shared_buffers: 256MB
         maintenance_work_mem: 64MB
+        effective_cache_size: 768MB
+        work_mem: 1MB
 {% endif %}
-        work_mem: 4MB                           # default 4MB
         huge_pages: try                         # try huge pages
-        temp_file_limit: 20GB                   # 0 -> 40GB (according to your disk)
+        temp_file_limit: 20GB                   # 0 -> 100GB (according to your disk)
         vacuum_cost_delay: 20ms                 # wait 20ms per 2000 cost
         vacuum_cost_limit: 2000                 # 2000 cost each round
         bgwriter_delay: 10ms                    # check dirty page every 10ms
         bgwriter_lru_maxpages: 800              # 100 -> 800
-        bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
-        max_parallel_workers: 2                 # default 8 -> 2, limit by max_worker_processes
-        max_parallel_maintenance_workers: 2     # default 2 -> 2, limit by parallel worker
-        max_parallel_workers_per_gather: 0      # default 2 -> 0, disable parallel query in OLTP mode
+        bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0 more cushion buffer
+{% if cpu_core_number|int >= 4 %}
+        max_worker_processes: {{ cpu_core_number }}
+        max_parallel_workers: {{ cpu_core_number }}
+        max_parallel_workers_per_gather: {{ [cpu_core_number|int , 4] | min }}
+        max_parallel_maintenance_workers: {{ [(cpu_core_number|int / 2) , 4] | min }}
+{% else %}
+        max_worker_processes: 2
+        max_parallel_workers: 2
+        max_parallel_workers_per_gather: 1
+        max_parallel_maintenance_workers: 1
+{% endif %}
 
         #----------------------------------------------------------------------
         # WAL
@@ -281,11 +330,11 @@ bootstrap:
         wal_writer_delay: 20ms                  # wait period
         wal_writer_flush_after: 1MB             # max allowed data loss
         min_wal_size: 1GB                       # at least 1GB WAL
-        max_wal_size: 10GB                      # at most 10GB WAL
+        max_wal_size: 4GB                       # at most 4GB WAL
         commit_delay: 20                        # 200ms -> 20ms, increase speed
         commit_siblings: 10                     # 5 -> 10
-        checkpoint_timeout: 15min               # checkpoint 5min -> 15min
-        checkpoint_completion_target: 0.80      # 0.5 -> 0.8
+        checkpoint_timeout: 60min               # checkpoint 5min -> 60min
+        checkpoint_completion_target: 0.95      # 0.5 -> 0.95
         archive_mode: on
         archive_command: 'wal_dir=/pg/arcwal; [[ $(date +%H%M) == 1200 ]] && rm -rf ${wal_dir}/$(date -d"yesterday" +%Y%m%d); /bin/mkdir -p ${wal_dir}/$(date +%Y%m%d) && /usr/bin/lz4 -q -z %p > ${wal_dir}/$(date +%Y%m%d)/%f.lz4'
 
@@ -300,16 +349,14 @@ bootstrap:
         wal_receiver_status_interval: 1s        # send replies at least this often
         hot_standby_feedback: on                # send info from standby to prevent query conflicts
         wal_receiver_timeout: 60s               # time that receiver waits for
-        # max_logical_replication_workers: 8      # default 4, 6 sync worker + 1~2 apply worker
-        # max_sync_workers_per_subscription: 6    # default 2, 6 sync worker
+        max_logical_replication_workers: 8      # 4 -> 8, 6 sync worker + 1~2 apply worker
+        max_sync_workers_per_subscription: 4    # 2 -> 4, 4 sync worker
 
         #----------------------------------------------------------------------
         # QUERY TUNING
         #----------------------------------------------------------------------
         # planner
-        # enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 750MB             # max mem - shared buffer
         default_statistics_target: 200          # stat bucket 100 -> 200
 
         #----------------------------------------------------------------------
@@ -324,23 +371,23 @@ bootstrap:
         log_lock_waits: on                      # log lock wait info
         log_replication_commands: on            # log replication info
         log_statement: ddl                      # log ddl change
-        log_min_duration_statement: 100         # log slow query (>100ms)
+        log_min_duration_statement: 250ms       # log slow query (>250ms)
 
         #----------------------------------------------------------------------
         # STATISTICS
         #----------------------------------------------------------------------
         track_io_timing: on                     # collect io statistics
         track_functions: all                    # track all functions (none|pl|all)
-        track_activity_query_size: 8192         # max query length in pg_stat_activity
+        track_activity_query_size: 32768        # max query length in pg_stat_activity
 
         #----------------------------------------------------------------------
         # AUTOVACUUM
         #----------------------------------------------------------------------
         log_autovacuum_min_duration: 1s         # log autovacuum activity take more than 1s
-        autovacuum_max_workers: 1               # default autovacuum worker 3 -> 1
+        autovacuum_max_workers: 3               # default autovacuum worker 3
         autovacuum_naptime: 1min                # default autovacuum naptime 1min
-        # autovacuum_vacuum_scale_factor: 0.16    # fraction of table size before vacuum   20% -> 8%
-        # autovacuum_analyze_scale_factor: 0.04   # fraction of table size before analyze  10% -> 4%
+        autovacuum_vacuum_scale_factor: 0.08    # fraction of table size before vacuum   20% -> 10%
+        autovacuum_analyze_scale_factor: 0.04   # fraction of table size before analyze  10% -> 5%
         autovacuum_vacuum_cost_delay: -1        # default vacuum cost delay: same as vacuum_cost_delay
         autovacuum_vacuum_cost_limit: -1        # default vacuum cost limit: same as vacuum_cost_limit
         autovacuum_freeze_max_age: 1000000000   # age > 1 billion triggers force vacuum
@@ -349,7 +396,7 @@ bootstrap:
         # CLIENT
         #----------------------------------------------------------------------
         deadlock_timeout: 50ms                  # 50ms for deadlock
-        idle_in_transaction_session_timeout: 10min  # 10min timeout for idle in transaction
+        idle_in_transaction_session_timeout: 1h # 1 hour timeout for idle in transaction
 
         #----------------------------------------------------------------------
         # CUSTOMIZED OPTIONS
@@ -365,7 +412,7 @@ bootstrap:
         auto_explain.log_nested_statements: true
 
         # pg_stat_statements
-        pg_stat_statements.max: 3000            # 5000 -> 3000 queries
+        pg_stat_statements.max: 10000           # default 10000 queries
         pg_stat_statements.track: all           # track all statements (all|top|none)
         pg_stat_statements.track_utility: off   # do not track query other than CRUD
         pg_stat_statements.track_planning: off  # do not track planning metrics
@@ -451,5 +498,6 @@ postgresql:
   #   - local   replication     postgres                                ident
   #   - local   replication     all                                     {{ pg_pwd_enc }}
   #   - host    replication     all            0.0.0.0/0                {{ pg_pwd_enc }}
+
 
 ...

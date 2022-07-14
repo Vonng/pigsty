@@ -148,7 +148,7 @@
         - "{{ pg_cluster_dir }}/bin"
         - "{{ pg_cluster_dir }}/log"
         - "{{ pg_cluster_dir }}/tmp"
-        - "{{ pg_cluster_dir }}/certs"
+        - "{{ pg_cluster_dir }}/cert"
         - "{{ pg_cluster_dir }}/conf"
         - "{{ pg_cluster_dir }}/data"
         - "{{ pg_cluster_dir }}/meta"
@@ -190,14 +190,6 @@
       with_items:
         - "{{ pgbouncer_log_dir }}"
         - "{{ patroni_log_dir }}"
-
-    - name: Copy pg ssl certificates
-      when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
-      copy: src="{{ cert_homedir }}/{{ item.src }}" dest="/pg/certs/{{ item.dest }}" owner=postgres group=postgres mode=0600
-      with_items:
-        - { src: '{{ pg_instance }}.crt', dest: 'server.crt' }
-        - { src: '{{ pg_instance }}.key', dest: 'server.key' }
-        - { src: '{{ ca_file }}.crt', dest: 'root.crt' }
 
     # dummy file could be removed in case of disk-full
     # which cushion against immediate failure

@@ -77,11 +77,11 @@ restapi:
 #------------------------------------------------------------------------------
 ctl:
   optional:
-{% if patroni_ssl_enabled is defined and patroni_ssl_enabled|bool %}
+{% if patroni_ssl_enabled|bool %}
     insecure: false
     cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-    certfile: '/pg/certs/server.crt'
-    keyfile: '/pg/certs/server.key'
+    certfile: '/pg/cert/server.crt'
+    keyfile: '/pg/cert/server.key'
 {% else %}
     insecure: true
 {% endif %}
@@ -247,8 +247,8 @@ bootstrap:
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
-        ssl_cert_file: '/pg/certs/server.crt'
-        ssl_key_file: '/pg/certs/server.key'
+        ssl_cert_file: '/pg/cert/server.crt'
+        ssl_key_file: '/pg/cert/server.key'
         ssl_ca_file: '/etc/pki/ca-trust/source/anchors/ca.crt'
 {% endif %}
 
