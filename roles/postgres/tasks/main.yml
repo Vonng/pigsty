@@ -6,14 +6,6 @@
   tags: install
 
 #------------------------------------------------------------------------------
-# Preflight
-#------------------------------------------------------------------------------
-# check and set inventory variables
-# - import_tasks: preflight.yml
-#   when: not pg_preflight_skip|bool
-#   tags: [ always, preflight ]
-
-#------------------------------------------------------------------------------
 # Prepare
 #------------------------------------------------------------------------------
 # check pg existence, cleanup, create directories, copy scripts
@@ -21,11 +13,18 @@
   tags: prepare
 
 #------------------------------------------------------------------------------
-# postgres
+# config
+#------------------------------------------------------------------------------
+- import_tasks: config.yml
+  tags: [ pg_config, patroni ]
+  when: patroni_enabled|bool
+
+#------------------------------------------------------------------------------
+# patroni
 #------------------------------------------------------------------------------
 # bootstrap postgres cluster with patroni (skip if patroni_enabled = false)
 - import_tasks: patroni.yml
-  tags: patroni
+  tags: [ pg_launch, patroni ]
   when: patroni_enabled|bool
 
 #------------------------------------------------------------------------------

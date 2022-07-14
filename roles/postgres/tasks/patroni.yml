@@ -1,123 +1,12 @@
 #!/usr/bin/ansible-playbook
 ---
 #------------------------------------------------------------------------------
-# Config
+# chown watchdog
 #------------------------------------------------------------------------------
-- name: Config Postgres
-  tags: pg_config
-  block:
-
-    #------------------------------------------------------------------------------
-    # calculate parameters
-    #------------------------------------------------------------------------------
-    - name: Gather machine specs
-      block:
-      - name: Get cpu count
-        shell: grep -c '^processor' /proc/cpuinfo
-        register: cpu_count
-
-      - name: Get config parameter page count
-        shell: getconf _PHYS_PAGES
-        register: node_page_count  # half mem in pages
-
-      - name: Get config parameter page size
-        shell: getconf PAGE_SIZE
-        register: node_page_size  # half mem in bytes
-
-    - name: Calculate cpu count
-      connection: local
-      set_fact:
-        cpu_core_number: "{{ cpu_count.stdout|int }}"
-    - debug:
-        msg: "Node {{ pg_cluster }}-{{ pg_seq }} has {{ cpu_core_number }} CPUs"
-
-    - name: Calculate dirty memory size
-      connection: local
-      set_fact:
-        mem_size_dirty: "{{ (node_page_count.stdout|int * node_page_size.stdout|int)|int }}"
-
-    - name: Round dirty mem size to the nearest multiple of 1GB
-      shell: "echo {{ mem_size_dirty|int }} | jq -R 'tonumber/1073741824+.5|floor*1073741824'"
-      register: mem_size_bytes
-
-    - name: Render total machine memory
-      connection: local
-      set_fact:
-        mem_size_gb: "{{ (mem_size_bytes.stdout|int / 1073741824)|int }}"
-    - debug:
-        msg: "Node {{ pg_instance }} has {{ mem_size_gb }} GBs of RAM"
-
-    #------------------------------------------------------------------------------
-    # render config files
-    #------------------------------------------------------------------------------
-    - name: create patroni config dir
-      file:
-        path: /etc/patroni/
-        state: directory
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        mode: 0755
-
-    - name: Render default /pg/conf/patroni.yml
-      template:
-        src: "{{ pg_conf }}"
-        dest: "/pg/conf/{{ pg_instance }}.yml"
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        mode: 0755
-
-    - name: Link /pg/conf/patroni to /pg/bin/
-      file:
-        src: /pg/conf/{{ pg_instance }}.yml
-        dest: /pg/bin/patroni.yml
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        state: link
-
-    - name: Link /pg/bin/patroni.yml to /etc/patroni/
-      file:
-        src: /pg/bin/patroni.yml
-        dest: /etc/patroni/patroni.yml
-        owner: "{{ pg_dbsu }}"
-        group: postgres
-        state: link
-
-
-    #------------------------------------------------------------------------------
-    # chown watchdog
-    #------------------------------------------------------------------------------
-    - name: Config patroni watchdog support
-      ignore_errors: true
-      file: path=/dev/watchdog owner={{ pg_dbsu }} group=postgres
-
-
-    #------------------------------------------------------------------------------
-    # patroni systemd
-    #------------------------------------------------------------------------------
-    # it may be overwritten by patroni upgrade!
-    - name: Copy patroni systemd service file
-      template:
-        src: patroni.service.j2
-        dest: /usr/lib/systemd/system/patroni.service
-
-    - name: create patroni systemd drop-in dir
-      file:
-        path: /etc/systemd/system/patroni.service.d
-        state: directory
-        mode: 0755
-
-    # copy postgres systemd service definition (only be used for non-patroni setup)
-    - name: Copy postgres systemd service file
-      template:
-        src: postgres.service.j2
-        dest: /usr/lib/systemd/system/postgres.service
-
-    # add consul dependency for patroni
-    - name: Drop-In systemd config for patroni
-      template:
-        src: patroni.dependency.j2
-        dest: /etc/systemd/system/patroni.service.d/dependency.conf
-
+- name: Grant watchdog ownership to dbsu
+  tags: pg_watchdog
+  ignore_errors: true
+  file: path=/dev/watchdog owner={{ pg_dbsu }} group=postgres
 
 #------------------------------------------------------------------------------
 # Launch patroni
@@ -151,6 +40,15 @@
         PGPASSWORD: "{{ pg_replication_password }}"
       command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
+    - name: Copy pg ssl cert to data dir
+      any_errors_fatal: true
+      tags: pg_cert_primary
+      when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
+      copy: src="/pg/cert/{{ item }}" dest="/pg/data/{{ item }}" owner=postgres group=postgres mode=0600 remote_src=true
+      with_items:
+        - "root.crt"
+        - "server.crt"
+        - "server.key"
 
 
 #------------------------------------------------------------------------------
@@ -246,8 +144,7 @@
 
     - name: Reload hba rules
       when: pg_reload|bool
-      shell: |
-        {{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload
+      shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload;"
 
 #------------------------------------------------------------------------------
 # Reload Patroni Conf
