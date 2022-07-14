@@ -3,17 +3,15 @@
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
 # Mtime     :   2022-05-17
-# Desc      :   patroni cluster definition for {{ pg_cluster }} (large)
+# Desc      :   patroni cluster definition for {{ pg_cluster }} (small)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
 # Link      :   /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
-# Note      :   Medium Database Cluster Template (medium:16C:32G:1TB)
+# Note      :   Database Cluster Template (small:4C:8G:200GB)
 # Doc       :   https://patroni.readthedocs.io/en/latest/SETTINGS.html
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
-# SMALL database are optimized for moderate resource situation (e.g 4 Core 8G)
-# typical spec: 16 Core | 32 GB RAM | SSD 1TB
 
 ---
 #------------------------------------------------------------------------------
@@ -77,11 +75,11 @@ restapi:
 #------------------------------------------------------------------------------
 ctl:
   optional:
-{% if patroni_ssl_enabled is defined and patroni_ssl_enabled|bool %}
+{% if patroni_ssl_enabled|bool %}
     insecure: false
     cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-    certfile: '/pg/certs/server.crt'
-    keyfile: '/pg/certs/server.key'
+    certfile: '/pg/cert/server.crt'
+    keyfile: '/pg/cert/server.key'
 {% else %}
     insecure: true
 {% endif %}
@@ -233,22 +231,22 @@ bootstrap:
         #----------------------------------------------------------------------
         # IMPORTANT PARAMETERS
         #----------------------------------------------------------------------
-        max_connections: 800                    # default 100 -> 800
+        max_connections: 400                    # default 100 -> 400
         superuser_reserved_connections: 10      # reserve 10 connection for su
-        max_locks_per_transaction: 256          # default 64 -> 256
+        max_locks_per_transaction: 64           # default 64
         max_prepared_transactions: 0            # 0 disable 2PC
         track_commit_timestamp: on              # enabled xact timestamp
-        max_worker_processes: 16                # default 8 -> 16
+        max_worker_processes: 8                 # default 8
         wal_level: logical                      # logical
         wal_log_hints: on                       # wal log hints to support rewind
         max_wal_senders: 24                     # 10 -> 24
         max_replication_slots: 16               # 10 -> 16
-        wal_keep_size: 100GB                    # keep at least 100GB WAL
+        wal_keep_size: 10GB                     # keep at least 20GB WAL
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
-        ssl_cert_file: '/pg/certs/server.crt'
-        ssl_key_file: '/pg/certs/server.key'
+        ssl_cert_file: '/pg/cert/server.crt'
+        ssl_key_file: '/pg/cert/server.key'
         ssl_ca_file: '/etc/pki/ca-trust/source/anchors/ca.crt'
 {% endif %}
 
@@ -266,14 +264,14 @@ bootstrap:
 {% endif %}
         work_mem: 32MB                          # default 4MB -> 32MB
         huge_pages: try                         # try huge pages
-        temp_file_limit: 100GB                  # 0 -> 100GB (according to your disk)
+        temp_file_limit: 40GB                   # 0 -> 40GB (according to your disk)
         vacuum_cost_delay: 20ms                 # wait 20ms per 2000 cost
         vacuum_cost_limit: 2000                 # 2000 cost each round
         bgwriter_delay: 10ms                    # check dirty page every 10ms
         bgwriter_lru_maxpages: 800              # 100 -> 800
         bgwriter_lru_multiplier: 5.0            # 2.0 -> 5.0  more cushion buffer
-        max_parallel_workers: 16                # default 8 -> 16, limit by max_worker_processes
-        max_parallel_maintenance_workers: 4     # default 2 -> 4, limit by parallel worker
+        max_parallel_workers: 4                 # default 8 -> 4, limit by max_worker_processes
+        max_parallel_maintenance_workers: 2     # default 2 -> 2, limit by parallel worker
         max_parallel_workers_per_gather: 0      # default 2 -> 0, disable parallel query in OLTP mode
 
         #----------------------------------------------------------------------
@@ -282,8 +280,8 @@ bootstrap:
         wal_buffers: 16MB                       # max to 16MB
         wal_writer_delay: 20ms                  # wait period
         wal_writer_flush_after: 1MB             # max allowed data loss
-        min_wal_size: 50GB                      # at least 20GB WAL
-        max_wal_size: 200GB                     # at most 100GB WAL
+        min_wal_size: 10GB                      # at least 10GB WAL
+        max_wal_size: 40GB                      # at most 40GB WAL
         commit_delay: 20                        # 200ms -> 20ms, increase speed
         commit_siblings: 10                     # 5 -> 10
         checkpoint_timeout: 60min               # checkpoint 5min -> 60min
@@ -311,7 +309,7 @@ bootstrap:
         # planner
         # enable_partitionwise_join: on
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 24GB              # max mem - shared buffer
+        effective_cache_size: 6GB               # max mem - shared buffer
         default_statistics_target: 500          # stat bucket 100 -> 500
 
         #----------------------------------------------------------------------
@@ -374,7 +372,7 @@ bootstrap:
 
         # timescaledb
         timescaledb.telemetry_level: 'off'      # disable timescale telemetry
-        timescaledb.max_background_workers: 12  # increase background worker 8 -> 12
+        timescaledb.max_background_workers: 4   # decrease background worker 8 -> 4
 
         # citus
         citus.node_conninfo: 'sslmode=prefer'   # prefer ssl instead of require
