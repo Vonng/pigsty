@@ -233,8 +233,16 @@ bootstrap:
         #----------------------------------------------------------------------
         max_connections: 100                    # default 100
         superuser_reserved_connections: 10      # reserve 10 connection for su
-        max_locks_per_transaction: 64           # default 64
+{% if 'timescaledb' in pg_libs or 'citus' in pg_libs %}
+        max_locks_per_transaction: 128          # default 64 -> 2 * maxconn
+{% else %}
+        # max_locks_per_transaction: 64           # default 64
+{% endif %}
+{% if 'citus' in pg_libs %}
         max_prepared_transactions: 0            # 0 disable 2PC
+{% else %}
+        max_prepared_transactions: 100          # same as max_connection
+{% endif %}
         track_commit_timestamp: on              # enabled xact timestamp
         max_worker_processes: 8                 # keep default 8 (set to cpu core)
         wal_level: logical                      # logical
@@ -254,14 +262,8 @@ bootstrap:
         # RESOURCE USAGE (except WAL)
         #----------------------------------------------------------------------
         # memory: shared_buffers and maintenance_work_mem will be dynamically set
-{% if mem_size_gb|int >= 4 %}
-{% set pg_shared_buffers = ([(mem_size_gb|int / 4) , 32] | min)|int %}
-        shared_buffers: {{ pg_shared_buffers }}GB
-        maintenance_work_mem: {{ ([(pg_shared_buffers|int * 64) , 2048] | min)|int }}MB
-{% else %}
-        shared_buffers: 256MB
-        maintenance_work_mem: 64MB
-{% endif %}
+        shared_buffers: {{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 100 }}MB
+        maintenance_work_mem: {{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 30 }}MB
         work_mem: 4MB                           # default 4MB
         huge_pages: try                         # try huge pages
         temp_file_limit: 20GB                   # 0 -> 40GB (according to your disk)
@@ -306,10 +308,15 @@ bootstrap:
         #----------------------------------------------------------------------
         # QUERY TUNING
         #----------------------------------------------------------------------
-        # planner
         # enable_partitionwise_join: on
-        random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 750MB             # max mem - shared buffer
+{% if pg_storage_type == 'HDD' %}
+        random_page_cost: 4                     # 4 for HDD, 1.1 for SSD
+        effective_io_concurrency: 2             # 2 for HDD, 1000 for SSD
+{% else %}
+        random_page_cost: 1.1                   # 1.1 for SSD, 4 for HDD
+        effective_io_concurrency: 1000          # 1000 for SSD, 2 for HDD
+{% endif %}
+        effective_cache_size: {{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 100 }}MB  # max mem - shared buffer
         default_statistics_target: 200          # stat bucket 100 -> 200
 
         #----------------------------------------------------------------------

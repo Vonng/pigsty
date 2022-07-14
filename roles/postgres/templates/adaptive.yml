@@ -66,9 +66,18 @@ restapi:
   listen: 0.0.0.0:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
   authentication:
-    verify_client: none                 # none|optional|required
     username: {{ pg_monitor_username }}
     password: '{{ pg_monitor_password }}'
+{% if patroni_ssl_enabled|bool %}
+    verify_client: optional   # none|optional|required
+    cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+    certfile: '/pg/cert/server.crt'
+    keyfile: '/pg/cert/server.key'
+{% else %}
+    verify_client: none # none|optional|required
+{% endif %}
+
+
 
 #------------------------------------------------------------------------------
 # ctl

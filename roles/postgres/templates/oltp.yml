@@ -256,14 +256,8 @@ bootstrap:
         # RESOURCE USAGE (except WAL)
         #----------------------------------------------------------------------
         # memory: shared_buffers and maintenance_work_mem will be dynamically set
-{% if mem_size_gb|int >= 4 %}
-{% set pg_shared_buffers = ([(mem_size_gb|int / 4) , 32] | min)|int %}
-        shared_buffers: {{ pg_shared_buffers }}GB
-        maintenance_work_mem: {{ ([(pg_shared_buffers|int * 64) , 2048] | min)|int }}MB
-{% else %}
-        shared_buffers: 256MB
-        maintenance_work_mem: 64MB
-{% endif %}
+        shared_buffers: {{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 100 }}MB
+        maintenance_work_mem: {{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 30 }}MB
         work_mem: 32MB                          # 4MB -> 32MB
         huge_pages: try                         # try huge pages
         temp_file_limit: 100GB                  # 0 -> 100GB
@@ -308,11 +302,16 @@ bootstrap:
         #----------------------------------------------------------------------
         # QUERY TUNING
         #----------------------------------------------------------------------
-        # planner
         # enable_partitionwise_join: on
+{% if pg_storage_type == 'HDD' %}
+        random_page_cost: 4                     # 4 for HDD, 1.1 for SSD
+        effective_io_concurrency: 2             # 2 for HDD, 1000 for SSD
+{% else %}
         random_page_cost: 1.1                   # 4 for HDD, 1.1 for SSD
-        effective_cache_size: 320GB             # max mem - shared buffer
-        default_statistics_target: 1000         # stat bucket 100 -> 1000
+        effective_io_concurrency: 1000          # 2 for HDD, 1000 for SSD
+{% endif %}
+        effective_cache_size: {{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 100 }}MB  # max mem - shared buffer
+        default_statistics_target: 200          # stat bucket 100 -> 200
 
         #----------------------------------------------------------------------
         # REPORTING AND LOGGING
