@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-06-20
+# Mtime     :   2022-07-15
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -680,6 +680,7 @@ all:
     pg_data: /pg/data                     # postgres data directory (soft link)
     pg_fs_main: /data                     # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups             # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
+    pg_storage_type: SSD                  # SSD|HDD, SSD by default
     pg_dummy_filesize: 64MiB              # /pg/dummy hold some disk space for emergency use
     pg_listen: '0.0.0.0'                  # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
     pg_port: 5432                         # postgres port, 5432 by default
@@ -693,10 +694,11 @@ all:
     patroni_ssl_enabled: false            # secure patroni communications
     patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
     pg_conf: tiny.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
+    pg_rto: 30                            # recovery time objective, ttl to failover,  30s by default
+    pg_rpo: 1048576                       # recovery point objective, 1MB data loss at most by default
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
     pg_checksum: false                    # enable data checksum by default
-    pg_maxconn: 200                       # maximum number of concurrent connections (for adaptive template)
     pg_pwd_enc: md5                       # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: disable                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
     pg_encoding: UTF8                     # database cluster encoding, UTF8 by default

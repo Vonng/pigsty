@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-06-20
+# Mtime     :   2022-07-15
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -74,7 +74,6 @@ all:
           pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
           # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
           # pg_weight: 100            # load balance weight for this instance
-
       vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
         pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
 
@@ -275,12 +274,9 @@ all:
     #-----------------------------------------------------------------
     # CA & CERTS
     #-----------------------------------------------------------------
-    cert_homedir: /data/certs         # certs directory
-    ca_method: create                 # none|copy|create|recreate
-    ca_cn: pigsty-ca                  # CA common name
-    ca_file: ca                       # CA filename
-    ca_validity: 7200d                # CA validity, default is 20 years
-    cert_validity: 3650d              # cert validity, default is 10 years
+    ca_method: create                 # none|copy|create|recreate, create if not exists by default
+    ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
+    cert_validity: 7300d              # cert validity, 20 years by default
 
     #-----------------------------------------------------------------
     # NGINX
@@ -304,7 +300,6 @@ all:
       - { name: gitea        , domain: git.pigsty  , endpoint: "127.0.0.1:8889"   }
       - { name: minio        , domain: sss.pigsty  , endpoint: "127.0.0.1:9000"   }
       - { name: wiki         , domain: wiki.pigsty , endpoint: "127.0.0.1:9002"   }
-
 
     nginx_indexes:                    # application nav links on home page
       - { name: PgAdmin4   , url : 'http://adm.pigsty'              , comment: 'PgAdmin4 for PostgreSQL'     }
@@ -728,6 +723,7 @@ all:
     pg_data: /pg/data                     # postgres data directory (soft link)
     pg_fs_main: /data                     # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups             # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
+    pg_storage_type: SSD                  # SSD|HDD, SSD by default
     pg_dummy_filesize: 64MiB              # /pg/dummy hold some disk space for emergency use
     pg_listen: '0.0.0.0'                  # postgres listen address, '0.0.0.0' (all ipv4 addr) by default
     pg_port: 5432                         # postgres port, 5432 by default
@@ -741,10 +737,11 @@ all:
     patroni_ssl_enabled: false            # secure patroni communications
     patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
     pg_conf: tiny.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
+    pg_rto: 30                            # recovery time objective, ttl to failover,  30s by default
+    pg_rpo: 1048576                       # recovery point objective, 1MB data loss at most by default
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
     pg_checksum: false                    # enable data checksum by default
-    pg_maxconn: 200                       # maximum number of concurrent connections (for adaptive template)
     pg_pwd_enc: md5                       # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: disable                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
     pg_encoding: UTF8                     # database cluster encoding, UTF8 by default
@@ -754,7 +751,7 @@ all:
     pgbouncer_enabled: true               # if not enabled, pgbouncer will not be created
     pgbouncer_port: 6432                  # pgbouncer port, 6432 by default
     pgbouncer_log_dir: /var/log/pgbouncer # pgbouncer log dir, default is /var/log/pgbouncer
-    pgbouncer_auth_query: false           # if enabled, query pg_authid table to retrieve biz users instead of popoulating userlist
+    pgbouncer_auth_query: false           # if enabled, query pg_authid table to retrieve biz users instead of populating userlist
     pgbouncer_poolmode: transaction       # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_max_db_conn: 100            # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
 
