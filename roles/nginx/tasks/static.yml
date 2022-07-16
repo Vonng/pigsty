@@ -20,19 +20,11 @@
 #------------------------------------------------------------------------------
 # setup pev2 explain visualizer
 #------------------------------------------------------------------------------
+# TODO: obsolete: pev2 is now a standalone index.html
 - name: Setup pev2 if exists
   tags: nginx_pev2
   ignore_errors: true     # skip if pev2 not available on repo
   shell: |
-    # /www/pigsty/pev2.tar.gz is the default path
-    PEV2_TARBALL="{{ nginx_home }}/{{ repo_name }}/pev2.tar.gz"
-    
-    # skip if pev2 packages not available
-    if [[ ! -f ${PEV2_TARBALL} ]]; then
-        exit 0;
-    fi
-    
-    rm -rf /{{ nginx_home }}/pev2
-    tar -xf ${PEV2_TARBALL} -C {{ nginx_home }}
+    cp -f {{ nginx_home }}/{{ repo_name }}/index.html {{ nginx_home }}/pev.html || /bin/true;
 
 ...
