@@ -1,0 +1,38 @@
+---
+#------------------------------------------------------------------------------
+# Setup Resolver
+#------------------------------------------------------------------------------
+# add static nameserver to resolv (if node_dns_method != 'none')
+- name: Setup node dns resolver
+  tags: node_resolv
+  when: node_dns_method is defined and node_dns_method != 'none'
+  block:
+    # add new nameservers to existing nameservers
+    - name: Get old nameservers
+      when: node_dns_method == 'add'
+      shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
+      register: old_nameservers
+
+    - name: Write DNS resolv config
+      copy:
+        dest: /etc/resolv.conf
+        mode: 0644
+        owner: root
+        content: |
+            {% for item in node_dns_options %}
+            {{ item }}
+            {% endfor %}
+            {% if consul_enabled|default(false)|bool %}
+            domain service.consul
+            {% endif %}
+            {% for item in node_dns_servers %}
+            {{ item | regex_replace('\${meta_ip}', meta_ip ) }}
+            {% endfor %}
+            {% if node_dns_method == 'add' %}
+            {% for item in old_nameservers.stdout_lines %}
+            {% if item not in node_dns_servers and item != meta_ip %}
+            {{ item | regex_replace('\${meta_ip}', meta_ip ) }}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+...

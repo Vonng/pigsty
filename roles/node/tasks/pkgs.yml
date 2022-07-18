@@ -77,9 +77,10 @@
 #------------------------------------------------------------------------------
 # Install Python Packages with pip3
 #------------------------------------------------------------------------------
+# it will only be installed when nginx/repo is enabled
 - name: Install pip3 packages on meta node
   tags: [ node_pkgs, node_pip ]
-  when: meta_node|bool and node_packages_meta_pip != ''
+  when: meta_node|bool and node_packages_meta_pip != '' and nginx_enabled|bool
   ignore_errors: yes
   environment: "{{ proxy_env | default({}) }}"
   shell: |

@@ -12,13 +12,13 @@ nodename_exchange: false          # exchange nodename among play hosts?
 # NODE_DNS
 #-----------------------------------------------------------------
 node_etc_hosts_default:           # static dns records in /etc/hosts
-  - 10.10.10.10 meta pigsty c.pigsty g.pigsty l.pigsty p.pigsty a.pigsty api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty
+  - "${meta_ip} meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty"
+  - "${meta_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
 node_etc_hosts: []                # extra static dns records in /etc/hosts
 node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
-node_dns_servers: [ ]                # dynamic nameserver in /etc/resolv.conf
+node_dns_servers: []              # dynamic nameserver in /etc/resolv.conf
 node_dns_options:                 # dns resolv options
   - options single-request-reopen timeout:1 rotate
-  - domain service.consul
 
 #-----------------------------------------------------------------
 # NODE_REPO
@@ -70,6 +70,7 @@ node_ntp_enabled: true            # enable ntp service? false will leave ntp ser
 node_ntp_service: ntp             # ntp service provider: ntp|chrony
 node_ntp_servers:                 # default NTP servers
   - pool pool.ntp.org iburst
+  - server ${meta_ip} iburst
 node_crontab_overwrite: true      # true will overwrite /etc/crontab, false will append crontab
 node_crontab: [ ]                 # crontab entries in /etc/crontab
 

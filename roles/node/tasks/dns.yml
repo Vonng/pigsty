@@ -5,52 +5,27 @@
 - name: Setup node dns records
   tags: node_dns
   block:
-    # - name: Write local nodename to /etc/hosts
-    #   when: nodename is defined and nodename != ''
-    #   lineinfile: path=/etc/hosts line="127.0.0.1 {{ nodename }}"
 
+    # NOTE: dns records suffixed with "# pigsty meta" will be treated as meta node dns record and been wiped
+    - name: Wipe pigsty node dns record
+      lineinfile: path=/etc/hosts regexp='# pigsty meta$' state=absent
+
+    # NOTE: dns records write by pigsty will be suffixed with "# pigsty meta" mark
     - name: Write static dns records to /etc/hosts
       when: node_etc_hosts_default is defined and node_etc_hosts_default|length > 0
-      lineinfile: path=/etc/hosts line="{{ item }}"
-      with_items: "{{ node_etc_hosts_default }}"
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item | regex_replace('\\${meta_ip}', meta_ip) }} # pigsty meta"
+      with_items: "{{ node_etc_hosts_default|default([]) + node_etc_hosts|default([]) }}"
 
-    - name: Write extra static dns records to /etc/hosts
-      when: node_etc_hosts is defined and node_etc_hosts|length > 0
-      lineinfile: path=/etc/hosts line="{{ item }}"
-      with_items: "{{ node_etc_hosts }}"
-
-
-#------------------------------------------------------------------------------
-# Setup Resolver
-#------------------------------------------------------------------------------
-# add static nameserver to resolv (if node_dns_method != 'none')
-- name: Setup node dns resolver
-  tags: node_resolv
-  when: node_dns_method is defined and node_dns_method != 'none'
-  block:
-    # add new nameservers to existing nameservers
-    - name: Get old nameservers
-      when: node_dns_method == 'add'
-      shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
-      register: old_nameservers
-
-    - name: Write tmp resolv file
-      shell: echo -n "" > /etc/resolv.conf.tmp
-
-    - name: Write resolv options
-      shell: echo {{ item }} >> /etc/resolv.conf.tmp
-      with_items: "{{ node_dns_options }}"
-
-    - name: Write additional nameservers
-      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf.tmp
-      with_items: "{{ node_dns_servers }}"
-
-    - name: Append existing nameservers
-      shell: echo "nameserver {{ item }}" >> /etc/resolv.conf.tmp
-      with_items: "{{ old_nameservers.stdout_lines }}"
-      when: node_dns_method == 'add' and item not in node_dns_servers
-
-    - name: Swap resolv.conf
-      shell: mv -f /etc/resolv.conf /etc/resolv.conf.backup; mv /etc/resolv.conf.tmp /etc/resolv.conf
-
+    - name: Exchange hostname among servers
+      when: nodename_exchange|bool
+      ignore_errors: true
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ inventory_hostname }} {{ item[0] }} # pigsty meta"
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ nodename }}"
+        - "{{ play_hosts }}"
 ...
