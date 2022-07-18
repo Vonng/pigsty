@@ -1,20 +1,33 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   infra-pgsql.yml
-# Ctime     :   2022-07-06
-# Mtime     :   2022-07-06
-# Desc      :   init infra & pgsql on meta nodes
-# Path      :   infra-psql.yml
+# File      :   infra-all.yml
+# Ctime     :   2021-01-19
+# Mtime     :   2022-07-18
+# Desc      :   init everything on all nodes
+# Path      :   infra-all.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
+
+#---------------------------------------------------------------
+# Notice
+#---------------------------------------------------------------
+# This is a special playbook that interleave infra.yml & pgsql.yml
+# It is used for 4-node demo, or in case that there are multiple
+# meta nodes also reused as common database nodes.
+#
+# to init multiple meta nodes, add their ip address to pigsty.yml
+#   all.children.meta.hosts
+#
+# if offline installation packages is used, you can also copy them to
+#   copy /www/pigsty to all meta nodes before run ./infra-all.yml
+#---------------------------------------------------------------
 
 #---------------------------------------------------------------
 # setup meta node identity
 #---------------------------------------------------------------
 - name: Node Identity
-  become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
   tags: [ always, node-id ]
   connection: local
@@ -32,9 +45,31 @@
       set_fact:
         node_cluster: "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster }}{% endif %}"
         nodename: "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
+        pg_meta: "{{ hostvars| json_query(cluster_query) }}"
+        pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
+        pg_service: "{{ pg_cluster }}-{{ pg_role }}"
+      vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
 
-    - name: Print node identity
-      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }}" }
+    # calculate basic cluster facts from pg_meta
+    - name: Calculate pgsql identity
+      set_fact:
+        pg_is_primary={{ pg_role == 'primary' }}
+        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
+        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
+        pg_cluster_primary_list={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
+        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
+        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1 }}
+        pg_cluster_primary={{ (pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort)[0] }}
+        pg_cluster_primary_id={{ (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort)[0] }}
+
+    - name: Show node/pgsql identity summary
+      debug:
+        msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
+          {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
+          [{{ pg_role }}]  {{ pg_instance }} @ {{ inventory_hostname }} , ins = {{ nodename|default('NULL') }} , cls = {{ node_cluster|default('NULL') }} ,  
+          {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}
+          {% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_cluster }}-{{ pg_cluster_primary_id }} -> {{ pg_instance }}{% endif %}{% endif %}
+          , PGURL = postgres://{{ inventory_hostname }}:{{ pg_port }}/postgres"
 
 
 #---------------------------------------------------------------
@@ -46,7 +81,6 @@
   gather_facts: no
   tags: infra-boot
   roles:
-
     - role: environ             # setup environment on meta nodes
       tags: environ
 
@@ -54,18 +88,19 @@
       tags: repo                # you can disable repo on extra meta nodes with nginx_enabled: false
       when: nginx_enabled|bool
 
+
 #---------------------------------------------------------------
-# pigsty meta nodes setup
+# init node & dcs
 #---------------------------------------------------------------
-- name: Meta Node Init
+- name: Node Init
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
-  tags: [ infra-node , node-init ]
+  tags: node-init
   roles:
 
     - role: node            # init meta node itself
-      tags: [ node , node-init ]
+      tags: node
 
     - role: ca              # init ca-infra & dist to nodes
       tags: ca
@@ -90,7 +125,7 @@
   become: yes
   hosts: meta
   gather_facts: no
-  tags: infra-svcs
+  tags: infra
   roles:
 
     - role: nameserver    # init dns nameserver
@@ -114,15 +149,14 @@
       # when: loki_enabled|bool
 
     - role: infra_register
-      tags: infra-register
-
+      tags: infra_register
 
 #---------------------------------------------------------------
-# Meta Node Monitor
+# Node Monitor
 #---------------------------------------------------------------
-- name: Meta Node Monitor
+- name: Node Monitor
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
   tags: node-monitor
   roles:
@@ -144,68 +178,32 @@
 #---------------------------------------------------------------
 # init cmdb(s) on meta nodes
 #---------------------------------------------------------------
-- name: PGSQL Identity
-  hosts: meta
-  gather_facts: no
-  tags: [ always, pg-id ]
-  connection: local
-  become: no
-  tasks:
-
-    # fetch cluster inventory variable from hostvars of corresponding cluster
-    - name: Gather pgsql basic facts
-      set_fact:
-        pg_meta={{ hostvars| json_query(cluster_query) }}
-        pg_instance={{ pg_cluster }}-{{ pg_seq }}
-        pg_service={{ pg_cluster }}-{{ pg_role }}
-      vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
-
-    # calculate basic cluster facts from pg_meta
-    - name: Build pgsql basic facts
-      set_fact:
-        pg_is_primary={{ pg_role == 'primary' }}
-        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
-        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
-        pg_cluster_primary_list={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
-        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
-        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1 }}
-        pg_cluster_primary={{ (pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort)[0] }}
-        pg_cluster_primary_id={{ (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort)[0] }}
-
-    # print instance pre-flight check summary
-    - name: Show pgsql identity summary
-      debug:
-        msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
-          {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
-          [{{ pg_role }}]  {{ pg_instance }} @ {{ inventory_hostname }} , 
-          {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}
-          {% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_cluster }}-{{ pg_cluster_primary_id }} -> {{ pg_instance }}{% endif %}{% endif %}
-          , PGURL = postgres://{{ inventory_hostname }}:{{ pg_port }}/postgres"
-
-
-- name: Meta PGSQL Init     # init pgsql cmdb on meta nodes
+- name: PGSQL Init     # init pgsql cmdb on meta nodes
   become: yes
-  hosts: meta
+  hosts: all
   gather_facts: no
-  tags: [ infra-cmdb, pgsql-init ]
+  tags: [ pgsql-init ]
   vars:
-    no_cmdb: false          # command line args (-e no_cmdb=true)
+    pg: all                 # whether to install pgsql during infra init ?
+      # all  : install on all nodes (default behavior)
+      # meta : install on meta nodes only
+      # none : do not install pgsql at all
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
-      when: not no_cmdb|bool
+      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: postgres
 
     - role: service         # init service , haproxy , vip
-      when: not no_cmdb|bool
+      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: service
 
     - role: pg_exporter     # init monitor exporters
-      when: not no_cmdb|bool
+      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: pg-exporter
 
     - role: pg_register     # register cluster/instance to infra
-      when: not no_cmdb|bool
+      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: pg-register
 
 #---------------------------------------------------------------
