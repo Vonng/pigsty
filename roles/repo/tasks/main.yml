@@ -59,18 +59,13 @@
           mkdir -p /etc/yum.repos.d/backup;
           mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; /bin/true
 
-    # add all upstream repos
-    # - name: Add required upstream repos
-    #   yum_repository: "{{ item }}"
-    #   with_items: "{{ repo_upstreams }}"
+     # add all upstream repos
+    - name: Add required upstream repos
+      yum_repository: "{{ item }}"
+      with_items: "{{ repo_upstreams }}"
 
     - name: Add required upstream repos from template
-      template: src={{ item.src }} dest={{ item.dest }} mode=0644
-      with_items:
-        - { src: "{{ os_name|lower }}.repo.j2",  dest: "/etc/yum.repos.d/{{ os_name|lower }}.repo" }
-        - { src: epel.repo.j2 ,  dest: /etc/yum.repos.d/epel.repo  }
-        - { src: pgdg.repo.j2 ,  dest: /etc/yum.repos.d/pgdg.repo  }
-        - { src: tools.repo.j2,  dest: /etc/yum.repos.d/tools.repo }
+      template: src={{ repo_template }} dest=/etc/yum.repos.d/pigsty-upstream.repo mode=0644
 
 
 #--------------------------------------------------------------#
