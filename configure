@@ -24,7 +24,7 @@
 # const
 #==============================================================#
 # pigsty version string
-VERSION=v1.6.0-a1
+VERSION=v1.6.0-a2
 
 # where to download pkg.tgz ?
 BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
@@ -360,6 +360,15 @@ function check_spec(){
     log_info "spec = ${SPEC} (cpu = ${CPU_COUNT})"
 }
 
+# return 0 if behind gfw (inside mainland china), otherwise 1
+function behind_gfw() {
+    local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
+    if [ "${return_code}" = "200" ]; then
+        return 1
+    fi
+    return 0
+}
+
 #----------------------------------------------#
 # generate config
 #----------------------------------------------#
@@ -367,7 +376,7 @@ function check_config(){
     local primary_ip=${1-${PRIMARY_IP}}
     local mode=${2-${MODE}}                        # use files/conf/pigsty-${mode}.yml as template
     local pigsty_home=${3-${PIGSTY_HOME}}
-    local spec=${4-${SPEC}}
+    local region=${4-'default'}
     local sed_cmd1="s/10.10.10.10/${primary_ip}/g" # replace 10.10.10.10 with actual ip address
     local config_src=${pigsty_home}/files/conf/pigsty-${mode}.yml
     local config_dst=${pigsty_home}/pigsty.yml
@@ -378,7 +387,7 @@ function check_config(){
     fi
 
     # replace node_tune & pg_conf with tiny or oltp according to cpu count
-    if (($(getconf _NPROCESSORS_ONLN)>=8)); then
+    if (($(getconf _NPROCESSORS_ONLN)>=4)); then
         local sed_cmd2="s/pg_conf: tiny.yml/pg_conf: oltp.yml/g"   # replace pg_conf to oltp mode
         local sed_cmd3="s/node_tune: tiny/node_tune: oltp/g"       # replace node_tune to oltp mode
         cat ${config_src} | sed -e "${sed_cmd1}" | sed -e "${sed_cmd2}" | sed -e "${sed_cmd3}" > ${config_dst}
@@ -388,25 +397,17 @@ function check_config(){
         log_info "config = ${mode} @ ${primary_ip}"
     fi
 
-    # replace meta node pg_conf with more precise templates:
-    local sed_cmd4='s/        pg_conf:.*/'"        pg_conf: ${spec}.yml/g"
-    sed -ie "${sed_cmd4}" ${config_dst}
-    rm -rf "${config_dst}e" || true
+    if behind_gfw; then
+        local sed_cmd4='s/    region: default/    region: china  /g'
+        sed -ie "${sed_cmd4}" ${config_dst}
+        rm -rf "${config_dst}e" || true
+    fi
+	return 0
 }
 
 #----------------------------------------------#
 # check pkg.tgz exists (optionally download)
 #----------------------------------------------#
-
-# return 0 if behind gfw (inside mainland china), otherwise 1
-function behind_gfw() {
-	local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
-	if [ "${return_code}" = "200" ]; then
-		return 1
-	fi
-	return 0
-}
-
 function check_pkg(){
     local pkg_url=${1-${DEFAULT_PKG_URL}}    # default package url from github
     local pkg_path=${2-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
@@ -435,13 +436,13 @@ function check_pkg(){
     if [[ ${download_pkg} == "false" ]]; then
         log_warn "cache = missing and skip download"
     else
-		pkg_url="${BASEURL_GITHUB}/pkg.tgz"
-		if behind_gfw; then
-			pkg_url="${BASEURL_CHINA}/pkg.tgz"
-			log_info "download from China CDN ${pkg_url} to ${pkg_path}"
-		else
-			log_info "download from Github ${pkg_url} to ${pkg_path}"
-		fi
+        pkg_url="${BASEURL_GITHUB}/pkg.tgz"
+        if behind_gfw; then
+            pkg_url="${BASEURL_CHINA}/pkg.tgz"
+            log_info "download from China CDN ${pkg_url} to ${pkg_path}"
+        else
+            log_info "download from Github ${pkg_url} to ${pkg_path}"
+        fi
         curl -fSL "${pkg_url}" -o "${pkg_path}"
         return $?
     fi
@@ -563,7 +564,7 @@ function main(){
     check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
     check_admin      # check current_user@primary_ip nopass ssh sudo
     check_mode       # check config template (auto|demo|...)
-    check_spec       # check machine spec (tiny|mini|small|medium|large|...)
+    # check_spec       # check machine spec (tiny|mini|small|medium|large|...)
     check_config     # generate config according to primary_ip and mode
 
     # prepare

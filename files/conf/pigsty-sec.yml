@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node SSL-enabled demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-07-15
+# Mtime     :   2022-07-18
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -72,21 +72,8 @@ all:
         patroni_watchdog_mode: off
         pg_databases:
           - { name: meta, baseline: cmdb.sql , schemas: [ pigsty ]   , extensions: [ { name: adminpack, schema: pg_catalog } ,  { name: postgis, schema: public } , { name: timescaledb } ] ,comment: pigsty meta database }
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
-          - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
-          - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
-          - { name: gitea,      owner: dbuser_gitea      , revokeconn: true , comment: gitea meta database }
-          - { name: wiki,       owner: dbuser_wiki       , revokeconn: true , comment: wiki meta database }
-
         pg_users:
           - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
-          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
-          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
-          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
-          - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
-          - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
-
         pg_hba_rules_extra:
           - title: allow grafana bytebase kong intranet access
             role: common
@@ -94,7 +81,6 @@ all:
               - host    kong            dbuser_kong         10.0.0.0/8          md5
               - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
               - host    grafana         dbuser_grafana      10.0.0.0/8          md5
-
         vip_mode: l2
         vip_address: 10.10.10.2
         vip_cidrmask: 8
@@ -200,8 +186,13 @@ all:
   #                             VARS                                 #
   ####################################################################
   vars:                               # global variables
-    version: v1.6.0-a1                # pigsty version string
+
+    #================================================================#
+    #                         VARS: BASIC                            #
+    #================================================================#
+    version: v1.6.0-a2                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
+    region: default                   # default|china|europe , upstream mirrors
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -276,99 +267,8 @@ all:
     repo_address: pigsty              # external address to this repo (ip:port or url)
     repo_rebuild: false               # force re-download packages
     repo_remove: true                 # remove existing upstream repo
-    repo_upstreams:                   # where to download packages?
-      - name: base
-        description: CentOS-$releasever - Base
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/
-          - http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
-          - http://mirror.centos.org/centos/$releasever/os/$basearch/
-      - name: updates
-        description: CentOS-$releasever - Updates
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/
-          - http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
-          - http://mirror.centos.org/centos/$releasever/updates/$basearch/
-      - name: extras
-        description: CentOS-$releasever - Extras
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/
-          - http://mirrors.aliyun.com/centos/$releasever/extras/$basearch/
-          - http://mirror.centos.org/centos/$releasever/extras/$basearch/
-        gpgcheck: no
-      - name: epel
-        description: CentOS $releasever - epel
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch
-          - http://mirrors.aliyun.com/epel/$releasever/$basearch
-          - http://download.fedoraproject.org/pub/epel/$releasever/$basearch
-      - name: grafana
-        description: Grafana Official Yum Repo
-        enabled: yes
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm
-          - https://packages.grafana.com/oss/rpm
-      - name: prometheus
-        description: Prometheus and exporters
-        gpgcheck: no
-        baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
-      - name: pgdg-common
-        description: PostgreSQL common RPMs for RHEL/CentOS $releasever - $basearch
-        gpgcheck: no
-        baseurl:
-          - http://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch
-          - https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch
-      - name: pgdg14
-        description: PostgreSQL 14 for RHEL/CentOS $releasever - $basearch
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch
-          - https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch
-      - name: timescaledb
-        description: TimescaleDB for RHEL/CentOS $releasever - $basearch
-        gpgcheck: no
-        baseurl: https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch
-      - name: citus
-        description: Citus Community
-        gpgcheck: no
-        baseurl: https://repos.citusdata.com/community/el/$releasever/$basearch
-      - name: centos-sclo
-        description: CentOS-$releasever - SCLo
-        gpgcheck: no
-        #mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=$releasever&repo=sclo-sclo
-        baseurl: http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/
-      - name: centos-sclo-rh
-        description: CentOS-$releasever - SCLo rh
-        gpgcheck: no
-        #mirrorlist: http://mirrorlist.centos.org?arch=$basearch&release=7&repo=sclo-rh
-        baseurl: http://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/
-      - name: nginx
-        description: Nginx Official Yum Repo
-        skip_if_unavailable: true
-        gpgcheck: no
-        baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
-      - name: harbottle               # for latest consul & kubernetes
-        description: Copr repo for main owned by harbottle
-        skip_if_unavailable: true
-        gpgcheck: no
-        baseurl: https://download.copr.fedorainfracloud.org/results/harbottle/main/epel-$releasever-$basearch/
-      - name: pg_probackup            # for pg_probackup
-        description: PG_PROBACKUP Centos packages for PostgresPro Standard and Enterprise - $basearch
-        skip_if_unavailable: true
-        gpgcheck: no
-        baseurl: https://repo.postgrespro.ru/pg_probackup-forks/rpm/latest/centos-$releasever-$basearch
-      - name: docker-ce               # for latest docker
-        description: Docker CE Stable - $basearch
-        skip_if_unavailable: true
-        gpgcheck: no
-        baseurl:
-          - https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable
-          - https://download.docker.com/linux/centos/$releasever/$basearch/stable
-
+    repo_template: upstream.repo      # repo template file path
+    repo_upstreams: []                # additional repo upstream to be added
     repo_packages:                    # which packages to be included                                                   #  what to download #
       - epel-release nginx wget yum-utils yum createrepo_c sshpass zip unzip                                            # ----  boot   ---- #
       - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
@@ -409,13 +309,7 @@ all:
     # NAMESERVER
     #-----------------------------------------------------------------
     nameserver_enabled: false         # setup dnsmasq
-    dns_records:                      # dynamic dns record resolved by dnsmasq
-      - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
-      - 10.10.10.3  pg-test           # sandbox vip for pg-test
-      - 10.10.10.10 pg-meta-1         # sandbox instance pg-meta-1
-      - 10.10.10.11 pg-test-1         # sandbox instance node-1
-      - 10.10.10.12 pg-test-2         # sandbox instance node-2
-      - 10.10.10.13 pg-test-3         # sandbox instance node-3
+    dns_records: [ ]                  # dynamic dns record resolved by dnsmasq
 
     #-----------------------------------------------------------------
     # PROMETHEUS
@@ -451,7 +345,6 @@ all:
       - marcusolsson-treemap-panel
     grafana_plugin_git:               # plugins that will be downloaded via git
       - https://github.com/Vonng/vonng-echarts-panel
-
 
     #-----------------------------------------------------------------
     # LOKI
@@ -508,16 +401,20 @@ all:
     # NODE_DNS
     #-----------------------------------------------------------------
     node_etc_hosts_default:           # static dns records in /etc/hosts
-      - 10.10.10.10 meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty
-      - 10.10.10.10 api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty
-    node_etc_hosts: []                # extra static dns records in /etc/hosts
+      - "${meta_ip} meta pigsty p.pigsty g.pigsty a.pigsty c.pigsty l.pigsty"
+      - "${meta_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
+    node_etc_hosts:                   # extra static dns records in /etc/hosts
+      - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test           # sandbox vip for pg-test
+      - 10.10.10.10 pg-meta-1         # sandbox instance pg-meta-1
+      - 10.10.10.11 pg-test-1         # sandbox instance node-1
+      - 10.10.10.12 pg-test-2         # sandbox instance node-2
+      - 10.10.10.13 pg-test-3         # sandbox instance node-3
 
-    node_dns_method: add              # add (default) | none (skip) | overwrite (remove old settings)
-    node_dns_servers:                 # dynamic nameserver in /etc/resolv.conf
-      - 10.10.10.10
+    node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
+    node_dns_servers: [ ]             # dynamic nameserver in /etc/resolv.conf
     node_dns_options:                 # dns resolv options
       - options single-request-reopen timeout:1 rotate
-      - domain service.consul
 
     #-----------------------------------------------------------------
     # NODE_REPO
@@ -572,8 +469,8 @@ all:
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
-      - server ${meta_ip} iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
+      - server ${meta_ip} iburst
     node_crontab_overwrite: true      # true will overwrite /etc/crontab, false will append crontab
     node_crontab: [ ]                 # crontab entries in /etc/crontab
 
@@ -755,6 +652,7 @@ all:
 
     pg_reload: true                   # reload postgres after hba changes
     pg_hba_rules:                     # postgres host-based authentication rules
+      # TODO: allow all meta nodes password access
       - title: allow meta node password access
         role: common
         rules:
