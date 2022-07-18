@@ -19,9 +19,12 @@ filegen clockstats file clockstats type day enable
 # pool: <http://www.pool.ntp.org/join.html>
 
 {% for server in node_ntp_servers %}
+{% if '${meta_ip}' in server %}
+{{ server | regex_replace('\${meta_ip}', meta_ip) }} # pigsty meta
+{% else %}
 {{ server }}
+{% endif %}
 {% endfor %}
-
 
 # Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html for
 # details.  The web page <http://support.ntp.org/bin/view/Support/AccessRestrictions>

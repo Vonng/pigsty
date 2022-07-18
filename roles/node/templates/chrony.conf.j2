@@ -1,6 +1,10 @@
 # Use public servers from the pool.ntp.org project.
 {% for server in node_ntp_servers %}
+{% if '${meta_ip}' in server %}
+{{ server | regex_replace('\${meta_ip}', meta_ip) }} # pigsty meta
+{% else %}
 {{ server }}
+{% endif %}
 {% endfor %}
 
 # Record the rate at which the system clock gains/losses time.
