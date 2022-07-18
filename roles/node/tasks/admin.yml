@@ -71,7 +71,7 @@
 
     # for all hosts, copy their admin ssh public key to each other
     - name: Exchange all admin ssh keys
-      when: node_admin_ssh_exchange
+      when: node_admin_ssh_exchange|bool
       authorized_key: user={{ node_admin_username }} key="{{ item[0] }}"
       ignore_errors: true
       delegate_to: "{{ item[1] }}"
@@ -92,9 +92,8 @@
 
     - name: Install current public key
       tags: node_admin_pk_current
-      when: node_admin_pk_current
+      when: node_admin_pk_current|bool
       authorized_key:
         user: "{{ node_admin_username }}"
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
-
 ...
