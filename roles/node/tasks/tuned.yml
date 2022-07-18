@@ -6,41 +6,32 @@
   tags: node_tuned
   when: node_tune is defined and node_tune != 'none'
   block:
-    - name: Get config parameter page count
-      command: getconf _PHYS_PAGES
-      register: node_page_count  # half mem in pages
 
-    - name: Get config parameter page size
-      shell: getconf PAGE_SIZE
-      register: node_page_size  # half mem in bytes
-
-    - name: Tune shmmax and shmall via mem
-      when: node_page_count.stdout|int > 1048576
+    # get memory parameters to tune the node
+    - name: Get node basic facts
+      shell: echo "$(getconf _PHYS_PAGES) $(getconf PAGE_SIZE)"
+      register: pg_node_fact
+    - name: Calculate node parameters
+      connection: local
       set_fact:
-        param_shmall: "{{ ((node_page_count.stdout|int) / 2)|int }}"
-        param_shmmax: "{{ ((node_page_count.stdout|int) * (node_page_size.stdout|int) / 2)|int }}"
+        mem_half_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * 0.5 * fact_list[1]|int)|int }}"
+        mem_half_pages: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * 0.5)|int }}"
 
     - name: Create tuned profiles
       file: path=/etc/tuned/{{ item }} state=directory mode=0755
-      with_items:
-        - oltp
-        - olap
-        - crit
-        - tiny
+      with_items: [ oltp, olap, crit, tiny ]
 
     - name: Render tuned profiles
       template: src=tuned-{{ item }}.conf dest=/etc/tuned/{{ item }}/tuned.conf mode=0644
-      with_items:
-        - oltp
-        - olap
-        - crit
-        - tiny
+      with_items: [ oltp, olap, crit, tiny ]
 
     - name: Active tuned profile
+      tags: node_tune_active
       ignore_errors: true
       command: tuned-adm profile {{ node_tune }}
 
     - name: Change additional sysctl params
+      tags: node_sysctl
       ignore_errors: true
       sysctl:
         name: "{{ item.key }}"
