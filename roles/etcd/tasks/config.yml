@@ -2,15 +2,6 @@
 # WARNING: you have to run
 
 #------------------------------------------------------------------------------
-# Get etcd dcs_nodename
-#------------------------------------------------------------------------------
-#- name: Get dcs_servers key as dcs_nodename
-#  tags: etcd_id
-#  connection: local
-#  set_fact:
-#    dcs_nodename: "{% if inventory_hostname in dcs_servers.values() %}{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}{% else %}{{ nodename }}{% endif %}"
-
-#------------------------------------------------------------------------------
 # Config etcd cert
 #------------------------------------------------------------------------------
 - name: Generate etcd cert for servers
@@ -61,17 +52,12 @@
   when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   block:
 
-    - name: Copy etcd ca certificates
-      when: dcs_ssl_enabled|bool
-      copy: src="files/cert/ca.crt" dest="/var/lib/etcd/ca.crt" owner=etcd group=etcd mode=0600
+    - name: Copy etcd ssl cert
+      copy: src="files/cert/etcd-{{ dcs_nodename }}.crt" dest="/etc/pki/tls/certs/etcd-{{ dcs_nodename }}.crt" owner=etcd group=etcd mode=0644
+    - name: Copy etcd ssl key
+      copy: src="files/cert/etcd-{{ dcs_nodename }}.key" dest="/etc/pki/tls/private/etcd-{{ dcs_nodename }}.key" owner=etcd group=etcd mode=0600
 
-    # copy etcd ssl certs if dcs_ssl_enabled
-    - name: Copy etcd ssl certificates
-      when: dcs_ssl_enabled|bool
-      copy: src="files/cert/{{ item }}" dest="/var/lib/etcd/{{ item }}" owner=etcd group=etcd mode=0600
-      with_items:
-        - "etcd-{{ dcs_nodename }}.crt"
-        - "etcd-{{ dcs_nodename }}.key"
+
 
 #------------------------------------------------------------------------------
 # Config etcd server
