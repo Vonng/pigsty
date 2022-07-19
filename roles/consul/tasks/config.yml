@@ -166,11 +166,9 @@
   tags: consul_cert
   when: dcs_ssl_enabled|bool  # and inventory_hostname in dcs_servers.values()
   block:
-
-    - name: Copy consul ssl certificates
-      copy: src="files/cert/{{ item }}" dest="/var/lib/consul/{{ item }}" owner=consul group=consul mode=0600
-      with_items:
-        - "consul-{{ dcs_nodename }}.key"
-        - "consul-{{ dcs_nodename }}.crt"
+    - name: Copy consul ssl cert
+      copy: src="files/cert/consul-{{ dcs_nodename }}.crt" dest="/etc/pki/tls/certs/consul-{{ dcs_nodename }}.crt" owner=consul group=consul mode=0644
+    - name: Copy consul ssl key
+      copy: src="files/cert/consul-{{ dcs_nodename }}.key" dest="/etc/pki/tls/private/consul-{{ dcs_nodename }}.key" owner=consul group=consul mode=0600
 
 ...
