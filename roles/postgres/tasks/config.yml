@@ -44,13 +44,19 @@
         group: postgres
         mode: 0755
 
-    - name: Render default /pg/conf/patroni.yml
+    - name: Render default patroni conf to /pg/conf/
       template:
-        src: "{{ pg_conf }}"
-        dest: "/pg/conf/{{ pg_instance }}.yml"
+        src: "{{ item }}"
+        dest: "/pg/conf/{{ item }}"
         owner: "{{ pg_dbsu }}"
         group: postgres
         mode: 0755
+      with_items:
+        - tiny.yml
+        - oltp.yml
+        - olap.yml
+        - crit.yml
+        - "{{ pg_conf }}"
 
     - name: Link patroni config
       file:
@@ -60,6 +66,7 @@
         group: postgres
         state: link
       with_items:
+        - { src: "/pg/conf/{{ pg_conf }}", dest: "/pg/conf/{{ pg_instance }}.yml" }
         - { src: "/pg/conf/{{ pg_instance }}.yml", dest: "/pg/bin/patroni.yml" }
         - { src: "/pg/bin/patroni.yml", dest: "/etc/patroni/patroni.yml" }
 
@@ -130,14 +137,15 @@
         - "{{ pg_cluster }}.key"
         - "{{ pg_cluster }}.crt"
 
+
 - name: Copy pg ssl certificates
   any_errors_fatal: true
   tags: pg_cert
   when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
-  copy: src="files/cert/{{ item.src }}" dest="/pg/cert/{{ item.dest }}" owner=postgres group=postgres mode=0600
-  with_items:
-    - { src: 'ca.crt'              , dest: 'root.crt' }
-    - { src: '{{ pg_cluster }}.crt', dest: 'server.crt' }
-    - { src: '{{ pg_cluster }}.key', dest: 'server.key' }
+  block:
+    - name: Copy pg ssl cert
+      copy: src="files/cert/{{ pg_cluster }}.crt" dest="/etc/pki/tls/certs/{{ pg_cluster }}.crt" owner=postgres group=postgres mode=0644
+    - name: Copy pg ssl key
+      copy: src="files/cert/{{ pg_cluster }}.key" dest="/etc/pki/tls/private/{{ pg_cluster }}.key" owner=postgres group=postgres mode=0600
 
 ...

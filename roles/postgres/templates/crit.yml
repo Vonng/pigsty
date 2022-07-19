@@ -96,6 +96,12 @@ etcd3:
 restapi:
   listen: 0.0.0.0:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
+{% if patroni_ssl_enabled|bool %}
+  insecure: false
+  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+{% endif %}
   authentication:
     verify_client: none                 # none|optional|required
     username: {{ pg_monitor_username }}
@@ -105,14 +111,13 @@ restapi:
 # ctl
 #------------------------------------------------------------------------------
 ctl:
-  optional:
 {% if patroni_ssl_enabled|bool %}
-    insecure: false
-    cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-    certfile: '/pg/cert/server.crt'
-    keyfile: '/pg/cert/server.key'
+  insecure: false
+  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
 {% else %}
-    insecure: true
+  insecure: true
 {% endif %}
 
 #------------------------------------------------------------------------------
@@ -280,8 +285,8 @@ bootstrap:
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
-        ssl_cert_file: '/pg/cert/server.crt'
-        ssl_key_file: '/pg/cert/server.key'
+        ssl_cert_file: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+        ssl_key_file: '/etc/pki/tls/private/{{ pg_cluster }}.key'
         ssl_ca_file: '/etc/pki/ca-trust/source/anchors/ca.crt'
 {% endif %}
 
@@ -294,7 +299,7 @@ bootstrap:
         work_mem: {{ pg_workmem }}MB
         max_parallel_workers: {{ pg_max_parallel_workers }}
         max_parallel_maintenance_workers: {{ pg_max_parallel_mt_workers }}
-        max_parallel_workers_per_gather: {{ pg_max_parallel_workers_per_gather }}
+        max_parallel_workers_per_gather: {{ pg_max_parallel_workers_per_gather|int }}
         huge_pages: try                         # try huge pages
         temp_file_limit: {{ pg_size_twentieth }}GB                  # 1/20 of disk size
         vacuum_cost_delay: 20ms                 # wait 20ms per 2000 cost
@@ -402,7 +407,7 @@ bootstrap:
 
         # timescaledb
         timescaledb.telemetry_level: 'off'      # disable timescale telemetry
-        timescaledb.max_background_workers: 16  # increase background worker 8 -> 16
+        timescaledb.max_background_workers: {{ pg_max_worker_processes }}
 
         # citus
         citus.node_conninfo: 'sslmode=prefer'   # prefer ssl instead of require

@@ -1,29 +1,59 @@
 ---
 namespace: {{ pg_namespace }}/          # namespace
 
-# - dcs - #
+#------------------------------------------------------------------------------
+# dcs
+#------------------------------------------------------------------------------
 {% if pg_dcs_type == 'consul' %}
 consul:
   host: 127.0.0.1:8500
   consistency: default         # default|consistent|stale
+  register_service: true
+  service_check_interval: 15s
+  service_tags:
+    - {{ pg_cluster }}
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+  scheme: https
+  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
+{% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
-etcd:
+etcd3:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+  protocol: https
+  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
+{% endif %}
 {% endif %}
 
-
-# - ctl - #
-ctl:
-  optional:
-    insecure: true
-    # cacert: '/path/to/ca/cert'
-    # certfile: '/path/to/cert/file'
-    # keyfile: '/path/to/key/file'
-
-# - auth - #
+#------------------------------------------------------------------------------
+# api
+#------------------------------------------------------------------------------
+# how to expose patroni service
+# listen on all ipv4, connect via public ip, use same credential as dbuser_monitor
 restapi:
+  listen: 0.0.0.0:{{ patroni_port }}
+  connect_address: {{ inventory_hostname }}:{{ patroni_port }}
+{% if patroni_ssl_enabled|bool %}
+  insecure: false
+  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+{% endif %}
   authentication:
-    verify_client: none # none|optional|required
+    verify_client: none                 # none|optional|required
     username: {{ pg_monitor_username }}
     password: '{{ pg_monitor_password }}'
+
+#------------------------------------------------------------------------------
+# ctl
+#------------------------------------------------------------------------------
+ctl:
+{% if patroni_ssl_enabled|bool %}
+  insecure: false
+  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+{% else %}
+  insecure: true
+{% endif %}

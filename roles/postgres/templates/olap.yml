@@ -96,6 +96,12 @@ etcd3:
 restapi:
   listen: 0.0.0.0:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
+{% if patroni_ssl_enabled|bool %}
+  insecure: false
+  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+{% endif %}
   authentication:
     verify_client: none                 # none|optional|required
     username: {{ pg_monitor_username }}
@@ -105,14 +111,13 @@ restapi:
 # ctl
 #------------------------------------------------------------------------------
 ctl:
-  optional:
 {% if patroni_ssl_enabled|bool %}
-    insecure: false
-    cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-    certfile: '/pg/cert/server.crt'
-    keyfile: '/pg/cert/server.key'
+  insecure: false
+  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
+  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
 {% else %}
-    insecure: true
+  insecure: true
 {% endif %}
 
 #------------------------------------------------------------------------------
@@ -283,8 +288,8 @@ bootstrap:
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
-        ssl_cert_file: '/pg/cert/server.crt'
-        ssl_key_file: '/pg/cert/server.key'
+        ssl_cert_file: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
+        ssl_key_file: '/etc/pki/tls/private/{{ pg_cluster }}.key'
         ssl_ca_file: '/etc/pki/ca-trust/source/anchors/ca.crt'
 {% endif %}
 
@@ -311,7 +316,7 @@ bootstrap:
         #----------------------------------------------------------------------
         min_wal_size: {{ pg_size_twentieth }}GB     # 1/20 disk size
         max_wal_size: {{ pg_size_twentieth * 4 }}GB     # 2/10 disk size
-        max_slot_wal_keep_size: {{ pg_size_twentieth * 6 }}     # 3/10 disk size at most!
+        max_slot_wal_keep_size: {{ pg_size_twentieth * 6 }}GB     # 3/10 disk size at most!
         wal_buffers: 16MB                       # max to 16MB
         wal_writer_delay: 20ms                  # wait period
         wal_writer_flush_after: 1MB             # max allowed data loss
@@ -406,7 +411,7 @@ bootstrap:
 
         # timescaledb
         timescaledb.telemetry_level: 'off'      # disable timescale telemetry
-        timescaledb.max_background_workers: {{ pg_max_worker_processes }}  # increase background worker 8 -> 32
+        timescaledb.max_background_workers: {{ pg_max_worker_processes }}
 
         # citus
         citus.node_conninfo: 'sslmode=prefer'   # prefer ssl instead of require
