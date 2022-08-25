@@ -14,8 +14,10 @@
     - name: Calculate node parameters
       connection: local
       set_fact:
-        mem_half_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * 0.5 * fact_list[1]|int)|int }}"
-        mem_half_pages: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * 0.5)|int }}"
+        mem_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * fact_list[1]|int)|int }}"
+        mem_pages: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int)|int }}"
+        # mem_half_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * 0.5 * fact_list[1]|int)|int }}"
+        # mem_half_pages: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[0]|int * 0.5)|int }}"
 
     - name: Create tuned profiles
       file: path=/etc/tuned/{{ item }} state=directory mode=0755
