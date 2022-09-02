@@ -92,10 +92,10 @@
   block:
     - name: Add dbsu password to pgpass if exists
       when: pg_dbsu_password is defined and pg_dbsu_password != ''
-      shell: /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
+      shell: /bin/bash /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
 
     - name: Add system user to pgpass
-      shell: /pg/bin/pg-pass-add "{{ item.username }}" "{{ item.password }}"
+      shell: /bin/bash /pg/bin/pg-pass-add "{{ item.username }}" "{{ item.password }}"
       with_items:
         - { username: "{{ pg_replication_username }}", password: "{{ pg_replication_password }}" }
         - { username: "{{ pg_monitor_username }}" ,password: "{{ pg_monitor_password }}" }
