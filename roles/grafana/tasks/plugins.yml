@@ -24,7 +24,7 @@
 
 
 #--------------------------------------------------------------#
-# download plugins from internet
+# install plugins from internet with grafana-cli
 #--------------------------------------------------------------#
 - name: Download grafana plugins via internet
   when: grafana_plugin_method != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin_method == 'always')
@@ -33,13 +33,13 @@
   grafana_plugin: name={{ item }}
   with_items: "{{ grafana_plugin_list  }}"
 
-
-- name: Download grafana plugins via git
-  when: grafana_plugin_method != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin_method == 'always')
-  ignore_errors: true
-  environment: "{{ proxy_env | default({}) }}"
-  git:
-    repo: '{{ item }}'
-    dest: /var/lib/grafana/plugins/{{ item | basename }}
-    update: yes
-  with_items: "{{ grafana_plugin_git }}"
+# OBSOLETE
+# - name: Download grafana plugins via git
+#   when: grafana_plugin_method != 'none' and (not grafana_plugins_cache.stat.exists or grafana_plugin_method == 'always')
+#   ignore_errors: true
+#   environment: "{{ proxy_env | default({}) }}"
+#   git:
+#     repo: '{{ item }}'
+#     dest: /var/lib/grafana/plugins/{{ item | basename }}
+#     update: yes
+#   with_items: "{{ grafana_plugin_git }}"
