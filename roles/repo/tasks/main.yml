@@ -22,7 +22,8 @@
   file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
 
 # get el major release: 7, 8, 9
-- name: Gather OS Spacs
+- name: Gather OS Specs
+  tags: repo_os
   when: os_autodetect is defined and os_autodetect|bool
   block:
 
@@ -138,7 +139,7 @@
     - name: Install repo bootstrap packages for EL8/9
       when: os_version|int >= 8
       yum:
-        name: "dnf-utils,createrepo_c,modulemd-tools,nginx,wget,sshpass"
+        name: "dnf-utils,modulemd-tools,createrepo_c,nginx,wget,sshpass"
         state: latest
 
 
