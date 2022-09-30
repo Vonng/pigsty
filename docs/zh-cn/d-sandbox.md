@@ -136,7 +136,7 @@ end
 
 `vagrant` 二进制程序会根据 Vagrantfile 中的定义，默认调用 Virtualbox 完成本地虚拟机的创建工作。进入Pigsty根目录下的`vagrant`目录，执行`vagrant up`，即可拉起所有的四台虚拟机。[`Makefile`](https://github.com/Vonng/pigsty/blob/master/Makefile#L365)提供了大量对`vagrant`原始命令的封装。
 
-沙箱环境默认使用的虚拟机镜像为`IMAGE_NAME = "centos/7"`。首次执行时会从互联网下载`centos 7.8.2003`的virtualbox镜像，后续重新创建新虚拟机时时将直接克隆此BOX。
+沙箱环境默认使用的虚拟机镜像为`IMAGE_NAME = "centos/7"`。首次执行时会从互联网下载`centos 7.9.2009`的virtualbox镜像，后续重新创建新虚拟机时时将直接克隆此BOX。
 
 
 

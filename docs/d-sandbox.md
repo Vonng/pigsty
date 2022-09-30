@@ -586,6 +586,6 @@ In macOS and Linux, you need to write the above records to `/etc/hosts` (require
 
 ### Caveat
 
-The AliCloud VM CentOS 7.8 mirror runs with `nscd`, which locks out the glibc version and causes RPM dependency errors during installation.
+The AliCloud VM CentOS 7.9 mirror runs with `nscd`, which locks out the glibc version and causes RPM dependency errors during installation.
 
 Run `yum remove -y nscd` on all machines to resolve this issue.

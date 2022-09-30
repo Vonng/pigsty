@@ -22,7 +22,7 @@ only if the following conditions are met:
 
 - [x] Processor architecture: x86_64
 - [x] Hardware specifications: 1C/1GB at least
-- [x] Operating System: CentOS 7.8.2003 (or RHEL7 equivalent)
+- [x] Operating System: CentOS 7.9.2009 (or RHEL7 equivalent)
 - [x] [Admin User](#Admin-Provisioning) can `ssh` to the **meta node** and execute `sudo` commands.
 
 One node is sufficient if you are using Pigsty as a battery-included PostgreSQL database instance. If you also plan to use Pigsty as a control for more nodes/databases, you can prepare more nodes for backup.
@@ -129,7 +129,7 @@ Also, the [`download`](https://github.com/Vonng/pigsty/blob/master/download) scr
 
 The offline package packs all software packages, is about 1GB, and is optional. If `/tmp/pkg.tgz` already exists during a complete installation of Pigsty on the meta node, Pigsty will build the local source directly with that package. Otherwise, Pigsty will download all packages from the network.
 
-The official offline package is made based on CentOS 7.8.2003 OS. Please refer to the [FAQ](s-faq.md) to see all the dependency packages and install them directly from the upstream. Or visit Github on a machine with the same OS, [make an offline package](t-offline.md), and copy it to a network isolated environment.
+The official offline package is made based on CentOS 7.9.2009 OS. Please refer to the [FAQ](s-faq.md) to see all the dependency packages and install them directly from the upstream. Or visit Github on a machine with the same OS, [make an offline package](t-offline.md), and copy it to a network isolated environment.
 
 You can download the offline package in advance on the meta node where Pigsty is to be installed (just on a meta node to `/tmp/pkg.tgz`).
 

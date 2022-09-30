@@ -4,7 +4,7 @@ Pigsty downloads all dependent packages from the Internet and creates [**local Y
 
 The total size of all the dependent software is about 1GB or so. Although Pigsty has tried to use mirror repos as much as possible to speed up the download, the download of a small number of packages may still be blocked by firewalls and may appear very slow. You can set the download proxy to complete the first download by using the [**`proxy_env`**](v-infra.md#proxy_env) config entry.
 
-If you are using an OS other than CentOS 7.8, it is recommended that you use the full online download and installation process. And cache the downloaded software after the first initialization is complete. See [**Making an offline pkg**](#Make-offline-pkg).
+If you are using an OS other than CentOS 7.9, it is recommended that you use the full online download and installation process. And cache the downloaded software after the first initialization is complete. See [**Making an offline pkg**](#Make-offline-pkg).
 
 If you wish to skip the extended download process, or if the execution control meta-node **does not have Internet access**, consider downloading a pre-packaged **offline pkg**.
 
@@ -87,7 +87,7 @@ cache:
 
 ## Prepare pkg.tgz for Production
 
-Before using an offline pkg in a production environment, you must ensure that the OS of the production environment is the same as the **OS** on which the **offline pkg** was made. Pigsty uses CentOS 7.8 by default.
+Before using an offline pkg in a production environment, you must ensure that the OS of the production environment is the same as the **OS** on which the **offline pkg** was made. Pigsty uses CentOS 7.9 by default.
 
 If you need to run Pigsty on other versions of OS (e.g., CentOS 7.3, 7.7), it is recommended that you perform the initialization process thoroughly in a sandbox with the same version of the operating system installed, **without using the offline pkg** and by downloading directly from the upstream repo.
 

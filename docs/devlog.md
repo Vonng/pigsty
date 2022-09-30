@@ -1,5 +1,19 @@
 # Development Log
 
+#### 2022-09-30
+
+* upgrade bytebaes to v1.5.0
+
+#### 2022-09-29
+
+* replace vonng-echarts-panel with apache echarts panel
+
+
+#### 2022-09-19
+
+* broken packages on centos9
+* ntp uuid-devel pgcenter prometheus 
+
 
 #### 2022-05-21
 

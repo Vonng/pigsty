@@ -85,7 +85,7 @@ Check [**FEATURES**](docs/s-feature.md) for detail.
 
 ## TL; DR
 
-Get a new Linux x86_64 CentOS 7.8 node. with nopass `sudo` & `ssh` access, then:
+Get a new Linux x86_64 CentOS 7.9 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source

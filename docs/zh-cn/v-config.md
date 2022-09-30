@@ -66,7 +66,7 @@ $ ./configure
 configure pigsty v1.5.1 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
-[ OK ] release = 7.8.2003 , perfect
+[ OK ] release = 7.9.2009 , perfect
 [ OK ] sudo = root ok
 [ OK ] ssh = root@127.0.0.1 ok
 [ OK ] primary_ip = 10.10.10.10  (from probe)

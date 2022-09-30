@@ -11,7 +11,7 @@ Following information cloud helps a lot when asking for help:
 * What commands are you typing?
 * What result do you expect?
 * What environment is used?
-  * Is it a CentOS 7.8 fresh node? 
+  * Is it a CentOS 7.9 fresh node? 
   * Is it a physical/virtual machine, or a public cloud ECS?
   * Is anything else running on that node?
   * Is offline package`pkg.tgz` been used?

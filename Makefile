@@ -19,7 +19,7 @@ CLS?=meta
 # run with nopass SUDO user (or root) on CentOS 7.x node
 default: tip
 tip:
-	@echo "# Run on Linux x86_64 CentOS 7.8 node with sudo & ssh access"
+	@echo "# Run on Linux x86_64 CentOS 7.9 node with sudo & ssh access"
 	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
 	@echo "./download pkg  # download pigsty offline pkgs (optional)"
 	@echo "./configure     # pre-check and templating config"
@@ -79,7 +79,7 @@ install:
 ###############################################################
 # There are two things needs to be downloaded:
 #    pigsty.tgz    :   source code
-#    pkg.tgz       :   offline rpm packages (build under 7.8)
+#    pkg.tgz       :   offline rpm packages (build under 7.9)
 #
 # get latest stable version to ~/pigsty
 src:

@@ -31,7 +31,7 @@ Pigsty用途广泛，可支持各类上层[SaaS应用](s-feature.md#SaaS软件�
 
 ## 快速上手
 
-准备全新机器节点一台，**Linux x86_64 CentOS 7.8**，确保您可以登陆该节点并免密码执行`sudo`命令。
+准备全新机器节点一台，**Linux x86_64 CentOS 7.9**，确保您可以登陆该节点并免密码执行`sudo`命令。
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)" # 下载

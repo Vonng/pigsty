@@ -24,7 +24,7 @@ When Pigsty is installed on one single node. It will init pigsty infra with a ba
 
 #### TL; DR
 
-[Prepare](d-prepare.md) a **new** node : Linux x86_64 CentOS 7.8.2003, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
+[Prepare](d-prepare.md) a **new** node : Linux x86_64 CentOS 7.9.2009, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # Download Latest Pigsty Source

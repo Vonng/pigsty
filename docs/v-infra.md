@@ -287,7 +287,7 @@ If the download speed of some packages is too slow, you can set the download pro
 
 The offline package is a zip archive of the `{{ nginx_home }}/{{ repo_name }}` dir `pkg.tgz`. During `configure`, if Pigsty finds the offline package `/tmp/pkg.tgz`, it will extract it to `{{ nginx_home }}/{{ repo_name }}`, skipping the software download step during installation.
 
-The default offline package is based on CentOS 7.8.2003 x86_64; if you use a different OS, there may be RPM package conflict and dependency error problems; please refer to the FAQ to solve.
+The default offline package is based on CentOS 7.9.2009 x86_64; if you use a different OS, there may be RPM package conflict and dependency error problems; please refer to the FAQ to solve.
 
 
 

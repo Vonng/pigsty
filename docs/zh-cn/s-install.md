@@ -18,7 +18,7 @@ Pigsty有两种典型使用模式：[单机安装](#单机安装) 与 [集群管
 
 在一台节点上安装Pigsty时，Pigsty会在该节点上部署完整的**基础设施运行时** 与 一个单节点PostgreSQL**数据库集群**。对于个人用户、简单场景、小微企业来说，您可以直接开箱使用此数据库。
 
-准备好**新装**机器（Linux x86_64 CentOS 7.8.2003）一台，配置[管理用户](d-prepare.md#管理用户置备)ssh本机sudo访问，然后[下载Pigsty](d-prepare.md#软件下载)。
+准备好**新装**机器（Linux x86_64 CentOS 7.9.2009）一台，配置[管理用户](d-prepare.md#管理用户置备)ssh本机sudo访问，然后[下载Pigsty](d-prepare.md#软件下载)。
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # 下载最新pigsty源代码

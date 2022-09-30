@@ -390,7 +390,7 @@ A full version of the sandbox is also available in a four-node version with thre
 
 * Linux kernel, x86_64 processor
 * Use CentOS 7 / RedHat 7 / Oracle Linux 7 or other equivalent operating system distribution
-* CentOS 7.8.2003 x86_64 is highly recommended and has been tested in production environments for a long time
+* CentOS 7.9.2009 x86_64 is highly recommended and has been tested in production environments for a long time
 
 **Single Node Basic  Specifications**
 

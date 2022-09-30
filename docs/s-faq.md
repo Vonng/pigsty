@@ -33,9 +33,9 @@ If you wish to deploy a self-managed HA PostgreSQL database cluster, it is recom
 
 ### OS requirements
 
-!> **Pigsty strongly recommends using CentOS 7.8 to avoid meaningless efforts. **
+!> **Pigsty strongly recommends using CentOS 7.9 to avoid meaningless efforts. **
 
-Pigsty development, testing, and packaging are based on CentOS 7.8 by default. CentOS 7.6 is also fully validated. Other CentOS 7. x and its equivalents RHEL7 and Oracle Linux 7 are theoretically OK but have not been tested and verified.
+Pigsty development, testing, and packaging are based on CentOS 7.9 by default. CentOS 7.6 is also fully validated. Other CentOS 7. x and its equivalents RHEL7 and Oracle Linux 7 are theoretically OK but have not been tested and verified.
 
 
 
@@ -133,7 +133,7 @@ https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Yu
 
 !> Download from upstream without offline packages, or just remove the problem package and fill in the gaps from available sources
 
-Pigsty offline packages are made based on CentOS 7.8. Otherwise, there may be RPM package dependency issues.
+Pigsty offline packages are made based on CentOS 7.9. Otherwise, there may be RPM package dependency issues.
 
 If it is only an isolated RPM dependency issue, you can remove the RPM package in `/www/pigsty` and delete the marker file `/www/pigsty/repo_complete`. 
 
@@ -265,11 +265,11 @@ Users can also choose to create the required VM manually by downloading the Cent
 
 
 
-### **RPMs error on Aliyun CentOS 7.8 VM**
+### **RPMs error on Aliyun CentOS 7.9 VM**
 
-!> Aliyun CentOS 7.8 server has DNS caching service `nscd` installed by default. Just remove it.
+!> Aliyun CentOS 7.9 server has DNS caching service `nscd` installed by default. Just remove it.
 
-Aliyun's CentOS 7.8 repo has `nscd` installed by default, locking out the glibc version, which can cause RPM dependency errors during installation.
+Aliyun's CentOS 7.9 repo has `nscd` installed by default, locking out the glibc version, which can cause RPM dependency errors during installation.
 
 ```bash
 "Error: Package: nscd-2.17-307.el7.1.x86_64 (@base)"
