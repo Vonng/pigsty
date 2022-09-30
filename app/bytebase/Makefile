@@ -11,9 +11,9 @@ run: pg
         --restart always --detach \
         --publish 8887:8887 \
         --volume /data/bytebase/data:/var/opt/bytebase \
-        bytebase/bytebase:1.2.1 \
+        bytebase/bytebase:1.5.0 \
         --data /var/opt/bytebase \
-        --host http://ddl.pigsty \
+        --external-url http://ddl.pigsty \
         --port 8887 \
         --pg=postgresql://dbuser_bytebase:DBUser.Bytebase@10.10.10.10:5432/bytebase
 

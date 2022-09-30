@@ -41,11 +41,11 @@ docker pull sosedoff/pgweb            # latest # 192MB
 docker pull vonng/pg_exporter         # latest # 7.64B
 docker pull postgrest/postgrest       # latest # 16.3MB
 docker pull swaggerapi/swagger-ui     # latest # 77MB
-docker pull bytebase/bytebase:1.2.1   # 1.2.1  # 78.1MB
+docker pull bytebase/bytebase:1.5.0   # 1.5.0  # 78.1MB
 docker pull ghcr.io/ferretdb/ferretdb # latest # 18.1MB
 
-docker pull gitea/gitea              # latest # 256MB
-docker pull requarks/wiki:2          # 2 444 MB
+docker pull gitea/gitea               # latest # 256MB
+docker pull requarks/wiki:2           # 2 444 MB
 docker pull andrewjones/schemaspy-postgres # latest 
 ```
 
@@ -53,7 +53,7 @@ docker pull andrewjones/schemaspy-postgres # latest
 
 ```bash
 # make image cache
-docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest minio/minio bytebase/bytebase:1.2.1 ghcr.io/ferretdb/ferretdb | gzip -9 -c > /tmp/docker.tgz
+docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb vonng/pg_exporter postgrest/postgrest minio/minio bytebase/bytebase:1.5.0  | gzip -9 -c > /tmp/docker.tgz
 cat /tmp/docker.tgz | gzip -d -c - | docker load  
 ```
 

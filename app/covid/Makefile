@@ -43,16 +43,14 @@ data: reload
 #-----------------------------#
 download:
 	mkdir -p data/
-	curl -fSL https://covid19.who.int/WHO-COVID-19-global-data.csv       -o data/history.csv
+	curl -fSL https://covid19.who.int/WHO-COVID-19-global-data.csv -o data/covid.csv
 
 load: clean
 	cat data/history.csv | psql ${METADB_URL} -c "COPY covid.country_history FROM STDIN CSV HEADER;";
 
 clean:
-	psql ${METADB_URL} -c 'TRUNCATE covid.country_history, covid.country_latest;';
+	psql ${METADB_URL} -c 'TRUNCATE app.covid;';
 
 reload: download load
-
-
 
 .PHONY: default install all ui sql data-local data-fetch download load clean reload
