@@ -65,8 +65,8 @@
       yum_repository: "{{ item }}"
       with_items: "{{ repo_upstreams }}"
 
-    - name: Add required upstream repos from template
-      template: src={{ repo_template }} dest=/etc/yum.repos.d/pigsty-upstream.repo mode=0644
+    # - name: Add required upstream repos from template
+    #   template: src={{ repo_template }} dest=/etc/yum.repos.d/pigsty-upstream.repo mode=0644
 
 
 #--------------------------------------------------------------#
@@ -120,26 +120,16 @@
       shell: |
         {% if os_version|int >= 8 %}
         dnf clean all; dnf makecache; /bin/true
+        dnf module disable -y php nginx postgresql; /bin/true
         {% else %}
         yum clean all; yum makecache; /bin/true
         {% endif %}
 
-    - name: Disable default modules on EL8/9
-      when: os_version|int >= 8
-      shell: dnf module disable -y php nginx postgresql; /bin/true
-
     # those packages are already installed during configure
     # just make sure them exists
-    - name: Install repo bootstrap packages for EL7
-      when: os_version|int == 7
+    - name: Install repo bootstrap packages
       yum:
-        name: "yum-utils,createrepo_c,nginx,wget,sshpass"
-        state: latest
-
-    - name: Install repo bootstrap packages for EL8/9
-      when: os_version|int >= 8
-      yum:
-        name: "dnf-utils,modulemd-tools,createrepo_c,nginx,wget,sshpass"
+        name: "nginx,wget,sshpass,createrepo_c,{% if os_version|int == 7 %}yum-utils{% else %}dnf-utils,modulemd-tools{% endif %}"
         state: latest
 
 

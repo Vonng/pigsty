@@ -9,7 +9,7 @@
 ########################################################################
 #                              NODES                                   #
 ########################################################################
-# OFFICIAL OS RELEASE SUPPORT: CentOS 7
+# OFFICIAL OS RELEASE SUPPORT: CentOS 7,9
 # CONTRIB OS SUPPORT: Rocky|Oracle|Alama Linux 8,9
 
 
@@ -76,6 +76,47 @@ gpgcheck=0
 
 
 
+{% if os_name|lower == 'centos' and os_version|int == 9 %}
+#======================================================================#
+#                              CentOS                                  #
+#======================================================================#
+
+[baseos]
+name=CentOS Stream $releasever - BaseOS
+metalink=https://mirrors.centos.org/metalink?repo=centos-baseos-$stream&arch=$basearch&protocol=https,http
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=1
+
+
+[appstream]
+name=CentOS Stream $releasever - AppStream
+metalink=https://mirrors.centos.org/metalink?repo=centos-appstream-$stream&arch=$basearch&protocol=https,http
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=1
+
+[crb]
+name=CentOS Stream $releasever - CRB
+metalink=https://mirrors.centos.org/metalink?repo=centos-crb-$stream&arch=$basearch&protocol=https,http
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+{% endif %}
+
+
+
+
+
 {% if os_name|lower == 'rocky' and os_version|int >= 8 %}
 #======================================================================#
 #                            Rocky Linux                               #
@@ -83,8 +124,10 @@ gpgcheck=0
 
 [appstream]
 name=Rocky Linux $releasever - AppStream
-{% if region == 'default' or region == 'china' %}
+{% if region == 'default' %}
 baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/
+{% elif region == 'china' %}
+baseurl=https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/
 {% elif region == 'europe' %}
 baseurl=https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/
 {% endif %}
@@ -92,8 +135,10 @@ gpgcheck=0
 
 [baseos]
 name=Rocky Linux $releasever - BaseOS
-{% if region == 'default' or region == 'china' %}
+{% if region == 'default' %}
 baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/
+{% elif region == 'china' %}
+baseurl=https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/
 {% elif region == 'europe' %}
 baseurl=https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/
 {% endif %}
@@ -101,8 +146,10 @@ gpgcheck=0
 
 [extras]
 name=Rocky Linux $releasever - Extras
-{% if region == 'default' or region == 'china' %}
+{% if region == 'default' %}
 baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/
+{% elif region == 'china' %}
+baseurl=https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/
 {% elif region == 'europe' %}
 baseurl=https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/
 {% endif %}
@@ -111,8 +158,10 @@ gpgcheck=0
 {% if os_version|int == 8 %}
 [powertools]
 name=Rocky Linux $releasever - PowerTools
-{% if region == 'default' or region == 'china' %}
+{% if region == 'default' %}
 baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/
+{% elif region == 'china' %}
+baseurl=https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/
 {% elif region == 'europe' %}
 baseurl=https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/
 {% endif %}
@@ -305,12 +354,15 @@ gpgcheck=0
 #======================================================================#
 #                              Kubernetes                              #
 #======================================================================#
+# available for rhel 7/8
+
+{% if os_version|int <= 8 %}
 [harbottle]
 name=Harbottle for Kubernetes
 baseurl=https://copr-be.cloud.fedoraproject.org/results/harbottle/main/epel-$releasever-$basearch/
 skip_if_unavailable=True
 gpgcheck=0
-
+{% endif %}
 
 
 
@@ -392,6 +444,8 @@ gpgcheck=0
 #======================================================================#
 #                           PG Pro Backup                              #
 #======================================================================#
+# available for rhel 7/8
+{% if os_version|int <= 8 %}
 [pg_probackup]
 name=PG_PROBACKUP Packages for {{ os_name }} $releasever - $basearch
 {% if os_name == 'Oracle' %}
@@ -401,4 +455,4 @@ baseurl=http://repo.postgrespro.ru/pg_probackup/rpm/latest/centos-$releasever-$b
 {% endif %}
 skip_if_unavailable=True
 gpgcheck=0
-
+{% endif %}
