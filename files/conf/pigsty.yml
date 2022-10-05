@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-07-18
+# Mtime     :   2022-09-27
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -169,12 +169,6 @@ all:
             roles: [ dbrole_admin ]
         pg_databases:                 # create a database and user named 'test'
           - name: test
-
-        vip_mode: l2                  # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3       # virtual ip address for this cluster
-        vip_cidrmask: 8               # cidr network mask length
-        vip_interface: eth1           # interface to add virtual ip
-
         pg_services_extra:                  # extra services in addition to pg_services_default, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
@@ -191,7 +185,10 @@ all:
               maxconn: 3000           # optional, max allowed front-end connection
               balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
               default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-
+        vip_mode: l2                  # enable/disable vip (require members in same LAN)
+        vip_address: 10.10.10.3       # virtual ip address for this cluster
+        vip_cidrmask: 8               # cidr network mask length
+        vip_interface: eth1           # interface to add virtual ip
 
     #================================================================#
     #                        REDIS Clusters                          #
@@ -329,33 +326,40 @@ all:
     repo_address: pigsty              # external address to this repo (ip:port or url)
     repo_rebuild: false               # force re-download packages
     repo_remove: true                 # remove existing upstream repo
-    repo_template: upstream.repo      # repo template file path
-    repo_upstreams: []                # additional repo upstream to be added
-    repo_packages:                    # which packages to be included                                                   #  what to download #
-      - epel-release nginx wget yum-utils yum createrepo_c sshpass zip unzip                                            # ----  boot   ---- #
-      - ntp chrony uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync        # ----  node   ---- #
-      - numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates keepalived # ----- utils ----- #
-      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent perl perl-devel perl-ExtUtils*           # ---  deps:pg  --- #
-      - readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel       # --- deps:devel -- #
-      - grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq          # -----  meta ----- #
-      - node_exporter nginx_exporter blackbox_exporter redis_exporter                                                   # ---- exporter --- #
-      - ansible python python-pip python-psycopg2                                                                       # - ansible & py3 - #
-      - python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
-      - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail                           # -- pgsql common - #
-      - pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL
-      - postgresql14* postgis32_14* pglogical_14* citus110_14 timescaledb-2-postgresql-14 pg_repack_14 wal2json_14      # -- pg14 packages -#
-      - pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 pg_probackup-std-14
-      - pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
-      - mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14
-      - hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14 multicorn2_14 pg_ivm_14
-      - bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14
-      - repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14
-      - pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pg_readonly_14 pgagent_14
-      - pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
-      - pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
-      - safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
-      - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # gcc gcc-c++                      # - build utils - #
-      - docker-ce docker-compose kubelet kubectl kubeadm kubernetes-cni helm                                            # - cloud native- #
+    repo_upstreams:                   # additional repo upstream to be added
+      - { name: base           , baseurl: 'http://mirror.centos.org/centos/7/os/$basearch/'                                                ,  description: 'CentOS-7 - Base'                               , gpgcheck: no }
+      - { name: updates        , baseurl: 'http://mirror.centos.org/centos/7/updates/$basearch/'                                           ,  description: 'CentOS-7 - Updates'                            , gpgcheck: no }
+      - { name: extras         , baseurl: 'http://mirror.centos.org/centos/7/extras/$basearch/'                                            ,  description: 'CentOS-7 - Extras'                             , gpgcheck: no }
+      - { name: epel           , baseurl: 'http://download.fedoraproject.org/pub/epel/7/$basearch'                                         ,  description: 'CentOS 7 - EPEL'                               , gpgcheck: no }
+      - { name: centos-sclo    , baseurl: 'http://mirror.centos.org/centos/7/sclo/$basearch/sclo/'                                         ,  description: 'CentOS-7 - SCLo'                               , gpgcheck: no }
+      - { name: centos-sclo-rh , baseurl: 'http://mirror.centos.org/centos/7/sclo/$basearch/rh/'                                           ,  description: 'CentOS-7 - SCLo rh'                            , gpgcheck: no }
+      - { name: pgdg-common    , baseurl: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-7-$basearch'                   ,  description: 'PostgreSQL Common RPMs for RHEL 7 - $basearch' , gpgcheck: no }
+      - { name: pgdg-extras    , baseurl: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel7-extras/redhat/rhel-7-$basearch' ,  description: 'PostgreSQL Extra RPMs for RHEL 7 $basearch'    , gpgcheck: no }
+      - { name: pgdg14         , baseurl: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$basearch'                       ,  description: 'PostgreSQL 14 for RHEL/CentOS 7 - $basearch'   , gpgcheck: no }
+      - { name: pgdg15-rc      , baseurl: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-7-$basearch'                       ,  description: 'PostgreSQL 15 for RHEL/CentOS 7 - $basearch'   , gpgcheck: no }
+      - { name: grafana        , baseurl: 'https://packages.grafana.com/oss/rpm'                                                           ,  description: 'Grafana Official Yum Repo'                     , gpgcheck: no }
+      - { name: prometheus     , baseurl: 'https://packagecloud.io/prometheus-rpm/release/el/7/$basearch'                                  ,  description: 'Prometheus and exporters'                      , gpgcheck: no }
+      - { name: citus          , baseurl: 'https://repos.citusdata.com/community/el/7/$basearch'                                           ,  description: 'Citus Community 7 - $basearch'                 , gpgcheck: no }
+      - { name: timescaledb    , baseurl: 'https://packagecloud.io/timescale/timescaledb/el/7/$basearch'                                   ,  description: 'TimescaleDB for RHEL/CentOS 7 - $basearch'     , gpgcheck: no }
+      - { name: nginx          , baseurl: 'https://nginx.org/packages/centos/7/$basearch/'                                                 ,  description: 'Nginx Official Yum Repo'                       , gpgcheck: no , skip_if_unavailable: true  }
+      - { name: docker-ce      , baseurl: 'https://download.docker.com/linux/centos/7/$basearch/stable'                                    ,  description: 'Docker CE Stable - $basearch'                  , gpgcheck: no , skip_if_unavailable: true  }
+
+    repo_packages: # which packages to be included                                   #  what to download #
+      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils  # ---- boot ---- #
+      - uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet ca-certificates
+      - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
+      - grafana prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter
+      - ansible python python-pip python-psycopg2 python3 python3-psycopg2 python36-requests python3-etcd python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
+      - patroni patroni-consul patroni-etcd pgbouncer pg_cli pgbadger pg_activity tail_n_mail pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgloader pgFormatter pitrery pspg pgxnclient PyGreSQL
+      - postgresql14* postgis32_14* pglogical_14* citus111_14 timescaledb-2-postgresql-14 promscale-extension-postgresql-14
+      -  postgresql15* postgis32_15* citus111_15 # timescaledb-2-postgresql-15
+      - pg_repack_14 wal2json_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
+      - mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14 multicorn2_14 pg_ivm_14
+      - bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14
+      - pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
+      - pgquarrel-0.7.0-1 pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
+      - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex # - build utils - #
+      - docker-ce docker-compose # kubelet kubectl kubeadm kubernetes-cni helm       # - cloud native- #
 
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
@@ -365,7 +369,7 @@ all:
       - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.1/haproxy-2.6.1-1.el7.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
-      - https://github.com/dalibo/pev2/releases/download/v1.2.0/index.html
+      - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -402,11 +406,10 @@ all:
     grafana_plugin_method: install    # none|install|always, none will skip plugin install
     grafana_plugin_cache: /www/pigsty/plugins.tgz # path to grafana plugins cache tarball
     grafana_plugin_list:              # plugins that will be downloaded via grafana-cli
+      - volkovlabs-echarts-panel
       - marcusolsson-csv-datasource
       - marcusolsson-json-datasource
       - marcusolsson-treemap-panel
-    grafana_plugin_git:               # plugins that will be downloaded via git
-      - https://github.com/Vonng/vonng-echarts-panel
 
     #-----------------------------------------------------------------
     # LOKI
@@ -488,8 +491,8 @@ all:
 
     node_packages: [ ]                # extra packages for all nodes
     node_packages_default:            # common packages for all nodes
-      - wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal,ca-certificates
-      - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,nc,pv,jq,perf
+      - chrony,tuned,zip,unzip,bzip2,lz4,nc,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
+      - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
       - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
@@ -526,13 +529,11 @@ all:
     #-----------------------------------------------------------------
     node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
     node_ntp_enabled: true            # enable ntp service? false will leave ntp service untouched
-    node_ntp_service: ntp             # ntp service provider: ntp|chrony
-    node_ntp_servers:                 # default NTP servers
+    node_ntp_servers:                 # NTP servers in /etc/chrony.conf
       - pool cn.pool.ntp.org iburst
       - pool pool.ntp.org iburst
       - pool time.pool.aliyun.com iburst
       - server ntp.tuna.tsinghua.edu.cn iburst
-      - server ${meta_ip} iburst
     node_crontab_overwrite: true      # true will overwrite /etc/crontab, false will append crontab
     node_crontab: [ ]                 # crontab entries in /etc/crontab
 
@@ -617,7 +618,7 @@ all:
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}*      # postgresql kernel packages
-      - postgis32_${pg_version}* citus110_${pg_version} timescaledb-2-postgresql-${pg_version}
+      - postgis32_${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
       - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
       - patroni patroni-consul patroni-etcd python3 python3-psycopg2 python36-requests python3-etcd
       - python3-consul python36-urllib3 python36-idna python36-pyOpenSSL python36-cryptography
