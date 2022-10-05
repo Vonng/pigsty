@@ -3,7 +3,10 @@
         "list": [
             {
                 "builtIn": 1,
-                "datasource": "-- Grafana --",
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
                 "enable": true,
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
@@ -23,7 +26,6 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1648343925220,
     "links": [
         {
             "asDropdown": false,
@@ -55,17 +57,25 @@
             },
             "id": 2,
             "options": {
-                "followTheme": false,
-                "getOption": "\nfunction parse_grafana_data(d) {\n    var rawData = []\n    if (data.series[0].fields[0].values.buffer === undefined) {\n        rawData = d.series[0].fields.map((e) => {\n            return e.values\n        })\n    } else { // large dataset will have their data inside a buffer\n        rawData = d.series[0].fields.map((e) => {\n            return e.values.buffer\n        })\n    }\n    var nDim = rawData.length\n    var nItem = rawData[0].length\n    var result = []\n    for (var i = 0; i < nItem; i++) {    // item\n        result[i] = []\n        for (var j = 0; j < nDim; j++) {  // dimension\n            result[i][j] = rawData[j][i]\n        }\n    }\n    return result\n}\n\nvar rawData = parse_grafana_data(data)\nvar dateList = rawData.map((i)=>{return i[0]})\nvar optionList = rawData.map((i)=>{\n    return {series: [{data: JSON.parse(i[1])},{data: JSON.parse(i[1])}]}\n})\n\n\nreturn {\n    baseOption: {\n        title: {\n            text: 'COVID-19 Timeline Map',\n            subtext: 'Data Source: WHO',\n            top: '2%',\n            right: 'center'\n        },\n        timeline: {\n            axisType: 'category',\n            orient: 'vertical',\n            autoPlay: true,\n            inverse: true,\n            playInterval: 500,\n            left: '2%',\n            top: '10%',\n            bottom: '10%',\n            width: 60,\n            height: null,\n            label: {\n                formatter: function (param) {\n                    return param.substr(5, 10)\n                },\n                color: '#999'\n            },\n            symbol: 'none',\n            lineStyle: {\n                color: '#555'\n            },\n            checkpointStyle: {\n                color: '#bbb',\n                borderColor: '#777',\n                borderWidth: 2\n            },\n            controlStyle: {\n                showNextBtn: false,\n                showPrevBtn: false,\n                color: '#666',\n                borderColor: '#666'\n            },\n            emphasis: {\n                label: {\n                    color: '#fff'\n                },\n                controlStyle: {\n                    color: '#aaa',\n                    borderColor: '#aaa'\n                }\n            },\n            data: dateList\n        },\n        grid: {\n            left: \"10%\",\n            bottom: \"10%\",\n        },\n        geo: {\n            show: false,\n            map: 'world'\n        },\n        visualMap: {\n            show: true,\n            right: '5%',\n            top: '40%',\n            min: 0,\n            max: 10000,\n            inRange: {\n                color: ['#ffffff', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']\n            },\n            text: ['High', 'Low'],           // \u6587\u672c\uff0c\u9ed8\u8ba4\u4e3a\u6570\u503c\u6587\u672c\n            calculable: true\n        },\n        series: [\n            {\n                type: 'map',\n                map: 'world',\n                roam: false,\n                coordinateSystem: 'geo',\n                label: {\n                    fontFamily: 'sans-serif',\n                    formatter: function (param) {\n                        if (isNaN(param.value)) {\n                            return 'N/A'\n                        }\n                        return param.value\n                    },\n                    position: 'right',\n                    show: false\n                },\n                emphasis: {\n                    label: {\n                        show: true\n                    }\n                }\n            },\n            {\n                name: '\u75c5\u4f8b\u5360\u6bd4',\n                type: 'pie',\n                minAngle: 1,\n                minShowLabelAngle: 5,\n                label: {\n                    fontFamily: 'sans-serif',\n                    position: 'right',\n                    color: \"#000\"\n                },\n                itemStyle: {\n                    borderWidth: 0.5,\n                    borderColor: \"#AAA\"\n                },\n                center: ['25%', '60%'],\n                radius: '15%',\n                z: 100\n            }\n        ]\n    },\n    options: optionList\n};"
+                "editor": {
+                    "format": "auto",
+                    "height": 600
+                },
+                "getOption": "\nfunction parse_grafana_data(d) {\n  var rawData = []\n  if (data.series[0].fields[0].values.buffer === undefined) {\n    rawData = d.series[0].fields.map((e) => {\n      return e.values\n    })\n  } else { // large dataset will have their data inside a buffer\n    rawData = d.series[0].fields.map((e) => {\n      return e.values.buffer\n    })\n  }\n  var nDim = rawData.length\n  var nItem = rawData[0].length\n  var result = []\n  for (var i = 0; i < nItem; i++) {    // item\n    result[i] = []\n    for (var j = 0; j < nDim; j++) {  // dimension\n      result[i][j] = rawData[j][i]\n    }\n  }\n  return result\n}\n\nvar rawData = parse_grafana_data(data)\nvar dateList = rawData.map((i) => { return i[0] })\nvar optionList = rawData.map((i) => {\n  return { series: [{ data: JSON.parse(i[1]) }, { data: JSON.parse(i[1]) }] }\n})\n\n\nreturn {\n  baseOption: {\n    title: {\n      text: 'COVID-19 Timeline Map',\n      subtext: 'Data Source: WHO',\n      top: '2%',\n      right: 'center'\n    },\n    timeline: {\n      axisType: 'category',\n      orient: 'vertical',\n      autoPlay: true,\n      inverse: true,\n      playInterval: 500,\n      left: '2%',\n      top: '10%',\n      bottom: '10%',\n      width: 60,\n      height: null,\n      label: {\n        formatter: function (param) {\n          return param.substr(5, 10)\n        },\n        color: '#999'\n      },\n      symbol: 'none',\n      lineStyle: {\n        color: '#555'\n      },\n      checkpointStyle: {\n        color: '#bbb',\n        borderColor: '#777',\n        borderWidth: 2\n      },\n      controlStyle: {\n        showNextBtn: false,\n        showPrevBtn: false,\n        color: '#666',\n        borderColor: '#666'\n      },\n      emphasis: {\n        label: {\n          color: '#fff'\n        },\n        controlStyle: {\n          color: '#aaa',\n          borderColor: '#aaa'\n        }\n      },\n      data: dateList\n    },\n    grid: {\n      left: \"10%\",\n      bottom: \"10%\",\n    },\n    geo: {\n      show: false,\n      map: 'world'\n    },\n    visualMap: {\n      show: true,\n      right: '5%',\n      top: '40%',\n      min: 0,\n      max: 10000,\n      inRange: {\n        color: ['#ffffff', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']\n      },\n      text: ['High', 'Low'],           // \u6587\u672c\uff0c\u9ed8\u8ba4\u4e3a\u6570\u503c\u6587\u672c\n      calculable: true\n    },\n    series: [\n      {\n        type: 'map',\n        map: 'world',\n        roam: false,\n        coordinateSystem: 'geo',\n        label: {\n          fontFamily: 'sans-serif',\n          formatter: function (param) {\n            if (isNaN(param.value)) {\n              return 'N/A'\n            }\n            return param.value\n          },\n          position: 'right',\n          show: false\n        },\n        emphasis: {\n          label: {\n            show: true\n          }\n        }\n      },\n      {\n        name: '\u75c5\u4f8b\u5360\u6bd4',\n        type: 'pie',\n        minAngle: 1,\n        minShowLabelAngle: 5,\n        label: {\n          fontFamily: 'sans-serif',\n          position: 'right',\n          color: \"#000\"\n        },\n        itemStyle: {\n          borderWidth: 0.5,\n          borderColor: \"#AAA\"\n        },\n        center: ['25%', '60%'],\n        radius: '15%',\n        z: 100\n      }\n    ]\n  },\n  options: optionList\n};",
+                "renderer": "canvas"
             },
             "pluginVersion": "7.1.3",
             "targets": [
                 {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "ds-meta"
+                    },
                     "format": "table",
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT date::TEXT, json_agg(json_build_object('name', country_code, 'value', $data_type)) AS data\nFROM covid.country_history WHERE $__timeFilter(date) GROUP BY 1 ORDER BY 1",
+                    "rawSql": "SELECT date::TEXT, json_agg(json_build_object('name', country_code, 'value', $data_type)) AS data\nFROM app.covid WHERE $__timeFilter(date) GROUP BY 1 ORDER BY 1",
                     "refId": "A",
                     "select": [
                         [
@@ -88,10 +98,10 @@
                 }
             ],
             "transparent": true,
-            "type": "vonng-echarts-panel"
+            "type": "volkovlabs-echarts-panel"
         }
     ],
-    "schemaVersion": 35,
+    "schemaVersion": 37,
     "style": "dark",
     "tags": [
         "APP",
@@ -109,12 +119,12 @@
                 "name": "data_type",
                 "options": [
                     {
-                        "selected": true,
+                        "selected": false,
                         "text": "new_cases",
                         "value": "new_cases"
                     },
                     {
-                        "selected": false,
+                        "selected": true,
                         "text": "cum_cases",
                         "value": "cum_cases"
                     },
