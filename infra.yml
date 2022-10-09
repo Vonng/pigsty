@@ -143,7 +143,6 @@
 
     # fetch cluster inventory variable from hostvars of corresponding cluster
     - name: Gather pgsql basic facts
-      when: pg == 'all' or pg == 'meta'
       set_fact:
         pg_meta={{ hostvars| json_query(cluster_query) }}
         pg_instance={{ pg_cluster }}-{{ pg_seq }}
@@ -152,7 +151,6 @@
 
     # calculate basic cluster facts from pg_meta
     - name: Build pgsql basic facts
-      when: pg == 'all' or pg == 'meta'
       set_fact:
         pg_is_primary={{ pg_role == 'primary' }}
         pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
@@ -165,7 +163,6 @@
 
     # print instance pre-flight check summary
     - name: Show pgsql identity summary
-      when: pg == 'all' or pg == 'meta'
       debug:
         msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
           {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
@@ -190,19 +187,15 @@
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
-      when: pg == 'all' or pg == 'meta'
       tags: postgres
 
     - role: service         # init service , haproxy , vip
-      when: pg == 'all' or pg == 'meta'
       tags: service
 
     - role: pg_exporter     # init monitor exporters
-      when: pg == 'all' or pg == 'meta'
       tags: pg-exporter
 
     - role: pg_register     # register cluster/instance to infra
-      when: pg == 'all' or pg == 'meta'
       tags: pg-register
 
 #---------------------------------------------------------------
