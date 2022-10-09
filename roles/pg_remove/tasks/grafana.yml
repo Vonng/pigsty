@@ -7,7 +7,7 @@
   ignore_errors: yes
   delegate_to: meta
   shell: |
-    curl -X DELETE "{{ grafana_endpoint }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
+    curl -X DELETE "{{ grafana_endpoint | regex_replace('\${meta_ip}', meta_ip ) }}/api/datasources/name/{{ insdb }}" -u "{{ grafana_admin_username }}:{{ grafana_admin_password }}"  -H 'Content-Type: application/json' || true
   vars:
     datname: "{{ item.name }}"
     insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"

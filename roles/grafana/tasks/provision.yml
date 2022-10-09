@@ -10,16 +10,12 @@
     #!/bin/bash
 
     # grafana access info
-    export GRAFANA_ENDPOINT={{ grafana_endpoint }}
+    export GRAFANA_ENDPOINT={{ grafana_endpoint | regex_replace('\${meta_ip}', meta_ip ) }}
     export GRAFANA_USERNAME={{ grafana_admin_username }}
     export GRAFANA_PASSWORD={{ grafana_admin_password }}
-
-    # external access info
-    export NGINX_UPSTREAM_HOME={{ nginx_upstream | json_query('[?name==`home`].domain') | first }}
-    export NGINX_UPSTREAM_CONSUL={{ nginx_upstream | json_query('[?name==`consul`].domain') | first }}
-    export NGINX_UPSTREAM_PROMETHEUS={{ nginx_upstream | json_query('[?name==`prometheus`].domain') | first }}
-    export NGINX_UPSTREAM_ALERTMANAGER={{ nginx_upstream | json_query('[?name==`alertmanager`].domain') | first }}
-    export NGINX_UPSTREAM_GRAFANA={{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}
+    
+    # passing domain names in k=v, format
+    export NGINX_UPSTREAM={% for entry in nginx_upstream %}{% if not loop.first %},{% endif %}{{ entry.name }}={{ entry.domain }}{% endfor %}
 
     # run provisinoing logic
     /etc/pigsty/dashboards/grafana.py init /etc/pigsty/dashboards/

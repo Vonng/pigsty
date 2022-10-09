@@ -53,6 +53,7 @@ function catlog(){ # getlog <ip|host> <date:YYYY-MM-DD>
 
 #==================================#
 # pglist: list all pg cluster in consul
+{% if pg_dcs_type is defined and pg_dcs_type == 'consul' and consul_enabled|bool %}
 function pglist() {
   local filter=${1-'pg/'}
   consul kv get -keys ${filter} | sort
@@ -76,3 +77,4 @@ function gm() {
       | jq  | grep lan_ipv4 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" )
   [[ -z "$ip" ]] && echo "not found" || ssh ${ip}
 }
+{% endif %}
