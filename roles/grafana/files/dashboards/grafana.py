@@ -5,36 +5,24 @@ import os, sys, json, requests
 ENDPOINT = os.environ.get("GRAFANA_ENDPOINT", 'http://g.pigsty:3000')
 USERNAME = os.environ.get("GRAFANA_USERNAME", 'admin')
 PASSWORD = os.environ.get("GRAFANA_PASSWORD", 'pigsty')
+UPSTREAM = os.environ.get("NGINX_UPSTREAM", "")
 
 ##########################################
 # load dashboard
 ############################w##############
-# external domain substitute info
-PLACEHOLDER_HOME = 'pigsty'
-PLACEHOLDER_CONSUL = 'c.pigsty'
-PLACEHOLDER_GRAFANA = 'g.pigsty'
-PLACEHOLDER_PROMETHEUS = 'p.pigsty'
-PLACEHOLDER_ALERTMANAGER = 'a.pigsty'
-
-UPSTREAM_HOME = os.environ.get("NGINX_UPSTREAM_HOME", PLACEHOLDER_HOME)
-UPSTREAM_GRAFANA = os.environ.get("NGINX_UPSTREAM_GRAFANA", PLACEHOLDER_GRAFANA)
-UPSTREAM_CONSUL = os.environ.get("NGINX_UPSTREAM_CONSUL", PLACEHOLDER_CONSUL)
-UPSTREAM_PROMETHEUS = os.environ.get("NGINX_UPSTREAM_PROMETHEUS", PLACEHOLDER_PROMETHEUS)
-UPSTREAM_ALERTMANAGER = os.environ.get("NGINX_UPSTREAM_ALERTMANAGER", PLACEHOLDER_ALERTMANAGER)
-
-
 # replace all url according to environment
+REPLACEMENT = {i.split('=')[0]: i.split('=')[1] for i in UPSTREAM.split(',')}
 def host_replace(s):
-    if UPSTREAM_HOME != PLACEHOLDER_HOME:
-        s = s.replace('://' + PLACEHOLDER_HOME + '/', '://' + UPSTREAM_HOME + '/')
-    if UPSTREAM_GRAFANA != PLACEHOLDER_GRAFANA:
-        s = s.replace('://' + PLACEHOLDER_GRAFANA, '://' + UPSTREAM_GRAFANA)
-    if UPSTREAM_CONSUL != PLACEHOLDER_CONSUL:
-        s = s.replace('://' + PLACEHOLDER_CONSUL, '://' + UPSTREAM_CONSUL)
-    if UPSTREAM_PROMETHEUS != PLACEHOLDER_PROMETHEUS:
-        s = s.replace('://' + PLACEHOLDER_PROMETHEUS, '://' + UPSTREAM_PROMETHEUS)
-    if UPSTREAM_ALERTMANAGER != PLACEHOLDER_ALERTMANAGER:
-        s = s.replace('://' + PLACEHOLDER_ALERTMANAGER, '://' + UPSTREAM_ALERTMANAGER)
+    if 'home' in REPLACEMENT and REPLACEMENT['home'] != 'pigsty':
+        s = s.replace('://pigsty/', '://' + REPLACEMENT['home'] + '/')
+    if 'consul' in REPLACEMENT and REPLACEMENT['consul'] != 'c.pigsty':
+        s = s.replace('://c.pigsty', '://' + REPLACEMENT['consul'])
+    if 'grafana' in REPLACEMENT and REPLACEMENT['grafana'] != 'g.pigsty':
+        s = s.replace('://g.pigsty', '://' + REPLACEMENT['grafana'])
+    if 'prometheus' in REPLACEMENT and REPLACEMENT['prometheus'] != 'p.pigsty':
+        s = s.replace('://p.pigsty', '://' + REPLACEMENT['prometheus'])
+    if 'alertmanager' in REPLACEMENT and REPLACEMENT['alertmanager'] != 'a.pigsty':
+        s = s.replace('://a.pigsty', '://' + REPLACEMENT['alertmanager'])
     return s
 
 
