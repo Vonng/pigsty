@@ -75,9 +75,31 @@ sed -e ${sed_cmd} ${config_src} > ${config_dst}
 It can also be loaded via `load_cls.py` when using cmdb dynamic inventory.
 
 
-## Alternative Upstream repo
+## Alternative Upstream Repo
 
-Use these repo in mainland China to accelerate
+Default Repos:
+
+```yaml
+- { name: base           , baseurl: 'http://mirror.centos.org/centos/7/os/$basearch/'                                                ,  description: 'CentOS-7 - Base'                               , gpgcheck: no }
+- { name: updates        , baseurl: 'http://mirror.centos.org/centos/7/updates/$basearch/'                                           ,  description: 'CentOS-7 - Updates'                            , gpgcheck: no }
+- { name: extras         , baseurl: 'http://mirror.centos.org/centos/7/extras/$basearch/'                                            ,  description: 'CentOS-7 - Extras'                             , gpgcheck: no }
+- { name: epel           , baseurl: 'http://download.fedoraproject.org/pub/epel/7/$basearch'                                         ,  description: 'CentOS 7 - EPEL'                               , gpgcheck: no }
+- { name: centos-sclo    , baseurl: 'http://mirror.centos.org/centos/7/sclo/$basearch/sclo/'                                         ,  description: 'CentOS-7 - SCLo'                               , gpgcheck: no }
+- { name: centos-sclo-rh , baseurl: 'http://mirror.centos.org/centos/7/sclo/$basearch/rh/'                                           ,  description: 'CentOS-7 - SCLo rh'                            , gpgcheck: no }
+- { name: pgdg-common    , baseurl: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-7-$basearch'                   ,  description: 'PostgreSQL Common RPMs for RHEL 7 - $basearch' , gpgcheck: no }
+- { name: pgdg-extras    , baseurl: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel7-extras/redhat/rhel-7-$basearch' ,  description: 'PostgreSQL Extra RPMs for RHEL 7 $basearch'    , gpgcheck: no }
+- { name: pgdg14         , baseurl: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-7-$basearch'                       ,  description: 'PostgreSQL 14 for RHEL/CentOS 7 - $basearch'   , gpgcheck: no }
+- { name: pgdg15-rc      , baseurl: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-7-$basearch'                       ,  description: 'PostgreSQL 15 for RHEL/CentOS 7 - $basearch'   , gpgcheck: no }
+- { name: grafana        , baseurl: 'https://packages.grafana.com/oss/rpm'                                                           ,  description: 'Grafana Official Yum Repo'                     , gpgcheck: no }
+- { name: prometheus     , baseurl: 'https://packagecloud.io/prometheus-rpm/release/el/7/$basearch'                                  ,  description: 'Prometheus and exporters'                      , gpgcheck: no }
+- { name: citus          , baseurl: 'https://repos.citusdata.com/community/el/7/$basearch'                                           ,  description: 'Citus Community 7 - $basearch'                 , gpgcheck: no }
+- { name: timescaledb    , baseurl: 'https://packagecloud.io/timescale/timescaledb/el/7/$basearch'                                   ,  description: 'TimescaleDB for RHEL/CentOS 7 - $basearch'     , gpgcheck: no }
+- { name: nginx          , baseurl: 'https://nginx.org/packages/centos/7/$basearch/'                                                 ,  description: 'Nginx Official Yum Repo'                       , gpgcheck: no , skip_if_unavailable: true  }
+- { name: docker-ce      , baseurl: 'https://download.docker.com/linux/centos/7/$basearch/stable'                                    ,  description: 'Docker CE Stable - $basearch'                  , gpgcheck: no , skip_if_unavailable: true  }
+
+```
+
+China Mirrors:
 
 ```yaml
 - { name: base           , baseurl: 'https://mirrors.tuna.tsinghua.edu.cn/centos/7/os/$basearch/'                              ,  description: 'CentOS-7 - Base'                               , gpgcheck: no }
@@ -96,4 +118,25 @@ Use these repo in mainland China to accelerate
 - { name: grafana        , baseurl: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm'                                     ,  description: 'Grafana Official Yum Repo'                     , gpgcheck: no }
 - { name: prometheus     , baseurl: 'https://packagecloud.io/prometheus-rpm/release/el/7/$basearch'                            ,  description: 'Prometheus and exporters'                      , gpgcheck: no }
 - { name: docker-ce      , baseurl: 'https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable'                     ,  description: 'Docker CE Stable - $basearch'                  , gpgcheck: no , skip_if_unavailable: true  }
+```
+
+Europe Mirrors:
+
+```yaml
+- { name: base           , baseurl: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'                                       ,  description: 'CentOS-7 - Base'                               , gpgcheck: no }
+- { name: updates        , baseurl: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'                                  ,  description: 'CentOS-7 - Updates'                            , gpgcheck: no }
+- { name: extras         , baseurl: 'https://mirrors.xtom.de/centos/$releasever/extras/$basearch/'                                   ,  description: 'CentOS-7 - Extras'                             , gpgcheck: no }
+- { name: epel           , baseurl: 'https://mirrors.xtom.de/epel/$releasever/$basearch'                                             ,  description: 'CentOS 7 - EPEL'                               , gpgcheck: no }
+- { name: centos-sclo    , baseurl: 'https://mirrors.xtom.de/centos/$releasever/sclo/$basearch/sclo/'                                ,  description: 'CentOS-7 - SCLo'                               , gpgcheck: no }
+- { name: centos-sclo-rh , baseurl: 'https://mirrors.xtom.de/centos/$releasever/sclo/$basearch/rh/'                                  ,  description: 'CentOS-7 - SCLo rh'                            , gpgcheck: no }
+- { name: pgdg-common    , baseurl: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch'          ,  description: 'PostgreSQL Common RPMs for RHEL 7 - $basearch' , gpgcheck: no }
+- { name: pgdg-extras    , baseurl: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' ,  description: 'PostgreSQL Extra RPMs for RHEL 7 $basearch'    , gpgcheck: no }
+- { name: pgdg14         , baseurl: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch'              ,  description: 'PostgreSQL 14 for RHEL/CentOS 7 - $basearch'   , gpgcheck: no }
+- { name: pgdg15-rc      , baseurl: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'              ,  description: 'PostgreSQL 15 for RHEL/CentOS 7 - $basearch'   , gpgcheck: no }
+- { name: grafana        , baseurl: 'https://packages.grafana.com/oss/rpm'                                                           ,  description: 'Grafana Official Yum Repo'                     , gpgcheck: no }
+- { name: prometheus     , baseurl: 'https://packagecloud.io/prometheus-rpm/release/el/7/$basearch'                                  ,  description: 'Prometheus and exporters'                      , gpgcheck: no }
+- { name: citus          , baseurl: 'https://repos.citusdata.com/community/el/7/$basearch'                                           ,  description: 'Citus Community 7 - $basearch'                 , gpgcheck: no }
+- { name: timescaledb    , baseurl: 'https://packagecloud.io/timescale/timescaledb/el/7/$basearch'                                   ,  description: 'TimescaleDB for RHEL/CentOS 7 - $basearch'     , gpgcheck: no }
+- { name: nginx          , baseurl: 'https://nginx.org/packages/centos/7/$basearch/'                                                 ,  description: 'Nginx Official Yum Repo'                       , gpgcheck: no , skip_if_unavailable: true  }
+- { name: docker-ce      , baseurl: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'                    ,  description: 'Docker CE Stable - $basearch'                  , gpgcheck: no , skip_if_unavailable: true  }
 ```
