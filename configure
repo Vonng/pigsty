@@ -24,7 +24,7 @@
 # const
 #==============================================================#
 # pigsty version string
-VERSION=v1.6.0-a2
+VERSION=v1.6.0-b1
 
 # where to download pkg.tgz ?
 BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
@@ -123,15 +123,25 @@ function check_release(){
     local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
     local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
     local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
-    if [[ ${major} != "7" ]]; then
-        log_error "release = ${full} , only 7 is officially supported"
+    if [[ ${major} != "7" && ${major} != "8"  ]]; then
+        log_error "release = ${full} , only 7,8 is officially supported"
         exit 4
     fi
-    if [[ ${minor} == "9" ]]; then
-        log_info "release = ${full} , perfect"
-    else
-        log_warn "release = ${full} , it's fine. But beware that 'pkg.tgz' are made under 7.9"
-        log_hint "HINT: If something goes wrong with minor version. Consider bootstrap via Internet without pkg.tgz."
+    if [[ ${major} == "7" ]]; then
+      if [[ ${minor} == "9" ]]; then
+          log_info "release = ${full} , perfect"
+      else
+          log_warn "release = ${full} , it's fine. But beware that 'pkg.tgz' are made under 7.9"
+          log_hint "HINT: If something goes wrong with minor version. Consider bootstrap via Internet without pkg.tgz."
+      fi
+    fi
+    if [[ ${major} == "8" ]]; then
+      if [[ ${minor} == "5" ]]; then
+          log_info "release = ${full} , perfect"
+      else
+          log_warn "release = ${full} , it's fine. But beware that 'pkg.tgz' are made under 8.5"
+          log_hint "HINT: If something goes wrong with minor version. Consider bootstrap via Internet without pkg.tgz."
+      fi
     fi
     return 0
 }
