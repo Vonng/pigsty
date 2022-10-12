@@ -16,33 +16,22 @@
 #--------------------------------------------------------------#
 # 1. Pre Flight
 #--------------------------------------------------------------#
+# get el major release: 7, 8, 9
+- name: Gather el release version
+  tags: [ always, repo_os, repo_upstream ]
+  block:
+    - name: Gather el release version
+      shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
+      register: el_ver_result
+    - name: Set EL release version
+      connection: local
+      set_fact:
+        el_ver: "{{ el_ver_result.stdout }}"
+
 # create repo directory and check cache existence
 - name: Create local repo directory
   tags: repo_dir
   file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
-
-# get el major release: 7, 8, 9
-- name: Gather OS Specs
-  tags: repo_os
-  when: os_autodetect is defined and os_autodetect|bool
-  block:
-
-    - name: Gather OS Name
-      shell: rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}'
-      register: osname
-    - set_fact:
-        os_name: "{{ osname.stdout }}"
-
-    - name: Gather OS Version
-      shell: rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+'
-      register: osversion
-    - set_fact:
-        os_version: "{{ osversion.stdout }}"
-
-- name: Print OS info
-  debug:
-    msg: "OS: {{ os_name }} {{ os_version }}"
-
 
 #--------------------------------------------------------------#
 # 2. Upstream repo
@@ -60,13 +49,26 @@
           mkdir -p /etc/yum.repos.d/backup;
           mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/; /bin/true
 
-     # add all upstream repos
+    # add all upstream repos
     - name: Add required upstream repos
-      yum_repository: "{{ item }}"
-      with_items: "{{ repo_upstreams }}"
-
-    # - name: Add required upstream repos from template
-    #   template: src={{ repo_template }} dest=/etc/yum.repos.d/pigsty-upstream.repo mode=0644
+      copy:
+        dest: /etc/yum.repos.d/{{ item.name }}.repo
+        content: |
+          [{{ item.name }}]
+          name = {{ item.description }} $releasever - $basearch
+          {% if region in item.baseurl and item.baseurl[region] != '' %}
+          baseurl = {{ item.baseurl[region] | regex_replace('\$releasever', el_ver|string )  }}
+          {% else %}
+          {% if item.name == 'prometheus' and el_ver|int >= 8 %}
+          baseurl = {{ item.baseurl.default | regex_replace('\$releasever', '8' )  }}
+          {% else %}
+          baseurl = {{ item.baseurl.default | regex_replace('\$releasever', el_ver|string )  }}
+          {% endif %}
+          {% endif %}
+          gpgcheck = 0
+          enabled = 1
+      when: el_ver|int in item.releases
+      with_items: "{{ repo_upstream }}"
 
 
 #--------------------------------------------------------------#
@@ -118,7 +120,7 @@
     - name: Remake yum/dnf cache
       environment: "{{ proxy_env }}"
       shell: |
-        {% if os_version|int >= 8 %}
+        {% if el_ver|int >= 8 %}
         dnf clean all; dnf makecache; /bin/true
         dnf module disable -y php nginx postgresql; /bin/true
         {% else %}
@@ -129,7 +131,7 @@
     # just make sure them exists
     - name: Install repo bootstrap packages
       yum:
-        name: "nginx,wget,sshpass,createrepo_c,{% if os_version|int == 7 %}yum-utils{% else %}dnf-utils,modulemd-tools{% endif %}"
+        name: "nginx,wget,sshpass,createrepo_c,{% if el_ver|int == 7 %}yum-utils{% else %}dnf-utils,modulemd-tools{% endif %}"
         state: latest
 
 
@@ -176,7 +178,7 @@
       environment: "{{ proxy_env }}"
       shell:
         cmd: |
-          {% if os_version|int >= 8 %}
+          {% if el_ver|int >= 8 %}
           repotrack --arch x86_64,noarch {{ item }}
           {% else %}
           yum install --downloadonly --downloaddir={{ nginx_home }}/{{ repo_name }} {{ item }}
@@ -189,7 +191,7 @@
     - name: Download web url packages
       tags: repo_pkg_url
       environment: "{{ proxy_env }}"
-      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\\$\\{os_version\\}', (lookup('vars', 'os_version')|string)) }}
+      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\\$\\{el_ver\\}', (lookup('vars', 'el_ver')|string)) }}
       with_items: "{{ repo_url_packages }}"
 
     # create local yum repo
@@ -199,7 +201,7 @@
         cmd: |
           rm -f *.i686.rpm   # remove i686 packages
           createrepo_c {{ nginx_home }}/{{ repo_name }}
-          {% if os_version|int >= 8 %}
+          {% if el_ver|int >= 8 %}
           repo2module -s stable . modules.yaml
           modifyrepo_c --mdtype=modules modules.yaml repodata/
           {% endif %}

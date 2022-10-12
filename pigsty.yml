@@ -252,6 +252,7 @@ all:
     version: v1.6.0-b1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # default|china|europe , upstream mirrors
+    el_ver: 7                         # enterprise linux release version: 7,8,9
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -326,25 +327,30 @@ all:
     repo_address: pigsty              # external address to this repo (ip:port or url)
     repo_rebuild: false               # force re-download packages
     repo_remove: true                 # remove existing upstream repo
-    repo_upstreams:                   # additional repo upstream to be added
-      - { name: base           , baseurl: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                              , description: 'EL-$releasever - Base'     , gpgcheck: no }
-      - { name: updates        , baseurl: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'                         , description: 'EL-$releasever - Updates'  , gpgcheck: no }
-      - { name: extras         , baseurl: 'http://mirror.centos.org/centos/$releasever/extras/$basearch/'                          , description: 'EL-$releasever - Extras'   , gpgcheck: no }
-      - { name: epel           , baseurl: 'http://download.fedoraproject.org/pub/epel/$releasever/$basearch'                       , description: 'EL $releasever - EPEL'     , gpgcheck: no }
-      - { name: centos-sclo    , baseurl: 'http://mirror.centos.org/centos/$releasever/sclo/$basearch/sclo/'                       , description: 'EL-$releasever - SCLo'     , gpgcheck: no }
-      - { name: centos-sclo-rh , baseurl: 'http://mirror.centos.org/centos/$releasever/sclo/$basearch/rh/'                         , description: 'EL-$releasever - SCLo rh'  , gpgcheck: no }
-      - { name: grafana        , baseurl: 'https://packages.grafana.com/oss/rpm'                                                   , description: 'Grafana Official Yum Repo' , gpgcheck: no }
-      - { name: prometheus     , baseurl: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch'                , description: 'Prometheus and Exporters'  , gpgcheck: no }
-      - { name: nginx          , baseurl: 'https://nginx.org/packages/centos/$releasever/$basearch/'                               , description: 'Nginx Official Yum Repo'   , gpgcheck: no , skip_if_unavailable: true  }
-      - { name: docker-ce      , baseurl: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , description: 'Docker CE Stable'          , gpgcheck: no , skip_if_unavailable: true  }
-      - { name: pgdg14         , baseurl: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch'     , description: 'PostgreSQL 14'             , gpgcheck: no }
-      - { name: pgdg15         , baseurl: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , description: 'PostgreSQL 15'             , gpgcheck: no }
-      - { name: citus          , baseurl: 'https://repos.citusdata.com/community/el/$releasever/$basearch'                         , description: 'Citus Community'           , gpgcheck: no }
-      - { name: timescaledb    , baseurl: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'                 , description: 'TimescaleDB'               , gpgcheck: no }
-      - { name: pgdg-common    , baseurl: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' , description: 'PostgreSQL Common'         , gpgcheck: no }
-      - { name: pgdg-extras    , baseurl: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch', description: 'PostgreSQL Extra' , gpgcheck: no }
-
-    repo_packages: # which packages to be included                                   #  what to download #
+    repo_upstream:                    #  where to download #
+      - { name: base           ,description: 'EL 7 Base'         ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
+      - { name: updates        ,description: 'EL 7 Updates'      ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'  , europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
+      - { name: extras         ,description: 'EL 7 Extras'       ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/extras/$basearch/'                , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/'   , europe: 'https://mirrors.xtom.de/centos/$releasever/extras/$basearch/'       }}
+      - { name: epel           ,description: 'EL 7 EPEL'         ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/$basearch/'            , china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/$basearch/'            , europe: 'https://mirrors.xtom.de/epel/$releasever/$basearch/'                }}
+      - { name: centos-sclo    ,description: 'EL 7 SCLo'         ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/sclo/$basearch/sclo/'             , china: 'https://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/sclo/'          , europe: 'https://mirrors.xtom.de/centos/$releasever/sclo/$basearch/sclo/'    }}
+      - { name: centos-sclo-rh ,description: 'EL 7 SCLo rh'      ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/sclo/$basearch/rh/'               , china: 'https://mirrors.aliyun.com/centos/$releasever/sclo/$basearch/rh/'            , europe: 'https://mirrors.xtom.de/centos/$releasever/sclo/$basearch/rh/'      }}
+      - { name: baseos         ,description: 'EL 8+ BaseOS'      ,category: nodes, releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/'         , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/BaseOS/$basearch/os/'      , europe: 'https://mirrors.xtom.de/rocky/$releasever/BaseOS/$basearch/os/'     }}
+      - { name: appstream      ,description: 'EL 8+ AppStream'   ,category: nodes, releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/'      , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/AppStream/$basearch/os/'   , europe: 'https://mirrors.xtom.de/rocky/$releasever/AppStream/$basearch/os/'  }}
+      - { name: extras         ,description: 'EL 8+ Extras'      ,category: nodes, releases: [  8,9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/'         , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/extras/$basearch/os/'      , europe: 'https://mirrors.xtom.de/rocky/$releasever/extras/$basearch/os/'     }}
+      - { name: epel           ,description: 'EL 8+ EPEL'        ,category: nodes, releases: [  8,9] ,baseurl: { default: 'http://download.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/' , china: 'https://mirrors.tuna.tsinghua.edu.cn/epel/$releasever/Everything/$basearch/' , europe: 'https://mirrors.xtom.de/epel/$releasever/Everything/$basearch/'     }}
+      - { name: powertools     ,description: 'EL 8 PowerTools'   ,category: nodes, releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'  , europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
+      - { name: crb            ,description: 'EL 9 CRB'          ,category: nodes, releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'         , europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
+      - { name: grafana        ,description: 'Grafana'           ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://packages.grafana.com/oss/rpm'                                         , china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
+      - { name: prometheus     ,description: 'Prometheus'        ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/8/$basearch'           }}
+      - { name: nginx          ,description: 'Nginx Repo'        ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
+      - { name: docker-ce      ,description: 'Docker CE'         ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'                     , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
+      - { name: pgdg14         ,description: 'PostgreSQL 14'     ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg15         ,description: 'PostgreSQL 15'     ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
+      - { name: pgdg-common    ,description: 'PostgreSQL Common' ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch'                             }}
+      - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
+      - { name: citus          ,description: 'Citus Community'   ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
+      - { name: timescaledb    ,description: 'TimescaleDB'       ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
+    repo_packages: # which packages to be included                                    #  what to download #
       - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils
       - uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
@@ -360,7 +366,6 @@ all:
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex  # - build utils  - #
       - docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm       # - cloud native - #
       # - postgresql15* postgis32_15* citus111_15 # timescaledb-2-postgresql-15       # - postgres 15  - #
-
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
@@ -370,6 +375,7 @@ all:
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
+
 
     #-----------------------------------------------------------------
     # NAMESERVER
