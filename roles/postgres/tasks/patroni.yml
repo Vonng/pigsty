@@ -34,21 +34,21 @@
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
-    - name: Check replication connectivity on primary
-      become_user: "{{ pg_dbsu }}"
-      environment:
-        PGPASSWORD: "{{ pg_replication_password }}"
-      command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+    # - name: Check replication connectivity on primary
+    #   become_user: "{{ pg_dbsu }}"
+    #   environment:
+    #     PGPASSWORD: "{{ pg_replication_password }}"
+    #   command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
-#    - name: Copy pg ssl cert to data dir
-#      any_errors_fatal: true
-#      tags: pg_cert_primary
-#      when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
-#      copy: src="/pg/cert/{{ item }}" dest="/pg/data/{{ item }}" owner=postgres group=postgres mode=0600 remote_src=true
-#      with_items:
-#        - "root.crt"
-#        - "server.crt"
-#        - "server.key"
+    # - name: Copy pg ssl cert to data dir
+    #   any_errors_fatal: true
+    #   tags: pg_cert_primary
+    #   when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
+    #   copy: src="/pg/cert/{{ item }}" dest="/pg/data/{{ item }}" owner=postgres group=postgres mode=0600 remote_src=true
+    #   with_items:
+    #     - "root.crt"
+    #     - "server.crt"
+    #     - "server.key"
 
 
 #------------------------------------------------------------------------------
