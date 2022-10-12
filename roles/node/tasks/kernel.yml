@@ -10,13 +10,7 @@
       modprobe: name={{ item }} state=present
       with_items: "{{ node_kernel_modules }}"
 
-    - name: Enable kernel module on reboot
-      copy:
-        dest: /etc/sysconfig/modules/kernel.modules
-        mode: 0755
-        content: |
-          #!/bin/bash
-          {% for module in node_kernel_modules %}
-          modprobe -- {{ module }}
-          {% endfor %}
+    - name: Enable kernel module on system boot
+      copy: content={{ item }} dest=/etc/modules-load.d/{{ item }}.conf
+      with_items: "{{ node_kernel_modules }}"
 ...
