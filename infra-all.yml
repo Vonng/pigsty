@@ -30,7 +30,6 @@
   hosts: all
   gather_facts: no
   tags: [ always, node-id ]
-  connection: local
   tasks:
 
     # get node hostname and use it as nodename if missing and can not be inferred
@@ -52,6 +51,7 @@
 
     # calculate basic cluster facts from pg_meta
     - name: Calculate pgsql identity
+      connection: local
       set_fact:
         pg_is_primary={{ pg_role == 'primary' }}
         pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
@@ -63,6 +63,7 @@
         pg_cluster_primary_id={{ (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort)[0] }}
 
     - name: Show node/pgsql identity summary
+      connection: local
       debug:
         msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
           {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
