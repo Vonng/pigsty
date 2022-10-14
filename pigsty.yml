@@ -1,45 +1,25 @@
 ---
 ######################################################################
-# File      :   pigsty.yml
-# Desc      :   Pigsty 4-node local sandbox demo config
+# File      :   pigsty-build.yml
+# Desc      :   Pigsty 3 node building environment
 # Link      :   https://pigsty.cc/en/docs/concept/config/
-# Ctime     :   2020-05-22
-# Mtime     :   2022-10-11
+# Ctime     :   2022-10-12
+# Mtime     :   2022-10-12
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
 ######################################################################
-#                        Sandbox (4-node)                            #
+#                         Spec (3-node)                              #
 #====================================================================#
 # admin user : vagrant  (nopass ssh & sudo already set)              #
-# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
-# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
-# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
-# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
-# (replace these ip if your 4-node env have different ip addr)       #
-# VIP 2: (l2 vip is available inside same LAN )                      #
-#     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
-#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}                #
+# 1.  meta   : 10.10.10.10  (2 Core | 4GB)  RHEL 7.9                 #
+# 2.  node-1 : 10.10.10.11  (1 Core | 1GB)  RHEL 8.6                 #
+# 3.  node-2 : 10.10.10.12  (1 Core | 1GB)  RHEL 9.0                 #
 ######################################################################
 
 all:
-
-  ##################################################################
-  #                            CLUSTERS                            #
-  ##################################################################
-  # meta nodes, nodes, pgsql, redis, pgsql clusters are defined as
-  # k:v pair inside `all.children`. Where the key is cluster name
-  # and value is cluster definition consist of two parts:
-  # `hosts`: cluster members ip and instance level variables
-  # `vars` : cluster level variables
-  ##################################################################
-  children:                           # groups definition
-
-
-    #================================================================#
-    #                  Meta Nodes: Admin Controller                  #
-    #================================================================#
-    meta:   # meta nodes are defined in this special group "meta"
+  children:
+    meta:
       vars:
         meta_node: true               # mark this group as meta nodes
         ansible_group_priority: 99    # overwrite with the highest priority
@@ -54,191 +34,125 @@ all:
 
       hosts:                          # add nodes to group 'meta'
         10.10.10.10: { }
-        # 10.10.10.11: { nginx_enabled: false }
-        # 10.10.10.12: { nginx_enabled: false  }
-    #================================================================#
+        10.10.10.11: { }
+        10.10.10.12: { }
 
     #================================================================#
-    #                        PGSQL Clusters                          #
+    #                           PG-EL7                               #
     #================================================================#
-
-    #----------------------------------#
-    # pgsql cluster: pg-meta (CMDB)    #
-    #----------------------------------#
-    # EXAMPLE pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
-    pg-meta:                          # [REQUIRED], ansible group name , pgsql cluster name. should be unique among environment
-      hosts:                          # `<cluster>.hosts` holds instances definition of this cluster
-        10.10.10.10:                  # [REQUIRED]: ip address is the key. values are instance level config entries (dict)
-          pg_seq: 1                   # [REQUIRED], unique identity parameter (+integer) among pg_cluster
-          pg_role: primary            # [REQUIRED], pg_role is mandatory identity parameter, primary|replica|offline
-          pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
-          # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
-          # pg_weight: 100            # load balance weight for this instance
-      vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
-        pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
-
-        # all vars below are [OPTIONAL] (overwrite global default)
-        pg_version: 14                # pgsql version to be installed (use global version if missing)
-        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
-        pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-        patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
-        pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
-
-        # define business database meta , used as CMDB & default database for single-node setup
-        pg_databases:                       # define business databases on this cluster, array of database definition
-          - name: meta                      # required, `name` is the only mandatory field of a database definition
-            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
-            # owner: postgres               # optional, database owner, postgres by default
-            # template: template1           # optional, which template to use, template1 by default
-            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
-            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
-            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
-            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
-            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
-            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
-            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-            # pgbouncer: true               # optional, add this database to pgbouncer database list? true by default
-            comment: pigsty meta database   # optional, comment string for this database
-            connlimit: -1                   # optional, database connection limit, default -1 disable limit
-            schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-            extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
-              - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
-              - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
-              - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
-          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
-          - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
-          - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
-
-        # define business users for this cluster
-        pg_users:                           # define business users/roles on this cluster, array of user definition
-          # define admin user for meta database (This user are used for pigsty app deployment by default)
-          - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
-            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
-            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
-            login: true                     # optional, can login, true by default  (new biz ROLE should be false)
-            superuser: false                # optional, is superuser? false by default
-            createdb: false                 # optional, can create database? false by default
-            createrole: false               # optional, can create role? false by default
-            inherit: true                   # optional, can this role use inherited privileges? true by default
-            replication: false              # optional, can this role do replication? false by default
-            bypassrls: false                # optional, can this role bypass row level security? false by default
-            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
-            connlimit: -1                   # optional, user connection limit, default -1 disable limit
-            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
-            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
-            comment: pigsty admin user      # optional, comment string for this user/role
-            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
-            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
-            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
-          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
-          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
-          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
-
-        pg_hba_rules_extra:
-          - title: allow grafana bytebase kong intranet access
-            role: common
-            rules:
-              - host    kong            dbuser_kong         10.0.0.0/8          md5
-              - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
-              - host    grafana         dbuser_grafana      10.0.0.0/8          md5
-
-        vip_mode: l2
-        vip_address: 10.10.10.2
-        vip_cidrmask: 8
-        vip_interface: eth1
-        node_crontab:
-          - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
-
-    #----------------------------------#
-    # pgsql cluster: pg-test (3 nodes) #
-    #----------------------------------#
-    # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
-    pg-test:                          # define the new 3-node cluster pg-test
-      hosts:
-        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
-        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
-        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+    pg-el7:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary } }
       vars:
-        pg_cluster: pg-test           # define pgsql cluster name
-        pg_version: 14                # test postgresql 13 with pg-test cluster
-        pg_users:
-          - name: test
-            password: test
-            pgbouncer: true
-            roles: [ dbrole_admin ]
-        pg_databases:                 # create a database and user named 'test'
-          - name: test
-        pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
-          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-            src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-            src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
-            dst_port: pgbouncer       # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-            check_method: http        # optional, health check method: http is the only available method for now
-            check_port: patroni       # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-            check_url: /sync          # optional, health check url path, /read-only?lag=0 by default
-            check_code: 200           # optional, health check expected http code, 200 by default
-            selector: "[]"            # required, JMESPath to filter inventory ()
-            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-            haproxy:                  # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-              maxconn: 3000           # optional, max allowed front-end connection
-              balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-        vip_mode: l2                  # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3       # virtual ip address for this cluster
-        vip_cidrmask: 8               # cidr network mask length
-        vip_interface: eth1           # interface to add virtual ip
+        el_ver: 7
+        region: china
+        meta_ip: 10.10.10.10
+        pg_cluster: pg-el7
 
     #================================================================#
-    #                        REDIS Clusters                          #
+    #                           PG-EL8                               #
     #================================================================#
-
-    #----------------------------------#
-    # redis sentinel example           #
-    #----------------------------------#
-    redis-meta:
-      hosts:
-        10.10.10.10:
-          redis_node: 1
-          redis_instances:  { 6001 : {} ,6002 : {} , 6003 : {} }
+    pg-el8:
+      hosts: { 10.10.10.11: { pg_seq: 1, pg_role: primary } }
       vars:
-        redis_cluster: redis-meta
-        redis_mode: sentinel
-        redis_max_memory: 64MB
+        el_ver: 8
+        region: china
+        meta_ip: 10.10.10.11
+        pg_cluster: pg-el8
+        repo_packages: # which packages to be included                                   #  what to download #
+          - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils modulemd-tools
+          - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
+          - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
+          - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter redis
+          - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python3-pyOpenSSL
+          - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
+          - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check # pgloader pg_cli pgquarrel not available on el8, el9
+          - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14* # citus & tsdb not ready in el9, postgis33 available since el8+
+          - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
+          - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
+          - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
+          - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
+          - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
+          - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+          - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+          - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
+          - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
+        repo_url_packages:                # do not download redis.el7 and polysh
+          - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
+          - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
+          - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
+          - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
+          - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.1/haproxy-2.6.1-1.el${releasever}.${arch}.rpm
+          - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
+          - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
+        node_packages: [ ]                # extra packages for all nodes
+        node_packages_default:            # common packages for all nodes
+          - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
+          - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
+          - python3,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python3-pyOpenSSL
+          - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
+        node_packages_meta:               # extra packages for meta nodes
+          - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
+          - nginx,ansible,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,python3-jmespath,python3-pip
+          - postgresql14,redis
+        node_packages_meta_pip: 'jupyterlab duckdb'
+        pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
+          - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}*
+          - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
+        pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
+          - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 
-    #----------------------------------#
-    # redis cluster example            #
-    #----------------------------------#
-    redis-test:
-      hosts:
-        10.10.10.11:
-          redis_node: 1
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-        10.10.10.12:
-          redis_node: 2
-          redis_instances: { 6501 : {} ,6502 : {} ,6503 : {} ,6504 : {} ,6505 : {} ,6506 : {} }
-      vars:
-        redis_cluster: redis-test           # name of this redis 'cluster'
-        redis_mode: cluster                 # standalone,cluster,sentinel
-        redis_max_memory: 32MB              # max memory used by each redis instance
-        redis_mem_policy: allkeys-lru       # memory eviction policy
 
-    #----------------------------------#
-    # redis standalone example         #
-    #----------------------------------#
-    redis-common:
-      hosts:
-        10.10.10.13:
-          redis_node: 1
-          redis_instances:
-            6501: {}
-            6502: { replica_of: '10.10.10.13 6501' }
-            6503: { replica_of: '10.10.10.13 6501' }
+    #================================================================#
+    #                           PG-EL9                               #
+    #================================================================#
+    pg-el9:
+      hosts: { 10.10.10.12: { pg_seq: 1, pg_role: primary } }
       vars:
-        redis_cluster: redis-common         # name of this redis 'cluster'
-        redis_mode: standalone              # standalone,cluster,sentinel
-        redis_max_memory: 64MB              # max memory used by each redis instance
+        el_ver: 9
+        region: china
+        meta_ip: 10.10.10.12
+        pg_cluster: pg-el9
+        repo_packages: # which packages to be included                                   #  what to download #
+          - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils modulemd-tools
+          - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
+          - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
+          - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter redis
+          - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python3-pyOpenSSL
+          - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
+          - postgresql14* pglogical_14* postgis33_14* citus_14-11* timescaledb_14 # citus111_14* timescaledb-2-postgresql-14* not ready in el9, use pgdg instead
+          - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 # wal2json_14
+          - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
+          - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
+          - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
+          #- pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
+          #- count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+          #- pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+          #- pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel not available on el8, el9
+          - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
+          - postgresql15* postgis33_15* citus_15-11* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
+        repo_url_packages:                # do not download redis.el7, just get it from appstream
+          - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
+          - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
+          - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
+          - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
+          - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.1/haproxy-2.6.1-1.el${releasever}.${arch}.rpm
+          - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
+        node_packages: [ ]                # extra packages for all nodes
+        node_packages_default:            # common packages for all nodes
+          - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
+          - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
+          - python3,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python3-pyOpenSSL
+          - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
+        node_packages_meta:               # extra packages for meta nodes
+          - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
+          - nginx,ansible,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,python3-jmespath,python3-pip
+          - postgresql14,redis
+        node_packages_meta_pip: 'jupyterlab duckdb'
+        pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
+          - postgresql${pg_version}* postgis33_${pg_version}* citus_${pg_version}-11* timescaledb_${pg_version} #citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
+          - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
+        pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
+          - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} # wal2json_${pg_version}
 
 
   ####################################################################
@@ -341,41 +255,42 @@ all:
       - { name: powertools     ,description: 'EL 8 PowerTools'   ,category: nodes, releases: [  8  ] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/PowerTools/$basearch/os/'     , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/PowerTools/$basearch/os/'  , europe: 'https://mirrors.xtom.de/rocky/$releasever/PowerTools/$basearch/os/' }}
       - { name: crb            ,description: 'EL 9 CRB'          ,category: nodes, releases: [    9] ,baseurl: { default: 'https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/'            , china: 'https://mirrors.aliyun.com/rockylinux/$releasever/CRB/$basearch/os/'         , europe: 'https://mirrors.xtom.de/rocky/$releasever/CRB/$basearch/os/'        }}
       - { name: grafana        ,description: 'Grafana'           ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://packages.grafana.com/oss/rpm'                                         , china: 'https://mirrors.tuna.tsinghua.edu.cn/grafana/yum/rpm' }}
-      - { name: prometheus     ,description: 'Prometheus'        ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/8/$basearch'           }}
+      - { name: prometheus     ,description: 'Prometheus'        ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch' }}
       - { name: nginx          ,description: 'Nginx Repo'        ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://nginx.org/packages/centos/$releasever/$basearch/'                }}
       - { name: docker-ce      ,description: 'Docker CE'         ,category: infra, releases: [7,8,9] ,baseurl: { default: 'https://download.docker.com/linux/centos/$releasever/$basearch/stable'                  , china: 'https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable'                     , europe: 'https://mirrors.xtom.de/docker-ce/linux/centos/$releasever/$basearch/stable'       }}
       - { name: pgdg14         ,description: 'PostgreSQL 14'     ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/14/redhat/rhel-$releasever-$basearch' }}
       - { name: pgdg15         ,description: 'PostgreSQL 15'     ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-$releasever-$basearch'     , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch'     , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/15/redhat/rhel-$releasever-$basearch' }}
       - { name: pgdg-common    ,description: 'PostgreSQL Common' ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/redhat/rhel-$releasever-$basearch'                             }}
       - { name: pgdg-extras    ,description: 'PostgreSQL Extra'  ,category: pgsql, releases: [7,8,9] ,baseurl: { default: 'https://download.postgresql.org/pub/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , china: 'https://mirrors.tuna.tsinghua.edu.cn/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' , europe: 'https://mirrors.xtom.de/postgresql/repos/yum/common/pgdg-rhel$releasever-extras/redhat/rhel-$releasever-$basearch' }}
-      - { name: citus          ,description: 'Citus Community'   ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
       - { name: timescaledb    ,description: 'TimescaleDB'       ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
-    repo_packages: # which packages to be included                                    #  what to download #
-      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils
-      - uuid lz4 bzip2 nc pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
+      - { name: citus          ,description: 'Citus Community'   ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
+    repo_packages: # which packages to be included                                   #  what to download #
+      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils  # modulemd-tools
+      - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
-      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter
-      - ansible python python-pip python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL
-      - patroni patroni-consul patroni-etcd pgbouncer pgbadger pg_activity tail_n_mail pgcenter boxinfo check_postgres emaj pgbconsole pg_bloat_check pgquarrel barman barman-cli pgFormatter pitrery pspg pgxnclient PyGreSQL # pgloader pg_cli
-      - postgresql14* postgis32_14* pglogical_14* citus111_14 timescaledb-2-postgresql-14
-      - pg_repack_14 wal2json_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 pg_statement_rollback_14 system_stats_14 plproxy_14 plsh_14 pldebugger_14 plpgsql_check_14 pgmemcache_14 # plr_14
-      - mysql_fdw_14 ogr_fdw_14 tds_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 osm_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 rum_14 hll_14 ip4r_14 prefix_14 pguri_14 tdigest_14 topn_14 periods_14 multicorn2_14 pg_ivm_14
-      - bgw_replstatus_14 count_distinct_14 credcheck_14 ddlx_14 extra_window_functions_14 logerrors_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auth_mon_14 pg_auto_failover_14 pg_background_14 pg_bulkload_14 pg_catcheck_14 pg_comparator_14
-      - pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 pg_prioritize_14 pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgcryptokey_14 pgexportdoc_14 pgfincore_14 pgimportdoc_14 powa_14 pgmp_14 pgq_14
-      - pgsql_tweaks_14 pgtap_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14 # pgrouting_14 osm2pgrouting_14
-      - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex  # - build utils  - #
-      - docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm       # - cloud native - #
-      # - postgresql15* postgis32_15* citus111_15 # timescaledb-2-postgresql-15       # - postgres 15  - #
+      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
+      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python36-pyOpenSSL # python3-pyOpenSSL
+      - postgresql14* pglogical_14* postgis32_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
+      - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
+      - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
+      - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
+      - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
+      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
+      - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
+      - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
+      - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+      - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+      - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
+      - postgresql15* citus111_15* sqlite_fdw_15 wal2json_15 # postgis33_15 timescaledb-2-postgresql-15*
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
-      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.1/haproxy-2.6.1-1.el7.x86_64.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
+      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.1/haproxy-2.6.1-1.el${releasever}.${arch}.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
-
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -497,14 +412,15 @@ all:
 
     node_packages: [ ]                # extra packages for all nodes
     node_packages_default:            # common packages for all nodes
-      - chrony,tuned,zip,unzip,bzip2,lz4,nc,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
+      - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
       - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python3-requests,python3-psycopg2,python36-pyOpenSSL
-      - node_exporter,consul,etcd,promtail
+      - python3,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
+      - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
-      - nginx,ansible,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis,polysh
-    node_packages_meta_pip: jupyterlab
+      - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
+      - ansible,polysh #,python3-jmespath
+    node_packages_meta_pip: 'jupyterlab duckdb'
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -624,9 +540,8 @@ all:
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}* postgis32_${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
-      - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager
-      - patroni patroni-consul patroni-etcd python3 python3-psycopg2 python3-requests python3-etcd python3-consul python3-urllib3 python3-idna
+      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis32_${pg_version}* # 33 on el8+
+      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 
