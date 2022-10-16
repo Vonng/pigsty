@@ -21,7 +21,7 @@ default: tip
 tip:
 	@echo "# Run on Linux x86_64 CentOS 7.9 node with sudo & ssh access"
 	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
-	@echo "./download pkg  # download pigsty offline pkgs (optional)"
+	@echo "./bootstrap     # download pigsty pkgs"
 	@echo "./configure     # pre-check and templating config"
 	@echo "./infra.yml     # install pigsty on current node"
 
@@ -43,9 +43,9 @@ get:
 # there are 3 steps launching pigsty:
 all: download configure install
 
-# (1). DOWNLOAD   pigsty source code to ~/pigsty, pkg to /tmp/pkg.tgz
-download:
-	./download pigsty pkg
+# (1). BOOTSTRAP  pigsty pkg to /tmp/pkg.tgz
+bootstrap:
+	./boostrap pigsty pkg
 
 # (2). CONFIGURE  pigsty in interactive mode
 config:
@@ -105,7 +105,7 @@ c: config
 # config with parameters
 # IP=10.10.10.10 MODE=oltp make conf
 conf:
-	./configure --ip ${IP} --mode ${MODE} --download
+	./configure --ip ${IP} --mode ${MODE}
 ###############################################################
 
 
@@ -192,7 +192,6 @@ dns:
 # start will pull-up node and write ssh-config
 # it may take a while to download centos/7 box for the first time
 start: up ssh      # 1-node version
-start4: up4 ssh    # 4-node version
 ssh:               # add node ssh config to your ~/.ssh/config
 	bin/ssh
 
@@ -203,17 +202,13 @@ ssh:               # add node ssh config to your ~/.ssh/config
 demo: demo-prepare
 	ssh meta 'cd ~/pigsty; ./infra.yml'
 
-# launch four-node demo
-demo4: demo-prepare
-	ssh meta 'cd ~/pigsty; ./infra-demo.yml'
-
 # prepare demo resource by download|upload
 demo-prepare: demo-upload
 
 # download demo pkg.tgz from github
 demo-download:
 	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty"
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download -m demo'
+	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive -m demo'
 
 # upload demo pkg.tgz from local dist dir
 demo-upload:
@@ -227,11 +222,11 @@ demo-upload:
 #------------------------------#
 # default node (meta)
 up:
-	cd vagrant && vagrant up meta
+	cd vagrant && vagrant up
 dw:
-	cd vagrant && vagrant halt meta
+	cd vagrant && vagrant halt
 del:
-	cd vagrant && vagrant destroy -f meta
+	cd vagrant && vagrant destroy -f
 new: del up
 #------------------------------#
 # extra nodes: node-{1,2,3}
@@ -242,16 +237,6 @@ dw-test:
 del-test:
 	cd vagrant && vagrant destroy -f node-1 node-2 node-3
 new-test: del-test up-test
-#------------------------------#
-# all nodes (meta, node-1, node-2, node-3)
-up4:
-	cd vagrant && vagrant up
-dw4:
-	cd vagrant && vagrant halt
-del4:
-	cd vagrant && vagrant destroy -f
-new4: del4 up4
-clean: del4
 #------------------------------#
 # status
 st: status
@@ -274,8 +259,6 @@ sync:  # sync time
 s4: sync4
 sync4:  # sync time
 	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
-ss:     # sync time with aliyun ntp service
-	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u ntp.aliyun.com'; true
 ###############################################################
 
 
@@ -434,6 +417,44 @@ cache:
 	scp bin/cache meta:/tmp/cache
 	ssh meta "sudo bash /tmp/cache"
 
+# build environment
+build-env: vagrant-build new copy-build-src copy-build-pkg
+vagrant-build:
+	vagrant/switch build
+
+copy-build-src: release
+	scp dist/${VERSION}/pigsty.tgz meta:~/
+	scp dist/${VERSION}/pigsty.tgz node-1:~/
+	scp dist/${VERSION}/pigsty.tgz node-2:~/
+	ssh meta   "tar -xf pigsty.tgz";
+	ssh node-1 "tar -xf pigsty.tgz";
+	ssh node-2 "tar -xf pigsty.tgz";
+	scp pigsty.yml meta:~/pigsty/pigsty.yml
+	scp pigsty.yml node-1:~/pigsty/pigsty.yml
+	scp pigsty.yml node-2:~/pigsty/pigsty.yml
+
+copy-build-pkg:
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz node-1:/tmp/pkg.tgz
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz node-2:/tmp/pkg.tgz
+	ssh meta   "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www";
+	ssh node-1 "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www";
+	ssh node-2 "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www";
+
+release-build-pkg:
+	tar -cf files/docs.tgz docs
+	scp files/docs.tgz meta:/tmp/docs.tgz
+	scp files/docs.tgz node-1:/tmp/docs.tgz
+	scp files/docs.tgz node-2:/tmp/docs.tgz
+	ssh meta 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	ssh node-1 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	ssh node-2 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp bin/cache meta:/tmp/cache
+	scp bin/cache node-1:/tmp/cache
+	scp bin/cache node-2:/tmp/cache
+	ssh meta   "sudo bash /tmp/cache";  scp meta:/tmp/pkg.tgz   dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+	ssh node-1 "sudo bash /tmp/cache";	scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+	ssh node-2 "sudo bash /tmp/cache"; 	scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 ###############################################################
 
 
@@ -466,12 +487,13 @@ docs:
         c conf \
         infra pgsql repo repo-upstream repo-download prometheus grafana loki \
         repo repo-upstream repo prometheus grafana loki \
-        deps dns start start4 ssh demo demo4 demo-prepare demo-download demo-upload \
-        up dw del new up-test dw-test del-test new-test up4 dw4 del4 new4 clean \
+        deps dns start ssh demo demo-prepare demo-download demo-upload \
+        up dw del new up-test dw-test del-test new-test clean \
         st status suspend resume s sync s4 sync4 ss \
         ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
         di dd dc dashboard-init dashboard-dump dashboard-clean \
-        copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all \
+        copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb\
         r releast rp release-pkg rp2 release-matrix-rp3 release-docker pkg p publish cache \
+        build-env vagrant-build copy-build-src copy-build-pkg release-build-pkg \
         svg doc d docs
 ###############################################################
