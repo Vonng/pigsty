@@ -59,7 +59,8 @@
   tags: repo_prepare
   when: repo_exists|bool
   shell: |
-    mv -f /etc/yum.repos.d/*.repo* /etc/yum.repos.d/backup/ || /bin/true
+    mkdir -p /etc/yum.repos.d/backup/
+    mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
     cat > /etc/yum.repos.d/{{ repo_name }}-local.repo <<-'EOF'
     [{{ repo_name }}-local]
     name={{ repo_name }}-local $releasever - $basearch
@@ -72,7 +73,7 @@
     EOF
     yum clean all;
     yum makecache;
-    yum install -y wget sshpass createrepo_c yum-utils;
+    yum install -y wget nginx sshpass createrepo_c yum-utils;
 
 
 #--------------------------------------------------------------#
@@ -96,7 +97,7 @@
       set_fact: { el_ver: "{{ releasever_result.stdout }}" }
 
     #--------------------------------------------------------------#
-    # 3.1   Remove existing upstream repo files        [repo_remove]
+    # 3.2   Remove existing upstream repo files        [repo_remove]
     #--------------------------------------------------------------#
     - name: Backup & remove existing repos
       tags: [ repo_upstream, repo_remove ]
@@ -104,11 +105,11 @@
       shell:
         warn: no
         cmd: |
-          mkdir -p /etc/yum.repos.d/backup;
-          mv -f /etc/yum.repos.d/*.repo* /etc/yum.repos.d/backup/; /bin/true
+          mkdir -p /etc/yum.repos.d/backup/
+          mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
 
     #--------------------------------------------------------------#
-    # 3.2  Add required upstream repo files               [repo_add]
+    # 3.3  Add required upstream repo files               [repo_add]
     #--------------------------------------------------------------#
     - name: Add required upstream repos
       tags: [ repo_upstream , repo_add ]
@@ -135,7 +136,7 @@
       with_items: "{{ repo_upstream }}"
 
     #--------------------------------------------------------------#
-    # 3.3  Download url packages                      [repo_url_pkg]
+    # 3.4  Download url packages                      [repo_url_pkg]
     #--------------------------------------------------------------#
     # download packages directly via url (replace ${releasever} to 7|8|9)
     - name: Download web url packages
@@ -144,13 +145,6 @@
       environment: "{{ proxy_env }}"
       get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', el_ver|string) | regex_replace('\${arch}', arch|string ) }}
       with_items: "{{ repo_url_packages }}"
-
-    #--------------------------------------------------------------#
-    # 3.4  Download bootstrap packages               [repo_boot_pkg]
-    #--------------------------------------------------------------#
-    - name: Install repo bootstrap packages
-      tags: repo_boot_pkg
-      yum: name="createrepo_c,yum-utils{% if el_ver|int >= 8 %},modulemd-tools{% endif %}" state=present
 
     #--------------------------------------------------------------#
     # 3.5 Make repo cache                           [repo_makecache]
@@ -168,7 +162,14 @@
         /bin/true
 
     #--------------------------------------------------------------#
-    # 3.6 Download rpm Packages                           [repo_pkg]
+    # 3.6  Download bootstrap packages               [repo_boot_pkg]
+    #--------------------------------------------------------------#
+    - name: Install repo bootstrap packages
+      tags: repo_boot_pkg
+      yum: name="createrepo_c,yum-utils{% if el_ver|int >= 8 %},modulemd-tools{% endif %}" state=present
+
+    #--------------------------------------------------------------#
+    # 3.7 Download rpm Packages                           [repo_pkg]
     #--------------------------------------------------------------#
     - name: Download rpm packages and their deps
       tags: repo_pkg
@@ -184,7 +185,7 @@
       with_items: "{{ repo_packages }}"
 
     #--------------------------------------------------------------#
-    # 3.7 Create repo                                  [repo_create]
+    # 3.8 Create repo                                  [repo_create]
     #--------------------------------------------------------------#
     # create local yum repo
     - name: Create local repo
@@ -203,12 +204,13 @@
         chdir: "{{ nginx_home }}/{{ repo_name }}"
 
     #--------------------------------------------------------------#
-    # 3.8 Use built repo                                  [repo_use]
+    # 3.9 Use built repo                                  [repo_use]
     #--------------------------------------------------------------#
     - name: Install local repo file
       tags: repo_use
       shell: |
-        mv -f /etc/yum.repos.d/*.repo* /etc/yum.repos.d/backup/ || /bin/true
+        mkdir -p /etc/yum.repos.d/backup/
+        mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
         cat > /etc/yum.repos.d/{{ repo_name }}-local.repo <<-'EOF'
         [{{ repo_name }}-local]
         name={{ repo_name }}-local $releasever - $basearch
