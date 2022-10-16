@@ -1,79 +1,25 @@
 #!/bin/bash
-
 #==============================================================#
 # File      :   switch
-# Ctime     :   2021-07-22
-# Mtime     :   2021-07-22
-# Desc      :   use static config as inventory
+# Ctime     :   2022-10-16
+# Mtime     :   2022-10-17
+# Desc      :   render Vagrant file according to spec & template
 # Path      :   vagrant/switch
 # Usage     :   vagrant/switch [spec=default]
 #                              (build|full|el7|el8|el9|...)
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
-
-#==============================================================#
-# environment
-#==============================================================#
 SCRIPT_NAME="$(basename $0)"
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
-#==============================================================#
-# log util
-#==============================================================#
-__CN='\033[0m'    # no color
-__CB='\033[0;30m' # black
-__CR='\033[0;31m' # red
-__CG='\033[0;32m' # green
-__CY='\033[0;33m' # yellow
-__CB='\033[0;34m' # blue
-__CM='\033[0;35m' # magenta
-__CC='\033[0;36m' # cyan
-__CW='\033[0;37m' # white
-function log_info() {  printf "[${__CG} OK ${__CN}] ${__CG}$*${__CN}\n";   }
-function log_warn() {  printf "[${__CY}WARN${__CN}] ${__CY}$*${__CN}\n";   }
-function log_error() { printf "[${__CR}FAIL${__CN}] ${__CR}$*${__CN}\n";   }
-function log_debug() { printf "[${__CB}HINT${__CN}] ${__CB}$*${__CN}\n"; }
-function log_input() { printf "[${__CM} IN ${__CN}] ${__CM}$*\n=> ${__CN}"; }
-function log_hint()  { printf "${__CB}$*${__CN}\n"; }
-#==============================================================#
-
-
-#==============================================================#
-# parameters
-#==============================================================#
 SPEC=${1-'default'}
 SPEC_DIR="${SCRIPT_DIR}/spec"
 SPEC_FILENAME="${SPEC}.rb"
 SPEC_FILEPATH="${SPEC_DIR}/${SPEC_FILENAME}"
+TEMPLATE_PATH="${SPEC_DIR}/Vagrantfile"
 VAGRANTFILE_PATH="${SCRIPT_DIR}/Vagrantfile"
 
-log_info "switch to ${SPEC} => ${SPEC_FILEPATH}"
+printf "\033[0;32m[INFO] switch to ${SPEC} => ${SPEC_FILEPATH} \033[0m\n" >&2
 cat ${SPEC_FILEPATH} > ${VAGRANTFILE_PATH};
-cat >> ${VAGRANTFILE_PATH} << EOF
-
-
-Vagrant.configure("2") do |config|
-    config.ssh.insert_key = false
-    config.vm.box_check_update = false
-    # generate nodes definition according to Specs
-    Specs.each_with_index do |spec, index|
-        config.vm.define spec["name"] do |node|
-            node.vm.box = spec["image"]
-            node.vm.network "private_network", ip: spec["ip"]
-            node.vm.hostname = spec["name"]
-            node.vm.provider "virtualbox" do |v|
-                v.linked_clone = true
-                v.customize [
-                    "modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"],
-                    "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on",
-                     "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
-                  ]
-                v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
-            end
-            node.vm.provision "shell", path: "provision.sh"
-        end
-    end
-end
-EOF
-
+cat ${TEMPLATE_PATH} >> ${VAGRANTFILE_PATH}
 cat ${SPEC_FILEPATH}
