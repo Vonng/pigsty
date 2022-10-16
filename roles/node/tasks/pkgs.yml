@@ -85,17 +85,28 @@
   environment: "{{ proxy_env | default({}) }}"
   shell: |
     #!/bin/bash
-    mkdir -p {{ nginx_home }}/{{ repo_name }}/python
-    cd {{ nginx_home }}/{{ repo_name }}/python
-    if [[ ! -f pip_downloaded ]]; then
-        pip3 install --upgrade pip
-        /usr/bin/pip3 download pip
-        /usr/bin/pip3 download {{ node_packages_meta_pip }}
-        touch pip_downloaded
+    PYTHON_BIN="$(which python3)"
+    PYTHON_DIR="{{ nginx_home }}/{{ repo_name }}/python"
+    EL_VER=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    # python3 & python3-pip is installed 
+    if [ ${EL_VER} -ge 9 ]; then
+        PYTHON_BIN="$(which python3.9)"
+    elif [ ${EL_VER} -ge 8 ]; then
+        PYTHON_BIN="$(which python3.8)"
+    elif [ ${EL_VER} -ge 7 ]; then
+        PYTHON_BIN="$(which python3.6)"
+    else
+        PYTHON_BIN="$(which python3)"
     fi
-    rm -rf pip_downloaded
-    /usr/bin/pip3 install {{ nginx_home }}/{{ repo_name }}/python/pip* || true
-    /usr/bin/pip3 install {{ nginx_home }}/{{ repo_name }}/python/* || true
-    touch pip_downloaded
+    
+    mkdir -p ${PYTHON_DIR}; cd ${PYTHON_DIR}
+    if ! compgen -G ${PYTHON_DIR}/pip*.whl ; then
+        echo "f============================fuck"
+        ${PYTHON_BIN} -m pip install --upgrade pip
+        ${PYTHON_BIN} -m pip download pip
+        ${PYTHON_BIN} -m pip download {{ node_packages_meta_pip }}
+    fi
+    ${PYTHON_BIN} -m pip install ${PYTHON_DIR}/pip* || /bin/true
+    ${PYTHON_BIN} -m pip install ${PYTHON_DIR}/*    || /bin/true
 
 ...
