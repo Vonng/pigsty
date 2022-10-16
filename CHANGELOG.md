@@ -1,15 +1,51 @@
-# v1.6.1-a1
+# v1.6.0-b1
+
+PG15, EL7, EL8 & Security Enhancement
 
 ## Highlights
 
-Security Enhancement (Thanks to [@alemacci](https://github.com/Vonng/pigsty/commits?author=alemacci))
+* Compatibility Enhancement (+PG15, +EL8, +EL9)
+* Security Enhancement (Special thanks to [@alemacci](https://github.com/Vonng/pigsty/commits?author=alemacci))
+* Maintainability Enhancement
 
-* Pgbouncer Auth Query
-* SSL for etcd/consul
+## Compatibility
+
+* Support EL 8 & EL 9  (Build on CentOS7, Rocky8, Rocky9)
+* Support RHEL/CentOS/Rocky/Oracle/AlmaLinux
+* Support PostgreSQL 15 & PostGIS 3.3
+* Add version & arch as part of `pkg.tgz`
+
+## Security
+
+* A full-featured self-signed CA enabled by default
+* Pgbouncer Auth Query  by @alemacci
+* SSL for etcd/consul by @alemacci
 * SSL for postgres/pgbouncer/pg_exporter
-* Adaptive configuration template
-* scram-sha-256 auth for postgres
-* configurable log dir for patroni & postgres & pgbouncer
+* scram-sha-256 auth for postgres by @alemacci
+
+## Maintainability
+
+* Adaptive tuning template for PostgreSQL & Patroni by @Vonng, @alemacci
+* configurable log dir for patroni & postgres & pgbouncer by @alemacci
+* Use ${meta_ip} in infra vars to switch primary meta node.
+* Vagrant templates examples for el8, el9, building environment.
+* Terraform Templates for AWS EC2
+* Use chrony instead of ntpd
+* New signed apache echarts 5.0 plugin for Grafana panels
+
+## Software Upgrade
+
+* PostgreSQL 14.5 / PostgreSQL 15.0
+* Patroni 2.1.4
+* Pgbouncer 1.17
+* PostGIS 3.3
+* Citus 11.1
+* TimescaleDB 2.8
+* Prometheus 2.39
+* Grafana 9.2.0
+* Node Exporter 1.4
+* Consul v13.2
+
 
 
 
