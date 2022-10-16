@@ -709,7 +709,7 @@ List of installed PG pkgs, type: `string[]`, level: C, default value:
 
 ```yaml
 - postgresql${pg_version}*
-- postgis32_${pg_version}*
+- postgis33_${pg_version}*
 - citus_${pg_version}*
 - timescaledb-2-postgresql-${pg_version}
 - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager

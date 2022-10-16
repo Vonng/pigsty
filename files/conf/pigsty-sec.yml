@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node SSL-enabled demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-10-14
+# Mtime     :   2022-10-16
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -244,8 +244,8 @@ all:
       - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
       - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
-      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python36-pyOpenSSL # python3-pyOpenSSL
-      - postgresql14* pglogical_14* postgis32_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
+      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
+      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
       - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
       - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
@@ -256,7 +256,7 @@ all:
       - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
       - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
-      - postgresql15* citus111_15* sqlite_fdw_15 wal2json_15 # postgis33_15 timescaledb-2-postgresql-15*
+      - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
@@ -384,18 +384,17 @@ all:
     node_repo_remove: true            # remove existing repo on nodes?
     node_repo_local_urls:             # list local repo url, if node_repo_method = local
       - http://pigsty/pigsty.repo
-
     node_packages: [ ]                # extra packages for all nodes
     node_packages_default:            # common packages for all nodes
       - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
       - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - python3,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
+      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
       - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
       - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
-      - ansible,polysh,python3-jmespath
-    node_packages_meta_pip: 'jupyterlab duckdb'
+      - ansible,polysh
+    node_packages_meta_pip: 'jupyterlab'
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -515,8 +514,8 @@ all:
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis32_${pg_version}* # 33 on el8+
-      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
+      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
+      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 

@@ -721,7 +721,7 @@ PG二进制目录, 类型：`path`，层级：C，默认值为：`"/usr/pgsql/bi
 
 ```yaml
 - postgresql${pg_version}*
-- postgis32_${pg_version}*
+- postgis33_${pg_version}*
 - citus_${pg_version}*
 - timescaledb-2-postgresql-${pg_version}
 - pgbouncer pg_exporter pgbadger pg_activity node_exporter consul haproxy vip-manager

@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-10-14
+# Mtime     :   2022-10-16
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -154,6 +154,42 @@ all:
     # pgsql cluster: pg-test (3 nodes) #
     #----------------------------------#
     # pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}
+#    pg-test:                          # define the new 3-node cluster pg-test
+#      hosts:
+#        10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
+#        10.10.10.12: { pg_seq: 2, pg_role: replica }   # replica instance, follower of leader
+#        10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
+#      vars:
+#        pg_cluster: pg-test           # define pgsql cluster name
+#        pg_version: 14                # test postgresql 14 with pg-test cluster
+#        pg_users:
+#          - name: test
+#            password: test
+#            pgbouncer: true
+#            roles: [ dbrole_admin ]
+#        pg_databases:                 # create a database and user named 'test'
+#          - name: test
+#        pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
+#          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
+#          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
+#            src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
+#            src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
+#            dst_port: pgbouncer       # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
+#            check_method: http        # optional, health check method: http is the only available method for now
+#            check_port: patroni       # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
+#            check_url: /sync          # optional, health check url path, /read-only?lag=0 by default
+#            check_code: 200           # optional, health check expected http code, 200 by default
+#            selector: "[]"            # required, JMESPath to filter inventory ()
+#            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
+#            haproxy:                  # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
+#              maxconn: 3000           # optional, max allowed front-end connection
+#              balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
+#              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
+#        vip_mode: l2                  # enable/disable vip (require members in same LAN)
+#        vip_address: 10.10.10.3       # virtual ip address for this cluster
+#        vip_cidrmask: 8               # cidr network mask length
+#        vip_interface: eth1           # interface to add virtual ip
+
     pg-test:                          # define the new 3-node cluster pg-test
       hosts:
         10.10.10.11: { pg_seq: 1, pg_role: primary }   # primary instance, leader of cluster
@@ -161,34 +197,11 @@ all:
         10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
       vars:
         pg_cluster: pg-test           # define pgsql cluster name
-        pg_version: 14                # test postgresql 13 with pg-test cluster
-        pg_users:
-          - name: test
-            password: test
-            pgbouncer: true
-            roles: [ dbrole_admin ]
-        pg_databases:                 # create a database and user named 'test'
-          - name: test
-        pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
-          # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
-          - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
-            src_ip: "*"               # required, service bind ip address, `*` for all ip, `vip` for cluster `vip_address`
-            src_port: 5435            # required, service exposed port (work as kubernetes service node port mode)
-            dst_port: pgbouncer       # optional, destination port, postgres|pgbouncer|<port_number>   , pgbouncer(6432) by default
-            check_method: http        # optional, health check method: http is the only available method for now
-            check_port: patroni       # optional, health check port: patroni|pg_exporter|<port_number> , patroni(8008) by default
-            check_url: /sync          # optional, health check url path, /read-only?lag=0 by default
-            check_code: 200           # optional, health check expected http code, 200 by default
-            selector: "[]"            # required, JMESPath to filter inventory ()
-            selector_backup: "[? pg_role == `primary`]"  # primary used as backup server for standby service (will not work because /sync for )
-            haproxy:                  # optional, adhoc parameters for haproxy service provider (vip_l4 is another service provider)
-              maxconn: 3000           # optional, max allowed front-end connection
-              balance: roundrobin     # optional, haproxy load balance algorithm (roundrobin by default, other: leastconn)
-              default_server_options: 'inter 3s fastinter 1s downinter 5s rise 3 fall 3 on-marked-down shutdown-sessions slowstart 30s maxconn 3000 maxqueue 128 weight 100'
-        vip_mode: l2                  # enable/disable vip (require members in same LAN)
-        vip_address: 10.10.10.3       # virtual ip address for this cluster
-        vip_cidrmask: 8               # cidr network mask length
-        vip_interface: eth1           # interface to add virtual ip
+        pg_version: 15                # test postgresql 15 with pg-test cluster
+        pg_packages:                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
+          - postgresql${pg_version}* citus111_${pg_version} postgis33_${pg_version}* wal2json_${pg_version} # 33 on el8+
+          - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
+        pg_libs: 'pg_stat_statements, auto_explain'
 
     #================================================================#
     #                        REDIS Clusters                          #
@@ -355,8 +368,8 @@ all:
       - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
       - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
-      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python36-pyOpenSSL # python3-pyOpenSSL
-      - postgresql14* pglogical_14* postgis32_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
+      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
+      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
       - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
       - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
@@ -367,7 +380,7 @@ all:
       - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
       - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
-      - postgresql15* citus111_15* sqlite_fdw_15 wal2json_15 # postgis33_15 timescaledb-2-postgresql-15*
+      - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
     repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
@@ -495,18 +508,17 @@ all:
     node_repo_remove: true            # remove existing repo on nodes?
     node_repo_local_urls:             # list local repo url, if node_repo_method = local
       - http://pigsty/pigsty.repo
-
     node_packages: [ ]                # extra packages for all nodes
     node_packages_default:            # common packages for all nodes
       - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
       - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - python3,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
+      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
       - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
       - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
-      - ansible,polysh,python3-jmespath
-    node_packages_meta_pip: 'jupyterlab duckdb'
+      - ansible,polysh
+    node_packages_meta_pip: 'jupyterlab'
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -626,8 +638,8 @@ all:
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis32_${pg_version}* # 33 on el8+
-      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
+      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
+      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 
