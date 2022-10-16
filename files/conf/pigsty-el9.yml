@@ -1,11 +1,25 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty singleton meta auto-generated config template
+# Desc      :   Pigsty 4-node local el9 demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2022-10-16
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
+######################################################################
+
+######################################################################
+#                        Sandbox (4-node)                            #
+#====================================================================#
+# admin user : vagrant  (nopass ssh & sudo already set)              #
+# 1.  meta    :    10.10.10.10     (2 Core | 4GB)    pg-meta         #
+# 2.  node-1  :    10.10.10.11     (1 Core | 1GB)    pg-test-1       #
+# 3.  node-2  :    10.10.10.12     (1 Core | 1GB)    pg-test-2       #
+# 4.  node-3  :    10.10.10.13     (1 Core | 1GB)    pg-test-3       #
+# (replace these ip if your 4-node env have different ip addr)       #
+# VIP 2: (l2 vip is available inside same LAN )                      #
+#     pg-meta --->  10.10.10.2 ---> 10.10.10.10                      #
+#     pg-test --->  10.10.10.3 ---> 10.10.10.1{1,2,3}                #
 ######################################################################
 
 all:
@@ -86,6 +100,7 @@ all:
     #    pg_databases: [ { name: test , extensions: [ { name: postgis, schema: public } ] } ]
 
 
+
   ####################################################################
   #                             VARS                                 #
   ####################################################################
@@ -97,6 +112,7 @@ all:
     version: v1.6.0-b1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # default|china|europe , upstream mirrors
+    el_ver: 7                         # enterprise linux release version: 7,8,9
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -133,19 +149,36 @@ all:
     nginx_home: /www                  # default repo home dir
 
     nginx_upstream:                   # domain names and upstream servers
-      - { name: home         , domain: pigsty     , endpoint: "10.10.10.10:80"   }
-      - { name: grafana      , domain: g.pigsty   , endpoint: "10.10.10.10:3000" }
-      - { name: loki         , domain: l.pigsty   , endpoint: "10.10.10.10:3100" }
-      - { name: prometheus   , domain: p.pigsty   , endpoint: "10.10.10.10:9090" }
-      - { name: alertmanager , domain: a.pigsty   , endpoint: "10.10.10.10:9093" }
-      - { name: consul       , domain: c.pigsty   , endpoint: "127.0.0.1:8500"   }
+      - { name: home         , domain: pigsty      , endpoint: "10.10.10.10:80"   }
+      - { name: grafana      , domain: g.pigsty    , endpoint: "10.10.10.10:3000" }
+      - { name: loki         , domain: l.pigsty    , endpoint: "10.10.10.10:3100" }
+      - { name: prometheus   , domain: p.pigsty    , endpoint: "10.10.10.10:9090" }
+      - { name: alertmanager , domain: a.pigsty    , endpoint: "10.10.10.10:9093" }
+      - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"   } #== ^ required ==#
+      - { name: postgrest    , domain: api.pigsty  , endpoint: "127.0.0.1:8884"   } #== v optional ==#
+      - { name: pgadmin      , domain: adm.pigsty  , endpoint: "127.0.0.1:8885"   }
+      - { name: pgweb        , domain: cli.pigsty  , endpoint: "127.0.0.1:8886"   }
+      - { name: bytebase     , domain: ddl.pigsty  , endpoint: "127.0.0.1:8887"   }
+      - { name: jupyter      , domain: lab.pigsty  , endpoint: "127.0.0.1:8888"   }
+      - { name: gitea        , domain: git.pigsty  , endpoint: "127.0.0.1:8889"   }
+      - { name: minio        , domain: sss.pigsty  , endpoint: "127.0.0.1:9000"   }
+      - { name: wiki         , domain: wiki.pigsty , endpoint: "127.0.0.1:9002"   }
 
     nginx_indexes:                    # application nav links on home page
-      - { name: Explain  , url : '/pev.html' , comment: 'postgres explain visualizer' }
-      - { name: Package  , url : '/pigsty'   , comment: 'local yum repo packages'     }
-      - { name: PG Logs  , url : '/logs'     , comment: 'postgres raw csv logs'       }
-      - { name: Schemas  , url : '/schema'   , comment: 'schemaspy summary report'    }
-      - { name: Reports  , url : '/report'   , comment: 'pgbadger summary report'     }
+      - { name: PgAdmin4   , url : 'http://adm.pigsty'              , comment: 'PgAdmin4 for PostgreSQL'     }
+      - { name: PGWeb      , url : 'http://cli.pigsty'              , comment: 'PGWEB Browser Client'        }
+      - { name: ByteBase   , url : 'http://ddl.pigsty'              , comment: 'ByteBase Schema Migrator'    }
+      - { name: PostgREST  , url : 'http://api.pigsty'              , comment: 'Kong API Gateway'            }
+      - { name: Gitea      , url : 'http://git.pigsty'              , comment: 'Gitea Git Service'           }
+      - { name: Minio      , url : 'http://sss.pigsty'              , comment: 'Minio Object Storage'        }
+      - { name: Wiki       , url : 'http://wiki.pigsty'             , comment: 'Local Wiki Pedia'            }
+      - { name: Explain    , url : '/pev.html'                      , comment: 'postgres explain visualizer' }
+      - { name: Package    , url : '/pigsty'                        , comment: 'local yum repo packages'     }
+      - { name: PG Logs    , url : '/logs'                          , comment: 'postgres raw csv logs'       }
+      - { name: Schemas    , url : '/schema'                        , comment: 'schemaspy summary report'    }
+      - { name: Reports    , url : '/report'                        , comment: 'pgbadger summary report'     }
+      - { name: ISD        , url : '${grafana}/d/isd-overview'      , comment: 'noaa isd data visualization' }
+      - { name: Covid      , url : '${grafana}/d/covid-overview'    , comment: 'covid data visualization'    }
 
     #-----------------------------------------------------------------
     # REPO
@@ -178,32 +211,30 @@ all:
       - { name: timescaledb    ,description: 'TimescaleDB'       ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
       - { name: citus          ,description: 'Citus Community'   ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
     repo_packages: # which packages to be included                                   #  what to download #
-      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils  # modulemd-tools
+      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils modulemd-tools
       - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
-      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
-      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
-      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
+      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter redis
+      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python3-pyOpenSSL
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
-      - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
+      - postgresql14* pglogical_14* postgis33_14* citus_14-11* timescaledb_14 # citus111_14* timescaledb-2-postgresql-14* not ready in el9, use pgdg instead
       - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
       - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
-      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
+      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 rum_14
       - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
-      - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
-      - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
-      - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+      #- pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
+      #- count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+      #- pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
+      #- pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel not available on el8, el9
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
-      - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
-    repo_url_packages:                # extra packages from url
+      - postgresql15* postgis33_15* citus_15-11* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
+    repo_url_packages:                # do not download redis.el7, just get it from appstream
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/loki-2.6.0.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.0/promtail-2.6.0.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
       - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.1/haproxy-2.6.1-1.el${releasever}.${arch}.rpm
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -265,7 +296,7 @@ all:
       # meta-3: 10.10.10.12           # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
     dcs_safeguard: false              # if true, running dcs will NOT be removed
-    dcs_clean: false                  # if true, running dcs will be purged during node init, DANGEROUS
+    dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
     dcs_gid: 980                      # gid for consul/etcd users
     dcs_ssl_enabled: false            # secure dcs communications
 
@@ -304,7 +335,11 @@ all:
       - "${meta_ip} api.pigsty adm.pigsty cli.pigsty ddl.pigsty lab.pigsty git.pigsty sss.pigsty"
     node_etc_hosts:                   # extra static dns records in /etc/hosts
       - 10.10.10.2  pg-meta           # sandbox vip for pg-meta
+      - 10.10.10.3  pg-test           # sandbox vip for pg-test
       - 10.10.10.10 pg-meta-1         # sandbox instance pg-meta-1
+      - 10.10.10.11 pg-test-1         # sandbox instance node-1
+      - 10.10.10.12 pg-test-2         # sandbox instance node-2
+      - 10.10.10.13 pg-test-3         # sandbox instance node-3
 
     node_dns_method: none             # add (default) | none (skip) | overwrite (remove old settings)
     node_dns_servers: [ ]             # dynamic nameserver in /etc/resolv.conf
@@ -322,13 +357,13 @@ all:
     node_packages_default:            # common packages for all nodes
       - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
       - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
+      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python3-pyOpenSSL
       - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
-      - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
-      - ansible,polysh
-    node_packages_meta_pip: 'jupyterlab'
+      - nginx,ansible,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,python3-jmespath,python3-pip
+      - postgresql14,redis
+    node_packages_meta_pip: ''        # jupyter is not ready for el9
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -352,7 +387,8 @@ all:
     node_admin_username: dba          # name of this admin user, dba by default
     node_admin_ssh_exchange: true     # exchange admin ssh key among each pgsql cluster ?
     node_admin_pk_current: true       # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-    node_admin_pk_list: [ ]           # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+    node_admin_pk_list:               # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+      - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQC7IMAMNavYtWwzAJajKqwdn3ar5BhvcwCnBTxxEkXhGlCO2vfgosSAQMEflfgvkiI5nM1HIFQ8KINlx1XLO7SdL5KdInG5LIJjAFh0pujS4kNCT9a5IGvSq1BrzGqhbEcwWYdju1ZPYBcJm/MG+JD0dYCh8vfrYB/cYMD0SOmNkQ== vagrant@pigsty.com'
 
     #-----------------------------------------------------------------
     # NODE_TIME
@@ -440,23 +476,24 @@ all:
     pg_dbsu_uid: 26                   # os dbsu uid and gid, 26 for default postgres users and groups
     pg_dbsu_sudo: limit               # dbsu sudo privilege: none|limit|all|nopass, limit by default
     pg_dbsu_home: /var/lib/pgsql      # postgresql home directory
-    pg_dbsu_ssh_exchange: false       # exchange postgres dbsu ssh key among same cluster ?
+    pg_dbsu_ssh_exchange: true        # exchange postgres dbsu ssh key among same cluster ?
     pg_version: 14                    # default postgresql version to be installed
     pgdg_repo: false                  # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                # add postgres relate repo before install ?
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
-      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
+      - postgresql${pg_version}* postgis33_${pg_version}* citus_${pg_version}-11* timescaledb_${pg_version} #citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
+      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd #pg_activity
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
+
 
     #-----------------------------------------------------------------
     # PG_BOOTSTRAP
     #-----------------------------------------------------------------
     pg_safeguard: false                   # true will disable pg_clean at all, even for pgsql-remove.yml
-    pg_clean: false                       # true will clean running postgres during pgsql init (DANGEROUS)
+    pg_clean: true                        # true will clean running postgres during pgsql init (DANGEROUS)
     pg_data: /pg/data                     # postgres data directory (soft link)
     pg_fs_main: /data                     # primary data disk mount point   /pg   -> {{ pg_fs_main }}/postgres/{{ pg_instance }}
     pg_fs_bkup: /data/backups             # backup disk mount point         /pg/* -> {{ pg_fs_bkup }}/postgres/{{ pg_instance }}/*
