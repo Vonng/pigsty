@@ -6,6 +6,8 @@
 # Mtime     :   2021-07-22
 # Desc      :   use static config as inventory
 # Path      :   vagrant/switch
+# Usage     :   vagrant/switch [spec=default]
+#                              (build|full|el7|el8|el9|...)
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 
@@ -39,14 +41,39 @@ function log_hint()  { printf "${__CB}$*${__CN}\n"; }
 #==============================================================#
 # parameters
 #==============================================================#
-CONF=${1-'default'}
-CONF_DIR=${SCRIPT_DIR}/conf
-CONF_FILENAME="Vagrantfile.${CONF}"
-CONF_FILEPATH="${CONF_DIR}/${CONF_FILENAME}"
-CONF_DISTPATH="${CONF_DIR}/Vagrantfile"
+SPEC=${1-'default'}
+SPEC_DIR="${SCRIPT_DIR}/spec"
+SPEC_FILENAME="${SPEC}.rb"
+SPEC_FILEPATH="${SPEC_DIR}/${SPEC_FILENAME}"
+VAGRANTFILE_PATH="${SCRIPT_DIR}/Vagrantfile"
 
-echo ${CONF_DIR}
+log_info "switch to ${SPEC} => ${SPEC_FILEPATH}"
+cat ${SPEC_FILEPATH} > ${VAGRANTFILE_PATH};
+cat >> ${VAGRANTFILE_PATH} << EOF
 
-log_info "switch to ${CONF}: ln ${CONF_FILEPATH} to ${CONF_DISTPATH}"
-cd "${SCRIPT_DIR}" && rm -rf Vagrantfile;
-cd "${SCRIPT_DIR}" && ln -s conf/${CONF_FILENAME} Vagrantfile;
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = true
+    config.vm.box_check_update = false
+    # generate nodes definition according to Specs
+    Specs.each_with_index do |spec, index|
+        config.vm.define spec["name"] do |node|
+            node.vm.box = spec["image"]
+            node.vm.network "private_network", ip: spec["ip"]
+            node.vm.hostname = spec["name"]
+            node.vm.provider "virtualbox" do |v|
+                v.linked_clone = true
+                v.customize [
+                    "modifyvm", :id, "--cpus", spec["cpu"], "--memory", spec["mem"],
+                    "--nictype1", "virtio", "--nictype2", "virtio", "--hwvirtex", "on", "--ioapic", "on",
+                     "--rtcuseutc", "on", "--vtxvpid", "on", "--largepages", "on"
+                  ]
+                v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000]
+            end
+            node.vm.provision "shell", path: "provision.sh"
+        end
+    end
+end
+EOF
+
+cat ${SPEC_FILEPATH}
