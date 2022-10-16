@@ -1,15 +1,15 @@
 #!/bin/bash
-
 #==============================================================#
 # File      :   configure
 # Ctime     :   2021-05-17
-# Mtime     :   2022-06-20
+# Mtime     :   2022-10-16
 # Desc      :   configure pigsty
 # Usage     :   ./configure [-imdn]
 # Note      :   run as admin user (nopass sudo & ssh)
 # Path      :   configure
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
+VERSION=v1.6.0-b1
 
 #==============================================================#
 # Usage
@@ -19,33 +19,6 @@
 #     [-m|--mode <mode]
 #     [-d|--download]
 #     [-n|--non-interactive]
-
-#==============================================================#
-# const
-#==============================================================#
-# pigsty version string
-VERSION=v1.6.0-b1
-
-# where to download pkg.tgz ?
-BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
-BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
-DEFAULT_SRC_URL="${BASEURL_GITHUB}/pigsty.tgz"
-DEFAULT_PKG_URL="${BASEURL_GITHUB}/pkg.tgz"
-
-# if you can't access github in your country (e.g Mainland China):
-# BaiduNetDisk: https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw  8su9
-
-
-#==============================================================#
-# environment
-#==============================================================#
-PROG_NAME="$(basename $0)"
-PROG_DIR="$(cd $(dirname $0) && pwd)"
-PIGSTY_HOME="${PROG_DIR}"
-REPO_NAME=pigsty
-NGINX_HOME=/www
-REPO_DIR=${NGINX_HOME}/${REPO_NAME}
-BIN_DIR=${PIGSTY_HOME}/files/bin
 
 
 #==============================================================#
@@ -60,6 +33,33 @@ MODE=""                           # default install mode ([auto]|demo|...)
 SPEC=tiny                         # default postgres spec (tiny|mini|small|medium|large|huge)
 DEFAULT_PKG_PATH=/tmp/pkg.tgz     # default offline installation pkg path
 DOWNLOAD_PKG=false                # whether to download pkg.tgz if not exists ?
+
+#==============================================================#
+# const
+#==============================================================#
+BASEURL_GITHUB="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
+BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
+DEFAULT_SRC_URL="${BASEURL_GITHUB}/pigsty.tgz"
+DEFAULT_PKG_URL="${BASEURL_GITHUB}/pkg.tgz"
+
+#==============================================================#
+# environment
+#==============================================================#
+PROG_NAME="$(basename $0)"
+PROG_DIR="$(cd $(dirname $0) && pwd)"
+PIGSTY_HOME="${PROG_DIR}"
+REPO_NAME=pigsty
+NGINX_HOME=/www
+REPO_DIR=${NGINX_HOME}/${REPO_NAME}
+BIN_DIR=${PIGSTY_HOME}/files/bin
+
+# os & region
+EL_VENDOR=$(rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}')
+EL_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+REGION=default
+if [ "$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)" != "200" ]; then
+    REGION=china
+fi
 
 #==============================================================#
 # color log util
@@ -82,6 +82,20 @@ function log_hint()  { printf "${__CB}$*${__CN}"; }
 ipv4_regexp='(([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[0-9]{2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
 #==============================================================#
 
+
+#----------------------------------------------#
+# region
+#----------------------------------------------#
+REGION=default          # which mirror to use? (default|china|europe)
+function check_region(){
+  local region=${1-'default'}
+  if [ "${region}" == "default" ]; then
+    if behind_gfw; then
+        REGION=china     # mainland china is behind GFW
+    fi
+    log_info "region = ${REGION}"
+  fi
+}
 
 #----------------------------------------------#
 # kernel
@@ -123,25 +137,9 @@ function check_release(){
     local major=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f1)
     local minor=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f2)
     local asynchronous=$(cat /etc/redhat-release | tr -dc '0-9.'|cut -d \. -f3)
-    if [[ ${major} != "7" && ${major} != "8"  ]]; then
-        log_error "release = ${full} , only 7,8 is officially supported"
+    if [[ ${major} != "7" && ${major} != "8" && ${major} != "9"  ]]; then
+        log_error "release = ${full} , only 7,8,9 is officially supported"
         exit 4
-    fi
-    if [[ ${major} == "7" ]]; then
-      if [[ ${minor} == "9" ]]; then
-          log_info "release = ${full} , perfect"
-      else
-          log_warn "release = ${full} , it's fine. But beware that 'pkg.tgz' are made under 7.9"
-          log_hint "HINT: If something goes wrong with minor version. Consider bootstrap via Internet without pkg.tgz."
-      fi
-    fi
-    if [[ ${major} == "8" ]]; then
-      if [[ ${minor} == "5" ]]; then
-          log_info "release = ${full} , perfect"
-      else
-          log_warn "release = ${full} , it's fine. But beware that 'pkg.tgz' are made under 8.5"
-          log_hint "HINT: If something goes wrong with minor version. Consider bootstrap via Internet without pkg.tgz."
-      fi
     fi
     return 0
 }
@@ -337,15 +335,24 @@ function check_mode(){
         log_info "mode = ${mode} (manually set)"
         return 0
     fi
-
+    # if el9 & el8 are used, use corresponding template
+    local EL_VER=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    if [[ ${EL_VER} == "9" ]]; then
+        MODE=el9
+        return 0
+    elif [[ ${EL_VER} == "8" ]]; then
+        MODE=el8
+        return 0
+    fi
+    # if username is vagrant, demo template is used
     if [[ "$(whoami)" == "vagrant" ]]; then
         log_info "mode = demo (vagrant demo)"
         MODE=demo
         return 0
     fi
-
     # otherwise, use auto template
     MODE=auto
+    return 0
 }
 
 #----------------------------------------------#
@@ -407,112 +414,12 @@ function check_config(){
         log_info "config = ${mode} @ ${primary_ip}"
     fi
 
-    if behind_gfw; then
-        local sed_cmd4='s/    region: default/    region: china  /g'
+    if [[ ${REGION} != "default" ]]; then
+        local sed_cmd4='s/    region: default/    region: '"${REGION}"'  /g'
         sed -ie "${sed_cmd4}" ${config_dst}
         rm -rf "${config_dst}e" || true
     fi
 	return 0
-}
-
-#----------------------------------------------#
-# check pkg.tgz exists (optionally download)
-#----------------------------------------------#
-function check_pkg(){
-    local pkg_url=${1-${DEFAULT_PKG_URL}}    # default package url from github
-    local pkg_path=${2-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
-    local download_pkg=${3-${DOWNLOAD_PKG}}  # flag: if set, skip interactive asking
-    local interactive=${4-${INTERACTIVE}}    # bool: if false, do not ask
-
-    if [[ -f ${pkg_path} ]]; then
-        # TODO: checksum validate (but we will use 400MB sanity size check instead)
-        if (($(stat -c%s ${pkg_path})>409600000)); then
-            log_info "cache = ${pkg_path} exists"
-            return 0
-        else
-            log_warn "cache = ${pkg_path} exists but invalid"
-            rm -rf ${pkg_path}
-        fi
-    fi
-    # ask for confirmation if in interactive mode (and download is not specified)
-    if [[ ${download_pkg} == "false" && ${interactive} == "true" ]]; then
-        log_input "Cache /tmp/pkg.tgz not exists, download? (y/n):"
-        read -r
-        local reply=$(echo "$REPLY" | tr '[:upper:]' '[:lower:]')
-        case "${reply}" in
-            y|yes|ok|true|aye|on) download_pkg=true ;;
-        esac
-    fi
-    if [[ ${download_pkg} == "false" ]]; then
-        log_warn "cache = missing and skip download"
-    else
-        pkg_url="${BASEURL_GITHUB}/pkg.tgz"
-        if behind_gfw; then
-            pkg_url="${BASEURL_CHINA}/pkg.tgz"
-            log_info "download from China CDN ${pkg_url} to ${pkg_path}"
-        else
-            log_info "download from Github ${pkg_url} to ${pkg_path}"
-        fi
-        curl -fSL "${pkg_url}" -o "${pkg_path}"
-        return $?
-    fi
-    return 0
-}
-
-        log_info "cache = download from internet"
-
-#----------------------------------------------#
-# check repo
-#----------------------------------------------#
-# assume user can sudo (pass check_sudo)
-function check_repo(){
-    local pkg_path=${1-${DEFAULT_PKG_PATH}}  # default download path : /tmp/pkg.tgz
-    local repo_dir=${2-${REPO_DIR}}          # default repo directory: /www/pigsty
-    local nginx_home=$(dirname ${repo_dir})
-    local repo_name=$(basename ${repo_dir})
-    if [[ -f ${repo_dir}/repo_complete ]]; then
-        log_info "repo = ${repo_dir} ok"
-        return 0
-    fi
-    if [[ ! -f ${pkg_path} ]]; then
-        log_warn "repo = skip (${pkg_path} not exists)"
-        return 0
-    fi
-    sudo mkdir -p ${nginx_home}
-    if [[ -d ${repo_dir} ]]; then
-        log_warn "repo = invalid, remove"
-        sudo rm -rf ${repo_dir}
-    fi
-    log_info "repo = extract from ${pkg_path}"
-    sudo tar -xf ${pkg_path} -C ${nginx_home}  # extract to /www/pigsty
-}
-
-
-#----------------------------------------------#
-# check local file repo
-#----------------------------------------------#
-function check_repo_file(){
-    local repo_name=${1-${REPO_NAME}}
-    local nginx_home=${2-${NGINX_HOME}}
-    local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
-    if [[ ! -f ${nginx_home}/${repo_name}/repo_complete ]]; then
-        log_warn "repo file = skip due to repo not exists"
-        return 0
-    else
-        log_info "repo file = ${repo_file}"
-    fi
-    sudo mkdir -p /etc/yum.repos.d/backup
-    sudo mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ 2> /dev/null || true
-    cat > /tmp/pigsty-local.repo  <<-EOF
-[${repo_name}-local]
-name=${repo_name} local \$releasever - \$basearch
-baseurl=file://${nginx_home}/${repo_name}/
-enabled=1
-gpgcheck=0
-EOF
-    sudo cp -f /tmp/pigsty-local.repo ${repo_file}
-    sudo yum clean all -q
-    sudo yum makecache -q
 }
 
 
@@ -521,18 +428,6 @@ EOF
 #----------------------------------------------#
 # install ansible sshpass unzip wget yum , etc...
 function check_utils(){
-    local repo_name=${1-${REPO_NAME}}
-    local nginx_home=${2-${NGINX_HOME}}
-    local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
-    # use local file repo if available
-    if [[ -f ${repo_file} ]]; then
-        log_info "utils = install from local file repo"
-        sudo yum install -q -y createrepo_c sshpass wget yum yum-utils ansible unzip >/dev/null
-    else
-        log_warn "utils = install from default yum repo"
-        sudo yum install -q -y createrepo_c sshpass wget yum yum-utils epel-release unzip >/dev/null
-        sudo yum install -q -y ansible  >/dev/null
-    fi
     # check ansible is installed
     if command -v ansible-playbook >/dev/null ; then
         log_info "ansible = $(ansible --version | head -n1)"
@@ -568,22 +463,16 @@ function main(){
     # check
     check_kernel     # kernel        = Linux
     check_machine    # machine       = x86_64
-    check_release    # release       = CentOS 7.x
+    check_release    # release       = CentOS 7|8|9
     check_sudo       # current_user  = NOPASSWD sudo
     check_ssh        # current_user  = NOPASSWD ssh
     check_ipaddr     # primary_ip (arg|probe|input)                    (INTERACTIVE: ask for ip)
     check_admin      # check current_user@primary_ip nopass ssh sudo
     check_mode       # check config template (auto|demo|...)
-    # check_spec       # check machine spec (tiny|mini|small|medium|large|...)
     check_config     # generate config according to primary_ip and mode
-
-    # prepare
-    check_pkg        # check offline installation package exists       (INTERACTIVE: ask for download)
-    check_repo       # create repo from pkg.tgz if exists
-    check_repo_file  # create local file repo file if repo exists
     check_utils      # check ansible sshpass and other utils installed
-
-    log_hint "configure pigsty done. Use 'make install' to proceed\n"
+    log_info "configure pigsty done"
+    log_hint "proceed with ./infra.yml \n"
 }
 
 main $@

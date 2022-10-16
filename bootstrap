@@ -158,6 +158,7 @@ function check_release(){
         log_error "release = ${full} ,  supported release: el7,el8,el9"
         exit 4
     fi
+    log_info "release = ${full}"
     return 0
 }
 
@@ -393,16 +394,16 @@ function check_utils(){
 
     if [[ $EL_VER == "7" ]]; then
         log_info "install el7 utils"
-        sudo yum install -q -y createrepo_c unzip wget yum-utils createrepo_c sshpass
+        sudo yum install -y createrepo_c unzip wget yum-utils createrepo_c sshpass
         sudo yum install -y ansible
     elif [[ $EL_VER == "8" ]]; then
         log_info "install el8 utils"
-        sudo yum install -y -q createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
-        sudo yum install -y ansible python38-jmespath
+        sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
+        sudo dnf install -y ansible python38-jmespath
     elif [[ $EL_VER == "9" ]]; then
         log_info "install el9 utils"
-        sudo yum install -y -q createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
-        sudo yum install -y ansible python3-jmespath
+        sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
+        sudo dnf install -y ansible python3-jmespath
     fi
     # check ansible is installed
     if command -v ansible-playbook >/dev/null ; then
