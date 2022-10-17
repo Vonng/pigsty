@@ -94,6 +94,10 @@ scrape_configs:
 {% endfor %}
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
     scheme: https
+    tls_config:
+      ca_file: /etc/pki/ca.crt
+      cert_file: /etc/pki/node.crt
+      key_file: /etc/pki/node.key
 {% endif %}
 {% endif %}
 
@@ -191,6 +195,9 @@ scrape_configs:
     params:
       format: ['prometheus']
     static_configs: [ { targets: [ 127.0.0.1:8500 ] , labels: { ip: {{ inventory_hostname }}, type: consul , job: infra } } ]
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+    scheme: https
+{% endif %}
 {% endif %}
 
 {% if etcd_enabled|bool and dcs_servers|length > 0 %}
@@ -200,6 +207,13 @@ scrape_configs:
 {% for name,ip in dcs_servers.items() %}
       - { targets: [ {{ ip }}:2379 ] , labels: { ip: {{ ip }}, ins: {{ name }}, type: etcd , job: infra } }
 {% endfor %}
+{% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+    scheme: https
+    tls_config:
+      ca_file: /etc/pki/ca.crt
+      cert_file: /etc/pki/node.crt
+      key_file: /etc/pki/node.key
+{% endif %}
 {% endif %}
 
   #------------------------------------------------------------------------------
