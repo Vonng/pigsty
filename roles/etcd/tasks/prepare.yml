@@ -89,10 +89,14 @@
 #------------------------------------------------------------------------------
 - name: Create etcd dir
   tags: etcd_dir
-  file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
-  with_items:
-    - /etc/etcd
-    - /var/lib/etcd
-    - "{{ etcd_data_dir }}"
+  block:
 
+    - name: Create etcd config dir
+      file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
+      with_items:
+        - /etc/etcd
+        - /var/lib/etcd
+
+    - name: Create etcd data dir
+      file: path="{{ etcd_data_dir }}" state=directory owner=etcd group=etcd mode=0700
 ...

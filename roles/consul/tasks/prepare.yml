@@ -85,16 +85,21 @@
   user: name=consul home=/var/lib/consul groups=dcs append=yes
 
 
+
 #------------------------------------------------------------------------------
 # prepare consul dir
 #------------------------------------------------------------------------------
 - name: Create consul dir
   tags: consul_dir
-  file: path={{ item }} state=directory owner=consul group=consul mode=0750
-  with_items:
-    - /etc/consul.d
-    - /var/lib/consul
-    - "{{ consul_data_dir }}"
+  block:
+    - name: Create consul config dir
+      file: path={{ item }} state=directory owner=etcd group=etcd mode=0750
+      with_items:
+        - /etc/consul.d
+        - /var/lib/consul
+
+    - name: Create consul data dir
+      file: path="{{ consul_data_dir }}" state=directory owner=etcd group=etcd mode=0700
 
 #------------------------------------------------------------------------------
 # prepare consul_alias
