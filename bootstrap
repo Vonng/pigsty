@@ -43,7 +43,7 @@ VERSION=v1.6.0-b1
 #  -y  --yes             : download pkg.tgz from internet, ask by default
 #  -n  --no              : do not download pkg.tgz from internet
 #==============================================================#
-REGION=default          # which mirror to use? (default|china|europe)
+REGION=""               # which mirror to use? (default|china|europe)
 DOWNLOAD_PKG=ask        # download pkg.tgz ? (ask|yes|no, ask by default)
 PKG_PATH=/tmp/pkg.tgz   # which pkg to be used ? (/tmp/pkg.tgz by default)
 
@@ -51,8 +51,7 @@ PKG_PATH=/tmp/pkg.tgz   # which pkg to be used ? (/tmp/pkg.tgz by default)
 # environment
 #==============================================================#
 PROG_NAME="$(basename $0)"
-PROG_DIR="$(cd $(dirname $0) && pwd)"
-PIGSTY_HOME="${PROG_DIR}"
+PIGSTY_HOME="$(cd $(dirname $0) && pwd)"
 REPO_NAME=pigsty
 NGINX_HOME=/www
 REPO_DIR=${NGINX_HOME}/${REPO_NAME}
@@ -60,7 +59,7 @@ EL_VER=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep
 ARCH=$(uname -m)
 BASEURL="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 SRC_FILENAME="pigsty-${VERSION}.tgz"
-PKG_FILENAME="pigsty-${VERSION}.tgz"
+PKG_FILENAME="pigsty-pkg-${VERSION}.tgz"
 DEFAULT_SRC_URL="${BASEURL}/${SRC_FILENAME}"
 DEFAULT_PKG_URL="${BASEURL}/${PKG_FILENAME}"
 
@@ -102,11 +101,12 @@ function behind_gfw() {
 }
 
 function check_region(){
-  local region=${1-'default'}
-  if [ "${region}" == "default" ]; then
+  if [ "${REGION}" == "" ]; then
     if behind_gfw; then
-        REGION=china     # mainland china is behind GFW
+        REGION=china       # mainland china is behind GFW
         BASEURL="http://download.pigsty.cc/${VERSION}"
+    else
+        REGION=default     # otherwise use default mirror
     fi
     DEFAULT_SRC_URL="${BASEURL}/${SRC_FILENAME}"
     DEFAULT_PKG_URL="${BASEURL}/${PKG_FILENAME}"
@@ -424,8 +424,8 @@ function main(){
             -h|--help)
                 echo './bootstrap [-r|--region <region>] [-p|--path <pkg>] [-y|--yes] [-n|--no]'
                 exit 0;;
-            -r|--region) REGION="$2"   ; shift;;
-            -p|--path)   PKG_PATH="$2" ; shift;;
+            -r|--region) REGION="$2"   ; shift ;;
+            -p|--path)   PKG_PATH="$2" ; shift ;;
             -y|--yes) DOWNLOAD_PKG=yes  ;;
             -n|--no)  DOWNLOAD_PKG=no   ;;
             (--) shift; break;;

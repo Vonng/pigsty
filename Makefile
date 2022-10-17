@@ -9,9 +9,17 @@
 
 # pigsty version
 VERSION?=v1.6.0-b1
+EL_VER=7
 
-# target cluster (meta by default)
-CLS?=meta
+# local name
+SRC_PKG=pigsty-$(VERSION).tgz
+APP_PKG=pigsty-app-$(VERSION).tgz
+REPO_PKG=pigsty-pkg-$(VERSION).el${EL_VER}.x86_64.tgz
+DOCKER_PKG=pigsty-docker-$(VERSION).tgz
+EL7_PKG=pigsty-pkg-$(VERSION).el7.x86_64.tgz
+EL8_PKG=pigsty-pkg-$(VERSION).el8.x86_64.tgz
+EL9_PKG=pigsty-pkg-$(VERSION).el9.x86_64.tgz
+MATRIX_PKG=pigsty-matrixdb-$(VERSION).el7.x86_64.tgz
 
 ###############################################################
 #                      1. Quick Start                         #
@@ -19,9 +27,9 @@ CLS?=meta
 # run with nopass SUDO user (or root) on CentOS 7.x node
 default: tip
 tip:
-	@echo "# Run on Linux x86_64 CentOS 7.9 node with sudo & ssh access"
+	@echo "# Run on Linux x86_64 EL7-9 node with sudo & ssh access"
 	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
-	@echo "./bootstrap     # download pigsty pkgs"
+	@echo "./bootstrap     # prepare local repo & ansible"
 	@echo "./configure     # pre-check and templating config"
 	@echo "./infra.yml     # install pigsty on current node"
 
@@ -29,11 +37,11 @@ tip:
 link:
 	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
 	@echo "[Github Download]"
-	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty"
-	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"
+	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
+	@echo "curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz  # [optional]"
 	@echo "[CDN Download]"
-	@echo "curl -SL http://download.pigsty.cc/${VERSION}/pigsty.tgz | gzip -d | tar -xC ~ ; cd ~/pigsty"
-	@echo "curl -SL http://download.pigsty.cc/${VERSION}/pkg.tgz -o /tmp/pkg.tgz           # [optional]"
+	@echo "curl -SL http://download.pigsty.cc/${VERSION}/${SRC_PKG} | gzip -d | tar -xC ~ ; cd ~/pigsty"
+	@echo "curl -SL http://download.pigsty.cc/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz # [optional]"
 
 # get pigsty source from CDN
 get:
@@ -41,11 +49,11 @@ get:
 
 #-------------------------------------------------------------#
 # there are 3 steps launching pigsty:
-all: download configure install
+all: bootstrap configure install
 
-# (1). BOOTSTRAP  pigsty pkg to /tmp/pkg.tgz
+# (1). BOOTSTRAP  pigsty pkg & util preparedness
 bootstrap:
-	./boostrap pigsty pkg
+	./boostrap
 
 # (2). CONFIGURE  pigsty in interactive mode
 config:
@@ -83,11 +91,11 @@ install:
 #
 # get latest stable version to ~/pigsty
 src:
-	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz -o ~/pigsty.tgz
+	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz
 
 # download pkg.tgz to /tmp/pkg.tgz
 pkg:
-	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/pkg.tgz -o /tmp/pkg.tgz
+	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${REPO_PKG} -o /tmp/pkg.tgz
 ###############################################################
 
 
@@ -121,7 +129,7 @@ infra:
 
 # reinit pgsql cmdb
 pgsql:
-	./infra.yml --tags=cmdb -e pg_clean=clean
+	./infra.yml --tags=infra-cmdb -e pg_clean=clean
 
 # rebuild repo
 repo:
@@ -132,9 +140,9 @@ repo-upstream:
 	./infra.yml --tags=repo_upstream
 
 # download repo packages
-repo-download:
+repo-build:
 	sudo rm -rf /www/pigsty/repo_complete
-	./infra.yml --tags=repo_upstream,repo_download
+	./infra.yml --tags=repo_upstream,repo_build
 
 # init prometheus
 prometheus:
@@ -148,6 +156,9 @@ grafana:
 loki:
 	./infra.yml --tags=loki -e loki_clean=true
 
+# init docker
+docker:
+	./infra.yml --tags=docker -e docker_enabled=true
 
 ###############################################################
 
@@ -172,7 +183,7 @@ loki:
 #=============================================================#
 
 #------------------------------#
-# 1. deps
+# 1. deps (macos)
 #------------------------------#
 # install macos sandbox software dependencies
 deps:
@@ -200,22 +211,10 @@ ssh:               # add node ssh config to your ~/.ssh/config
 #------------------------------#
 # launch one-node demo
 demo: demo-prepare
+	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz && tar -xf pigsty.tgz"
+	ssh meta 'cd ~/pigsty; ./bootstrap -y'
+	ssh meta 'cd ~/pigsty; ./configure --ip 10.10.10.10 --non-interactive -m demo'
 	ssh meta 'cd ~/pigsty; ./infra.yml'
-
-# prepare demo resource by download|upload
-demo-prepare: demo-upload
-
-# download demo pkg.tgz from github
-demo-download:
-	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/pigsty.tgz && tar -xf pigsty.tgz && cd pigsty"
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive -m demo'
-
-# upload demo pkg.tgz from local dist dir
-demo-upload:
-	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
-	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
-	scp "dist/${VERSION}/pkg.tgz" meta:/tmp/pkg.tgz
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive -m demo'
 
 #------------------------------#
 # vagrant vm management
@@ -228,6 +227,7 @@ dw:
 del:
 	cd vagrant && vagrant destroy -f
 new: del up
+clean: del
 #------------------------------#
 # extra nodes: node-{1,2,3}
 up-test:
@@ -246,19 +246,22 @@ suspend:
 	cd vagrant && vagrant suspend
 resume:
 	cd vagrant && vagrant resume
-
 #------------------------------#
-# time sync
-#------------------------------#
-# sync meta node time
-s:sync
-sync:  # sync time
-	ssh meta 'sudo ntpdate -u pool.ntp.org'; true
+# vagrant templates:
+v1:
+	vagrant/switch default
+v4:
+	vagrant/switch full
+v7:
+	vagrant/switch el7
+v8:
+	vagrant/switch el8
+v9:
+	vagrant/switch el9
+vb:
+	vagrant/switch build
 
-# sync 4 node time
-s4: sync4
-sync4:  # sync time
-	echo meta node-1 node-2 node-3 | xargs -n1 -P4 -I{} ssh {} 'sudo ntpdate -u pool.ntp.org'; true
+
 ###############################################################
 
 
@@ -342,28 +345,30 @@ du: dashboard-clean dashboard-init    # update grafana dashboards
 # copy source & packages
 #------------------------------#
 # copy latest pro source code
-copy: release copy-src copy-pkg use-src use-pkg
+copy: copy-src copy-pkg use-src use-pkg
+cc: release copy-src copy-pkg use-src use-pkg
 
 # copy pigsty source code
 copy-src:
-	scp "dist/${VERSION}/pigsty.tgz" meta:~/pigsty.tgz
+	scp "dist/${VERSION}/${SRC_PKG}" meta:~/pigsty.tgz
 copy-pkg:
-	scp dist/${VERSION}/pkg.tgz meta:/tmp/pkg.tgz
+	scp dist/${VERSION}/${REPO_PKG} meta:/tmp/pkg.tgz
 copy-matrix:
-	scp dist/${VERSION}/matrix.tgz meta:/tmp/matrix.tgz
+	scp dist/${VERSION}/${MATRIX_PKG} meta:/tmp/matrix.tgz
 copy-app:
-	scp dist/${VERSION}/app.tgz meta:~/app.tgz
+	scp dist/${VERSION}/${APP_PKG} meta:~/app.tgz
 	ssh -t meta 'rm -rf ~/app; tar -xf app.tgz; rm -rf app.tgz'
 copy-docker:
-	scp dist/${VERSION}/docker.tgz meta:/tmp/docker.tgz
+	scp dist/${VERSION}/${DOCKER_PKG} meta:/tmp/docker.tgz
 load-docker:
 	ssh meta 'cat /tmp/docker.tgz | gzip -d -c - | docker load'
 copy-all: copy-src copy-pkg
 
+# extract packages
 use-src:
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 use-pkg:
-	ssh meta '/home/vagrant/pigsty/configure --ip 10.10.10.10 --non-interactive --download -m demo'
+	ssh -t meta '/home/vagrant/pigsty/bootstrap -n'
 use-matrix:
 	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www'
 	scp files/matrix.repo meta:/tmp/matrix.repo
@@ -382,7 +387,7 @@ cmdb:
 ###############################################################
 #                       8. Release                            #
 ###############################################################
-# make release
+# make pigsty source release
 r: release
 release:
 	bin/release ${VERSION}
@@ -390,24 +395,7 @@ release:
 # release-pkg will make cache and copy to dist dir
 rp: release-pkg
 release-pkg: cache
-	scp meta:/tmp/pkg.tgz dist/${VERSION}/pkg.tgz
-
-# release
-rp2: release-matrix
-release-matrix:
-	#ssh meta 'sudo cp -r /www/matrix /tmp/matrix; sudo chmod -R a+r /www/matrix'
-	ssh meta sudo tar zcvf /tmp/matrix.tgz -C /www matrix
-	scp meta:/tmp/matrix.tgz dist/${VERSION}/matrix.tgz
-
-rp3: release-docker
-release-docker:
-	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.5.0 vonng/pg_exporter | gzip -9 -c > /tmp/docker.tgz'
-	scp meta:/tmp/docker.tgz dist/${VERSION}/docker.tgz
-
-# publish will publish pigsty packages
-p: release publish
-publish:
-	bin/publish ${VERSION}
+	scp meta:/tmp/pkg.tgz dist/${VERSION}/${REPO_PKG}
 
 # create pkg.tgz on initialized meta node
 cache:
@@ -417,44 +405,51 @@ cache:
 	scp bin/cache meta:/tmp/cache
 	ssh meta "sudo bash /tmp/cache"
 
+# release matrixdb packages
+release-matrix:
+	#ssh meta 'sudo cp -r /www/matrix /tmp/matrix; sudo chmod -R a+r /www/matrix'
+	ssh meta sudo tar zcvf /tmp/matrix.tgz -C /www matrix
+	scp meta:/tmp/matrix.tgz dist/${VERSION}/${MATRIX_PKG}.tgz
+
+# release docker packages
+release-docker:
+	ssh meta 'docker save kong alpine registry dpage/pgadmin4 sosedoff/pgweb postgrest/postgrest swaggerapi/swagger-ui minio/minio bytebase/bytebase:1.5.0 vonng/pg_exporter | gzip -9 -c > /tmp/docker.tgz'
+	scp meta:/tmp/docker.tgz dist/${VERSION}/${DOCKER_PKG}
+
+# publish pigsty packages
+p: release publish
+publish:
+	bin/publish ${VERSION}
+
 # build environment
-build-env: vagrant-build new copy-build-src copy-build-pkg
-vagrant-build:
-	vagrant/switch build
+build-new: vbuild new build
 
-copy-build-src: release
-	scp dist/${VERSION}/pigsty.tgz meta:~/
-	scp dist/${VERSION}/pigsty.tgz node-1:~/
-	scp dist/${VERSION}/pigsty.tgz node-2:~/
-	ssh meta   "tar -xf pigsty.tgz";
-	ssh node-1 "tar -xf pigsty.tgz";
-	ssh node-2 "tar -xf pigsty.tgz";
-	scp pigsty.yml meta:~/pigsty/pigsty.yml
-	scp pigsty.yml node-1:~/pigsty/pigsty.yml
-	scp pigsty.yml node-2:~/pigsty/pigsty.yml
+build: build-src build-repo build-boot
 
-copy-build-pkg:
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz meta:/tmp/pkg.tgz
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz node-1:/tmp/pkg.tgz
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz node-2:/tmp/pkg.tgz
-	ssh meta   "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www";
-	ssh node-1 "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www";
-	ssh node-2 "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www";
+build-src: release
+	scp dist/${VERSION}/${SRC_PKG} 10.10.10.10:~/pigsty.tgz ; ssh 10.10.10.10 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} 10.10.10.11:~/pigsty.tgz ; ssh 10.10.10.11 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} 10.10.10.12:~/pigsty.tgz ; ssh 10.10.10.12 "tar -xf pigsty.tgz";
 
-release-build-pkg:
+build-repo:
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.12:/tmp/pkg.tgz ; ssh 10.10.10.12 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+
+build-boot:
+	ssh 10.10.10.10 "cd pigsty; ./bootstrap -n ; ./configure -m auto -i 10.10.10.10 -n";
+	ssh 10.10.10.11 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.11 -n";
+	ssh 10.10.10.12 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
+
+build-release:
 	tar -cf files/docs.tgz docs
-	scp files/docs.tgz meta:/tmp/docs.tgz
-	scp files/docs.tgz node-1:/tmp/docs.tgz
-	scp files/docs.tgz node-2:/tmp/docs.tgz
-	ssh meta 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	ssh node-1 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	ssh node-2 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	scp bin/cache meta:/tmp/cache
-	scp bin/cache node-1:/tmp/cache
-	scp bin/cache node-2:/tmp/cache
-	ssh meta   "sudo bash /tmp/cache";  scp meta:/tmp/pkg.tgz   dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
-	ssh node-1 "sudo bash /tmp/cache";	scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
-	ssh node-2 "sudo bash /tmp/cache"; 	scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
+	scp files/docs.tgz 10.10.10.10:/tmp/docs.tgz ; ssh 10.10.10.10 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp files/docs.tgz 10.10.10.11:/tmp/docs.tgz ; ssh 10.10.10.11 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp files/docs.tgz 10.10.10.12:/tmp/docs.tgz ; ssh 10.10.10.12 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp bin/cache 10.10.10.10:/tmp/cache ; ssh 10.10.10.10 "sudo bash /tmp/cache"; scp 10.10.10.10:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+	scp bin/cache 10.10.10.11:/tmp/cache ; ssh 10.10.10.11 "sudo bash /tmp/cache"; scp 10.10.10.11:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+	scp bin/cache 10.10.10.12:/tmp/cache ; ssh 10.10.10.12 "sudo bash /tmp/cache"; scp 10.10.10.12:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
+
 ###############################################################
 
 
@@ -482,18 +477,17 @@ docs:
 ###############################################################
 #                         Appendix                            #
 ###############################################################
-.PHONY: default tip link all download config install \
+.PHONY: default tip link get all bootstrap config install \
         src pkg \
         c conf \
-        infra pgsql repo repo-upstream repo-download prometheus grafana loki \
-        repo repo-upstream repo prometheus grafana loki \
-        deps dns start ssh demo demo-prepare demo-download demo-upload \
-        up dw del new up-test dw-test del-test new-test clean \
-        st status suspend resume s sync s4 sync4 ss \
+        infra pgsql repo repo-upstream repo-build prometheus grafana loki docker \
+        deps dns start ssh demo \
+        up dw del new clean up-test dw-test del-test new-test clean \
+        st status suspend resume v1 v4 v7 v8 v9 vb \
         ri rc rw ro test-ri test-rw test-ro test-rw2 test-ro2 test-rc test-st test-rb1 test-rb2 test-rb3 \
-        di dd dc dashboard-init dashboard-dump dashboard-clean \
+        di dd dc du dashboard-init dashboard-dump dashboard-clean \
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb\
-        r releast rp release-pkg rp2 release-matrix-rp3 release-docker pkg p publish cache \
-        build-env vagrant-build copy-build-src copy-build-pkg release-build-pkg \
+        r releast rp release-pkg cache release-matrix release-docker p publish \
+        build-new build-vagrant build build-src build-repo build-boot build-release \
         svg doc d docs
 ###############################################################
