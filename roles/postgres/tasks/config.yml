@@ -105,13 +105,13 @@
 
     - name: Generate pgsql cluster private key
       openssl_privatekey:
-        path: "/etc/pigsty/ca/{{ pg_cluster }}.key"
+        path: "/etc/pki/CA/private/{{ pg_cluster }}.key"
         mode: 0644
 
     - name: Generate pgsql server csr
       openssl_csr:
-        path: "/etc/pigsty/ca/{{ pg_cluster }}.csr"
-        privatekey_path: "/etc/pigsty/ca/{{ pg_cluster }}.key"
+        path: "/etc/pki/CA/newcerts/{{ pg_cluster }}.csr"
+        privatekey_path: "/etc/pki/CA/private/{{ pg_cluster }}.key"
         common_name: "{{ pg_cluster }}"
         subject_alt_name:
           - DNS:localhost
@@ -122,30 +122,28 @@
 
     - name: Sign pgsql server crt
       openssl_certificate:
-        path: "/etc/pigsty/ca/{{ pg_cluster }}.crt"
-        csr_path: "/etc/pigsty/ca/{{ pg_cluster }}.csr"
-        ownca_path: /etc/pigsty/ca/ca.crt
-        ownca_privatekey_path: /etc/pigsty/ca/ca.key
+        path: "/etc/pki/CA/certs/{{ pg_cluster }}.crt"
+        csr_path: "/etc/pki/CA/newcerts/{{ pg_cluster }}.csr"
+        ownca_path: /etc/pki/ca.crt
+        ownca_privatekey_path: /etc/pki/ca.key
         provider: ownca
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    # TODO: if pgsql cert exists? what do we do? always recreate now
-    - name: Fetch pgsql certs to local
-      fetch: src="/etc/pigsty/ca/{{ item }}" dest="files/cert/{{ item }}" flat=yes
+    - name: Fetch pgsql cert & key from primary meta node
+      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - "{{ pg_cluster }}.key"
-        - "{{ pg_cluster }}.crt"
-
+        - { src: "/etc/pki/CA/certs/{{ pg_cluster }}.crt"   , dest: "files/pki/{{ pg_cluster }}.crt" }
+        - { src: "/etc/pki/CA/private/{{ pg_cluster }}.key" , dest: "files/pki/{{ pg_cluster }}.key" }
 
 - name: Copy pg ssl certificates
   any_errors_fatal: true
-  tags: pg_cert
+  tags: [ pg_cert , pg_cert_copy ]
   when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
   block:
     - name: Copy pg ssl cert
-      copy: src="files/cert/{{ pg_cluster }}.crt" dest="/etc/pki/tls/certs/{{ pg_cluster }}.crt" owner=postgres group=postgres mode=0644
+      copy: src="files/pki/{{ pg_cluster }}.crt" dest="/pg/cert/server.crt" owner=postgres group=postgres mode=0644
     - name: Copy pg ssl key
-      copy: src="files/cert/{{ pg_cluster }}.key" dest="/etc/pki/tls/private/{{ pg_cluster }}.key" owner=postgres group=postgres mode=0600
+      copy: src="files/pki/{{ pg_cluster }}.key" dest="/pg/cert/server.key" owner=postgres group=postgres mode=0600
 
 ...
