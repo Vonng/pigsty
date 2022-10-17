@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   get
 # Ctime     :   2022-03-24
-# Mtime     :   2022-03-24
+# Mtime     :   2022-10-17
 # Desc      :   get latest pigsty source code from CDN
 # Usage     :   bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
 # Note      :   run as admin user
@@ -14,12 +14,28 @@
 # Usage
 # bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
 
-VERSION=v1.5.1
-BASEURL_CHINA="http://download.pigsty.cc/${VERSION}"
-PIGSTY_URL=${BASEURL_CHINA}/pigsty.tgz
+VERSION=v1.6.0-b1
+BASEURL="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 
-echo "[INFO] download pigsty.tgz from ${PIGSTY_URL}"
-curl -L ${PIGSTY_URL} -o /tmp/pigsty.tgz
+function behind_gfw() {
+    local return_code=$(curl -I -s --connect-timeout 1 www.google.com -w %{http_code} | tail -n1)
+    if [ "${return_code}" = "200" ]; then
+        return 1
+    fi
+    return 0
+}
+
+if behind_gfw; then
+    BASEURL="http://download.pigsty.cc/${VERSION}"
+fi
+
+SRC_FILENAME="pigsty-${VERSION}.tgz"
+SRC_URL="${BASEURL}/${SRC_FILENAME}"
+#EL_VER=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+#PKG_FILENAME="pigsty-pkg-${VERSION}.${EL_VER}.x86_64.tgz"
+
+echo "[INFO] download pigsty.tgz from ${SRC_URL}"
+curl -L ${SRC_URL} -o /tmp/pigsty.tgz
 
 # extract to home dir
 if [[ ! -d ~/pigsty ]]; then

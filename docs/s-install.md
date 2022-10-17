@@ -24,13 +24,17 @@ When Pigsty is installed on one single node. It will init pigsty infra with a ba
 
 #### TL; DR
 
-[Prepare](d-prepare.md) a **new** node : Linux x86_64 CentOS 7.9.2009, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
+[Prepare](d-prepare.md) a **new** node : Linux x86_64 EL 7+, with **root** or **sudo** access, then [download](d-prepare.md#software-provisioning) pigsty
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # Download Latest Pigsty Source
-cd ~/pigsty; ./configure                               # Configure pigsty with ip & template
-./infra.yml                                            # Install pigsty on current meta node
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+cd ~/pigsty;    # Download Latest Pigsty Source
+./boostrap -y   # Get Software Packages & Ansible [optional]
+./configure     # Generate pigsty.yml config according to env
+./infra.yml     # Install pigsty on current meta node
 ```
+
+> Tested OS: centos7.9, rocky8.6, rocky9.0, rhel7, rhel8, rhel9. Oracle/Alma should be fine too.
 
 > If you have available Mac/PC/Laptop/Cloud Account, [Sandbox](d-sandbox.md) could be handy to create vm for you.
 

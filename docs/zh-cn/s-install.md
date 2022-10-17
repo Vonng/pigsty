@@ -26,6 +26,17 @@ cd ~/pigsty; ./configure                               # 根据当前环境生�
 ./infra.yml                                            # 在当前节点上完成安装
 ```
 
+```bash
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"
+cd ~/pigsty;    # 下载最新pigsty源代码
+./boostrap -y   # 下载离线软件包，安装Ansible（可选，您也可以自行准备并直接在后续步骤中从上游下载）
+./configure     # 根据当前环境生成配置文件 pigsty.yml
+./infra.yml     # 在当前元节点上完成Pigsty安装
+```
+
+> 测试的Linux发行版: centos7.9, rocky8.6, rocky9.0, rhel7, rhel8, rhel9
+
+
 > 如果您有可用的Macbook/PC/笔记本或云厂商账号，可使用[沙箱部署](d-sandbox.md)在本机或云端自动创建虚拟机。
 
 执行完毕后，您已经在**当前节点**完成了Pigsty的安装，上面带有完整的基础设施与一个开箱即用的PostgreSQL数据库实例，当前节点的5432对外提供数据库[服务](c-service.md#服务)，80端口对外提供所有WebUI类服务。

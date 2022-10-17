@@ -4,7 +4,7 @@
 
 **Battery-Included Open-Source PostgreSQL Distribution**
 
-> Latest Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
+> Latest Version: [v1.6.0-b1](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b1) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 > 
@@ -85,13 +85,15 @@ Check [**FEATURES**](docs/s-feature.md) for detail.
 
 ## TL; DR
 
-Get a new Linux x86_64 CentOS 7.9 node. with nopass `sudo` & `ssh` access, then:
+Get a new Linux x86_64 EL7+ node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
 cd ~/pigsty && ./configure                             # pre-check and config templating 
 ./infra.yml                                            # install pigsty on current node
 ```
+
+> Tested OS: centos7.9, rocky8.6, rocky9.0, rhel7, rhel8, rhel9. Oracle/Alma should be fine too. 
 
 Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
 
@@ -141,9 +143,9 @@ You can create Postgres with different [roles](d-pgsql.md) by declaring them: pr
 <details><summary>Deploy Databases Clusters</summary>
 You can deploy different types of databases & clusters with corresponding playbooks.
 
-* [`pgsql.yml`](p-pgsql.md#pgsql): Deploy HA PostgreSQL clusters.
-* [`redis.yml`](p-redis.md#redis): Deploy Redis clusters.
-* [`pigsty-matrixdb.yml`](p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
+* [`pgsql.yml`](docs/p-pgsql.md#pgsql): Deploy HA PostgreSQL clusters.
+* [`redis.yml`](docs/p-redis.md#redis): Deploy Redis clusters.
+* [`pigsty-matrixdb.yml`](docs/p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
 
 ```bash
 ./pgsql.yml         -l pg-test      # init 1-primary & 2-replica pgsql cluster
