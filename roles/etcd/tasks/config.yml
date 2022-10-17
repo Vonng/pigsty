@@ -12,13 +12,13 @@
 
     - name: Generate etcd private key
       openssl_privatekey:
-        path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.key"
-        mode: 0644
+        path: "/etc/pki/CA/private/etcd-{{ dcs_nodename }}.key"
+        mode: 0600
 
     - name: Generate etcd server csr
       openssl_csr:
-        path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.csr"
-        privatekey_path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.key"
+        path: "/etc/pki/CA/newcerts/etcd-{{ dcs_nodename }}.csr"
+        privatekey_path: "/etc/pki/CA/private/etcd-{{ dcs_nodename }}.key"
         common_name: "{{ dcs_nodename }}"
         subject_alt_name:
           - DNS:localhost
@@ -28,33 +28,33 @@
 
     - name: Sign etcd server crt
       openssl_certificate:
-        path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.crt"
-        csr_path: "/etc/pigsty/ca/etcd-{{ dcs_nodename }}.csr"
-        ownca_path: /etc/pigsty/ca/ca.crt
-        ownca_privatekey_path: /etc/pigsty/ca/ca.key
+        path: "/etc/pki/CA/certs/etcd-{{ dcs_nodename }}.crt"
+        csr_path: "/etc/pki/CA/newcerts/etcd-{{ dcs_nodename }}.csr"
+        ownca_path: /etc/pki/ca.crt
+        ownca_privatekey_path: /etc/pki/ca.key
         provider: ownca
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    - name: Fetch etcd certs to local
-      tags: etcd_cert_fetch
-      fetch: src="/etc/pigsty/ca/{{ item }}" dest="files/cert/{{ item }}" flat=yes
+    - name: Make sure local directory exists
+      delegate_to: localhost
+      become: no
+      file: path="files/pki/{{ inventory_hostname }}" state=directory
+    - name: Fetch etcd cert & key from primary meta node
+      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - "etcd-{{ dcs_nodename }}.key"
-        - "etcd-{{ dcs_nodename }}.crt"
+        - { src: "/etc/pki/CA/certs/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/etcd.crt" }
+        - { src: "/etc/pki/CA/private/etcd-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/etcd.key" }
 
-
-#------------------------------------------------------------------------------
-# Copy etcd certs
-#------------------------------------------------------------------------------
-- name: Setup etcd server
-  tags: etcd_cert
+- name: Copy etcd certs
+  tags: [ etcd_cert, etcd_cert_copy ]
   when: dcs_ssl_enabled|bool and inventory_hostname in dcs_servers.values()
   block:
     - name: Copy etcd ssl cert
-      copy: src="files/cert/etcd-{{ dcs_nodename }}.crt" dest="/etc/pki/tls/certs/etcd-{{ dcs_nodename }}.crt" owner=etcd group=etcd mode=0644
+      copy: src="files/pki/{{ inventory_hostname }}/etcd.crt" dest="/etc/etcd/etcd.crt" owner=etcd group=dcs mode=0644
     - name: Copy etcd ssl key
-      copy: src="files/cert/etcd-{{ dcs_nodename }}.key" dest="/etc/pki/tls/private/etcd-{{ dcs_nodename }}.key" owner=etcd group=etcd mode=0600
+      copy: src="files/pki/{{ inventory_hostname }}/etcd.key" dest="/etc/etcd/etcd.key" owner=etcd group=dcs mode=0600
+
 
 #------------------------------------------------------------------------------
 # Config etcd server
