@@ -94,10 +94,14 @@
           shell: |
             {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
             export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
+            export ETCDCTL_CACERT=/etc/pki/ca.crt
+            export ETCDCTL_CERT=/etc/pki/node.crt
+            export ETCDCTL_KEY=/etc/pki/node.key
             {% else %}
             export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
             {% endif %}
-            etcdctl rm -r {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
+            etcdctl del {{ pg_namespace }}/{{ pg_cluster }} --prefix=true
+            #etcdctl rm -r {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
 
     # TODO: only remove necessary dir instead of all
     - name: Remove existing postgres data
