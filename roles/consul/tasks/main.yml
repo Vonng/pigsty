@@ -12,6 +12,8 @@
 #------------------------------------------------------------------------------
 - import_tasks: config.yml
   tags: consul_config
+  vars:
+    dcs_nodename: "{% if inventory_hostname in dcs_servers.values() %}{{ (dcs_servers|dict2items|items2dict(key_name='value', value_name='key'))[inventory_hostname] }}{% else %}{{ nodename }}{% endif %}"
 
 #------------------------------------------------------------------------------
 # Launch Consul
