@@ -73,14 +73,8 @@ all:
         pg_databases:
           - { name: meta, baseline: cmdb.sql , schemas: [ pigsty ]   , extensions: [ { name: adminpack, schema: pg_catalog } ,  { name: postgis, schema: public } , { name: timescaledb } ] ,comment: pigsty meta database }
         pg_users:
-          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
-        pg_hba_rules_extra:
-          - title: allow grafana bytebase kong intranet access
-            role: common
-            rules:
-              - host    kong            dbuser_kong         10.0.0.0/8          md5
-              - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
-              - host    grafana         dbuser_grafana      10.0.0.0/8          md5
+          - {name: dbuser_meta ,password: 'DBUser.Meta'   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
+          - {name: dbuser_view ,password: 'DBUser.Viewer' ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
 
         vip_mode: l2
         vip_address: 10.10.10.2
@@ -323,8 +317,8 @@ all:
     dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
-      meta-2: 10.10.10.11             # node with ip in dcs_servers will be initialized as dcs servers
-      meta-3: 10.10.10.12             # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      #meta-2: 10.10.10.11            # node with ip in dcs_servers will be initialized as dcs servers
+      #meta-3: 10.10.10.12            # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
     dcs_safeguard: false              # if true, running dcs will NOT be removed
     dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
@@ -546,7 +540,7 @@ all:
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
     pg_checksum: false                    # enable data checksum by default
-    pg_pwd_enc: md5                       # algorithm for encrypting passwords: md5|scram-sha-256
+    pg_pwd_enc: scram-sha-256             # algorithm for encrypting passwords: md5|scram-sha-256
     pg_sslmode: require                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
     pg_encoding: UTF8                     # database cluster encoding, UTF8 by default
     pg_locale: C                          # database cluster local, C by default
@@ -613,43 +607,43 @@ all:
       - title: allow meta node password access
         role: common
         rules:
-          - host    all     all                         10.10.10.10/32      md5
+          - host    all     all                         10.10.10.10/32      scram-sha-256
       - title: allow intranet admin password access
         role: common
         rules:
-          - host    all     +dbrole_admin               10.0.0.0/8          md5
-          - host    all     +dbrole_admin               172.16.0.0/12       md5
-          - host    all     +dbrole_admin               192.168.0.0/16      md5
+          - host    all     +dbrole_admin               10.0.0.0/8          scram-sha-256
+          - host    all     +dbrole_admin               172.16.0.0/12       scram-sha-256
+          - host    all     +dbrole_admin               192.168.0.0/16      scram-sha-256
       - title: allow intranet password access
         role: common
         rules:
-          - host    all             all                 10.0.0.0/8          md5
-          - host    all             all                 172.16.0.0/12       md5
-          - host    all             all                 192.168.0.0/16      md5
+          - host    all             all                 10.0.0.0/8          scram-sha-256
+          - host    all             all                 172.16.0.0/12       scram-sha-256
+          - host    all             all                 192.168.0.0/16      scram-sha-256
       - title: allow local read/write (local production user via pgbouncer)
         role: common
         rules:
-          - local   all     +dbrole_readonly                                md5
-          - host    all     +dbrole_readonly           127.0.0.1/32         md5
+          - local   all     +dbrole_readonly                                scram-sha-256
+          - host    all     +dbrole_readonly           127.0.0.1/32         scram-sha-256
       - title: allow offline query (ETL,SAGA,Interactive) on offline instance
         role: offline
         rules:
-          - host    all     +dbrole_offline               10.0.0.0/8        md5
-          - host    all     +dbrole_offline               172.16.0.0/12     md5
-          - host    all     +dbrole_offline               192.168.0.0/16    md5
+          - host    all     +dbrole_offline               10.0.0.0/8        scram-sha-256
+          - host    all     +dbrole_offline               172.16.0.0/12     scram-sha-256
+          - host    all     +dbrole_offline               192.168.0.0/16    scram-sha-256
 
     pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
-          - local  all          all                                     md5
-          - host   all          all                     127.0.0.1/32    md5
+          - local  all          all                                     scram-sha-256
+          - host   all          all                     127.0.0.1/32    scram-sha-256
       - title: intranet password access
         role: common
         rules:
-          - host   all          all                     10.0.0.0/8      md5
-          - host   all          all                     172.16.0.0/12   md5
-          - host   all          all                     192.168.0.0/16  md5
+          - host   all          all                     10.0.0.0/8      scram-sha-256
+          - host   all          all                     172.16.0.0/12   scram-sha-256
+          - host   all          all                     192.168.0.0/16  scram-sha-256
 
     #-----------------------------------------------------------------
     # PG_EXPORTER

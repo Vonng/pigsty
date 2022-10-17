@@ -368,7 +368,7 @@ copy-all: copy-src copy-pkg
 use-src:
 	ssh -t meta 'rm -rf ~/pigsty; tar -xf pigsty.tgz; rm -rf pigsty.tgz'
 use-pkg:
-	ssh -t meta '/home/vagrant/pigsty/bootstrap -n'
+	ssh meta "sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www"
 use-matrix:
 	ssh meta 'sudo tar -xf /tmp/matrix.tgz -C /www'
 	scp files/matrix.repo meta:/tmp/matrix.repo
