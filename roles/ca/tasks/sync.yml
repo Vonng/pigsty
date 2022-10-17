@@ -1,21 +1,25 @@
 ---
-# fetch primary meta
-- name: Sync CA key/cert to local
+- name: Sync ca cert/key to all meta nodes
   block:
 
-    - name: Fetch ca files from primary meta node
+    - name: Fetch CA cert & key from primary meta node
       when: meta_ip == inventory_hostname
-      delegate_to: localhost
-      become: no
-      synchronize:
-        mode: pull
-        src: "/etc/pigsty/ca/"
-        dest: "files/cert/"
+      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
+      with_items:
+        - { src: "/etc/pki/ca.crt"  , dest: "files/pki/ca.crt" }
+        - { src: "/etc/pki/ca.key"  , dest: "files/pki/ca.key" }
 
-    - name: Snyc ca files to all meta nodes
+    - name: Deliver CA key to all other meta nodes
       when: meta_node|bool and meta_ip != inventory_hostname
-      synchronize:
-        mode: push
-        src: "files/cert/"
-        dest: "/etc/pigsty/ca/"
+      copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }} owner=root group=root
+      with_items:
+        - {src: "files/pki/ca.crt", dest: "/etc/pki/ca.crt"  , mode: 644 }
+        - {src: "files/pki/ca.key", dest: "/etc/pki/ca.key"  , mode: 600 }
+
+    # It's not wise to keep ca private KEY on pigsty/files/pki/ca.key
+    #- name: Remove ca key on local files
+    #  when: meta_ip == inventory_hostname
+    #  delegate_to: "localhost"
+    #  become: no
+    #  file: path="files/pki/ca.key" state=absent
 ...

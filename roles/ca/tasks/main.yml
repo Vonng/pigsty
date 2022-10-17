@@ -8,27 +8,39 @@
 #     * recreate : force recreate ca key & file on meta
 #--------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------
+#  FHS
+#--------------------------------------------------------------------------
+# /etc/pki/ca.crt    root 644 , all nodes
+# /etc/pki/ca.key    root 600 , meta nodes
+# /etc/pki/ca-trust/source/anchors/ca.crt root 644 all nodes
+#--------------------------------------------------------------------------
+
 #------------------------------------------------------------------------------
 # CA Create (on primary meta node)
 #------------------------------------------------------------------------------
-# create ca cert on meta nodes and copy to local files/cert dir when ca_method = (create,recreate)
-# when ca_method = copy : it's user's responsibility to make sure ca exists under files/cert dir
+# create ca cert on meta nodes and copy to local files/pki dir when ca_method = (create,recreate)
+# when ca_method = copy : it's user's responsibility to make sure ca exists under files/pki dir
 # available tags for ca_create: ca_check, ca_gen, ca_fetch
+# run on primary meta nodes (${meta_ip})
 - import_tasks: create.yml
   tags: ca_create
   when: meta_ip == inventory_hostname and ca_method != 'none' and ca_method != 'copy'
 
 #------------------------------------------------------------------------------
-# CA Sync (from primary meta node to local files, and to other meta nodes)
+# CA Sync (on all meta nodes)
 #------------------------------------------------------------------------------
+# run on meta nodes:  primary meta node -> other meta nodes
+# sync ca.crt & ca.key to all meta nodes in case of primary meta node failure
 - import_tasks: sync.yml
   tags: ca_sync
   when: meta_node|bool and ca_method != 'none'
 
 #------------------------------------------------------------------------------
-# CA Copy
+# CA Add (on all nodes)
 #------------------------------------------------------------------------------
-- import_tasks: copy.yml
-  tags: ca_copy
+# add ca file to trust anchor on all nodes
+- import_tasks: add.yml
+  tags: ca_add
 
 ...

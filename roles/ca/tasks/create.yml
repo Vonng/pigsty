@@ -2,47 +2,55 @@
 # only primary meta node ( inventory_hostname == meta_ip ) is allowed to execute this tasks
 
 #------------------------------------------------------------------------------
+# CA Dir
+#------------------------------------------------------------------------------
+# This is created by default on all EL releases
+#- name: Makesure ca dir exists on meta nodes
+#  tags: ca_dir
+#  file: path="/etc/pki/CA/{{ item }}" state=directory mode=0755
+#  with_items: [ certs, crl, newcerts ]
+
+#------------------------------------------------------------------------------
 # Check CA
 #------------------------------------------------------------------------------
-- name: Check ca existence on meta nodes
+- name: Check ca existence on primary meta node
   tags: ca_check
   block:
     - name: Check if ca cert exists
-      stat: path="/etc/pigsty/ca/ca.crt"
+      stat: path="/etc/pki/ca.crt"
       register: ca_crt_exists
     - name: Check if ca key exists
-      stat: path="/etc/pigsty/ca/ca.key"
+      stat: path="/etc/pki/ca.key"
       register: ca_key_exists
     - name: Check CA create necessity
       connection: local
       set_fact:
         ca_exists: "{{ ca_crt_exists.stat.exists and ca_key_exists.stat.exists }}"
     - debug:
-        msg: "ca exists = {{ ca_exists }}, ca method = {{ ca_method }}"
-
+        msg: "ca exists = {{ ca_exists }}, ca method = {{ ca_method }}, create = {% if (not ca_exists|bool and ca_method == 'create') or ca_method == 'recreate' %}Yes{% else %}No{% endif %}"
 
 #------------------------------------------------------------------------------
 # Create CA
 #------------------------------------------------------------------------------
 # if ca_method = create : generate ca if not exists
-# if ca_method = recreate : always generate ca
+# if ca_method = recreate : always re-generate new ca
 - name: Create Self-Signed CA
   tags: ca_gen
   when: (not ca_exists|bool and ca_method == 'create') or ca_method == 'recreate'
   block:
 
-    - name: Create ca dir primary meta node
-      file: path="/etc/pigsty/ca" state=directory mode=0755
-
-    # generate ca private key
+    #------------------------------------------------------------------------------
+    # Create CA
+    #------------------------------------------------------------------------------
+    # generate ca private key on /etc/pki/
     - name: Generate CA private key
-      openssl_privatekey: path="/etc/pigsty/ca/ca.key" mode=0644
+      openssl_privatekey: path="/etc/pki/ca.key" mode=0600 owner=root group=root
 
     # generate ca self-signing csr
     - name: Generate CA signing request
       openssl_csr:
-        path: /etc/pigsty/ca/ca.csr
-        privatekey_path: /etc/pigsty/ca/ca.key
+        path: /etc/pki/CA/newcerts/ca.csr
+        privatekey_path: /etc/pki/ca.key
         common_name: pigsty-ca
         organization_name: Pigsty CA
         basic_constraints:
@@ -57,16 +65,11 @@
     # approve csr and get self-signed ca cert
     - name: Generate CA Cert
       openssl_certificate:
-        path: /etc/pigsty/ca/ca.crt
-        csr_path: /etc/pigsty/ca/ca.csr
-        privatekey_path: /etc/pigsty/ca/ca.key
+        path: /etc/pki/ca.crt
+        csr_path: /etc/pki/CA/newcerts/ca.csr
+        privatekey_path: /etc/pki/ca.key
         provider: selfsigned
         selfsigned_not_after: +36500d
         mode: 0644
-
-    # remove unnecessary csr file
-    - name: Cleanup CA CSR
-      file: path="/etc/pigsty/ca/ca.csr" state=absent
-
-
+        owner: root
 ...

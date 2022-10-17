@@ -1,0 +1,22 @@
+---
+#------------------------------------------------------------------------------
+# CA Copy
+#------------------------------------------------------------------------------
+- name: Install self-signed ca to all nodes
+  block:
+
+    - name: Copy ca.crt to /etc/pki on all nodes
+      copy:
+        src: files/pki/ca.crt
+        dest: /etc/pki/ca.crt
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Add ca cert to trust anchor
+      shell: |
+        ln -s /etc/pki/ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
+        /bin/update-ca-trust
+        /bin/true
+
+...
