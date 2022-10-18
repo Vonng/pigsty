@@ -82,15 +82,16 @@ Check [**FEATURES**](docs/s-feature.md) for detail.
 
 
 
-
 ## TL; DR
 
 Get a new Linux x86_64 EL7+ node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
-cd ~/pigsty && ./configure                             # pre-check and config templating 
-./infra.yml                                            # install pigsty on current node
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  
+cd ~/pigsty     # get latest pigsty source
+./bootstrap     # download bootstrap pkgs
+./configure     # pre-check and config templating 
+./install.yml   # install pigsty according to pigsty.yml
 ```
 
 > Tested OS: centos7.9, rocky8.6, rocky9.0, rhel7, rhel8, rhel9. Oracle/Alma should be fine too. 

@@ -4,7 +4,7 @@
 # File      :   infra.yml
 # Ctime     :   2021-01-19
 # Mtime     :   2022-07-18
-# Desc      :   init everything on meta nodes
+# Desc      :   init infrastructure (except pgsql) on meta nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
@@ -13,10 +13,7 @@
 # Notice
 #---------------------------------------------------------------
 # This playbook will init pigsty infra & pgsql on meta nodes.
-#
-# if you don't want touch postgres with this playbook, you can
-# use ./infra.yml -e pg=none to skip pgsql cmdb parts
-#
+# if you don't want pull up everything, use ./install.yml instead
 #---------------------------------------------------------------
 
 #---------------------------------------------------------------
@@ -34,7 +31,8 @@
       when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
       block:
         - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
-        - { name: Fill nodename with hostname, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" } }
+        - { name: Get el releasever , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
+        - { name: Set node facts, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" , el_ver: "{{ releasever_result.stdout }}" } }
 
     - name: Calculate node identity
       connection: local
@@ -44,7 +42,7 @@
 
     - name: Print node identity
       connection: local
-      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }}" }
+      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }} {{ el_ver }}" }
 
 
 #---------------------------------------------------------------
@@ -123,80 +121,4 @@
     - role: node_register
       tags: node-register
 
-
-
-#---------------------------------------------------------------
-# init cmdb(s) on meta nodes
-#---------------------------------------------------------------
-- name: PGSQL Identity
-  hosts: meta
-  gather_facts: no
-  tags: [ always, pg-id ]
-  connection: local
-  become: no
-  vars:
-    pg: meta                # whether to install pgsql during infra init ?
-      # all  : install on all nodes (default behavior)
-      # meta : install on meta nodes only
-      # none : do not install pgsql at all
-  tasks:
-
-    # fetch cluster inventory variable from hostvars of corresponding cluster
-    - name: Gather pgsql basic facts
-      set_fact:
-        pg_meta={{ hostvars| json_query(cluster_query) }}
-        pg_instance={{ pg_cluster }}-{{ pg_seq }}
-        pg_service={{ pg_cluster }}-{{ pg_role }}
-      vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
-
-    # calculate basic cluster facts from pg_meta
-    - name: Build pgsql basic facts
-      set_fact:
-        pg_is_primary={{ pg_role == 'primary' }}
-        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
-        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
-        pg_cluster_primary_list={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
-        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
-        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1 }}
-        pg_cluster_primary={{ (pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort)[0] }}
-        pg_cluster_primary_id={{ (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort)[0] }}
-
-    # print instance pre-flight check summary
-    - name: Show pgsql identity summary
-      debug:
-        msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
-          {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
-          [{{ pg_role }}]  {{ pg_instance }} @ {{ inventory_hostname }} , 
-          {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}
-          {% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_cluster }}-{{ pg_cluster_primary_id }} -> {{ pg_instance }}{% endif %}{% endif %}
-          , PGURL = postgres://{{ inventory_hostname }}:{{ pg_port }}/postgres"
-
-#---------------------------------------------------------------
-# init cmdb(s) on meta nodes
-#---------------------------------------------------------------
-- name: Meta PGSQL Init     # init pgsql cmdb on meta nodes
-  become: yes
-  hosts: meta
-  gather_facts: no
-  tags: [ infra-cmdb, pgsql-init ]
-  vars:
-    pg: meta                # whether to install pgsql during infra init ?
-      # all  : install on all nodes (default behavior)
-      # meta : install on meta nodes only
-      # none : do not install pgsql at all
-  roles:
-
-    - role: postgres        # init postgres pgbouncer patroni
-      tags: postgres
-
-    - role: service         # init service , haproxy , vip
-      tags: service
-
-    - role: pg_exporter     # init monitor exporters
-      tags: pg-exporter
-
-    - role: pg_register     # register cluster/instance to infra
-      tags: pg-register
-
-#---------------------------------------------------------------
 ...

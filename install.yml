@@ -1,11 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 #==============================================================#
-# File      :   infra-all.yml
+# File      :   install.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-07-18
-# Desc      :   init everything on all nodes
-# Path      :   infra-all.yml
+# Mtime     :   2022-10-18
+# Desc      :   install everything on all nodes
+# Path      :   install.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
@@ -20,7 +20,7 @@
 #   all.children.meta.hosts
 #
 # if offline installation packages is used, you can also copy them to
-#   copy /www/pigsty to all meta nodes before run ./infra-all.yml
+#   copy /www/pigsty to all meta nodes before run ./install.yml
 #---------------------------------------------------------------
 
 #---------------------------------------------------------------
@@ -37,7 +37,8 @@
       when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
       block:
         - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
-        - { name: Fill nodename with hostname, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" } }
+        - { name: Get el releasever , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
+        - { name: Set node facts, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" , el_ver: "{{ releasever_result.stdout }}" } }
 
     - name: Calculate node identity
       connection: local
@@ -184,28 +185,20 @@
   hosts: all
   gather_facts: no
   tags: [ pgsql-init ]
-  vars:
-    pg: all                 # whether to install pgsql during infra init ?
-      # all  : install on all nodes (default behavior)
-      # meta : install on meta nodes only
-      # none : do not install pgsql at all
   roles:
 
     - role: postgres        # init postgres pgbouncer patroni
-      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: postgres
 
     - role: service         # init service , haproxy , vip
-      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: service
 
     - role: pg_exporter     # init monitor exporters
-      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: pg-exporter
 
     - role: pg_register     # register cluster/instance to infra
-      when: pg == 'all' or (pg == 'meta' and meta_node|bool)
       tags: pg-register
+
 
 #---------------------------------------------------------------
 ...

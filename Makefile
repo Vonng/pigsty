@@ -31,7 +31,7 @@ tip:
 	@echo 'bash -c "$$(curl -fsSL http://download.pigsty.cc/get)"'
 	@echo "./bootstrap     # prepare local repo & ansible"
 	@echo "./configure     # pre-check and templating config"
-	@echo "./infra.yml     # install pigsty on current node"
+	@echo "./install.yml   # install pigsty on current node"
 
 # print pkg download links
 link:
@@ -61,7 +61,7 @@ config:
 
 # (3). INSTALL    pigsty on current node
 install:
-	./infra.yml
+	./install.yml
 ###############################################################
 
 
@@ -126,10 +126,6 @@ conf:
 # install pigsty on meta nodes
 infra:
 	./infra.yml
-
-# reinit pgsql cmdb
-pgsql:
-	./infra.yml --tags=infra-cmdb -e pg_clean=clean
 
 # rebuild repo
 repo:
@@ -214,7 +210,7 @@ demo: demo-prepare
 	ssh meta "cd ~ && curl -fsSLO https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz && tar -xf pigsty.tgz"
 	ssh meta 'cd ~/pigsty; ./bootstrap -y'
 	ssh meta 'cd ~/pigsty; ./configure --ip 10.10.10.10 --non-interactive -m demo'
-	ssh meta 'cd ~/pigsty; ./infra.yml'
+	ssh meta 'cd ~/pigsty; ./install.yml'
 
 #------------------------------#
 # vagrant vm management
