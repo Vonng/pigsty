@@ -55,11 +55,11 @@ PIGSTY_HOME="$(cd $(dirname $0) && pwd)"
 REPO_NAME=pigsty
 NGINX_HOME=/www
 REPO_DIR=${NGINX_HOME}/${REPO_NAME}
-EL_VER=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+OS_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
 ARCH=$(uname -m)
 BASEURL="https://github.com/Vonng/pigsty/releases/download/${VERSION}"
 SRC_FILENAME="pigsty-${VERSION}.tgz"
-PKG_FILENAME="pigsty-pkg-${VERSION}.el${EL_VER}.x86_64.tgz"
+PKG_FILENAME="pigsty-pkg-${VERSION}.el${OS_VERSION}.x86_64.tgz"
 DEFAULT_SRC_URL="${BASEURL}/${SRC_FILENAME}"
 DEFAULT_PKG_URL="${BASEURL}/${PKG_FILENAME}"
 
@@ -354,7 +354,7 @@ baseurl=file://${nginx_home}/${repo_name}/
 enabled=1
 gpgcheck=0
 EOF
-    if (( ${EL_VER} >= 8 )); then
+    if (( ${OS_VERSION} >= 8 )); then
       echo "module_hotfixes=1" >> /tmp/pigsty-local.repo
     fi
     sudo mkdir -p /etc/yum.repos.d/backup
@@ -367,12 +367,12 @@ function check_repo_file(){
     local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
     if [[ ! -f ${nginx_home}/${repo_name}/repo_complete ]]; then
-        if [[ $EL_VER == "7" ]]; then
+        if [[ $OS_VERSION == "7" ]]; then
             add_el7_repo ${REGION}
-        elif [[ $EL_VER == "8" ||  $EL_VER == "9" ]]; then
+        elif [[ $OS_VERSION == "8" ||  $OS_VERSION == "9" ]]; then
             add_el89_repo ${REGION}
         fi
-        log_warn "repo file = add el${EL_VER}.${ARCH} upstream"
+        log_warn "repo file = add el${OS_VERSION}.${ARCH} upstream"
         return 0
     else
         add_local_repo
@@ -392,15 +392,15 @@ function check_utils(){
     local nginx_home=${2-${NGINX_HOME}}
     local repo_file=/etc/yum.repos.d/${repo_name}-local.repo
 
-    if [[ $EL_VER == "7" ]]; then
+    if [[ $OS_VERSION == "7" ]]; then
         log_info "install el7 utils"
         sudo yum install -y createrepo_c unzip wget yum-utils createrepo_c sshpass
         sudo yum install -y ansible
-    elif [[ $EL_VER == "8" ]]; then
+    elif [[ $OS_VERSION == "8" ]]; then
         log_info "install el8 utils"
         sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
         sudo dnf install -y ansible python38-jmespath
-    elif [[ $EL_VER == "9" ]]; then
+    elif [[ $OS_VERSION == "9" ]]; then
         log_info "install el9 utils"
         sudo dnf install -y createrepo_c unzip wget yum-utils createrepo_c sshpass modulemd-tools
         sudo dnf install -y ansible python3-jmespath

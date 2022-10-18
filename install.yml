@@ -37,8 +37,8 @@
       when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
       block:
         - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
-        - { name: Get el releasever , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
-        - { name: Set node facts, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" , el_ver: "{{ releasever_result.stdout }}" } }
+        - { name: Get os version releasever , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
+        - { name: Set node facts, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" , os_version: "{{ releasever_result.stdout }}" }}
 
     - name: Calculate node identity
       connection: local

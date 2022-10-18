@@ -67,7 +67,7 @@
     baseurl=file://{{ nginx_home }}/{{ repo_name }}/
     enabled=1
     gpgcheck=0
-    {% if el_ver|int >= 8 %}
+    {% if os_version|int >= 8 %}
     module_hotfixes=1
     {% endif %}
     EOF
@@ -88,7 +88,7 @@
     # 3.1 Get el releasever : (7,8,9)                      [repo_os]
     #--------------------------------------------------------------#
     #- { name: Gather el release version  , tags: repo_os , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
-    #- { name: Set el_ver release version , tags: repo_os , connection: local , set_fact: { el_ver: "{{ releasever_result.stdout }}" } }
+    #- { name: Set os_version release version , tags: repo_os , connection: local , set_fact: { os_version: "{{ releasever_result.stdout }}" } }
 
     #--------------------------------------------------------------#
     # 3.2   Remove existing upstream repo files        [repo_remove]
@@ -113,20 +113,20 @@
           [{{ item.name }}]
           name = {{ item.description }} $releasever - $basearch
           {% if region in item.baseurl and item.baseurl[region] != '' %}
-          baseurl = {{ item.baseurl[region] | regex_replace('\$releasever', el_ver|string )  }}
+          baseurl = {{ item.baseurl[region] | regex_replace('\$releasever', os_version|string )  }}
           {% else %}
-          {% if item.name == 'prometheus' and el_ver|int >= 8 %}
+          {% if item.name == 'prometheus' and os_version|int >= 8 %}
           baseurl = {{ item.baseurl.default | regex_replace('\$releasever', '8' )  }}
           {% else %}
-          baseurl = {{ item.baseurl.default | regex_replace('\$releasever', el_ver|string )  }}
+          baseurl = {{ item.baseurl.default | regex_replace('\$releasever', os_version|string )  }}
           {% endif %}
           {% endif %}
           gpgcheck = 0
           enabled = 1
-          {% if el_ver|int >= 8 %}
+          {% if os_version|int >= 8 %}
           module_hotfixes=1
           {% endif %}
-      when: el_ver|int in item.releases
+      when: os_version|int in item.releases
       with_items: "{{ repo_upstream }}"
 
     #--------------------------------------------------------------#
@@ -137,7 +137,7 @@
       tags: repo_url_pkg
       ignore_errors: true
       environment: "{{ proxy_env }}"
-      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', el_ver|string) | regex_replace('\${arch}', arch|string ) }}
+      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', arch|string ) }}
       with_items: "{{ repo_url_packages }}"
 
     #--------------------------------------------------------------#
@@ -150,7 +150,7 @@
       shell: |
         yum clean all;
         yum makecache;
-        {% if el_ver|int >= 8 %}
+        {% if os_version|int >= 8 %}
         dnf module disable -y php nginx postgresql;
         {% endif %}
         /bin/true
@@ -160,7 +160,7 @@
     #--------------------------------------------------------------#
     - name: Install repo bootstrap packages
       tags: repo_boot_pkg
-      yum: name="createrepo_c,yum-utils{% if el_ver|int >= 8 %},modulemd-tools{% endif %}" state=present
+      yum: name="createrepo_c,yum-utils{% if os_version|int >= 8 %},modulemd-tools{% endif %}" state=present
 
     #--------------------------------------------------------------#
     # 3.7 Download rpm Packages                           [repo_pkg]
@@ -170,7 +170,7 @@
       environment: "{{ proxy_env }}"
       shell:
         cmd: |
-          {% if el_ver|int >= 8 %}
+          {% if os_version|int >= 8 %}
           repotrack --arch x86_64,noarch {{ item }};
           {% else %}
           repotrack {{ item }}
@@ -189,7 +189,7 @@
           #!/bin/bash
           rm -f *.i686.rpm   # remove i686 packages
           createrepo_c {{ nginx_home }}/{{ repo_name }}
-          {% if el_ver|int >= 8 %}
+          {% if os_version|int >= 8 %}
           repo2module -s stable . modules.yaml
           modifyrepo_c --mdtype=modules modules.yaml repodata/              
           {% endif %}
@@ -211,7 +211,7 @@
         baseurl=file://{{ nginx_home }}/{{ repo_name }}/
         enabled=1
         gpgcheck=0
-        {% if el_ver|int >= 8 %}
+        {% if os_version|int >= 8 %}
         module_hotfixes=1
         {% endif %}
         EOF

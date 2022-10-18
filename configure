@@ -40,8 +40,6 @@ NGINX_HOME=/www
 REPO_DIR=${NGINX_HOME}/${REPO_NAME}
 BIN_DIR=${PIGSTY_HOME}/files/bin
 # os & region
-EL_VENDOR=$(rpm -q --qf "%{VENDOR}" $(rpm -q --whatprovides redhat-release) | awk '{print $1}')
-EL_VERSION=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
 REGION=""
 
 #==============================================================#
@@ -319,11 +317,11 @@ function check_mode(){
         return 0
     fi
     # if el9 & el8 are used, use corresponding template
-    local EL_VER=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
-    if [[ ${EL_VER} == "9" ]]; then
+    local os_release=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\+')
+    if [[ ${os_release} == "9" ]]; then
         MODE=el9
         return 0
-    elif [[ ${EL_VER} == "8" ]]; then
+    elif [[ ${os_release} == "8" ]]; then
         MODE=el8
         return 0
     fi
