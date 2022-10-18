@@ -85,8 +85,8 @@ etcd:
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
   cacert: /etc/pki/ca.crt
-  cert: /pg/cert/server.crt
-  key: /pg/cert/server.key
+  cert:   /pg/cert/server.crt
+  key:    /pg/cert/server.key
 {% endif %}
 {% endif %}
 
@@ -100,14 +100,16 @@ restapi:
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca.crt'
+  cacert:    '/etc/pki/ca.crt'
   #certfile: '/pg/cert/server.crt'
-  #keyfile: '/pg/cert/server.key'
+  #keyfile:  '/pg/cert/server.key'
 {% endif %}
+  # unsafe api can only been accessed from meta nodes with auth
   authentication:
-    verify_client: none                 # none|optional|required
-    username: {{ pg_monitor_username }}
-    password: '{{ pg_monitor_password }}'
+    verify_client: optional  # none|optional|required
+    username: '{{ patroni_username }}'
+    password: '{{ patroni_password }}'
+  allowlist: [ {% for v in groups["meta"] %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
 
 #------------------------------------------------------------------------------
 # ctl
@@ -115,9 +117,9 @@ restapi:
 ctl:
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca.crt'
+  cacert:   '/etc/pki/ca.crt'
   certfile: '/pg/cert/server.crt'
-  keyfile: '/pg/cert/server.key'
+  keyfile:  '/pg/cert/server.key'
 {% else %}
   insecure: true
 {% endif %}
@@ -133,6 +135,9 @@ tags:
 {% if pg_upstream is defined %}
   replicatefrom: {{ pg_upstream }}    # clone from another replica rather than primary
 {% endif %}
+  version:  'pg{{ pg_version }}.el{{ el_ver }}'
+  spec: '{{ cpu_core_number }}C.{{ mem_size_gb }}G.{{ [ (fs_size_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}G'
+  conf: '{{ pg_conf }}'
 
 #------------------------------------------------------------------------------
 # watchdog

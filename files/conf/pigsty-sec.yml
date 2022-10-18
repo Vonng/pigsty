@@ -54,8 +54,8 @@ all:
 
       hosts:                          # add nodes to group 'meta'
         10.10.10.10: { }
-        # 10.10.10.11: { nginx_enabled: false }
-        # 10.10.10.12: { nginx_enabled: false  }
+        10.10.10.11: { nginx_enabled: false }
+        10.10.10.12: { nginx_enabled: false  }
     #================================================================#
 
     #================================================================#
@@ -317,8 +317,8 @@ all:
     dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
-      #meta-2: 10.10.10.11            # node with ip in dcs_servers will be initialized as dcs servers
-      #meta-3: 10.10.10.12            # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      meta-2: 10.10.10.11             # node with ip in dcs_servers will be initialized as dcs servers
+      meta-3: 10.10.10.12             # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
     dcs_safeguard: false              # if true, running dcs will NOT be removed
     dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
@@ -528,7 +528,9 @@ all:
     pg_localhost: /var/run/postgresql     # localhost unix socket dir for connection
     patroni_enabled: true                 # if not enabled, no postgres cluster will be created
     patroni_mode: default                 # pause|default|remove
-    pg_dcs_type: consul                   # which dcs to use: consul or etcd or raft
+    patroni_username: postgres            # patroni rest api username
+    patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
+    pg_dcs_type: etcd                     # which dcs to use: consul or etcd or raft
     pg_namespace: /pg                     # top level key namespace in dcs
     patroni_port: 8008                    # default patroni port
     patroni_log_dir: /pg/log              # patroni log dir, default is /pg/log

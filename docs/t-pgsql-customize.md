@@ -1339,7 +1339,6 @@ postgresql:
   basebackup:
     - max-rate: '1000M'
     - checkpoint: fast
-    - status-interva: 1s
     - verbose
     - progress
 
