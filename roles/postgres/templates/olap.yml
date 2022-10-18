@@ -2,7 +2,7 @@
 #==============================================================#
 # File      :   patroni.yml
 # Ctime     :   2020-04-08
-# Mtime     :   2022-10-17
+# Mtime     :   2022-10-18
 # Desc      :   patroni cluster definition for {{ pg_cluster }} (olap)
 # Path      :   /pg/bin/patroni.yml
 # Real Path :   /pg/conf/{{ pg_instance }}.yml
@@ -85,6 +85,8 @@ etcd:
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
   cacert: /etc/pki/ca.crt
+  cert:   /pg/cert/server.crt
+  key:    /pg/cert/server.key
 {% endif %}
 {% endif %}
 
@@ -92,15 +94,15 @@ etcd:
 # api
 #------------------------------------------------------------------------------
 # how to expose patroni service
-# listen on all ipv4, connect via public ip, use same credential as dbuser_monitor
+# listen on all ipv4, connect via public ip
 restapi:
   listen: 0.0.0.0:{{ patroni_port }}
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca.crt'
+  cacert:    '/etc/pki/ca.crt'
   #certfile: '/pg/cert/server.crt'
-  #keyfile: '/pg/cert/server.key'
+  #keyfile:  '/pg/cert/server.key'
 {% endif %}
   # unsafe api can only been accessed from meta nodes with auth
   authentication:
@@ -115,9 +117,9 @@ restapi:
 ctl:
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca.crt'
+  cacert:   '/etc/pki/ca.crt'
   certfile: '/pg/cert/server.crt'
-  keyfile: '/pg/cert/server.key'
+  keyfile:  '/pg/cert/server.key'
 {% else %}
   insecure: true
 {% endif %}
@@ -136,7 +138,6 @@ tags:
   version:  'pg{{ pg_version }}.el{{ el_ver }}'
   spec: '{{ cpu_core_number }}C.{{ mem_size_gb }}G.{{ [ (fs_size_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}G'
   conf: '{{ pg_conf }}'
-
 
 #------------------------------------------------------------------------------
 # watchdog
