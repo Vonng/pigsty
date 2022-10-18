@@ -1,17 +1,17 @@
 ---
 #------------------------------------------------------------------------------
-# node cert
+# meta cert
 #------------------------------------------------------------------------------
-- name: Generate node cert
+- name: Generate meta cert
   delegate_to: "{{ meta_ip }}"
   block:
 
-    - name: Generate etcd private key
+    - name: Generate meta private key
       openssl_privatekey:
         path: "/etc/pki/CA/private/meta-{{ inventory_hostname }}.key"
         mode: 0600
 
-    - name: Generate etcd server csr
+    - name: Generate meta server csr
       openssl_csr:
         path: "/etc/pki/CA/newcerts/meta-{{ inventory_hostname }}.csr"
         privatekey_path: "/etc/pki/CA/private/meta-{{ inventory_hostname }}.key"
@@ -22,7 +22,7 @@
           - IP:127.0.0.1
           - "IP:{{ inventory_hostname }}"
 
-    - name: Sign etcd server crt
+    - name: Sign meta server crt
       openssl_certificate:
         path: "/etc/pki/CA/certs/meta-{{ inventory_hostname }}.crt"
         csr_path: "/etc/pki/CA/newcerts/meta-{{ inventory_hostname }}.csr"
@@ -36,16 +36,16 @@
       delegate_to: localhost
       become: no
       file: path="files/pki/{{ inventory_hostname }}" state=directory
-    - name: Fetch etcd cert & key from primary meta node
+    - name: Fetch meta cert & key from primary meta node
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
         - { src: "/etc/pki/CA/certs/meta-{{ inventory_hostname }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/meta.crt" }
         - { src: "/etc/pki/CA/private/meta-{{ inventory_hostname }}.key" , dest: "files/pki/{{ inventory_hostname }}/meta.key" }
 
-- name: Copy node certs
+- name: Copy meta certs
   block:
-    - name: Copy node ssl cert
+    - name: Copy meta ssl cert
       copy: src="files/pki/{{ inventory_hostname }}/node.crt" dest="/etc/pki/meta.crt" owner=root group=root mode=0644
-    - name: Copy node ssl key
+    - name: Copy meta ssl key
       copy: src="files/pki/{{ inventory_hostname }}/node.key" dest="/etc/pki/meta.key" owner=root group=root mode=0644
 ...

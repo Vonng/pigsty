@@ -14,7 +14,7 @@ consul:
     - {{ pg_cluster }}
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   scheme: https
-  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
+  cacert: /etc/pki/ca.crt
 {% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
@@ -22,7 +22,7 @@ etcd3:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
-  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
+  cacert: /etc/pki/ca.crt
 {% endif %}
 {% endif %}
 
@@ -36,14 +36,16 @@ restapi:
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
-  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+  cacert:   '/etc/pki/ca.crt'
+  certfile: '/etc/pki/meta.crt'
+  keyfile:  '/etc/pki/meta.key'
 {% endif %}
+  # unsafe api can only been accessed from meta nodes with auth
   authentication:
-    verify_client: none                 # none|optional|required
-    username: {{ pg_monitor_username }}
-    password: '{{ pg_monitor_password }}'
+    verify_client: optional  # none|optional|required
+    username: '{{ patroni_username }}'
+    password: '{{ patroni_password }}'
+  allowlist: [ {% for v in groups["meta"] %}{% if not loop.first %}, {% endif %}{{ v }}{% endfor %} ]
 
 #------------------------------------------------------------------------------
 # ctl
@@ -51,9 +53,9 @@ restapi:
 ctl:
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
-  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+  cacert:   '/etc/pki/ca.crt'
+  certfile: '/etc/pki/meta.crt'
+  keyfile:  '/etc/pki/meta.key'
 {% else %}
   insecure: true
 {% endif %}
