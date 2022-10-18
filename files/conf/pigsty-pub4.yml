@@ -99,22 +99,7 @@ all:
         vip_address: 10.10.10.2
         vip_cidrmask: 8
         vip_interface: eth1
-        node_crontab:
-          - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
-          - '00 00 * * * root bash -c "cd /root/pigsty && make ri >> /tmp/bench.log"'
-          - '00 00 * * * root bash -c "cd /root/pigsty && make test-ri >> /tmp/bench.log"'
-          - '* * * * * root /usr/pgsql/bin/pgbench -nv -P1 -c4 --rate=32 -T20 postgres://dbuser_meta:DBUser.Meta@meta:5433/meta 2>>/tmp/bench.log'
-          - '* * * * * root /usr/pgsql/bin/pgbench -nv -P1 -c4 --rate=16 -T30 postgres://test:test@pg-test:5433/test 2>>/tmp/bench.log'
-          - '* * * * * root /usr/pgsql/bin/pgbench --select-only -nv -P1 -c4 --rate=128 -T40 postgres://test:test@pg-test:5434/test 2>>/tmp/bench.log'
-          - |
-            * * * * * root bash -c "cat /pg/data/log/postgresql-*.csv | psql service=meta -AXtwc 'TRUNCATE pglog.sample CASCADE; COPY pglog.sample14 FROM STDIN CSV;'"
-          - '00 01 * * * root /root/pigsty/bin/schemaspy 10.10.10.10 meta pigsty 2>> /tmp/schemaspy.log'
-          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.10 2>> /tmp/pgbadger.log'
-          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.11 2>> /tmp/pgbadger.log'
-          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.12 2>> /tmp/pgbadger.log'
-          - '00 * * * * root /root/pigsty/bin/pglog-summary 10.10.10.13 2>> /tmp/pgbadger.log'
-          - '00 01 * * * root bash -c "cd /root/app/covid && make reload 2>> /tmp/covid.log"'
-
+        node_crontab: []
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -127,14 +112,14 @@ all:
         10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
       vars:
         pg_cluster: pg-test           # define pgsql cluster name
-        pg_version: 14                # test postgresql 13 with pg-test cluster
-        pg_users:
-          - name: test
-            password: test
-            pgbouncer: true
-            roles: [ dbrole_admin ]
-        pg_databases:                 # create a database and user named 'test'
-          - name: test
+        pg_version: 15                # test postgresql 15 with pg-test cluster
+        pg_packages:                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
+          - postgresql${pg_version}* citus111_${pg_version} postgis33_${pg_version}* wal2json_${pg_version} # 33 on el8+
+          - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
+        pg_extensions: []
+        pg_libs: 'pg_stat_statements, auto_explain'
+        pg_users: { name: test ,password: test , pgbouncer: true , roles: [ dbrole_admin ]}
+        pg_databases: { name: test }
         pg_services_extra:            # extra services in addition to pg_services_default, array of service definition
           # standby service will route {ip|name}:5435 to sync replica's pgbouncer (5435->6432 standby)
           - name: standby             # required, service name, the actual svc name will be prefixed with `pg_cluster`, e.g: pg-meta-standby
@@ -218,7 +203,7 @@ all:
     version: v1.6.0-b1                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
     region: default                   # default|china|europe , upstream mirrors
-    os_version: 7                     # enterprise linux release version: 7,8,9
+    os_version: 8                     # enterprise linux release version: 7,8,9
 
     #================================================================#
     #                         VARS: INFRA                            #
@@ -469,13 +454,13 @@ all:
     node_packages_default:            # common packages for all nodes
       - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,ca-certificates
       - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
+      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python3-pyOpenSSL
       - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
-      - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
-      - ansible,polysh
-    node_packages_meta_pip: 'jupyterlab'
+      - nginx,ansible,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,python38-jmespath
+      - postgresql14,redis
+    node_packages_meta_pip: ''        # jupyter is not ready for el8
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -595,8 +580,8 @@ all:
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
-      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
+      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}*
+      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd #pg_activity
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 
