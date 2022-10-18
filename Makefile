@@ -353,6 +353,12 @@ copy-src:
 	scp "dist/${VERSION}/${SRC_PKG}" meta:~/pigsty.tgz
 copy-pkg:
 	scp dist/${VERSION}/${REPO_PKG} meta:/tmp/pkg.tgz
+copy-el7:
+	scp dist/${VERSION}/${EL7_PKG} meta:/tmp/pkg.tgz
+copy-el8:
+	scp dist/${VERSION}/${EL8_PKG} meta:/tmp/pkg.tgz
+copy-el9:
+	scp dist/${VERSION}/${EL9_PKG} meta:/tmp/pkg.tgz
 copy-matrix:
 	scp dist/${VERSION}/${MATRIX_PKG} meta:/tmp/matrix.tgz
 copy-app:
@@ -422,33 +428,33 @@ publish:
 	bin/publish ${VERSION}
 
 # build environment
-build-new: vbuild new build
+build-new: vb new build
 
 build: build-src build-repo build-boot
 
 build-src: release
-	scp dist/${VERSION}/${SRC_PKG} 10.10.10.10:~/pigsty.tgz ; ssh 10.10.10.10 "tar -xf pigsty.tgz";
-	scp dist/${VERSION}/${SRC_PKG} 10.10.10.11:~/pigsty.tgz ; ssh 10.10.10.11 "tar -xf pigsty.tgz";
-	scp dist/${VERSION}/${SRC_PKG} 10.10.10.12:~/pigsty.tgz ; ssh 10.10.10.12 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG}   meta:~/pigsty.tgz ; ssh   meta "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} node-1:~/pigsty.tgz ; ssh node-1 "tar -xf pigsty.tgz";
+	scp dist/${VERSION}/${SRC_PKG} node-2:~/pigsty.tgz ; ssh node-2 "tar -xf pigsty.tgz";
 
 build-repo:
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz 10.10.10.10:/tmp/pkg.tgz ; ssh 10.10.10.10 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz 10.10.10.11:/tmp/pkg.tgz ; ssh 10.10.10.11 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
-	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz 10.10.10.12:/tmp/pkg.tgz ; ssh 10.10.10.12 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz   meta:/tmp/pkg.tgz ; ssh   meta 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz node-1:/tmp/pkg.tgz ; ssh node-1 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
+	scp dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz node-2:/tmp/pkg.tgz ; ssh node-2 'sudo mkdir -p /www; sudo tar -xf /tmp/pkg.tgz -C /www'
 
 build-boot:
-	ssh 10.10.10.10 "cd pigsty; ./bootstrap -n ; ./configure -m auto -i 10.10.10.10 -n";
-	ssh 10.10.10.11 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.11 -n";
-	ssh 10.10.10.12 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
+	ssh meta   "cd pigsty; ./bootstrap -n ; ./configure -m auto -i 10.10.10.10 -n";
+	ssh node-1 "cd pigsty; ./bootstrap -n ; ./configure -m el8  -i 10.10.10.11 -n";
+	ssh node-2 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
 
 build-release:
 	tar -cf files/docs.tgz docs
-	scp files/docs.tgz 10.10.10.10:/tmp/docs.tgz ; ssh 10.10.10.10 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	scp files/docs.tgz 10.10.10.11:/tmp/docs.tgz ; ssh 10.10.10.11 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	scp files/docs.tgz 10.10.10.12:/tmp/docs.tgz ; ssh 10.10.10.12 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	scp bin/cache 10.10.10.10:/tmp/cache ; ssh 10.10.10.10 "sudo bash /tmp/cache"; scp 10.10.10.10:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
-	scp bin/cache 10.10.10.11:/tmp/cache ; ssh 10.10.10.11 "sudo bash /tmp/cache"; scp 10.10.10.11:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
-	scp bin/cache 10.10.10.12:/tmp/cache ; ssh 10.10.10.12 "sudo bash /tmp/cache"; scp 10.10.10.12:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
+	scp files/docs.tgz   meta:/tmp/docs.tgz ; ssh   meta 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp files/docs.tgz node-1:/tmp/docs.tgz ; ssh node-1 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp files/docs.tgz node-2:/tmp/docs.tgz ; ssh node-2 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
+	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
+	scp bin/cache node-1:/tmp/cache ; ssh node-1 "sudo bash /tmp/cache"; scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
+	scp bin/cache node-2:/tmp/cache ; ssh node-2 "sudo bash /tmp/cache"; scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
 
 ###############################################################
 
