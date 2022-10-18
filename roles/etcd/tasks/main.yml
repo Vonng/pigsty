@@ -32,18 +32,21 @@
 # write etcd endpoint to all nodes
 - name: Write etcd client config
   tags: etcd_client
+  when: meta_node|bool
   copy:
     dest: /etc/profile.d/etcd.sh
     mode: 0644
     content: |
-      export ETCDCTL_API=3
+      export ETCDCTL_API=2
       {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
-      export ETCDCTL_CACERT=/etc/pki/ca.crt
-      export ETCDCTL_CERT=/etc/pki/node.crt
-      export ETCDCTL_KEY=/etc/pki/node.key
       {% else %}
       export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
       {% endif %}
+      ETCDPTS="--ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key"
+      alias e="etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key"
+      alias est="systemctl status etcd"
+      alias em="etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key member list"
+      alias ech="etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key cluster-health"
 
 ...

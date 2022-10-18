@@ -99,10 +99,6 @@ alias cst="systemctl status consul"
 alias cm="consul members"
 alias cnode="consul catalog nodes -detailed"
 alias csvc="consul catalog services --tags"
-alias e="etcdctl"
-alias est="systemctl status etcd"
-alias em="etcdctl member list"
-alias ech="etcdctl cluster-health"
 #--------------------------------------------------------------#
 # ls corlor
 [ ls --color ] >/dev/null 2>&1 && colorflag="--color" || colorflag="-G"

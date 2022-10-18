@@ -97,12 +97,23 @@
 #------------------------------------------------------------------------------
 # Generate Certs
 #------------------------------------------------------------------------------
-- name: Generate cert for postgres
-  tags: pg_cert
+- name: Check pg cert existence
+  tags: [ pg_cert, pg_cert_check ]
   when: pg_sslmode != 'disable' and pg_role == 'primary'
+  block:
+    - name: Check if pg cert private key exists
+      stat: path="/pg/cert/server.key"
+      register: pg_crt_exists
+    - name: Set pg cert exists create necessity
+      connection: local
+      set_fact:
+        pg_cert_exists: "{{ pg_crt_exists.stat.exists }}"
+
+- name: Generate cert for postgres
+  tags: [ pg_cert , pg_cert_create ]
+  when: pg_sslmode != 'disable' and pg_role == 'primary' and not pg_cert_exists|bool
   delegate_to: "{{ meta_ip }}"
   block:
-
     - name: Generate pgsql cluster private key
       openssl_privatekey:
         path: "/etc/pki/CA/private/{{ pg_cluster }}.key"
@@ -139,7 +150,7 @@
 - name: Copy pg ssl certificates
   any_errors_fatal: true
   tags: [ pg_cert , pg_cert_copy ]
-  when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
+  when: patroni_ssl_enabled|bool or pg_sslmode != 'disable' and not pg_cert_exists|bool
   block:
     - name: Copy pg ssl cert
       copy: src="files/pki/{{ pg_cluster }}.crt" dest="/pg/cert/server.crt" owner=postgres group=postgres mode=0644
