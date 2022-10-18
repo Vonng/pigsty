@@ -1,11 +1,11 @@
-# v1.6.0-b1
+# v1.6.0-rc
 
-PG15, EL7, EL8 & Security Enhancement
+v1.6.0 Compatibility & Security & Maintainability Enhancement
 
 ## Highlights
 
-* Compatibility Enhancement (+PG15, +EL8, +EL9)
-* Security Enhancement (Special thanks to [@alemacci](https://github.com/Vonng/pigsty/commits?author=alemacci))
+* Compatibility Enhancement
+* Security Enhancement
 * Maintainability Enhancement
 
 ## Compatibility
@@ -17,6 +17,7 @@ PG15, EL7, EL8 & Security Enhancement
 
 ## Security
 
+* Security Enhanced  
 * A full-featured self-signed CA enabled by default
 * Pgbouncer Auth Query  by @alemacci
 * SSL for etcd/consul by @alemacci
@@ -26,6 +27,7 @@ PG15, EL7, EL8 & Security Enhancement
 ## Maintainability
 
 * Adaptive tuning template for PostgreSQL & Patroni by @Vonng, @alemacci
+* Adaptive upstream repo definition, compatible with EL7/EL8/EL9
 * configurable log dir for patroni & postgres & pgbouncer by @alemacci
 * Use ${meta_ip} in infra vars to switch primary meta node.
 * Vagrant templates examples for el8, el9, building environment.
@@ -45,6 +47,11 @@ PG15, EL7, EL8 & Security Enhancement
 * Grafana 9.2.0
 * Node Exporter 1.4
 * Consul v13.2
+* ETCD 3.5.4
+
+## Bug Fix
+
+* remove duplicated kernel module ip_vs_rr
 
 
 
