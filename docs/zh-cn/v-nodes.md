@@ -409,7 +409,7 @@ node_packages_meta:                           # packages for meta nodes only
 由内核模块名称组成的数组，声明了需要在节点上安装的内核模块，Pigsty默认会启用以下内核模块：
 
 ```yaml
-node_kernel_modules: [ softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
+node_kernel_modules: [ softdog, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
 ```
 
 

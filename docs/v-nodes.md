@@ -424,7 +424,7 @@ Enabled kernel module, type: `string[]`, level: C, default value:
 An array consisting of kernel module names declaring the kernel modules that need to be installed on the node. Pigsty will enable the following kernel modules by default:
 
 ```yaml
-node_kernel_modules: [ softdog, ip_vs, ip_vs_rr, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
+node_kernel_modules: [ softdog, ip_vs, ip_vs_rr, ip_vs_wrr, ip_vs_sh ]
 ```
 
 
