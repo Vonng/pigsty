@@ -1,15 +1,5 @@
 ---
 # only primary meta node ( inventory_hostname == meta_ip ) is allowed to execute this tasks
-
-#------------------------------------------------------------------------------
-# CA Dir
-#------------------------------------------------------------------------------
-# This is created by default on all EL releases
-- name: Makesure ca dir exists on meta nodes
-  tags: ca_dir
-  file: path="/etc/pki/CA" state=directory mode=0755
-  # with_items: [ certs, crl, newcerts ]
-
 #------------------------------------------------------------------------------
 # Check CA
 #------------------------------------------------------------------------------
@@ -72,4 +62,11 @@
         selfsigned_not_after: +36500d
         mode: 0644
         owner: root
+
+    - name: Fetch CA cert & key from primary meta node
+      when: meta_ip == inventory_hostname
+      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
+      with_items:
+        - { src: "/etc/pki/ca.crt"  , dest: "files/pki/ca.crt" }
+        - { src: "/etc/pki/ca.key"  , dest: "files/pki/ca.key" }
 ...

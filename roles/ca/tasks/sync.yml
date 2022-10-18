@@ -2,19 +2,6 @@
 - name: Sync ca cert/key to all meta nodes
   block:
 
-    - name: Fetch CA cert & key from primary meta node
-      when: meta_ip == inventory_hostname
-      fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
-      with_items:
-        - { src: "/etc/pki/ca.crt"  , dest: "files/pki/ca.crt" }
-        - { src: "/etc/pki/ca.key"  , dest: "files/pki/ca.key" }
-
-    - name: Deliver CA key to all other meta nodes
-      when: meta_node|bool and meta_ip != inventory_hostname
-      copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }} owner=root group=root
-      with_items:
-        - {src: "files/pki/ca.crt", dest: "/etc/pki/ca.crt"  , mode: 644 }
-        - {src: "files/pki/ca.key", dest: "/etc/pki/ca.key"  , mode: 600 }
 
     # It's not wise to keep ca private KEY on pigsty/files/pki/ca.key
     #- name: Remove ca key on local files

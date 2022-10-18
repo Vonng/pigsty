@@ -17,6 +17,15 @@
 #--------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
+# CA Dir
+#------------------------------------------------------------------------------
+# This is created by default on all EL releases
+- name: Makesure ca dir exists on meta nodes
+  tags: ca_dir
+  when: meta_node|bool and ca_method != 'none'
+  file: path="/etc/pki/CA" state=directory mode=0755
+
+#------------------------------------------------------------------------------
 # CA Create (on primary meta node)
 #------------------------------------------------------------------------------
 # create ca cert on meta nodes and copy to local files/pki dir when ca_method = (create,recreate)
@@ -32,9 +41,14 @@
 #------------------------------------------------------------------------------
 # run on meta nodes:  primary meta node -> other meta nodes
 # sync ca.crt & ca.key to all meta nodes in case of primary meta node failure
-- import_tasks: sync.yml
+- name: Sync ca key cert to meta nodes
   tags: ca_sync
   when: meta_node|bool and ca_method != 'none'
+  copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }} owner=root group=root
+  with_items:
+    - {src: "files/pki/ca.crt", dest: "/etc/pki/ca.crt"  , mode: 644 }
+    - {src: "files/pki/ca.key", dest: "/etc/pki/ca.key"  , mode: 600 }
+
 
 #------------------------------------------------------------------------------
 # Meta Cert
