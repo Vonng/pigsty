@@ -76,15 +76,17 @@ consul:
     - {{ pg_cluster }}
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   scheme: https
-  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
+  cacert: /etc/pki/ca.crt
 {% endif %}
 {% endif %}
 {% if pg_dcs_type == 'etcd' %}
-etcd3:
+etcd:
   hosts: '{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}:2379{% endfor %}'
 {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
   protocol: https
-  cacert: /etc/pki/ca-trust/source/anchors/ca.crt
+  cacert: /etc/pki/ca.crt
+  cert: /pg/cert/server.crt
+  key: /pg/cert/server.key
 {% endif %}
 {% endif %}
 
@@ -98,9 +100,9 @@ restapi:
   connect_address: {{ inventory_hostname }}:{{ patroni_port }}
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
-  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+  cacert: '/etc/pki/ca.crt'
+  #certfile: '/pg/cert/server.crt'
+  #keyfile: '/pg/cert/server.key'
 {% endif %}
   authentication:
     verify_client: none                 # none|optional|required
@@ -113,9 +115,9 @@ restapi:
 ctl:
 {% if patroni_ssl_enabled|bool %}
   insecure: false
-  cacert: '/etc/pki/ca-trust/source/anchors/ca.crt'
-  certfile: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
-  keyfile: '/etc/pki/tls/private/{{ pg_cluster }}.key'
+  cacert: '/etc/pki/ca.crt'
+  certfile: '/pg/cert/server.crt'
+  keyfile: '/pg/cert/server.key'
 {% else %}
   insecure: true
 {% endif %}
@@ -288,9 +290,9 @@ bootstrap:
         password_encryption: {{ pg_pwd_enc }}
 {% if pg_sslmode != 'disable' %}
         ssl: on
-        ssl_cert_file: '/etc/pki/tls/certs/{{ pg_cluster }}.crt'
-        ssl_key_file: '/etc/pki/tls/private/{{ pg_cluster }}.key'
-        ssl_ca_file: '/etc/pki/ca-trust/source/anchors/ca.crt'
+        ssl_cert_file: '/pg/cert/server.crt'
+        ssl_key_file: '/pg/cert/server.key'
+        ssl_ca_file: '/etc/pki/ca.crt'
 {% endif %}
 
         #----------------------------------------------------------------------
@@ -470,7 +472,6 @@ postgresql:
   basebackup:
     - max-rate: '1000M'
     - checkpoint: fast
-    - status-interva: 1s
     - verbose
     - progress
 
