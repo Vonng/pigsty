@@ -37,17 +37,18 @@
   when: meta_node|bool and ca_method != 'none'
 
 #------------------------------------------------------------------------------
+# Meta Cert
+#------------------------------------------------------------------------------
+# issue meta cert on meta nodes
+- import_tasks: meta.yml
+  tags: ca_meta
+  when: meta_node|bool and ca_method != 'none'
+
+#------------------------------------------------------------------------------
 # CA Add (on all nodes)
 #------------------------------------------------------------------------------
 # add ca file to trust anchor on all nodes
 - import_tasks: add.yml
   tags: ca_add
-  when: ca_method != 'none'
-
-#------------------------------------------------------------------------------
-# Node Cert
-#------------------------------------------------------------------------------
-- import_tasks: node.yml
-  tags: node_cert
   when: ca_method != 'none'
 ...
