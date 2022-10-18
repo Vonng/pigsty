@@ -125,13 +125,13 @@
 
     - name: Generate consul private key
       openssl_privatekey:
-        path: "/etc/pki/CA/private/consul-{{ dcs_nodename }}.key"
+        path: "/etc/pki/CA/consul-{{ dcs_nodename }}.key"
         mode: 0644
 
     - name: Generate consul csr
       openssl_csr:
-        path: "/etc/pki/CA/newcerts/consul-{{ dcs_nodename }}.csr"
-        privatekey_path: "/etc/pki/CA/private/consul-{{ dcs_nodename }}.key"
+        path: "/etc/pki/CA/consul-{{ dcs_nodename }}.csr"
+        privatekey_path: "/etc/pki/CA/consul-{{ dcs_nodename }}.key"
         common_name: "server.{{ dcs_name }}.consul"
         subject_alt_name:
           - DNS:localhost
@@ -143,8 +143,8 @@
 
     - name: Sign consul crt
       openssl_certificate:
-        path: "/etc/pki/CA/certs/consul-{{ dcs_nodename }}.crt"
-        csr_path: "/etc/pki/CA/newcerts/consul-{{ dcs_nodename }}.csr"
+        path: "/etc/pki/CA/consul-{{ dcs_nodename }}.crt"
+        csr_path: "/etc/pki/CA/consul-{{ dcs_nodename }}.csr"
         ownca_path: /etc/pki/ca.crt
         ownca_privatekey_path: /etc/pki/ca.key
         provider: ownca
@@ -159,8 +159,8 @@
     - name: Fetch consul cert & key from primary meta node
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/CA/certs/consul-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/consul.crt" }
-        - { src: "/etc/pki/CA/private/consul-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/consul.key" }
+        - { src: "/etc/pki/CA/consul-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/consul.crt" }
+        - { src: "/etc/pki/CA/consul-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/consul.key" }
 
 - name: Copy consul cert
   tags: [ consul_cert, consul_cert_copy ]

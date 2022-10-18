@@ -8,13 +8,13 @@
 
     - name: Generate meta private key
       openssl_privatekey:
-        path: "/etc/pki/CA/private/meta-{{ inventory_hostname }}.key"
+        path: "/etc/pki/CA/meta-{{ inventory_hostname }}.key"
         mode: 0600
 
     - name: Generate meta server csr
       openssl_csr:
-        path: "/etc/pki/CA/newcerts/meta-{{ inventory_hostname }}.csr"
-        privatekey_path: "/etc/pki/CA/private/meta-{{ inventory_hostname }}.key"
+        path: "/etc/pki/CA/meta-{{ inventory_hostname }}.csr"
+        privatekey_path: "/etc/pki/CA/meta-{{ inventory_hostname }}.key"
         common_name: "{{ inventory_hostname }}"
         subject_alt_name:
           - DNS:localhost
@@ -24,8 +24,8 @@
 
     - name: Sign meta server crt
       openssl_certificate:
-        path: "/etc/pki/CA/certs/meta-{{ inventory_hostname }}.crt"
-        csr_path: "/etc/pki/CA/newcerts/meta-{{ inventory_hostname }}.csr"
+        path: "/etc/pki/CA/meta-{{ inventory_hostname }}.crt"
+        csr_path: "/etc/pki/CA/meta-{{ inventory_hostname }}.csr"
         ownca_path: /etc/pki/ca.crt
         ownca_privatekey_path: /etc/pki/ca.key
         provider: ownca
@@ -39,13 +39,13 @@
     - name: Fetch meta cert & key from primary meta node
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/CA/certs/meta-{{ inventory_hostname }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/meta.crt" }
-        - { src: "/etc/pki/CA/private/meta-{{ inventory_hostname }}.key" , dest: "files/pki/{{ inventory_hostname }}/meta.key" }
+        - { src: "/etc/pki/CA/meta-{{ inventory_hostname }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/meta.crt" }
+        - { src: "/etc/pki/CA/meta-{{ inventory_hostname }}.key" , dest: "files/pki/{{ inventory_hostname }}/meta.key" }
 
 - name: Copy meta certs
   block:
     - name: Copy meta ssl cert
-      copy: src="files/pki/{{ inventory_hostname }}/node.crt" dest="/etc/pki/meta.crt" owner=root group=root mode=0644
+      copy: src="files/pki/{{ inventory_hostname }}/meta.crt" dest="/etc/pki/meta.crt" owner=root group=root mode=0644
     - name: Copy meta ssl key
-      copy: src="files/pki/{{ inventory_hostname }}/node.key" dest="/etc/pki/meta.key" owner=root group=root mode=0644
+      copy: src="files/pki/{{ inventory_hostname }}/meta.key" dest="/etc/pki/meta.key" owner=root group=root mode=0644
 ...

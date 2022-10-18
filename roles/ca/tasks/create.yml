@@ -5,10 +5,10 @@
 # CA Dir
 #------------------------------------------------------------------------------
 # This is created by default on all EL releases
-#- name: Makesure ca dir exists on meta nodes
-#  tags: ca_dir
-#  file: path="/etc/pki/CA/{{ item }}" state=directory mode=0755
-#  with_items: [ certs, crl, newcerts ]
+- name: Makesure ca dir exists on meta nodes
+  tags: ca_dir
+  file: path="/etc/pki/CA" state=directory mode=0755
+  # with_items: [ certs, crl, newcerts ]
 
 #------------------------------------------------------------------------------
 # Check CA
@@ -49,7 +49,7 @@
     # generate ca self-signing csr
     - name: Generate CA signing request
       openssl_csr:
-        path: /etc/pki/CA/newcerts/ca.csr
+        path: /etc/pki/CA/ca.csr
         privatekey_path: /etc/pki/ca.key
         common_name: pigsty-ca
         organization_name: Pigsty CA
@@ -66,7 +66,7 @@
     - name: Generate CA Cert
       openssl_certificate:
         path: /etc/pki/ca.crt
-        csr_path: /etc/pki/CA/newcerts/ca.csr
+        csr_path: /etc/pki/CA/ca.csr
         privatekey_path: /etc/pki/ca.key
         provider: selfsigned
         selfsigned_not_after: +36500d

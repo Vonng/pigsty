@@ -12,13 +12,13 @@
 
     - name: Generate etcd private key
       openssl_privatekey:
-        path: "/etc/pki/CA/private/etcd-{{ dcs_nodename }}.key"
+        path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"
         mode: 0600
 
     - name: Generate etcd server csr
       openssl_csr:
-        path: "/etc/pki/CA/newcerts/etcd-{{ dcs_nodename }}.csr"
-        privatekey_path: "/etc/pki/CA/private/etcd-{{ dcs_nodename }}.key"
+        path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.csr"
+        privatekey_path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key"
         common_name: "{{ dcs_nodename }}"
         subject_alt_name:
           - DNS:localhost
@@ -28,8 +28,8 @@
 
     - name: Sign etcd server crt
       openssl_certificate:
-        path: "/etc/pki/CA/certs/etcd-{{ dcs_nodename }}.crt"
-        csr_path: "/etc/pki/CA/newcerts/etcd-{{ dcs_nodename }}.csr"
+        path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"
+        csr_path: "/etc/pki/CA/etcd-{{ dcs_nodename }}.csr"
         ownca_path: /etc/pki/ca.crt
         ownca_privatekey_path: /etc/pki/ca.key
         provider: ownca
@@ -43,8 +43,8 @@
     - name: Fetch etcd cert & key from primary meta node
       fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
       with_items:
-        - { src: "/etc/pki/CA/certs/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/etcd.crt" }
-        - { src: "/etc/pki/CA/private/etcd-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/etcd.key" }
+        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.crt"   , dest: "files/pki/{{ inventory_hostname }}/etcd.crt" }
+        - { src: "/etc/pki/CA/etcd-{{ dcs_nodename }}.key" , dest: "files/pki/{{ inventory_hostname }}/etcd.key" }
 
 - name: Copy etcd certs
   tags: [ etcd_cert, etcd_cert_copy ]
