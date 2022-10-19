@@ -1,7 +1,7 @@
 ---
 ######################################################################
 # File      :   pigsty.yml
-# Desc      :   Pigsty 4-node 3 meta x el9 x sec
+# Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
 # Mtime     :   2022-10-16
@@ -54,8 +54,8 @@ all:
 
       hosts:                          # add nodes to group 'meta'
         10.10.10.10: { }
-        10.10.10.11: { nginx_enabled: false }
-        10.10.10.12: { nginx_enabled: false  }
+        # 10.10.10.11: { nginx_enabled: false }
+        # 10.10.10.12: { nginx_enabled: false  }
     #================================================================#
 
     #================================================================#
@@ -65,16 +65,83 @@ all:
     #----------------------------------#
     # pgsql cluster: pg-meta (CMDB)    #
     #----------------------------------#
-    pg-meta:
-      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
-      vars:
-        pg_cluster: pg-meta
-        patroni_watchdog_mode: off
-        pg_databases:
-          - { name: meta, baseline: cmdb.sql , schemas: [ pigsty ]   , extensions: [ { name: adminpack, schema: pg_catalog } ,  { name: postgis, schema: public } , { name: timescaledb } ] ,comment: pigsty meta database }
-        pg_users:
-          - {name: dbuser_meta ,password: 'DBUser.Meta'   ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
-          - {name: dbuser_view ,password: 'DBUser.Viewer' ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
+    # EXAMPLE pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
+    pg-meta:                          # [REQUIRED], ansible group name , pgsql cluster name. should be unique among environment
+      hosts:                          # `<cluster>.hosts` holds instances definition of this cluster
+        10.10.10.10:                  # [REQUIRED]: ip address is the key. values are instance level config entries (dict)
+          pg_seq: 1                   # [REQUIRED], unique identity parameter (+integer) among pg_cluster
+          pg_role: primary            # [REQUIRED], pg_role is mandatory identity parameter, primary|replica|offline
+          pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
+          # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
+          # pg_weight: 100            # load balance weight for this instance
+      vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
+        pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
+
+        # all vars below are [OPTIONAL] (overwrite global default)
+        pg_version: 14                # pgsql version to be installed (use global version if missing)
+        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
+        pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
+        patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
+        pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
+
+        # define business database meta , used as CMDB & default database for single-node setup
+        pg_databases:                       # define business databases on this cluster, array of database definition
+          - name: meta                      # required, `name` is the only mandatory field of a database definition
+            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
+            # owner: postgres               # optional, database owner, postgres by default
+            # template: template1           # optional, which template to use, template1 by default
+            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
+            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
+            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
+            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
+            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
+            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
+            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
+            # pgbouncer: true               # optional, add this database to pgbouncer database list? true by default
+            comment: pigsty meta database   # optional, comment string for this database
+            connlimit: -1                   # optional, database connection limit, default -1 disable limit
+            schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
+            extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
+              - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
+              - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
+              - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
+          - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
+          - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
+          - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
+
+        # define business users for this cluster
+        pg_users:                           # define business users/roles on this cluster, array of user definition
+          # define admin user for meta database (This user are used for pigsty app deployment by default)
+          - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
+            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
+            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
+            login: true                     # optional, can login, true by default  (new biz ROLE should be false)
+            superuser: false                # optional, is superuser? false by default
+            createdb: false                 # optional, can create database? false by default
+            createrole: false               # optional, can create role? false by default
+            inherit: true                   # optional, can this role use inherited privileges? true by default
+            replication: false              # optional, can this role do replication? false by default
+            bypassrls: false                # optional, can this role bypass row level security? false by default
+            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
+            connlimit: -1                   # optional, user connection limit, default -1 disable limit
+            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
+            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
+            comment: pigsty admin user      # optional, comment string for this user/role
+            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
+            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
+            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+          - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
+          - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
+          - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
+
+        pg_hba_rules_extra:
+          - title: allow grafana bytebase kong intranet access
+            role: common
+            rules:
+              - host    kong            dbuser_kong         10.0.0.0/8          md5
+              - host    bytebase        dbuser_bytebase     10.0.0.0/8          md5
+              - host    grafana         dbuser_grafana      10.0.0.0/8          md5
 
         vip_mode: l2
         vip_address: 10.10.10.2
@@ -94,12 +161,7 @@ all:
         10.10.10.13: { pg_seq: 3, pg_role: replica, pg_offline_query: true } # replica with offline access
       vars:
         pg_cluster: pg-test           # define pgsql cluster name
-        pg_version: 15                # test postgresql 15 with pg-test cluster
-        pg_packages:                  # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-          - postgresql${pg_version}* postgis33_${pg_version}* wal2json_${pg_version} # 33 on el8+
-          - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity node_exporter
-        pg_extensions: []
-        pg_libs: 'pg_stat_statements, auto_explain'
+        pg_version: 14                # test postgresql 14 with pg-test cluster
         pg_users:
           - name: test
             password: test
@@ -128,6 +190,9 @@ all:
         vip_cidrmask: 8               # cidr network mask length
         vip_interface: eth1           # interface to add virtual ip
 
+    #================================================================#
+    #                        REDIS Clusters                          #
+    #================================================================#
 
     #----------------------------------#
     # redis sentinel example           #
@@ -174,6 +239,7 @@ all:
         redis_cluster: redis-common         # name of this redis 'cluster'
         redis_mode: standalone              # standalone,cluster,sentinel
         redis_max_memory: 64MB              # max memory used by each redis instance
+
 
   ####################################################################
   #                             VARS                                 #
@@ -285,30 +351,32 @@ all:
       - { name: timescaledb    ,description: 'TimescaleDB'       ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://packagecloud.io/timescale/timescaledb/el/$releasever/$basearch'  }}
       - { name: citus          ,description: 'Citus Community'   ,category: pgsql, releases: [7,8  ] ,baseurl: { default: 'https://repos.citusdata.com/community/el/$releasever/$basearch'          }}
     repo_packages: # which packages to be included                                   #  what to download #
-      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils modulemd-tools
+      - epel-release nginx wget createrepo_c sshpass zip unzip chrony yum yum-utils  # modulemd-tools
       - uuid lz4 bzip2 netcat pv jq vim-enhanced make patch bash lsof wget git tuned perf ftp lrzsz rsync nvme-cli numactl grubby sysstat dstat iotop bind-utils net-tools tcpdump socat ipvsadm telnet audit ca-certificates
       - readline zlib openssl openssh-clients libyaml libxml2 libxslt libevent readline-devel zlib-devel uuid-devel libuuid-devel libxml2-devel libxslt-devel openssl-devel libicu-devel perl perl-devel perl-ExtUtils*
-      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter redis
-      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python3-jmespath python3-pyOpenSSL
+      - grafana*.x86_64 prometheus2 pushgateway alertmanager mtail consul consul_exporter consul-template etcd dnsmasq node_exporter nginx_exporter blackbox_exporter redis_exporter # redis
+      - ansible python3 python3-pip python3-requests python3-psycopg2 python3-psycopg3 python3-etcd python3-consul python3-urllib3 python3-idna python36-pyOpenSSL # python3-pyOpenSSL python3-jmespath
+      - postgresql14* pglogical_14* postgis33_14* citus111_14* timescaledb-2-postgresql-14 # citus & tsdb not ready in el9, postgis33 available since el8+
       - patroni patroni-consul patroni-etcd pgbouncer pgbadger tail_n_mail boxinfo check_postgres barman barman-cli pgFormatter pitrery pspg PyGreSQL
-      - postgresql14* pglogical_14* postgis33_14* citus_14-11* timescaledb_14 # citus111_14* timescaledb-2-postgresql-14* not ready in el9, use pgdg instead
+      - pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel # some not available on el8, el9
       - pg_repack_14 pg_qualstats_14 pg_stat_kcache_14 pg_stat_monitor_14 pg_top_14 pg_track_settings_14 pg_wait_sampling_14 plsh_14 pldebugger_14 plpgsql_check_14 wal2json_14
       - mysql_fdw_14 ogr_fdw_14 sqlite_fdw_14 firebird_fdw_14 hdfs_fdw_14 mongo_fdw_14 pgbouncer_fdw_14 hypopg_14 geoip_14 tdigest_14 multicorn2_14 pg_ivm_14 # osm_fdw_14 tds_fdw_14
-      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14 rum_14
+      - bgw_replstatus_14 ddlx_14 mysqlcompat_14 orafce_14 repmgr_14 pg_auto_failover_14 pg_catcheck_14 pg_cron_14 pg_fkpart_14 pg_jobmon_14 pg_partman_14 pg_permissions_14
       - pg_readonly_14 pgagent_14 pgaudit16_14 pgauditlogtofile_14 pgfincore_14 powa_14 pgq_14 pgsql_tweaks_14 pgtt_14 postgresql-unit_14 postgresql_anonymizer_14 postgresql_faker_14
-      #- pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
-      #- count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
-      #- pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
-      #- pg_activity pgxnclient pgcenter emaj pgbconsole pg_bloat_check pgloader pg_cli pgquarrel not available on el8, el9
+      - pg_statement_rollback_14 system_stats_14 plproxy_14 pgmemcache_14  rum_14 hll_14 ip4r_14 prefix_14 pguri_14 topn_14 periods_14 # pgrouting_14 osm2pgrouting_14
+      - count_distinct_14 credcheck_14 extra_window_functions_14 logerrors_14 pg_auth_mon_14 pg_background_14 pg_bulkload_14 pg_comparator_14
+      - pg_prioritize_14 pgcryptokey_14 pgexportdoc_14 pgimportdoc_14 pgmp_14 pgtap_14 safeupdate_14 semver_14 set_user_14 sslutils_14 table_version_14
       - clang coreutils diffutils rpm-build rpm-devel rpmlint rpmdevtools bison flex docker-ce docker-compose* # kubelet kubectl kubeadm kubernetes-cni helm
-      - postgresql15* postgis33_15* citus_15-11* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
-    repo_url_packages:                # do not download redis.el7, just get it from appstream
+      - postgresql15* postgis33_15* citus111_15* sqlite_fdw_15 wal2json_15 # timescaledb-2-postgresql-15*
+    repo_url_packages:                # extra packages from url
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/loki-2.6.1.x86_64.rpm
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/promtail-2.6.1.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
       - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -366,13 +434,13 @@ all:
     dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
-      meta-2: 10.10.10.11             # node with ip in dcs_servers will be initialized as dcs servers
-      meta-3: 10.10.10.12             # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      # meta-2: 10.10.10.11           # node with ip in dcs_servers will be initialized as dcs servers
+      # meta-3: 10.10.10.12           # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
     dcs_safeguard: false              # if true, running dcs will NOT be removed
     dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
     dcs_gid: 980                      # gid for consul/etcd users
-    dcs_ssl_enabled: true             # secure dcs communications
+    dcs_ssl_enabled: false            # secure dcs communications
 
     #-----------------------------------------------------------------
     # CONSUL
@@ -431,13 +499,13 @@ all:
     node_packages_default:            # common packages for all nodes
       - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,rsync,ca-certificates
       - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
-      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python3-pyOpenSSL
+      - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
       - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
     node_packages_meta:               # extra packages for meta nodes
       - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
-      - nginx,ansible,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,python3-jmespath,python3-pip
-      - postgresql14,redis
-    node_packages_meta_pip: ''        # jupyter is not ready for el9
+      - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
+      - ansible,polysh
+    node_packages_meta_pip: 'jupyterlab'
 
     #-----------------------------------------------------------------
     # NODE_TUNE
@@ -557,8 +625,8 @@ all:
     pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
     pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
-      - postgresql${pg_version}* postgis33_${pg_version}* citus_${pg_version}-11* timescaledb_${pg_version} #citus111_${pg_version} timescaledb-2-postgresql-${pg_version}
-      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd #pg_activity
+      - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
+      - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
     pg_extensions:                    # postgresql extensions, `${pg_version} will be replaced by actual `pg_version`
       - pg_repack_${pg_version} pg_qualstats_${pg_version} pg_stat_kcache_${pg_version} pg_stat_monitor_${pg_version} wal2json_${pg_version}
 
@@ -577,22 +645,22 @@ all:
     pg_localhost: /var/run/postgresql     # localhost unix socket dir for connection
     patroni_enabled: true                 # if not enabled, no postgres cluster will be created
     patroni_mode: default                 # pause|default|remove
-    patroni_username: postgres            # patroni rest api username
-    patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
-    pg_dcs_type: etcd                     # which dcs to use: consul or etcd or raft
+    pg_dcs_type: consul                   # which dcs to use: consul or etcd or raft
     pg_namespace: /pg                     # top level key namespace in dcs
     patroni_port: 8008                    # default patroni port
     patroni_log_dir: /pg/log              # patroni log dir, default is /pg/log
-    patroni_ssl_enabled: true             # secure patroni communications
+    patroni_ssl_enabled: false            # secure patroni communications
     patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
+    patroni_username: postgres            # patroni rest api username
+    patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
     pg_conf: tiny.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
     pg_rto: 30                            # recovery time objective, ttl to failover,  30s by default
     pg_rpo: 1048576                       # recovery point objective, 1MB data loss at most by default
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
     pg_checksum: false                    # enable data checksum by default
-    pg_pwd_enc: scram-sha-256             # algorithm for encrypting passwords: md5|scram-sha-256
-    pg_sslmode: require                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
+    pg_pwd_enc: md5                       # algorithm for encrypting passwords: md5|scram-sha-256
+    pg_sslmode: disable                   # enable sslmode: disable|allow|prefer|require|verify-ca|verify-full
     pg_encoding: UTF8                     # database cluster encoding, UTF8 by default
     pg_locale: C                          # database cluster local, C by default
     pg_lc_collate: C                      # database cluster collate, C by default
@@ -658,43 +726,43 @@ all:
       - title: allow meta node password access
         role: common
         rules:
-          - host    all     all                         10.10.10.10/32      scram-sha-256
+          - host    all     all                         10.10.10.10/32      md5
       - title: allow intranet admin password access
         role: common
         rules:
-          - host    all     +dbrole_admin               10.0.0.0/8          scram-sha-256
-          - host    all     +dbrole_admin               172.16.0.0/12       scram-sha-256
-          - host    all     +dbrole_admin               192.168.0.0/16      scram-sha-256
+          - host    all     +dbrole_admin               10.0.0.0/8          md5
+          - host    all     +dbrole_admin               172.16.0.0/12       md5
+          - host    all     +dbrole_admin               192.168.0.0/16      md5
       - title: allow intranet password access
         role: common
         rules:
-          - host    all             all                 10.0.0.0/8          scram-sha-256
-          - host    all             all                 172.16.0.0/12       scram-sha-256
-          - host    all             all                 192.168.0.0/16      scram-sha-256
+          - host    all             all                 10.0.0.0/8          md5
+          - host    all             all                 172.16.0.0/12       md5
+          - host    all             all                 192.168.0.0/16      md5
       - title: allow local read/write (local production user via pgbouncer)
         role: common
         rules:
-          - local   all     +dbrole_readonly                                scram-sha-256
-          - host    all     +dbrole_readonly           127.0.0.1/32         scram-sha-256
+          - local   all     +dbrole_readonly                                md5
+          - host    all     +dbrole_readonly           127.0.0.1/32         md5
       - title: allow offline query (ETL,SAGA,Interactive) on offline instance
         role: offline
         rules:
-          - host    all     +dbrole_offline               10.0.0.0/8        scram-sha-256
-          - host    all     +dbrole_offline               172.16.0.0/12     scram-sha-256
-          - host    all     +dbrole_offline               192.168.0.0/16    scram-sha-256
+          - host    all     +dbrole_offline               10.0.0.0/8        md5
+          - host    all     +dbrole_offline               172.16.0.0/12     md5
+          - host    all     +dbrole_offline               192.168.0.0/16    md5
 
     pgbouncer_hba_rules:              # pgbouncer host-based authentication rules
       - title: local password access
         role: common
         rules:
-          - local  all          all                                     scram-sha-256
-          - host   all          all                     127.0.0.1/32    scram-sha-256
+          - local  all          all                                     md5
+          - host   all          all                     127.0.0.1/32    md5
       - title: intranet password access
         role: common
         rules:
-          - host   all          all                     10.0.0.0/8      scram-sha-256
-          - host   all          all                     172.16.0.0/12   scram-sha-256
-          - host   all          all                     192.168.0.0/16  scram-sha-256
+          - host   all          all                     10.0.0.0/8      md5
+          - host   all          all                     172.16.0.0/12   md5
+          - host   all          all                     192.168.0.0/16  md5
 
     #-----------------------------------------------------------------
     # PG_EXPORTER

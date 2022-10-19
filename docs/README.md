@@ -80,9 +80,11 @@ Check [FEATURES](s-feature.md) for more detail.
 Get a new Linux x86_64 CentOS 7.9 node. with nopass `sudo` & `ssh` access, then:
 
 ```bash
-bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty source
-cd ~/pigsty && ./configure                             # pre-check and config templating 
-./infra.yml                                            # install pigsty on current node
+bash -c "$(curl -fsSL http://download.pigsty.cc/get)"   
+cd ~/pigsty     # get latest pigsty source
+./bootstrap     # download bootstrap pkgs
+./configure     # pre-check and config templating 
+./install.yml   # install pigsty according to pigsty.yml
 ```
 
 Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
@@ -98,8 +100,12 @@ Check [Installation](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pkg.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty.tgz | gzip -d | tar -xC ~
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-v1.6.0-b2.tgz | gzip -d | tar -xC ~
+
+# choose according to your el version
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el7.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el9.x86_64.tgz -o /tmp/pkg.tgz
 ```
 
 </details>

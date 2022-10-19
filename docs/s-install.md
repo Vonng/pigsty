@@ -45,8 +45,12 @@ And a Nginx is serving & proxy all WebUI services @ port `80`.
 <details><summary>Download Directly via Curl</summary>
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty.tgz -o /tmp/pigsty.tgz
-curl https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pkg.tgz    -o /tmp/pkg.tgz  
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-v1.6.0-b2.tgz | gzip -d | tar -xC ~
+
+# choose according to your el version
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el7.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el9.x86_64.tgz -o /tmp/pkg.tgz
 ```
 
 </details>
@@ -92,7 +96,7 @@ There's a standard 4-node demo env for pigsty, named '[Sandbox](d-sandbox.md)'. 
 Take [sandbox](d-sandbox.md) as an example, install pigsty on meta node `10.10.10.10` with:
 
 ```bash
-. /infra.yml     # install pigsty on meta node 10.10.10.10
+. /install.yml     # install pigsty on meta node 10.10.10.10
 ```
 
 #### Nodes Init

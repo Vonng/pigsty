@@ -10,25 +10,25 @@ Pigsty implements core control functions at the bottom through the [Ansible Play
 * [`redis`](p-redis.md): Use the `redis` series of playbooks to deploy and manage various modes of Redis clusters on existing nodes.
 
 
-
 ## Overview
 
-| Playbook | Function                                                   | Link                                                     |
-|--------|----------------------------------------------------------------| ------------------------------------------------------------ |
-|  [**infra**](p-infra.md#infra)                        | **Full installation of Pigsty on the meta node** |        [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
-|  [`infra-demo`](p-infra.md#infra-demo)              | Special playbook for complete initialization of a four-node demo sandbox in one go |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-demo.yml)       |
-|  [`infra-jupyter`](p-infra.md#infra-jupyter)        | Adding the **optional** data analysis service component Jupyter Lab to the meta node |        [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
-|  [**nodes**](p-nodes.md#nodes)                        | **Node provisioning to include nodes in Pigsty for subsequent database deployment** |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
-|  [`nodes-remove`](p-nodes.md#nodes-remove)          | Node remove, unloading node DCS and monitoring, no longer included in Pigsty |        [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
-|  [**pgsql**](p-pgsql.md#pgsql)                        | **PostgreSQL cluster deploy, or expand** |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
-|  [`pgsql-remove`](p-pgsql.md#pgsql-remove)          | PostgreSQL cluster destruction, or downsize |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
-|  [`pgsql-createuser`](p-pgsql.md#pgsql-createuser)  |      Creating PostgreSQL business users |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
-|  [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)      | Creating a PostgreSQL Business Database |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
-|  [`pgsql-monly`](p-pgsql.md#pgsql-monly)            | Monly mode, with access to existing PostgreSQL instances or RDS |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
-|  [`pgsql-migration`](p-pgsql.md#pgsql-migration)    | Generate PostgreSQL semi-automatic database migration solution (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
-|  [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)          | Reuse the PG role to deploy a MatrixDB data warehouse clusters (Beta) |        [`src`](https://github.com/vonng/pigsty/blob/master/pigsty-matrixdb.yml)     |
-|  [**redis**](p-redis.md#redis)                        | **Deploy a Redis database in cluster/standalone/Sentinel mode** |        [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
-|  [`redis-remove`](p-redis.md#redis-remove)          |        Redis cluster/node destruction        |        [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
+| Playbook                                          | Function                                                                             | Link                                                                      |
+|---------------------------------------------------|--------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [**infra**](p-infra.md#infra)                     | **Install pigsty infrastructure on meta nodes**                                      | [`src`](https://github.com/vonng/pigsty/blob/master/infra.yml)            |
+| [`install`](p-infra.md#install)                   | Full installation of Pigsty on the meta node                                         | [`src`](https://github.com/vonng/pigsty/blob/master/install.yml)          |
+| [`infra-remove`](p-infra.md#infra-jupyter)        | Remove infrastructure components from meta nodes                                     | [`src`](https://github.com/vonng/pigsty/blob/master/infra-remove.yml)     |
+| [`infra-jupyter`](p-infra.md#infra-jupyter)       | Adding the **optional** data analysis service component Jupyter Lab to the meta node | [`src`](https://github.com/vonng/pigsty/blob/master/infra-jupyter.yml)    |
+| [**nodes**](p-nodes.md#nodes)                     | **Node provisioning to include nodes in Pigsty for subsequent database deployment**  | [`src`](https://github.com/vonng/pigsty/blob/master/nodes.yml)            |
+| [`nodes-remove`](p-nodes.md#nodes-remove)         | Node remove, unloading node DCS and monitoring, no longer included in Pigsty         | [`src`](https://github.com/vonng/pigsty/blob/master/nodes-remove.yml)     |
+| [**pgsql**](p-pgsql.md#pgsql)                     | **PostgreSQL cluster deploy, or expand**                                             | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql.yml)            |
+| [`pgsql-remove`](p-pgsql.md#pgsql-remove)         | PostgreSQL cluster destruction, or downsize                                          | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-remove.yml)     |
+| [`pgsql-createuser`](p-pgsql.md#pgsql-createuser) | Creating PostgreSQL business users                                                   | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createuser.yml) |
+| [`pgsql-createdb`](p-pgsql.md#pgsql-createdb)     | Creating a PostgreSQL Business Database                                              | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-createdb.yml)   |
+| [`pgsql-monly`](p-pgsql.md#pgsql-monly)           | Monly mode, with access to existing PostgreSQL instances or RDS                      | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-monly.yml)      |
+| [`pgsql-migration`](p-pgsql.md#pgsql-migration)   | Generate PostgreSQL semi-automatic database migration solution (Beta)                | [`src`](https://github.com/vonng/pigsty/blob/master/pgsql-migration.yml)  |
+| [`pgsql-matrix`](p-pgsql.md#pgsql-matrix)         | Reuse the PG role to deploy a MatrixDB data warehouse clusters (Beta)                | [`src`](https://github.com/vonng/pigsty/blob/master/pigsty-matrixdb.yml)  |
+| [**redis**](p-redis.md#redis)                     | **Deploy a Redis database in cluster/standalone/Sentinel mode**                      | [`src`](https://github.com/vonng/pigsty/blob/master/redis.yml)            |
+| [`redis-remove`](p-redis.md#redis-remove)         | Redis cluster/node destruction                                                       | [`src`](https://github.com/vonng/pigsty/blob/master/redis-remove.yml)     |
 
 The typical use process is as follows：
 

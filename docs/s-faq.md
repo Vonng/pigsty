@@ -33,10 +33,9 @@ If you wish to deploy a self-managed HA PostgreSQL database cluster, it is recom
 
 ### OS requirements
 
-!> **Pigsty strongly recommends using CentOS 7.9 to avoid meaningless efforts. **
+!> **Pigsty strongly recommends using CentOS 7.9,8.6,9.0 to avoid meaningless efforts. **
 
-Pigsty development, testing, and packaging are based on CentOS 7.9 by default. CentOS 7.6 is also fully validated. Other CentOS 7. x and its equivalents RHEL7 and Oracle Linux 7 are theoretically OK but have not been tested and verified.
-
+Pigsty development, testing, and packaging are based on CentOS 7.9, Rocky 8.6 & 9.0 now. RHEL, Alma, Oracle also works.
 
 
 ### Versioning Policy
@@ -85,7 +84,7 @@ Executing the above command will automatically download the latest stable versio
 ```bash
 https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty.tgz   # Github Release 
 http://download.pigsty.cc/v1.6.0-b2/pigsty.tgz                           # China CDN
-https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # Baidu Yun
+https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9                 # Baidu Yun
 ```
 
 

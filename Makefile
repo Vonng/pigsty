@@ -394,6 +394,10 @@ r: release
 release:
 	bin/release ${VERSION}
 
+rr: release copy-src use-src
+	ssh meta "cd pigsty; make release"
+	scp meta:~/pigsty/dist/${VERSION}/${SRC_PKG} dist/${VERSION}/${SRC_PKG}
+
 # release-pkg will make cache and copy to dist dir
 rp: release-pkg
 release-pkg: cache

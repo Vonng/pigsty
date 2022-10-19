@@ -108,8 +108,11 @@ Check [Quick Start](s-install.md) & [Demo](http://demo.pigsty.cc) for details.
 Pigsty source & software packages can be downloaded directly via `curl` in case of no Internet connection:
 
 ```bash
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.1/pigsty.tgz | gzip -d | tar -xC ~
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.5.1/pkg.tgz -o /tmp/pkg.tgz # optional
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-v1.6.0-b2.tgz | gzip -d | tar -xC ~
+# choose according to your el version
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el7.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el9.x86_64.tgz -o /tmp/pkg.tgz
 ```
 
 </details>

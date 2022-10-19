@@ -41,7 +41,7 @@ The services running on the meta node are shown below.
 
 |             Component     | Port | Description               |   Default Domain   |
 | :---------------------------: | :--: | ----------------------------- | :----------: |
-| Nginx        |  80  | Web Service Portal |   `pigsty`   |
+| Nginx |  80  | Web Service Portal |   `pigsty`   |
 | Yum      |  80  | LocalYum Repo    | `yum.pigsty` |
 | Grafana      | 3000 | Monitoring Dashboards/Visualization Platform |  `g.pigsty`  |
 | AlertManager | 9093 | Alert aggregation & notification service |  `a.pigsty`  |
@@ -54,7 +54,7 @@ The services running on the meta node are shown below.
 | Consul DNS | 8600 | DNS Service Discovery powered by Consul                    |      -       |
 | Dnsmasq      |  53  | DNS Name Server（Optional） |      -       |
 | NTP          | 123  | NTP Time Server（Optional） |      -       |
-|           Pgbouncer           | 6432 | Pgbouncer Connection Pooling Service | - |
+| Pgbouncer | 6432 | Pgbouncer Connection Pooling Service | - |
 | Patroni | 8008 | Patroni HA Component | - |
 | Haproxy Primary | 5433 | Primary Pooling: Read/Write Service | - |
 | Haproxy Replica | 5434 | Replica Pooling: Read-Only Service | - |

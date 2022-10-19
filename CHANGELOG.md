@@ -4,15 +4,15 @@ v1.6.0 Compatibility & Security & Maintainability Enhancement
 
 ## Highlights
 
-* Compatibility Enhancement
-* Security Enhancement
-* Maintainability Enhancement
+* Compatibility: EL 7,8,9, PG 15
+* Security Enhancement: CA, SSL for etcd/consul/postgres
+* Maintainability Enhancement: adaptive tuning templates
 
 ## Compatibility
 
-* Support EL 8 & EL 9  (Build on CentOS7, Rocky8, Rocky9)
-* Support RHEL/CentOS/Rocky/Oracle/AlmaLinux
-* Support PostgreSQL 15 & PostGIS 3.3
+* More compatible Linux distributions: RHEL, CentOS, RockyLinux, AlmaLinux, OracleLinux.
+* RHEL 7, 8, 9 Support (build on 7.9, 8.6, 9.0 ), use versioning in pigsty & pkg name
+* Add support for PostgreSQL 15 & PostGIS 3.3
 * Add version & arch as part of `pkg.tgz`
 
 ## Security
@@ -27,9 +27,9 @@ v1.6.0 Compatibility & Security & Maintainability Enhancement
 ## Maintainability
 
 * Adaptive tuning template for PostgreSQL & Patroni by @Vonng, @alemacci
-* Adaptive upstream repo definition, compatible with EL7/EL8/EL9
 * configurable log dir for patroni & postgres & pgbouncer by @alemacci
 * Use ${meta_ip} in infra vars to switch primary meta node.
+* Adaptive upstream repo definition, compatible with EL7/EL8/EL9
 * Vagrant templates examples for el8, el9, building environment.
 * Terraform Templates for AWS EC2
 * Use chrony instead of ntpd as NTP services
