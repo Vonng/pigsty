@@ -20,11 +20,16 @@
 #------------------------------------------------------------------------------
 # setup pev2 explain visualizer
 #------------------------------------------------------------------------------
-# TODO: obsolete: pev2 is now a standalone index.html
 - name: Setup pev2 if exists
   tags: nginx_pev2
   ignore_errors: true     # skip if pev2 not available on repo
   shell: |
-    cp -f {{ nginx_home }}/{{ repo_name }}/index.html {{ nginx_home }}/pev.html || /bin/true;
+    if [[ -f {{ nginx_home }}/{{ repo_name }}/index.html ]]; then
+        cp -f {{ nginx_home }}/{{ repo_name }}/index.html {{ nginx_home }}/{{ repo_name }}/pev.html
+        rm -f {{ nginx_home }}/{{ repo_name }}/index.html
+    fi
+    if [[ -f {{ nginx_home }}/{{ repo_name }}/pev.html ]]; then
+        cp -f {{ nginx_home }}/{{ repo_name }}/pev.html {{ nginx_home }}/pev.html || /bin/true;
+    fi
 
 ...
