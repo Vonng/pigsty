@@ -115,8 +115,8 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty sourc
 您也可以通过其他途径下载源码压缩包：
 
 ```bash
-# https://github.com/Vonng/pigsty/releases/download/v1.5.1/pigsty.tgz   # Github Release 
-# http://download.pigsty.cc/v1.5.1/pigsty.tgz                           # China CDN
+# https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty.tgz   # Github Release 
+# http://download.pigsty.cc/v1.6.0-b2/pigsty.tgz                           # China CDN
 # https://pan.baidu.com/s/1DZIa9X2jAxx69Zj-aRHoaw?pwd=8su9              # 百度云网盘下载
 # git clone https://github.com/Vonng/pigsty                             # 获取最新代码Master分支（不建议）
 ```
@@ -139,8 +139,8 @@ bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  # get latest pigsty sourc
 您可以使用以下命令，在待安装Pigsty的元节点上提前下载离线软件包（只需要在单个元节点上下载即可，下载至`/tmp/pkg.tgz`）
 
 ```bash
-curl https://github.com/Vonng/pigsty/releases/download/v1.5.1/pkg.tgz -o /tmp/pkg.tgz   # Github Release，最权威 
-curl http://download.pigsty.cc/v1.5.1/pkg.tgz -o /tmp/pkg.tgz                           # 或在中国大陆用CDN下载
+curl https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pkg.tgz -o /tmp/pkg.tgz   # Github Release，最权威 
+curl http://download.pigsty.cc/v1.6.0-b2/pkg.tgz -o /tmp/pkg.tgz                           # 或在中国大陆用CDN下载
 ```
 
 此外 pigsty 项目根目录下的 [`download`](https://github.com/Vonng/pigsty/bl/master/download) 脚本也可以用于下载离线软件包。

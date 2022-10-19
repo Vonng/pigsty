@@ -63,7 +63,7 @@ check_utils      # check ansible sshpass and other utils installed
 
 ```bash
 $ ./configure
-configure pigsty v1.5.1 begin
+configure pigsty v1.6.0-b2 begin
 [ OK ] kernel = Linux
 [ OK ] machine = x86_64
 [ OK ] release = 7.9.2009 , perfect

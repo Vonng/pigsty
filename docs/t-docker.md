@@ -1,6 +1,6 @@
 # Docker Applications
 
-Pigsty v1.5.1 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the meta node.
+Pigsty v1.6.0-b2 comes with Docker and Docker Compose deployment support, where Docker Daemon will be enabled by default on the meta node.
 
 You can use Docker to deploy and launch software applications quickly. You can directly access the PostgreSQL/Redis database deployed on the host in the container using the connection string.
 

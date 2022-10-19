@@ -1,12 +1,12 @@
 # Pigsty
 
-## v1.5.1 中文文档
+## v1.6.0-b2 中文文档
 
 **开箱即用的开源数据库发行版**
 
 [![logo](../_media/icon.svg)](/)
 
-> 最新版本: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开Demo](http://home.pigsty.cc)
+> 最新版本: [v1.6.0-b2](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b2)  |  [Github项目](https://github.com/Vonng/pigsty) | [公开Demo](http://home.pigsty.cc)
 >
 > 文档地址: [英文文档](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages文档](https://vonng.github.io/pigsty/#/)
 
