@@ -21,13 +21,11 @@
             }
         ]
     },
-    "author": "Vonng (rh@vonng.com)",
     "description": "PostgreSQL CSVLog Sample Analysis",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
     "id": null,
-    "iteration": 1655531660354,
     "links": [
         {
             "asDropdown": false,
@@ -69,6 +67,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -173,8 +173,9 @@
                     "calcs": [
                         "sum"
                     ],
-                    "displayMode": "hidden",
-                    "placement": "bottom"
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
                 },
                 "tooltip": {
                     "mode": "multi",
@@ -224,6 +225,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -316,7 +319,7 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 6,
                 "w": 8,
                 "x": 0,
                 "y": 5
@@ -329,7 +332,8 @@
                         "sum"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "right",
+                    "showLegend": true
                 },
                 "tooltip": {
                     "mode": "single",
@@ -379,6 +383,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -486,7 +492,7 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
+                "h": 6,
                 "w": 8,
                 "x": 8,
                 "y": 5
@@ -499,7 +505,8 @@
                         "sum"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "right",
+                    "showLegend": true
                 },
                 "tooltip": {
                     "mode": "single",
@@ -549,6 +556,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -593,6 +602,179 @@
                     "unit": "none"
                 },
                 "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ERROR"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "light-orange",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "FATAL"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "purple",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "LOG"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 16,
+                "y": 5
+            },
+            "id": 9,
+            "interval": "1s",
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "sum"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "8.0.5",
+            "targets": [
+                {
+                    "format": "time_series",
+                    "group": [],
+                    "metricColumn": "none",
+                    "rawQuery": true,
+                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       cmd_tag AS metric, count(*) AS value \nFROM ${log}\nWHERE $__timeFilter(ts)\nGROUP BY 1, 2\nORDER BY 1, 2;",
+                    "refId": "A",
+                    "select": [
+                        [
+                            {
+                                "params": [
+                                    "value"
+                                ],
+                                "type": "column"
+                            }
+                        ]
+                    ],
+                    "timeColumn": "time",
+                    "where": [
+                        {
+                            "name": "$__timeFilter",
+                            "params": [],
+                            "type": "macro"
+                        }
+                    ]
+                }
+            ],
+            "title": "Count by CmdTag",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "ds-meta"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 100,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "<null>"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "rgb(182, 182, 182)",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
                     {
                         "matcher": {
                             "id": "byName",
@@ -643,178 +825,8 @@
             "gridPos": {
                 "h": 7,
                 "w": 8,
-                "x": 16,
-                "y": 5
-            },
-            "id": 9,
-            "interval": "1s",
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "sum"
-                    ],
-                    "displayMode": "table",
-                    "placement": "right"
-                },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "8.0.5",
-            "targets": [
-                {
-                    "format": "time_series",
-                    "group": [],
-                    "metricColumn": "none",
-                    "rawQuery": true,
-                    "rawSql": "SELECT $__timeGroup(ts, $__interval) AS \"time\", \n       cmd_tag AS metric, count(*) AS value \nFROM ${log}\nWHERE $__timeFilter(ts)\nGROUP BY 1, 2\nORDER BY 1, 2;",
-                    "refId": "A",
-                    "select": [
-                        [
-                            {
-                                "params": [
-                                    "value"
-                                ],
-                                "type": "column"
-                            }
-                        ]
-                    ],
-                    "timeColumn": "time",
-                    "where": [
-                        {
-                            "name": "$__timeFilter",
-                            "params": [],
-                            "type": "macro"
-                        }
-                    ]
-                }
-            ],
-            "title": "Count by CmdTag",
-            "type": "timeseries"
-        },
-        {
-            "datasource": {
-                "type": "postgres",
-                "uid": "ds-meta"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "bars",
-                        "fillOpacity": 100,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": true,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "<null>"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "rgb(182, 182, 182)",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "ERROR"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "light-orange",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "FATAL"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "purple",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "LOG"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "green",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 8,
                 "x": 0,
-                "y": 12
+                "y": 11
             },
             "id": 5,
             "interval": "1s",
@@ -824,7 +836,8 @@
                         "sum"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "right",
+                    "showLegend": true
                 },
                 "tooltip": {
                     "mode": "single",
@@ -874,6 +887,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -981,10 +996,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 8,
                 "x": 8,
-                "y": 12
+                "y": 11
             },
             "id": 6,
             "interval": "1s",
@@ -994,7 +1009,8 @@
                         "sum"
                     ],
                     "displayMode": "table",
-                    "placement": "right"
+                    "placement": "right",
+                    "showLegend": true
                 },
                 "tooltip": {
                     "mode": "single",
@@ -1091,10 +1107,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 4,
                 "x": 16,
-                "y": 12
+                "y": 11
             },
             "id": 12,
             "options": {
@@ -1113,7 +1129,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.0.0",
+            "pluginVersion": "9.2.1",
             "targets": [
                 {
                     "format": "table",
@@ -1217,10 +1233,10 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 4,
                 "x": 20,
-                "y": 12
+                "y": 11
             },
             "id": 7,
             "options": {
@@ -1239,7 +1255,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.0.0",
+            "pluginVersion": "9.2.1",
             "targets": [
                 {
                     "format": "table",
@@ -1712,10 +1728,10 @@
                 ]
             },
             "gridPos": {
-                "h": 17,
+                "h": 15,
                 "w": 24,
                 "x": 0,
-                "y": 20
+                "y": 18
             },
             "id": 11,
             "options": {
@@ -1734,7 +1750,7 @@
                     }
                 ]
             },
-            "pluginVersion": "9.0.0",
+            "pluginVersion": "9.2.1",
             "targets": [
                 {
                     "format": "table",
@@ -1835,7 +1851,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 33
             },
             "id": 21,
             "panels": [
@@ -1848,15 +1864,19 @@
                         "h": 4,
                         "w": 24,
                         "x": 0,
-                        "y": 38
+                        "y": 36
                     },
                     "id": 16,
                     "options": {
-                        "content": "Run on meta node as admin user to fetch and pour log into sample table: `$log`\n```\ncatlog | pglog                       # get local (metadb) today's log\ncatlog node-1 | pglog                # get certain node today's log\ncatlog node-1 '2022-03-20' | pglog   # get node-1's csvlog @ 2022-03-20\ncatlog | pglog13                     # use 13 csv log format instead of 14\n```",
+                        "code": {
+                            "language": "plaintext",
+                            "showLineNumbers": false,
+                            "showMiniMap": false
+                        },
+                        "content": "Run on meta node as admin user to fetch and pour log into sample table: `$log`\n```\ncatlog | pglog                       # get local (metadb) today's log\ncatlog node-1 | pglog                # get certain node today's log\ncatlog node-1 '2022-03-20' | pglog   # get node-1's csvlog @ 2022-03-20\n# pg12, 13, 14 have different csvlog schema, use pglog12, pglog13 instead\n```",
                         "mode": "markdown"
                     },
-                    "pluginVersion": "8.5.2",
-                    "transparent": true,
+                    "pluginVersion": "9.2.1",
                     "type": "text"
                 }
             ],
@@ -1865,7 +1885,7 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 36,
+    "schemaVersion": 37,
     "style": "dark",
     "tags": [
         "APP",
@@ -1951,5 +1971,6 @@
     "title": "PGLOG Overview",
     "uid": "pglog-overview",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "author": "Vonng (rh@vonng.com)"
 }

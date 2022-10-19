@@ -32,7 +32,7 @@ v1.6.0 Compatibility & Security & Maintainability Enhancement
 * Use ${meta_ip} in infra vars to switch primary meta node.
 * Vagrant templates examples for el8, el9, building environment.
 * Terraform Templates for AWS EC2
-* Use chrony instead of ntpd
+* Use chrony instead of ntpd as NTP services
 * New signed apache echarts 5.0 plugin for Grafana panels
 
 ## Software Upgrade
@@ -40,18 +40,20 @@ v1.6.0 Compatibility & Security & Maintainability Enhancement
 * PostgreSQL 14.5 / PostgreSQL 15.0
 * Patroni 2.1.4
 * Pgbouncer 1.17
+* HAProxy 2.6.6
 * PostGIS 3.3
 * Citus 11.1
 * TimescaleDB 2.8
 * Prometheus 2.39
-* Grafana 9.2.0
+* Loki & Promtail 2.6.1
+* Grafana 9.2.1
 * Node Exporter 1.4
 * Consul v13.2
 * ETCD 3.5.4
 
 ## Bug Fix
 
-* remove duplicated kernel module ip_vs_rr
+* remove duplicated kernel module `ip_vs_rr`
 
 
 

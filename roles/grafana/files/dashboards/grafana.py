@@ -11,7 +11,10 @@ UPSTREAM = os.environ.get("NGINX_UPSTREAM", "")
 # load dashboard
 ############################w##############
 # replace all url according to environment
-REPLACEMENT = {i.split('=')[0]: i.split('=')[1] for i in UPSTREAM.split(',')}
+REPLACEMENT = {}
+if UPSTREAM != '':
+    REPLACEMENT = {i.split('=')[0]: i.split('=')[1] for i in UPSTREAM.split(',')}
+
 def host_replace(s):
     if 'home' in REPLACEMENT and REPLACEMENT['home'] != 'pigsty':
         s = s.replace('://pigsty/', '://' + REPLACEMENT['home'] + '/')
