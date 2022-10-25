@@ -89,8 +89,8 @@ Get a new Linux x86_64 EL7+ node. with nopass `sudo` & `ssh` access, then:
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)"  
 cd ~/pigsty     # get latest pigsty source
-./bootstrap     # download bootstrap pkgs
-./configure     # pre-check and config templating 
+./bootstrap     # download bootstrap pkgs & ansible [optional]
+./configure     # pre-check and config templating   [optional] 
 ./install.yml   # install pigsty according to pigsty.yml
 ```
 
@@ -110,9 +110,9 @@ Pigsty source & software packages can be downloaded directly via `curl` in case 
 ```bash
 curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-v1.6.0-b2.tgz | gzip -d | tar -xC ~
 # choose according to your el version
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el7.x86_64.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el8.x86_64.tgz -o /tmp/pkg.tgz
-curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b1/pigsty-pkg-v1.6.0-b1.el9.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-pkg-v1.6.0-b2.el7.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-pkg-v1.6.0-b2.el8.x86_64.tgz -o /tmp/pkg.tgz
+curl -SL https://github.com/Vonng/pigsty/releases/download/v1.6.0-b2/pigsty-pkg-v1.6.0-b2.el9.x86_64.tgz -o /tmp/pkg.tgz
 ```
 
 </details>
