@@ -186,7 +186,7 @@ resource "aws_instance" "pigsty-meta" {
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.pigsty_sg.id]
   subnet_id                   = aws_subnet.pigsty_subnet.id
-  user_data                   = file("userdata.tpl")
+  #user_data                   = file("userdata.tpl")
   root_block_device {
     volume_size = 30
   }
