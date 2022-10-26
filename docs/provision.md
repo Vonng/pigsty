@@ -1,6 +1,35 @@
-# Sandbox
+# IaaS Provisioning
 
-> Pigsty supports both [local sandbox](#local-sandbox) and [cloud sandbox](#cloud-sandbox) for quickly [preparing](d-prepare.md) a standard 1/4 node demo environment locally or in the cloud.
+Pigsty runs on nodes, virtual or bare metal. 
+
+You can prepare them by hand, or use terraform & vagrant for automation.
+
+This is a crude introduction of preparing vm resources for pigsty with vagrant & terraform.
+
+
+## Sandbox
+
+A pigsty sandbox consist of 4 nodes, with fixed IP addresses: `10.10.10.10`, `10.10.10.11`, `10.10.10.12`, `10.10.10.13`.
+
+There's a primary node named `meta` with ip address `10.10.10.10`, and 3 replica nodes named `pg-test-1`, `pg-test-2`, `pg-test-3`. 
+
+You can use a single-node sandbox with a `meta`, deployed with complete infrastructure, and a single instance Postgres database `pg-meta`.
+
+* `meta    10.10.10.10  pg-meta pg-meta-1`
+
+There are three additional nodes in the four-node sandbox, with a set of three-node PostgreSQL cluster `pg-test`.
+
+* `node-1  10.10.10.11  pg-test.pg-test-1`
+* `node-2  10.10.10.12  pg-test.pg-test-2`
+* `node-3  10.10.10.13  pg-test.pg-test-3`
+
+Also, the sandbox will use the following two IPs with two static DNS records for accessing the database cluster.
+
+* `10.10.10.2  pg-meta`
+* `10.10.10.2  pg-test`
+
+
+Pigsty supports both [local sandbox](#local-sandbox) and [cloud sandbox](#cloud-sandbox) for quickly [preparing](d-prepare.md) a standard 1/4 node demo environment locally or in the cloud.
 
 Pigsty provides a **sandbox environment**. Ultimately creating and running through the sandbox installation and deployment process for deployment in production envs have Pigsty very helpful.
 
@@ -14,22 +43,7 @@ The sandbox meta node IP is fixed to: `10.10.10.10`. `10.10.10.10` is also a pla
 
 ![](_media/SANDBOX.gif)
 
-You can use a single-node sandbox with a `meta`, deployed with complete infrastructure, and a single instance Postgres database `pg-meta`.
 
-* `meta    10.10.10.10  pg-meta.pg-meta-1`
-
-The single-node sandbox is suitable for personal development, experimentation, and learning; the four-node sandbox can demonstrate Pigsty's capabilities, data analysis and visualization, design, demonstration, and distribution of interactive data applications. Please select as you need.
-
-There are three additional nodes in the four-node sandbox, with a set of three-node PostgreSQL cluster `pg-test`.
-
-* `node-1  10.10.10.11  pg-test.pg-test-1`
-* `node-2  10.10.10.12  pg-test.pg-test-2`
-* `node-3  10.10.10.13  pg-test.pg-test-3`
-
-Also, the sandbox will use the following two IPs with two static DNS records for accessing the database cluster.
-
-* `10.10.10.2  pg-meta`
-* `10.10.10.2  pg-test`
 
 
 

@@ -1,4 +1,4 @@
-# PGSQL SOP: Standard Operating Procedure 
+# PostgreSQL Administration Tutorial 
 
 
 Most cluster management operations require using the admin user on the meta node and the execution of the corresponding Ansible Playbook in the Pigsty root dir.

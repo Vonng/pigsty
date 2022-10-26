@@ -173,6 +173,4 @@ License: [Apache 2.0 License](LICENSE)
 
 Copyright 2018-2022 rh@vonng.com (Vonng)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Vonng/pigsty&type=Date)](https://star-history.com/#Vonng/pigsty&Date)
-
 Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)

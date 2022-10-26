@@ -1,4 +1,4 @@
-# HA Scenarios
+# Administration
 
 You can strengthen your confidence in the cluster's HA capability through a HA scenario experiment.
 
