@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node SSL-enabled demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-10-16
+# Mtime     :   2022-10-26
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -161,7 +161,7 @@ all:
     # CA & CERTS
     #-----------------------------------------------------------------
     ca_method: create                 # none|copy|create|recreate, create if not exists by default
-    ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
+    ca_cn: pigsty-ca                  # ca common name, pigsty-ca by default
     cert_validity: 7300d              # cert validity, 20 years by default
 
     #-----------------------------------------------------------------
@@ -210,7 +210,7 @@ all:
     repo_address: pigsty              # external address to this repo (ip:port or url)
     repo_rebuild: false               # force re-download packages
     repo_remove: true                 # remove existing upstream repo
-    repo_upstream:                    #  where to download #
+    repo_upstream:                    # where to download #
       - { name: base           ,description: 'EL 7 Base'         ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
       - { name: updates        ,description: 'EL 7 Updates'      ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'  , europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
       - { name: extras         ,description: 'EL 7 Extras'       ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/extras/$basearch/'                , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/'   , europe: 'https://mirrors.xtom.de/centos/$releasever/extras/$basearch/'       }}
@@ -256,10 +256,10 @@ all:
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/promtail-2.6.1.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
-      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm    # redis.el7
+      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm    # haproxy.el7
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -317,13 +317,13 @@ all:
     dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
-      meta-2: 10.10.10.11             # node with ip in dcs_servers will be initialized as dcs servers
-      meta-3: 10.10.10.12             # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      #meta-2: 10.10.10.11            # node with ip in dcs_servers will be initialized as dcs servers
+      #meta-3: 10.10.10.12            # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
+    dcs_gid: 980                      # gid for consul/etcd users
+    dcs_ssl_enabled: false            # secure dcs communications with ssl?
     dcs_safeguard: false              # if true, running dcs will NOT be removed
     dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
-    dcs_gid: 980                      # gid for consul/etcd users
-    dcs_ssl_enabled: true             # secure dcs communications
 
     #-----------------------------------------------------------------
     # CONSUL
@@ -505,8 +505,8 @@ all:
     pg_version: 14                    # default postgresql version to be installed
     pgdg_repo: false                  # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                # add postgres relate repo before install ?
-    pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
-    pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
+    pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, /usr/pgsql/bin by default, ln -S /usr/pgsql-{ver} /usr/pgsql
+    pg_log_dir: /pg/data/log          # postgres log dir, /pg/data/log by default
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
       - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
@@ -528,16 +528,16 @@ all:
     pg_localhost: /var/run/postgresql     # localhost unix socket dir for connection
     patroni_enabled: true                 # if not enabled, no postgres cluster will be created
     patroni_mode: default                 # pause|default|remove
-    patroni_username: postgres            # patroni rest api username
-    patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
     pg_dcs_type: etcd                     # which dcs to use: consul or etcd or raft
     pg_namespace: /pg                     # top level key namespace in dcs
     patroni_port: 8008                    # default patroni port
-    patroni_log_dir: /pg/log              # patroni log dir, default is /pg/log
-    patroni_ssl_enabled: true             # secure patroni communications
+    patroni_log_dir: /pg/log              # patroni log dir, /pg/log by default
+    patroni_ssl_enabled: false            # secure patroni RestAPI communications with SSL?
     patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
+    patroni_username: postgres            # patroni rest api username
+    patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
     pg_conf: tiny.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
-    pg_rto: 30                            # recovery time objective, ttl to failover,  30s by default
+    pg_rto: 30                            # recovery time objective, ttl to failover, 30s by default
     pg_rpo: 1048576                       # recovery point objective, 1MB data loss at most by default
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
@@ -550,7 +550,7 @@ all:
     pg_lc_ctype: en_US.UTF8               # database character type, en_US.UTF8 by default (for i18n full-text search)
     pgbouncer_enabled: true               # if not enabled, pgbouncer will not be created
     pgbouncer_port: 6432                  # pgbouncer port, 6432 by default
-    pgbouncer_log_dir: /var/log/pgbouncer # pgbouncer log dir, default is /var/log/pgbouncer
+    pgbouncer_log_dir: /var/log/pgbouncer # pgbouncer log dir, /var/log/pgbouncer by default
     pgbouncer_auth_query: false           # if enabled, query pg_authid table to retrieve biz users instead of populating userlist
     pgbouncer_poolmode: transaction       # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_max_db_conn: 100            # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
@@ -560,7 +560,6 @@ all:
     #-----------------------------------------------------------------
     pg_provision: true                # whether provisioning postgres cluster
     pg_init: pg-init                  # init script for cluster template
-
     pg_default_roles:
       - { name: dbrole_readonly  , login: false , comment: role for global read-only access  }                                 # production read-only role
       - { name: dbrole_readwrite , login: false , roles: [dbrole_readonly], comment: role for global read-write access }       # production read-write role

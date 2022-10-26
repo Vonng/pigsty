@@ -4,7 +4,7 @@
 # Desc      :   Pigsty 4-node local sandbox demo config
 # Link      :   https://pigsty.cc/en/docs/concept/config/
 # Ctime     :   2020-05-22
-# Mtime     :   2022-10-16
+# Mtime     :   2022-10-26
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 ######################################################################
 
@@ -65,75 +65,27 @@ all:
     #----------------------------------#
     # pgsql cluster: pg-meta (CMDB)    #
     #----------------------------------#
-    # EXAMPLE pg-meta is the default SINGLE-NODE pgsql cluster deployed on meta node (10.10.10.10)
-    pg-meta:                          # [REQUIRED], ansible group name , pgsql cluster name. should be unique among environment
-      hosts:                          # `<cluster>.hosts` holds instances definition of this cluster
-        10.10.10.10:                  # [REQUIRED]: ip address is the key. values are instance level config entries (dict)
-          pg_seq: 1                   # [REQUIRED], unique identity parameter (+integer) among pg_cluster
-          pg_role: primary            # [REQUIRED], pg_role is mandatory identity parameter, primary|replica|offline
-          pg_offline_query: true      # instance with `pg_offline_query: true` will take offline traffic (saga, etl,...)
-          # pg_upstream: x.x.x.x      # some other variables can be overwritten on instance level. e.g: pg_upstream, pg_weight, etc...
-          # pg_weight: 100            # load balance weight for this instance
-      vars:                           # `<cluster>.vars` holds CLUSTER LEVEL CONFIG of this pgsql cluster
-        pg_cluster: pg-meta           # [REQUIRED], pgsql cluster name, unique among cluster, used as namespace of cluster resources
-
-        # all vars below are [OPTIONAL] (overwrite global default)
-        pg_version: 14                # pgsql version to be installed (use global version if missing)
-        node_tune: tiny               # node optimization profile: {oltp|olap|crit|tiny}, use tiny for vm sandbox
-        pg_conf: tiny.yml             # pgsql template:  {oltp|olap|crit|tiny}, use tiny for sandbox
-        patroni_watchdog_mode: off    # disable patroni watchdog on meta node        {off|require|automatic}
-        pg_lc_ctype: en_US.UTF8       # use en_US.UTF8 locale for i18n char support  (required by `pg_trgm`)
-
-        # define business database meta , used as CMDB & default database for single-node setup
-        pg_databases:                       # define business databases on this cluster, array of database definition
-          - name: meta                      # required, `name` is the only mandatory field of a database definition
-            baseline: cmdb.sql              # optional, database sql baseline path, (relative path among ansible search path, e.g files/)
-            # owner: postgres               # optional, database owner, postgres by default
-            # template: template1           # optional, which template to use, template1 by default
-            # encoding: UTF8                # optional, database encoding, UTF8 by default. (MUST same as template database)
-            # locale: C                     # optional, database locale, C by default.  (MUST same as template database)
-            # lc_collate: C                 # optional, database collate, C by default. (MUST same as template database)
-            # lc_ctype: C                   # optional, database ctype, C by default.   (MUST same as template database)
-            # tablespace: pg_default        # optional, default tablespace, 'pg_default' by default.
-            # allowconn: true               # optional, allow connection, true by default. false will disable connect at all
-            # revokeconn: false             # optional, revoke public connection privilege. false by default. (leave connect with grant option to owner)
-            # pgbouncer: true               # optional, add this database to pgbouncer database list? true by default
-            comment: pigsty meta database   # optional, comment string for this database
-            connlimit: -1                   # optional, database connection limit, default -1 disable limit
-            schemas: [pigsty]               # optional, additional schemas to be created, array of schema names
-            extensions:                     # optional, additional extensions to be installed: array of schema definition `{name,schema}`
-              - { name: adminpack, schema: pg_catalog }    # install adminpack to pg_catalog
-              - { name: postgis, schema: public }          # if schema is omitted, extension will be installed according to search_path.
-              - { name: timescaledb }                      # some extensions are not relocatable, you can just omit the schema part
+    pg-meta:
+      hosts: { 10.10.10.10: { pg_seq: 1, pg_role: primary , pg_offline_query: true } }
+      vars:
+        pg_cluster: pg-meta
+        patroni_watchdog_mode: off
+        pg_databases:
+          - { name: meta, baseline: cmdb.sql , schemas: [ pigsty ]   , extensions: [ { name: adminpack, schema: pg_catalog } ,  { name: postgis, schema: public } , { name: timescaledb } ] ,comment: pigsty meta database }
           - { name: grafana,    owner: dbuser_grafana    , revokeconn: true , comment: grafana primary database }
           - { name: bytebase,   owner: dbuser_bytebase   , revokeconn: true , comment: bytebase primary database }
           - { name: kong,       owner: dbuser_kong       , revokeconn: true , comment: kong the api gateway database }
+          - { name: gitea,      owner: dbuser_gitea      , revokeconn: true , comment: gitea meta database }
+          - { name: wiki,       owner: dbuser_wiki       , revokeconn: true , comment: wiki meta database }
 
-        # define business users for this cluster
-        pg_users:                           # define business users/roles on this cluster, array of user definition
-          # define admin user for meta database (This user are used for pigsty app deployment by default)
-          - name: dbuser_meta               # required, `name` is the only mandatory field of a user definition
-            password: md5d3d10d8cad606308bdb180148bf663e1  # md5 salted password of 'DBUser.Meta'
-            # optional, plain text and md5 password are both acceptable (prefixed with `md5`)
-            login: true                     # optional, can login, true by default  (new biz ROLE should be false)
-            superuser: false                # optional, is superuser? false by default
-            createdb: false                 # optional, can create database? false by default
-            createrole: false               # optional, can create role? false by default
-            inherit: true                   # optional, can this role use inherited privileges? true by default
-            replication: false              # optional, can this role do replication? false by default
-            bypassrls: false                # optional, can this role bypass row level security? false by default
-            pgbouncer: true                 # optional, add this user to pgbouncer user-list? false by default (production user should be true explicitly)
-            connlimit: -1                   # optional, user connection limit, default -1 disable limit
-            expire_in: 3650                 # optional, now + n days when this role is expired (OVERWRITE expire_at)
-            expire_at: '2030-12-31'         # optional, YYYY-MM-DD 'timestamp' when this role is expired  (OVERWRITTEN by expire_in)
-            comment: pigsty admin user      # optional, comment string for this user/role
-            roles: [dbrole_admin]           # optional, belonged roles. default roles are: dbrole_{admin,readonly,readwrite,offline}
-            parameters: {}                  # optional, role level parameters with `ALTER ROLE SET`
-            # search_path: public         # key value config parameters according to postgresql documentation (e.g: use pigsty as default search_path)
-          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly], comment: read-only viewer for meta database}
+        pg_users:
+          - {name: dbuser_meta     ,password: DBUser.Meta     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: pigsty cmdb admin user             }
+          - {name: dbuser_view     ,password: DBUser.Viewer   ,pgbouncer: true ,roles: [dbrole_readonly] ,comment: read-only viewer for meta database }
           - {name: dbuser_grafana  ,password: DBUser.Grafana  ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for grafana database    }
           - {name: dbuser_bytebase ,password: DBUser.Bytebase ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for bytebase database   }
           - {name: dbuser_kong     ,password: DBUser.Kong     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for kong api gateway    }
+          - {name: dbuser_gitea    ,password: DBUser.Gitea    ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for gitea service       }
+          - {name: dbuser_wiki     ,password: DBUser.Wiki     ,pgbouncer: true ,roles: [dbrole_admin]    ,comment: admin user for wiki.js service     }
 
         pg_hba_rules_extra:
           - title: allow grafana bytebase kong intranet access
@@ -149,6 +101,7 @@ all:
         vip_interface: eth1
         node_crontab:
           - '00 01 * * * postgres /pg/bin/pg-backup 2>>/pg/log/backup.log'
+          - '* * * * * postgres /usr/pgsql/bin/pgbench meta -nv -T10 -c2 2>>/pg/log/bench.log' # random load
 
     #----------------------------------#
     # pgsql cluster: pg-test (3 nodes) #
@@ -251,7 +204,7 @@ all:
     #================================================================#
     version: v1.6.0-b2                # pigsty version string
     meta_ip: 10.10.10.10              # primary meta node ip address
-    region: default                   # default|china|europe , upstream mirrors
+    region: default                   # upstream mirror region: default|china|europe
     os_version: 7                     # enterprise linux release version: 7,8,9
 
     #================================================================#
@@ -278,7 +231,7 @@ all:
     # CA & CERTS
     #-----------------------------------------------------------------
     ca_method: create                 # none|copy|create|recreate, create if not exists by default
-    ca_cn: pigsty-ca                  # ca common name, fixed as pigsty-ca
+    ca_cn: pigsty-ca                  # ca common name, pigsty-ca by default
     cert_validity: 7300d              # cert validity, 20 years by default
 
     #-----------------------------------------------------------------
@@ -314,6 +267,7 @@ all:
       - { name: Wiki       , url : 'http://wiki.pigsty'             , comment: 'Local Wiki Pedia'            }
       - { name: Explain    , url : '/pev.html'                      , comment: 'postgres explain visualizer' }
       - { name: Package    , url : '/pigsty'                        , comment: 'local yum repo packages'     }
+      - { name: Matrix Pkg , url : '/matrix'                        , comment: 'matrixdb repo packages'      }
       - { name: PG Logs    , url : '/logs'                          , comment: 'postgres raw csv logs'       }
       - { name: Schemas    , url : '/schema'                        , comment: 'schemaspy summary report'    }
       - { name: Reports    , url : '/report'                        , comment: 'pgbadger summary report'     }
@@ -327,7 +281,7 @@ all:
     repo_address: pigsty              # external address to this repo (ip:port or url)
     repo_rebuild: false               # force re-download packages
     repo_remove: true                 # remove existing upstream repo
-    repo_upstream:                    #  where to download #
+    repo_upstream:                    # where to download #
       - { name: base           ,description: 'EL 7 Base'         ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/os/$basearch/'                    , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/'       , europe: 'https://mirrors.xtom.de/centos/$releasever/os/$basearch/'           }}
       - { name: updates        ,description: 'EL 7 Updates'      ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/updates/$basearch/'               , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/updates/$basearch/'  , europe: 'https://mirrors.xtom.de/centos/$releasever/updates/$basearch/'      }}
       - { name: extras         ,description: 'EL 7 Extras'       ,category: nodes, releases: [7    ] ,baseurl: { default: 'http://mirror.centos.org/centos/$releasever/extras/$basearch/'                , china: 'https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/extras/$basearch/'   , europe: 'https://mirrors.xtom.de/centos/$releasever/extras/$basearch/'       }}
@@ -373,10 +327,10 @@ all:
       - https://github.com/Vonng/loki-rpm/releases/download/v2.6.1/promtail-2.6.1.x86_64.rpm
       - https://github.com/Vonng/pg_exporter/releases/download/v0.5.0/pg_exporter-0.5.0.x86_64.rpm
       - https://github.com/cybertec-postgresql/vip-manager/releases/download/v1.0.2/vip-manager-1.0.2-1.x86_64.rpm
-      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm
       - https://github.com/Vonng/pigsty-pkg/releases/download/misc/polysh-0.4-1.noarch.rpm
       - https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html
-      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm
+      - https://github.com/Vonng/pigsty-pkg/releases/download/misc/redis-6.2.7-1.el7.remi.x86_64.rpm    # redis.el7
+      - https://github.com/Vonng/haproxy-rpm/releases/download/v2.6.6/haproxy-2.6.6-1.el7.x86_64.rpm    # haproxy.el7
 
     #-----------------------------------------------------------------
     # NAMESERVER
@@ -434,13 +388,13 @@ all:
     dcs_name: pigsty                  # consul dc name
     dcs_servers:                      # dcs server dict in name:ip format
       meta-1: 10.10.10.10             # using existing external dcs cluster is recommended for HA
-      # meta-2: 10.10.10.11           # node with ip in dcs_servers will be initialized as dcs servers
-      # meta-3: 10.10.10.12           # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
+      #meta-2: 10.10.10.11            # node with ip in dcs_servers will be initialized as dcs servers
+      #meta-3: 10.10.10.12            # it's recommend to reuse meta nodes as dcs servers if no ad hoc cluster available
     dcs_registry: consul              # where to register services: none | consul | etcd | both
+    dcs_gid: 980                      # gid for consul/etcd users
+    dcs_ssl_enabled: false            # secure dcs communications with ssl?
     dcs_safeguard: false              # if true, running dcs will NOT be removed
     dcs_clean: true                   # if true, running dcs will be purged during node init, DANGEROUS
-    dcs_gid: 980                      # gid for consul/etcd users
-    dcs_ssl_enabled: false            # secure dcs communications
 
     #-----------------------------------------------------------------
     # CONSUL
@@ -622,8 +576,8 @@ all:
     pg_version: 14                    # default postgresql version to be installed
     pgdg_repo: false                  # add pgdg official repo before install (in case of no local repo available)
     pg_add_repo: false                # add postgres relate repo before install ?
-    pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, default is /usr/pgsql/bin, which use /usr/pgsql -> /usr/pgsql-{ver}
-    pg_log_dir: /pg/data/log          # postgres log dir, default is /pg/data/log
+    pg_bin_dir: /usr/pgsql/bin        # postgres binary dir, /usr/pgsql/bin by default, ln -S /usr/pgsql-{ver} /usr/pgsql
+    pg_log_dir: /pg/data/log          # postgres log dir, /pg/data/log by default
     pg_packages:                      # postgresql related packages. `${pg_version} will be replaced by `pg_version`
       - postgresql${pg_version}* citus111_${pg_version} timescaledb-2-postgresql-${pg_version} postgis33_${pg_version}* # 33 on el8+
       - pgbouncer pg_exporter pgbadger consul haproxy vip-manager patroni patroni-consul patroni-etcd # pg_activity
@@ -648,13 +602,13 @@ all:
     pg_dcs_type: consul                   # which dcs to use: consul or etcd or raft
     pg_namespace: /pg                     # top level key namespace in dcs
     patroni_port: 8008                    # default patroni port
-    patroni_log_dir: /pg/log              # patroni log dir, default is /pg/log
-    patroni_ssl_enabled: false            # secure patroni communications
+    patroni_log_dir: /pg/log              # patroni log dir, /pg/log by default
+    patroni_ssl_enabled: false            # secure patroni RestAPI communications with SSL?
     patroni_watchdog_mode: automatic      # watchdog mode: off|automatic|required
     patroni_username: postgres            # patroni rest api username
     patroni_password: Patroni.API         # patroni rest api password (IMPORTANT: CHANGE THIS)
     pg_conf: tiny.yml                     # pgsql template:  {oltp|olap|crit|tiny}.yml
-    pg_rto: 30                            # recovery time objective, ttl to failover,  30s by default
+    pg_rto: 30                            # recovery time objective, ttl to failover, 30s by default
     pg_rpo: 1048576                       # recovery point objective, 1MB data loss at most by default
     pg_libs: 'timescaledb, pg_stat_statements, auto_explain'  # extensions to be loaded
     pg_delay: 0                           # apply delay for standby cluster leader
@@ -667,7 +621,7 @@ all:
     pg_lc_ctype: en_US.UTF8               # database character type, en_US.UTF8 by default (for i18n full-text search)
     pgbouncer_enabled: true               # if not enabled, pgbouncer will not be created
     pgbouncer_port: 6432                  # pgbouncer port, 6432 by default
-    pgbouncer_log_dir: /var/log/pgbouncer # pgbouncer log dir, default is /var/log/pgbouncer
+    pgbouncer_log_dir: /var/log/pgbouncer # pgbouncer log dir, /var/log/pgbouncer by default
     pgbouncer_auth_query: false           # if enabled, query pg_authid table to retrieve biz users instead of populating userlist
     pgbouncer_poolmode: transaction       # pooling mode: session|transaction|statement, transaction pooling by default
     pgbouncer_max_db_conn: 100            # max connection to single database, DO NOT set this larger than postgres max conn or db connlimit
