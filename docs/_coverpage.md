@@ -14,4 +14,4 @@
 
 
 [Demo](http://demo.pigsty.cc)
-[Getting Started](#quick-start)
+[Getting Started](/README.md)

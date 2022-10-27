@@ -1,3 +1,0 @@
-- [Author](https://vonng.com/en/)
-- [Website](https://pigsty.cc/en/)
-- [Demo](http://demo.pigsty.cc)
