@@ -240,9 +240,26 @@
         - {src: index.html.j2,    dest: "{{ nginx_home }}/index.html" }
         - {src: local.repo.j2,    dest: "{{ nginx_home }}/{{ repo_name }}.repo"}
 
-    # setup selinux & firewalld for nginx
+    # launch nginx with systemctl and wait for port 80 online
+    - name: Launch repo nginx server
+      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
+
+    - name: Waits repo server online
+      wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
+
+
+#--------------------------------------------------------------#
+# 9. Open port for repo server
+#--------------------------------------------------------------#
+# launch nginx server for yum repo
+- name: Open firewall & SELinux for repo server
+  tags: repo_firewall
+  ignore_errors: true
+  block:
+
+    # temporary disable selinux for nginx
     - name: Disable selinux for repo server
-      selinux: state=disabled
+      shell: setenforce 0
 
     #- name: Allow nginx port traffic
     #  tags: repo_fire
@@ -261,13 +278,6 @@
     #    immediate: true
     #    state: enabled
     #  with_items: [ ssh , http , https ]
-
-    # launch nginx with systemctl and wait for port 80 online
-    - name: Launch repo nginx server
-      systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
-
-    - name: Waits repo server online
-      wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
 ...
 
 

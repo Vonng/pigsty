@@ -17,5 +17,9 @@
     # - disable selinux - #
     - name: Node disable selinux by default
       when: node_disable_selinux|bool
-      selinux: state=disabled
+      shell: |
+        setenforce 0;
+        sed -ie "s/^SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config
+        rm -rf /etc/selinux/config; /bin/true
+
 ...
