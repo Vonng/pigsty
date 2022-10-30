@@ -9,7 +9,7 @@
 > Documentation: [Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/) | [Wiki](https://github.com/Vonng/pigsty/wiki)
 
 
-![pigsty](https://user-images.githubusercontent.com/8587410/198840611-744709cb-cf25-4dff-a91d-c593347076a8.jpg)
+[![pigsty](https://user-images.githubusercontent.com/8587410/198840611-744709cb-cf25-4dff-a91d-c593347076a8.jpg)](https://pigsty.cc/en/)
 
 
 
