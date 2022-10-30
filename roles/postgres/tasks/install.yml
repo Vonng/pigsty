@@ -10,9 +10,11 @@
     # - dbsu user and group - #
     - name: Create os group postgres
       group: name=postgres gid={{ pg_dbsu_uid }}
-
     - name: Create dbsu {{ pg_dbsu }}
       user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=postgres generate_ssh_key=yes
+    - name: Add dbsu to dcs group
+      ignore_errors: yes
+      user: name={{ pg_dbsu }} append=yes groups=dcs
 
     # - dbsu privilege - #
     # nopass : no password required to execute all sudo command! DANGEROUS!
@@ -124,6 +126,5 @@
       shell:
         rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service
         systemctl daemon-reload
-
 
 ...
