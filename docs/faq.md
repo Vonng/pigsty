@@ -136,7 +136,7 @@ Pigsty offline packages are made based on CentOS 7.9. Otherwise, there may be RP
 
 If it is only an isolated RPM dependency issue, you can remove the RPM package in `/www/pigsty` and delete the marker file `/www/pigsty/repo_complete`. 
 
-And then, when performing the normal installation process, Pigsty will download the missing dependent RPM packages from the upstream or other locally available source specified by [`repo_upsteram`](v-infra.md#repo_upstream). If there is no available Internet access or local source, please use the same OS environment with a networked node to [make an offline package,](t-offline.md#make-offline-pkg) and then copy it to the production environment for use.
+And then, when performing the normal installation process, Pigsty will download the missing dependent RPM packages from the upstream or other locally available source specified by [`repo_upsteram`](parameter.md#repo_upstream). If there is no available Internet access or local source, please use the same OS environment with a networked node to [make an offline package,](t-offline.md#make-offline-pkg) and then copy it to the production environment for use.
 
 
 
@@ -184,7 +184,7 @@ This IP will be used to replace `10.10.10.10` in the config file template.
 
 Pigsty provides 220+ config parameters to customize the entire infra/platform/database.  However, there are a few parameters that can be adjusted in advance if needed:
 
-* When accessing web service components, the domain name is [`nginx_upstream`](v-infra.md#nginx_upstream) (some services can only be accessed using the domain name through the Nginx proxy).
+* When accessing web service components, the domain name is [`nginx_upstream`](parameter.md#nginx_upstream) (some services can only be accessed using the domain name through the Nginx proxy).
 * Pigsty assumes that a `/data` dir exists to hold all data; you can adjust these paths if the data disk mount point differs from this.
 
 
@@ -203,21 +203,21 @@ The `configure` generates the config file by default and marks the current node 
 
 ### Downloading RPM packages is too slow
 
-!> It is best to use [offline packages](t-offline.md) or configure a [proxy server](v-infra.md#CONNECT) or a local repo.
+!> It is best to use [offline packages](t-offline.md) or configure a [proxy server](parameter.md#CONNECT) or a local repo.
 
 Pigsty has used domestic yum repos for downloads whenever possible. However, a few packages are still affected by **GFW**, resulting in slow downloads, such as related software downloaded directly from Github. The following solutions are available.
 
 1. Pigsty provides an [offline package](t-offline.md), which pre-packages all software and its dependencies, and can skip the step of downloading software from the Internet.
 
-2. Specify a proxy server via [`proxy_env`](v-infra.md#proxy_env) to download via proxy server.
+2. Specify a proxy server via [`proxy_env`](parameter.md#proxy_env) to download via proxy server.
 
-3. Use other domestic available repos via [`repo_upsteram`](v-infra.md#repo_upstream).
+3. Use other domestic available repos via [`repo_upsteram`](parameter.md#repo_upstream).
 
 
 
 ### Remote nodes are not accessible via SSH commands
 
-!> Specify a different port via the host instance-level [`ansible connection parameters`](v-infra.md#ansible_host).
+!> Specify a different port via the host instance-level [`ansible connection parameters`](parameter.md#ansible_host).
 
 Consider using **Ansible connection parameters** if the target machine is hidden behind an SSH springboard machine or if some customizations have been made that cannot be accessed directly using `ssh ip`. Additional SSH ports can be specified with `ansible_port` or `ansible_host` for SSH Alias.
 
@@ -238,7 +238,7 @@ pg-test:
 
 !> Use the `-k` and `-K` parameters, enter the password at the prompt, and refer to [admin provisioning](d-prepare.md#admin-provisioning).
 
-**When performing deployments and changes**, the admin user used **must** have `ssh` and `sudo` privileges for all nodes. Password-free is not required. You can pass in ssh and sudo passwords via the `-k|-K` parameter when executing the playbook or even use another user to run the playbook via `-e`[`ansible_host`](v-infra.md#connect)`=<another_user>`. However, Pigsty strongly recommends configuring SSH **passwordless login** with passwordless `sudo` for the admin user.
+**When performing deployments and changes**, the admin user used **must** have `ssh` and `sudo` privileges for all nodes. Password-free is not required. You can pass in ssh and sudo passwords via the `-k|-K` parameter when executing the playbook or even use another user to run the playbook via `-e`[`ansible_host`](parameter.md#connect)`=<another_user>`. However, Pigsty strongly recommends configuring SSH **passwordless login** with passwordless `sudo` for the admin user.
 
 
 
@@ -359,7 +359,7 @@ Ansible/Pigsty CLI for launch management and deployment; PostgreSQL on meta node
 
 !> Pigsty will provide DCS services on a meta node by default, but it is more recommended to use an external cluster of multiple nodes for HA DCS services.
 
-Fill in the [`dcs_servers`](v-infra.md#dcs_servers) with the corresponding cluster, i.e., the external DCS cluster.
+Fill in the [`dcs_servers`](parameter.md#dcs_servers) with the corresponding cluster, i.e., the external DCS cluster.
 
 There is no correspondence between DCS Server and the meta node: by default, Pigsty installs a single-node Consul Server on the meta node. If the IP of the current node is defined in `dcs_servers` when performing node initialization, the node is configured with DCS Server services. DCS is used for HA, the primary selection of another database. It is recommended to use a dedicated external DCS cluster of 3 to 5 nodes in a production environment.
 
@@ -378,14 +378,14 @@ There is no correspondence between DCS Server and the meta node: by default, Pig
 
 !> Pigsty provides a DCS misdeletion protection mechanism, configuring `dcs_clean = true`.
 
-When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-infra.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
+When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](parameter.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
 
-Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-infra.md#dcs_safeguard).
+Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](parameter.md#dcs_safeguard).
 
 These parameters can be modified in the config file `pigsty.yml` or specified at playbook execution time with the extra parameter mechanism.
 
 ```bash
-./nodes.yml -e dcs_clean=clean
+./nodes.yml -e dcs_clean=true
 ```
 
 
@@ -401,14 +401,14 @@ These parameters can be modified in the config file `pigsty.yml` or specified at
 
 !> Pigsty provides a DCS misdeletion protection mechanism, configuring `dcs_clean = true`.
 
-When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](v-infra.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
+When the Consul service of the target node already exists, [`nodes.yml`](p-nodes.md#nodes) will act on the [`dcs_clean`](parameter.md#dcs_clean) parameter, and if true, the existing Consul will be erased during initialization.
 
-Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](v-infra.md#dcs_safeguard).
+Pigsty also provides the corresponding [SafeGuard](p-nodes.md#SafeGuard) parameter: [`dcs_safeguard`](parameter.md#dcs_safeguard).
 
 These parameters can be modified in the config file `pigsty.yml` or can be specified at playbook execution time with the extra parameter mechanism.
 
 ```bash
-./pgsql.yml -e pg_clean=clean
+./pgsql.yml -e pg_clean=true
 ```
 
 

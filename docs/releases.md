@@ -65,6 +65,7 @@ v1.6.0 Compatibility & Security & Maintainability Enhancement
 * Terraform Templates for AWS EC2
 * Use chrony instead of ntpd as NTP services
 * New signed apache echarts 5.0 plugin for Grafana panels
+* Alloc 26~27% mem as HugePages for PostgreSQL shared_buffers by default
 
 **Software Upgrade**
 
@@ -77,7 +78,7 @@ v1.6.0 Compatibility & Security & Maintainability Enhancement
 * TimescaleDB 2.8
 * Prometheus 2.39
 * Loki & Promtail 2.6.1
-* Grafana 9.2.1
+* Grafana 9.2.2
 * Node Exporter 1.4
 * Consul v13.2
 * ETCD 3.5.4

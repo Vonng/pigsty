@@ -1,143 +1,209 @@
-## Pigsty v1.6.0-b2
+# Pigsty v1.6.0-b2
 
-**Open Source alternative for PostgreSQL RDS !**
+**Battery-Included PostgreSQL, open-source RDS of your own.**
 
-> Latest Version: [v1.6.0-b2](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b2)  |  [Github Repo](https://github.com/Vonng/pigsty) | [Demo](http://demo.pigsty.cc)
+![](_media/icon.svg)
+
+> Latest Beta: [v1.6.0-b2](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b2) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
-> This is [briefing](https://vonng.github.io/pigsty/#/) version. Check [EN Site](https://pigsty.cc/en/) / [中文站点](https://pigsty.cc/zh/) for details. 
+> Documentation: [Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/)
+>
+> Run `make doc` to serve a brief version of [Docs]() on your localhost
 
+
+![pigsty](https://user-images.githubusercontent.com/8587410/198840611-744709cb-cf25-4dff-a91d-c593347076a8.jpg)
+
+
+--------
 
 ## What is Pigsty?
 
-[![](_media/WHAT_EN.svg)](feature.md)
 
-**Pigsty** is battery-included open-source database [distribution](feature.md#postgresql-distribution), with the latest [PostgreSQL](https://www.postgresql.org/) kernel, [TimescaleDB](https://www.timescale.com), [PostGIS](https://postgis.net/), [Citus](https://www.citusdata.com/) & 100+ extensions, along with an entire [Infra](c-infra.md): Grafana, Prometheus, Loki, Ansible, [Docker](t-docker.md) to support your databases & [applications](feature.md#Versatile-Scenario). It also includes common tools for [data analysis](feature.md#data-analysis).
+* [**Open Source RDS**](feature.md#open-source-rds): Open-Source alternative to public cloud RDS.
+  <details><summary>Full-Featured Open-Source Alternative to RDS PostgreSQL</summary>
 
-Pigsty is a [monitoring](feature.md#ultimate-observability) & management [SRE Solution](feature.md#SRE-Solution). Which includes an unparalleled [monitoring](feature.md#Open-Source-RDS) system with ultimate observability, and [high-available](c-pgsql.md#High-Availability) PostgreSQL with self-healing architecture. You can deploy various clusters & instances: [primary, replica](d-pgsql.md#m-s-replication), [standby](d-pgsql.md#Sync-Standby), [offline](d-pgsql.md#Offline-Replica), [delayed](d-pgsql.md#Delayed-Cluster), [cascade](d-pgsql.md#Cascade-Instance), and even [Citus](d-pgsql.md#Citus-Deployment), [Redis](d-redis.md), and [Greenplum](d-matrixdb.md) clusters.
+  ![RDS](https://user-images.githubusercontent.com/8587410/198838843-3b9c4c42-849b-48d3-9a13-25da10c33a86.gif)
 
-Pigsty is a handy [toolbox](feature.md#developer-toolbox) for developers. It treats [**Database as Code**](feature.md#database-as-code), Infra as Data. You just [describe](v-config.md) what database you want, and pigsty will create it for you. You can download, install, deploy, scale, backup, migration with [one command](s-install.md).  It can be deployed [everywhere](feature.md#Ubiquitous-Deployment): a 10k+ core prod env or local 1C/2G VM, [cloud](d-sandbox.md#cloud-sandbox), or [on-premises](d-sandbox.md#local-sandbox).
+  > If you can have a better RDS service with the price of EC2, Why use RDS at all?
+  </details>
+* [**Postgres Distribution**](feature.md#PostgreSQL-Distribution): PostgreSQL, PostGIS, TimescaleDB, Citus, Redis/GP, United in One!
+  <details><summary>PostgreSQL Kernel, Extensions, Peripherals, and Companion</summary>
 
-Pigsty is a [secure](feature.md#Safty-and-Thrifty) & [thrifty](feature.md#Safty-and-Thrifty) alternative to [Cloud RDS](feature.md#Open-Source-RDS)/PaaS. It can empower a single DEV/DBA to manage hundreds of databases clusters, with all data under your own control. It can [save](feature.md#Safty-and-Thrifty) 50% - 80% cost compared to cloud RDS using ECS or on-premise deployment. And the software itself is completely [open-source](https://github.com/Vonng/Capslock/blob/master/LICENSE) & free!
+  ![DISTRO](https://user-images.githubusercontent.com/8587410/198838835-f9df4737-f109-4e5b-b5a0-f54aa1b33c5a.gif)
 
-Check [FEATURES](feature.md) for more detail.
+  > PostGIS, TimescaleDB, Citus, and hundreds of extensions!
+  </details>
 
+* [**Infra Best Practice**](feature.md#SRE-Solution): Grafana, Prometheus, Loki, AlertManager, Docker, Battery-Included!
+  <details><summary>Open Source Infrastructure Best Practice, Ship runtime with databases!</summary>
 
-<details><summary>Distribution</summary>
+  ![ARCH](https://user-images.githubusercontent.com/8587410/198838831-d0f263cb-da99-46db-a33e-01e7a9c6e061.gif)
 
-[![Distribution](_media/DISTRIBUTION.gif)](docs/c-infra.md#Overview)
+  > If you can have a better RDS service with the price of EC2, Why use RDS at all?
+  </details>
 
-</details>
+* [**Developer Toolbox**](feature.md#Database-as-Code): Manage production-ready HA database clusters in one command!
+  <details><summary>GUI & CLI, Handling 70% of database administration work in minutes!</summary>
 
-<details><summary>Observability</summary>
+  ![INTERFACE](https://user-images.githubusercontent.com/8587410/198838840-898dbe75-8af7-4b87-9d18-02abc33f36eb.gif)
 
-[![Observability](_media/overview-monitor.jpg)](http://demo.pigsty.cc)
+  > Define clusters in a declarative manner and materialize them with idempotent playbooks
+  </details>
 
-</details>
-
-<details><summary>High Availability</summary>
-
-[![High Availability](_media/HA-PGSQL.svg)](docs/c-pgsql.md#High-Availability)
-
-</details>
-
-<details><summary>Architecture</summary>
-
-[![Architecture](_media/ARCH.gif)](docs/c-arch.md)
-
-</details>
-
-<details><summary>Sandbox</summary>
-
-[![Sandbox](_media/SANDBOX.gif)](docs/d-sandbox.md)
-
-</details>
-
-<details><summary>Provisioning</summary>
-
-[![Provisioning](_media/PROVISION.gif)](docs/d-deploy.md)
-
-</details>
-
-<details><summary>User Interface</summary>
-
-[![User Interface](_media/interface.jpg)](docs/s-install.md)
-
-</details>
-
-<details><summary>Application</summary>
-
-[![Application](_media/overview-covid.jpg)](docs/t-application.md)
-
-</details>
+Check [**Architecture**](arch.md) & [**Demo**](http://demo.pigsty.cc) for details.
 
 
-## Quick Start
 
-Prepare a fresh node with Linux x86_64 EL compatible OS, then run as a **sudo-able** user:
+
+--------
+
+## Why Pigsty?
+
+
+* [**High-Availability**](feature.md#High-Availability): Auto-Pilot Postgres with idempotent instances & services, self-healing from failures!
+  <details><summary>High-Availability PostgreSQL Powered by Patroni & HAProxy</summary>
+
+  ![HA](https://user-images.githubusercontent.com/8587410/198838836-433331a4-0df1-4588-944c-625c34430f2f.svg)
+
+  > Self-healing on hardware failures: Failover impact on primary < 30s, Switchover impact < 1s
+  </details>
+
+* [**Ultimate Observability**](feature.md#Ultimate-Observability): Unparalleled monitoring system based on modern open-source best-practice!!
+  <details><summary>Observability powered by Grafana, Prometheus & Loki</summary>
+
+  ![DASHBOARD](https://user-images.githubusercontent.com/8587410/198838834-1bd30b7e-47c9-4e35-90cb-5a75a2e6f6c6.jpg)
+
+  > 3K+ metrics on 30+ dashboards, Check [http://demo.pigsty.cc](http://demo.pigsty.cc) for a live demo!
+
+  </details>
+
+* [**Database as Code**](feature.md#Developer-Toolbox): Declarative config with idempotent playbooks. WYSIWYG and GitOps made easy!
+  <details><summary>Define & Create a HA PostgreSQL Cluster in 10 lines of Code</summary>
+
+  ![IAC](https://user-images.githubusercontent.com/8587410/198838838-91c3d193-f600-422c-b504-b9bbec076802.gif)
+
+  > Create a 3-node HA PostgreSQL with 10 lines of config and one command!
+
+  </details>
+
+* [**IaaS Provisioning**](feature.md#Ubiquitous-Deployment): Bare metal or VM, Cloud or On-Perm, One-Click provisioning with Vagrant/Terraform
+
+  <details><summary>Pigsty 4-nodes sandbox on Local Vagrant VM or AWS EC2</summary>
+
+  ![SANDBOX](https://user-images.githubusercontent.com/8587410/198838845-09aee295-31d2-495b-b206-40ffc5f25133.gif)
+
+  > Full-featured 4 nodes demo sandbox can be created using pre-configured vagrant & terraform templates.
+
+  </details>
+
+* [**Versatile Scenario**](feature.md#Versatile-Scenario):  Monitor existing RDS, Run docker template apps, Toolset for data apps & vis/analysis.
+  <details><summary>Docker Applications, Data Toolkits, Visualization Data Apps</summary>
+
+  ![APP](https://user-images.githubusercontent.com/8587410/198838829-f0ea4af2-d33f-4978-a31a-ed81897aa8d1.gif)
+
+  > If your software requires a PostgreSQL, Pigsty may be the easiest way to get one.
+  </details>
+
+
+* [**Production Ready**](feature.md#Production-Ready): Ready for large-scale production environment and proven in real-world scenarios.
+
+  <details><summary>Overview Dashboards for a Huge Production Deployment</summary>
+
+  ![OVERVIEW](https://user-images.githubusercontent.com/8587410/198838841-b0796703-03c3-483b-bf52-dbef9ea10913.gif)
+
+  > A real-world Pigsty production deployment with 240 nodes, 13kC / 100T, 500K TPS , 3+ years.
+
+    </details>
+
+* [**Cost Saving**](feature.md#Safty-and-Thrifty): Save 50% - 95% compare to Public Cloud RDS. Create as many clusters as you want for free!
+
+  <details><summary>Price Reference for EC2 / RDS Unit  ($ per  core · per month)</summary>
+
+  | Resource       | **Node Price** |
+  |----------------| ---------------|
+  | AWS EC2 C5D.METAL 96C 200G                             | 11 ~ 14        |
+  | Aliyun ECS 2xMem Series Exclusive                      | 28 ~ 38        |
+  | IDC Self-Hosting: Dell R730 64C 384G x PCI-E SSD 3.2TB | 2.6            |
+  | IDC Self-Hosting: Dell R730 40C 64G (China Mobile)     | 3.6            |
+  | UCloud VPC 8C / 16G Exclusive                          | 3.3            |
+  | **⬆️ EC2  /  RDS⬇️**                                   |  **RDS Price** |
+  | Aliyun RDS PG 2x Mem                                   | 36 ~ 56        |
+  | AWS RDS PostgreSQL db.T2 (4x) / EBS                    | 60             |
+  | AWS RDS PostgreSQL db.M5 (4x) / EBS                    | 84             |
+  | AWS RDS PostgreSQL db.R6G (8x) / EBS                   | 108            |
+  | AWS RDS PostgreSQL db.M5 24xlarge (96C 384G)           | 182            |
+  | Oracle Licenses                                        | 1300           |
+
+  > AWS Price [Calculator](https://calculator.amazonaws.cn/#/): You can run RDS service with a dramatic cost reduction with EC2 or IDC.
+
+  </details>
+
+Check [**FEATURES**](feature.md) for detail.
+
+
+
+--------
+
+## Getting Started
+
+Get a fresh Linux x86_64 EL7/8/9 node with nopass `sudo` & `ssh` access:
 
 ```bash
 bash -c "$(curl -fsSL http://download.pigsty.cc/get)" && cd ~/pigsty   
 ./bootstrap  && ./configure && ./install.yml # install latest pigsty
 ```
 
-Then you will have a pigsty singleton meta node ready, with Web Services on port `80` and postgres on port `5432`.
+> Build & Test on centos7.9, rocky8.6, rocky9.0. Compatible with RHEL, Oracle, Alma, etc...
 
-Check [Installation](install.md) & [Public Demo](http://demo.pigsty.cc) for details.
+Now you have a battery-included Postgres on port **5432** and infra web services available on port **80**.
 
-<details><summary>Mange More Nodes</summary>
+Check [Installation](install.md) & [Configure](provision.md) for detail.
 
-You can add more nodes to Pigsty with [`nodes.yml`](p-nodes.md#nodes) after installing the meta node with [`infra.yml`](p-infra.md#infra).
 
-```bash
-./nodes.yml  -l pg-test      # init 3 nodes of cluster pg-test
-```
 
-</details>
 
-<details><summary>Define Postgres Cluster</summary>
+--------
 
-You can define a HA Postgres Cluster with streaming replication in a few lines of code:
+## More Clusters
+
+After installation, the node can be used as a control center & infra provider to manage, deploy & monitor more nodes & database clusters. To deploy a HA Postgres Cluster with streaming replication, [define](https://github.com/Vonng/pigsty/blob/master/pigsty.yml#L157) a new cluster on `all.children.pg-test` of [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/master/pigsty.yml):
 
 ```yaml
 pg-test:
   hosts:
-    10.10.10.11: {pg_seq: 1, pg_role: primary} 
+    10.10.10.11: {pg_seq: 1, pg_role: primary}
     10.10.10.12: {pg_seq: 2, pg_role: replica}
     10.10.10.13: {pg_seq: 3, pg_role: replica}
-  vars: 
-    pg_cluster: pg-test
+  vars:  { pg_cluster: pg-test }
 ```
 
-You can create Postgres with different [roles](d-pgsql.md) by declaring them: primary, replica, standby, delayed, offline, cascade, etc...
-
-</details>
-
-
-<details><summary>Deploy Databases Clusters</summary>
-
-You can deploy different types of databases & clusters with corresponding playbooks.
-
-* [`pgsql.yml`](p-pgsql.md#pgsql): Deploy HA PostgreSQL clusters.
-* [`redis.yml`](p-redis.md#redis): Deploy Redis clusters.
-* [`pigsty-matrixdb.yml`](p-pgsql.md#pgsql-matrix): Deploy matrixdb data warehouse (greenplum7).
+Then create it with built-in playbooks:
 
 ```bash
-./pgsql.yml         -l pg-test      # init 1-primary & 2-replica pgsql cluster
-./redis.yml         -l redis-test   # init redis cluster redis-test
-./pigsty-matrixdb.yml -l mx-*         # init MatrixDB cluster mx-mdw,mx-sdw .....
+./nodes.yml -l pg-test   # init nodes of pg-test 
+./pgsql.yml -l pg-test   # init pg cluster pg-test
 ```
 
-</details>
+You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters such as standby clusters, Citus clusters, and even Redis clusters & YMatrix clusters. Check [playbook](playbook.md) & [admin](admin.md) for details.
 
 
 
+--------
 
 ## About
 
 > Pigsty (/ˈpɪɡˌstaɪ/) is the abbreviation of "PostgreSQL In Graphic STYle."
 
+Official Site: https://pigsty.cc/en/  https://pigsty.cc/zh/
+
+WeChat Group: Search `pigsty-cc` to join the WeChat group.
+
+Telegram: https://t.me/joinchat/gV9zfZraNPM3YjFh
+
+Discord: https://discord.gg/wDzt5VyWEz
+
 Author: [Vonng](https://vonng.com/en) ([rh@vonng.com](mailto:rh@vonng.com))
 
-License: [Apache 2.0 License](https://github.com/Vonng/Capslock/blob/master/LICENSE)
+License: [Apache 2.0 License](LICENSE)
 
-Beian: [浙ICP备15016890-2号](https://beian.miit.gov.cn/)
+Copyright 2018-2022 rh@vonng.com

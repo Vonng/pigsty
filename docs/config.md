@@ -66,7 +66,7 @@ For examples:
 
 ## Category
 
-Pigsty contains 200+ parameters divided into four major categories: [INFRA](v-infra.md), [NODES](v-nodes.md), [PGSQL](v-pgsql.md), and [REDIS](v-redis.md).
+Pigsty contains 200+ parameters divided into four major categories: [INFRA](v-infra.md), [NODES](parameter.md#nodes), [PGSQL](v-pgsql.md), and [REDIS](parameter.md#redis).
 
 | Category                      | Section                                                   | Description                        | Count |
 |-------------------------------|-----------------------------------------------------------|------------------------------------|:-----:|

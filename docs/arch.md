@@ -16,9 +16,9 @@ Pigsty currently offers four modules.
 | [Module](c-arch.md#module) |   [Conecpt](c-concept.md)    |     [Deploy](d-deploy.md)     |    [Config](v-config.md)    |   [Playbook](p-playbook.md)   |
 | :------------------------: | :--------------------------: | :---------------------------: | :-------------------------: | :---------------------------: |
 |          `INFRA`           | [Concept: INFRA](c-infra.md) | [Deploy: INFRA](d-deploy.md)  | [Config: INFRA](v-infra.md) | [Playbook: INFRA](p-infra.md) |
-|          `NODES`           | [Concept: NODES](c-nodes.md) | [Deploy: NODES](d-prepare.md) | [Config: NODES](v-nodes.md) | [Playbook: NODES](p-nodes.md) |
+|          `NODES`           | [Concept: NODES](c-nodes.md) | [Deploy: NODES](d-prepare.md) | [Config: NODES](parameter.md#nodes) | [Playbook: NODES](p-nodes.md) |
 |          `PGSQL`           | [Concept: PGSQL](c-pgsql.md) |  [Deploy: PGSQL](d-pgsql.md)  | [Config: PGSQL](v-pgsql.md) | [Playbook: PGSQL](p-pgsql.md) |
-|          `REDIS`           | [Concept: REDIS](c-redis.md) |  [Deploy: REDIS](d-redis.md)  | [Config: REDIS](v-redis.md) | [Playbook: REDIS](p-redis.md) |
+|          `REDIS`           | [Concept: REDIS](c-redis.md) |  [Deploy: REDIS](d-redis.md)  | [Config: REDIS](parameter.md#redis) | [Playbook: REDIS](p-redis.md) |
 
 
 
