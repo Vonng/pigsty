@@ -2,9 +2,9 @@
 
 **Battery-Included PostgreSQL, open-source RDS of your own.**
 
-![](docs/_media/icon.svg)
+![icon](https://user-images.githubusercontent.com/8587410/198861991-cd169e71-9d62-42ca-a3e0-db945d5751d9.svg)
 
-> Latest Version: [v1.6.0-b3](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b3) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
+> Latest Beta: [v1.6.0-b3](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b3) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/) | [Wiki](https://github.com/Vonng/pigsty/wiki)
 
@@ -49,7 +49,7 @@
   > Define clusters in a declarative manner and materialize them with idempotent playbooks
   </details>
 
-Check [**Architecture**](#) & [**Demo**](http://demo.pigsty.cc) for details.
+Check [**Architecture**](https://github.com/Vonng/pigsty/wiki/Architecture) & [**Demo**](http://demo.pigsty.cc) for details.
 
 
 
@@ -183,7 +183,7 @@ Then create it with built-in playbooks:
 ./pgsql.yml -l pg-test   # init pg cluster pg-test
 ```
 
-You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters such as standby clusters, Citus clusters, and even Redis clusters & YMatrix clusters. Check [playbook](playbook.md) & [admin](admin.md) for details.
+You can deploy different kinds of instance roles such as primary, replica, offline, delayed, sync standby, and different kinds of clusters such as standby clusters, Citus clusters, and even Redis clusters & YMatrix clusters. Check [playbook](https://github.com/Vonng/pigsty/wiki/Playbook) & [admin](https://github.com/Vonng/pigsty/wiki/Administration) for details.
 
 
 

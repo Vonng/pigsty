@@ -405,9 +405,6 @@ release-pkg: cache
 
 # create pkg.tgz on initialized meta node
 cache:
-	tar -cf files/docs.tgz docs
-	scp files/docs.tgz meta:/tmp/docs.tgz
-	ssh meta 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
 	scp bin/cache meta:/tmp/cache
 	ssh meta "sudo bash /tmp/cache"
 
@@ -448,10 +445,6 @@ build-boot:
 	ssh node-2 "cd pigsty; ./bootstrap -n ; ./configure -m el9  -i 10.10.10.12 -n";
 
 build-release:
-	tar -cf files/docs.tgz docs
-	scp files/docs.tgz   meta:/tmp/docs.tgz ; ssh   meta 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	scp files/docs.tgz node-1:/tmp/docs.tgz ; ssh node-1 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
-	scp files/docs.tgz node-2:/tmp/docs.tgz ; ssh node-2 'sudo mv /tmp/docs.tgz /www/pigsty/docs.tgz'
 	scp bin/cache   meta:/tmp/cache ; ssh   meta "sudo bash /tmp/cache"; scp   meta:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el7.x86_64.tgz
 	scp bin/cache node-1:/tmp/cache ; ssh node-1 "sudo bash /tmp/cache"; scp node-1:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el8.x86_64.tgz
 	scp bin/cache node-2:/tmp/cache ; ssh node-2 "sudo bash /tmp/cache"; scp node-2:/tmp/pkg.tgz dist/${VERSION}/pigsty-pkg-${VERSION}.el9.x86_64.tgz
@@ -466,15 +459,6 @@ build-release:
 # generate playbook svg graph
 svg:
 	bin/svg
-
-# serve pigsty doc with docsify or python http server
-d: doc
-doc:
-	bin/doc
-
-# make docs tarball
-docs:
-	tar -cf files/docs.tgz docs
 
 ###############################################################
 
@@ -495,5 +479,5 @@ docs:
         copy copy-src copy-pkg copy-matrix copy-app copy-docker load-docker copy-all use-src use-pkg use-matrix use-all cmdb\
         r releast rp release-pkg cache release-matrix release-docker p publish \
         build-new build-vagrant build build-src build-repo build-boot build-release \
-        svg doc d docs
+        svg
 ###############################################################
