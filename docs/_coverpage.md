@@ -1,6 +1,6 @@
 ![logo](_media/icon.svg)
 
-# Pigsty <small>v1.6.0-b2</small>
+# Pigsty <small>v1.6.0-b3</small>
 
 > <b>Open Source RDS</b>
 

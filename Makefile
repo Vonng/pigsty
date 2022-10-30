@@ -8,7 +8,7 @@
 #==============================================================#
 
 # pigsty version
-VERSION?=v1.6.0-b2
+VERSION?=v1.6.0-b3
 EL_VER=7
 
 # local name

@@ -1,10 +1,10 @@
-# Pigsty v1.6.0-b2
+# Pigsty v1.6.0-b3
 
 **Battery-Included PostgreSQL, open-source RDS of your own.**
 
 ![](_media/icon.svg)
 
-> Latest Beta: [v1.6.0-b2](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b2) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
+> Latest Beta: [v1.6.0-b3](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b3) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/)
 >

@@ -312,7 +312,7 @@ This section contains metadata of current pigsty deployments, such as pigsty ver
 
 ### `version`
 
-Pigsty version string. type: `string`, level: G, default value: "v1.6.0-b2"
+Pigsty version string. type: `string`, level: G, default value: "v1.6.0-b3"
 
 It will be used for pigsty introspection & content rendering.
 
