@@ -66,16 +66,16 @@ function on_role_change_handler() {
 	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}][role_change@${cluster}] new_role=${role} detect_role=${detect_role} \033[0m\n" >>$LOGPATH/callback.log
 
     # perform a checkpoint after failover
-    printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] CHECKPOINT \033[0m\n" >>$LOGPATH/callback.log
+  printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] CHECKPOINT \033[0m\n" >>$LOGPATH/callback.log
 	psql -Atqwc 'CHECKPOINT;CHECKPOINT;'
 
     # register new role to consul /pg/bin/pg-register $(/pg/bin/pg-role)
 	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Register role=${role} \033[0m\n" >>$LOGPATH/callback.log
-	/pg/bin/pg-register ${role} >> $LOGPATH/callback.log
+	#/pg/bin/pg-register ${role} >> $LOGPATH/callback.log
 
     # reload to take effect
 	printf "\033[0;32m[$(date "+%Y-%m-%d %H:%M:%S")][${HOSTNAME}] Reload consul \033[0m\n" >>$LOGPATH/callback.log
-    consul reload
+  consul reload
 }
 
 function on_stop_handler() {
