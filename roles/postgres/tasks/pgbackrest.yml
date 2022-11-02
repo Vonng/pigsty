@@ -1,0 +1,146 @@
+---
+#------------------------------------------------------------------------------
+# Check pgbackrest installed
+#------------------------------------------------------------------------------
+- name: Check pgbackrest is installed
+  tags: pgbackrest_check
+  shell: "[[ -f /bin/pgbackrest ]]"
+
+
+#------------------------------------------------------------------------------
+# Cleanup existing pgbackrest
+#------------------------------------------------------------------------------
+- name: Clean existing pgbackrest
+  tags: pgbackrest_clean
+  when: pgbackrest_clean|bool
+  block:
+    - name: Stop existing pgbackrest service
+      ignore_errors: true
+      systemd: name=pgbackrest state=stopped enabled=no daemon_reload=yes
+
+    - name: Remove existing pgbackrest dirs
+      file: path={{ item }} state=absent
+      with_items:
+        - "{{ pg_fs_bkup }}/pgbackrest"
+        - "{{ pgbackrest_spool_dir }}"
+        - "{{ pgbackrest_log_dir }}"
+
+
+#------------------------------------------------------------------------------
+# Install pgbackrest
+#------------------------------------------------------------------------------
+- name: Install pgbackrest via yum
+  tags: pgbackrest_install
+  package: name={{ item }} state=present
+  with_items:
+    - pgbackrest
+    - nagios-plugins-pgbackrest
+
+- name: Copy check_pgbackrest to /pg/bin
+  tags: pgbackrest_install
+  copy: src=/usr/lib64/nagios/plugins/check_pgbackrest dest=/pg/bin/check_pgbackrest owner={{ pg_dbsu }} group=postgres mode=0755
+
+
+#------------------------------------------------------------------------------
+# Config pgbackrest
+#------------------------------------------------------------------------------
+- name: Config pgbackrest
+  tags: pgbackrest_config
+  block:
+    - name: Make sure pgbackrest dir exists
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+      with_items:
+        - "{{ pg_fs_bkup }}/pgbackrest"
+        - "{{ pgbackrest_spool_dir }}"
+        - "{{ pgbackrest_log_dir }}"
+
+    - name: Render pgbackrest base config (Phase I)
+      delegate_to: "{{ meta_ip }}"
+      block:
+        - name: Render pgbackrest config for meta nodes
+          when: meta_node|bool and pg_role == 'primary'
+          template: src=pgbackrest.conf.j2 dest=/tmp/pgbackrest_meta.conf
+
+        - name: Render pgbackrest config for pgsql nodes
+          when: not meta_node|bool and pg_role == 'primary'
+          template: src=pgbackrest.conf.j2 dest=/tmp/pgbackrest_psql.conf
+
+    - name: Applying custom props (Phase II)
+      delegate_to: "{{ meta_ip }}"
+      block:
+        - name: Applying meta properties on pgsql config
+          when: meta_node|bool and pg_role == 'primary'
+          replace:
+            path: /tmp/pgbackrest_psql.conf
+            regexp: '\$META_NAME'
+            replace: '{{ pg_instance }}'
+
+        - name: Applying pgsql properties on meta config
+          when: not meta_node|bool and pg_role == 'primary'
+          blockinfile:
+            path: /tmp/pgbackrest_meta.conf
+            insertafter: EOF
+            block: |
+              {% for m in pg_cluster_members %}
+              {% if not loop.first %}{% endif %}
+              tls-server-auth={{ pg_cluster }}-{{ loop.index }}={{ pgbackrest_stanza }}
+              {% endfor %}
+
+              [{{ pgbackrest_stanza }}]
+              {% for m in pg_cluster_members %}
+              {% if not loop.first %}{% endif %}
+              pg{{ loop.index }}-host={{ pg_cluster }}-{{ loop.index }}
+              pg{{ loop.index }}-port={{ pg_port }}
+              pg{{ loop.index }}-path={{ pg_data }}
+              {% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+              pg{{ loop.index }}-host-type=tls
+              pg{{ loop.index }}-host-cert-file=/pg/cert/server.crt
+              pg{{ loop.index }}-host-key-file=/pg/cert/server.key
+              pg{{ loop.index }}-host-ca-file=/etc/pki/ca.crt
+              {% endif %}
+              {% endfor %}
+
+    - name: Copy pgbackrest config files
+      any_errors_fatal: true
+      block:
+        - name: Copy pgbackrest.conf to meta nodes
+          when: meta_node|bool
+          copy: src="/tmp/pgbackrest_meta.conf" dest="/etc/pgbackrest.conf" owner=postgres group=postgres mode=0640
+
+        - name: Copy pgbackrest.conf to pgsql nodes
+          when: not meta_node|bool       
+          copy: src="/tmp/pgbackrest_psql.conf" dest="/etc/pgbackrest.conf" owner=postgres group=postgres mode=0640
+
+
+#------------------------------------------------------------------------------
+# Launch pgbackrest
+#------------------------------------------------------------------------------
+- name: Launch pgbackrest server
+  when: pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined
+  tags: pgbackrest_launch
+  block:
+    - name: Copy pgbackrest systemd service
+      template: src=pgbackrest.service.j2 dest=/etc/systemd/system/pgbackrest.service owner=root mode=0644
+
+    - name: Launch pgbackrest service
+      systemd: name=pgbackrest state=restarted enabled=yes daemon_reload=yes
+
+    - name: Wait for pgbackrest service online
+      wait_for: host=127.0.0.1 port={{ pgbackrest_tls_port }} state=started timeout=10
+
+    - name: Check pgbackrest service is ready
+      become_user: "{{ pg_dbsu }}"
+      command: /usr/bin/pgbackrest server-ping
+
+
+#------------------------------------------------------------------------------
+# Create pgbackrest stanza
+#------------------------------------------------------------------------------
+- name: Create pgbackrest stanza
+  tags: pgbackrest_launch
+  become_user: "{{ pg_dbsu }}"
+  block:
+    - name: Create pgbackrest stanza
+      when: meta_node|bool
+      shell: /usr/bin/pgbackrest --stanza={{ pgbackrest_stanza }} stanza-create
+...
