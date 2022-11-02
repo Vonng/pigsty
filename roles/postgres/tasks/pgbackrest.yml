@@ -111,6 +111,15 @@
           when: not meta_node|bool       
           copy: src="/tmp/pgbackrest_psql.conf" dest="/etc/pgbackrest.conf" owner=postgres group=postgres mode=0640
 
+    - name: Cleanup temp config files
+      delegate_to: "{{ meta_ip }}"
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /tmp/pgbackrest_meta.conf
+        - /tmp/pgbackrest_psql.conf
+
 
 #------------------------------------------------------------------------------
 # Launch pgbackrest
@@ -141,6 +150,6 @@
   become_user: "{{ pg_dbsu }}"
   block:
     - name: Create pgbackrest stanza
-      when: meta_node|bool
+      when: meta_node|bool and pg_role == 'primary'
       shell: /usr/bin/pgbackrest --stanza={{ pgbackrest_stanza }} stanza-create
 ...

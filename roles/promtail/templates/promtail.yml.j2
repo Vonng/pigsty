@@ -156,6 +156,38 @@ scrape_configs:
 {% endif %}
 
   #==============================================================#
+  #                      pgBackrest Logs                         #
+  #==============================================================#
+{% if pgbackrest_enabled is defined and pgbackrest_enabled|bool %}
+  - job_name: pgbackrest
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          src: pgbackrest
+          job: pgsql
+          cls: {{ pg_cluster }}
+          ins: {{ pg_cluster }}-{{ pg_seq }}
+          __path__: {{ pgbackrest_log_dir }}/*.log
+
+    pipeline_stages:
+      - match:
+          selector: '{job="pgbackrest"}'
+          stages:
+            - multiline:
+                firstline: '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+ \[\d+\]'
+                max_wait_time: 8s
+                max_lines: 128
+            - regex:
+                expression: '^(?P<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \w+) \[(?P<pid>\d+)\] (?P<pid>\d+) (?P<level>\w+).*$'
+            - labels:
+                level:
+            - timestamp:
+                source: ts
+                format: '2006-01-02 15:04:05 MST'
+{% endif %}
+
+  #==============================================================#
   #                      Pgbouncer Logs                          #
   #==============================================================#
 {% if pgbouncer_enabled is defined and pgbouncer_enabled|bool %}
