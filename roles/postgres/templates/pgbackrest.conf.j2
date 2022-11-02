@@ -1,0 +1,81 @@
+[global]
+# Repo
+{% if meta_node|bool %}
+repo1-type={{ pgbackrest_type }}
+{% if pgbackrest_type == 's3' %}
+repo1-path=/repo
+repo1-s3-endpoint={{ pgbackrest_s3_endpoint }}
+repo1-storage-port={{ pgbackrest_s3_port }}
+repo1-s3-uri-style=path
+repo1-s3-bucket={{ pgbackrest_s3_bucket }}
+repo1-s3-verify-tls=n
+repo1-s3-key={{ pgbackrest_s3_key }}
+repo1-s3-key-secret={{ pgbackrest_s3_secret }}
+repo1-s3-region={{ pgbackrest_s3_region }}
+{% else %}
+repo1-path={{ pg_fs_bkup }}/pgbackrest
+{% endif %}
+{% if pgbackrest_cipher_type != 'none' %}
+repo1-cipher-type={{ pgbackrest_cipher_type }}
+repo1-cipher-pass={{ pgbackrest_cipher_pass }}
+{% endif %}
+repo1-retention-full-type={{ pgbackrest_retention_type }}
+repo1-retention-full={{ pgbackrest_retention_full }}
+repo1-retention-diff={{ pgbackrest_retention_diff }}
+{% else %}
+repo1-host=$META_NAME
+repo1-host-user={{ pg_dbsu }}
+repo1-host-type={{ pgbackrest_protocol }}
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+repo1-host-cert-file=/pg/cert/server.crt
+repo1-host-key-file=/pg/cert/server.key
+repo1-host-ca-file=/etc/pki/ca.crt
+{% endif %}
+{% endif %}
+
+# General
+log-level-console=info
+log-level-file=debug
+compress-type=lz4
+{% if meta_node|bool %}
+process-max=4
+{% if pgbackrest_from_standby|bool %}
+backup-standby=y
+{% endif %}
+start-fast=y
+expire-auto=y
+{% else %}
+spool-path={{ pgbackrest_spool_dir }}
+{% if pgbackrest_archive_async|bool %}
+archive-async=y
+{% endif %}
+{% endif %}
+
+{% if pgbackrest_protocol == 'tls' and pgbackrest_tls_port is defined %}
+# TLS
+tls-server-address=*
+tls-server-port={{ pgbackrest_tls_port }}
+tls-server-ca-file=/etc/pki/ca.crt
+tls-server-cert-file=/pg/cert/server.crt
+tls-server-key-file=/pg/cert/server.key
+{% if not meta_node|bool %}
+tls-server-auth=$META_NAME={{ pgbackrest_stanza }}
+{% endif %}
+{% endif %}
+
+{% if not meta_node|bool %}
+[global:archive-get]
+process-max=2
+
+[global:archive-push]
+process-max=4
+
+[global:restore]
+process-max=8
+link-all=y
+delta=y
+
+[{{ pgbackrest_stanza }}]
+pg1-path={{ pg_data }}
+pg1-port={{ pg_port }}
+{% endif %}
