@@ -41,6 +41,48 @@ function pg-log() {
     fi
 }
 
+# - pgbackrest - #
+function pgbr-full() {
+    if [ ! -r /etc/pgbackrest.conf ]; then
+        echo "error: pgbackrest config not found"
+        return 1
+    else
+        local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest.conf | tail -1 | sed 's/.*\[\([^]]*\)].*/\1/')
+        pgbackrest --stanza=$stanza --type=full backup
+    fi
+}
+function pgbr-diff() {
+    if [ ! -r /etc/pgbackrest.conf ]; then
+        echo "error: pgbackrest config not found"
+        return 1
+    else
+        local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest.conf | tail -1 | sed 's/.*\[\([^]]*\)].*/\1/')
+        pgbackrest --stanza=$stanza --type=diff backup
+    fi
+}
+function pgbr-incr() {
+    if [ ! -r /etc/pgbackrest.conf ]; then
+        echo "error: pgbackrest config not found"
+        return 1
+    else
+        local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest.conf | tail -1 | sed 's/.*\[\([^]]*\)].*/\1/')
+        pgbackrest --stanza=$stanza --type=incr backup
+    fi
+}
+function pgbr-check() {
+    if [ ! -r /etc/pgbackrest.conf ]; then
+        echo "error: pgbackrest config not found"
+        return 1
+    else
+        local stanza=$(grep -o '\[[^][]*]' /etc/pgbackrest.conf | tail -1 | sed 's/.*\[\([^]]*\)].*/\1/')
+        check_pgbackrest --stanza=$stanza --service=retention --output=human && printf '\n' && check_pgbackrest --stanza=$stanza --service=archives --output=human
+    fi
+}
+alias pgbr-up='sudo systemctl start pgbackrest'
+alias pgbr-down='sudo systemctl stop pgbackrest'
+alias pgbr-status='sudo systemctl status pgbackrest'
+alias pgbr-restart='sudo systemctl restart pgbackrest'
+
 # - pgbouncer - #
 alias pgb='psql -p6432 -dpgbouncer'
 alias pgb-st='systemctl status pgbouncer'
