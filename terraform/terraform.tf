@@ -1,220 +1,97 @@
-###########################################################
-# AWS Provider
-###########################################################
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs
-# export AWS_REGION="cn-north-1"
-# export AWS_ACCESS_KEY_ID="xxxxxxxxxxx"
-# export AWS_SECRET_ACCESS_KEY="xxxxxxx"
-
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-  }
+# add your credentials here or pass them via env
+# export ALICLOUD_ACCESS_KEY="????????????????????"
+# export ALICLOUD_SECRET_KEY="????????????????????"
+# e.g : ./aliyun-key.sh
+provider "alicloud" {
+  # access_key = "????????????????????"
+  # secret_key = "????????????????????"
 }
 
-provider "aws" {
-  region                   = "cn-northwest-1"
-  shared_credentials_files = ["~/.aws/credentials"]
-  profile                  = "vscode"
+# use 10.10.10.0/24 cidr block as demo network
+resource "alicloud_vpc" "vpc" {
+  vpc_name   = "pigsty-demo-network"
+  cidr_block = "10.10.10.0/24"
 }
 
-
-###########################################################
-# AWS Networking
-###########################################################
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc
-
-#===============================#
-# VPC
-#===============================#
-resource "aws_vpc" "pigsty_vpc" {
-  cidr_block           = "10.10.0.0/16"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-  tags = {
-    Name        = "pigsty-vpc"
-    Project     = "pigsty"
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
+# add virtual switch for pigsty demo network
+resource "alicloud_vswitch" "vsw" {
+  vpc_id     = "${alicloud_vpc.vpc.id}"
+  cidr_block = "10.10.10.0/24"
+  zone_id    = "cn-beijing-k"
 }
 
-#===============================#
-# Subnet
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet
-resource "aws_subnet" "pigsty_subnet" {
-  vpc_id                  = aws_vpc.pigsty_vpc.id
-  cidr_block              = "10.10.10.0/24"
-  availability_zone       = "cn-northwest-1a"
-  map_public_ip_on_launch = true
-  tags = {
-    Name        = "pigsty-subnet"
-    Project     = "pigsty"
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
+# add default security group and allow all tcp traffic
+resource "alicloud_security_group" "default" {
+  name   = "default"
+  vpc_id = "${alicloud_vpc.vpc.id}"
+}
+resource "alicloud_security_group_rule" "allow_all_tcp" {
+  ip_protocol       = "tcp"
+  type              = "ingress"
+  nic_type          = "intranet"
+  policy            = "accept"
+  port_range        = "1/65535"
+  priority          = 1
+  security_group_id = "${alicloud_security_group.default.id}"
+  cidr_ip           = "0.0.0.0/0"
 }
 
-#===============================#
-# Internet Gateway
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway
-resource "aws_internet_gateway" "pigsty_igw" {
-  vpc_id = aws_vpc.pigsty_vpc.id
-  tags = {
-    Name        = "pigsty-vpc"
-    VPC         = aws_vpc.pigsty_vpc.id
-    Project     = "pigsty"
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
+# pg-meta: 1c2G x1
+# pg-test: 1c1G x3
+
+# AVAILABLE PUBLIC IMAGES
+# EL7: centos_7_9_x64_20G_alibase_20220824.vhd (default)
+# EL8: rockylinux_8_6_x64_20G_alibase_20220824.vhd
+# EL9: rockylinux_9_0_x64_20G_alibase_20220824.vhd
+
+# https://registry.terraform.io/providers/aliyun/alicloud/latest/docs/resources/instance
+resource "alicloud_instance" "pg-meta-1" {
+  instance_name              = "pg-meta-1"
+  host_name                  = "pg-meta-1"
+  instance_type              = "ecs.s6-c1m2.small"
+  vswitch_id                 = "${alicloud_vswitch.vsw.id}"
+  security_groups            = ["${alicloud_security_group.default.id}"]
+  image_id                   = "centos_7_9_x64_20G_alibase_20220824.vhd"
+  password                   = "PigstyDemo4"
+  private_ip                 = "10.10.10.10"
+  internet_max_bandwidth_out = 40 # 40Mbps , alloc a public IP
 }
 
-#===============================#
-# Route Table
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table
-resource "aws_route_table" "pigsty_rt" {
-  vpc_id = aws_vpc.pigsty_vpc.id
-  tags = {
-    Name        = "pigsty-route"
-    VPC         = aws_vpc.pigsty_vpc.id
-    Project     = "pigsty"
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
+resource "alicloud_instance" "pg-test-1" {
+  instance_name   = "pg-test-1"
+  host_name       = "pg-test-1"
+  instance_type   = "ecs.s6-c1m1.small"
+  vswitch_id      = "${alicloud_vswitch.vsw.id}"
+  security_groups = ["${alicloud_security_group.default.id}"]
+  image_id        = "centos_7_9_x64_20G_alibase_20220824.vhd"
+  password        = "PigstyDemo4"
+  private_ip      = "10.10.10.11"
 }
 
-#===============================#
-# Route
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route
-resource "aws_route" "default_route" {
-  route_table_id         = aws_route_table.pigsty_rt.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.pigsty_igw.id
+resource "alicloud_instance" "pg-test-2" {
+  instance_name   = "pg-test-2"
+  host_name       = "pg-test-2"
+  instance_type   = "ecs.s6-c1m1.small"
+  vswitch_id      = "${alicloud_vswitch.vsw.id}"
+  security_groups = ["${alicloud_security_group.default.id}"]
+  image_id        = "centos_7_9_x64_20G_alibase_20220824.vhd"
+  password        = "PigstyDemo4"
+  private_ip      = "10.10.10.12"
 }
 
-#===============================#
-# Route Table Association
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association
-resource "aws_route_table_association" "pigsty_assoc" {
-  subnet_id      = aws_subnet.pigsty_subnet.id
-  route_table_id = aws_route_table.pigsty_rt.id
+resource "alicloud_instance" "pg-test-3" {
+  instance_name   = "pg-test-3"
+  host_name       = "pg-test-3"
+  instance_type   = "ecs.s6-c1m1.small"
+  vswitch_id      = "${alicloud_vswitch.vsw.id}"
+  security_groups = ["${alicloud_security_group.default.id}"]
+  image_id        = "centos_7_9_x64_20G_alibase_20220824.vhd"
+  password        = "PigstyDemo4"
+  private_ip      = "10.10.10.13"
 }
 
-
-
-
-###########################################################
-# AWS Security
-###########################################################
-
-#===============================#
-## SSH KEY (REPLACE THIS!!!!)
-#===============================#
-# ssh-keygen -t rsa -N '' -f ~/.aws/pigsty-key
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair
-resource "aws_key_pair" "pigsty_key" {
-  key_name   = "pigsty-key"
-  public_key = file("~/.aws/pigsty-key.pub")
-}
-
-#===============================#
-# SECURITY GROUP
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
-resource "aws_security_group" "pigsty_sg" {
-  name        = "pigsty-sg"
-  description = "Pigsty Security Group"
-  vpc_id      = aws_vpc.pigsty_vpc.id
-  tags = {
-    Name        = "pigsty-sg"
-    VPC         = aws_vpc.pigsty_vpc.id
-    Project     = "pigsty"
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
-}
-
-#===============================#
-# SECURITY RULE
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule
-resource "aws_security_group_rule" "public_out" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Public Access Out"
-  security_group_id = aws_security_group.pigsty_sg.id
-}
-
-resource "aws_security_group_rule" "public_in" {
-  type      = "ingress"
-  from_port = 0
-  to_port   = 0
-  protocol  = "-1"
-
-  # TODO: LIMIT ACCESS WITH YOUR OWN CIDR BLOCKS!!!!
-  # OTHERWISE ALL SERVICES WILL BE OPENED TO THE WORLD!!!!
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Public Access In"
-  security_group_id = aws_security_group.pigsty_sg.id
-}
-
-
-###########################################################
-# AWS EC2
-###########################################################
-
-#===============================#
-# AWS EC2 INSTANCES (Pigsty Meta)
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
-resource "aws_instance" "pigsty-meta" {
-  ami                         = "ami-01cb2ecea35798f3f"
-  instance_type               = "t2.micro"
-  key_name                    = "pigsty-key"
-  private_ip                  = "10.10.10.10"
-  associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.pigsty_sg.id]
-  subnet_id                   = aws_subnet.pigsty_subnet.id
-  #user_data                   = file("userdata.tpl")
-  root_block_device {
-    volume_size = 30
-  }
-
-  tags = {
-    Name        = "Pigsty Meta Node"
-    VPC         = aws_vpc.pigsty_vpc.id
-    Project     = "pigsty"
-    Environment = "dev"
-    ManagedBy   = "terraform"
-    cls         = "pigsty-meta"
-    ins         = "pigsty-meta-1"
-  }
-}
-
-
-#===============================#
-# AWS Elastic IP: OUTPUT
-#===============================#
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip
-
-resource "aws_eip" "pigsty-ip" {
-  vpc = true
-  instance                  = aws_instance.pigsty-meta.id
-  associate_with_private_ip = "10.10.10.10"
-  depends_on                = [aws_internet_gateway.pigsty_igw]
-}
 
 output "meta_ip" {
-  value = aws_eip.pigsty-ip.public_ip
+  value = "${alicloud_instance.pg-meta-1.public_ip}"
 }
+

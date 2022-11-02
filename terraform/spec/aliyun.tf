@@ -39,6 +39,11 @@ resource "alicloud_security_group_rule" "allow_all_tcp" {
 # pg-meta: 1c2G x1
 # pg-test: 1c1G x3
 
+# AVAILABLE PUBLIC IMAGES
+# EL7: centos_7_9_x64_20G_alibase_20220824.vhd (default)
+# EL8: rockylinux_8_6_x64_20G_alibase_20220824.vhd
+# EL9: rockylinux_9_0_x64_20G_alibase_20220824.vhd
+
 # https://registry.terraform.io/providers/aliyun/alicloud/latest/docs/resources/instance
 resource "alicloud_instance" "pg-meta-1" {
   instance_name              = "pg-meta-1"
@@ -46,7 +51,7 @@ resource "alicloud_instance" "pg-meta-1" {
   instance_type              = "ecs.s6-c1m2.small"
   vswitch_id                 = "${alicloud_vswitch.vsw.id}"
   security_groups            = ["${alicloud_security_group.default.id}"]
-  image_id                   = "centos_7_8_x64_20G_alibase_20200914.vhd"
+  image_id                   = "centos_7_9_x64_20G_alibase_20220824.vhd"
   password                   = "PigstyDemo4"
   private_ip                 = "10.10.10.10"
   internet_max_bandwidth_out = 40 # 40Mbps , alloc a public IP
@@ -58,7 +63,7 @@ resource "alicloud_instance" "pg-test-1" {
   instance_type   = "ecs.s6-c1m1.small"
   vswitch_id      = "${alicloud_vswitch.vsw.id}"
   security_groups = ["${alicloud_security_group.default.id}"]
-  image_id        = "centos_7_8_x64_20G_alibase_20200914.vhd"
+  image_id        = "centos_7_9_x64_20G_alibase_20220824.vhd"
   password        = "PigstyDemo4"
   private_ip      = "10.10.10.11"
 }
@@ -69,7 +74,7 @@ resource "alicloud_instance" "pg-test-2" {
   instance_type   = "ecs.s6-c1m1.small"
   vswitch_id      = "${alicloud_vswitch.vsw.id}"
   security_groups = ["${alicloud_security_group.default.id}"]
-  image_id        = "centos_7_8_x64_20G_alibase_20200914.vhd"
+  image_id        = "centos_7_9_x64_20G_alibase_20220824.vhd"
   password        = "PigstyDemo4"
   private_ip      = "10.10.10.12"
 }
@@ -80,7 +85,7 @@ resource "alicloud_instance" "pg-test-3" {
   instance_type   = "ecs.s6-c1m1.small"
   vswitch_id      = "${alicloud_vswitch.vsw.id}"
   security_groups = ["${alicloud_security_group.default.id}"]
-  image_id        = "centos_7_8_x64_20G_alibase_20200914.vhd"
+  image_id        = "centos_7_9_x64_20G_alibase_20220824.vhd"
   password        = "PigstyDemo4"
   private_ip      = "10.10.10.13"
 }
