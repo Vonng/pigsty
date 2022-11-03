@@ -59,7 +59,7 @@
 
     # for all hosts, copy their postgres ssh public key to each other
     - name: Exchange dbsu ssh keys
-      when: pg_dbsu_ssh_exchange
+      when: pg_dbsu_ssh_exchange|bool or (pgbackrest_enabled|bool and pgbackrest_protocol == 'ssh')
       authorized_key: user={{ pg_dbsu }} key="{{ item[0] }}"
       ignore_errors: true
       delegate_to: "{{ item[1] }}"
