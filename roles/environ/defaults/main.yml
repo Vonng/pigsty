@@ -1,0 +1,38 @@
+---
+#-----------------------------------------------------------------
+# REFERENCE
+#-----------------------------------------------------------------
+# dcs
+consul_enabled: true                        # enable consul server/agent by default?
+
+# nginx
+nginx_upstream:                             # domain names and upstream servers
+  - { name: home         , domain: pigsty      , endpoint: "${meta_ip}:80"   }
+  - { name: grafana      , domain: g.pigsty    , endpoint: "${meta_ip}:3000" }
+  - { name: loki         , domain: l.pigsty    , endpoint: "${meta_ip}:3100" }
+  - { name: prometheus   , domain: p.pigsty    , endpoint: "${meta_ip}:9090" }
+  - { name: alertmanager , domain: a.pigsty    , endpoint: "${meta_ip}:9093" }
+  - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"  }
+
+# patroni
+pg_namespace: /pg                           # top level key namespace in dcs
+pg_dcs_type: consul                         # which dcs to use: consul or etcd or raft
+patroni_port: 8008                          # default patroni port
+patroni_ssl_enabled: false                  # secure patroni RestAPI communications with SSL?
+
+# credential
+pg_admin_username: dbuser_dba               # default admin username
+pg_admin_password: DBUser.DBA               # default admin password
+pg_monitor_username: dbuser_monitor         # default monitor username
+pg_monitor_password: DBUser.Monitor         # default monitor password
+pg_replication_username: replicator         # default replication username
+pg_replication_password: DBUser.Replicator  # default replication password
+patroni_username: postgres                  # patroni rest api username
+patroni_password: Patroni.API               # patroni rest api password (IMPORTANT: CHANGE THIS)
+grafana_admin_username: admin              # default grafana admin username
+grafana_admin_password: pigsty             # default grafana admin password
+
+# grafana
+grafana_endpoint: http://${meta_ip}:3000   # grafana endpoint url
+loki_endpoint: http://${meta_ip}:3100/loki/api/v1/push # where to push data
+...

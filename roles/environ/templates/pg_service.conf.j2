@@ -18,7 +18,7 @@ password={{ pg_admin_password|default('DBUser.DBA') }}
 ####################################
 {% for ip,ins in hostvars.items() %}
 {% if ins.pg_cluster is defined and ins.pg_cluster != '' and pg_role is defined and pg_seq is defined %}
-{% if ins.pg_role == 'primary' %}
+{% if ins.pg_role == 'primary' and 'pg_databases' in ins %}
 {% for database in ins.pg_databases %}
 # database: {{ ins.pg_cluster }}- {{ ins.pg_seq }}.{{ database.name }}
 [{{ ins.pg_cluster }}.{{ database.name }}]
