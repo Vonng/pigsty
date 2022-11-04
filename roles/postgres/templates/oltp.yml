@@ -29,7 +29,7 @@
 #==============================================================#
 # Summary for patroni OLTP config template (4-128 cpu cores)
 #==============================================================#
-# {{ inventory_hostname }}:{{ pg_port }} | [{{ pg_role }}] {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}{% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_cluster }}-{{ pg_cluster_primary_id }} -> {{ pg_instance }}{% endif %}{% endif %}
+# {{ inventory_hostname }}:{{ pg_port }} | [{{ pg_role }}] {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}{% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_primary_ins }} -> {{ pg_instance }}{% endif %}{% endif %}
 
 # Node: {{ cpu_core_number }}C{{ mem_size_gb }}G , node_tune = {{ node_tune }}
 # Memory: {{ mem_size_mb }}MB , Disk : {{ [ (fs_size_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}

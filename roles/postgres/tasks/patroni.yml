@@ -48,7 +48,7 @@
     #   become_user: "{{ pg_dbsu }}"
     #   environment:
     #     PGPASSWORD: "{{ pg_replication_password }}"
-    #   command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+    #   command: psql -w -h {{ pg_primary_ip }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
 
 #------------------------------------------------------------------------------
@@ -114,7 +114,7 @@
       become_user: "{{ pg_dbsu }}"
       environment:
         PGPASSWORD: "{{ pg_replication_password }}"
-      command: psql -w -h {{ pg_cluster_primary }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
+      command: psql -w -h {{ pg_primary_ip }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
     - name: Launch patroni on replica instances
       systemd: name=patroni state=restarted enabled=yes daemon_reload=yes
