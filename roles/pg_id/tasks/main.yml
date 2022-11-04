@@ -1,0 +1,50 @@
+---
+#---------------------------------------------------------------
+# get pgsql identity
+#---------------------------------------------------------------
+# pg-id require node-id run first to print proper node identity
+# when: pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != ''
+
+- name: pgsql identity
+  tags: [always, pg-id ]
+  block:
+
+    - name: get pgsql identity
+      connection: local
+      set_fact:
+        pg_meta: "{{ hostvars|json_query(cluster_query) }}"
+        pg_instance: "{{ pg_cluster }}-{{ pg_seq }}"
+        pg_service: "{{ pg_cluster }}-{{ pg_role }}"
+      vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
+
+    - name: build pgsql identity
+      connection: local
+      set_fact:
+        pg_is_primary={{ pg_role == 'primary' }}
+        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
+        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
+        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
+        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1 }}
+        pg_primary_list={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
+        pg_primary_ip={% set plist = (pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort) %}{% if plist|length == 1 %}{{ plist[0] }}{% else %}unknown{% endif %}
+        pg_primary_seq={% set plist = (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort) %}{% if plist|length == 1 %}{{ plist[0] }}{% else %}unknown{% endif %}
+        pg_primary_ins={% set plist = (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort) %}{% if plist|length == 1 %}{{ pg_cluster }}-{{ plist[0] }}{% else %}unknown{% endif %}
+
+    - name: print pgsql identity
+      connection: local
+      debug:
+        msg: >-
+          {% if pg_primary_list|length < 1 %}[WARN: NO CLUSTER LEADER]{% endif %}
+          {% if pg_primary_list|length > 1 %}[WARN: MULTIPLE LEADER] {{ pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort }}{% endif %}
+          [{{ pg_role }}] {{ pg_instance }} @ {{ inventory_hostname }} , ins = {{ nodename|default('NULL') }} , cls = {{ node_cluster|default('nodes') }} ,
+          {% if pg_role == 'primary' %}
+          {% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}
+          {% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}
+          {% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }}
+          {% else %}REPLICATE PRIMARY {{ pg_primary_ins }} @ {{ pg_primary_ip }} -> {{ pg_instance }}{% endif %}{% endif %}
+          {%if pg_offline_query is defined and pg_offline_query|bool %} [OFFLINE]{% endif %}
+          {%if pg_backup is defined and pg_backup|bool %} [BACKUP]{% endif %}
+          {%if pg_weight is defined and pg_weight != 100 %} [W:{{ pg_weight }}]{% endif %}
+           , postgres://{{ inventory_hostname }}:{{ pg_port }}/postgres
+
+...
