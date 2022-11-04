@@ -5,16 +5,35 @@
 nginx_enabled: true               # build local repo on this node
 nginx_port: 80                    # repo listen address, must same as repo_address
 nginx_home: /www                  # default repo home dir
-nginx_upstream: [ ]               # domain names and upstream servers
-nginx_indexes:  [ ]               # application nav links on home page
+nginx_upstream:                   # domain names and upstream servers
+  - { name: home         , domain: pigsty      , endpoint: "${meta_ip}:80"   }
+  - { name: grafana      , domain: g.pigsty    , endpoint: "${meta_ip}:3000" }
+  - { name: loki         , domain: l.pigsty    , endpoint: "${meta_ip}:3100" }
+  - { name: prometheus   , domain: p.pigsty    , endpoint: "${meta_ip}:9090" }
+  - { name: alertmanager , domain: a.pigsty    , endpoint: "${meta_ip}:9093" }
+  - { name: consul       , domain: c.pigsty    , endpoint: "127.0.0.1:8500"  }
+nginx_indexes:                    # application nav links on home page
+  - { name: Explain    , url : '/pev.html' , comment: 'postgres explain visualizer' }
+  - { name: Package    , url : '/pigsty'   , comment: 'local yum repo packages'     }
+  - { name: PG Logs    , url : '/logs'     , comment: 'postgres raw csv logs'       }
+  - { name: Schemas    , url : '/schema'   , comment: 'schemaspy summary report'    }
+  - { name: Reports    , url : '/report'   , comment: 'pgbadger summary report'     }
+
+#-----------------------------------------------------------------
+# Meta (Reference)
+#-----------------------------------------------------------------
+version: v1.6.0-b3
 
 #-----------------------------------------------------------------
 # Repo (Reference)
 #-----------------------------------------------------------------
-repo_address: yum.pigsty          # local repo host (ip or hostname, including port if not using 80)
+repo_name: pigsty                 # repo name, pigsty by default
+repo_address: pigsty              # external address to this repo (ip:port or url)
 
 #-----------------------------------------------------------------
 # DCS (Reference)
 #-----------------------------------------------------------------
 dcs_registry: consul              # none | consul | etcd | both
+dcs_ssl_enabled: false            # secure dcs communications with ssl?
+consul_enabled: true              # enable consul?
 ...
