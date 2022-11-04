@@ -1,0 +1,69 @@
+---
+- name: node identity
+  tags: [ always, node-id ]
+  block:
+
+    #---------------------------------------------------------------
+    # gather node fact, also check connectivity
+    #---------------------------------------------------------------
+    - name: get node fact
+      shell: |
+        DISTRO=$(rpm -q --whatprovides redhat-release);
+        echo $(rpm -q --qf "%{VENDOR}" "${DISTRO}");
+        echo $(rpm -q --qf "%{VERSION}" "${DISTRO}" | grep -o '^[^.]\+');
+        echo $(uname -m);
+        echo $(whoami)
+        echo ${HOSTNAME};
+        echo $(grep -c '^processor' /proc/cpuinfo);
+        echo $(getconf _PHYS_PAGES);
+        echo $(getconf PAGE_SIZE);
+        /bin/true;
+      register: node_result
+
+    #---------------------------------------------------------------
+    # calculate node identity
+    #---------------------------------------------------------------
+    - name: set node fact
+      connection: local
+      set_fact:
+        os_vendor:      "{{ node_result.stdout_lines[0] }}"
+        os_version:     "{{ node_result.stdout_lines[1]|int }}"
+        os_arch:        "{{ node_result.stdout_lines[2] }}"
+        node_user:      "{{ node_result.stdout_lines[3] }}"
+        node_hostname:  "{{ node_result.stdout_lines[4] }}"
+        node_cpu:       "{{ node_result.stdout_lines[5]|int }}"
+        node_pages:     "{{ node_result.stdout_lines[6]|int }}"
+        node_page_size: "{{ node_result.stdout_lines[7]|int }}"
+
+    # if nodename is empty, or can not be built from pgsql instance's identity
+    - name: fill empty nodename with hostname
+      when: (nodename is not defined or nodename == '') and not (pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
+      connection: local
+      set_fact: { nodename: "{{ node_hostname }}" }
+
+    - name: build node identity
+      connection: local
+      set_fact:
+        nodename:       "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
+        node_cluster:   "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster|default('nodes') }}{% endif %}"
+        node_mem_bytes: "{{ node_pages|int * node_page_size|int }}"
+        node_mem_mb:    "{{ (node_pages|int * node_page_size|int / 1048576) | round(0, 'ceil')|int }}"
+        node_mem_gb:    "{{ [ (node_pages|int * node_page_size|int / 1073741824) | round(0, 'ceil')|int , 1 ] | max }}"
+
+    # nodename, cluster, spec, os and modules
+    - name: print node identity
+      connection: local
+      debug:
+        msg: >-
+           nodename: {{ nodename }},
+           node_cluster: {{ node_cluster }},
+           spec: c{{ node_cpu }}m{{ node_mem_gb }}, os: el{{ os_version }}.{{ os_arch }} {{ os_vendor }}
+           {% if inventory_hostname == meta_ip %}[ADMIN]{% endif %}
+           {% if meta_node|bool %}[INFRA]{% endif %}
+           {% if pg_cluster is defined %}[PGSQL: {{ pg_cluster }}]{% endif %}
+           {% if redis_cluster is defined %}[REDIS: {{ redis_cluster }}]{% endif %}
+           {% if etcd_cluster  is defined %}[ETCD: {{ etcd_cluster }}]{% endif %}
+           {% if minio_cluster is defined %}[MINIO: {{ minio_cluster }}]{% endif %}
+           {% if kafka_cluster is defined %}[KAFKA: {{ kafka_cluster }}]{% endif %}
+
+...
