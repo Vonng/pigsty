@@ -11,51 +11,55 @@
 #
 # Local yum repo url:  http://{{ repo_address }}/{{ repo_name }}/
 #==============================================================#
-
-
-# call with :   ./infra.yml -t repo_url_pkg      # redownload weburl pacakges
-# call with :   ./infra.yml -t repo_boot_pkg     # install bootstrap pacakges
-# call with :   ./infra.yml -t repo_rpm_pkg      # download repo rpm pacakges
-# call with :   ./infra.yml -t repo_create       # create yum repo
+# you can invoke repo tasks with infra.yml or install.yml
+#
+# call with : ./infra.yml -t repo_url_pkg   # redownload weburl packages
+# call with : ./infra.yml -t repo_boot_pkg  # install bootstrap packages
+# call with : ./infra.yml -t repo_rpm_pkg   # download repo rpm packages
+# call with : ./infra.yml -t repo_create    # create yum repo
 # build without check: ./infra.yml -t repo_build -e repo_url_packages=[] -e repo_packages=[]
-
-# ./infra.yml -t repo                 # init repo
-# ./infra.yml -t repo_prepare         # use existing repo if exists
-# ./infra.yml -t repo_build           # (re)build local repo
-# ./infra.yml -t repo_nginx           # setup nginx server for repo
-# ./infra.yml -t repo_create          # recreate repo
-# ./infra.yml -t repo_upstream        # add upstream repo file
+#
+# ./infra.yml -t repo          # init repo
+# ./infra.yml -t repo_prepare  # use existing repo if exists
+# ./infra.yml -t repo_build    # (re)build local repo
+# ./infra.yml -t repo_nginx    # setup nginx server for repo
+# ./infra.yml -t repo_create   # recreate repo
+# ./infra.yml -t repo_upstream # add upstream repo file
 # ./infra.yml -t repo_build   -e repo_url_packages=[]    # build & skip url download
 # ./infra.yml -t repo_build   -e repo_packages=[]        # build & skip rpm download
 # ./infra.yml -t repo_build   -e repo_packages=[] -e repo_url_packages=[]  # skip download
 # ./infra.yml -t repo_url_pkg -e repo_url_packages=[https://github.com/dalibo/pev2/releases/download/v1.5.0/index.html]
-- # ./infra.yml -t repo_pkg   -e repo_packages=[xxxx]
+# ./infra.yml -t repo_pkg   -e repo_packages=[xxxx]
+
 
 #--------------------------------------------------------------#
 # 1. Check whether repo exists?
 #--------------------------------------------------------------#
 # check flag file /www/pigsty/repo_complete existence
-- name: Check local repo exists
+- name: check local repo exists
   tags: repo_prepare
   block:
+
     # create repo directory
-    - name: Create local repo dir
+    - name: create local repo dir
       tags: repo_dir
       file: path={{ nginx_home }}/{{ repo_name }} state=directory mode=0755
+
     # set repo_exists = true if local repo already exists
-    - name: Check repo pkgs cache exists
+    - name: check repo cache exists
       stat: path={{ nginx_home }}/{{ repo_name }}/repo_complete
       register: repo_cache
-    - name: Set fact whether repo_exists
+
+    - name: set repo_exists flag
       connection: local
-      set_fact:
-        repo_exists: "{{ repo_cache.stat.exists }}"
+      set_fact: { repo_exists: "{{ repo_cache.stat.exists }}" }
+
 
 #--------------------------------------------------------------#
 # 2. Use local repo (IF REPO EXISTS)
 #--------------------------------------------------------------#
 # if local yum cache exists, use it directly
-- name: Setup existing local repo
+- name: setup local repo if exists
   tags: repo_prepare
   when: repo_exists|bool
   shell: |
@@ -79,21 +83,15 @@
 #--------------------------------------------------------------#
 # 3. Build repo (IF REPO NOT EXISTS)
 #--------------------------------------------------------------#
-- name: Build local yum repo
+- name: build local yum repo
   tags: repo_build
   when: not repo_exists|bool
   block:
 
     #--------------------------------------------------------------#
-    # 3.1 Get el releasever : (7,8,9)                      [repo_os]
+    # 3.1   Remove existing upstream repo files        [repo_remove]
     #--------------------------------------------------------------#
-    #- { name: Gather el release version  , tags: repo_os , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
-    #- { name: Set os_version release version , tags: repo_os , connection: local , set_fact: { os_version: "{{ releasever_result.stdout }}" } }
-
-    #--------------------------------------------------------------#
-    # 3.2   Remove existing upstream repo files        [repo_remove]
-    #--------------------------------------------------------------#
-    - name: Backup & remove existing repos
+    - name: remove existing repo before build
       tags: [ repo_upstream, repo_remove ]
       when: repo_remove|bool
       shell:
@@ -103,9 +101,9 @@
           mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/ || /bin/true
 
     #--------------------------------------------------------------#
-    # 3.3  Add required upstream repo files               [repo_add]
+    # 3.2  Add required upstream repo files               [repo_add]
     #--------------------------------------------------------------#
-    - name: Add required upstream repos
+    - name: add pigsty upstream repo file
       tags: [ repo_upstream , repo_add ]
       copy:
         dest: /etc/yum.repos.d/{{ item.name }}.repo
@@ -130,23 +128,23 @@
       with_items: "{{ repo_upstream }}"
 
     #--------------------------------------------------------------#
-    # 3.4  Download url packages                      [repo_url_pkg]
+    # 3.3  Download url packages                      [repo_url_pkg]
     #--------------------------------------------------------------#
     # download packages directly via url (replace ${releasever} to 7|8|9)
-    - name: Download web url packages
+    - name: download repo url packages
       tags: repo_url_pkg
       ignore_errors: true
       environment: "{{ proxy_env }}"
-      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', arch|string ) }}
+      get_url: dest={{ nginx_home }}/{{ repo_name }}/ url={{ item | regex_replace('\${releasever}', os_version|string) | regex_replace('\${arch}', os_arch|string ) }}
       with_items: "{{ repo_url_packages }}"
 
     #--------------------------------------------------------------#
-    # 3.5 Make repo cache                           [repo_makecache]
+    # 3.4 Make repo cache                               [repo_cache]
     #--------------------------------------------------------------#
     # this usually takes 1~2 minutes, according to your network condition and region & mirrors
-    - name: Clean all and make cache
-      tags: repo_makecache
-      environment: "{{ proxy_env }}"
+    - name: remake repo cache
+      tags: repo_cache
+      environment: "{{ proxy_env|default({}) }}"
       shell: |
         yum clean all;
         yum makecache;
@@ -156,16 +154,17 @@
         /bin/true
 
     #--------------------------------------------------------------#
-    # 3.6  Download bootstrap packages               [repo_boot_pkg]
+    # 3.5  Download bootstrap packages               [repo_boot_pkg]
     #--------------------------------------------------------------#
-    - name: Install repo bootstrap packages
+    - name: install repo boot packages
       tags: repo_boot_pkg
+      environment: "{{ proxy_env|default({}) }}"
       yum: name="createrepo_c,yum-utils{% if os_version|int >= 8 %},modulemd-tools{% endif %}" state=present
 
     #--------------------------------------------------------------#
-    # 3.7 Download rpm Packages                           [repo_pkg]
+    # 3.6 Download rpm Packages                           [repo_pkg]
     #--------------------------------------------------------------#
-    - name: Download rpm packages and their deps
+    - name: download repo packages
       tags: repo_pkg
       environment: "{{ proxy_env }}"
       shell:
@@ -179,10 +178,10 @@
       with_items: "{{ repo_packages }}"
 
     #--------------------------------------------------------------#
-    # 3.8 Create repo                                  [repo_create]
+    # 3.7 Create repo                                  [repo_create]
     #--------------------------------------------------------------#
     # create local yum repo
-    - name: Create local repo
+    - name: create local repo
       tags: repo_create
       shell:
         cmd: |
@@ -198,9 +197,9 @@
         chdir: "{{ nginx_home }}/{{ repo_name }}"
 
     #--------------------------------------------------------------#
-    # 3.9 Use built repo                                  [repo_use]
+    # 3.8 Use built repo                                  [repo_use]
     #--------------------------------------------------------------#
-    - name: Install local repo file
+    - name: use built local repo
       tags: repo_use
       shell: |
         mkdir -p /etc/yum.repos.d/backup/
@@ -222,17 +221,16 @@
 #--------------------------------------------------------------#
 # 8. Launch Nginx
 #--------------------------------------------------------------#
-# launch nginx server for yum repo
-- name: Launch repo nginx server
+- name: setup repo nginx server
   tags: repo_nginx
   block:
 
     # make sure nginx installed
-    - name: Make sure nginx installed
+    - name: make sure nginx installed
       package: name=nginx state=present
 
     # copy repo nginx config & content
-    - name: Render repo nginx server files
+    - name: render repo nginx files
       template: src={{ item.src }} dest={{ item.dest }} mode=0644
       with_items:
         - {src: nginx.conf.j2,    dest: /etc/nginx/nginx.conf}
@@ -241,27 +239,26 @@
         - {src: local.repo.j2,    dest: "{{ nginx_home }}/{{ repo_name }}.repo"}
 
     # launch nginx with systemctl and wait for port 80 online
-    - name: Launch repo nginx server
+    - name: launch repo nginx server
       systemd: name=nginx state=restarted enabled=yes daemon_reload=yes
 
-    - name: Waits repo server online
+    - name: wait repo nginx server online
       wait_for: host=127.0.0.1 port={{ nginx_port }} state=started
 
 
 #--------------------------------------------------------------#
 # 9. Open port for repo server
 #--------------------------------------------------------------#
-# launch nginx server for yum repo
-- name: Open firewall & SELinux for repo server
+- name: setup firewall and selinux for repo
   tags: repo_firewall
   ignore_errors: true
   block:
 
     # temporary disable selinux for nginx
-    - name: Disable selinux for repo server
-      shell: setenforce 0 || /bin/true
+    - name: disable selinux for repo server
+      shell: setenforce 0; /bin/true
 
-    #- name: Allow nginx port traffic
+    #- name: allow nginx port traffic
     #  tags: repo_fire
     #  ignore_errors: true
     #  firewalld:
@@ -269,7 +266,8 @@
     #    permanent: true
     #    immediate: true
     #    state: enabled
-    #- name: Allow ssh/http/https traffics
+
+    #- name: allow ssh/http/https traffics
     #  tags: repo_fire
     #  ignore_errors: true
     #  firewalld:
@@ -279,5 +277,3 @@
     #    state: enabled
     #  with_items: [ ssh , http , https ]
 ...
-
-
