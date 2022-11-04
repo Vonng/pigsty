@@ -34,10 +34,10 @@
         prometheus_domain:     "http://{{ nginx_upstream | json_query('[?name==`prometheus`].domain') | first }}"
         grafana_domain:        "http://{{ nginx_upstream | json_query('[?name==`grafana`].domain') | first }}"
         alertmanager_domain:   "http://{{ nginx_upstream | json_query('[?name==`alertmanager`].domain') | first }}"
-        home_endpoint:                "{{ nginx_upstream | json_query('[?name==`home`].endpoint') | first }}"
-        consul_endpoint:              "{{ nginx_upstream | json_query('[?name==`consul`].endpoint') | first }}"
-        prometheus_endpoint:          "{{ nginx_upstream | json_query('[?name==`prometheus`].endpoint') | first }}"
-        grafana_endpoint:             "{{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first }}"
-        alertmanager_endpoint:        "{{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first }}"
+        home_endpoint:                "{{ nginx_upstream | json_query('[?name==`home`].endpoint') | first | regex_replace('${meta_ip}', meta_ip) }}"
+        consul_endpoint:              "{{ nginx_upstream | json_query('[?name==`consul`].endpoint') | first | regex_replace('${meta_ip}', meta_ip) }}"
+        prometheus_endpoint:          "{{ nginx_upstream | json_query('[?name==`prometheus`].endpoint') | first | regex_replace('${meta_ip}', meta_ip) }}"
+        grafana_endpoint:             "{{ nginx_upstream | json_query('[?name==`grafana`].endpoint') | first | regex_replace('${meta_ip}', meta_ip)}}"
+        alertmanager_endpoint:        "{{ nginx_upstream | json_query('[?name==`alertmanager`].endpoint') | first | regex_replace('${meta_ip}', meta_ip)}}"
 
 ...
