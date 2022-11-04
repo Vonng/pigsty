@@ -2,23 +2,23 @@
 #------------------------------------------------------------------------------
 # Setup DNS
 #------------------------------------------------------------------------------
-- name: Setup node dns records
+- name: setup node dns
   tags: node_dns
   block:
 
     # NOTE: dns records suffixed with "# pigsty meta" will be treated as meta node dns record and been wiped
-    - name: Wipe pigsty node dns record
+    - name: wipe pigsty dns entries
       lineinfile: path=/etc/hosts regexp='# pigsty meta$' state=absent
 
     # NOTE: dns records write by pigsty will be suffixed with "# pigsty meta" mark
-    - name: Write static dns records to /etc/hosts
+    - name: write static etc hosts entry
       when: node_etc_hosts_default is defined and node_etc_hosts_default|length > 0
       lineinfile:
         path: /etc/hosts
         line: "{{ item | regex_replace('\\${meta_ip}', meta_ip) }} # pigsty meta"
       with_items: "{{ node_etc_hosts_default|default([]) + node_etc_hosts|default([]) }}"
 
-    - name: Exchange hostname among servers
+    - name: exchange nodename between nodes
       when: nodename_exchange|bool
       ignore_errors: true
       lineinfile:

@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Node Features
 #------------------------------------------------------------------------------
-- name: Setup node features
+- name: set node features
   tags: node_feature
   ignore_errors: true
   block:
@@ -11,19 +11,19 @@
     # NUMA
     #-------------------------------------------------------------------------
     # - disable numa - #
-    - name: Node configure disable numa
+    - name: disable node numa
       when: node_disable_numa
       script: disable_numa.sh
 
     #-------------------------------------------------------------------------
     # SWAP
     #-------------------------------------------------------------------------
-    # - disable swap - #
-    - name: Node configure disable swap
+    # disable swap, do so if you have enough memory or run kubernetes #
+    - name: disable node swap
       when: node_disable_swap|bool
       command: swapoff -a
 
-    - name: Node configure unmount swap
+    - name: unmount node swap fs
       when: node_disable_swap|bool
       mount: name={{ item }} fstype=swap state=absent
       with_items: [swap, none]
@@ -32,7 +32,7 @@
     # SWAP
     #-------------------------------------------------------------------------
     # - static network - #
-    - name: Node setup static network
+    - name: setup node static network
       when: node_static_network|bool
       script: static_network.sh
 
@@ -40,7 +40,7 @@
     # Disk Prefetch
     #-------------------------------------------------------------------------
     # - enable disk prefetch - #
-    - name: Node configure disk prefetch
+    - name: configure disk prefetch
       when: node_disk_prefetch|bool
       script: disk_prefetch.sh
 ...

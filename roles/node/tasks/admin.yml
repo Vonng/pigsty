@@ -2,36 +2,36 @@
 #==============================================================#
 # Stage 1: Add /etc/profile
 #==============================================================#
-- name: Copy default user bash profile
+- name: write etc profile
   tags: node_profile
   copy: src=profile.sh dest=/etc/profile.d/profile.sh mode=0644
 
 #==============================================================#
 # Stage 2: Setup pam ulimit for node users
 #==============================================================#
-- name: Setup node default pam ulimits
+- name: set pam ulimit
   tags: node_ulimit
   copy: src=limits.conf dest=/etc/security/limits.d/limits.conf mode=0644
 
 #==============================================================#
 # Stage 3: Create data dir if not exists
 #==============================================================#
-- name: Create node data dir if exists
+- name: assure node data dir exists
   tags: node_data_dir
-  shell: |
+  shell: >-
     [[ -d {{ node_data_dir }} ]] || mkdir -p {{ node_data_dir }} -m 777
 
 #==============================================================#
 # Stage 4: Create dcs group
 #==============================================================#
-- name: Create dcs group
+- name: create user group dcs
   tags: node_group
   group: name=dcs gid={{ dcs_gid }}
 
 #==============================================================#
 # Stage 5: Create default users/groups
 #==============================================================#
-- name: Create node users and groups
+- name: create os node users and groups
   tags: node_admin
   when: node_admin_enabled
   block:
@@ -39,23 +39,21 @@
     #------------------------------------------------------------------------------
     # admin user , group, privileges
     #------------------------------------------------------------------------------
-    # create user and group
-    - name: Create os user group admin
+    - name: create os user group admin
       group: name=admin gid={{ node_admin_uid }}
-    - name: Create os user admin
+    - name: create os user admin
       user: name={{ node_admin_username }} uid={{ node_admin_uid }} home=/home/{{ node_admin_username }} group=admin generate_ssh_key=yes
 
-    - name: Grant admin group nopass sudo
+    - name: grant admin group nopass sudo
       copy:
         content: "%admin ALL=(ALL) NOPASSWD: ALL"
         dest: /etc/sudoers.d/{{ node_admin_username }}
         mode: 0440
 
-    # ssh config for admin user
-    - name: Add no host checking to ssh config
+    - name: touch admin user ssh config
       copy: src=ssh.config dest=/home/{{ node_admin_username }}/.ssh/config mode=0600 owner={{ node_admin_username }} group=admin
 
-    - name: Add admin ssh no host checking
+    - name: set ssh config no host checking
       lineinfile:
         path: /home/{{ node_admin_username }}/.ssh/config
         regexp: '^StrictHostKeyChecking='
@@ -65,12 +63,12 @@
     # admin ssh exchange among cluster
     #------------------------------------------------------------------------------
     # admin ssh-key exchange
-    - name: Fetch all admin public keys
+    - name: fetch admin public keys
       shell: cat /home/{{ node_admin_username }}/.ssh/id_rsa.pub
       register: admin_ssh_keys
 
     # for all hosts, copy their admin ssh public key to each other
-    - name: Exchange all admin ssh keys
+    - name: exchange all admin ssh keys
       when: node_admin_ssh_exchange|bool
       authorized_key: user={{ node_admin_username }} key="{{ item[0] }}"
       ignore_errors: true
@@ -82,7 +80,7 @@
     #------------------------------------------------------------------------------
     # add additional public keys
     #------------------------------------------------------------------------------
-    - name: Install public keys
+    - name: add admin public keys
       tags: node_admin_pk_list
       when: node_admin_pk_list is defined and node_admin_pk_list|length > 0
       authorized_key: user={{ node_admin_username }} key="{{ item }}"
@@ -90,7 +88,7 @@
       with_items:
         - "{{ node_admin_pk_list }}"
 
-    - name: Install current public key
+    - name: add current user public key
       tags: node_admin_pk_current
       when: node_admin_pk_current|bool
       authorized_key:

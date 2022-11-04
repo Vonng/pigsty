@@ -2,15 +2,15 @@
 #-------------------------------------------------------------------------
 # Kernel Modules
 #-------------------------------------------------------------------------
-- name: Setup node kernel modules
+- name: setup node kernel modules
   tags: node_kernel
   block:
 
-    - name: Enable linux kernel modules
+    - name: enable kernel module
       modprobe: name={{ item }} state=present
       with_items: "{{ node_kernel_modules }}"
 
-    - name: Enable kernel module on system boot
+    - name: enable kernel module on system boot
       copy: content={{ item }} dest=/etc/modules-load.d/{{ item }}.conf
       with_items: "{{ node_kernel_modules }}"
 ...

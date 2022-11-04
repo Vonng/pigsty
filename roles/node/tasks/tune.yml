@@ -1,0 +1,39 @@
+---
+#------------------------------------------------------------------------------
+# Add tuned profile
+#------------------------------------------------------------------------------
+- name: tune node performance
+  tags: node_tune
+  when: node_tune is defined and node_tune != 'none'
+  block:
+
+    # redner four tuned templates: oltp, olap, crit, tiny
+    - name: create tuned profile dir
+      file: path=/etc/tuned/{{ item }} state=directory mode=0755
+      with_items: [ oltp, olap, crit, tiny ]
+
+    - name: render tuned profiles
+      template: src=tuned-{{ item }}.conf dest=/etc/tuned/{{ item }}/tuned.conf mode=0644
+      with_items: [ oltp, olap, crit, tiny ]
+
+    - name: activate tuned profile
+      tags: node_tune_active
+      ignore_errors: true
+      command: tuned-adm profile {{ node_tune }}
+
+#------------------------------------------------------------------------------
+# Change sysctl parameters
+#------------------------------------------------------------------------------
+- name: change sysctl parameter
+  tags: node_sysctl
+  ignore_errors: true
+  when: node_sysctl_params|length > 0
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
+  with_dict: "{{ node_sysctl_params }}"
+
+...

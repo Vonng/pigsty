@@ -3,17 +3,18 @@
 # Setup Resolver
 #------------------------------------------------------------------------------
 # add static nameserver to resolv (if node_dns_method != 'none')
-- name: Setup node dns resolver
+- name: setup node dns resolver
   tags: node_resolv
   when: node_dns_method is defined and node_dns_method != 'none'
   block:
+
     # add new nameservers to existing nameservers
-    - name: Get old nameservers
+    - name: get existing etc resolv
       when: node_dns_method == 'add'
       shell: grep -E '^nameserver' /etc/resolv.conf  | grep -Eo '[0-9\.]+' | head -n3
       register: old_nameservers
 
-    - name: Write DNS resolv config
+    - name: generate etc resolv conf
       copy:
         dest: /etc/resolv.conf
         mode: 0644

@@ -2,14 +2,14 @@
 #--------------------------------------------------------------#
 # Setup Crontab
 #--------------------------------------------------------------#
-- name: Append /etc/crontab
+- name: append etc crontab
   tags: node_cron
   when: node_crontab|length > 0 and not node_crontab_overwrite|bool
   lineinfile: path=/etc/crontab line="{{ item }}"
   with_items: "{{ node_crontab }}"
 
 # overwrite /etc/crontab if node_crontab_overwrite is true
-- name: Overwrite /etc/crontab
+- name: overwrite etc crontab
   tags: node_cron
   when: node_crontab|length > 0 and node_crontab_overwrite|bool
   copy:

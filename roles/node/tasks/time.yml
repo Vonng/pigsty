@@ -1,30 +1,32 @@
 ---
-
 #--------------------------------------------------------------#
 # 1. Setup node timezone (if given)
 #--------------------------------------------------------------#
-- name: Setup default node timezone
+- name: setup node timezone
   tags: node_timezone
   when: node_timezone is defined and node_timezone != ""
   timezone: name={{ node_timezone }}
 
+
 #--------------------------------------------------------------#
-# 2. Make sure chrony package installed
+# 2. Setup time services
 #--------------------------------------------------------------#
-- name: Install chrony package
+- name: setup time service
   tags: node_ntp
   block:
 
     # skip this because already installed in pkgs.yml
-    # - name: Install chrony package
-    #   tags: node_ntp_install
-    #   package: name=chrony state=present
+    - name: install chrony package
+      tags: node_ntp_install
+      package: name=chrony state=present
 
-    - name: Configure /etc/chrony.conf
+    # config chrony service
+    - name: generate etc chrony conf
       tags: node_ntp_config
       template: src=chrony.conf.j2 dest=/etc/chrony.conf
 
-    - name: Launch ntpd service
+    # launch chrony systemctl service
+    - name: launch ntpd service
       tags: node_ntp_launch
       systemd: name=chronyd enabled=true state=restarted
 

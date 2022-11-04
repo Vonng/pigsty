@@ -1,9 +1,14 @@
 ---
 #--------------------------------------------------------------#
+# Prerequisites
+#--------------------------------------------------------------#
+# run role node_id before this
+
+#--------------------------------------------------------------#
 # 1. Name
 #--------------------------------------------------------------#
 #- import_tasks: name.yml
-- name: Set hostname from nodename
+- name: set hostname to nodename
   tags: node_name
   when: nodename_overwrite|bool and nodename is defined and nodename != ''
   hostname: name="{{ nodename }}"
@@ -22,14 +27,14 @@
 #--------------------------------------------------------------#
 # 4. Packages
 #--------------------------------------------------------------#
-- import_tasks: pkgs.yml
+- import_tasks: package.yml
 
 #--------------------------------------------------------------#
-# 5. TUNED
+# 5. TUNE
 #--------------------------------------------------------------#
 - import_tasks: feature.yml
 - import_tasks: kernel.yml
-- import_tasks: tuned.yml
+- import_tasks: tune.yml
 
 #--------------------------------------------------------------#
 # 6. ADMIN

@@ -4,22 +4,22 @@
 #-------------------------------------------------------------------------
 # This behaviour may be changed in the future
 # It's acceptable to use this in isolated network environment
-- name: Disable node firewall
+- name: disable node firewall
   tags: node_firewall
   ignore_errors: true
   block:
 
     # - disable firewall - #
-    - name: Node configure disable firewall
+    - name: disable node firewalld
       when: node_disable_firewall|bool
       systemd: name=firewalld state=stopped enabled=no
 
     # - disable selinux - #
-    - name: Node disable selinux by default
+    - name: disable node selinux
       when: node_disable_selinux|bool
       shell: |
         setenforce 0;
-        sed -ie "s/^SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config
+        sed -ie "s/^SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config;
         rm -rf /etc/selinux/config; /bin/true
 
 ...
