@@ -27,16 +27,17 @@ node_repo_method: local           # none|local: ad local repo|public: add upstre
 node_repo_remove: true            # remove existing repo on nodes?
 node_repo_local_urls:             # list local repo url, if node_repo_method = local
   - http://pigsty/pigsty.repo
-
 node_packages: [ ]                # extra packages for all nodes
 node_packages_default:            # common packages for all nodes
-  - wget,sshpass,ntp,chrony,tuned,uuid,lz4,make,patch,bash,lsof,wget,unzip,git,ftp,vim-minimal,ca-certificates
-  - numactl,grubby,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,tuned,nc,pv,jq,perf
-  - readline,zlib,openssl,openssl-libs,openssh-clients,python3,python36-requests,node_exporter,consul,etcd,promtail
+  - chrony,zip,unzip,bzip2,lz4,netcat,pv,jq,wget,sshpass,uuid,make,patch,bash,lsof,git,ftp,perf,rsync,ca-certificates
+  - numactl,grubby,vim-minimal,sysstat,dstat,iotop,bind-utils,net-tools,tcpdump,socat,ipvsadm,telnet,perf,nvme-cli
+  - python3,python3-pip,python3-requests,python3-psycopg2,python3-etcd,python3-consul,python3-urllib3,python3-idna,python36-pyOpenSSL
+  - readline,zlib,openssl,openssl-libs,openssh-clients,node_exporter,consul,etcd,promtail
 node_packages_meta:               # extra packages for meta nodes
-  - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway,redis,postgresql14
-  - nginx,ansible,pgbadger,python-psycopg2,dnsmasq,coreutils,diffutils,polysh,docker-ce,docker-compose
-node_packages_meta_pip: jupyterlab
+  - grafana,prometheus2,alertmanager,loki,nginx_exporter,blackbox_exporter,pushgateway
+  - nginx,pgbadger,dnsmasq,coreutils,diffutils,python3-psycopg3,postgresql14,redis
+  - ansible,polysh
+node_packages_meta_pip: 'jupyterlab'
 
 #-----------------------------------------------------------------
 # NODE_TUNE
@@ -60,14 +61,14 @@ node_admin_uid: 88                # uid and gid for this admin user
 node_admin_username: dba          # name of this admin user, dba by default
 node_admin_ssh_exchange: true     # exchange admin ssh key among each pgsql cluster ?
 node_admin_pk_current: true       # add current user's ~/.ssh/id_rsa.pub to admin authorized_keys ?
-node_admin_pk_list: [ ]           # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
+node_admin_pk_list: []            # ssh public keys to be added to admin user (REPLACE WITH YOURS!)
 
 #-----------------------------------------------------------------
 # NODE_TIME
 #-----------------------------------------------------------------
-node_timezone: Asia/Hong_Kong     # default node timezone, empty will not change
+node_timezone: ''                 # default node timezone, empty will not change
 node_ntp_enabled: true            # enable ntp service? false will leave ntp service untouched
-node_ntp_servers:                 # default NTP servers
+node_ntp_servers:                 # NTP servers in /etc/chrony.conf
   - pool pool.ntp.org iburst
 node_crontab_overwrite: true      # true will overwrite /etc/crontab, false will append crontab
 node_crontab: [ ]                 # crontab entries in /etc/crontab
@@ -76,4 +77,8 @@ node_crontab: [ ]                 # crontab entries in /etc/crontab
 # REPO (Reference)
 #-----------------------------------------------------------------
 repo_upstreams: []
+nginx_enabled: false
+nginx_home: /www
+repo_name: pigsty
+dcs_gid: 1087
 ...
