@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   infra-remove.yml
 # Ctime     :   2022-02-22
-# Mtime     :   2022-04-29
+# Mtime     :   2022-10-05
 # Desc      :   uninstall pigsty from meta nodes
 # Path      :   infra-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
@@ -12,38 +12,14 @@
 #---------------------------------------------------------------
 # Usage
 #---------------------------------------------------------------
-# ./infra-remove.yml -t pgsql     # remove cmdb on meta node
-#
-# ./infra-remove.yml -t infra     # remove infra on meta node
-# ./infra-remove.yml -t infra-svc # stop & disable meta services
-# ./infra-remove.yml -e pg_clean=true       # remove pigsty cmdb
+# ./infra-remove.yml -t infra      # remove infra
+# ./infra-remove.yml -t infra-svc  # remove infra services
+# ./infra-remove.yml -t infra-data # remove infra data
+# ./infra-remove.yml -t infra-pkg  # remove infra packages
 # ./infra-remove.yml -e rm_metadata=true   # remove pigsty data
 # ./infra-remove.yml -e rm_metadpkgs=true  # remove meta pkgs too
 # ./infra-remove.yml -e rm_metadata=true -e rm_metadpkgs=true  #
 #---------------------------------------------------------------
-
-
-#------------------------------------------------------------------------------
-# Remove CMDB
-#------------------------------------------------------------------------------
-- name: PGSQL Remove
-  become: yes
-  hosts: meta
-  tags:  [ cmdb , pgsql-remove ]
-  gather_facts: no
-  ignore_errors: yes
-  vars:
-
-    # pg_clean: true        # override pg_clean
-    # pg_safeguard: false   # override pg_safeguard
-    rm_pgdata: false        # remove postgres data? false by default
-    rm_pgpkgs: true         # uninstall pg_packages? false by default
-
-  roles:
-    - role: pg_remove
-      tags: pg-remove
-      when: pg_clean|bool   # remove cmdb when pg_clean is true
-
 
 #------------------------------------------------------------------------------
 # Remove Infrastructure
@@ -55,6 +31,7 @@
   gather_facts: no
   ignore_errors: yes
   vars:
+
     rm_metadata: false        # remove metadata on meta nodes? false by default
     rm_metapkgs: false        # uninstall node_packages_meta? false by default
 
@@ -65,7 +42,7 @@
     #---------------------------------------------
     - name: Stop and disable systemd infra service
       systemd: name={{ item }} state=stopped enabled=no daemon_reload=yes
-      tags: infra-svcs
+      tags: infra-svc
       with_items:
         - grafana-server
         - prometheus
@@ -99,7 +76,7 @@
     #---------------------------------------------
     - name: Uninstall meta packages
       yum: name={{ item }} state=removed
-      tags: infra-pkgs
+      tags: infra-pkg
       when: rm_metapkgs|bool
       with_items:
         - prometheus2

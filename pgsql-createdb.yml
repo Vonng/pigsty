@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-createdb.yml
 # Ctime     :   2021-02-27
-# Mtime     :   2021-07-06
+# Mtime     :   2022-11-05
 # Desc      :   create database on existing cluster
 # Deps      :   templates/pg-db.sql
 # Path      :   pgsql-createdb.yml
@@ -26,25 +26,27 @@
 #   3. update /etc/pgbouncer/database.txt and reload pgbouncer if necessary
 #   4. register database to grafana instance
 #=============================================================================#
-- name: Create new postgres database
+- name: create new postgres database
   become: yes
   hosts: all
   gather_facts: no
   vars:
 
     # TODO (IMPORTANT): OVERWRITE THIS WITH CLI-ARG: `-e pg_database=<database.name>`
-    pg_database: meta           # database NAME that will be created on target cluster
+    # Or use shortcuts: bin/createdb <cluster> <dbname>
+
+    # pg_database: meta         # database NAME that will be created on target cluster
     register_datasource: true   # register newly created database to grafana ?
 
   tasks:
     #------------------------------------------------------------------------------
     # Preflight Check: validate pg_database and database definition
     # ------------------------------------------------------------------------------
-    - name: Preflight
+    - name: preflight
       tags: preflight
       connection: local
       block:
-        - name: Validate pg_database
+        - name: validate pg_database
           assert:
             that:
               - pg_database is defined
@@ -52,13 +54,13 @@
               - pg_database != 'postgres'
             fail_msg: variable 'pg_database' should be specified to create target database
 
-        - name: Fetch database definition
+        - name: get database definition
           set_fact:
             pg_database_definition={{ pg_databases | json_query(pg_database_definition_query) }}
           vars:
             pg_database_definition_query: "[?name=='{{ pg_database }}'] | [0]"
 
-        - name: Check database definition
+        - name: validate database definition
           assert:
             that:
               - pg_database_definition is defined
@@ -81,7 +83,7 @@
     #------------------------------------------------------------------------------
     # Reload Pgbouncer if Necessary (among entire cluster)
     #------------------------------------------------------------------------------
-    - name: Reload pgbouncer to add database
+    - name: reload pgbouncer to add database
       when: pg_database_definition.pgbouncer is not defined or pg_database_definition.pgbouncer|bool
       tags: reload
       systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
@@ -89,7 +91,7 @@
     #------------------------------------------------------------------------------
     # Create datasource on grafana
     #------------------------------------------------------------------------------
-    - name: Render datasource definition on meta node
+    - name: render datasource definition
       tags: datasource
       delegate_to: meta
       when: register_datasource|bool
@@ -125,7 +127,7 @@
         datname: "{{ pg_database }}"
         insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ pg_database }}"
 
-    - name: Load grafana datasource on meta node
+    - name: load grafana datasource of database
       tags: datasource
       delegate_to: meta
       when: register_datasource|bool
@@ -135,6 +137,5 @@
       vars:
         datname: "{{ pg_database }}"
         insdb: "{{ pg_cluster }}-{{ pg_seq }}.{{ datname }}"
-
 
 ...

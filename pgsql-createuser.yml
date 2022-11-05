@@ -3,7 +3,7 @@
 #==============================================================#
 # File      :   pgsql-createuser.yml
 # Ctime     :   2021-02-27
-# Mtime     :   2021-07-06
+# Mtime     :   2022-11-05
 # Desc      :   create user/role on existing cluster
 # Path      :   pgsql-createuser.yml
 # Deps      :   templates/pg-user.sql
@@ -26,24 +26,26 @@
 #   2. execute database creation/update sql on cluster leader instance
 #   3. update /etc/pgbouncer/userlist.txt and reload pgbouncer if necessary
 #=============================================================================#
-- name: Create new postgres user
+- name: create postgres user
   become: yes
   hosts: all
   gather_facts: no
   vars:
 
-    # TODO (IMPORTANT): SET OR PASS CLI-ARG: `-e pg_user=<user.name>`
+    # (IMPORTANT): SET OR PASS CLI-ARG: `-e pg_user=<user.name>`
     # pg_user: dbuser_meta
+    # Or use shortcuts: bin/createuser <cluster> <username>
 
   tasks:
     #------------------------------------------------------------------------------
     # pre-flight check: validate pg_user and user definition
     # ------------------------------------------------------------------------------
-    - name: Preflight
+    - name: preflight
       tags: preflight
       connection: local
       block:
-        - name: Validate pg_user
+
+        - name: validate pg_user
           assert:
             that:
               - pg_user is defined
@@ -51,13 +53,13 @@
               - pg_user != 'postgres'
             fail_msg: variable 'pg_user' should be specified to create target user
 
-        - name: Fetch user definition
+        - name: get user definition
           set_fact:
             pg_user_definition={{ pg_users | json_query(pg_user_definition_query) }}
           vars:
             pg_user_definition_query: "[?name=='{{ pg_user }}'] | [0]"
 
-        - name: Check user definition
+        - name: validate user definition
           assert:
             that:
               - pg_user_definition is defined
@@ -79,10 +81,9 @@
     #------------------------------------------------------------------------------
     # Reload Pgbouncer if Necessary (among entire cluster)
     #------------------------------------------------------------------------------
-    - name: Reload pgbouncer to add user
+    - name: reload pgbouncer to add user
       when: pg_user_definition.pgbouncer is defined and pg_user_definition.pgbouncer|bool
       tags: pgbouncer_reload
       systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes
-
 
 ...

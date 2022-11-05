@@ -37,7 +37,12 @@
       connection: local
       when: pg_exists|bool and (pg_safeguard|bool or not pg_clean|bool)
       any_errors_fatal: true
-      fail: msg="Abort because pg instance {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is running, use -e pg_clean=true"
+      ignore_errors: false
+      fail:
+        msg: >-
+          Abort because pg instance {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} exists. 
+           {% if pg_safeguard|bool %}pg_safeguard enabled, please disable it before purging.{% endif %}
+           {% if not pg_clean|bool %}pg_clean = false, use -e pg_safeguard=false to override.{% endif %}
 
 
 #------------------------------------------------------------------------------
