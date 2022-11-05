@@ -43,29 +43,22 @@
 # 2. if node identity is not specified and pg_hostname is set, it will use pg's instance identity if applicable
 # 3. otherwise, node_cluster will fall back to `nodes` and nodename will fall back to node's current hostname
 #---------------------------------------------------------------
-- name: Node Identity
+
+#---------------------------------------------------------------
+# identity
+#---------------------------------------------------------------
+- name: Identity
   hosts: all
   gather_facts: no
-  tags: [ always, node-id ]
-  tasks:
+  tags: id
+  roles:
 
-    # get node hostname and use it as nodename if missing and can not be inferred
-    - name: Fill nodename with hostname
-      when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
-      block:
-        - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
-        - { name: Get os version releasever , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
-        - { name: Set node facts, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" , os_version: "{{ releasever_result.stdout }}" }}
+    - role: node_id             # get node identity (always)
+      tags: node-id
 
-    - name: Calculate node identity
-      connection: local
-      set_fact:
-        node_cluster: "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster }}{% endif %}"
-        nodename: "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
-
-    - name: Print node identity
-      connection: local
-      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }}" }
+    #- role: pg_id
+    #  tags: pg-id
+    #  when: pg_cluster is defined
 
 
 #---------------------------------------------------------------

@@ -3,158 +3,42 @@
 #==============================================================#
 # File      :   nodes-remove.yml
 # Mtime     :   2022-02-22
-# Mtime     :   2022-03-20
+# Mtime     :   2022-11-05
 # Desc      :   remove nodes from pigsty
 # Path      :   nodes-remove.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
-#---------------------------------------------------------------
-# DeRegister
-#---------------------------------------------------------------
-- name: Register Remove
+
+#==============================================================#
+# Playbook : Remove node                                       #
+#==============================================================#
+#
+#  Remove node cluster `pg-test`
+#     node-remove.yml -l pg-test
+#
+#  Remove instance (10.10.10.13) among cluster `pg-test`
+#     pgsql-remove.yml -l 10.10.10.13
+#
+#  Remove postgres data along with pg_packages
+#     pgsql-remove.yml -e rm_pgdata=true -e rm_pgpkgs=true
+#
+#  Register cluster/instance to infrastructure
+#     pgsql-remove.yml --tags=register  # prometheus, grafana, nginx
+#     pgsql-remove.yml --tags=service   # haproxy, vip
+#     pgsql-remove.yml --tags=monitor   # pg_exporter, pgbouncer_exporter, node_exporter, promtail
+#     pgsql-remove.yml --tags=pgbouncer # pgbouncer
+#     pgsql-remove.yml --tags=postgres  # postgres
+#     pgsql-remove.yml --tags=haproxy   # remove haproxy
+#==============================================================#
+- name: REMOVE NODE
   become: yes
   hosts: all
   gather_facts: no
-  tags: register
-  ignore_errors: true
-  tasks:
-
-    #---------------------------------------------
-    # Deregister from prometheus
-    #---------------------------------------------
-    - name: Remove node target from prometheus
-      tags: register_prometheus
-      become: yes
-      ignore_errors: yes
-      delegate_to: '{{ item }}'
-      with_items: '{{ groups["meta"] }}'
-      file: state=absent path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
-
-    #---------------------------------------------
-    # Deregister from consul if applicable
-    #---------------------------------------------
-    - name: Remove node_exporter service from consul
-      tags: register_consul
-      when: dcs_registry == 'consul'
-      file:
-        path: /etc/consul.d/svc-node-exporter.json
-        state: absent
-
-    - name: Reload consul to dereigster node_exporter
-      tags: register_consul
-      when: dcs_registry == 'consul'
-      systemd: name=consul state=reloaded
-
-    #---------------------------------------------
-    # Other Deregister Logic
-    #---------------------------------------------
-
-
-
-#------------------------------------------------------------------------------
-# Remove Node Exporter
-#------------------------------------------------------------------------------
-- name: Node Exporter Remove
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: node-exporter
   ignore_errors: yes
-  tasks:
-    - name: Stop and disable node_exporter service
-      systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
+  roles:
 
-#------------------------------------------------------------------------------
-# Remove Promtail
-#------------------------------------------------------------------------------
-- name: Promtail Agent Remove
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: promtail
-  ignore_errors: yes
-  tasks:
-    - name: Stop and disable promtail service
-      systemd: name=promtail state=stopped enabled=no daemon_reload=yes
-      # when: promtail_enabled|bool
-
-
-#---------------------------------------------------------------
-# Docker
-#---------------------------------------------------------------
-- name: Docker Remove
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: docker
-  ignore_errors: yes
-  tasks:
-    - name: Stop and disable docker service
-      systemd: name=docker state=stopped enabled=no daemon_reload=yes
-      # when: docker_enabled|bool
-
-
-#---------------------------------------------------------------
-# Remove DCS:Consul
-#---------------------------------------------------------------
-# force remove with ./nodes-remove.yml -t consul -e dcs_safeguard=false
-- name: DCS Remove
-  become: yes
-  hosts: all
-  gather_facts: no
-  tags: dcs
-  tasks:
-
-    - name: Abort due to dcs_safeguard enabled
-      connection: local
-      when: dcs_safeguard|bool
-      any_errors_fatal: true
-      fail: msg="Abort due to dcs_safeguard for {{ inventory_hostname }} is enabled, use -e dcs_safeguard=false to override"
-
-    #------------------------------------------------------------------------------
-    # Remove Consul
-    #------------------------------------------------------------------------------
-    - name: Remove Consul
-      tags: consul
-      when: consul_enabled|bool
-      become: yes
-      block:
-        - name: Consul leave cluster
-          ignore_errors: yes
-          command: consul leave
-
-        - name: Stop and disable consul
-          ignore_errors: yes
-          systemd: name=consul state=stopped enabled=no daemon_reload=yes
-
-        - name: Remove consul config and data
-          ignore_errors: yes
-          file: path={{ item }} state=absent
-          with_items:
-            - /etc/consul.d
-            - "{{ consul_data_dir }}"
-
-    #------------------------------------------------------------------------------
-    # Remove Etcd
-    #------------------------------------------------------------------------------
-    - name: Remove Etcd
-      tags: consul
-      when: etcd_enabled|bool
-      become: yes
-      block:
-        - name: Stop and disable etcd
-          ignore_errors: yes
-          systemd: name=etcd state=stopped enabled=no daemon_reload=yes
-
-        - name: Remove etcd config and data
-          ignore_errors: yes
-          file: path={{ item }} state=absent
-          with_items:
-            - /etc/consul.d
-            - "{{ etcd_data_dir }}"
-
-
-
+    - role: node_remove
+      tags: node-remove
 
 ...

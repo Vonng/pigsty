@@ -1,0 +1,57 @@
+---
+#---------------------------------------------------------------
+# Remove DCS:Consul
+#---------------------------------------------------------------
+- name: ABORT due to dcs_safeguard enabled
+  connection: local
+  when: dcs_safeguard|bool
+  any_errors_fatal: true
+  ignore_errors: false
+  fail: msg="Abort due to dcs_safeguard for {{ inventory_hostname }} is enabled, override with -e dcs_safeguard=false"
+
+#------------------------------------------------------------------------------
+# Remove Consul
+#------------------------------------------------------------------------------
+- name: remove consul
+  tags: consul
+  when: consul_enabled|bool
+  become: yes
+  block:
+
+    - name: consul leave cluster
+      ignore_errors: yes
+      command: consul leave
+
+    - name: stop and disable consul service
+      ignore_errors: yes
+      systemd: name=consul state=stopped enabled=no daemon_reload=yes
+
+    - name: remove consul config and data
+      ignore_errors: yes
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/consul.d
+        - "{{ consul_data_dir }}"
+
+
+#------------------------------------------------------------------------------
+# Remove Etcd
+#------------------------------------------------------------------------------
+- name: remove etcd
+  tags: consul
+  when: etcd_enabled|bool
+  become: yes
+  block:
+
+    - name: stop and disable etcd service
+      ignore_errors: yes
+      systemd: name=etcd state=stopped enabled=no daemon_reload=yes
+
+    - name: remove etcd config and data
+      ignore_errors: yes
+      file: path={{ item }} state=absent
+      with_items:
+        - /etc/consul.d
+        - "{{ etcd_data_dir }}"
+
+...

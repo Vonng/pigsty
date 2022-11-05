@@ -1,0 +1,60 @@
+---
+#---------------------------------------------
+# remove prometheus register
+#---------------------------------------------
+- name: remove node target from prometheus
+  tags: register_prometheus
+  become: yes
+  ignore_errors: yes
+  delegate_to: '{{ item }}'
+  with_items: '{{ groups["meta"] }}'
+  file: state=absent path=/etc/prometheus/targets/nodes/{{ inventory_hostname }}.yml
+
+#---------------------------------------------
+# remove consul register
+#---------------------------------------------
+- name: remove node_exporter
+  tags: register_consul
+  become: yes
+  ignore_errors: yes
+  block:
+
+    - name: remove node_exporter service from consul
+      tags: register_consul
+      when: dcs_registry == 'consul'
+      file:
+        path: /etc/consul.d/svc-node-exporter.json
+        state: absent
+
+    - name: remove consul to deregister node_exporter
+      tags: register_consul
+      when: dcs_registry == 'consul'
+      systemd: name=consul state=reloaded
+
+#--------------------------------------------------------------#
+# remove exporter
+#--------------------------------------------------------------#
+- name: stop and disable node_exporter service
+  ignore_errors: yes
+  systemd: name=node_exporter state=stopped enabled=no daemon_reload=yes
+
+#--------------------------------------------------------------#
+# remove promtail
+#--------------------------------------------------------------#
+- name: stop and disable promtail service
+  ignore_errors: yes
+  systemd: name=promtail state=stopped enabled=no daemon_reload=yes
+
+#--------------------------------------------------------------#
+# remove docker
+#--------------------------------------------------------------#
+- name: stop and disable docker service
+  ignore_errors: yes
+  systemd: name=docker state=stopped enabled=no daemon_reload=yes
+
+#--------------------------------------------------------------#
+# remove dcs
+#--------------------------------------------------------------#
+- import_tasks: dcs.yml
+
+...
