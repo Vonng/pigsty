@@ -47,50 +47,6 @@
 #     pgsql.yml --tags=register_nginx       # haproxy admin page
 #==============================================================#
 
-#---------------------------------------------------------------
-# PG IDENTITY
-#---------------------------------------------------------------
-- name: PGSQL Identity
-  hosts: all
-  gather_facts: no
-  tags: [ always, pg-id ]
-  connection: local
-  become: no
-  tasks:
-
-    # fetch cluster inventory variable from hostvars of corresponding cluster
-    - name: Gather pgsql basic facts
-      set_fact:
-        pg_meta={{ hostvars| json_query(cluster_query) }}
-        pg_instance={{ pg_cluster }}-{{ pg_seq }}
-        pg_service={{ pg_cluster }}-{{ pg_role }}
-      vars: { cluster_query: "[@.*][0][?pg_cluster=='{{ pg_cluster }}']" }
-
-    # calculate basic cluster facts from pg_meta
-    - name: Build pgsql basic facts
-      set_fact:
-        pg_is_primary={{ pg_role == 'primary' }}
-        pg_cluster_size={{ pg_meta | json_query("[].inventory_hostname") | unique | length }}
-        pg_cluster_members={{ pg_meta | json_query("[].inventory_hostname") | unique | sort }}
-        pg_cluster_primary_list={{ pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort }}
-        pg_cluster_replicas={{ pg_meta | json_query("[?pg_role!='primary'].inventory_hostname") | unique | sort }}
-        pg_seq_next={{ pg_meta | json_query('max([].pg_seq)') | int + 1 }}
-        pg_cluster_primary={{ (pg_meta | json_query("[?pg_role=='primary'].inventory_hostname") | unique | sort)[0] }}
-        pg_cluster_primary_id={{ (pg_meta | json_query("[?pg_role=='primary'].pg_seq") | unique | sort)[0] }}
-
-    # print instance pre-flight check summary
-    - name: Show pgsql identity summary
-      debug:
-        msg: "{% if pg_cluster_primary_list|length < 1 %}[WARNING] NO PRIMARY FOR {{ pg_cluster }}  [WARNING]{% endif %}
-          {% if pg_cluster_primary_list|length > 1 %}[WARNING] MULTIPLE PRIMARY FOR {{ pg_cluster }} : {{ pg_cluster_primary }} [WARNING]{% endif %}
-          [{{ pg_role }}]  {{ pg_instance }} @ {{ inventory_hostname }} , 
-          {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}
-          {% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_cluster }}-{{ pg_cluster_primary_id }} -> {{ pg_instance }}{% endif %}{% endif %}
-          , PGURL = postgres://{{ inventory_hostname }}:{{ pg_port }}/postgres"
-
-#---------------------------------------------------------------
-# PG INIT
-#---------------------------------------------------------------
 # init postgres cluster/instance
 - name: Pgsql Init
   become: yes
@@ -98,6 +54,12 @@
   gather_facts: no
   tags: pg-init
   roles:
+
+    - role: node_id         # get node identity (always)
+      tags: node-id
+
+    - role: pg_id           # get pgsql identity (always)
+      tags: pg-id
 
     - role: postgres        # init postgres pgbouncer patroni
       tags: postgres
@@ -111,5 +73,4 @@
     - role: pg_register     # register postgres cluster/instance to infra
       tags: pg-register
 
-#---------------------------------------------------------------
 ...

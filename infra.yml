@@ -3,46 +3,23 @@
 #==============================================================#
 # File      :   infra.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-07-18
-# Desc      :   init infrastructure (except pgsql) on meta nodes
+# Mtime     :   2022-11-04
+# Desc      :   init infrastructure on meta nodes
 # Path      :   infra.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
-# Notice
+# identity
 #---------------------------------------------------------------
-# This playbook will init pigsty infra & pgsql on meta nodes.
-# if you don't want pull up everything, use ./install.yml instead
-#---------------------------------------------------------------
-
-#---------------------------------------------------------------
-# setup meta node identity
-#---------------------------------------------------------------
-- name: Node Identity
-  become: yes
-  hosts: meta
+- name: Identity
+  hosts: all
   gather_facts: no
-  tags: [ always, node-id ]
-  tasks:
+  tags: id
+  roles:
 
-    # get node hostname and use it as nodename if missing and can not be inferred
-    - name: Fill nodename with hostname
-      when: (nodename is not defined or nodename == '') and not ( pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' )
-      block:
-        - { name: Get hostname for nodename, shell: "echo $HOSTNAME", register: hostname_result }
-        - { name: Get os version releasever , shell: "rpm -q --qf '%{VERSION}' $(rpm -q --whatprovides redhat-release) | grep -o '^[^.]\\+'" , register: releasever_result }
-        - { name: Set node facts, connection: local , set_fact: { nodename: "{{ hostname_result.stdout }}" , os_version: "{{ releasever_result.stdout }}" }}
-
-    - name: Calculate node identity
-      connection: local
-      set_fact:
-        node_cluster: "{% if pg_hostname|bool and pg_cluster is defined and pg_cluster != '' and (node_cluster is not defined or node_cluster == 'nodes' or node_cluster == '') %}{{ pg_cluster }}{% else %}{{ node_cluster }}{% endif %}"
-        nodename: "{% if pg_hostname|bool and pg_cluster is defined and pg_seq is defined and pg_cluster != '' and pg_seq != '' %}{{ pg_cluster }}-{{ pg_seq }}{% else %}{{ nodename|default(omit) }}{% endif %}"
-
-    - name: Print node identity
-      connection: local
-      debug: { msg: "ins = {{ nodename|default('NULL') }}   cls = {{ node_cluster|default('NULL') }} {{ os_version }}" }
+    - role: node_id             # get node identity (always)
+      tags: node-id
 
 
 #---------------------------------------------------------------
@@ -52,7 +29,7 @@
   become: yes
   hosts: meta
   gather_facts: no
-  tags: infra-boot
+  tags: infra
   roles:
 
     # INFRA
@@ -83,7 +60,7 @@
       when: etcd_enabled|bool
 
     # INFRA
-    - role: nameserver    # init dns nameserver
+    - role: nameserver      # init dns nameserver
       tags: nameserver
       # when: nameserver_enabled|bool
 
@@ -103,10 +80,9 @@
       tags: loki
       # when: loki_enabled|bool
 
-    - role: infra_register
+    - role: infra_register  # register infra targets
       tags: infra-register
 
-    # NODE
     # init & register node exporter
     - role: node_exporter
       tags: node-exporter
@@ -117,7 +93,7 @@
       tags: promtail
       when: promtail_enabled|bool
 
-    # register node-exporter & docker to prometheus
+    # register node monitor target to prometheus
     - role: node_register
       tags: node-register
 

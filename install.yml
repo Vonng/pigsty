@@ -3,28 +3,14 @@
 #==============================================================#
 # File      :   install.yml
 # Ctime     :   2021-01-19
-# Mtime     :   2022-10-18
+# Mtime     :   2022-11-04
 # Desc      :   install everything on all nodes
 # Path      :   install.yml
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
 #---------------------------------------------------------------
-# Notice
-#---------------------------------------------------------------
-# This is a special playbook that interleave infra.yml & pgsql.yml
-# It is used for 4-node demo, or in case that there are multiple
-# meta nodes also reused as common database nodes.
-#
-# to init multiple meta nodes, add their ip address to pigsty.yml
-#   all.children.meta.hosts
-#
-# if offline installation packages is used, you can also copy them to
-#   copy /www/pigsty to all meta nodes before run ./install.yml
-#---------------------------------------------------------------
-
-#---------------------------------------------------------------
-# setup meta node identity
+# identity
 #---------------------------------------------------------------
 - name: Identity
   hosts: all
@@ -58,7 +44,7 @@
 
 
 #---------------------------------------------------------------
-# init node & dcs
+# init node , ca, docker & dcs
 #---------------------------------------------------------------
 - name: Node Init
   become: yes
