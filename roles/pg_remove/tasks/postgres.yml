@@ -3,28 +3,35 @@
 # Detect Leadership
 #------------------------------------------------------------------------------
 # since cluster may switchover/failover, it's important to detect actual role first
-- name: Detect real leadership
-  block:
-    - name: Get actuall pg_role
-      shell: /pg/bin/pg-role
-      register: pg_role_result
+#- name: detect real pg_role
+#  block:
+#
+#    # detect pg_role
+#    - name: get actual pg_role
+#      shell: /pg/bin/pg-role
+#      register: pg_role_result
+#    - name: get pg_role from result
+#      connection: local
+#      set_fact:
+#        pg_role_detected: pg_role_result.stdout
+#
+#    - name: set actual pg_role if applicable
+#      when: pg_role_detected == 'primary' or pg_role_detected == 'replica'
+#      set_fact:
+#        pg_role: "{{ pg_role_detected }}"
+#
+#    # TODO: Raise a notice if pg_role != pg_role_detected
+#    - debug:
+#        msg: "REMOVE {{ pg_cluster }}-{{ pg_seq }}, pg_role: {{ pg_role }}, detect role: {{ pg_role_detected }}"
 
-    - name: Get pg_role from result
-      set_fact:
-        pg_role_detected: pg_role_result.stdout
-
-    # TODO: Raise a notice if pg_role != pg_role_detected
-    - name: Set pg_role if applicable
-      when: pg_role_detected == 'primary' or pg_role_detected == 'replica'
-      set_fact:
-        pg_role: "{{ pg_role_detected }}"
 
 
 #------------------------------------------------------------------------------
 # Remove Follower
 #------------------------------------------------------------------------------
 # remove followers first to avoid unnecessary failover, especially when removing entire cluster
-- name: Remove follower postgres
+- name: remove postgres replica
+  tags: pg_replica
   become: yes
   ignore_errors: yes
   when: pg_role != 'primary'
@@ -33,43 +40,45 @@
     #---------------------------------------------
     # Deregister Service
     #---------------------------------------------
-    - name: Remove follower postgres service from consul
+    - name: remove postgres replica registration
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-postgres.json
         state: absent
 
-    - name: Remove follower patroni service from consul
+    - name: remove patroni replica registration
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-patroni.json
         state: absent
 
-    - name: Reload follower consul to dereigster postgres & patroni
+    - name: reload consul to deregister replica
       when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: Stop and disable follower patroni service
+    - name: stop and disable patroni replica service
       systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
-    - name: Stop and disable follower postgres service
+    - name: stop and disable postgres replica service
       systemd: name=postgres state=stopped enabled=no daemon_reload=yes
 
     # in case of maintenance mode
-    - name: Force follower postgres shutdown
+    - name: shutdown postgres replica with force
       become_user: "{{ pg_dbsu }}"
       shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate; /bin/true"
+
 
 
 #------------------------------------------------------------------------------
 # Remove Leader
 #------------------------------------------------------------------------------
-- name: Remove leader postgres
+- name: remove postgres primary
+  tags: pg_primary
   become: yes
   ignore_errors: yes
   when: pg_role == 'primary'
@@ -78,65 +87,71 @@
     #---------------------------------------------
     # Deregister Service
     #---------------------------------------------
-    - name: Remove leader postgres service from consul
+    - name: remove postgres primary registration
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-postgres.json
         state: absent
 
-    - name: Remove leader patroni service from consul
+    - name: remove postgres patroni registration
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-patroni.json
         state: absent
 
-    - name: Reload leader consul to dereigster postgres & patroni
+    - name: reload consul to deregister primary
       when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: Stop and disable leader patroni service
+    - name: stop and disable postgres primary service
       systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
-    - name: Stop and disable leader postgres service
+    - name: stop and disable postgres primary service
       systemd: name=postgres state=stopped enabled=no daemon_reload=yes
 
     # in case of maintenance mode
-    - name: Force leader postgres shutdown
+    - name: shutdown postgres primary with force
       become_user: "{{ pg_dbsu }}"
       shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} stop -m immediate; /bin/true"
 
-    # when cleanup primary, remove dcs metadata
-    - name: Remove dcs postgres metadata
-      ignore_errors: true
-      when: pg_role == 'primary'
-      delegate_to: '{{ meta_ip }}'
-      block:
 
-        - name: Remove postgres metadata in consul
-          when: pg_dcs_type == 'consul'
-          shell: |
-            {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-            export CONSUL_HTTP_SSL=true
-            {% endif %}
-            consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
+#------------------------------------------------------------------------------
+# Remove DCS Meta Data
+#------------------------------------------------------------------------------
 
-        - name: Remove postgres metadata in etcd
-          when: pg_dcs_type == 'etcd'
-          shell: |
-            {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
-            export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
-            {% else %}
-            export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
-            {% endif %}
-            export ETCDCTL_API=2
-            # do so with APIv3: del {{ pg_namespace }}/{{ pg_cluster }} --prefix=true
-            etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key \
-              rm -r {{ pg_namespace }}/{{ pg_cluster }}
-            /bin/true
+# when cleanup primary, remove dcs metadata
+- name: remove dcs postgres metadata
+  tags: dcs
+  ignore_errors: true
+  when: pg_role == 'primary'
+  delegate_to: '{{ meta_ip }}'
+  block:
+
+    - name: remove postgres metadata from consul
+      when: pg_dcs_type == 'consul'
+      shell: |
+        {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+        export CONSUL_HTTP_SSL=true
+        {% endif %}
+        consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
+
+    - name: remove postgres metadata from etcd
+      when: pg_dcs_type == 'etcd'
+      shell: |
+        {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+        export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
+        {% else %}
+        export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
+        {% endif %}
+        export ETCDCTL_API=2
+        # do so with APIv3: del {{ pg_namespace }}/{{ pg_cluster }} --prefix=true
+        etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key \
+          rm -r {{ pg_namespace }}/{{ pg_cluster }}
+        /bin/true
 
 ...

@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Remove Pgbouncer
 #------------------------------------------------------------------------------
-- name: Remove Pgbouncer
+- name: remove pgbouncer
   become: yes
   ignore_errors: yes
   block:
@@ -10,21 +10,20 @@
     #---------------------------------------------
     # Deregister Service
     #---------------------------------------------
-    - name: Remove pgbouncer service from consul
+    - name: deregister pgbouncer service from consul
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-pgbouncer.json
         state: absent
 
-    - name: Reload consul to dereigster pgbouncer
+    - name: reload consul to deregister pgbouncer
       when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
-
 
     #---------------------------------------------
     # Stop Service
     #---------------------------------------------
-    - name: Stop and disable pgbouncer service
+    - name: stop and disable pgbouncer service
       systemd: name=pgbouncer state=stopped enabled=no daemon_reload=yes
 ...

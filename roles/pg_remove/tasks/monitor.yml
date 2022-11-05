@@ -2,53 +2,48 @@
 #------------------------------------------------------------------------------
 # Remove PG Exporter
 #------------------------------------------------------------------------------
-- name: Remove PG Exporter
+- name: remove postgres exporter
   tags: pg_exporter
   become: yes
   ignore_errors: yes
   block:
 
-    #---------------------------------------------
-    # Deregister Service
-    #---------------------------------------------
-    - name: Remove pg_exporter service from consul
+    - name: deregister pg_exporter service from consul
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-pg-exporter.json
         state: absent
 
-    - name: Reload consul to dereigster pg_exporter
+    - name: reload consul to deregister pg_exporter
       when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
-    #---------------------------------------------
-    # Stop Service
-    #---------------------------------------------
-    - name: Stop and disable pg_exporter service
+    - name: stop and disable pg_exporter service
       systemd: name=pg_exporter state=stopped enabled=no daemon_reload=yes
 
 
 #------------------------------------------------------------------------------
 # Remove Pgbouncer Exporter
 #------------------------------------------------------------------------------
-- name: Remove Pgbouncer Exporter
+- name: remove pgbouncer Exporter
   tags: pgbouncer_exporter
   become: yes
   ignore_errors: yes
   block:
-    - name: Remove pgbouncer_exporter service from consul
+
+    - name: remove pgbouncer_exporter service from consul
       tags: consul_registry
       when: dcs_registry == 'consul'
       file:
         path: /etc/consul.d/svc-pgbouncer-exporter.json
         state: absent
 
-    - name: Reload consul to dereigster pgbouncer_exporter
+    - name: reload consul to deregister pgbouncer_exporter
       when: dcs_registry == 'consul'
       systemd: name=consul state=reloaded
 
-    - name: Stop and disable pgbouncer_exporter service
+    - name: stop and disable pgbouncer_exporter service
       systemd: name=pgbouncer_exporter state=stopped enabled=no daemon_reload=yes
 
 ...

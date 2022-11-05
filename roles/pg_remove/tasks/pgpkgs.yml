@@ -2,14 +2,14 @@
 #------------------------------------------------------------------------------
 # Remove PostgreSQL Packages & Extensions
 #------------------------------------------------------------------------------
-# uninstall postgres basic packages
-- name: Remove pg packages
-  yum: state=absent name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
-  with_items: "{{ pg_packages }}"
-
 # uninstall postgres extensions
-- name: Remove pg extensions
+- name: uninstall pg extensions
   yum: state=absent name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
   with_items: "{{ pg_extensions }}"
+
+# uninstall postgres basic packages
+- name: uninstall pg packages
+  yum: state=absent name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
+  with_items: "{{ pg_packages }}"
 
 ...

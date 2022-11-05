@@ -9,11 +9,21 @@
 # Copyright (C) 2018-2022 Ruohang Feng (rh@vonng.com)
 #==============================================================#
 
+- name: REMOVE PGSQL
+  become: yes
+  hosts: all
+  gather_facts: no
+  ignore_errors: yes
+  roles:
+
+    - role: pg_remove
+      tags: pg-remove
 
 #==============================================================#
 # Playbook : Remove pgsql Cluster/Instance                     #
 #==============================================================#
-#  Remove cluster `pg-test`
+#
+#  Remove pgsql cluster `pg-test`
 #     pgsql-remove.yml -l pg-test
 #
 #  Remove instance (10.10.10.13) among cluster `pg-test`
@@ -22,27 +32,36 @@
 #  Remove postgres data along with pg_packages
 #     pgsql-remove.yml -e rm_pgdata=true -e rm_pgpkgs=true
 #
-#  Register cluster/instance to infrastructure
-#     pgsql-remove.yml --tags=register  # prometheus, grafana, nginx
-#     pgsql-remove.yml --tags=service   # haproxy, vip
-#     pgsql-remove.yml --tags=monitor   # pg_exporter, pgbouncer_exporter, node_exporter, promtail
-#     pgsql-remove.yml --tags=pgbouncer # pgbouncer
-#     pgsql-remove.yml --tags=postgres  # postgres
-#     pgsql-remove.yml --tags=haproxy   # remove haproxy
+#   NOTE: hba & haproxy are role based, you may have to adjust
+#         them after removing instance from cluster with:
+#         bin/reloadha  <cluster>
+#         bin/reloadhba <cluster>
+#
+#  if `pg_safeguard` is `true`, you can't remove pgsql with this.
+#     but you can disable it in config or override it with:
+#     pgsql-remove.yml -l pg-test -e pg_safeguard=false
+#
+#
+#  You can remove a subset of postgres cluster components, e.g.
+#     pgsql-remove.yml --tags=register  # remove database registration in infra
+#
+#  Available Task Tags:
+#
+#  - register:            * remove registration in prometheus, grafana, nginx
+#    - prometheus            * remove monitor target from prometheus
+#    - grafana               * remove datasource from grafana
+#    - nginx                 * remove nginx endpoint for haproxy
+#  - service:             * remove nginx service & vip
+#    - haproxy               * remove haproxy load balancer
+#    - vip                   * remove l2 vip-manager
+#  - monitor:             * remove monitor components
+#    - pg_exporter           * remove exporter for postgres
+#    - pgbouncer_exporter    * remove exporter for pgbouncer
+#  - postgres:            * remove postgres instances
+#    - pg_replica            * remove all replicas
+#    - pg_primary            * remove primary instance
+#    - dcs                   * remove metadata from dcs
+#  - pgdata:              * remove postgres data (disable with `rm_pgdata=false`),
+#  - pgpkgs:              * remove postgres packages (enable with `rm_rmpkgs=true`)
 #==============================================================#
-- name: PGSQL Remove
-  become: yes
-  hosts: all
-  tags: pg-remove
-  gather_facts: no
-  ignore_errors: yes
-  vars:
-
-    rm_pgdata: true         # remove postgres data? true by default
-    rm_pgpkgs: false        # uninstall pg_packages? false by default
-
-  roles:
-    - role: pg_remove
-      when: not pg_safeguard|bool
-
 ...

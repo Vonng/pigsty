@@ -2,24 +2,25 @@
 #------------------------------------------------------------------------------
 # Remove HAProxy from Nginx
 #------------------------------------------------------------------------------
-- name: Remove haproxy instance from nginx
+- name: remove haproxy instance from nginx
   become: yes
   ignore_errors: yes
   block:
+
     # /etc/nginx/conf.d/haproxy/upstream-{{ pg_instance }}.conf
-    - name: Remove haproxy upstream from nginx
+    - name: remove haproxy upstream from nginx
       delegate_to: '{{ item }}'
       with_items: '{{ groups["meta"] }}'
       file: state=absent path=/etc/nginx/conf.d/haproxy/upstream-{{ pg_cluster }}-{{ pg_seq }}.conf
 
     # /etc/nginx/conf.d/haproxy/location-{{ pg_instance }}.conf
-    - name: Remove haproxy url location from nginx
+    - name: remove haproxy url location from nginx
       delegate_to: '{{ item }}'
       with_items: '{{ groups["meta"] }}'
       file: state=absent path=/etc/nginx/conf.d/haproxy/location-{{ pg_cluster }}-{{ pg_seq }}.conf
 
     # reload meta node nginx (maybe not appropriate here)
-    - name: Reload nginx to remove haproxy upstream
+    - name: reload nginx to remove haproxy upstream
       run_once: true
       delegate_to: '{{ item }}'
       with_items: '{{ groups["meta"] }}'
