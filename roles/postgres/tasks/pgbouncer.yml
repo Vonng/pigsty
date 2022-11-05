@@ -1,59 +1,53 @@
 ---
 #------------------------------------------------------------------------------
-# Check pgbouncer installed
-#------------------------------------------------------------------------------
-- name: Check pgbouncer is installed
-  tags: pgbouncer_check
-  shell: "[[ -f /bin/pgbouncer ]]"
-
-
-#------------------------------------------------------------------------------
 # Cleanup existing pgbouncer
 #------------------------------------------------------------------------------
-- name: Clean existing pgbouncer
+- name: purge pgbouncer
   tags: pgbouncer_clean
   block:
-    - name: Stop existing pgbouncer service
+
+    - name: stop pgbouncer
       ignore_errors: true
       systemd: name=pgbouncer state=stopped enabled=no daemon_reload=yes
 
-    - name: Remove existing pgbouncer dirs
+    - name: remove pgbouncer dir
       file: path={{ item }} state=absent
       with_items:
         - /etc/pgbouncer
-        - "{{ pgbouncer_log_dir }}"
         - /var/run/pgbouncer
+        - "{{ pgbouncer_log_dir }}"
 
-    - name: Recreate dirs with owner postgres
+    - name: create pgbouncer dir
       file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
       with_items:
         - /etc/pgbouncer
-        - "{{ pgbouncer_log_dir }}"
         - /var/run/pgbouncer
+        - "{{ pgbouncer_log_dir }}"
 
 
 #------------------------------------------------------------------------------
 # Config pgbouncer
 #------------------------------------------------------------------------------
-- name: Config pgbouncer
+- name: config pgbouncer
   tags: pgbouncer_config
   block:
-    - name: Copy /etc/pgbouncer/pgbouncer.ini
+
+    - name: render pgbouncer config
       tags: pgbouncer_ini
       template: src=pgbouncer.ini.j2 dest=/etc/pgbouncer/pgbouncer.ini owner={{ pg_dbsu }} group=postgres mode=0600
 
-    - name: Copy /etc/pgbouncer/pgb_hba.conf
+    - name: render pgbouncer hba
       tags: pgbouncer_hba
       template: src=pgb_hba.conf.j2 dest=/etc/pgbouncer/pgb_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
 
-    - name: Touch userlist and database list
+    - name: touch pgbouncer db user list
       file: path=/etc/pgbouncer/{{ item }} state=touch owner={{ pg_dbsu }} group=postgres mode=0600
       with_items:
         - database.txt
         - userlist.txt
 
     # retrieve default user passwords in AUTO mode (when auth_query is not enabled)
-    - name: Add default users to pgbouncer
+    - name: add default user to pgbouncer
       become_user: "{{ pg_dbsu }}"
       shell: |
         /bin/bash /pg/bin/pgbouncer-create-user "{{ pg_dbsu }}" NULL
@@ -66,7 +60,7 @@
         /bin/bash /pg/bin/pgbouncer-create-user "{{ pg_monitor_username }}" AUTO
         {% endif %}
 
-    - name: Init pgbouncer business database list
+    - name: add database to pgbouncer
       tags: pgbouncer_db
       ignore_errors: true
       become_user: "{{ pg_dbsu }}"
@@ -76,7 +70,7 @@
       with_items: "{{ pg_databases }}"
 
     # retrieve biz user password in AUTO mode (not when auth_query is enabled)
-    - name: Init pgbouncer business user list
+    - name: add user to pgbouncer
       tags: pgbouncer_user
       when: user.pgbouncer is defined and user.pgbouncer|bool and not pgbouncer_auth_query|bool
       ignore_errors: true
@@ -90,20 +84,21 @@
 #------------------------------------------------------------------------------
 # Launch pgbouncer
 #------------------------------------------------------------------------------
-- name: Launch pgbouncer
+- name: launch pgbouncer
   tags: pgbouncer_launch
   block:
+
     # pgbouncer systemd services
-    - name: Copy pgbouncer systemd service
+    - name: create pgbouncer systemd service
       template: src=pgbouncer.service.j2 dest=/etc/systemd/system/pgbouncer.service owner=root mode=0644
 
-    - name: Launch pgbouncer pool service
+    - name: launch pgbouncer systemd service
       systemd: name=pgbouncer state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for pgbouncer service online
+    - name: wait for pgbouncer service online
       wait_for: host=127.0.0.1 port={{ pgbouncer_port }} state=started timeout=10
 
-    - name: Check pgbouncer service is ready
+    - name: check pgbouncer ready
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pgbouncer_port }}
 

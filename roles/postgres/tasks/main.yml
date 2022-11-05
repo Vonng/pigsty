@@ -1,38 +1,58 @@
 ---
 #------------------------------------------------------------------------------
+# Clean
+#------------------------------------------------------------------------------
+- import_tasks: clean.yml
+  tags: pg_clean
+
+#------------------------------------------------------------------------------
+# User
+#------------------------------------------------------------------------------
+- import_tasks: dbsu.yml
+  tags: pg_dbsu
+
+#------------------------------------------------------------------------------
 # Install
 #------------------------------------------------------------------------------
 - import_tasks: install.yml
-  tags: install
+  tags: pg_install
 
 #------------------------------------------------------------------------------
-# Prepare
+# Directory
 #------------------------------------------------------------------------------
-# check pg existence, cleanup, create directories, copy scripts
-- import_tasks: prepare.yml
-  tags: prepare
+- import_tasks: dir.yml
+  tags: pg_dir
 
 #------------------------------------------------------------------------------
-# config
+# Utils
+#------------------------------------------------------------------------------
+- import_tasks: util.yml
+  tags: pg_util
+
+#------------------------------------------------------------------------------
+# Config
 #------------------------------------------------------------------------------
 - import_tasks: config.yml
-  tags: [ pg_config, patroni ]
+  tags: [ patroni, pg_config ]
   when: patroni_enabled|bool
 
+#------------------------------------------------------------------------------
+# Cert
+#------------------------------------------------------------------------------
 - import_tasks: cert.yml
-  tags: pg_cert
+  tags: [ patroni, pg_cert ]
   when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
 
 #------------------------------------------------------------------------------
-# patroni
+# Launch
 #------------------------------------------------------------------------------
 # bootstrap postgres cluster with patroni (skip if patroni_enabled = false)
 - import_tasks: patroni.yml
-  tags: [ pg_launch, patroni ]
+  tags: [ patroni, pg_launch ]
   when: patroni_enabled|bool
 
 #------------------------------------------------------------------------------
-# pgBackrest
+# Backup
 #------------------------------------------------------------------------------
 # install pgbackrest middleware
 #- import_tasks: pgbackrest.yml
@@ -67,11 +87,10 @@
     database: "{{ item }}"
   with_items: "{{ pg_databases }}"
 
-
 #------------------------------------------------------------------------------
 # Pgbouncer Reload
 #------------------------------------------------------------------------------
-- name: Reload pgbouncer to add db and users
+- name: reload pgbouncer to finish provision
   tags: pgbouncer_reload
   when: pgbouncer_enabled|bool and pg_provision|bool
   systemd: name=pgbouncer state=reloaded enabled=yes daemon_reload=yes

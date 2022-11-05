@@ -1,0 +1,79 @@
+---
+#------------------------------------------------------------------------------
+# Create Directory
+#------------------------------------------------------------------------------
+# assumption:
+#   {{ pg_fs_main }} for main data   , default: `/data`              [fast ssd]
+#   {{ pg_fs_bkup }} for backup data , default: `/data/backups`     [cheap hdd]
+#------------------------------------------------------------------------------
+# default variable:
+#     pg_fs_main = /data             fast ssd
+#     pg_fs_bkup = /data/backups     cheap hdd (optional)
+#
+#     /pg      -> /data/postgres/pg-test-14        (soft link)
+#     /pg/data -> /data/postgres/pg-test-14/data
+#------------------------------------------------------------------------------
+- name: create postgresql directories
+  tags: pg_dir
+  become: yes
+  block:
+
+    - name: make main and backup data dir
+      file: path={{ item }} state=directory owner=root mode=0777
+      with_items:
+        - "{{ pg_fs_main }}"
+        - "{{ pg_fs_bkup }}"
+
+    # pg_cluster_dir:    "{{ pg_fs_main }}/postgres/{{ pg_cluster }}-{{ pg_version }}"
+    - name: create postgres directories
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+      with_items:
+        - "{{ pg_fs_main }}/postgres"
+        - "{{ pg_cluster_dir }}"
+        - "{{ pg_cluster_dir }}/bin"
+        - "{{ pg_cluster_dir }}/log"
+        - "{{ pg_cluster_dir }}/tmp"
+        - "{{ pg_cluster_dir }}/cert"
+        - "{{ pg_cluster_dir }}/conf"
+        - "{{ pg_cluster_dir }}/data"
+        - "{{ pg_cluster_dir }}/meta"
+        - "{{ pg_cluster_dir }}/stat"
+        - "{{ pg_cluster_dir }}/change"
+        - "{{ pg_backup_dir }}/postgres"
+        - "{{ pg_backup_dir }}/arcwal"
+        - "{{ pg_backup_dir }}/backup"
+        - "{{ pg_backup_dir }}/remote"
+
+    - name: create pgbouncer directories
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0750
+      with_items:
+        - /etc/pgbouncer
+        - /var/run/pgbouncer
+
+    - name: link backup dirs to pgroot
+      file:
+        src: "{{ pg_backup_dir }}/{{ item }}"
+        dest: "{{ pg_cluster_dir }}/{{ item }}"
+        state: link
+      with_items:
+        - arcwal
+        - backup
+        - remote
+
+    - name: Create links from current cluster
+      file:
+        src: "{{ pg_cluster_dir }}"
+        dest: /pg
+        state: link
+
+    # log directories
+    - name: create external postgres log dir
+      when: not ( pg_log_dir.startswith(pg_data) )
+      file: path={{ pg_log_dir }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+    - name: create pgbouncer and patroni log dir
+      file: path={{ item }} state=directory owner={{ pg_dbsu }} group=postgres mode=0700
+      with_items:
+        - "{{ pgbouncer_log_dir }}"
+        - "{{ patroni_log_dir }}"
+
+...

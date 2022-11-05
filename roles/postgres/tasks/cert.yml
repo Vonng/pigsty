@@ -1,23 +1,23 @@
 #------------------------------------------------------------------------------
 # check pg private key existence on primary instance & meta node CA
 #------------------------------------------------------------------------------
-- name: Check pg private key exists
+- name: check pg private key exists
   tags: pg_cert_check
   block:
 
     # check pg sever private key on primary instance
-    - name: Check if pg private key exists on primary
+    - name: check if pg private key exists on primary
       stat: path="/pg/cert/server.key"
       register: pg_key_on_primary_result
 
     # check pg sever private key on primary meta node (in case of using another meta node)
-    - name: Check if pg private on meta node
+    - name: check if pg private on meta node
       delegate_to: "{{ meta_ip }}"
       stat: path="/etc/pki/CA/{{ pg_cluster }}.key"
       register: pg_key_on_meta_result
 
     # set check result
-    - name: Set pg cert exists create necessity
+    - name: set pg cert exists flag
       connection: local
       set_fact:
         pg_key_on_primary: "{{ pg_key_on_primary_result.stat.exists }}"
@@ -30,23 +30,23 @@
 # TODO: if server.key exists on primary node, it should exists on meta node /etc/pki/CA/
 # To increase reliability, we should check if server.key exists on primary meta node
 # since there may be a meta node failure, if not we will copy it back to primary meta node- name: Make sure pg private key exists
-- name: Create pg cluster private key
+- name: create pg cluster private key
   tags: pg_cert_key
   when: pg_role == 'primary'
   block:
 
     # postgres primary instance -> local files/pki
-    - name: Fetch pg private key from primary
+    - name: fetch pg private key from primary
       when: pg_key_on_primary|bool and not pg_key_on_meta|bool
       fetch: src=/pg/cert/server.key dest=files/pki/{{ pg_cluster }}.key flat=yes
 
-    - name: Pour pg private key back to meta node
+    - name: pour pg private key back to meta node
       delegate_to: "{{ meta_ip }}"
       when: pg_key_on_primary|bool and not pg_key_on_meta|bool
       copy: src="files/pki/{{ pg_cluster }}.key" dest="/etc/pki/CA/{{ pg_cluster }}.key" mode=0600
 
     # generate (or do nothing if exists) pg server private key on primary meta node
-    - name: Generate pgsql cluster private key
+    - name: generate pgsql cluster private key
       delegate_to: "{{ meta_ip }}"
       openssl_privatekey:
         path: "/etc/pki/CA/{{ pg_cluster }}.key"
@@ -54,7 +54,7 @@
         mode: 0600
 
     # This will guarantee private key on local files/pki
-    - name: Fetch pg private key from meta node
+    - name: fetch pg private key from meta node
       delegate_to: "{{ meta_ip }}"
       fetch: src="/etc/pki/CA/{{ pg_cluster }}.key" dest=files/pki/{{ pg_cluster }}.key flat=yes
 
@@ -62,13 +62,13 @@
 #------------------------------------------------------------------------------
 # Signing server certs
 #------------------------------------------------------------------------------
-- name: Signing cert for pg cluster members
+- name: signing cert for postgres
   tags: pg_cert_sign
   delegate_to: "{{ meta_ip }}"
   block:
 
     # generate csr for each member
-    - name: Generate pg server csr
+    - name: generate pg server signing request
       openssl_csr:
         path: "/etc/pki/CA/{{ pg_cluster }}-{{ pg_seq }}.csr"
         privatekey_path: "/etc/pki/CA/{{ pg_cluster }}.key"
@@ -80,7 +80,7 @@
           - "IP:127.0.0.1"
           - "IP:{{ inventory_hostname }}"
 
-    - name: Sign pg server crt
+    - name: issue pg server certificate
       openssl_certificate:
         path: "/etc/pki/CA/{{ pg_cluster }}-{{ pg_seq }}.crt"
         csr_path: "/etc/pki/CA/{{ pg_cluster }}-{{ pg_seq }}.csr"
@@ -90,21 +90,21 @@
         selfsigned_not_after: "+{{ cert_validity }}"
         mode: 0644
 
-    - name: Fetch pgsql cert from primary meta node
+    - name: fetch pgsql cert to local
       fetch: src="/etc/pki/CA/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="files/pki/{{ pg_cluster }}-{{ pg_seq }}.crt" flat=yes
 
 
 #------------------------------------------------------------------------------
 # Distribute key & certs
 #------------------------------------------------------------------------------
-- name: Copy pg ssl certificates
+- name: copy pg server certificates
   any_errors_fatal: true
   tags: [ pg_cert , pg_cert_copy ]
   block:
-    - name: Copy pg ssl cert
+    - name: copy pg server cert
       copy: src="files/pki/{{ pg_cluster }}-{{ pg_seq }}.crt" dest="/pg/cert/server.crt" owner=postgres group=postgres mode=0644
 
-    - name: Copy pg ssl key
+    - name: copy pg server key
       copy: src="files/pki/{{ pg_cluster }}.key" dest="/pg/cert/server.key" owner=postgres group=postgres mode=0600
 
 ...

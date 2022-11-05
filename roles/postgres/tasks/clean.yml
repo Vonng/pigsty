@@ -1,0 +1,133 @@
+---
+#==============================================================#
+# Prepare: Cleanup & Create directories
+#==============================================================#
+
+#---------------------------------------------------------------
+# check postgres instance precondition
+#  --- empty  ---> clean ---> init
+#  --- exist  ^--> [pg_safeguard=true]  ---> abort
+#             ^--> [pg_safeguard=false]
+#                         ^--> [pg_clean=false] ---> abort
+#                         ^--> [pg_clean=true]  ---> purge
+#---------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+# Check PostgreSQL
+#------------------------------------------------------------------------------
+- name: check postgres exists
+  tags: pg_check
+  block:
+
+    # check postgres by according to pg_port
+    - name: check postgres exists
+      command: 'ss -tp state listening sport = :{{ pg_port }}'
+      any_errors_fatal: true
+      register: check_pg_port_result
+    - name: set pg_exists flag
+      connection: local
+      set_fact:
+        pg_exists: "{{ 'post' in check_pg_port_result.stdout }}"
+
+    # when any running instance exists, abort play in two cases:
+    # 1. pg_safeguard = true   # prevent accidentally purge at all
+    # 2. pg_clean = false      # explicitly set pg_clean=true to purge during init
+    - name: ABORT due to postgres exists
+      connection: local
+      when: pg_exists|bool and (pg_safeguard|bool or not pg_clean|bool)
+      any_errors_fatal: true
+      fail: msg="Abort because pg instance {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} is running, use -e pg_clean=true"
+
+
+#------------------------------------------------------------------------------
+# Purge PostgreSQL
+#------------------------------------------------------------------------------
+# DANGEROUS! remove all postgres data of target machine
+# BUT, this is your choice
+- name: purge postgres
+  tags: pg_clean
+  become: yes
+  block:
+
+    - name: WARNING, PURGE POSTGRESQL INSTANCE
+      # connection: local # leave some time for manual intervention
+      when: not pg_safeguard and pg_exists and pg_clean  # DANGEROUS!
+      debug:
+        msg: "[DANGEROUS] RUNNING PGSQL INSTANCE {{ pg_cluster }}-{{ pg_seq }} @ {{ inventory_hostname }} WILL BE PURGED!"
+
+    - name: stop postgres services
+      tags: pg_stop
+      shell: |
+        # first, gracefully stop related service
+        systemctl stop vip-manager
+        systemctl stop haproxy
+        systemctl stop patroni
+        systemctl stop postgres
+        systemctl stop pgbouncer
+        systemctl stop pg_exporter
+        systemctl stop pgbouncer_exporter
+
+        # then, manually stop service if still exists
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
+            pg_ctl -D {{ pg_data }} stop --mode=immediate
+            ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | awk '{print $1}' | xargs kill -9
+        fi
+
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
+            ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D' | awk '{print $1}' | xargs kill -9
+            sleep 5 # if still alive, leave 5s grace peroid and force a kill -9
+        fi
+
+        if ps -u postgres -o pid:1,command | grep -E 'postmaster|postgres:|-D'  | grep checkpointer ; then
+            exit 1  # report failure if still alive
+        fi
+        exit 0
+
+
+    # when cleanup primary, remove dcs metadata
+    - name: remove postgres metadata from dcs
+      tags: pg_clean_meta
+      ignore_errors: true
+      when: pg_role == 'primary'
+      delegate_to: '{{ meta_ip }}'
+      block:
+
+        - name: remove postgres metadata from consul
+          when: pg_dcs_type == 'consul'
+          shell: |
+            {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+            export CONSUL_HTTP_SSL=true
+            {% endif %}   
+            consul kv delete -recurse {{ pg_namespace }}/{{ pg_cluster }}; /bin/true
+
+        - name: remove postgres metadata from etcd
+          when: pg_dcs_type == 'etcd'
+          shell: |
+            {% if dcs_ssl_enabled is defined and dcs_ssl_enabled|bool %}
+            export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}https://{{ v }}:2379{% endfor %}"
+            {% else %}
+            export ETCDCTL_ENDPOINTS="{% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}http://{{ v }}:2379{% endfor %}"
+            {% endif %}
+            export ETCDCTL_API=2
+            # do so with APIv3: del {{ pg_namespace }}/{{ pg_cluster }} --prefix=true
+            etcdctl --ca-file=/etc/pki/ca.crt --cert-file=/etc/pki/meta.crt --key-file=/etc/pki/meta.key \
+              rm -r {{ pg_namespace }}/{{ pg_cluster }}
+            /bin/true
+
+
+    - name: remove postgres data
+      tags: pg_clean_data
+      file: path={{ item }} state=absent
+      with_items:
+        - /pg
+        - "{{ pg_fs_main }}/postgres"
+        - "{{ pg_fs_bkup }}/postgres"
+        - "{{ pg_log_dir }}"
+        - "{{ patroni_log_dir }}"
+        - "{{ pgbackrest_log_dir }}"
+        - "{{ pgbouncer_log_dir }}"
+        - /etc/pgbouncer
+        - /var/run/pgbouncer
+
+...

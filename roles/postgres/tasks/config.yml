@@ -3,40 +3,42 @@
 #------------------------------------------------------------------------------
 # Gather Spec
 #------------------------------------------------------------------------------
-- name: Gather node spec
-  tags: pg_spec
+- name: get postgres node facts
+  tags: [ pg_conf, pg_spec ]
   block:
 
     # cpu core number | page count | page size | avail 1k-block count for pg_fs_main
     # it may raise error due to pg_fs_main not exists, which really should raise an error!
-    - name: Get node basic facts
+    - name: get node basic facts
       shell: echo "$(grep -c '^processor' /proc/cpuinfo) $(getconf _PHYS_PAGES) $(getconf PAGE_SIZE) $(df {{ pg_fs_main }} --o=size | tail -1)"
       register: pg_node_fact
 
-    # if pg_fs_main size is missing, use 20GB as estimation
-    - name: Calculate node parameters
+    # USE node_id ROLE TO GATHER NODE SPEC
+    # if pg_fs_main size is missing, use 40GB as estimation
+    - name: calculate node parameters
       connection: local
       set_fact:
-        cpu_core_number: "{% set fact_list = pg_node_fact.stdout.split() %}{{ fact_list[0]|int }}"
-        mem_size_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[1]|int * fact_list[2]|int)|int }}"
-        mem_size_mb: "{% set fact_list = pg_node_fact.stdout.split() %}{{ ((fact_list[1]|int * fact_list[2]|int)|int / 1048576)|round(0, 'ceil')|int }}"
-        mem_size_gb: "{% set fact_list = pg_node_fact.stdout.split() %}{{ [ ((fact_list[1]|int * fact_list[2]|int)|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}"
-        fs_size_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{% if fact_list|length >= 4%}{{ fact_list[3]|int * 1024 }}{% else %}2147483648{% endif %}"
+        #node_cpu: "{% set fact_list = pg_node_fact.stdout.split() %}{{ fact_list[0]|int }}"
+        #node_mem_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{{ (fact_list[1]|int * fact_list[2]|int)|int }}"
+        #node_mem_mb: "{% set fact_list = pg_node_fact.stdout.split() %}{{ ((fact_list[1]|int * fact_list[2]|int)|int / 1048576)|round(0, 'ceil')|int }}"
+        #node_mem_gb: "{% set fact_list = pg_node_fact.stdout.split() %}{{ [ ((fact_list[1]|int * fact_list[2]|int)|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}"
+        node_fs_bytes: "{% set fact_list = pg_node_fact.stdout.split() %}{% if fact_list|length >= 4%}{{ fact_list[3]|int * 1024 }}{% else %}42949672960{% endif %}"
 
     # print cpu, mem, disk info
-    - name: Print node spec
+    - name: print postgres node spec
+      connection: local
       debug:
-        msg: "Node={{ cpu_core_number }}c{{ mem_size_gb }}g {{ node_tune }}, Memory={{ (mem_size_mb|int / 400 | round(0, 'ceil'))|int * 100 }}MB of {{ mem_size_mb }}MB , Disk={{ [ (fs_size_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}, PG Conf={{ pg_conf }}"
+        msg: "Node={{ node_cpu }}c{{ node_mem_gb }}g {{ node_tune }}, Memory={{ (node_mem_mb|int / 400 | round(0, 'ceil'))|int * 100 }}MB of {{ node_mem_mb }}MB , Disk={{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}, PG Conf={{ pg_conf }}"
+
 
 #------------------------------------------------------------------------------
 # Config Patroni
 #------------------------------------------------------------------------------
-# /etc/patroni/patroni.yml -> /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
-- name: Render patroni config
+- name: render patroni config
   tags: pg_conf
   block:
 
-    - name: Create patroni config dir
+    - name: create patroni config dir
       file:
         path: /etc/patroni/
         state: directory
@@ -44,21 +46,26 @@
         group: postgres
         mode: 0755
 
-    - name: Render default patroni conf to /pg/conf/
+    - name: render patroni default config
       template:
         src: "{{ item }}"
         dest: "/pg/conf/{{ item }}"
         owner: "{{ pg_dbsu }}"
         group: postgres
         mode: 0755
-      with_items:
-        - tiny.yml
-        - oltp.yml
-        - olap.yml
-        - crit.yml
-        - "{{ pg_conf }}"
+      with_items: [ oltp.yml ,olap.yml ,crit.yml ,tiny.yml ]
 
-    - name: Link patroni config
+    - name: render patroni customize config
+      when: pg_conf not in [ 'oltp.yml' , 'olap.yml' , 'crit.yml', 'tiny.yml' ]
+      template:
+        src: "{{ pg_conf }}"
+        dest: "/pg/conf/{{ pg_conf }}"
+        owner: "{{ pg_dbsu }}"
+        group: postgres
+        mode: 0755
+
+    # /etc/patroni/patroni.yml -> /pg/bin/patroni.yml -> /pg/conf/{{ pg_instance }}.yml
+    - name: use patroni config
       file:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
@@ -66,31 +73,30 @@
         group: postgres
         state: link
       with_items:
-        - { src: "/pg/conf/{{ pg_conf }}", dest: "/pg/conf/{{ pg_instance }}.yml" }
-        - { src: "/pg/conf/{{ pg_instance }}.yml", dest: "/pg/bin/patroni.yml" }
-        - { src: "/pg/bin/patroni.yml", dest: "/etc/patroni/patroni.yml" }
+        - { src: "/pg/conf/{{ pg_conf }}"         , dest: "/pg/conf/{{ pg_instance }}.yml" }
+        - { src: "/pg/conf/{{ pg_instance }}.yml" , dest: "/pg/bin/patroni.yml" }
+        - { src: "/pg/bin/patroni.yml"            , dest: "/etc/patroni/patroni.yml" }
 
 
 #------------------------------------------------------------------------------
 # Systemd Service
 #------------------------------------------------------------------------------
-- name: Config patroni systemd service
+- name: config patroni systemd service
   tags: pg_systemd
   block:
 
-    # WARNING: it may be overwritten by patroni upgrade!
-    - name: Copy patroni systemd service file
+    # WARNING: this file may be overwritten by patroni upgrade!
+    - name: create patroni systemd service
       template:
         src: "{{ item }}.service.j2"
         dest: "/usr/lib/systemd/system/{{ item }}.service"
-      with_items:
-        - patroni
-        - postgres
+      with_items: [ patroni, postgres ]
 
     # add consul dependency & resource limit for patroni
-    - name: Create patroni config dir
+    - name: create patroni systemd drop-in dir
       file: path=/etc/systemd/system/patroni.service.d state=directory mode=0755
-    - name: Drop-In systemd config for patroni
+
+    - name: create patroni systemd drop-in file
       template: src=patroni.dependency.j2 dest=/etc/systemd/system/patroni.service.d/dependency.conf
 
 ...

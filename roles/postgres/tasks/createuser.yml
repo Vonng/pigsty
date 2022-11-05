@@ -1,14 +1,18 @@
 ---
-- name: Create postgres user
+#------------------------------------------------------------------------------
+# Create Business User
+#------------------------------------------------------------------------------
+- name: create postgres user
   tags: pg_user
   when: pg_role == 'primary'
   block:
-    - name: Render user {{ user.name }} creation sql
+
+    - name: render sql for user {{ user.name }}
       when: pg_role == 'primary'
       tags: pg_user_config
       template: src="pg-user.sql" dest=/pg/tmp/pg-user-{{ user.name }}.sql owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Execute user {{ user.name }} creation sql on primary
+    - name: execute sql for user {{ user.name }}
       tags: pg_user_create
       when: pg_role == 'primary'
       ignore_errors: true
@@ -18,8 +22,9 @@
         role_exists=$(psql -h {{ pg_localhost }} -p {{ pg_port }} -d postgres -AXtwqc "SELECT true WHERE EXISTS(SELECT * FROM pg_authid WHERE rolname = '{{ user.name }}' LIMIT 1)")
         [[ -z "${role_exists}" ]] && exit 1 || exit 0
 
+
 # retrieve biz user passwords in AUTO mode (when auth_query is not enabled)
-- name: Add business user to pgbouncer
+- name: add business user to pgbouncer
   tags: pg_user_pgbouncer
   when: pgbouncer_enabled|bool and user.pgbouncer is defined and user.pgbouncer|bool and not pgbouncer_auth_query|bool
   ignore_errors: true

@@ -1,130 +1,65 @@
 ---
 #==============================================================#
-# Create dbsu                                                  #
+# Install PostgreSQL Packages                                  #
 #==============================================================#
-- name: Create postgres dbsu
+- name: install postgres packages
   become: yes
-  tags: pg_dbsu
+  tags: pg_pkg
   block:
 
-    # - dbsu user and group - #
-    - name: Create os group postgres
-      group: name=postgres gid={{ pg_dbsu_uid }}
-    - name: Create dbsu {{ pg_dbsu }}
-      user: name={{ pg_dbsu }} uid={{ pg_dbsu_uid }} home={{ pg_dbsu_home }} group=postgres groups=postgres generate_ssh_key=yes
-    - name: Add dbsu to dcs group
-      ignore_errors: yes
-      user: name={{ pg_dbsu }} append=yes groups=dcs
-
-    # - dbsu privilege - #
-    # nopass : no password required to execute all sudo command! DANGEROUS!
-    # all    : require password to execute all sudo command! NOT RECOMMENDED!
-    # limit  : only allow sudo command with limited privilege! DEFAULT MODE!
-    - name: Grant dbsu sudo privilege
-      tags: pg_dbsu_sudo
-      copy:
-        dest: /etc/sudoers.d/postgres
-        mode: 0440
-        content: |
-          {% if pg_dbsu_sudo == 'nopass' %}postgres ALL=(ALL) NOPASSWD: ALL{% endif %}
-          {% if pg_dbsu_sudo == 'all' %}postgres ALL=(ALL) ALL{% endif %}
-          {% if pg_dbsu_sudo == 'limit' %}
-          {% for svc in ['postgres', 'pgbouncer', 'patroni', 'pgbackrest', 'pg_exporter', 'pgbouncer_exporter', 'haproxy', 'vip-manager', 'consul'] %}
-          %postgres ALL=NOPASSWD: /bin/systemctl stop {{ svc }}
-          %postgres ALL=NOPASSWD: /bin/systemctl start {{ svc }}
-          %postgres ALL=NOPASSWD: /bin/systemctl status {{ svc }}
-          %postgres ALL=NOPASSWD: /bin/systemctl reload {{ svc }}
-          %postgres ALL=NOPASSWD: /bin/systemctl restart {{ svc }}
-          
-          {% endfor %}
-          {% endif %}
-
-    # - watchdog owner - #
-    - name: Config watchdog onwer to dbsu
-      ignore_errors: true
-      file: path=/dev/watchdog owner={{ pg_dbsu }} group=postgres
-
-    # - dbsu ssh - #
-    - name: Add dbsu ssh no host checking
-      lineinfile:
-        path: "{{ pg_dbsu_home }}/.ssh/config"
-        regexp: '^StrictHostKeyChecking='
-        line: StrictHostKeyChecking=no
-        create: yes
-
-    # postgres ssh-key exchange
-    - name: Fetch dbsu public keys
-      shell: cat {{ pg_dbsu_home }}/.ssh/id_rsa.pub
-      register: dbsu_ssh_keys
-
-    # for all hosts, copy their postgres ssh public key to each other
-    - name: Exchange dbsu ssh keys
-      when: pg_dbsu_ssh_exchange|bool or (pgbackrest_enabled|bool and pgbackrest_protocol == 'ssh')
-      authorized_key: user={{ pg_dbsu }} key="{{ item[0] }}"
-      ignore_errors: true
-      delegate_to: "{{ item[1] }}"
-      with_nested:
-        - "{{ dbsu_ssh_keys.stdout }}"
-        - "{{ play_hosts }}"
-
-
-
-
-#==============================================================#
-# Install packages                                             #
-#==============================================================#
-- name: Install postgres
-  become: yes
-  tags: pg_install
-  block:
-
-    # - official repo - #
-    - name: Install offical pgdg yum repo
-      when: pgdg_repo|bool
-      yum: name="https://yum.postgresql.org/{{ pg_version }}/redhat/rhel-{{ ansible_distribution_major_version }}Server-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
-
+    #-----------------------------------------------------------
+    # Install packages
+    #-----------------------------------------------------------
     # install postgres basic packages
-    - name: Install pg packages
-      # environment: "{{ proxy_env | default({}) }}"
+    - name: install postgres packages
+      environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_packages }}"
 
     # install postgres extensions
-    - name: Install pg extensions
-      # environment: "{{ proxy_env | default({}) }}"
+    - name: Install postgres extensions
+      environment: "{{ proxy_env | default({}) }}"
       yum: name={{ item | regex_replace('\\$\\{pg_version\\}', (lookup('vars', 'pg_version')|string))|regex_replace(' ',',') }} disable_gpg_check=true
       with_items: "{{ pg_extensions }}"
 
-
-    #==============================================================#
-    # Stage 5: Enable current version                              #
-    #==============================================================#
-    # TODO: remove pg_bin_dir if exists? maybe too risky!
-    - name: Link /usr/pgsql to current version
-      file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_bin_dir | dirname }} state=link
-
-    - name: Add pg bin dir to profile path
-      copy:
-        content: "export PATH={{ pg_bin_dir }}:/pg/bin:$PATH"
-        dest: /etc/profile.d/pgsql.sh
-
-    - name: Fix directory ownership
+    #-----------------------------------------------------------
+    # Fix Problems
+    #-----------------------------------------------------------
+    # fix run dir ownership
+    - name: own /var/run/postgresql with dbsu
       file: path=/var/run/postgresql state=directory owner={{ pg_dbsu }} group=postgres
 
-
-    # TODO: make sure pgsql path is not overwrite by other bash scripts
-    #    - name: Check pgsql version installed
-    #      command: "{{ pg_bin_dir | dirname }}/pg_ctl --version"
-    #      register: check_pg_version_result
-    #      failed_when: pg_version|string not in check_pg_version_result.stdout
-
-    #==============================================================#
-    # Stage 6: Remove default service unit                         #
-    #==============================================================#
-    - name: Remove default postgres service
+    # fix rpm trash and unused service file
+    - name: remove unnecessary postgres files
       ignore_errors: true
-      shell:
+      shell: |
         rm -rf /usr/lib/systemd/system/postgresql-{{ pg_version }}.service
-        systemctl daemon-reload
+        rm -rf '/%{_sysconfigdir}'   # introduced by patroni rpm
+        rm -rf '/%{_logdir}'         # remove these if patroni rpm fixed
+        systemctl daemon-reload;
+        /bin/true;
 
+
+#-----------------------------------------------------------
+# Setup bin path
+#-----------------------------------------------------------
+# soft link /usr/pgsql to specific pgsql binary version
+- name: link /usr/pgsql to current version
+  tags: pg_path
+  file: src="/usr/pgsql-{{ pg_version }}" dest={{ pg_bin_dir | dirname }} state=link
+
+
+#-----------------------------------------------------------
+# Setup pgsql profile
+#-----------------------------------------------------------
+# add /usr/pgsql/bin/ to PATH environment variable
+- name: add pgsql path to system profile
+  tags: pg_env
+  copy:
+    dest: /etc/profile.d/pgsql.sh
+    mode: 0755
+    content: |
+      export PATH="{{ pg_bin_dir }}:/pg/bin:$PATH"
+      export PGHOME={{ pg_bin_dir | dirname }}
+      export PGDATA={{ pg_data }}
 ...

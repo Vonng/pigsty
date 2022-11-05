@@ -12,17 +12,17 @@
 # Copyright (C) 2018-2022 Ruohang Feng
 #==============================================================#
 {% set pg_max_connections = 100 %}
-{% set pg_shared_buffers = ([(mem_size_mb|int / 400 | round(0, 'ceil'))|int * 100 , 32000])|min %}
+{% set pg_shared_buffers = ([(node_mem_mb|int / 400 | round(0, 'ceil'))|int * 100 , 32000])|min %}
 {% set pg_maintenance_mem = ((pg_shared_buffers|int / 40)|round(0, 'ceil')|int * 10)|int %}
-{% set pg_effective_cache_size = mem_size_mb|int - pg_shared_buffers|int  %}
+{% set pg_effective_cache_size = node_mem_mb|int - pg_shared_buffers|int  %}
 {% set pg_workmem =  ([ ([ (pg_effective_cache_size / 3.0 / pg_max_connections)|round(0,'floor')|int , 1 ])|max|int , 256])|min|int %}
-{% set pg_size_twentieth =  ([ ([(fs_size_bytes|int / 21474836480 )|round(0, 'ceil')|int , 1]) | max , 100 ]) | min  %}
+{% set pg_size_twentieth =  ([ ([(node_fs_bytes|int / 21474836480 )|round(0, 'ceil')|int , 1]) | max , 100 ]) | min  %}
 {% set pg_max_prepared_transactions = pg_max_connections if 'citus' in pg_libs else 0 %}
 {% set pg_max_locks_per_transaction = (2 * pg_max_connections)|int if 'citus' in pg_libs or 'timescaledb' in pg_libs else pg_max_connections %}
-{% set pg_max_worker_processes = ([cpu_core_number|int, 8])|max|int %}
+{% set pg_max_worker_processes = ([node_cpu|int, 8])|max|int %}
 {% set pg_max_parallel_workers = pg_max_worker_processes|int %}
 {% set pg_max_parallel_workers_per_gather = 0 %}
-{% set pg_max_parallel_mt_workers = ([(cpu_core_number|int / 8)|round(0,'ceil'),2])|max|int %}
+{% set pg_max_parallel_mt_workers = ([(node_cpu|int / 8)|round(0,'ceil'),2])|max|int %}
 {% set pg_random_page_cost = 4.0 if pg_storage_type == 'HDD' else 1.1 %}
 {% set pg_effective_io_concurrency = 2 if pg_storage_type == 'HDD' else 1000 %}
 
@@ -31,8 +31,8 @@
 #==============================================================#
 # {{ inventory_hostname }}:{{ pg_port }} | [{{ pg_role }}] {% if pg_role == 'primary' %}{% if pg_upstream is defined %}STANDBY LEADER @ {{ pg_instance }}{% else %}CLUSTER LEADER @ {{ pg_instance }}{% endif %}{% else %}{% if pg_upstream is defined %}REPLICATE UPSTREAM {{ pg_upstream }} -> {{ pg_instance }} {% else %}REPLICATE PRIMARY {{ pg_primary_ins }} -> {{ pg_instance }}{% endif %}{% endif %}
 
-# Node: {{ cpu_core_number }}C{{ mem_size_gb }}G , node_tune = {{ node_tune }}
-# Memory: {{ mem_size_mb }}MB , Disk : {{ [ (fs_size_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}
+# Node: {{ node_cpu }}C{{ node_mem_gb }}G , node_tune = {{ node_tune }}
+# Memory: {{ node_mem_mb }}MB , Disk : {{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}GB {{ pg_storage_type|default('SSD') }} @ {{ pg_fs_main }}
 # DCS {{ pg_dcs_type }} : {% for k,v in dcs_servers.items() %}{% if not loop.first %},{% endif %}{{ v }}{% endfor %}
 
 #--------------------------------------------------------------#
@@ -135,7 +135,7 @@ tags:
   replicatefrom: {{ pg_upstream }}    # clone from another replica rather than primary
 {% endif %}
   version:  '{{ pg_version }}'
-  spec: '{{ cpu_core_number }}C.{{ mem_size_gb }}G.{{ [ (fs_size_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}G'
+  spec: '{{ node_cpu }}C.{{ node_mem_gb }}G.{{ [ (node_fs_bytes|int / 1073741824)|round(0, 'ceil')|int , 1 ] | max }}G'
   conf: '{{ pg_conf }}'
 
 #------------------------------------------------------------------------------

@@ -1,49 +1,51 @@
 #!/usr/bin/ansible-playbook
 ---
 #------------------------------------------------------------------------------
-# chown watchdog
+# chown watchdog                                                  [pg_watchdog]
 #------------------------------------------------------------------------------
-- name: Grant watchdog ownership to dbsu
+- name: grant postgres dbsu watchdog owner
   tags: pg_watchdog
   ignore_errors: true
   file: path=/dev/watchdog owner={{ pg_dbsu }} group=postgres
 
+
 #------------------------------------------------------------------------------
-# Launch patroni
+# Launch patroni primary                                           [pg_primary]
 #------------------------------------------------------------------------------
 # primary first , replica next
-- name: Launch primary patroni instance
+- name: launch patroni primary
   tags: pg_primary
   any_errors_fatal: true
   when: pg_role == 'primary'
   block:
-    - name: Launch patroni on primary instance
+
+    - name: launch patroni primary
       systemd:
         name: patroni
         state: restarted
         enabled: yes
         daemon_reload: yes
 
-    - name: Wait for patroni primary online
+    - name: wait for patroni primary
       wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=60
 
-    - name: Wait for postgres primary online
+    - name: wait for postgres primary
       wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=60
 
-    - name: Check primary postgres service ready
+    - name: check postgres primary ready
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
-    - name: Copy pg ssl cert to data dir
-      any_errors_fatal: true
-      tags: pg_cert_primary
-      when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
-      copy: src="{{ item.src }}" dest="{{ item.dest }}" mode={{ item.mode }} remote_src=true owner=postgres group=postgres
-      with_items:
-        - { src: "/etc/pki/ca.crt"      , dest: "/pg/data/root.crt"    , mode: '0644' }
-        - { src: "/pg/cert/server.crt"  , dest: "/pg/data/server.crt"  , mode: '0644' }
-        - { src: "/pg/cert/server.key"  , dest: "/pg/data/server.key"  , mode: '0600' }
-
+    # - name: Copy pg ssl cert to data dir
+    #   any_errors_fatal: true
+    #   tags: pg_cert_primary
+    #   when: patroni_ssl_enabled|bool or pg_sslmode != 'disable'
+    #   copy: src="{{ item.src }}" dest="{{ item.dest }}" mode={{ item.mode }} remote_src=true owner=postgres group=postgres
+    #   with_items:
+    #     - { src: "/etc/pki/ca.crt"      , dest: "/pg/data/root.crt"    , mode: '0644' }
+    #     - { src: "/pg/cert/server.crt"  , dest: "/pg/data/server.crt"  , mode: '0644' }
+    #     - { src: "/pg/cert/server.key"  , dest: "/pg/data/server.key"  , mode: '0600' }
+    #
     # - name: Check replication connectivity on primary
     #   become_user: "{{ pg_dbsu }}"
     #   environment:
@@ -52,43 +54,45 @@
 
 
 #------------------------------------------------------------------------------
-# init postgres cluster
+# init postgres cluster                                               [pg_init]
 #------------------------------------------------------------------------------
-- name: Init primary instance
+- name: init postgres cluster
   tags: pg_init
   any_errors_fatal: true
   when: pg_role == 'primary'
   block:
-    - name: Render init roles sql
+
+    - name: render init roles sql
       tags: pg_init_role
       template: src="pg-init-roles.sql" dest=/pg/tmp/pg-init-roles.sql owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Render init template sql
+    - name: render init template sql
       tags: pg_init_tmpl
       template: src="pg-init-template.sql" dest=/pg/tmp/pg-init-template.sql owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Render default pg-init scripts
+    - name: render init main script
       tags: pg_init_main
       template: src="{{ pg_init }}" dest=/pg/bin/pg-init owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Execute initialization scripts
+    - name: init postgres cluster
       tags: pg_init_exec
       become_user: "{{ pg_dbsu }}"
       command: bash /pg/bin/pg-init
 
-    - name: Check primary instance ready
+    - name: check postgres primary inited
       tags: pg_init_exec
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
 
 #------------------------------------------------------------------------------
-# Write PGPASS
+# Write PGPASS                                                        [pg_pass]
 #------------------------------------------------------------------------------
 - name: Write default userpass to .pgpass
   tags: pg_pass
   become_user: "{{ pg_dbsu }}"
   block:
+
     - name: Add dbsu password to pgpass if exists
       when: pg_dbsu_password is defined and pg_dbsu_password != ''
       shell: /bin/bash /pg/bin/pg-pass-add "{{ pg_dbsu }}" "{{ pg_dbsu_password }}"
@@ -102,90 +106,94 @@
 
 
 #------------------------------------------------------------------------------
-# Launch replicas
+# Launch replicas                                                  [pg_replica]
 #------------------------------------------------------------------------------
 # bootstrap other replicas
-- name: Launch replica patroni instance
+- name: launch patroni replicas
   tags: pg_replica
   any_errors_fatal: true
   when: pg_role != 'primary'
   block:
-    - name: Check replication connectivity to primary
+
+    - name: check replication connectivity
       become_user: "{{ pg_dbsu }}"
       environment:
         PGPASSWORD: "{{ pg_replication_password }}"
       command: psql -w -h {{ pg_primary_ip }} -p {{ pg_port }} -U {{ pg_replication_username }} -d postgres -Atc 'SELECT 1;'
 
-    - name: Launch patroni on replica instances
+    - name: launch patroni replica
       systemd: name=patroni state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for patroni replica online
+    - name: wait for patroni replica
       wait_for: host={{ inventory_hostname }} port={{ patroni_port }} state=started timeout=30
 
     # NOTICE: may take quite a long time for existing cluster
-    - name: Wait for postgres replica online
+    - name: wait for postgres replica
       wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=86400
 
-    - name: Check replica postgres service ready
+    - name: check postgres replica ready
       become_user: "{{ pg_dbsu }}"
       command: /usr/pgsql/bin/pg_isready -p {{ pg_port }}
 
 
 #------------------------------------------------------------------------------
-# Write HBA
+# Write HBA                                                            [pg_hba]
 #------------------------------------------------------------------------------
-- name: Write HBA Rules
+- name: generate hba rules
   tags: pg_hba
   become_user: "{{ pg_dbsu }}"
   block:
-    - name: Render hba rules
+    - name: render hba rules
       template: src=pg_hba.conf.j2 dest=/pg/data/pg_hba.conf owner={{ pg_dbsu }} group=postgres mode=0600
 
-    - name: Reload hba rules
+    - name: reload hba rules
       when: pg_reload|bool
       shell: "{{ pg_bin_dir }}/pg_ctl -D {{ pg_data }} reload;"
 
+
 #------------------------------------------------------------------------------
-# Reload Patroni Conf
+# Reload Patroni Conf                                          [patroni_reload]
 #------------------------------------------------------------------------------
-- name: Reload patroni
+- name: reload patroni
   tags: patroni_reload
   when: pg_reload|bool
   systemd: name=patroni state=reloaded daemon_reload=yes
 
+
+
 #------------------------------------------------------------------------------
-# Adjust Patroni mode
+# Adjust Patroni mode                                              [pg_patroni]
 #------------------------------------------------------------------------------
 # patroni_mode controls this section
-- name: Pause patroni
+- name: pause patroni
   tags: pg_patroni
   ignore_errors: true
   when: patroni_mode == 'pause' and pg_role == 'primary'
   command: /usr/bin/patronictl -c /pg/bin/patroni.yml pause
 
 # this will degrade cluster into a raw cluster
-- name: Remove patroni
+- name: remove patroni
   tags: pg_patroni
   when: patroni_mode == 'remove'
   block:
-    - name: Stop patroni on replica instance
+
+    - name: stop patroni replicas
       when: pg_role != 'primary'
       systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
-    - name: Stop patroni on primary instance
+    - name: stop patroni primary
       when: pg_role == 'primary'
       systemd: name=patroni state=stopped enabled=no daemon_reload=yes
 
-    - name: Launch raw postgres on primary
+    - name: launch raw postgres primary
       when: pg_role == 'primary'
       systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 
-    - name: Launch raw postgres on replicas
+    - name: launch raw postgres replicas
       when: pg_role != 'primary'
       systemd: name=postgres state=restarted enabled=yes daemon_reload=yes
 
-    - name: Wait for postgres online
+    - name: wait for raw postgres
       wait_for: host={{ inventory_hostname }} port={{ pg_port }} state=started timeout=60
-
 
 ...

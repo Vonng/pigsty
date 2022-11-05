@@ -1,0 +1,25 @@
+---
+#==============================================================#
+# PostgreSQL Utils  (scripts,alias,psqlrc,dummy)               #
+#==============================================================#
+- name: copy /pg/bin/ scripts
+  tags: pg_bin
+  copy: src=pg/ dest=/pg/bin/ owner={{ pg_dbsu }} group=postgres mode=0755
+
+
+- name: copy postgres alias profile
+  tags: pg_alias
+  copy: src=pg-alias.sh dest=/etc/profile.d/pg-alias.sh mode=0644
+
+
+- name: copy psqlrc to postgres home
+  tags: pg_psql
+  copy: src=psqlrc dest="{{ pg_dbsu_home }}/.psqlrc" owner={{ pg_dbsu }} group=postgres mode=0600
+
+
+# dummy file could be removed in case of disk-full which cushion against immediate failure
+- name: create dummy placeholder file
+  tags: pg_dummy
+  command: fallocate -l {{ pg_dummy_filesize }} /pg/dummy
+
+...

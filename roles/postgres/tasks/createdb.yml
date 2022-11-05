@@ -1,22 +1,25 @@
 ---
-- name: Create database on cluster primary
+#------------------------------------------------------------------------------
+# Create Business Database
+#------------------------------------------------------------------------------
+- name: create postgres database
   tags: pg_db
   when: pg_role == 'primary'
   block:
     - debug:
         msg: "{{ database }}"
 
-    - name: Render database {{ database.name }} creation sql
+    - name: render sql for database {{ database.name }}
       tags: pg_db_config
       template: src="pg-db.sql" dest=/pg/tmp/pg-db-{{ database.name }}.sql owner={{ pg_dbsu }} group=postgres mode=0755
 
-    - name: Render database {{ database.name }} baseline sql
+    - name: copy baseline for database {{ database.name }}
       tags: pg_db_config
       when: database.baseline is defined
       copy: src="{{ database.baseline }}" dest=/pg/tmp/pg-db-{{ database.name }}-baseline.sql owner={{ pg_dbsu }} group=postgres mode=0755
 
     # create database with shell command, check database exists as success
-    - name: Execute database {{ database.name }} creation command
+    - name: create database {{ database.name }} with shell command
       tags: pg_db_create
       ignore_errors: true
       become_user: "{{ pg_dbsu }}"
@@ -30,13 +33,13 @@
         db_exists=$(psql -h {{ pg_localhost }} -p {{ pg_port }} -AXtwq postgres -c "SELECT true WHERE EXISTS(SELECT * FROM pg_database WHERE datname = '{{ database.name }}' LIMIT 1);")
         [[ -z "${db_exists}" ]] && exit 1 || exit 0
 
-    - name: Execute database {{ database.name }} creation sql
+    - name: execute init sql for database {{ database.name }}
       tags: pg_db_create
       ignore_errors: true
       become_user: "{{ pg_dbsu }}"
       command: psql {{ database.name }} -h {{ pg_localhost }} -p {{ pg_port }} -AXtwqf /pg/tmp/pg-db-{{ database.name }}.sql
 
-    - name: Execute database {{ database.name }} baseline sql
+    - name: load baseline for database {{ database.name }}
       tags: pg_db_create
       ignore_errors: true
       become_user: "{{ pg_dbsu }}"
@@ -45,7 +48,7 @@
 
 
 # pgbouncer databases are added to /etc/pgbouncer/database.txt
-- name: Add biz database to pgbouncer
+- name: add business database to pgbouncer
   tags: [pg_db, pg_db_pgbouncer]
   when: pgbouncer_enabled|bool
   ignore_errors: true
