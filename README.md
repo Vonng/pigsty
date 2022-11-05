@@ -4,7 +4,7 @@
 
 ![icon](https://user-images.githubusercontent.com/8587410/198861991-cd169e71-9d62-42ca-a3e0-db945d5751d9.svg)
 
-> Latest Beta: [v1.6.0-b3](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b3) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
+> Latest Beta: [v1.6.0-b4](https://github.com/Vonng/pigsty/releases/tag/v1.6.0-b4) | Stable Version: [v1.5.1](https://github.com/Vonng/pigsty/releases/tag/v1.5.1)  |  [Demo](http://demo.pigsty.cc)
 >
 > Documentation: [Docs](https://pigsty.cc/en/) | [中文文档](https://pigsty.cc/zh/) | [Github Pages](https://vonng.github.io/pigsty/#/) | [Wiki](https://github.com/Vonng/pigsty/wiki)
 
